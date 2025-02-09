@@ -1,0 +1,104 @@
+cockpit.js: Metrics
+
+Reading and streaming metric data
+
+Metrics about the system can be retrieved from several sources using
+link:#cockpit-metrics[`cockpit.metrics()`] metrics channels. The metrics
+are made available as series data, and can be used with the
+link:#cockpit-series[`cockpit.series()`] and
+link:#cockpit-grid[`cockpit.grid()`] facilities.
+
+[[cockpit-metrics-function]]
+== cockpit.metrics()
+
+....
+metrics = cockpit.metrics(interval, options, cache)
+....
+
+Opens a new metrics channel. The data retrieved will be available in the
+link:#cockpit-metrics-series[`metrics.series`] series sink, and can be
+used together with link:#cockpit-grid[`cockpit.grid()`] objects.
+
+The `interval` is in milliseconds, and is the granularity of the series
+data retrieved. Any grids consuming the data must have the same
+interval.
+
+The `cache` argument is a cache identifier. If specified, then this
+metrics channel will share data with other metrics channels of the same
+identifier. Make sure to use a globally unique string.
+
+The `options` argument is either a javascript plain object, or an array
+of those. Each object can have the following fields.
+
+`"metrics"`::
+  An array of full metric descriptions, as javascript objects. The
+  specifics of these, and how to determine which ones to use, can
+  unfortunately only be found in the low-level protocol documentation.
+  This option is required.
+`"source"`::
+  The source to use for real-time data. This is used by the `follow`
+  method, see below. Set to `"internal"` to retrieve internal metrics
+  read by the bridge. If set to `"direct"` or `"pmcd"` then data will be
+  retrieved from https://pcp.io[PCP]if it is available. The default is
+  `"internal"`.
+`"archive_source"`::
+  The source to use for retrieving historical data. This is used by the
+  `fetch` method, see below. Set to `"pcp-archive"` to retrieve data
+  from PCP archives. The default is not to try to retrieve historical
+  data.
+
+When the `options` argument is an array of javascript objects, then the
+metrics channel tries to use them in order until one succeeds. This way,
+you can prefer PCP as the source but fall back to internal metrics when
+PCP is not available, for example. The channel gives no indication which
+of the options has been used, and `fetch` and `follow` might use
+different entries from the list.
+
+[[cockpit-metrics-fetch]]
+== metrics.fetch()
+
+....
+metrics.fetch(beg, end)
+....
+
+Retrieve archived metrics data between `beg` and `end`. The arguments
+can either be numbers, in which case they are interval based offsets, or
+they can be javascript Date objects.
+
+[[cockpit-metrics-follow]]
+== metrics.follow()
+
+....
+metrics.follow()
+....
+
+Start retrieving live metrics data as it become available.
+
+[[cockpit-metrics-close]]
+== metrics.close()
+
+....
+metrics.close()
+....
+
+Stop the retrieval of metrics and release resources.
+
+[[cockpit-metrics-series]]
+== metrics.series
+
+The series sink where data retrieved data will be processed.
+
+[[cockpit-metrics-meta]]
+== metrics.meta
+
+The metrics meta data last received.
+
+[[cockpit-metrics-onchanged]]
+== metrics.onchanged
+
+....
+metrics.onchanged = function() { }
+....
+
+An event triggered when one of the properties on this metrics object
+changes.

@@ -1,0 +1,134 @@
+[[authentication]]
+== Cockpit Authentication
+
+While cockpit allows you to monitor and administer several servers at
+the same time, there is always a primary server your browser connects to
+that runs the Cockpit web service (cockpit-ws) through which connections
+to additional servers are established. See
+https://raw.githubusercontent.com/cockpit-project/cockpit/main/doc/cockpit-transport.png[this
+diagram] for how it works.
+
+Normally, a session is established on the primary server, and you use
+the Shell UI of that session to connect to secondary servers.
+
+However, it is also possible to instruct the `cockpit-ws` process on the
+primary server to directly connect to a secondary server, without
+opening a session on the primary server at all. This is done on the main
+login page of Cockpit, by filling out the "Connect to" field.
+
+[[initial-auth]]
+=== Directly logging into the primary server
+
+The most common way to use Cockpit is to just log directly into the
+server that you want to access. This can be done if you have direct
+network access to port 9090 on that server.
+
+By default the cockpit web service is installed on the base system and
+link:#listen[socket activated by systemd]. In this setup access is
+controlled by a cockpit specific pam stack, generally located at
+`/etc/pam.d/cockpit`. By default this is configured to allow you to
+login with the username and password of any local account on the system.
+You can also setup a link:#sso[Kerberos based SSO solution] or
+link:#cert-authentication[certificate/smart card authentication].
+
+You can also
+https://github.com/cockpit-project/cockpit/blob/main/doc/authentication.md#actions[disable
+authentication schemes] to enforce authentication policies, or to
+suppress undesired browser GSSAPI authentication dialogs.
+
+The web server can also be run from the
+https://hub.docker.com/r/cockpit/ws/[cockpit/ws] container. If you are
+running cockpit on a container host operating system like
+https://getfedora.org/coreos/[Fedora CoreOS] this will be the only
+supported mode. In this setup, cockpit establishes an SSH connection
+from the container to the underlying host, meaning that it is up to your
+SSH server to grant access. To login with a local account, `sshd` will
+need to be configured to allow password based authentication.
+Alternatively you can setup a link:#sso[Kerberos based SSO solution].
+
+Like `sshd`, cockpit can be configured to limit the number of concurrent
+login attempts allowed. This is done by adding a `MaxStartups` option to
+the `WebService` section of your `cockpit.conf`. Additional connections
+will be dropped until authentication succeeds or the connections are
+closed.
+
+[[direct-secondary-auth]]
+=== Directly logging into a secondary server without a primary session
+
+It is also possible to log into a secondary server without opening a
+session on the primary server. This is useful if you are not actually
+interested in the primary server and would only use it because you do
+not have direct network access to the secondary server.
+
+In this case, `cockpit-ws` still runs on the primary server, but the
+credentials from the login screen are directly used with SSH to log into
+the secondary server given in the "Connect To" field of the login
+screen.
+
+Thus, the PAM configuration and accounts on the primary server don't
+matter at all. Often, the only purpose of the primary server is to sit
+on the boundary of your network and forward connections to internal
+machines.
+
+In this case, the login page will prompt you to verify unknown SSH keys.
+Accepted keys will be remembered in the local storage of your browser.
+
+[[secondary-auth]]
+=== Logging into a secondary server from the primary session
+
+Once you have a session on the primary server, it is possible connect to
+additional servers by using the host switching UI of the Cockpit Shell.
+This is useful if you have direct network access to the primary server,
+but not to the secondary server.
+
+On the command line, you would log into the primary server and then use
+SSH to log into the secondary one. Cockpit does just the same, and uses
+SSH to log into the secondary server. Instead of running a interactive
+shell there, however, it starts a `cockpit-bridge` process.
+
+_Warning:_ Unlike with SSH on the command line though, this will also
+load and use the Cockpit pages (i.e. JavaScript) from the remote
+machine, which means that the remote machine can execute arbitrary code
+on your primary and all other connected secondary machines. Hence, only
+connect to _machines which you trust_.
+
+Due to this security risk, this host switcher functionality is disabled
+by default, except on long-term stable Linux distributions (Red Hat
+Enterprise Linux 9, Debian 12, and Ubuntu 22.04/24.04 LTS). If you are
+comfortable with the security implications, you can enable it manually
+with the `AllowMultiHost` option in `cockpit.conf`.
+
+These servers will need to be running an SSH server and be configured to
+support one of the following authentication methods.
+
+==== Password
+
+The target server will need to have password based authentication
+enabled in `sshd`.
+
+==== Kerberos
+
+The target server will need to be a member of the same domain as the
+primary server and your domain must be whitelisted in your browser. See
+the link:#sso[SSO documentation] for how to set this up.
+
+==== Public key
+
+When you successfully log into the primary server, a `ssh-agent` is
+started and keys are loaded into it by running `ssh-add` without any
+arguments. Any passphrase prompt is answered with the password used to
+log into the primary server.
+
+Cockpit provides a user interface for loading other keys into the agent
+that could not be automatically loaded.
+
+The target server will need to have public key authentication enabled in
+`sshd`, and the public key you wish to use must be present in
+`~/.ssh/authorized_keys`. Cockpit has a user interface for creating SSH
+keys and for authorizing them.
+
+[[host-keys]]
+==== SSH host keys
+
+Cockpit will prompt the user to verify unknown SSH host keys, and will
+write accepted host keys into `~/.ssh/known_hosts`.

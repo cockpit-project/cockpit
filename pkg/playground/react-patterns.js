@@ -32,6 +32,7 @@ import { showUploadDemo } from "./react-demo-file-upload.jsx";
 import { showFileAcDemo, showFileAcDemoPreselected } from "./react-demo-file-autocomplete.jsx";
 import { showTypeaheadDemo } from "./react-demo-typeahead.jsx";
 import { showMultiTypeaheadDemo } from "./react-demo-multi-typeahead.jsx";
+import { showKebabDrilldownDemo } from "./react-demo-kebab-drilldown";
 
 /* -----------------------------------------------------------------------------
   Modal Dialog
@@ -133,6 +134,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Multi typeahead
     showMultiTypeaheadDemo(document.getElementById('demo-multi-typeahead'));
+
+    // Kebab with Drilldown
+    showKebabDrilldownDemo(document.getElementById('demo-kebab-drilldown'));
 
     // Cards
     showCardsDemo(document.getElementById('demo-cards'));

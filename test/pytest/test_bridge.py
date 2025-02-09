@@ -416,7 +416,7 @@ async def test_internal_metrics(transport: MockTransport) -> None:
 
 
 @pytest.mark.asyncio
-async def test_fsread1_errors(transport: MockTransport) -> None:
+async def test_fsread1_errors(transport: MockTransport, tmp_path: Path) -> None:
     await transport.check_open('fsread1', path='/etc/shadow', problem='access-denied')
     await transport.check_open('fsread1', path='/', problem='internal-error',
                                reply_keys={'message': "[Errno 21] Is a directory: '/'"})
@@ -424,6 +424,12 @@ async def test_fsread1_errors(transport: MockTransport) -> None:
                                problem='protocol-error',
                                reply_keys={'message': "attribute 'max_read_size': must have type int"})
     await transport.check_open('fsread1', path='/etc/passwd', max_read_size=1,
+                               problem='too-large')
+    # default read size limit
+    big_file = tmp_path / 'bigfile.img'
+    fd = os.open(big_file, os.O_RDWR | os.O_CREAT)
+    os.posix_fallocate(fd, 0, 17 * 1024 * 1024)
+    await transport.check_open('fsread1', path=str(big_file),
                                problem='too-large')
 
 

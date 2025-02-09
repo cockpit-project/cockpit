@@ -1,7 +1,7 @@
 @use "page";
 @use "ct-card.scss";
 @use "../../node_modules/@patternfly/patternfly/utilities/Text/text.css";
-@import "global-variables";
+@use "global-variables";
 
 .table-row-action {
   text-align: end;
@@ -12,13 +12,13 @@
   display: none;
 }
 
-@media (max-width: $pf-v5-global--breakpoint--md - 1) {
+@media (max-width: global-variables.$pf-v5-global--breakpoint--md - 1) {
   .show-only-when-wide {
     display: none !important;
   }
 }
 
-@media (min-width: $pf-v5-global--breakpoint--md) {
+@media (min-width: global-variables.$pf-v5-global--breakpoint--md) {
   .show-only-when-narrow {
     display: none !important;
   }

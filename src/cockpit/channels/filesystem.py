@@ -440,6 +440,16 @@ class FsInfoChannel(Channel, PathWatchListener):
             except KeyError:
                 return gid
 
+        def get_access(dir_fd: int, name: str, mode: int, *, follow_symlinks: bool = False) -> 'bool | None':
+            try:
+                if name:
+                    return os.access(name, mode, dir_fd=dir_fd, follow_symlinks=follow_symlinks)
+                else:
+                    # This is the given path for which systemd_ctypes has already resolved the symlink
+                    return os.access(f'/proc/self/fd/{dir_fd}', mode, follow_symlinks=True)
+            except OSError:
+                return None
+
         stat_types = {stat.S_IFREG: 'reg', stat.S_IFDIR: 'dir', stat.S_IFLNK: 'lnk', stat.S_IFCHR: 'chr',
                       stat.S_IFBLK: 'blk', stat.S_IFIFO: 'fifo', stat.S_IFSOCK: 'sock'}
         available_stat_getters = {
@@ -468,6 +478,10 @@ class FsInfoChannel(Channel, PathWatchListener):
             if 'target' in result and stat.S_IFMT(buf.st_mode) == stat.S_IFLNK:
                 with contextlib.suppress(OSError):
                     result['target'] = os.readlink(name, dir_fd=fd)
+
+            for (attr, mask) in [('r-ok', os.R_OK), ('w-ok', os.W_OK), ('x-ok', os.X_OK)]:
+                if attr in result:
+                    result[attr] = get_access(fd, name, mask, follow_symlinks=follow.value)
 
             return result
 

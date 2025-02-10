@@ -223,6 +223,38 @@ class TestBonding(netlib.NetworkCase):
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
         b.wait_in_text("#network-interface .pf-v5-c-card:contains('tbond')", ip)
 
+    def testPrimary(self):
+        b = self.browser
+
+        self.login_and_go("/network")
+
+        b.wait_visible("#networking")
+        iface = "cockpit"
+        self.add_veth(iface, dhcp_cidr="10.111.112.2/20")
+        self.nm_activate_eth(iface)
+        self.wait_for_iface(iface)
+
+        # Create a bond
+        b.click("button:contains('Add bond')")
+        b.wait_visible("#network-bond-settings-dialog")
+        b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
+        # add interface to bond
+        b.set_checked(f"input[data-iface='{iface}']", val=True)
+        # select it as primary
+        b.select_from_dropdown("#network-bond-settings-primary-select", iface)
+        # finish creating the bond
+        b.click("#network-bond-settings-dialog button:contains('Add')")
+        b.wait_not_present("#network-bond-settings-dialog")
+
+        # Navigate to bond and edit it
+        b.click("#networking-interfaces tr[data-interface='tbond'] button")
+        b.wait_visible("#network-interface")
+        b.click("#network-interface #networking-edit-bond")
+
+        # edit bond dialog
+        b.wait_visible("#network-bond-settings-dialog")
+        b.wait_val("#network-bond-settings-primary-select", iface)
+
     def testAmbiguousMember(self):
         b = self.browser
         m = self.machine

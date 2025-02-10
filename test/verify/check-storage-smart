@@ -78,5 +78,6 @@ class TestStorageSmart(storagelib.StorageCase):
         b.wait_visible(self.card("Media drive"))
         b.wait_not_present(self.card("S.M.A.R.T."))
 
+
 if __name__ == '__main__':
     testlib.test_main()

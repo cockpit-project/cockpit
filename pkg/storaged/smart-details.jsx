@@ -119,6 +119,14 @@ export const SmartCard = ({ card, smart_info, drive_type }) => {
         ? Math.round(smart_info.SmartPowerOnSeconds / 3600)
         : smart_info.SmartPowerOnHours;
 
+    function fmt_last_update(smartUpdated) {
+        if (smartUpdated === 0) {
+            return _("Never");
+        } else {
+            return timeformat.dateTime(new Date(smartUpdated * 1000));
+        }
+    }
+
     const smartOK = (drive_type === "ata" && !smart_info.SmartFailing) || (drive_type === "nvme" && smart_info.SmartCriticalWarning.length === 0);
     const assesment = (
         <StorageDescription title={_("Assessment")}>
@@ -159,14 +167,14 @@ export const SmartCard = ({ card, smart_info, drive_type }) => {
                         />
                     }
                     <StorageDescription title={_("Last update")}
-                        value={timeformat.dateTime(new Date(smart_info.SmartUpdated * 1000))}
+                        value={fmt_last_update(smart_info.SmartUpdated)}
                     />
-                    {drive_type === "ata" &&
+                    {drive_type === "ata" && smart_info.SmartNumBadSectors >= 0 &&
                         <StorageDescription title={_("Number of bad sectors")}
                             value={smart_info.SmartNumBadSectors}
                         />
                     }
-                    {drive_type === "ata" &&
+                    {drive_type === "ata" && smart_info.SmartNumAttributesFailing >= 0 &&
                         <StorageDescription title={_("Attributes failing")}
                             value={smart_info.SmartNumAttributesFailing}
                         />

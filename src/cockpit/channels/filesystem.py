@@ -378,6 +378,20 @@ class FsInfoChannel(Channel, PathWatchListener):
             except KeyError:
                 return gid
 
+        def get_access(name: str, fd: int, mode: int, *, follow_symlinks: bool = False) -> 'bool | None':
+            if not name:
+                # HACK: Python's os.access() does not support passing "AT_EMPTY_PATH"
+                # so we need to resolve the name of the watched directory.
+                try:
+                    name = os.readlink(f'/proc/self/fd/{fd}')
+                    return os.access(name, mode, follow_symlinks=follow_symlinks)
+                except OSError:
+                    return None
+            try:
+                return os.access(name, mode, dir_fd=fd, follow_symlinks=follow_symlinks)
+            except OSError:
+                return None
+
         stat_types = {stat.S_IFREG: 'reg', stat.S_IFDIR: 'dir', stat.S_IFLNK: 'lnk', stat.S_IFCHR: 'chr',
                       stat.S_IFBLK: 'blk', stat.S_IFIFO: 'fifo', stat.S_IFSOCK: 'sock'}
         available_stat_getters = {
@@ -393,6 +407,11 @@ class FsInfoChannel(Channel, PathWatchListener):
         }
         stat_getters = tuple((key, available_stat_getters.get(key, lambda _: None)) for key in attrs)
 
+        available_access_getters = {
+                'r-ok': lambda name, fd, follow: get_access(name, fd, os.R_OK, follow_symlinks=follow),
+                'w-ok': lambda name, fd, follow: get_access(name, fd, os.W_OK, follow_symlinks=follow),
+        }
+
         def get_attrs(fd: int, name: str, follow: Follow) -> 'JsonDict | None':
             try:
                 buf = os.stat(name, follow_symlinks=follow.value, dir_fd=fd) if name else os.fstat(fd)
@@ -406,6 +425,10 @@ class FsInfoChannel(Channel, PathWatchListener):
             if 'target' in result and stat.S_IFMT(buf.st_mode) == stat.S_IFLNK:
                 with contextlib.suppress(OSError):
                     result['target'] = os.readlink(name, dir_fd=fd)
+
+            for attr, getter in available_access_getters.items():
+                if attr in result:
+                    result[attr] = getter(name, fd, follow.value)
 
             return result
 

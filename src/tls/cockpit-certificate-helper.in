@@ -30,7 +30,6 @@ install_key() {
 selfsign_sscg() {
     sscg --quiet \
         --lifetime "${DAYS}" \
-        --key-strength 2048 \
         --cert-key-file "${KEYFILE}" \
         --cert-file "${CERTFILE}" \
         --ca-file "${CA_FILE}" \
@@ -43,7 +42,7 @@ selfsign_sscg() {
 selfsign_openssl() {
     openssl req -x509 \
         -days "${DAYS}" \
-        -newkey rsa:2048 \
+        -newkey rsa \
         -keyout "${KEYFILE}" \
         -keyform PEM \
         -nodes \

@@ -284,17 +284,19 @@ class WebdriverBidi:
         Set a custom one if you call a function which waits/polls for something
         for a non-trivial duration.
         """
-        payload = json.dumps({"id": self.last_id, "method": method, "params": params})
-        log_command.info("← %s(%r) [id %i]", method, 'quiet' if quiet else params, self.last_id)
+        tag = self.last_id
+        self.last_id += 1
+
+        payload = json.dumps({"id": tag, "method": method, "params": params})
+        log_command.info("← %s(%r) [id %i]", method, 'quiet' if quiet else params, tag)
         await self.ws.send_str(payload)
         future = asyncio.get_event_loop().create_future()
-        self.pending_commands[self.last_id] = future
+        self.pending_commands[tag] = future
         res = await asyncio.wait_for(future, timeout=timeout)
         if "result" in res:
-            log_proto.debug("[id %i] unpacking raw result %r", self.last_id, res["result"])
+            log_proto.debug("[id %i] unpacking raw result %r", tag, res["result"])
             value = unpack_value(res["result"])
             res["result"] = value
-        self.last_id += 1
         if not quiet:
             log_command.info("→ %r", res)
         return res

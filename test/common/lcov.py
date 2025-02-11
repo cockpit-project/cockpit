@@ -93,8 +93,16 @@ def parse_sourcemap(f, line_starts, dir_name):
 
     our_sources = set()
     for s in sources:
-        if "node_modules" not in s and (s.endswith(('.js', '.jsx', '.ts', '.tsx'))):
-            our_sources.add(s)
+        # reject any absolute paths or URLs (like webpack://)
+        if not s.startswith('../'):
+            continue
+        # don't generate coverage for node_modules/ code
+        if "node_modules" in s:
+            continue
+        # and only for these file types...
+        if not s.endswith(('.js', '.jsx', '.ts', '.tsx')):
+            continue
+        our_sources.add(s)
 
     dst_col, src_id, src_line = 0, 0, 0
     for dst_line, line in enumerate(lines):

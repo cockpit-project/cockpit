@@ -458,6 +458,8 @@ class FirefoxBidi(WebdriverBidi):
         (self.profiledir / "user.js").write_text(f"""
             user_pref("remote.enabled", true);
             user_pref("remote.frames.enabled", true);
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=1947402
+            user_pref('remote.events.async.enabled', false);
             user_pref("app.update.auto", false);
             user_pref("datareporting.policy.dataSubmissionEnabled", false);
             user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);

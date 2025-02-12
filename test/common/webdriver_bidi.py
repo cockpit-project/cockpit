@@ -458,6 +458,13 @@ class FirefoxBidi(WebdriverBidi):
         (self.profiledir / "user.js").write_text(f"""
             // https://bugzilla.mozilla.org/show_bug.cgi?id=1947402
             user_pref('remote.events.async.enabled', false);
+
+            // set this to "Trace" for debugging BiDi interactions
+            user_pref('remote.log.level', 'Warn');
+            user_pref('remote.log.truncate', false);
+            // enable remote logs on stdout
+            user_pref('browser.dom.window.dump.enabled', true);
+
             user_pref("app.update.auto", false);
             user_pref("datareporting.policy.dataSubmissionEnabled", false);
             user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);

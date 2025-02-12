@@ -1471,7 +1471,7 @@ async def test_fsinfo_watch_identity_changes(
 
 @pytest.mark.asyncio
 async def test_fsinfo_self_owner(transport: MockTransport, tmp_path: Path) -> None:
-    client = await FsInfoClient.open(transport, tmp_path, ['user', 'uid', 'group', 'gid'])
+    client = await FsInfoClient.open(transport, tmp_path, ['user', 'uid', 'group', 'gid'], fnmatch='')
     state = await client.wait()
     info = get_dict(state, 'info')
 
@@ -1479,6 +1479,8 @@ async def test_fsinfo_self_owner(transport: MockTransport, tmp_path: Path) -> No
     assert get_int(info, 'gid') == os.getgid()
     assert info.get('user') == getpass.getuser()
     assert info.get('group') == grp.getgrgid(os.getgid()).gr_name  # hopefully true...
+    # user, uid, group, gid
+    assert len(info.keys()) == 4
 
 
 @pytest.mark.asyncio

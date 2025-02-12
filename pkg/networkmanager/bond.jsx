@@ -56,10 +56,10 @@ const bond_monitoring_choices =
     ];
 
 const modes_with_primary = [
-        'active-backup',
-        'balance-tlb',
-        'balance-alb'
-    ];
+    'active-backup',
+    'balance-tlb',
+    'balance-alb'
+];
 
 export const BondDialog = ({ connection, dev, settings }) => {
     const Dialogs = useDialogs();
@@ -87,7 +87,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
 
     const onSubmit = (ev) => {
         const options = settings.bond.options;
-        delete options['primary'];
+        delete options.primary;
 
         const createSettingsObj = () => ({
             ...settings,

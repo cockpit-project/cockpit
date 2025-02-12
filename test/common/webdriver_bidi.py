@@ -456,8 +456,6 @@ class FirefoxBidi(WebdriverBidi):
         self.profiledir = self.homedir / "profile"
         self.profiledir.mkdir()
         (self.profiledir / "user.js").write_text(f"""
-            user_pref("remote.enabled", true);
-            user_pref("remote.frames.enabled", true);
             // https://bugzilla.mozilla.org/show_bug.cgi?id=1947402
             user_pref('remote.events.async.enabled', false);
             user_pref("app.update.auto", false);

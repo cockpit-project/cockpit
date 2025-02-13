@@ -45,16 +45,19 @@ class StorageHelpers:
 
         self.browser.wait(step)
 
-    def add_ram_disk(self, size=50):
+    def add_ram_disk(self, size=50, delay=None):
         """Add per-test RAM disk
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
+
+        Optionally takes a delay in nanoseconds which delays IO respones, 100000000 equals ~ 40 kB/s.
 
         Return the device name.
         """
         # sanity test: should not yet be loaded
         self.machine.execute("test ! -e /sys/module/scsi_debug")
-        self.machine.execute(f"modprobe scsi_debug dev_size_mb={size}")
+        delay_option = f'ndelay={delay}' if delay else ''
+        self.machine.execute(f"modprobe scsi_debug dev_size_mb={size} {delay_option}")
         dev = self.machine.execute('while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
                                    '[ -n "$O" ] && break || sleep 0.1; done; echo "/dev/$O"').strip()
         # don't use addCleanup() here, this is often busy and needs to be cleaned up late; done in MachineCase.nonDestructiveSetup()

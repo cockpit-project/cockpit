@@ -747,13 +747,6 @@ class TestHistoryMetrics(testlib.MachineCase):
         m.execute("systemctl start pmproxy")
         checkEnabled(expected=True)
 
-    @testlib.nondestructive
-    @testlib.onlyImage("only Fedora 40 has both valkey and redis", "fedora-40")
-    def testPmProxySettingsRedis(self):
-        self.machine.execute("systemctl mask valkey")
-        self.addCleanup(self.machine.execute, "systemctl unmask valkey")
-        self.testPmProxySettings(customRedisService="redis")
-
 
 @testlib.nondestructive
 class TestCurrentMetrics(testlib.MachineCase):
@@ -1297,16 +1290,10 @@ class TestMetricsPackages(packagelib.PackageCase):
         redis_service = redisService(m.image)
         redis_package = "valkey" if redis_service == "valkey" else "redis"
         extra_packages = ""
-        if redis_package == "valkey":
-            if m.image == "fedora-40":
-                # Older Fedoras have the actual redis installed as
-                # well, and we want to remove that too to trigger the
-                # install dialog.
-                extra_packages = "redis"
-            elif m.image.startswith("fedora"):
-                # Newer Fedoras have a compat package that we need to
-                # remove at the same time as valkey.
-                extra_packages = "valkey-compat-redis"
+        if redis_package == "valkey" and m.image.startswith("fedora"):
+            # Fedora has a compat package that we need to
+            # remove at the same time as valkey.
+            extra_packages = "valkey-compat-redis"
 
         if m.ostree_image:
             self.login_and_go("/metrics")

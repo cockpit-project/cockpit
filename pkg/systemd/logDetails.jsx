@@ -23,7 +23,6 @@ import * as timeformat from "timeformat";
 
 import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { AbrtLogDetails } from "./abrtLog.jsx";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
@@ -175,16 +174,8 @@ export class LogEntry extends React.Component {
             const entry = this.state.entry;
             const date = timeformat.dateTimeSeconds(entry.__REALTIME_TIMESTAMP / 1000);
 
-            if (this.state.problemPath) {
-                breadcrumb = cockpit.format(_("$0: crash at $1"), entry.PROBLEM_BINARY, date);
-                content = <AbrtLogDetails problem={this.state.problemPath}
-                                          entry={entry}
-                                          service={this.state.abrtService}
-                                          reloadProblems={this.goHome} />;
-            } else {
-                breadcrumb = cockpit.format(_("Entry at $0"), date);
-                content = <LogDetails entry={entry} />;
-            }
+            breadcrumb = cockpit.format(_("Entry at $0"), date);
+            content = <LogDetails entry={entry} />;
         }
 
         return (

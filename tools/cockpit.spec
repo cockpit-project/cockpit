@@ -309,9 +309,6 @@ Provides: cockpit-networkmanager = %{version}-%{release}
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
 %endif
-%if 0%{?fedora}
-Recommends: (reportd if abrt)
-%endif
 
 #NPM_PROVIDES
 

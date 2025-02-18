@@ -28,13 +28,15 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
-import { Page, PageGroup, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import {
+	Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+import { Page, PageGroup, PageSection,  } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Progress, ProgressVariant } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
-import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Table, Thead, Td, Th, Tr, Tbody, TableGridBreakpoint, TableVariant, TableText } from '@patternfly/react-table';
 import {
@@ -1477,9 +1479,9 @@ const PCPConfigDialog = ({
                                 label={
                                     <Flex>
                                         <FlexItem>{ _("Collect metrics") }</FlexItem>
-                                        <TextContent>
-                                            <Text component={TextVariants.small}>(pmlogger.service)</Text>
-                                        </TextContent>
+                                        <Content>
+                                            <Content component={ContentVariants.small}>(pmlogger.service)</Content>
+                                        </Content>
                                     </Flex>
                                 }
                                 onChange={(_event, enable) => {
@@ -1494,9 +1496,7 @@ const PCPConfigDialog = ({
                                 label={
                                     <Flex>
                                         <FlexItem>{ _("Export to network") }</FlexItem>
-                                        <TextContent>
-                                            <Text component={TextVariants.small}>(pmproxy.service)</Text>
-                                        </TextContent>
+                                        <Content component={ContentVariants.small}>(pmproxy.service)</Content>
                                     </Flex>
                                 }
                                 isDisabled={ !dialogLoggerValue }
@@ -1883,9 +1883,9 @@ class MetricsHistory extends React.Component {
             return (
                 <div className={"metrics-label metrics-label-graph" + (props.items.length > 1 ? " have-saturation" : "")}>
                     <span>{props.label}</span>
-                    <TextContent className="metrics-sublabels">
-                        { props.items.map(i => <Text component={TextVariants.small} key={i}>{i}</Text>) }
-                    </TextContent>
+                    <Content className="metrics-sublabels">
+                        { props.items.map(i => <Content component={ContentVariants.small} key={i}>{i}</Content>) }
+                    </Content>
                 </div>
             );
         }
@@ -1950,7 +1950,7 @@ class MetricsHistory extends React.Component {
                         </div>
                     </section>
                 </PageGroup>
-                <PageSection className="metrics-history-section" variant={PageSectionVariants.light}>
+                <PageSection hasBodyWrapper={false} className="metrics-history-section" >
                     <>
                         { this.state.hours.length > 0 &&
                         <Card isPlain>
@@ -1965,7 +1965,7 @@ class MetricsHistory extends React.Component {
 
                                     return (
                                         <React.Fragment key={timeformat.dateTime(time)}>
-                                            {showHeader && <TextContent><Text component={TextVariants.h3} className="metrics-time"><time>{ timeformat.date(time) }</time></Text></TextContent>}
+                                            {showHeader && <Content><Content component={ContentVariants.h3} className="metrics-time"><time>{ timeformat.date(time) }</time></Content></Content>}
                                             <MetricsHour key={time} startTime={parseInt(time)}
                                                          selectedVisibility={this.state.selectedVisibility}
                                                          data={this.data[time]} clipLeading={i == 0}
@@ -1994,7 +1994,7 @@ export const Application = () => {
     return (
         <WithDialogs>
             <Page additionalGroupedContent={
-                <PageSection id="metrics-header-section" variant={PageSectionVariants.light} type='breadcrumb'>
+                <PageSection hasBodyWrapper={false} id="metrics-header-section"  type='breadcrumb'>
                     <Flex>
                         <FlexItem>
                             <Breadcrumb>
@@ -2011,7 +2011,7 @@ export const Application = () => {
             }>
                 { firewalldRequest &&
                 <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
-                <PageSection>
+                <PageSection hasBodyWrapper={false}>
                     <CurrentMetrics />
                 </PageSection>
                 <MetricsHistory firewalldRequest={setFirewalldRequest} />

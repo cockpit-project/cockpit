@@ -27,7 +27,7 @@ import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/inde
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
@@ -446,7 +446,7 @@ export class SETroubleshootPage extends React.Component {
             <>
                 {errorMessage}
                 <Page>
-                    <PageSection padding={{ default: "padding" }} variant={PageSectionVariants.light}>
+                    <PageSection hasBodyWrapper={false} padding={{ default: "padding" }} >
                         <SELinuxStatus
                             selinuxStatus={this.props.selinuxStatus}
                             selinuxStatusError={this.props.selinuxStatusError}
@@ -454,7 +454,7 @@ export class SETroubleshootPage extends React.Component {
                             dismissError={this.props.dismissStatusError}
                         />
                     </PageSection>
-                    <PageSection>
+                    <PageSection hasBodyWrapper={false}>
                         <Stack hasGutter>
                             <StackItem>{modifications}</StackItem>
                             <StackItem>{troubleshooting}</StackItem>

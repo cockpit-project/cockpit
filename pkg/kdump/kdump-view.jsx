@@ -29,13 +29,15 @@ import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/comp
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup, FormSection } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+	Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
-import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
@@ -369,14 +371,14 @@ export class KdumpPage extends React.Component {
         // open a dialog to confirm crashing the kernel to test the settings - then do it
         const dialogProps = {
             title: _("Test kdump settings"),
-            body: (<TextContent>
-                <Text component={TextVariants.p}>
+            body: (<Content>
+                <Content component={ContentVariants.p}>
                     {_("Test kdump settings by crashing the kernel. This may take a while and the system might not automatically reboot. Do not purposefully crash the system while any important task is running.")}
-                </Text>
-                {verifyMessage && <Text component={TextVariants.p}>
+                </Content>
+                {verifyMessage && <Content component={ContentVariants.p}>
                     {verifyMessage}
-                </Text>}
-            </TextContent>),
+                </Content>}
+            </Content>),
             showClose: true,
             titleIconVariant: "warning",
         };
@@ -587,7 +589,7 @@ ${enableCrashKernel}
         }
         return (
             <Page>
-                <PageSection variant={PageSectionVariants.light}>
+                <PageSection hasBodyWrapper={false} >
                     <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
                         <Title headingLevel="h2" size="3xl">
                             {_("Kernel crash dump")}
@@ -599,7 +601,7 @@ ${enableCrashKernel}
                         {automationButton}
                     </Flex>
                 </PageSection>
-                <PageSection>
+                <PageSection hasBodyWrapper={false}>
 
                     {alertMessage &&
                         <Alert variant='danger'

@@ -124,9 +124,7 @@ class OverviewPage extends React.Component {
                         <MenuToggle
                             ref={toggleRef}
                             variant="secondary"
-                            splitButtonOptions={{
-                                variant: "action",
-                                items: [
+                            splitButtonItems={[
                                     <MenuToggleAction
                                         id='reboot-button'
                                         key='reboot-button'
@@ -134,8 +132,7 @@ class OverviewPage extends React.Component {
                                     >
                                         {_("Reboot")}
                                     </MenuToggleAction>
-                                ],
-                            }}
+                                ]}
                             onClick={() => this.setState({ actionIsOpen: !actionIsOpen })}
                             id="shutdown-group"
                         />
@@ -156,10 +153,10 @@ class OverviewPage extends React.Component {
 
         return (
             <Page>
-                <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+                <PageSection hasBodyWrapper={false} padding={{ default: 'noPadding' }}>
                     <SuperuserAlert />
                 </PageSection>
-                <PageSection variant={PageSectionVariants.light} className='ct-overview-header' padding={{ default: 'padding' }}>
+                <PageSection hasBodyWrapper={false} className='ct-overview-header' padding={{ default: 'padding' }}>
                     <div className='ct-overview-header-hostname'>
                         <h1>
                             {this.hostname_text()}
@@ -174,7 +171,7 @@ class OverviewPage extends React.Component {
                         { headerActions }
                     </div>
                 </PageSection>
-                <PageSection variant={PageSectionVariants.default}>
+                <PageSection hasBodyWrapper={false} variant={PageSectionVariants.default}>
                     <Gallery className='ct-system-overview' hasGutter>
                         <MotdCard />
                         <HealthCard />

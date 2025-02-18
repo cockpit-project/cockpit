@@ -266,7 +266,7 @@ export class CockpitHosts extends React.Component {
 
                 { this.state.opened &&
                 <HostsSelector>
-                    <PageSidebar theme="dark" className={"sidebar-hosts" + (this.state.editing ? " edit-hosts" : "")}>
+                    <PageSidebar className={"sidebar-hosts" + (this.state.editing ? " edit-hosts" : "")}>
                         <CockpitNav
                             selector={this.props.selector}
                             groups={groups}

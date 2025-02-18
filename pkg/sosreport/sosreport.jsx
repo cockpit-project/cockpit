@@ -26,9 +26,11 @@ import { createRoot } from 'react-dom/client';
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+	Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection,  } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Label, LabelGroup } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
@@ -488,7 +490,7 @@ const SOSBody = () => {
     }
 
     return (
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
             <Card className="ct-card">
                 <CardHeader actions={{
                     actions: <Button id="create-button" variant="primary" onClick={run_report}>
@@ -517,7 +519,7 @@ const SOSPage = () => {
     return (
         <WithDialogs>
             <Page>
-                <PageSection padding={{ default: "padding" }} variant={PageSectionVariants.light}>
+                <PageSection hasBodyWrapper={false} padding={{ default: "padding" }} >
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
                         <h2 className="pf-v5-u-font-size-3xl">{_("System diagnostics")}</h2>
                     </Flex>

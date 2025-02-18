@@ -35,14 +35,16 @@ import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/in
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+	Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { OutlinedQuestionCircleIcon, ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
-import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content";
 
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
@@ -274,16 +276,14 @@ class Connect extends React.Component {
                        </Button>
                    </>}
             >
-                <TextContent>
-                    <Text component={TextVariants.p}>
-                        {_("Connected hosts can fully control each other. This includes running programs that could harm your system or steal data. Only connect to trusted machines.")}
-                    </Text>
-                    <Text component={TextVariants.p}>
-                        <a href="https://cockpit-project.org/guide/latest/multi-host.html" target="blank" rel="noopener noreferrer">
-                            <ExternalLinkAltIcon /> {_("Read more")}
-                        </a>
-                    </Text>
-                </TextContent>
+                <Content component={ContentVariants.p}>
+                    {_("Connected hosts can fully control each other. This includes running programs that could harm your system or steal data. Only connect to trusted machines.")}
+                </Content>
+                <Content component={ContentVariants.p}>
+                    <a href="https://cockpit-project.org/guide/latest/multi-host.html" target="blank" rel="noopener noreferrer">
+                        <ExternalLinkAltIcon /> {_("Read more")}
+                    </a>
+                </Content>
             </Modal>
         );
     }

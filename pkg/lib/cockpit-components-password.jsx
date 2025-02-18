@@ -115,7 +115,7 @@ export const PasswordFormFields = ({
     return (
         <>
             <FormGroup label={password_label}
-                       labelIcon={password_label_info &&
+                       labelHelp={password_label_info &&
                            <Popover bodyContent={password_label_info}>
                                <button onClick={e => e.preventDefault()}
                                        className="pf-v5-c-form__group-label-help">
@@ -156,7 +156,7 @@ export const PasswordFormFields = ({
                 </Flex>}
                 {error_password && <FormHelperText>
                     <HelperText component="ul" aria-live="polite" id="password-error-message">
-                        <HelperTextItem isDynamic variant="warning" component="li">
+                        <HelperTextItem variant="warning" component="li">
                             {error_password}
                         </HelperTextItem>
                     </HelperText>

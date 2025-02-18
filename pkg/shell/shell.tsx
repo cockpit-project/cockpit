@@ -39,7 +39,7 @@ import { IdleTimeoutState, FinalCountdownModal } from "./idle.jsx";
 
 import 'cockpit-dark-theme'; // once per page
 
-import '../lib/patternfly/patternfly-5-cockpit.scss';
+import '../lib/patternfly/patternfly-6-cockpit.scss';
 import "./shell.scss";
 
 const _ = cockpit.gettext;

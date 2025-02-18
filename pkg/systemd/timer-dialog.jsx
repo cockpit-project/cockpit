@@ -25,7 +25,9 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";

@@ -28,7 +28,9 @@ import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/Ex
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Card, CardHeader, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";

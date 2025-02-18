@@ -22,7 +22,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import { EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Label, LabelGroup } from "@patternfly/react-core/dist/esm/components/Label/index.js";
@@ -166,8 +166,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
 
     if (!accounts.length) {
         return (
-            <EmptyState variant={EmptyStateVariant.sm}>
-                <EmptyStateHeader titleText={_("Loading...")} headingLevel="h1" />
+            <EmptyState headingLevel="h1" titleText={_("Loading...")} variant={EmptyStateVariant.sm}>
                 <EmptyStateFooter><Spinner size="xl" /></EmptyStateFooter>
             </EmptyState>
         );
@@ -177,8 +176,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
 
     if (!account) {
         return (
-            <EmptyState variant={EmptyStateVariant.sm} id="account-failure">
-                <EmptyStateHeader titleText={_("Account not available or cannot be edited.")} icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h1" />
+            <EmptyState headingLevel="h1" icon={ExclamationCircleIcon} titleText={_("Account not available or cannot be edited.")} variant={EmptyStateVariant.sm} id="account-failure">
                 <EmptyStateFooter>
                     <EmptyStateActions>
                         <Breadcrumb>
@@ -225,13 +223,13 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
 
     return (
         <Page id="account">
-            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>
                     <BreadcrumbItem isActive>{title_name}</BreadcrumbItem>
                 </Breadcrumb>
             </PageBreadcrumb>
-            <PageSection>
+            <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
                     <Card className="account-details" id="account-details">
                         <CardHeader actions={{ actions }}>

@@ -21,7 +21,9 @@ import cockpit from "cockpit";
 import React, { useState } from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { ExclamationTriangleIcon, ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 

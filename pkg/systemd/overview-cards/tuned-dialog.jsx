@@ -21,7 +21,9 @@ import cockpit from "cockpit";
 import React, { useState, useEffect, useRef } from 'react';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';

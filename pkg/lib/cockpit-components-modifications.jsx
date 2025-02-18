@@ -22,7 +22,9 @@ import React from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Tab, Tabs } from "@patternfly/react-core/dist/esm/components/Tabs/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { CheckIcon, CopyIcon, ExternalLinkAltIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';

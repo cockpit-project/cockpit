@@ -31,6 +31,10 @@ QUnit.test("dirname", function (assert) {
         ["////", "/"],
         ["//foo///", "/"],
         ["///foo///bar///", "///foo"],
+        ["/foo/../", "/foo"],
+        ["/home/admin/../user/", "/home/admin/.."],
+        ["/../../user/", "/../.."],
+        ["/home/admin/../../../", "/home/admin/../.."],
     ];
 
     assert.expect(checks.length);

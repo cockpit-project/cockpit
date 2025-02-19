@@ -22,7 +22,7 @@ html {
   --resource-icon-color-full: var(--pf-v5-global--palette--orange-400);
 }
 
-.pf-v5-theme-dark {
+.pf-v6-theme-dark {
   --metrics-heading-time-color: var(--pf-v5-global--BackgroundColor--300);
   --metrics-events-border-color: #000;
   --resource-icon-color-empty: var(--pf-v5-global--palette--black-400);
@@ -346,7 +346,7 @@ $graphs: cpu, memory, disks, network;
 
   --graph-column-size: 60%;
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     --cpu-color: var(--pf-v5-chart-color-purple-500);
     --cpu-color-extreme: var(--pf-v5-chart-color-purple-300);
 
@@ -857,6 +857,6 @@ $graphs: cpu, memory, disks, network;
    grey toolbar. The deprecated Select had a white background. Let's
    make MenuToggles match.
 */
-html:not(.pf-v5-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
+html:not(.pf-v6-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
     background-color: var(--pf-v5-global--BackgroundColor--100);
 }

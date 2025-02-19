@@ -54,8 +54,8 @@ $desktop: $phone + 1px;
   // https://github.com/patternfly/patternfly-design/issues/1112
   .search {
     background: transparent !important;
-    padding-block: var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--sm);
-    padding-inline: var(--pf-v5-global--spacer--md);
+    padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm);
+    padding-inline: var(--pf-t--global--spacer--md);
 
     > .pf-v6-c-text-input-group__main {
       background: var(--ct-color-nav-search);
@@ -68,10 +68,10 @@ $desktop: $phone + 1px;
 
     // Adjust search icon
     .pf-v6-c-text-input-group__icon {
-      padding-block: var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--sm) !important;
-      padding-inline: var(--pf-v5-global--spacer--md) !important;
+      padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm) !important;
+      padding-inline: var(--pf-t--global--spacer--md) !important;
       color: var(--pf-v5-global--palette--black-200);
-      inset-inline-start: var(--pf-v5-global--spacer--sm);
+      inset-inline-start: var(--pf-t--global--spacer--sm);
     }
 
     .pf-v6-c-text-input-group__text-input,
@@ -81,7 +81,7 @@ $desktop: $phone + 1px;
 
     .pf-v6-c-text-input-group__text-input {
       // Reserve space for the × icon
-      padding-inline: var(--pf-v5-global--spacer--xl) 0;
+      padding-inline: var(--pf-t--global--spacer--xl) 0;
       // Stroke outside, based on PF search dark mode mockups
       border: 1px solid var(--pf-v5-global--palette--black-700);
     }
@@ -91,8 +91,8 @@ $desktop: $phone + 1px;
       align-self: center;
       justify-content: center;
       position: absolute;
-      inset-inline-end: var(--pf-v5-global--spacer--sm);
-      inline-size: var(--pf-v5-global--spacer--xl);
+      inset-inline-end: var(--pf-t--global--spacer--sm);
+      inline-size: var(--pf-t--global--spacer--xl);
 
       // Recolor × icon
       > .pf-v6-c-button {
@@ -133,7 +133,7 @@ $desktop: $phone + 1px;
   }
 
   .no-results {
-    padding-block: var(--pf-v5-global--spacer--md);
+    padding-block: var(--pf-t--global--spacer--md);
     padding-inline: 0;
   }
 }
@@ -242,7 +242,7 @@ $desktop: $phone + 1px;
     background-color: var(--pf-v5-global--BackgroundColor--dark-300);
 
     > .pf-v6-c-select > button {
-      padding-inline-start: var(--pf-v5-global--spacer--lg);
+      padding-inline-start: var(--pf-t--global--spacer--lg);
     }
   }
 
@@ -306,7 +306,7 @@ $desktop: $phone + 1px;
   .nav-hosts-menu {
     position: absolute;
     inset-block-end: var(--nav-icon-size);
-    inset-inline-end: var(--pf-v5-global--spacer--md);
+    inset-inline-end: var(--pf-t--global--spacer--md);
     max-inline-size: 100vw;
   }
 
@@ -398,8 +398,8 @@ $desktop: $phone + 1px;
 }
 
 .ct-switcher-localonly {
-  padding-inline-start: var(--pf-v5-global--spacer--lg);
-  padding-block-start: var(--pf-v5-global--spacer--sm);
+  padding-inline-start: var(--pf-t--global--spacer--lg);
+  padding-block-start: var(--pf-t--global--spacer--sm);
   color: var(--pf-v5-global--Color--light-100);
 }
 
@@ -482,8 +482,8 @@ $desktop: $phone + 1px;
     grid-template: "name status" "match match";
     grid-template-columns: 1fr auto;
     justify-content: space-between;
-    gap: 0 var(--pf-v5-global--spacer--md);
-    padding-inline-end: var(--pf-v5-global--spacer--md);
+    gap: 0 var(--pf-t--global--spacer--md);
+    padding-inline-end: var(--pf-t--global--spacer--md);
     // In mobile, sometimes items wrap; neighbors should also fill the space
     block-size: 100%;
 
@@ -556,7 +556,7 @@ $desktop: $phone + 1px;
     --button-margin-x: 1rem;
     --button-margin-y: 0.75rem;
     display: grid;
-    gap: var(--pf-v5-global--spacer--sm);
+    gap: var(--pf-t--global--spacer--sm);
     margin-block: var(--button-margin-y);
     margin-inline: var(--button-margin-x);
 
@@ -585,9 +585,9 @@ $desktop: $phone + 1px;
 
   .nav-item-actions {
     display: flex;
-    gap: var(--pf-v5-global--spacer--xs);
-    padding-block: var(--pf-v5-global--spacer--xs);
-    padding-inline: var(--pf-v5-global--spacer--sm);
+    gap: var(--pf-t--global--spacer--xs);
+    padding-block: var(--pf-t--global--spacer--xs);
+    padding-inline: var(--pf-t--global--spacer--sm);
     // Pull the background color over
     background: var(--pf-v5-c-nav__link--BackgroundColor);
 
@@ -687,7 +687,7 @@ $desktop: $phone + 1px;
 }
 
 .ct-locked > .ct-lock-wrapper > svg {
-  margin-inline-end: var(--pf-v5-global--spacer--sm);
+  margin-inline-end: var(--pf-t--global--spacer--sm);
   color: var(--pf-v5-global--palette--gold-400);
 }
 
@@ -697,8 +697,8 @@ $desktop: $phone + 1px;
       > .ct-lock-wrapper {
         background: var(--pf-v5-global--BackgroundColor--dark-200);
         border-radius: var(--pf-v5-global--BorderRadius--sm);
-        padding-block: var(--pf-v5-global--spacer--xs);
-        padding-inline: var(--pf-v5-global--spacer--sm);
+        padding-block: var(--pf-t--global--spacer--xs);
+        padding-inline: var(--pf-t--global--spacer--sm);
 
         > svg {
           color: var(--pf-v5-global--palette--gold-300);
@@ -734,7 +734,7 @@ $desktop: $phone + 1px;
     // Stretch to navbar
     block-size: 100%;
     // Don't stretch to fill content; make optimal width same as height
-    inline-size: var(--pf-v5-global--spacer--4xl);
+    inline-size: var(--pf-t--global--spacer--4xl);
     // Leave enough space for 5 items (4 + spinner)
     max-inline-size: calc(100vw / 5);
     display: grid !important;
@@ -742,8 +742,8 @@ $desktop: $phone + 1px;
     justify-content: center;
     justify-items: center;
     color: var(--pf-v5-global--Color--light-100);
-    padding-block: var(--pf-v5-global--spacer--sm);
-    padding-inline: var(--pf-v5-global--spacer--xs);
+    padding-block: var(--pf-t--global--spacer--sm);
+    padding-inline: var(--pf-t--global--spacer--xs);
     align-items: center;
 
     // Remove the toggled outline

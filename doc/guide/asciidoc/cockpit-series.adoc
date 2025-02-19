@@ -1,0 +1,267 @@
+cockpit.js: Series Data
+
+Representing series data
+
+Series data consists of values along a continuous (usually time) axis.
+We can place these in grids which expose a distinct subset of these
+values. These are the underlying mechanism for displaying metrics data
+in graphs.
+
+[[cockpit-grid]]
+== cockpit.grid()
+
+....
+grid = cockpit.grid(interval, [beg, end])
+....
+
+Creates a grid object to contain series data.
+
+The `interval` is the granularity of the grid. Usually this is a number
+of milliseconds, when used with time series data. The `beg` and `end`
+are the bounds of the grid. If omitted they will be set to zero for an
+initially empty grid.
+
+If `beg` and/or `end` are negative (including negative zero) then they
+are interpreted in number of intervals relative to the current time.
+Thus cockpit.grid(1000, -300, -0) will create a grid for the most recent
+5 minutes.
+
+[[cockpit-grid-add]]
+== grid.add()
+
+....
+row = grid.add(series, path)
+row = grid.add(callback, [early])
+row = grid.add()
+....
+
+Adds a row to the grid. The returned `row` is a Javascript array that
+will contain series data. The arguments control how the row is populated
+from the series data. The `row` is a sparse array. Its `row.length` will
+not match the expected size of the grid, unless and until the row has
+been completely filled in. The first index of the `row` will contain the
+data from the series data at the link:#cockpit-grid-beg[`grid.beg`]
+offset.
+
+When no arguments are passed, an empty row is added, and it is not
+populated with data.
+
+When called with a `series` and `path` argument then the row will be
+populated directly with series data. The `series` can either be a
+link:#cockpit-series[series object] or an object that has an
+`obj.series` property. The link:#cockpit-series-interval[series
+interval] must match the interval of this grid. If `path` is missing or
+empty, then the series data is placed into the row directly. Otherwise
+`path` indicates which part of the series data to place in the row. When
+`path` is an array, it is used as a set of property names or array
+indexes to follow into nested series data. When `path` is a dotted
+string, it is split and used the same way to locate the correct value in
+nested series data. The exact format of the series data depends on its
+producer, and relevant paths will be documented there.
+
+If a `callback` function is specified, then it will be invoked to
+provide series data for the row. The function is invoked as
+`callback(row, index, count)`, where the `row` is the row to fill in,
+the `index` is the index to start filling in and `count` is the number
+of items to fill in. The `this` variable will be set to the grid while
+invoking the `callback`. The callback is called after other data rows
+for a given series have been filled in. Callbacks are called in the
+order added, unless the `early` argument is set to `true`, in which case
+the callback is called earlier than callbacks without the `early`
+argument set.
+
+To remove the row use the link:#cockpit-grid-remove[`grid.remove()`
+method.]
+
+The row will start being populated with data when the `series` produces
+data. To make this happen right away, use the
+link:#cockpit-grid-sync[`grid.sync()`] method.
+
+[[cockpit-grid-remove]]
+== grid.remove()
+
+....
+grid.remove(row)
+....
+
+Remove a previously added `row` from the grid. The row will no longer be
+updated with series data.
+
+[[cockpit-grid-sync]]
+== grid.sync()
+
+....
+grid.sync()
+....
+
+Load or reload data from the series into the rows. This does not clear
+the rows before populating them. Some data may be populated immediately,
+others may have to wait until data can be loaded. Internally this
+function calls link:#cockpit-series-load[`series.load()`] for each
+series.
+
+All rows with callbacks will be invoked to regenerate all the data. The
+link:#cockpit-grid-onnotify[`grid.onnotify`] event will be triggered. It
+is not necessary to call this function after a call of the
+link:#cockpit-grid-move[`grid.move()`] method.
+
+[[cockpit-grid-move]]
+== grid.move()
+
+....
+grid.move(beg[, end])
+....
+
+Move the grid to new `beg` and `end` range. Data will be discarded from
+the rows and link:#cockpit-grid-sync[`grid.sync()`] will be called to
+load or reload series data for the new range of offsets.
+
+If `end` is not specified it will be set to `beg`. If `beg` and/or `end`
+are negative (including negative zero) then they will be set to the
+number of intervals prior to the current time taken as an interval.
+
+If `beg` and/or `end` are negative (including negative zero) then they
+are interpreted in number of intervals relative to the current time.
+Thus cockpit.grid(1000, -300, -0) will create a grid for the most recent
+5 minutes.
+
+[[cockpit-grid-walk]]
+== grid.walk()
+
+....
+grid.walk()
+....
+
+Move the grid forward every link:#cockpit-grid-interval[`grid.interval`]
+milliseconds. To stop moving forward, call
+link:#cockpit-grid-move[`grid.move()`].
+
+[[cockpit-grid-notify]]
+== grid.notify()
+
+....
+grid.notify(index, count)
+....
+
+This function is called to have rows with callbacks recalculate their
+data. It is not normally necessary to call this function, as it will be
+invoked automatically when new series data is available or has been
+loaded. This function triggers the
+link:#cockpit-grid-onnotify[`grid.onnotify`] event.
+
+[[cockpit-grid-onnotify]]
+== grid.onnotify
+
+....
+grid.addEventListener("notify", function(index, count) { ... });
+....
+
+An event that is triggered when some part of the series data in grid
+changes. The `index` is the row index where things changed, and the
+`count` is the length of the data that changed.
+
+[[cockpit-grid-close]]
+== grid.close()
+
+....
+grid.close()
+....
+
+Close the grid, and stop updating the rows.
+
+[[cockpit-grid-interval]]
+== grid.interval
+
+The granularity of the grid. For time series data this is an interval in
+milliseconds. In order to use a given link:#cockpit-grid[grid] and
+link:#cockpit-series[series] together, their interval properties must
+match.
+
+[[cockpit-grid-beg]]
+== grid.beg
+
+The beginning offset of the series data in the grid. Do not set this
+property directly. Use the link:#cockpit-grid-move[grid.move()] method
+instead.
+
+[[cockpit-grid-end]]
+== grid.end
+
+The ending offset of the series data in the grid. Do not set this
+property directly. Use the link:#cockpit-grid-move[grid.move()] method
+instead.
+
+[[cockpit-series]]
+== cockpit.series()
+
+....
+series = cockpit.series(interval, [cache, fetch])
+....
+
+Create a new sink of series data. This is usually done by producers of
+series data, and it is rare to invoke this function directly.
+
+The `interval` is the granularity of the series data. For time series
+data this is an interval in milliseconds. If a `cache` string is
+specified, series data will be cached across frames for series with the
+same `cache` cache identifier to load and/or reload.
+
+If a `fetch` callback is specified, then it will be invoked when grids
+request certain ranges of data. The `fetch` callback is invoked with
+`function fetch(beg, end) { ... }` range offsets. The
+link:#cockpit-series-input[series.input()] should be called with data
+retrieved, either immediately or at a later time. The callback may be
+called multiple times for the same ranges of data. It is up to the
+callback to determine when or whether it should retrieve the data more
+than once.
+
+A producer of series data, usually calls this function and creates
+itself a `obj.series` property containing this series object.
+
+[[cockpit-series-input]]
+== series.input()
+
+....
+series.input(beg, items[, mapping])
+....
+
+Send series data into the series sink. Any grids that have added rows
+based on this series, will have data filled in. The `beg` is the
+beginning offset of `items`. The `items` are an array one or more series
+data items.
+
+Producers may wish to provide additional properties that can be used in
+lookup paths that rows can pull from. This is done in the `mapping`
+argument. If specified it is a tree of objects. Each sub object should
+have a property with the name `""` empty string, which will be used as
+the property name or index in place of the one used in the lookup path.
+
+[[cockpit-series-load]]
+== series.load()
+
+....
+series.load(beg, end)
+....
+
+Load data from the series into any grids that have rows based on this
+series data. Any cached data will be filled in immediately. Any data not
+cached, will be requested from the producer, if possible, and may arrive
+at a later time.
+
+The `beg` and `end` denote the range of data to load.
+
+[[cockpit-series-interval]]
+== series.interval
+
+The granularity of the series. For time series data this is an interval
+in milliseconds. In order to use a given link:#cockpit-grid[grid] and
+link:#cockpit-series[series] together, their interval properties must
+match.
+
+[[cockpit-series-limit]]
+== series.limit
+
+The maximum number of items to cache for loading and/or reloading. You
+can change this value to a different number. Having a number close to
+zero will break certain usage of grids, such as
+link:#cockpit-grid-walk[`grid.walk()`].

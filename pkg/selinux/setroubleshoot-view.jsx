@@ -445,7 +445,7 @@ export class SETroubleshootPage extends React.Component {
         return (
             <>
                 {errorMessage}
-                <Page>
+                <Page className="no-masthead-sidebar">
                     <PageSection hasBodyWrapper={false} padding={{ default: "padding" }} >
                         <SELinuxStatus
                             selinuxStatus={this.props.selinuxStatus}

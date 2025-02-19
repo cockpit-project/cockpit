@@ -139,7 +139,7 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
 
     return (
         <Page id="app-page"
-              className="application-details">
+              className="application-details no-masthead-sidebar">
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to="#/">{_("Applications")}</BreadcrumbItem>

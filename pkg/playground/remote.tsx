@@ -33,7 +33,7 @@ const RemotePage = () => {
     };
 
     return (
-        <Page>
+        <Page className="no-masthead-sidebar">
             <Form isHorizontal>
                 <FormGroup fieldId="host" label="Host" isRequired>
                     <TextInput id="host" value={host} onChange={(_ev, value) => setHost(value)} isRequired />

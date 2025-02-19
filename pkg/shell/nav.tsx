@@ -198,11 +198,11 @@ export class CockpitNav<T> extends React.Component {
                 <SearchInput placeholder={_("Search")} value={this.state.search} onChange={(_, search) => this.setState({ search })} onClear={() => this.setState({ search: "" })} className="search" />
                 <Nav>
                     { groups.map(g =>
-                        <section className="pf-v5-c-nav__section" aria-labelledby={"section-title-" + g.name} key={g.name}>
+                        <section className="pf-v6-c-nav__section" aria-labelledby={"section-title-" + g.name} key={g.name}>
                             <div className="nav-group-heading">
-                                <h2 className="pf-v5-c-nav__section-title" id={"section-title-" + g.name}>{g.name}</h2>
+                                <h2 className="pf-v6-c-nav__section-title" id={"section-title-" + g.name}>{g.name}</h2>
                                 { g.action &&
-                                    <a className="pf-v5-c-nav__section-title nav-item"
+                                    <a className="pf-v6-c-nav__section-title nav-item"
                                         href={encode_location(g.action.target)}
                                         onClick={ ev => {
                                             if (g.action)
@@ -213,7 +213,7 @@ export class CockpitNav<T> extends React.Component {
                                     </a>
                                 }
                             </div>
-                            <ul className="pf-v5-c-nav__list">
+                            <ul className="pf-v6-c-nav__list">
                                 {g.items.map(i => this.props.item_render(i, this.state.search.toLowerCase()))}
                             </ul>
                         </section>
@@ -278,23 +278,27 @@ export function CockpitNavItem(props : {
         header_matches = props.keyword === props.header.toLowerCase();
 
     const classes = props.className ? [props.className] : [];
-    classes.push("pf-v5-c-nav__item", "nav-item");
+    classes.push("pf-v6-c-nav__item", "nav-item");
 
     return (
         <li className={classes.join(" ")}>
-            <a className={"pf-v5-c-nav__link" + (props.active ? " pf-m-current" : "")}
+            <a className={"pf-v6-c-nav__link" + (props.active ? " pf-m-current" : "")}
                 aria-current={props.active && "page"}
                 href={props.href}
                 onClick={ev => {
                     props.onClick();
                     ev.preventDefault();
                 }}>
-                { props.header && <span className="nav-item-hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
-                <span className="nav-item-name">
-                    { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
+                <span className="pf-v6-c-nav__link-text">
+                    { props.header && <span className="nav-item-hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
+                    <span className="nav-item-name">
+                        { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
+                    </span>
                 </span>
-                {s && s.type && <PageStatus status={s} name={props.name} />}
-                { !name_matches && !header_matches && props.keyword && <span className="nav-item-hint nav-item-hint-contains">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
+                <span className="pf-v6-c-nav__link-icon">
+                    {s && s.type && <PageStatus status={s} name={props.name} />}
+                    { !name_matches && !header_matches && props.keyword && <span className="nav-item-hint nav-item-hint-contains">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
+                </span>
             </a>
             <span className="nav-item-actions nav-host-action-buttons">
                 {props.actions}

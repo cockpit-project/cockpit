@@ -179,7 +179,7 @@ export class LogEntry extends React.Component {
         }
 
         return (
-            <Page id="log-details" className="log-details">
+            <Page id="log-details" className="log-details no-masthead-sidebar">
                 <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                     <Breadcrumb>
                         <BreadcrumbItem onClick={this.goHome} className="pf-v6-c-breadcrumb__link">{_("Logs")}</BreadcrumbItem>

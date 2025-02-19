@@ -588,7 +588,7 @@ ${enableCrashKernel}
             }
         }
         return (
-            <Page>
+            <Page className='no-masthead-sidebar'>
                 <PageSection hasBodyWrapper={false}>
                     <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
                         <Title headingLevel="h2" size="3xl">

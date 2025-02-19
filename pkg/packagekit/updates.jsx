@@ -1631,7 +1631,7 @@ class OsUpdates extends React.Component {
 
         return (
             <WithDialogs>
-                <Page>
+                <Page className='no-masthead-sidebar'>
                     {content}
                 </Page>
             </WithDialogs>

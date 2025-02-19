@@ -289,12 +289,16 @@ export function CockpitNavItem(props : {
                     props.onClick();
                     ev.preventDefault();
                 }}>
-                { props.header && <span className="nav-item-hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
-                <span className="nav-item-name">
-                    { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
+                <span className="pf-v6-c-nav__link-text">
+                    { props.header && <span className="nav-item-hint">{header_matches ? <FormattedText keyword={props.header} term={props.term} /> : props.header}</span> }
+                    <span className="nav-item-name">
+                        { name_matches ? <FormattedText keyword={props.name} term={props.term} /> : props.name }
+                    </span>
                 </span>
-                {s && s.type && <PageStatus status={s} name={props.name} />}
-                { !name_matches && !header_matches && props.keyword && <span className="nav-item-hint nav-item-hint-contains">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
+                <span className="pf-v6-c-nav__link-icon">
+                    {s && s.type && <PageStatus status={s} name={props.name} />}
+                    { !name_matches && !header_matches && props.keyword && <span className="nav-item-hint nav-item-hint-contains">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
+                </span>
             </a>
             <span className="nav-item-actions nav-host-action-buttons">
                 {props.actions}

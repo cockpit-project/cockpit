@@ -72,7 +72,8 @@ class TestSuperuser(testlib.MachineCase):
         b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.focus(".pf-v5-c-modal-box button:contains('Cancel')")
-        b.assert_pixels(".pf-v5-c-modal-box:contains('Switch to administrative access')", "superuser-modal")
+        b.assert_pixels(".pf-v5-c-modal-box:contains('Switch to administrative access')", "superuser-modal",
+                        chrome_hack_double_shots=True)
         b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")
         b.check_superuser_indicator("Administrative access")

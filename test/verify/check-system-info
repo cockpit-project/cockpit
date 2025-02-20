@@ -61,13 +61,8 @@ class TestSystemInfo(testlib.MachineCase):
         # Most OSes don't set nosmt by default, but there are some exceptions
         self.expect_smt_default = self.machine.image in ["fedora-coreos"]
 
-        self.supportsFIPS = re.match(r'fedora|((centos|rhel)-(8|9)).*', self.machine.image)
-        # HACK: temporary: we are in the middle of transitioning centos/rhel-10 images away from fips-mode-setup;
-        # until https://github.com/cockpit-project/bots/pull/7095 and https://github.com/cockpit-project/bots/pull/7091
-        # land, do runtime detection
-        if self.machine.image in ["centos-10", "rhel-10-0"]:
-            if '/bin' in self.machine.execute("command -v fips-mode-setup", check=False):
-                self.supportsFIPS = True
+        # Switching into and out of FIPS mode is not supported anymore in newer OSes.
+        self.supportsFIPS = self.machine.image.startswith(("fedora-40", "fedora-41", "rhel-8", "rhel-9", "centos-9"))
 
     def testBasic(self):
         m = self.machine

@@ -1294,7 +1294,8 @@ class Browser:
         sit_after_mock: bool = False,
         scroll_into_view: str | None = None,
         wait_animations: bool = True,
-        wait_delay: float = 0.5
+        wait_delay: float = 0.5,
+        chrome_hack_double_shots: bool = False
     ) -> None:
         """Compare the given element with its reference in the current layout"""
 
@@ -1360,6 +1361,26 @@ class Browser:
         ret = self.bidi("browsingContext.captureScreenshot", quiet=True,
                         context=self.driver.top_context,
                         clip=rect)
+        if chrome_hack_double_shots:
+            # HACK - https://github.com/cockpit-project/cockpit/issues/21577
+            #
+            # There is some really evil Chromium bug that often hides the
+            # primary button in dialog screenshots.  But funnily, calling
+            # captureScreenshot a second time will give us the correct
+            # rendering, every time.
+            #
+            # This doesn't seem to be a race between the page changing and
+            # us taking screenshots. No amount of waiting here helps
+            # fully. The second call to captureScreenshot seems to indeed
+            # trigger something that renders the page again, and correctly
+            # this time.
+            #
+            ret1 = ret
+            ret = self.bidi("browsingContext.captureScreenshot", quiet=True,
+                            context=self.driver.top_context,
+                            clip=rect)
+            if ret1["data"] != ret["data"]:
+                print("WARNING: Inconsistent screenshots for", base)
         png_now = base64.standard_b64decode(ret["data"])
         png_ref = os.path.exists(ref_filename) and open(ref_filename, "rb").read()
         if not png_ref:
@@ -1477,7 +1498,8 @@ class Browser:
         scroll_into_view: str | None = None,
         wait_animations: bool = True,
         wait_after_layout_change: bool = False,
-        wait_delay: float = 0.5
+            wait_delay: float = 0.5,
+        chrome_hack_double_shots: bool = False
     ) -> None:
         """Compare the given element with its reference in all layouts"""
 
@@ -1513,7 +1535,8 @@ class Browser:
                                                          mock=mock, sit_after_mock=sit_after_mock,
                                                          scroll_into_view=scroll_into_view,
                                                          wait_animations=wait_animations,
-                                                         wait_delay=wait_delay)
+                                                         wait_delay=wait_delay,
+                                                         chrome_hack_double_shots=chrome_hack_double_shots)
 
             self.set_layout(previous_layout)
 

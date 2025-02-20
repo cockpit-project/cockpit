@@ -357,14 +357,14 @@ export class KdumpPage extends React.Component {
             if (target.type === "local") {
                 verifyMessage = fmt_to_fragments(
                     ' ' + _("Results of the crash will be stored in $0 as $1, if kdump is properly configured."),
-                    <span className="pf-v5-u-font-family-monospace-vf">{path}</span>,
-                    <span className="pf-v5-u-font-family-monospace-vf">vmcore</span>);
+                    <span className="pf-v6-u-font-family-monospace-vf">{path}</span>,
+                    <span className="pf-v6-u-font-family-monospace-vf">vmcore</span>);
             } else if (target.type === "ssh" || target.type == "nfs") {
                 verifyMessage = fmt_to_fragments(
                     ' ' + _("Results of the crash will be copied through $0 to $1 as $2, if kdump is properly configured."),
-                    <span className="pf-v5-u-font-family-monospace-vf">{target.type === "ssh" ? "SSH" : "NFS"}</span>,
-                    <span className="pf-v5-u-font-family-monospace-vf">{path}</span>,
-                    <span className="pf-v5-u-font-family-monospace-vf">vmcore</span>);
+                    <span className="pf-v6-u-font-family-monospace-vf">{target.type === "ssh" ? "SSH" : "NFS"}</span>,
+                    <span className="pf-v6-u-font-family-monospace-vf">{path}</span>,
+                    <span className="pf-v6-u-font-family-monospace-vf">vmcore</span>);
             }
         }
 
@@ -562,20 +562,20 @@ ${enableCrashKernel}
                 if (this.props.reservedMemory == 0) {
                     alertMessage = fmt_to_fragments(
                         _("Kernel did not boot with the $0 setting"),
-                        <span className="pf-v5-u-font-family-monospace-vf">crashkernel</span>
+                        <span className="pf-v6-u-font-family-monospace-vf">crashkernel</span>
                     );
                     alertDetail = fmt_to_fragments(
                         _("Reserve memory at boot time by setting a '$0' option on the kernel command line. For example, append '$1' to $2  in $3 or use your distribution's kernel argument editor."),
-                        <span className="pf-v5-u-font-family-monospace-vf">crashkernel</span>,
-                        <span className="pf-v5-u-font-family-monospace-vf">crashkernel=512M</span>,
-                        <span className="pf-v5-u-font-family-monospace-vf">GRUB_CMDLINE_LINUX</span>,
-                        <span className="pf-v5-u-font-family-monospace-vf">/etc/default/grub</span>
+                        <span className="pf-v6-u-font-family-monospace-vf">crashkernel</span>,
+                        <span className="pf-v6-u-font-family-monospace-vf">crashkernel=512M</span>,
+                        <span className="pf-v6-u-font-family-monospace-vf">GRUB_CMDLINE_LINUX</span>,
+                        <span className="pf-v6-u-font-family-monospace-vf">/etc/default/grub</span>
                     );
                 } else if (this.props.kdumpStatus.state == "failed") {
                     alertMessage = (
                         <>
                             {_("Service has an error")}
-                            <Button variant="link" isInline className="pf-v5-u-ml-sm" onClick={this.handleServiceDetailsClick}>{_("more details")}</Button>
+                            <Button variant="link" isInline className="pf-v6-u-ml-sm" onClick={this.handleServiceDetailsClick}>{_("more details")}</Button>
                         </>
                     );
                 }
@@ -583,7 +583,7 @@ ${enableCrashKernel}
                 alertMessage = _("Kdump service is not installed.");
                 alertDetail = fmt_to_fragments(
                     _("Install the $0 package."),
-                    <span className="pf-v5-u-font-family-monospace-vf">kexec-tools</span>
+                    <span className="pf-v6-u-font-family-monospace-vf">kexec-tools</span>
                 );
             }
         }
@@ -605,7 +605,7 @@ ${enableCrashKernel}
 
                     {alertMessage &&
                         <Alert variant='danger'
-                            className="pf-v5-u-mb-md"
+                            className="pf-v6-u-mb-md"
                             isLiveRegion={this.props.isLiveRegion}
                             isInline
                             title={alertMessage}>

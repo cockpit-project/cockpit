@@ -37,21 +37,21 @@
   text-align: center;
 }
 
-.service-unit-file-state:not(.pf-v5-c-badge) {
+.service-unit-file-state:not(.pf-v6-c-badge) {
   text-align: center;
   opacity: 0.8;
 }
 
 // Add some spacing between the tab label and the icon
-.pf-v5-c-nav__link > .ct-exclamation-circle {
+.pf-v6-c-nav__link > .ct-exclamation-circle {
   margin-inline-start: 0.5rem;
 }
 
-.services-header.pf-v5-c-page__main-nav {
+.services-header.pf-v6-c-page__main-nav {
   padding-block-end: 1rem;
   padding-inline-end: 0;
 
-  > .pf-v5-l-flex {
+  > .pf-v6-l-flex {
     // Add spacing between the tabs and the 'Create timer' button in mobile
     row-gap: var(--pf-v5-global--spacer--sm);
     // Align 'Create timer' button with the right side of the services list card
@@ -83,20 +83,20 @@
   min-inline-size: 20ch;
 }
 
-.pf-v5-c-table .service-unit-second-column {
+.pf-v6-c-table .service-unit-second-column {
   --pf-v5-c-table--cell--Width: 20%;
 }
 
 // Don't show labels from mobile mode
-.pf-v5-c-table [data-label]::before {
+.pf-v6-c-table [data-label]::before {
   display: none;
 }
 
-.pf-v5-c-table [data-label] {
+.pf-v6-c-table [data-label] {
   display: revert;
 }
 
 // FIXME: When porting the selects to the PF5 select implementation drop this
-.pf-v5-c-toolbar__item {
+.pf-v6-c-toolbar__item {
   align-self: center;
 }

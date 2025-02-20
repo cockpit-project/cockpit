@@ -26,16 +26,16 @@ $desktop: $phone + 1px;
     --ct-color-nav-highlight: var(--pf-v5-global--palette--gold-600);
     --ct-color-nav-highlight-text: var(--pf-v5-global--palette--gold-300);
 
-    .pf-v5-c-nav__link {
+    .pf-v6-c-nav__link {
       --pf-v5-c-nav__link--hover--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-300);
       --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
     }
 
-    .search .pf-v5-c-text-input-group__text-input {
+    .search .pf-v6-c-text-input-group__text-input {
       border-color: var(--pf-v5-global--BorderColor--300);
     }
 
-    .sidebar-hosts .pf-v5-c-nav__item {
+    .sidebar-hosts .pf-v6-c-nav__item {
       --pf-v5-c-nav__link--hover--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-300);
       --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
     }
@@ -57,29 +57,29 @@ $desktop: $phone + 1px;
     padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm);
     padding-inline: var(--pf-t--global--spacer--md);
 
-    > .pf-v5-c-text-input-group__main {
+    > .pf-v6-c-text-input-group__main {
       background: var(--ct-color-nav-search);
     }
 
-    .pf-v5-c-text-input-group__text::after,
-    .pf-v5-c-text-input-group__text::before {
+    .pf-v6-c-text-input-group__text::after,
+    .pf-v6-c-text-input-group__text::before {
       border: none;
     }
 
     // Adjust search icon
-    .pf-v5-c-text-input-group__icon {
+    .pf-v6-c-text-input-group__icon {
       padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm) !important;
       padding-inline: var(--pf-t--global--spacer--md) !important;
       color: var(--pf-v5-global--palette--black-200);
       inset-inline-start: var(--pf-t--global--spacer--sm);
     }
 
-    .pf-v5-c-text-input-group__text-input,
-    .pf-v5-c-text-input-group__text-input::placeholder {
+    .pf-v6-c-text-input-group__text-input,
+    .pf-v6-c-text-input-group__text-input::placeholder {
       color: var(--pf-v5-global--palette--black-100);
     }
 
-    .pf-v5-c-text-input-group__text-input {
+    .pf-v6-c-text-input-group__text-input {
       // Reserve space for the × icon
       padding-inline: var(--pf-t--global--spacer--xl) 0;
       // Stroke outside, based on PF search dark mode mockups
@@ -87,7 +87,7 @@ $desktop: $phone + 1px;
     }
 
     // Reposition the × icon over the entry & recolor it
-    .pf-v5-c-text-input-group__utilities {
+    .pf-v6-c-text-input-group__utilities {
       align-self: center;
       justify-content: center;
       position: absolute;
@@ -95,7 +95,7 @@ $desktop: $phone + 1px;
       inline-size: var(--pf-t--global--spacer--xl);
 
       // Recolor × icon
-      > .pf-v5-c-button {
+      > .pf-v6-c-button {
         color: var(--pf-v5-global--palette--black-400);
 
         &:hover {
@@ -180,12 +180,12 @@ $desktop: $phone + 1px;
 /* Desktop navigation */
 @media (min-width: $desktop) {
   // Adapt PF4's new header select for 2-up
-  .ct-topnav-content .pf-v5-c-toolbar__item:not(.super-user-indicator) {
+  .ct-topnav-content .pf-v6-c-toolbar__item:not(.super-user-indicator) {
     // Remove the margin spacing between each
     margin-inline-end: 0;
 
     // Collapse the 2 side border lines into 1
-    + .pf-v5-c-toolbar__item button::before {
+    + .pf-v6-c-toolbar__item button::before {
       margin-inline-start: -1px;
     }
   }
@@ -213,8 +213,8 @@ $desktop: $phone + 1px;
     }
 
     &.edit-hosts {
-      .pf-v5-c-nav__list {
-        .pf-v5-c-button {
+      .pf-v6-c-nav__list {
+        .pf-v6-c-button {
           animation: navHostsEditButtonsAppear 400ms;
           animation-timing-function: ease-in-out;
         }
@@ -224,7 +224,8 @@ $desktop: $phone + 1px;
 
   .header {
     border-inline-start: 1px solid var(--pf-v5-global--BackgroundColor--dark-100);
-    background: linear-gradient(to right, var(--pf-v5-global--BackgroundColor--dark-100) -1rem, var(--pf-v5-global--BackgroundColor--dark-300) 1rem);
+    // background: linear-gradient(to right, var(--pf-v5-global--BackgroundColor--dark-100) -1rem, var(--pf-v5-global--BackgroundColor--dark-300) 1rem);
+    background-color: var(--pf-t--global--background--color--tertiary--default);
 
     .credential-unlocked {
       /* AAA contrast: simulate #a1a1a1 on #151515 */
@@ -233,7 +234,7 @@ $desktop: $phone + 1px;
   }
 
   .pf-v6-theme-dark {
-    > .pf-v5-c-select__toggle {
+    > .pf-v6-c-select__toggle {
       background-color: var(--pf-v5-global--BackgroundColor--dark-300);
     }
   }
@@ -241,7 +242,7 @@ $desktop: $phone + 1px;
   .ct-switcher {
     background-color: var(--pf-v5-global--BackgroundColor--dark-300);
 
-    > .pf-v5-c-select > button {
+    > .pf-v6-c-select > button {
       padding-inline-start: var(--pf-t--global--spacer--lg);
     }
   }
@@ -254,7 +255,7 @@ $desktop: $phone + 1px;
     }
   }
 
-  .pf-v5-c-select__toggle-arrow {
+  .pf-v6-c-select__toggle-arrow {
     font-size: 1.3rem;
     transition-duration: 0.3s;
   }
@@ -289,7 +290,7 @@ $desktop: $phone + 1px;
   }
 
   .header {
-    .pf-v5-c-toolbar__item {
+    .pf-v6-c-toolbar__item {
       margin-inline-end: 0;
     }
   }
@@ -310,20 +311,20 @@ $desktop: $phone + 1px;
     max-inline-size: 100vw;
   }
 
-  .pf-m-dark.pf-v5-c-select {
-    .pf-v5-c-select__toggle {
+  .pf-m-dark.pf-v6-c-select {
+    .pf-v6-c-select__toggle {
       color: var(--pf-v5-global--Color--light-100) !important;
       background-color: transparent;
     }
   }
 
-  .ct-switcher > .pf-v5-c-select {
-    .pf-v5-c-select__toggle {
+  .ct-switcher > .pf-v6-c-select {
+    .pf-v6-c-select__toggle {
       display: block;
       inline-size: auto;
     }
 
-    .pf-v5-c-select__toggle-arrow {
+    .pf-v6-c-select__toggle-arrow {
       transform: scale(1.5);
       margin: unset;
       margin-block-start: 4px;
@@ -361,7 +362,7 @@ $desktop: $phone + 1px;
   }
 
   // Make the hosts selection fill the width of the page
-  .view-hosts .sidebar-hosts .pf-v5-c-page__sidebar-body {
+  .view-hosts .sidebar-hosts .pf-v6-c-page__sidebar-body {
     inline-size: 100vw;
   }
 }
@@ -373,10 +374,10 @@ $desktop: $phone + 1px;
 .ct-switcher {
   block-size: 100%;
 
-  > .pf-v5-c-select {
+  > .pf-v6-c-select {
     block-size: 100%;
 
-    .pf-v5-c-select__toggle-text {
+    .pf-v6-c-select__toggle-text {
       text-align: start;
     }
   }
@@ -404,14 +405,14 @@ $desktop: $phone + 1px;
 }
 
 .pf-v6-theme-dark {
-  .pf-v5-c-select__toggle {
+  .pf-v6-c-select__toggle {
     > * {
       color: var(--pf-v5-global--Color--light-100);
     }
   }
 }
 
-.pf-v5-c-select__toggle {
+.pf-v6-c-select__toggle {
   block-size: 100%;
 }
 
@@ -435,7 +436,7 @@ $desktop: $phone + 1px;
     position: sticky;
     inset-block-start: 0;
 
-    > .pf-v5-c-nav {
+    > .pf-v6-c-nav {
       overflow: auto;
     }
   }
@@ -446,7 +447,7 @@ $desktop: $phone + 1px;
 //   display: flex;
 //   justify-content: space-between;
 
-//   > .pf-v5-c-nav__section-title:not(a) {
+//   > .pf-v6-c-nav__section-title:not(a) {
 //     flex: auto;
 //   }
 
@@ -530,11 +531,11 @@ $desktop: $phone + 1px;
 }
 
 .view-hosts .sidebar-hosts {
-  .pf-v5-c-nav__list {
+  .pf-v6-c-nav__list {
     overflow-y: auto;
   }
 
-  .pf-v5-c-page__sidebar-body {
+  .pf-v6-c-page__sidebar-body {
     display: grid;
     grid-template-rows: max-content max-content max-content;
 
@@ -548,7 +549,7 @@ $desktop: $phone + 1px;
     }
   }
 
-  .pf-v5-c-nav {
+  .pf-v6-c-nav {
     overflow: auto;
   }
 
@@ -576,7 +577,7 @@ $desktop: $phone + 1px;
     display: grid;
     grid-template-columns: 1fr auto;
 
-    > .pf-v5-c-nav__link {
+    > .pf-v6-c-nav__link {
       flex-direction: column;
       justify-content: center;
       word-break: break-word;
@@ -622,17 +623,17 @@ $desktop: $phone + 1px;
 
 // Rework navigation toggles in desktop and (especially) mobile modes
 .super-user-indicator > button,
-.ct-nav-toggle:not(.pf-v5-c-menu) {
+.ct-nav-toggle:not(.pf-v6-c-menu) {
   color: var(--pf-v5-global--Color--light-100) !important;
   background: transparent !important;
   // The normal margin to the right of the select dropdown makes them look uncentered in the masthead.
   // https://github.com/patternfly/patternfly/issues/6632
-  .pf-v5-c-menu-toggle__toggle-icon {
+  .pf-v6-c-menu-toggle__toggle-icon {
       margin-inline-end: 0;
   }
 }
 
-.ct-nav-toggle:not(.pf-v5-c-menu) {
+.ct-nav-toggle:not(.pf-v6-c-menu) {
   &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
     text-decoration: none;
     // approximate --pf-v5-global--BackgroundColor--dark-400, but with opacity
@@ -676,7 +677,7 @@ $desktop: $phone + 1px;
   }
 
   // Hide border from navigation items for mobile
-  .pf-v5-c-menu-toggle::before {
+  .pf-v6-c-menu-toggle::before {
     border: none;
   }
 
@@ -747,28 +748,28 @@ $desktop: $phone + 1px;
     align-items: center;
 
     // Remove the toggled outline
-    .pf-v5-c-menu-toggle::before {
+    .pf-v6-c-menu-toggle::before {
       display: none !important;
     }
 
     // Don't show toggle icon
-    .pf-v5-c-menu-toggle__icon {
+    .pf-v6-c-menu-toggle__icon {
       margin-inline-end: 0;
     }
 
-    .pf-v5-c-menu-toggle__image {
+    .pf-v6-c-menu-toggle__image {
       align-self: center;
       margin: 0 !important;
     }
 
     // #host-sel specific
-    .pf-v5-c-select__toggle-arrow {
+    .pf-v6-c-select__toggle-arrow {
       // This is here because Chrome is weird sometimes...
       padding-block: 2px 5px;
       padding-inline: 0;
     }
 
-    > .pf-v5-c-select__toggle-wrapper {
+    > .pf-v6-c-select__toggle-wrapper {
       flex: none;
       max-inline-size: 100%;
     }
@@ -779,7 +780,7 @@ $desktop: $phone + 1px;
 .nav-hosts-menu {
   block-size: auto;
 
-  .pf-v5-c-page__sidebar {
+  .pf-v6-c-page__sidebar {
     inline-size: unset;
   }
 }
@@ -789,20 +790,20 @@ $desktop: $phone + 1px;
 .pf-v6-theme-dark {
   // Change sidebar background color when dark
   nav,
-  .ct-switcher > .pf-v5-c-select {
+  .ct-switcher > .pf-v6-c-select {
     --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--dark-100);
     --pf-v5-global--BackgroundColor--300: var(--pf-v5-global--BackgroundColor--dark-200);
   }
 
   // Redefine the background color for current links
-  .area-ct-subnav .pf-v5-c-nav__item {
+  .area-ct-subnav .pf-v6-c-nav__item {
     > .pf-m-current, .pf-m-current + .nav-item-actions {
       --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-200);
     }
   }
 
   // Add a border to the right of the sidebar (without affecting flow)
-  .ct-switcher > .pf-v5-c-select,
+  .ct-switcher > .pf-v6-c-select,
   .area-ct-subnav.nav-system-menu.sidebar,
   .navbar.navbar-default navbar-pf.navbar-pf-vertical {
     &::after {

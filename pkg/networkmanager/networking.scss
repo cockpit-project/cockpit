@@ -4,13 +4,13 @@
 
 #firewall,
 #network-page {
-  .pf-v5-c-card {
+  .pf-v6-c-card {
     @extend .ct-card;
   }
 }
 
 #networking, #network-interface {
-  .pf-v5-l-gallery {
+  .pf-v6-l-gallery {
     --pf-v5-l-gallery--GridTemplateColumns: 1fr;
   }
 }
@@ -42,7 +42,7 @@
   block-size: 180px;
 }
 
-.pf-v5-c-page__main-breadcrumb + .networking-graphs {
+.pf-v6-c-page__main-breadcrumb + .networking-graphs {
   // Remove the top padding when following a breadcrumb
   padding-block-start: 0;
 }
@@ -97,11 +97,11 @@ th {
 }
 
 .network-interface-members {
-  .pf-v5-c-switch {
+  .pf-v6-c-switch {
     margin-inline-end: var(--pf-v5-global--spacer--md);
   }
 
-  .pf-v5-c-table tbody > tr > * {
+  .pf-v6-c-table tbody > tr > * {
     vertical-align: middle;
   }
 
@@ -120,14 +120,14 @@ th {
 // the focus ring of the MTU custom input. Since we know the modal won't have
 // much vertical content, we can disable the overflow to let the focus ring be
 // fully visible. (Otherwise the bottommost pixels are removed.)
-#network-mtu-settings-dialog .pf-v5-c-modal-box__body {
+#network-mtu-settings-dialog .pf-v6-c-modal-box__body {
   overflow: visible;
 }
 
 // Use a grid to lay out elements. This could've been a flex, but a grid lets
 // us size elements from the parent element instead of having to specify
 // individual elements
-#network-mtu-settings-custom + .pf-v5-c-radio__label {
+#network-mtu-settings-custom + .pf-v6-c-radio__label {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: baseline;
@@ -145,12 +145,12 @@ th {
   z-index: 2000;
 }
 
-.pf-v5-l-flex > .network-ip-settings-method {
+.pf-v6-l-flex > .network-ip-settings-method {
   inline-size: 12rem;
 }
 
 #network-ip-settings-body {
-  .pf-v5-c-form__label {
+  .pf-v6-c-form__label {
     // Don't allow labels to wrap
     white-space: nowrap;
   }
@@ -217,7 +217,7 @@ th {
 }
 
 @media screen and (max-width: $pf-v6-global--breakpoint--md) {
-  .zone-section-heading.pf-v5-c-card__header {
+  .zone-section-heading.pf-v6-c-card__header {
     padding-inline-start: var(--pf-v5-global--spacer--md);
   }
 }
@@ -237,7 +237,7 @@ th {
   line-height: 3;
 }
 
-#add-zone-dialog .add-zone-zones .pf-v5-c-radio__label {
+#add-zone-dialog .add-zone-zones .pf-v6-c-radio__label {
   text-transform: capitalize;
 }
 
@@ -304,7 +304,7 @@ th {
   }
 }
 
-.pf-v5-c-dropdown__menu-item.pf-m-danger {
+.pf-v6-c-dropdown__menu-item.pf-m-danger {
   color: var(--pf-v5-global--danger-color--200);
 }
 
@@ -316,7 +316,7 @@ th {
 // HACK: MenuToggle has inline-block by default which makes it not appear under
 // the entry above
 @media screen and (max-width: $pf-v6-global--breakpoint--sm) {
-  .pf-v5-c-table__td .pf-v5-c-menu-toggle.pf-m-plain {
+  .pf-v6-c-table__td .pf-v6-c-menu-toggle.pf-m-plain {
     display: inline-flex;
     align-items: flex-start;
   }

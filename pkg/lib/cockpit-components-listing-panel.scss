@@ -18,7 +18,7 @@
     order: 1;
   }
 
-  .pf-v5-c-tab-content {
+  .pf-v6-c-tab-content {
     order: 3;
     flex-basis: 100%;
   }
@@ -47,7 +47,7 @@
 }
 
 .ct-table {
-  > tbody > .pf-v5-c-table__expandable-row {
+  > tbody > .pf-v6-c-table__expandable-row {
     // Don't scroll table's expanded contents vertically.
     // Instead, rely on page scrolling.
     // Important for mobile; also useful for desktop.
@@ -61,7 +61,7 @@
 
 @media not all and (prefers-reduced-motion: reduce) {
   // Add expansion animations when prefers-reduced isn't enabled
-  .ct-table .pf-v5-c-table__expandable-row-content {
+  .ct-table .pf-v6-c-table__expandable-row-content {
     // Animation ends at or before 2/3 in most cases; so we extend by 1.5 to compensate
     animation: ctListingPanelShow calc(var(--pf-v5-global--TransitionDuration) * 1.5) var(--pf-v5-global--TimingFunction);
   }

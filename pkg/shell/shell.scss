@@ -100,7 +100,7 @@ html.index-page body {
 
 .display-language-modal {
   /* Do not let the language menu expand to the end of the page */
-  .pf-v5-c-menu__content {
+  .pf-v6-c-menu__content {
     max-block-size: 20rem;
     overflow: auto;
   }
@@ -125,11 +125,11 @@ $desktop: $phone + 1px;
   // Set masthead and toolbar to transparent, so the background shows through
   // (including the accent line)
 
-  .pf-v5-c-masthead {
+  .pf-v6-c-masthead {
     --pf-v5-c-masthead--BackgroundColor: transparent;
   }
 
-  .pf-v5-c-toolbar {
+  .pf-v6-c-toolbar {
     --pf-v5-c-toolbar--BackgroundColor: transparent;
   }
 
@@ -167,7 +167,7 @@ $desktop: $phone + 1px;
     }
 
     // Remove excess padding from masthead in mobile
-    .pf-v5-c-masthead {
+    .pf-v6-c-masthead {
       --pf-v5-c-masthead--inset: 0;
     }
   }
@@ -234,7 +234,7 @@ $desktop: $phone + 1px;
 }
 
 /* Alert fixups */
-.modal-content .pf-v5-c-alert {
+.modal-content .pf-v6-c-alert {
   text-align: start;
   margin-block-end: 24px;
 }
@@ -244,24 +244,24 @@ $desktop: $phone + 1px;
 }
 
 // Header menu buttons don't need a background color (especially in dark mode)
-.pf-v5-c-toolbar .pf-v5-c-dropdown__toggle {
+.pf-v6-c-toolbar .pf-v6-c-dropdown__toggle {
   --pf-v5-c-dropdown__toggle--BackgroundColor: transparent;
 }
 
 // Header menu buttons don't need a background color (especially in dark mode)
-.pf-v5-c-toolbar .pf-v5-c-dropdown__toggle {
+.pf-v6-c-toolbar .pf-v6-c-dropdown__toggle {
   --pf-v5-c-dropdown__toggle--BackgroundColor: transparent;
 }
 
 // PF hardcodes header colors to dark, which does funky things
 // ...so swap them back properly for dropdown menus
-.pf-v5-c-masthead .pf-v5-c-dropdown__menu {
+.pf-v6-c-masthead .pf-v6-c-dropdown__menu {
   --pf-v5-global--BackgroundColor--100: var(--pf-v5-global--BackgroundColor--light-100);
   --pf-v5-global--Color--100: var(--pf-v5-global--Color--dark-100);
 }
 
 // Customize the about screen with the Cockpit logo
-.pf-v5-c-about-modal-box {
+.pf-v6-c-about-modal-box {
   --pf-v5-c-about-modal-box--BackgroundImage: linear-gradient(#000d, #000d), url(../shell/images/cockpit-icon.svg);
   --pf-v5-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
   --pf-v5-c-about-modal-box--BackgroundSize--min-width: 786px;

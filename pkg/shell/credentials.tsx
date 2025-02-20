@@ -79,7 +79,7 @@ const AddNewKey = ({
                 <FileAutoComplete onChange={setNewKeyPath}
                                   placeholder={_("Path to file")}
                                   superuser="try" />
-                {newKeyPathError && <HelperText className="pf-v5-c-form__helper-text">
+                {newKeyPathError && <HelperText className="pf-v6-c-form__helper-text">
                     <HelperTextItem variant="error">{newKeyPathError}</HelperTextItem>
                 </HelperText>}
             </GridItem>
@@ -189,7 +189,7 @@ const KeyPassword = ({
                         aria-label={_("Password tip")}
                         bodyContent={_("Tip: Make your key password match your login password to automatically authenticate against other systems.")}
                     >
-                        <button className="pf-v5-c-form__group-label-help ct-icon-info-circle"
+                        <button className="pf-v6-c-form__group-label-help ct-icon-info-circle"
                                 onClick={e => e.preventDefault()}
                                 type="button">
                             <InfoCircleIcon />

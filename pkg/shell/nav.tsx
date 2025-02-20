@@ -62,10 +62,10 @@ export const SidebarToggle = () => {
     }, [active]);
 
     return (
-        <Button className={"pf-v5-c-select__toggle ct-nav-toggle " + (active ? "active" : "")}
+        <Button className={"pf-v6-c-select__toggle ct-nav-toggle " + (active ? "active" : "")}
                 id="nav-system-item" variant="plain"
                 onClick={() => setActive(!active)}>
-            <ContainerNodeIcon className="pf-v5-c-icon pf-m-lg" />
+            <ContainerNodeIcon className="pf-v6-c-icon pf-m-lg" />
             {_("System")}
         </Button>
     );
@@ -148,7 +148,7 @@ export class CockpitNav<T> extends React.Component {
                 let i = all.findIndex(item => item === cur);
                 i += step;
                 if (i < 0 || i >= all.length)
-                    document.querySelector<HTMLElement>("#" + sel + " .pf-v5-c-text-input-group__text-input")?.focus();
+                    document.querySelector<HTMLElement>("#" + sel + " .pf-v6-c-text-input-group__text-input")?.focus();
                 else
                     all[i].focus();
             }
@@ -163,7 +163,7 @@ export class CockpitNav<T> extends React.Component {
                 focusNextItem(-1, -1);
             else if (ev.key == "Escape") {
                 this.setState({ search: "" });
-                document.querySelector<HTMLElement>("#" + sel + " .pf-v5-c-text-input-group__text-input")?.focus();
+                document.querySelector<HTMLElement>("#" + sel + " .pf-v6-c-text-input-group__text-input")?.focus();
             }
         };
 

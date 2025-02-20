@@ -604,7 +604,7 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
                     <Progress title={remain}
                               value={percentage}
                               size={ProgressSize.sm}
-                              className="pf-v5-u-mb-xs" />
+                              className="pf-v6-u-mb-xs" />
                 </GridItem>
 
                 <GridItem span="3">{cancelButton}</GridItem>
@@ -1491,7 +1491,7 @@ class OsUpdates extends React.Component {
                                         </Content>
                                     }
                     />
-                    <CodeBlock className='pf-v5-u-mx-auto error-log'>
+                    <CodeBlock className='pf-v6-u-mx-auto error-log'>
                         <CodeBlockCode>
                             {this.state.errorMessages
                                     .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])

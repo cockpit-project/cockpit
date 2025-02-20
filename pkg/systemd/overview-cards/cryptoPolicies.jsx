@@ -90,9 +90,9 @@ export const CryptoPolicyRow = () => {
         </PrivilegedButton>;
 
     return (
-        <tr className="pf-v5-c-table__tr">
-            <th className="pf-v5-c-table__th" scope="row">{_("Cryptographic policy")}</th>
-            <td className="pf-v5-c-table__td">{policyRender}</td>
+        <tr className="pf-v6-c-table__tr">
+            <th className="pf-v6-c-table__th" scope="row">{_("Cryptographic policy")}</th>
+            <td className="pf-v6-c-table__td">{policyRender}</td>
         </tr>
     );
 };
@@ -262,7 +262,7 @@ export const CryptoPolicyStatus = () => {
                         <div id="inconsistent_crypto_policy">
                             {currentCryptoPolicy === "FIPS" ? _("FIPS is not properly enabled") : _("Cryptographic policy is inconsistent")}
                         </div>
-                        <Button isInline variant="link" className="pf-v5-u-font-size-sm"
+                        <Button isInline variant="link" className="pf-v6-u-font-size-sm"
                                 onClick={() => Dialogs.show(<CryptoPolicyDialog currentCryptoPolicy={currentCryptoPolicy}
                                                                                 fipsEnabled={fipsEnabled}
                                                                                 fipsConfigurable={fipsConfigurable}

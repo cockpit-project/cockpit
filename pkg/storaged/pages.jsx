@@ -604,7 +604,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                         <Split hasGutter isWrappable onClick={onClick}>
                             <SplitItem>{type}</SplitItem>
                             <SplitItem isFilled>{location}</SplitItem>
-                            <SplitItem isFilled className="pf-v5-u-text-align-right">{size}</SplitItem>
+                            <SplitItem isFilled className="pf-v6-u-text-align-right">{size}</SplitItem>
                         </Split>
                     </CardBody>
                 </Card>);
@@ -619,7 +619,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 <Td key="2" onClick={onClick} modifier="nowrap">{type}</Td>,
                 <Td key="3" onClick={onClick} modifier="nowrap">{location}</Td>,
                 <Td key="4" onClick={onClick} className="storage-size-column">{size}</Td>,
-                <Td key="5" className="pf-v5-c-table__action">{actions || <div /> }</Td>,
+                <Td key="5" className="pf-v6-c-table__action">{actions || <div /> }</Td>,
             ];
             if (show_icons)
                 cols.unshift(<Td key="0" onClick={onClick} className="storage-device-icon">{icon}</Td>);

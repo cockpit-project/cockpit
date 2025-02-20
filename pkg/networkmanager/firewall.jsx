@@ -36,8 +36,10 @@ import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
-import { Page, PageBreadcrumb, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Page, PageBreadcrumb, PageSection,  } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import {
+	Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
@@ -1047,14 +1049,14 @@ export class Firewall extends React.Component {
         const enabled = this.state.firewall.enabled;
 
         return (
-            <Page>
-                <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+            <Page className='no-masthead-sidebar'>
+                <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                     <Breadcrumb>
-                        <BreadcrumbItem onClick={go_up} className="pf-v5-c-breadcrumb__link">{_("Networking")}</BreadcrumbItem>
+                        <BreadcrumbItem onClick={go_up} className="pf-v6-c-breadcrumb__link">{_("Networking")}</BreadcrumbItem>
                         <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
                     </Breadcrumb>
                 </PageBreadcrumb>
-                <PageSection id="firewall-heading" variant={PageSectionVariants.light} className="firewall-heading">
+                <PageSection hasBodyWrapper={false} id="firewall-heading"  className="firewall-heading">
                     <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
                         <Flex alignItems={{ default: 'alignItemsCenter' }} id="firewall-heading-title-group">
                             <Title headingLevel="h2" size="3xl">
@@ -1066,7 +1068,7 @@ export class Firewall extends React.Component {
                         { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
                     </Flex>
                 </PageSection>
-                <PageSection id="zones-listing">
+                <PageSection hasBodyWrapper={false} id="zones-listing">
                     { enabled && <Stack hasGutter>
                         {
                             zones.map(z => <ZoneSection key={z.id}

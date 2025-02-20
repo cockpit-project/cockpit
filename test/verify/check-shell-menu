@@ -40,25 +40,25 @@ class TestMenu(testlib.MachineCase):
 
         self.login_and_go("/system")
         switch_style("#dark", pixel_test=True)
-        b._wait_present("html.pf-v5-theme-dark")
+        b._wait_present("html.pf-v6-theme-dark")
 
         switch_style("#light")
-        b.wait_not_present("html.pf-v5-theme-dark")
+        b.wait_not_present("html.pf-v6-theme-dark")
 
         # Test overriding, switching only works on Chromium
         if b.browser == "chromium":
             # Light theme overrides browser defaults
             b._set_emulated_media_theme("dark")
-            b.wait_not_present("html.pf-v5-theme-dark")
+            b.wait_not_present("html.pf-v6-theme-dark")
 
             switch_style("#auto")
-            b._wait_present("html.pf-v5-theme-dark")
+            b._wait_present("html.pf-v6-theme-dark")
 
             b._set_emulated_media_theme("light")
-            b.wait_not_present("html.pf-v5-theme-dark")
+            b.wait_not_present("html.pf-v6-theme-dark")
 
             switch_style("#dark")
-            b._wait_present("html.pf-v5-theme-dark")
+            b._wait_present("html.pf-v6-theme-dark")
 
     def testBasic(self):
         b = self.browser

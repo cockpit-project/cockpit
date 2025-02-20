@@ -93,15 +93,15 @@ export const PasswordFormFields = ({
     let messageColor;
     if (passwordStrength > 66) {
         variant = "success";
-        messageColor = "pf-v5-u-success-color-200";
+        messageColor = "pf-v6-u-success-color-200";
         message = _("Strong password");
     } else if (passwordStrength > 33) {
         variant = "warning";
-        messageColor = "pf-v5-u-warning-color-200";
+        messageColor = "pf-v6-u-warning-color-200";
         message = _("Acceptable password");
     } else {
         variant = "danger";
-        messageColor = "pf-v5-u-danger-color-200";
+        messageColor = "pf-v6-u-danger-color-200";
         message = _("Weak password");
     }
 
@@ -115,10 +115,10 @@ export const PasswordFormFields = ({
     return (
         <>
             <FormGroup label={password_label}
-                       labelIcon={password_label_info &&
+                       labelHelp={password_label_info &&
                            <Popover bodyContent={password_label_info}>
                                <button onClick={e => e.preventDefault()}
-                                       className="pf-v5-c-form__group-label-help">
+                                       className="pf-v6-c-form__group-label-help">
                                    <HelpIcon />
                                </button>
                            </Popover>
@@ -143,7 +143,7 @@ export const PasswordFormFields = ({
                 {passwordStrengthValue >= 0 && <Flex spaceItems={{ default: 'spaceItemsSm' }}>
                     <FlexItem>
                         <Progress id={idPrefix + "-meter"}
-                            className={"pf-v5-u-pt-xs ct-password-strength-meter " + variant}
+                            className={"pf-v6-u-pt-xs ct-password-strength-meter " + variant}
                             title={_("password quality")}
                             size={ProgressSize.sm}
                             measureLocation={ProgressMeasureLocation.none}
@@ -151,12 +151,12 @@ export const PasswordFormFields = ({
                             value={passwordStrengthValue} />
                     </FlexItem>
                     <FlexItem>
-                        <div id={idPrefix + "-password-meter-message"} className={"pf-v5-c-form__helper-text " + messageColor} aria-live="polite">{passwordMessage}</div>
+                        <div id={idPrefix + "-password-meter-message"} className={"pf-v6-c-form__helper-text " + messageColor} aria-live="polite">{passwordMessage}</div>
                     </FlexItem>
                 </Flex>}
                 {error_password && <FormHelperText>
                     <HelperText component="ul" aria-live="polite" id="password-error-message">
-                        <HelperTextItem isDynamic variant="warning" component="li">
+                        <HelperTextItem variant="warning" component="li">
                             {error_password}
                         </HelperTextItem>
                     </HelperText>

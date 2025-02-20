@@ -36,9 +36,11 @@ import { EmptyState } from "@patternfly/react-core/dist/esm/components/EmptyStat
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+	Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { SortByDirection } from "@patternfly/react-table";
@@ -242,9 +244,9 @@ const CPUSecurityMitigationsDialog = () => {
                onClose={Dialogs.close}
                title={ _("CPU security toggles") }>
             <>
-                <Text className='cpu-mitigations-dialog-info' component={TextVariants.p}>
+                <Content className='cpu-mitigations-dialog-info' component={ContentVariants.p}>
                     { _("Software-based workarounds help prevent CPU security issues. These mitigations have the side effect of reducing performance. Change these settings at your own risk.") }
-                </Text>
+                </Content>
                 <DataList>
                     { rows }
                 </DataList>
@@ -303,14 +305,14 @@ const HardwareInfo = ({ info }) => {
     }
 
     return (
-        <Page>
-            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+        <Page className='no-masthead-sidebar'>
+            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
-                    <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-v5-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
+                    <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-v6-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
                     <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                 </Breadcrumb>
             </PageBreadcrumb>
-            <PageSection>
+            <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
                     <Card>
                         <CardHeader>

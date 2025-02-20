@@ -24,7 +24,7 @@ import 'cockpit-dark-theme'; // once per page
 import React, { useState, useEffect, useCallback } from "react";
 import { createRoot } from 'react-dom/client';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection,  } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Card } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/components/ToggleGroup/index.js";
@@ -704,7 +704,7 @@ class ServicesPageBody extends React.Component {
         const activeTab = this.props.activeTab;
 
         return (
-            <PageSection>
+            <PageSection hasBodyWrapper={false}>
                 <Card isCompact>
                     <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
                                          fileStateDropdownOptions={fileStateDropdownOptions}
@@ -814,9 +814,9 @@ const ServicesPageFilters = ({
     }, [filtersRef, onClearAllFilters]);
 
     const toolbarItems =
-        <ToolbarToggleGroup toggleIcon={<><span className="pf-v5-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
-                            variant="filter-group" alignment={{ default: 'alignLeft' }}>
-            <ToolbarItem variant="search-filter">
+        <ToolbarToggleGroup toggleIcon={<><span className="pf-v6-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
+                            variant="filter-group" >
+            <ToolbarItem>
                 <SearchInput id="services-text-filter"
                              className="services-text-filter"
                              placeholder={_("Filter by name or description")}
@@ -824,9 +824,9 @@ const ServicesPageFilters = ({
                              onChange={(_, val) => onTextFilterChanged(val)}
                              onClear={() => onTextFilterChanged('')} />
             </ToolbarItem>
-            <ToolbarFilter chips={filters.activeState}
-                           deleteChip={onDeleteChip}
-                           deleteChipGroup={onDeleteChipGroup}
+            <ToolbarFilter labels={filters.activeState}
+                           deleteLabel={onDeleteChip}
+                           deleteLabelGroup={onDeleteChipGroup}
                            categoryName={_("Active state")}>
                 <CheckboxSelect
                     toggleProps={{
@@ -843,9 +843,9 @@ const ServicesPageFilters = ({
                         };
                     })} />
             </ToolbarFilter>
-            <ToolbarFilter chips={filters.fileState}
-                           deleteChip={onDeleteChip}
-                           deleteChipGroup={onDeleteChipGroup}
+            <ToolbarFilter labels={filters.fileState}
+                           deleteLabel={onDeleteChip}
+                           deleteLabelGroup={onDeleteChipGroup}
                            categoryName={_("File state")}>
                 <CheckboxSelect
                     toggleProps={{
@@ -906,7 +906,7 @@ const ServicesPage = () => {
         <WithDialogs>
             <Page>
                 {cockpit.location.path.length == 0 &&
-                <PageSection variant={PageSectionVariants.light} type="nav" className="services-header">
+                <PageSection hasBodyWrapper={false}   className="services-header">
                     <Flex>
                         <ServiceTabs activeTab={activeTab}
                                       tabErrors={tabErrors}

@@ -8,10 +8,9 @@
 
 // colors for PF charts
 @import "@patternfly/patternfly/patternfly-charts.css";
-@import "@patternfly/patternfly/patternfly-charts-theme-dark.css";
 
 #app {
-  section.pf-v5-c-page__main-breadcrumb {
+  section.pf-v6-c-page__main-breadcrumb {
     padding-block-end: var(--pf-v5-c-page__main-breadcrumb--PaddingTop);
   }
 }
@@ -23,7 +22,7 @@ html {
   --resource-icon-color-full: var(--pf-v5-global--palette--orange-400);
 }
 
-.pf-v5-theme-dark {
+.pf-v6-theme-dark {
   --metrics-heading-time-color: var(--pf-v5-global--BackgroundColor--300);
   --metrics-events-border-color: #000;
   --resource-icon-color-empty: var(--pf-v5-global--palette--black-400);
@@ -31,13 +30,13 @@ html {
   --resource-icon-color-full: var(--pf-v5-global--palette--orange-200);
 
   // Adjust alert color to separate itself from the history section background
-  .pf-v5-c-alert {
+  .pf-v6-c-alert {
     --pf-v5-c-alert--m-inline--m-info--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
   }
 }
 
 // Remove doubled-up padding on "main" sections, when two+ sections are used.
-.pf-v5-c-page__main-section + .pf-v5-c-page__main-section {
+.pf-v6-c-page__main-section + .pf-v6-c-page__main-section {
   padding-block-start: 0;
 }
 
@@ -47,7 +46,7 @@ html {
   --pf-v5-l-gallery--GridTemplateColumns: repeat(auto-fit, minmax(var(--card-width), 1fr));
 
   // the cards already have padding, align the "top 5" tables with the other content
-  .pf-v5-c-table {
+  .pf-v6-c-table {
     --pf-v5-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
     --pf-v5-c-table--m-compact--cell--first-last-child--PaddingRight: 0;
 
@@ -57,7 +56,7 @@ html {
     }
   }
 
-  .pf-v5-c-card {
+  .pf-v6-c-card {
     // Make sure the cards do not get taller than 50% of the screen
     // ...and when they do, they should scroll
     @media screen and (orientation: landscape) {
@@ -82,8 +81,8 @@ html {
         padding-block-start: 0;
       }
 
-      .pf-v5-c-table thead th:not(:first-child),
-      .pf-v5-c-table tbody td:not(:first-child) {
+      .pf-v6-c-table thead th:not(:first-child),
+      .pf-v6-c-table tbody td:not(:first-child) {
         text-align: end;
       }
     }
@@ -128,7 +127,7 @@ html {
       }
 
       // avoid the "x" icon on high CPU usage
-      .pf-v5-c-progress__status-icon {
+      .pf-v6-c-progress__status-icon {
         display: none;
       }
 
@@ -142,67 +141,67 @@ html {
     // Stretch the progress stack and description list so they fill up remaining space.
     // This pushes the (unflexing) tables to the bottom.
     .progress-stack,
-    .pf-v5-c-description-list {
+    .pf-v6-c-description-list {
       flex: 1 1 0;
       align-content: start;
     }
 
     // When progress stack and description list are used sequentially,
     // give the most space to the latter of the two elements.
-    .progress-stack + .pf-v5-c-description-list,
-    .pf-v5-c-description-list + .progress-stack {
+    .progress-stack + .pf-v6-c-description-list,
+    .pf-v6-c-description-list + .progress-stack {
       flex-basis: 100%;
     }
 
     // WebKit is a little wonky with flex sizing; it needs specific instructions here
-    .pf-v5-c-description-list:first-child {
+    .pf-v6-c-description-list:first-child {
       flex-grow: 0;
     }
 
-    .pf-v5-c-description-list__description {
+    .pf-v6-c-description-list__description {
       font-size: var(--pf-v5-global--FontSize--sm);
     }
   }
 
   // Shrink progress bars and their gap a little
-  .pf-v5-c-progress {
+  .pf-v6-c-progress {
     grid-gap: 0;
     --pf-v5-c-progress__bar--Height: var(--pf-v5-global--spacer--xs);
     // PF4 uses end; it probably should arguably use last baseline.
     // (perhaps end may work better for non-text content?)
     align-items: last baseline;
 
-    + .pf-v5-c-progress {
+    + .pf-v6-c-progress {
       // Add a tiny gap for sandwiched usage bars (as in CPU)
       padding-block-start: 1px;
     }
   }
 
   // Only underline the description
-  .pf-v5-c-button.pf-m-link.pf-m-inline:hover {
+  .pf-v6-c-button.pf-m-link.pf-m-inline:hover {
     text-decoration: none;
 
-    .pf-v5-c-progress__description {
+    .pf-v6-c-progress__description {
       text-decoration: var(--pf-v5-c-button--m-link--m-inline--hover--TextDecoration);
     }
   }
 
   // Match font weight with description list terms
-  .pf-v5-c-progress__description {
+  .pf-v6-c-progress__description {
     font-weight: var(--pf-v5-global--FontWeight--bold);
   }
 
   // Recolor text
   .pf-m-link {
     &, &:hover {
-      .pf-v5-c-progress__measure {
+      .pf-v6-c-progress__measure {
         color: var(--pf-v5-global--Color--100);
       }
     }
   }
 
   // default is way too wide for the cards
-  .pf-v5-c-description-list {
+  .pf-v6-c-description-list {
     --pf-v5-c-description-list--m-horizontal__term--width: minmax(0, auto);
     --pf-v5-c-description-list--m-horizontal__description--width: minmax(0, auto);
   }
@@ -224,18 +223,18 @@ html {
     inline-size: 2rem;
     min-inline-size: 0;
 
-    .pf-v5-c-table__text {
+    .pf-v6-c-table__text {
       --pf-v5-c-table--cell--MinWidth: 0;
       display: inline;
     }
   }
 
-  .pf-m-grid-lg.pf-v5-c-table {
+  .pf-m-grid-lg.pf-v6-c-table {
     tbody:first-of-type {
       border-block-start: none;
     }
 
-    tbody tr:not(.pf-v5-c-table__expandable-row) {
+    tbody tr:not(.pf-v6-c-table__expandable-row) {
       --pf-v5-c-table-tr--responsive--PaddingTop: var(--pf-v5-global--spacer--sm);
       --pf-v5-c-table-tr--responsive--PaddingRight: 0;
       --pf-v5-c-table-tr--responsive--PaddingBottom: var(--pf-v5-global--spacer--sm);
@@ -262,7 +261,7 @@ html {
   }
 }
 
-.pf-v5-c-popover {
+.pf-v6-c-popover {
   thead th:not(:first-child) {
     text-align: end;
   }
@@ -283,18 +282,18 @@ html {
     --card-width: 200px;
   }
 
-  .current-metrics .pf-v5-c-card__body {
+  .current-metrics .pf-v6-c-card__body {
     overflow-block: auto;
     max-block-size: 50vw;
   }
 
   // Trim down the gutter space between cards
-  .current-metrics.pf-v5-l-gallery.pf-m-gutter {
+  .current-metrics.pf-v6-l-gallery.pf-m-gutter {
     grid-gap: var(--pf-v5-global--spacer--sm);
   }
 
   // Shave off a few pixels from cards
-  .pf-v5-c-card__header, .pf-v5-c-card__title, .pf-v5-c-card__body, .pf-v5-c-card__footer {
+  .pf-v6-c-card__header, .pf-v6-c-card__title, .pf-v6-c-card__body, .pf-v6-c-card__footer {
     --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--sm);
     --pf-v5-c-card__title--not--last-child--PaddingBottom: var(--pf-v5-global--spacer--sm);
     --pf-v5-c-card--child--PaddingTop: var(--pf-v5-global--spacer--sm);
@@ -307,7 +306,7 @@ html {
 // Change progress layout in medium sizes
 @media (min-width: 460px) and (max-width: 1200px) {
   // Stack description lists (instead of grid)
-  .pf-v5-c-description-list__group {
+  .pf-v6-c-description-list__group {
     display: block;
   }
 }
@@ -318,7 +317,7 @@ html {
     grid-column: 1 / -1;
 
     // Reflow interfaces horizontally, with wrapping
-    .pf-v5-c-table > tbody {
+    .pf-v6-c-table > tbody {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
       grid-gap: 0 var(--pf-v5-global--spacer--lg);
@@ -347,7 +346,7 @@ $graphs: cpu, memory, disks, network;
 
   --graph-column-size: 60%;
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     --cpu-color: var(--pf-v5-chart-color-purple-500);
     --cpu-color-extreme: var(--pf-v5-chart-color-purple-300);
 
@@ -389,7 +388,7 @@ $graphs: cpu, memory, disks, network;
     }
   }
 
-  &-sublabels.pf-v5-c-content {
+  &-sublabels.pf-v6-c-content {
     display: flex;
 
     small {
@@ -644,7 +643,7 @@ $graphs: cpu, memory, disks, network;
     }
   }
 
-  .pf-v5-c-card__body:first-child {
+  .pf-v6-c-card__body:first-child {
     padding-block-start: 0;
   }
 }
@@ -727,7 +726,7 @@ $graphs: cpu, memory, disks, network;
   }
 
   // leave some space for the focus rings
-  .pf-v5-c-switch {
+  .pf-v6-c-switch {
     margin-block-end: 10px;
   }
 }
@@ -739,7 +738,7 @@ $graphs: cpu, memory, disks, network;
   // In monospaced text, "100%" is 4 characters
   grid-template-columns: 1fr minmax(4ch, auto);
 
-  > .pf-v5-l-grid__item {
+  > .pf-v6-l-grid__item {
     // Don't use PF's hardcoded 12-column grid
     grid-column: auto;
   }
@@ -759,7 +758,7 @@ $graphs: cpu, memory, disks, network;
   z-index: 1;
 
   // Make the background transparent, so CPU max shows through
-  .pf-v5-c-progress__bar {
+  .pf-v6-c-progress__bar {
     --pf-v5-c-progress__bar--BackgroundColor: transparent;
     --pf-v5-c-progress__bar--before--Opacity: 0;
   }
@@ -771,7 +770,7 @@ $graphs: cpu, memory, disks, network;
 
   // Lighten up the default bar
   &:not(.pf-m-danger):not(.pf-m-warning) {
-    .pf-v5-c-progress__indicator {
+    .pf-v6-c-progress__indicator {
       opacity: 0.33;
     }
   }
@@ -812,7 +811,7 @@ $graphs: cpu, memory, disks, network;
     margin: 0;
   }
 
-  .pf-v5-c-popover__content {
+  .pf-v6-c-popover__content {
     // Remove extra whitespace in the modal
     --pf-v5-c-popover--c-button--sibling--PaddingRight: 0;
   }
@@ -825,7 +824,7 @@ $graphs: cpu, memory, disks, network;
       max-block-size: 65vw;
     }
 
-    .pf-v5-c-popover__content {
+    .pf-v6-c-popover__content {
       // Limit the width of the popover in desktop mode
       max-inline-size: max(30rem, 40vw);
     }
@@ -841,13 +840,13 @@ $graphs: cpu, memory, disks, network;
     max-block-size: 100%;
     min-block-size: 25vh;
 
-    .pf-v5-c-popover__content {
+    .pf-v6-c-popover__content {
       // Limit the width of the popover in desktop mode
       max-inline-size: max(100vw);
     }
 
     // As a sheet at the bottom, it doesn't point to anything
-    .pf-v5-c-popover__arrow {
+    .pf-v6-c-popover__arrow {
       display: none;
     }
   }
@@ -858,6 +857,6 @@ $graphs: cpu, memory, disks, network;
    grey toolbar. The deprecated Select had a white background. Let's
    make MenuToggles match.
 */
-html:not(.pf-v5-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
+html:not(.pf-v6-theme-dark) .pf-v6-c-menu-toggle:not(.pf-m-primary) {
     background-color: var(--pf-v5-global--BackgroundColor--100);
 }

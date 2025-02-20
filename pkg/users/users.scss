@@ -5,20 +5,20 @@
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 @import "global-variables.scss";
 
-#account .pf-v5-c-card {
+#account .pf-v6-c-card {
   @extend .ct-card;
 }
 
-.account-details .pf-v5-c-card__header {
+.account-details .pf-v6-c-card__header {
   margin-block-end: var(--pf-v5-global--spacer--lg);
 }
 
-#account .pf-v5-l-gallery {
+#account .pf-v6-l-gallery {
   --pf-v5-l-gallery--GridTemplateColumns: 1fr;
 }
 
-#account .pf-v5-c-page__main-section,
-#account .pf-v5-c-page__main-nav {
+#account .pf-v6-c-page__main-section,
+#account .pf-v6-c-page__main-nav {
   padding: var(--pf-v5-global--gutter);
 }
 
@@ -52,12 +52,12 @@
   display: inline-block;
 }
 
-.expiration-modal .pf-v5-c-form__group-control {
-  .pf-v5-c-radio:first-child {
+.expiration-modal .pf-v6-c-form__group-control {
+  .pf-v6-c-radio:first-child {
     padding-block-end: var(--pf-v5-global--spacer--sm);
   }
   // Work around for https://github.com/patternfly/patternfly/issues/4061
-  .pf-v5-c-radio:nth-child(2) input {
+  .pf-v6-c-radio:nth-child(2) input {
     align-self: center;
   }
 }
@@ -70,7 +70,7 @@
   margin-inline-start: var(--pf-v5-global--spacer--sm);
 }
 
-.accounts-toolbar-header > .pf-v5-c-toolbar__content-section {
+.accounts-toolbar-header > .pf-v6-c-toolbar__content-section {
   row-gap: var(--pf-v5-global--spacer--sm);
 }
 
@@ -86,7 +86,7 @@
   .group-#{"" + $color} {
     background-color: var(--pf-v5-global--palette--#{$color}-100);
 
-    .pf-v5-theme-dark & {
+    .pf-v6-theme-dark & {
       background-color: var(--pf-v5-global--palette--#{$color}-300);
     }
   }
@@ -112,7 +112,7 @@
   margin-inline-end: var(--pf-v5-global--spacer--lg);
 }
 
-// We cannot use the PF helper pf-v5-u-ml-lg here, as it doesn't support RTL yet
+// We cannot use the PF helper pf-v6-u-ml-lg here, as it doesn't support RTL yet
 #current-account-badge {
   margin-inline-start: var(--pf-v5-global--spacer--lg);
 }

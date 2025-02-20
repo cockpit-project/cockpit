@@ -27,11 +27,11 @@
 @import "@patternfly/patternfly/utilities/Text/text.scss";
 @import "@patternfly/patternfly/utilities/Alignment/alignment.scss";
 
-#storage .pf-v5-c-card {
+#storage .pf-v6-c-card {
   @extend .ct-card;
 }
 
-.ct-card.pf-v5-c-card .pf-v5-c-card__title-text.ct-card-small-title {
+.ct-card.pf-v6-c-card .pf-v6-c-card__title-text.ct-card-small-title {
   font-size: var(--pf-v5-global--FontSize--xl);
 }
 
@@ -100,7 +100,7 @@ td.job-action {
   text-align: start;
 }
 
-.pf-v5-c-modal-box__body table {
+.pf-v6-c-modal-box__body table {
   --pf-v5-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
 }
 
@@ -131,7 +131,7 @@ a.disabled {
   font-size: 140%;
 }
 
-.pf-v5-c-modal-box h3 {
+.pf-v6-c-modal-box h3 {
   margin-block-start: 0;
   line-height: 24px;
 }
@@ -140,7 +140,7 @@ a.disabled {
   color: var(--pf-v5-global--danger-color--200);
 }
 
-.pf-v5-c-modal-box .slot-warning {
+.pf-v6-c-modal-box .slot-warning {
   color: var(--pf-v5-global--danger-color--200);
 }
 
@@ -172,11 +172,11 @@ a.disabled {
 }
 
 // So that "Stored passphrase" fits
-.pf-v5-c-description-list.wide-label {
+.pf-v6-c-description-list.wide-label {
   --pf-v5-c-description-list--m-horizontal__term--width: minmax(0, 18ch);
 }
 
-.pf-v5-c-description-list .pf-v5-c-progress {
+.pf-v6-c-description-list .pf-v6-c-progress {
   max-inline-size: 30ch;
 }
 
@@ -249,7 +249,7 @@ a.disabled {
   border: 1px solid var(--pf-v5-global--palette--purple-400);
   background: var(--pf-v5-global--palette--purple-100);
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     border-color: var(--pf-v5-global--palette--purple-300);
     background: var(--pf-v5-global--palette--purple-500);
   }
@@ -262,7 +262,7 @@ a.disabled {
     border-inline-end: 1px solid var(--pf-v5-global--palette--purple-400);
   }
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     border-color: var(--pf-v5-global--palette--purple-300);
   }
 }
@@ -276,7 +276,7 @@ a.disabled {
   border: 1px solid var(--pf-v5-global--palette--purple-400);
   background: var(--pf-v5-global--palette--purple-100);
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     border-color: var(--pf-v5-global--palette--purple-300);
     background: var(--pf-v5-global--palette--purple-500);
   }
@@ -289,7 +289,7 @@ a.disabled {
 .storage-stripe-pv-box:not(:last-child) {
   border-block-end: 1px solid var(--pf-v5-global--palette--purple-400);
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     border-color: var(--pf-v5-global--palette--purple-300);
   }
 }
@@ -319,7 +319,7 @@ a.disabled {
     white-space: nowrap !important;
 }
 
-.pf-v5-c-table__tbody .storage-device-icon {
+.pf-v6-c-table__tbody .storage-device-icon {
   --icon-size: 18px;
   // Ensure the icon's cell size is as minimal as the icon allows
   // (WebKit needs a size; 0 doesn't work for it)

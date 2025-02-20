@@ -105,29 +105,29 @@ export class SystemInformationCard extends React.Component {
             <Card className="system-information">
                 <CardTitle>{_("System information")}</CardTitle>
                 <CardBody>
-                    <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">
-                        <tbody className="pf-v5-c-table__tbody">
-                            {this.state.model && <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th" scope="row">{_("Model")}</th>
-                                <td className="pf-v5-c-table__td">
+                    <table className="pf-v6-c-table pf-m-grid-md pf-m-compact">
+                        <tbody className="pf-v6-c-table__tbody">
+                            {this.state.model && <tr className="pf-v6-c-table__tr">
+                                <th className="pf-v6-c-table__th" scope="row">{_("Model")}</th>
+                                <td className="pf-v6-c-table__td">
                                     <div id="system_information_hardware_text">{this.state.model}</div>
                                 </td>
                             </tr>}
-                            {this.state.assetTag && <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th" scope="row">{_("Asset tag")}</th>
-                                <td className="pf-v5-c-table__td">
+                            {this.state.assetTag && <tr className="pf-v6-c-table__tr">
+                                <th className="pf-v6-c-table__th" scope="row">{_("Asset tag")}</th>
+                                <td className="pf-v6-c-table__td">
                                     <div id="system_information_asset_tag_text">{this.state.assetTag}</div>
                                 </td>
                             </tr>}
-                            <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th system-information-machine-id" scope="row">{_("Machine ID")}</th>
-                                <td className="pf-v5-c-table__td">
+                            <tr className="pf-v6-c-table__tr">
+                                <th className="pf-v6-c-table__th system-information-machine-id" scope="row">{_("Machine ID")}</th>
+                                <td className="pf-v6-c-table__td">
                                     <div id="system_machine_id">{this.state.machineID}</div>
                                 </td>
                             </tr>
-                            <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th system-information-uptime" scope="row">{_("Up since")}</th>
-                                <td className="pf-v5-c-table__td">
+                            <tr className="pf-v6-c-table__tr">
+                                <th className="pf-v6-c-table__th system-information-uptime" scope="row">{_("Up since")}</th>
+                                <td className="pf-v6-c-table__td">
                                     <div id="system_uptime">{this.state.systemUptime}</div>
                                 </td>
                             </tr>

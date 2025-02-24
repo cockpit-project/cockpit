@@ -148,7 +148,8 @@ const _ = cockpit.gettext;
             }
             const changeNow = await this.readyPath();
             if (changeNow) {
-                this.setState(prevState => ({ channel: this.createChannel(prevState.user, cockpit.location.options.path) }));
+                const user = await cockpit.user();
+                this.setState(({ channel: this.createChannel(user, cockpit.location.options.path) }));
             }
         }
 

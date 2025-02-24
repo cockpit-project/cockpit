@@ -343,7 +343,10 @@ class Browser:
 
         if self.browser == "chromium":
             assert isinstance(self.driver, webdriver_bidi.ChromiumBidi)
-            return self.run_async(self.driver.cdp(method, **params))
+            reply = self.run_async(self.driver.cdp(method, **params))
+            if 'error' in reply:
+                raise Error(str(reply['error'])) from None
+            return reply['result']
         else:
             raise webdriver_bidi.WebdriverError("CDP is only supported in Chromium")
 
@@ -1572,7 +1575,7 @@ class Browser:
 
     def write_coverage_data(self) -> None:
         if self.coverage_label and self._is_running():
-            coverage = self.cdp_command("Profiler.takePreciseCoverage")["result"]
+            coverage = self.cdp_command("Profiler.takePreciseCoverage")
             write_lcov(coverage['result'], self.coverage_label)
 
     def assert_no_oops(self) -> None:

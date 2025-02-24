@@ -22,6 +22,7 @@ flatpak run \
     org.flatpak.Builder \
         "$@" \
         --force-clean \
+        --mirror-screenshots-url=https://dl.flathub.org/media \
         --install flatpak-build-dir "${MANIFEST}"
 
 flatpak run \

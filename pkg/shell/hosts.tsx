@@ -243,7 +243,7 @@ export class CockpitHosts extends React.Component {
         return (
             <div className="ct-switcher">
                 <div className="pf-v6-c-select pf-m-dark">
-                    <button onClick={this.toggleMenu} id="host-toggle" aria-labelledby="host-toggle" aria-expanded={(this.state.opened ? "true" : "false")} aria-haspopup="listbox" type="button" className="ct-nav-toggle pf-v6-c-select__toggle pf-m-plain">
+                    <button onClick={this.toggleMenu} id="host-toggle" aria-labelledby="host-toggle" aria-expanded={(this.state.opened ? "true" : "false")} aria-haspopup="listbox" type="button" className="ct-nav-toggle pf-v6-c-select__toggle pf-v6-c-menu-toggle pf-m-plain">
                         <span className="pf-v6-c-select__toggle-wrapper desktop_v">
                             <span className="pf-v6-c-select__toggle-text">
                                 <HostLine user={user} host={label} />

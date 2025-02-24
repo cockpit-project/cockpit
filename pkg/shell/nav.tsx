@@ -297,8 +297,8 @@ export function CockpitNavItem(props : {
                 </span>
                 <span className="pf-v6-c-nav__link-icon">
                     {s && s.type && <PageStatus status={s} name={props.name} />}
-                    { !name_matches && !header_matches && props.keyword && <span className="nav-item-hint nav-item-hint-contains">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
                 </span>
+                { !name_matches && !header_matches && props.keyword && <span className="nav-item-hint nav-item-hint-contains">{_("Contains:")} <FormattedText keyword={props.keyword} term={props.term} /></span> }
             </a>
             <span className="nav-item-actions nav-host-action-buttons">
                 {props.actions}

@@ -7,9 +7,9 @@ $phone: 767px;
 $desktop: $phone + 1px;
 
 :root {
-  --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--dark-300);
-  --ct-color-nav-highlight: var(--pf-v5-global--BackgroundColor--dark--400);
-  --ct-color-nav-highlight-text: var(--pf-v5-global--BackgroundColor--light-100);
+  --ct-color-nav-menu: var(--pf-t--global--background--color--secondary--default);
+  --ct-color-nav-highlight: var(--pf-t--global--background--color--highlight--default);
+  --ct-color-nav-highlight-text: var(--pf-t--global--text--color--on-highlight);
   --ct-color-nav-search: #1b1b1b;
 }
 
@@ -21,10 +21,10 @@ $desktop: $phone + 1px;
 
   // Overrides for dark theme (as PF's dark theme is currently odd with nav)
   .pf-v6-theme-dark & {
-    --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--150);
-    --ct-color-nav-search: var(--pf-v5-global--BackgroundColor--200);
-    --ct-color-nav-highlight: var(--pf-v5-global--palette--gold-600);
-    --ct-color-nav-highlight-text: var(--pf-v5-global--palette--gold-300);
+    // --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--150);
+    // --ct-color-nav-search: var(--pf-v5-global--BackgroundColor--200);
+    // --ct-color-nav-highlight: var(--pf-v5-global--palette--gold-600);
+    // --ct-color-nav-highlight-text: var(--pf-v5-global--palette--gold-300);
 
     .pf-v6-c-nav__link {
       --pf-v5-c-nav__link--hover--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-300);
@@ -41,7 +41,7 @@ $desktop: $phone + 1px;
     }
 
     .nav-item-hint {
-      color: var(--pf-v5-global--palette--black-300);
+      color: var(--pf-t--global--text--color--link--default);
     }
   }
 
@@ -52,73 +52,73 @@ $desktop: $phone + 1px;
   }
 
   // https://github.com/patternfly/patternfly-design/issues/1112
-  .search {
-    background: transparent !important;
-    padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm);
-    padding-inline: var(--pf-t--global--spacer--md);
+  // .search {
+  //   background: transparent !important;
+  //   padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm);
+  //   padding-inline: var(--pf-t--global--spacer--md);
 
-    > .pf-v6-c-text-input-group__main {
-      background: var(--ct-color-nav-search);
-    }
+  //   > .pf-v6-c-text-input-group__main {
+  //     background: var(--ct-color-nav-search);
+  //   }
 
-    .pf-v6-c-text-input-group__text::after,
-    .pf-v6-c-text-input-group__text::before {
-      border: none;
-    }
+  //   .pf-v6-c-text-input-group__text::after,
+  //   .pf-v6-c-text-input-group__text::before {
+  //     border: none;
+  //   }
 
-    // Adjust search icon
-    .pf-v6-c-text-input-group__icon {
-      padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm) !important;
-      padding-inline: var(--pf-t--global--spacer--md) !important;
-      color: var(--pf-v5-global--palette--black-200);
-      inset-inline-start: var(--pf-t--global--spacer--sm);
-    }
+  //   // Adjust search icon
+  //   // .pf-v6-c-text-input-group__icon {
+  //   //   padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm) !important;
+  //   //   padding-inline: var(--pf-t--global--spacer--md) !important;
+  //   //   color: var(--pf-v5-global--palette--black-200);
+  //   //   inset-inline-start: var(--pf-t--global--spacer--sm);
+  //   // }
 
-    .pf-v6-c-text-input-group__text-input,
-    .pf-v6-c-text-input-group__text-input::placeholder {
-      color: var(--pf-v5-global--palette--black-100);
-    }
+  //   // .pf-v6-c-text-input-group__text-input,
+  //   // .pf-v6-c-text-input-group__text-input::placeholder {
+  //   //   color: var(--pf-v5-global--palette--black-100);
+  //   // }
 
-    .pf-v6-c-text-input-group__text-input {
-      // Reserve space for the × icon
-      padding-inline: var(--pf-t--global--spacer--xl) 0;
-      // Stroke outside, based on PF search dark mode mockups
-      border: 1px solid var(--pf-v5-global--palette--black-700);
-    }
+  //   // .pf-v6-c-text-input-group__text-input {
+  //   //   // Reserve space for the × icon
+  //   //   padding-inline: var(--pf-t--global--spacer--xl) 0;
+  //   //   // Stroke outside, based on PF search dark mode mockups
+  //   //   border: 1px solid var(--pf-v5-global--palette--black-700);
+  //   // }
 
-    // Reposition the × icon over the entry & recolor it
-    .pf-v6-c-text-input-group__utilities {
-      align-self: center;
-      justify-content: center;
-      position: absolute;
-      inset-inline-end: var(--pf-t--global--spacer--sm);
-      inline-size: var(--pf-t--global--spacer--xl);
+  //   // Reposition the × icon over the entry & recolor it
+  //   .pf-v6-c-text-input-group__utilities {
+  //     align-self: center;
+  //     justify-content: center;
+  //     position: absolute;
+  //     inset-inline-end: var(--pf-t--global--spacer--sm);
+  //     inline-size: var(--pf-t--global--spacer--xl);
 
-      // Recolor × icon
-      > .pf-v6-c-button {
-        color: var(--pf-v5-global--palette--black-400);
+  //     // Recolor × icon
+  //     > .pf-v6-c-button {
+  //       color: var(--pf-v5-global--palette--black-400);
 
-        &:hover {
-          color: var(--pf-v5-global--palette--black-200);
-        }
-      }
-    }
-  }
+  //       &:hover {
+  //         color: var(--pf-v5-global--palette--black-200);
+  //       }
+  //     }
+  //   }
+  // }
 
   .nav-item-hint {
-    color: var(--pf-v5-global--palette--black-400);
+    color: var(--pf-t--global--text--color--regular);
     display: inline-block;
-    font-size: var(--pf-v5-global--FontSize--sm);
-    font-weight: var(--pf-v5-global--FontWeight--normal);
+    font-size: var(--pf-t--global--font--size--body--sm);
+    font-weight: var(--pf-t--global--font--weight--100);
     inline-size: 100%;
   }
 
   .pf-m-current .nav-item-hint {
-    color: var(--pf-v5-global--palette--black-300);
+    color: var(--pf-t--global--text--color--regular);
   }
 
   .non-menu-item .nav-item-hint {
-    color: var(--pf-v5-global--primary-color--light-100);
+    color: var(--pf-t--global--text--color--subtle);
   }
 
   // Add hover effect for clear search link
@@ -127,7 +127,7 @@ $desktop: $phone + 1px;
   }
 
   .non-menu-item {
-    color: var(--pf-v5-c-nav__link--Color);
+    color: var(--pf-t--global--icon--color--brand--default);
     display: flex;
     justify-content: center;
   }
@@ -194,23 +194,19 @@ $desktop: $phone + 1px;
     display: none !important;
   }
 
-  .area-ct-subnav {
-    // Make a separator between host selector & search
-    border-block-start: 1px solid var(--pf-v5-global--Color--300);
-  }
+  // .area-ct-subnav {
+  //   // Make a separator between host selector & search
+  //   border-block-start: 1px solid var(--pf-v5-global--Color--300);
+  // }
 
   .view-hosts .sidebar-hosts {
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
     position: absolute;
     inset: 0;
-    background: var(--pf-v5-global--BackgroundColor--dark-200);
+    background: var(--pf-t--global--background--color--secondary--default);
 
     z-index: 399; // Modals have 400 and modals should be in front of host switcher
-
-    .pf-v6-theme-dark & {
-      background: var(--pf-v5-global--BackgroundColor--dark-300);
-    }
 
     &.edit-hosts {
       .pf-v6-c-nav__list {
@@ -233,17 +229,25 @@ $desktop: $phone + 1px;
     }
   }
 
-  .pf-v6-theme-dark {
-    > .pf-v6-c-select__toggle {
-      background-color: var(--pf-v5-global--BackgroundColor--dark-300);
-    }
-  }
+  // .pf-v6-theme-dark {
+  //   > .pf-v6-c-select__toggle {
+  //     background-color: var(--pf-v5-global--BackgroundColor--dark-300);
+  //   }
+  // }
 
   .ct-switcher {
-    background-color: var(--pf-v5-global--BackgroundColor--dark-300);
-
+    background-color: var(--pf-t--global--background--color--control--default);
+    .pf-v6-c-select__toggle-wrapper {
+      display: flex;
+    }
     > .pf-v6-c-select > button {
-      padding-inline-start: var(--pf-t--global--spacer--lg);
+      padding-inline-start: var(--pf-t--global--spacer--md);
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      width: 100%;
     }
   }
 
@@ -792,13 +796,13 @@ $desktop: $phone + 1px;
   nav,
   .ct-switcher > .pf-v6-c-select {
     --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--dark-100);
-    --pf-v5-global--BackgroundColor--300: var(--pf-v5-global--BackgroundColor--dark-200);
+    --pf-v5-global--BackgroundColor--300: var(--pf-t--global--background--color--secondary--default);
   }
 
   // Redefine the background color for current links
   .area-ct-subnav .pf-v6-c-nav__item {
     > .pf-m-current, .pf-m-current + .nav-item-actions {
-      --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-200);
+      --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-t--global--background--color--secondary--default);
     }
   }
 

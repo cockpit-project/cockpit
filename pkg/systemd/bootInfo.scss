@@ -1,0 +1,183 @@
+rect {
+  stroke-width: 1;
+  stroke-opacity: 0;
+}
+
+rect.background {
+  fill: rgb(255 255 255);
+}
+
+.activating {
+  fill: var(--pf-v5-global--palette--green-100);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--green-100);
+  }
+  fill-opacity: 0.7;
+}
+
+.active {
+  fill: var(--pf-v5-global--palette--blue-100);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--blue-100);
+  }
+  fill-opacity: 0.7;
+}
+
+.deactivating {
+  fill: var(--pf-v5-global--palette--red-100);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--red-100);
+  }
+  fill-opacity: 0.7;
+}
+
+.kernel {
+  fill: var(--pf-v5-global--palette--black-300);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--black-300);
+  }
+  fill-opacity: 0.7;
+}
+
+.initrd {
+  fill: var(--pf-v5-global--palette--black-300);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--black-300);
+  }
+  fill-opacity: 0.7;
+}
+
+.firmware {
+  fill: var(--pf-v5-global--palette--black-300);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--black-300);
+  }
+  fill-opacity: 0.7;
+}
+
+.loader {
+  fill: var(--pf-v5-global--palette--black-300);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--black-300);
+  }
+  fill-opacity: 0.7;
+}
+
+.userspace {
+  fill: var(--pf-v5-global--palette--black-300);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--black-300);
+  }
+  fill-opacity: 0.7;
+}
+
+.security {
+  fill: var(--pf-v5-global--palette--orange-200);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--orange-200);
+  }
+  fill-opacity: 0.7;
+}
+
+.generators {
+  fill: var(--pf-v5-global--palette--cyan-200);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--cyan-200);
+  }
+  fill-opacity: 0.7;
+}
+
+.unitsload {
+  fill: var(--pf-v5-global--palette--purple-200);
+
+ &.legendColor {
+    background-color: var(--pf-v5-global--palette--purple-200);
+  }
+  fill-opacity: 0.7;
+}
+
+rect.box {
+  fill: rgb(240 240 240);
+  stroke: rgb(192 192 192);
+}
+
+line {
+  stroke: rgb(64 64 64);
+  stroke-width: 1;
+}
+
+line.sec5 {
+  stroke-width: 2;
+}
+
+line.sec01 {
+  stroke: rgb(224 224 224);
+  stroke-width: 1;
+}
+
+text {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+text.left {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+  text-anchor: start;
+}
+
+text.right {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+  text-anchor: end;
+}
+
+text.sec {
+  font-size: 10px;
+}
+
+.legendColor {
+    block-size: 1em;
+    inline-size: 1em;
+    margin-inline-end: 0.5em;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.legend {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+}
+
+.chart-container {
+    max-inline-size: 100%;
+    margin-inline: 1em;
+    max-block-size: 80vh;
+    overflow: scroll;
+}
+
+.chart {
+    // Crop top where text was removed
+    margin-block-start: -4em;
+    font-family: var(--pf-v5-global--FontFamily--text);
+}
+
+.clickable-service {
+    cursor: pointer;
+    z-index: 10;
+    font-weight: bold;
+}
+
+.clickable-service:hover {
+    text-decoration: underline;
+}

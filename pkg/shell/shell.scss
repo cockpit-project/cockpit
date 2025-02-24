@@ -27,17 +27,17 @@
 @import "@patternfly/patternfly/components/Icon/icon.css";
 
 :root {
-  --ct-color-host-accent: var(--pf-v5-global--active-color--100);
-  --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-100);
+  --ct-color-host-accent: var(--pf-t--global--color--brand--default);
+  --ct-topnav-background: var(--pf-t--global--background--color--secondary--default);
 }
 
 #shell {
     block-size: 100%;
 }
 
-.pf-v6-theme-dark {
-  --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-200);
-}
+// .pf-v6-theme-dark {
+//   --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-200);
+// }
 
 /* Hacks on top for now */
 
@@ -126,7 +126,7 @@ $desktop: $phone + 1px;
   // (including the accent line)
 
   .pf-v6-c-masthead {
-    --pf-v5-c-masthead--BackgroundColor: transparent;
+    --pf-v6-c-masthead--BackgroundColor: transparent;
   }
 
   .pf-v6-c-toolbar {
@@ -168,7 +168,7 @@ $desktop: $phone + 1px;
 
     // Remove excess padding from masthead in mobile
     .pf-v6-c-masthead {
-      --pf-v5-c-masthead--inset: 0;
+      --pf-v6-c-masthead--inset: 0;
     }
   }
 
@@ -193,11 +193,6 @@ $desktop: $phone + 1px;
     > .header {
       // Shadow to the left, Line on top, Base color (with subtle glow)
       background: linear-gradient(
-        to right,
-        var(--ct-topnav-background) -1rem,
-        transparent 1rem
-      ),
-        linear-gradient(
         to bottom,
         var(--ct-color-host-accent),
         var(--ct-color-host-accent) 0.1875rem,

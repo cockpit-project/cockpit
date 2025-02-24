@@ -75,6 +75,7 @@ const _ = cockpit.gettext;
                 changePathBusy: false,
                 pathError: null,
                 pid: null,
+                user: null,
             };
             this.onTitleChanged = this.onTitleChanged.bind(this);
             this.onResetClick = this.onResetClick.bind(this);
@@ -149,7 +150,7 @@ const _ = cockpit.gettext;
             const changeNow = await this.readyPath();
             if (changeNow) {
                 const user = await cockpit.user();
-                this.setState(({ channel: this.createChannel(user, cockpit.location.options.path) }));
+                this.setState({ channel: this.createChannel(user, cockpit.location.options.path) });
             }
         }
 

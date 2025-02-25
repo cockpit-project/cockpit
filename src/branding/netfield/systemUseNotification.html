@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>netFIELD - System use notification</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="systemUseNotification.css">
+<body>
+    <div class="page">
+        <header class="header">
+            <div class="logo"></div>
+            <div class="gradiant"></div>
+        </header>
+        <div class="content">
+          <div class="notification">
+            <div class="container">
+              <div class="textarea" id="textarea" contenteditable="true">loading...</div>
+              <div class="actions">
+                <a href="../../" class="close-btn btn-active" id="close-btn"><span>Close</span></a>
+            </div>
+            </div>
+        </div>
+      </div>
+      <div class="footer">
+        <div class="gradiant"></div>
+        <div class="container">
+              <div class="logo"></div>
+              <span class="copyright" data-testid="typography-element" >© 2025 Hilscher Gesellschaft für Systemautomation mbH</span>
+          </div>
+        </div>
+    </div>
+</body>
+<script>
+  fetch('../hilscher/system/notification')
+      .then(response => response.text())
+      .then(data => {
+          document.getElementById('textarea').textContent = data;
+      })
+      .catch(error => console.error('Error fetching the notification:', error));
+</script>
+</html>

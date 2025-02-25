@@ -796,6 +796,20 @@ function debug(...args) {
             }
         }, false);
 
+        // Hilscher specific
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "cockpit/hilscher/system/notification", true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState != 4) {
+                return;
+            }
+
+            if (xhr.status == 200) {
+                show_system_use_notification(xhr.responseText);
+            }
+        };
+        xhr.send();
+
         const do_login = function(e) {
             login_failure(null);
             if (e.which == 13)
@@ -1196,6 +1210,35 @@ function debug(...args) {
 
         setup_localstorage(response);
         login_reload(wanted);
+    }
+
+    /**
+     * Show the message of system use notication on login page.
+     * If this message is empty, the system use notication component will be hidden.
+     * If this message is too long or it has multiple lines, only the extracted text
+     * will be shown and user can click "show more" button to see the whole text.
+     *
+     * @param {string} message The message of system use notication.
+     */
+    function show_system_use_notification(message) {
+        var length = message ? message.length : 0;
+
+        if (length === 0) {
+            // Message is empty, the system use notification is hidden by default.
+            return;
+        }
+
+        document.getElementById('system-use-notification').hidden = false;
+
+        var notificationNote = document.getElementById("system-use-notification-note");
+        notificationNote.innerHTML = message.replace(/\n/g, '<br>');
+       // Check if the content exceeds the height limit
+        if (notificationNote.scrollHeight > notificationNote.clientHeight) {
+            document.getElementById('system-use-notification-show-more-btn').hidden = false;
+        } else {
+            document.getElementById('system-use-notification-show-more-btn').hidden = true;
+        }
+
     }
 
     /**

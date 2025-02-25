@@ -857,6 +857,8 @@ class TestConnection(testlib.MachineCase):
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
     @testlib.skipWsContainer("ssh root login not allowed")
+    @testlib.skipBrowser("Chromium 133 does not survive large downloads, https://issues.chromium.org/issues/399131925",
+                         "chromium")
     @testlib.nondestructive
     def testFlowControlDownload(self):
         m = self.machine
@@ -878,6 +880,8 @@ class TestConnection(testlib.MachineCase):
         self.assertLess(rss, 250000)
 
     @testlib.nondestructive
+    @testlib.skipBrowser("Chromium 133 does not survive large uploads, https://issues.chromium.org/issues/399131925",
+                         "chromium")
     def testFlowControlUpload(self):
         m = self.machine
         b = self.browser

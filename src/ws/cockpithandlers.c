@@ -28,6 +28,7 @@
 #include "cockpitws.h"
 
 #include "hilscherlegaldisclaimer.h"
+#include "hilschercontentprovider.h"
 
 #include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
@@ -613,6 +614,11 @@ handle_resource (CockpitHandlerData *data,
           cockpit_web_response_error (response, 401, NULL, NULL);
         }
     }
+  // Hilscher specific code to provide content from the host system.
+  else if (where && g_str_equal(where, "hilscher"))
+  {
+    hilscher_provideResourceContent(response, path);
+  }
   else
     {
       cockpit_web_response_error (response, 404, NULL, NULL);

@@ -219,6 +219,29 @@
           <label class="control-label"><span translate="yes">Server</span>: <span id="server-name"></span></label>
         </p>
     </div>
+
+    <div id="login-fatal" hidden="true">
+      <div id="login-fatal-message"></div>
+      <a id="login-again" class="pf-v5-c-button pf-m-primary" href="#" translate="yes" hidden="true">Try again</a>
+    </div>
+  </div>
+
+  <div class="details" id="login-details" hidden="true">
+    <!-- Hilscher specific code -->
+    <div id="system-use-notification" hidden="true">
+      <p>
+        <label class="control-label"><span translate="yes">System use notification</span>:</label>
+      </p>
+      <p id="system-use-notification-note" class="login-note"></p>
+      <div id="system-use-notification-show-more-btn" hidden="true">
+        <a href="cockpit/static/systemUseNotification.html">Show complete notification</a>
+      </div>
+      <hr class="solid">
+    </div>
+    <p>
+      <label class="control-label"><span translate="yes">Server</span>: <b id="server-name"></b></label>
+    </p>
+    <p id="login-note" class="login-note"></p>
   </div>
 
   <div class="container" id="recent-hosts" hidden="true">

@@ -909,10 +909,24 @@ OnCalendar=daily
 
         # Various cases of big file upload
         with tempfile.TemporaryDirectory() as tmpdir:
+
+            if b.browser == 'chromium':
+                # Chromium BiDi driver craps out with uploading large files, so throttle network speed there
+                # https://issues.chromium.org/issues/399131925
+                b.cdp_command("Network.emulateNetworkConditions",
+                              offline=False, latency=0, downloadThroughput=-1, uploadThroughput=50000)
+                big_size = "15MB"
+                expected_size = 15 * 1000 * 1000
+            else:
+                # BiDi does not have a network speed API, so we can't throttle on Firefox
+                # but that's happy with large files
+                big_size = "1500MB"
+                expected_size = 1500 * 1000 * 1000
+
             big_file = str(Path(tmpdir) / "bigfile.img")
             # the VM has a total of 1.5G memory, so this would fill it
             # use SI sizes to make sure we test the last incomplete block
-            subprocess.check_call(["truncate", "-s", "1500MB", big_file])
+            subprocess.check_call(["truncate", "-s", big_size, big_file])
 
             # Uploaded to completion.  It's slow, so only do it on default OS.
             # We do this to make sure the file is spooled to disk, not memory.
@@ -921,7 +935,7 @@ OnCalendar=daily
                 b.wait(lambda: b.get_pf_progress_value(".upload-progress-0") >= 2)
                 with b.wait_timeout(120):
                     b.wait_visible("#upload-file-btn:not(:disabled)")
-                self.assertEqual(int(m.execute('stat -c%s /home/admin/bigfile.img')), 1500 * 1000 * 1000)
+                self.assertEqual(int(m.execute('stat -c%s /home/admin/bigfile.img')), expected_size)
                 m.execute('rm /home/admin/bigfile.img')
 
             # Cancelled

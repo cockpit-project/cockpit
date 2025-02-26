@@ -63,8 +63,8 @@ class TestSelinux(testlib.MachineCase):
 
         # Do some local modifications
         m.execute("semanage fcontext --add -t samba_share_t /var/tmp/")
-        m.execute("semanage boolean --modify --on zebra_write_config")
-        self.allow_journal_messages("audit: type=1405 .* bool=zebra_write_config val=1 old_val=0.*")
+        m.execute("semanage boolean --modify --on daemons_dump_core")
+        self.allow_journal_messages("audit: type=1405 .* bool=daemons_dump_core val=1 old_val=0.*")
         self.allow_journal_messages(".*couldn't .* /org/fedoraproject/Setroubleshootd: GDBus.Error:org.freedesktop.DBus.Error.NoReply:.*")
 
         self.login_and_go("/selinux")
@@ -91,7 +91,7 @@ class TestSelinux(testlib.MachineCase):
             b.wait_js_func("ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
 
         # wait for Modifications table to initialize
-        b.wait_text_matches(".modifications-table", "Allow zebra.*write.*config")
+        b.wait_text_matches(".modifications-table", "Allow.*daemons.*core")
 
         # httpd_read_user_content should be off by default
         self.assertIn("-> off", m.execute("getsebool httpd_read_user_content"))
@@ -209,7 +209,7 @@ class TestSelinux(testlib.MachineCase):
 
         b.grant_permissions("clipboard-read", "clipboard-write")
 
-        b.wait_visible(".pf-v5-c-data-list__cell:contains(Allow zebra)")
+        b.wait_visible(".pf-v5-c-data-list__cell:contains(daemons to)")
         b.wait_visible(".pf-v5-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
         b.click("button:contains('View automation script')")
         ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
@@ -217,7 +217,7 @@ class TestSelinux(testlib.MachineCase):
         b.click("button:contains('Shell')")
         b.wait_in_text(shell_script_sel, "boolean -D")
         b.wait_in_text(shell_script_sel, "fcontext -D")
-        b.wait_in_text(shell_script_sel, "boolean -m -1 zebra_write_config")
+        b.wait_in_text(shell_script_sel, "boolean -m -1 daemons_dump_core")
         b.wait_in_text(shell_script_sel, "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
 
         # Check ansible
@@ -233,7 +233,7 @@ class TestSelinux(testlib.MachineCase):
             return script
 
         b.click("button:contains('Ansible')")
-        b.wait_text_matches(ansible_script_sel, "Allow zebra.*write.*config")
+        b.wait_text_matches(ansible_script_sel, "Allow.*daemons.*core")
 
         ansible_m = self.machines["ansible_machine"]
         ansible_m.execute("semanage module -D")
@@ -247,11 +247,11 @@ class TestSelinux(testlib.MachineCase):
         self.assertEqual(local, se_after)
 
         # Check that ansible is idempotent
-        m.execute("semanage boolean --modify --off zebra_write_config")
+        m.execute("semanage boolean --modify --off daemons_dump_core")
         b.reload()
         b.enter_page("/selinux")
         with b.wait_timeout(30):
-            b.wait_visible(".pf-v5-c-data-list__cell:contains(Disallow zebra)")
+            b.wait_text_matches(".pf-v5-c-data-list__cell:contains(daemons)", "Disallow.*daemons.*core")
         b.click("button:contains('View automation script')")
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
         se_before = se_after
@@ -274,7 +274,7 @@ class TestSelinux(testlib.MachineCase):
         b.click('.contextMenu li:nth-child(2) button')
         b.wait_in_text(".xterm-accessibility-tree", "semanage import <<EOF")
         b.wait_in_text(".xterm-accessibility-tree", "boolean -D")
-        b.wait_in_text(".xterm-accessibility-tree", "boolean -m -0 zebra_write_config")
+        b.wait_in_text(".xterm-accessibility-tree", "boolean -m -0 daemons_dump_core")
         b.wait_in_text(".xterm-accessibility-tree", "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
 
         m.execute("semanage boolean -D; semanage fcontext -D; semanage module -D")

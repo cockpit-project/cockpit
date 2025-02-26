@@ -176,15 +176,15 @@ export class TopNav extends React.Component {
 
         // HACK: This should be a DropdownItem so the normal onSelect closing behaviour works, but we can't embed a button in a button
         const main_menu = [
-            <div // eslint-disable-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
-              id="super-user-indicator-mobile"
-              className="mobile_v"
-              key="superusermobile"
-              onClick={() => {
-                  this.setState((prevState: TopNavState) => { return { menuOpened: !prevState.menuOpened } });
-              }}>
-                <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
-            </div>,
+            <li // eslint-disable-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
+                id="super-user-indicator-mobile"
+                className="pf-v6-c-menu__list-item pf-v6-c-menu__item mobile_v"
+                key="superusermobile"
+                onClick={() => {
+                    this.setState((prevState: TopNavState) => { return { menuOpened: !prevState.menuOpened } });
+                }}>
+                    <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
+            </li>,
             <Divider key="separator2" className="mobile_v" />,
             <DropdownGroup label={_("Style")} key="dark-switcher">
                 <DropdownList>

@@ -734,9 +734,9 @@ $desktop: $phone + 1px;
 
 // Mobile sizes
 @media (max-width: $phone) {
-  #host-toggle,
-  #nav-system-item,
-  button.ct-nav-toggle {
+  #host-toggle > .pf-v6-c-button__text,
+  #nav-system-item > .pf-v6-c-button__text,
+  button.ct-nav-toggle > .pf-v6-c-button__text {
     // Stretch to navbar
     block-size: 100%;
     // Don't stretch to fill content; make optimal width same as height

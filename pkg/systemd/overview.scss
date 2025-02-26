@@ -20,23 +20,15 @@
   //
   // When we have the upcoming version of PF4 in Cockpit, we should drop this code
   // (and adjust things for the button to show up on the side of desktop mode instead)
-  @media (max-width: $pf-v6-global--breakpoint--lg) {
-    grid-template-areas: "icon title" ". content" ". action";
-    grid-gap: var(--pf-v5-global--spacer--sm) 0;
+  @media (max-width: $pf-v6-global--breakpoint--md) {
+    --pf-v6-c-alert--GridTemplateAreas: "icon title" ". description" ". action";
+    --pf-v6-c-alert__action--MarginBlockStart: 0;
   }
 
   @media (max-width: 320px) {
     // Allow the action button to have a bit more space on iPhone SE sized phones
-    grid-template-areas: "icon title" ". content" "action action";
-  }
-
-  > .pf-v6-c-alert__action {
-    margin-inline: var(--pf-v5-global--spacer--md) 0;
-  }
-
-  // Align left content with the rest of the page
-  @media (min-width: $pf-v6-global--breakpoint--xl) {
-    padding-inline-start: var(--pf-v5-global--spacer--lg);
+    --pf-v6-c-alert--GridTemplateAreas: "icon title" "description description" "action action";
+    --pf-v6-c-alert__action--MarginBlockStart: 0;
   }
 }
 
@@ -83,16 +75,16 @@
 
 .pf-v6-l-gallery.ct-system-overview {
   --cards: 2;
-  --pf-v5-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
+  --pf-v6-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
 
   // Small mobile: Reduce spacing
   @media (max-width: 320px) {
-    // --pf-v5-l-gallery--m-gutter--GridGap: 0.25rem;
+    --pf-v6-l-gallery--m-gutter--GridGap: 0.25rem;
   }
 
   // Mobile: reduce to 1 card wide and minimize spacing
   @media (max-width: 680px) {
-    --pf-v5-l-gallery--m-gutter--GridGap: var(--pf-v5-global--spacer--sm);
+    --pf-v6-l-gallery--m-gutter--GridGap: var(--pf-t--global--spacer--sm);
     --cards: 1;
   }
 
@@ -102,18 +94,18 @@
   }
 
   // Extra large desktop: Let cards align to the left at an optimal size
-  @media (min-width: 110rem) {
-    --pf-v5-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
+  @media (min-width: 113rem) {
+    --pf-v6-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
   }
 
   // VMs @ 1024x768; add a little leeway For titlebars, start bar, etc.
   @media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
-    --pf-v5-l-gallery--m-gutter--GridGap: var(--pf-v5-global--spacer--sm);
+    --pf-v6-l-gallery--m-gutter--GridGap: var(--pf-t--global--spacer--sm);
 
     // Also skim off some vertical space for the cards
     .pf-v6-c-card {
-      --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--md);
-      --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
+      --pf-v6-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--md);
+      --pf-v6-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
     }
   }
 
@@ -123,8 +115,8 @@
 
   .pf-v6-c-card {
     &__title-text {
-      font-size: var(--pf-v5-global--FontSize--xl);
-      font-weight: var(--pf-v5-global--FontWeight--normal);
+      font-size: var(--pf-t--global--font--size--xl);
+      font-weight: var(--pf-t--global--font--weight--body);
     }
 
     &__body {
@@ -136,7 +128,7 @@
       p {
         + p,
         + button {
-          margin-block-start: calc(var(--pf-v5-global--LineHeight--md) * 1rem);
+          margin-block-start: calc(var(--pf-t--global--font--line-height--body) * 1rem);
         }
       }
 
@@ -145,7 +137,7 @@
       }
 
       th {
-        font-size: var(--pf-v5-global--FontSize--sm);
+        font-size: var(--pf-t--global--font--size--sm);
       }
     }
   }
@@ -191,15 +183,15 @@
   /* Reduce gutter & padding on smaller widths, for desktop & mobile */
 
   .pf-v6-l-gallery.ct-system-overview {
-    --pf-v5-l-gallery--m-gutter--GridGap: calc(var(--pf-v5-global--gutter--md)/2);
+    --pf-v6-l-gallery--m-gutter--GridGap: calc(var(--pf-t--global--spacer--md)/2);
   }
 
   .pf-v6-c-card {
-    --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card--child--PaddingBottom: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card--child--PaddingLeft: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card__title--not-last-child--PaddingBottom: var(--pf-v5-global--spacer--sm);
+    --pf-v6-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingBottom: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingLeft: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card__title--not-last-child--PaddingBottom: var(--pf-t--global--spacer--sm);
   }
 }
 

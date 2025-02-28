@@ -19,12 +19,13 @@ import logging
 import os
 import re
 import textwrap
+from collections.abc import Mapping
 
 from testlib import MachineCase
 
 
 class PackageCase(MachineCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.repo_dir = os.path.join(self.vm_tmpdir, "repo")
@@ -129,7 +130,7 @@ class PackageCase(MachineCase):
             self.addCleanup(self.machine.execute, "systemctl disable --now dnf5-automatic.timer 2>/dev/null || true")
             self.addCleanup(self.machine.execute, "rm -r /etc/systemd/system/dnf5-automatic*.d && systemctl daemon-reload || true")
 
-        self.updateInfo = {}
+        self.updateInfo: dict[tuple[str, str, str], Mapping[str, str]] = {}
 
         # HACK: kpatch check sometimes complains that we don't set up a full repo in unrelated tests
         self.allow_browser_errors("Could not determine kpatch packages:.*repodata updates was not complete")
@@ -138,8 +139,9 @@ class PackageCase(MachineCase):
     # Helper functions for creating packages/repository
     #
 
-    def createPackage(self, name, version, release, install=False,
-                      postinst=None, depends="", content=None, arch=None, provides=None, **updateinfo):
+    def createPackage(self, name: str, version: str, release: str, *, install: bool = False,
+                      postinst: str | None = None, depends: str = "", content: Mapping[str, Mapping[str, str] | str] | None = None,
+                      arch: str | None = None, provides: str | None = None, **updateinfo: str) -> None:
         """Create a dummy package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -151,15 +153,16 @@ class PackageCase(MachineCase):
             provides = ""
 
         if self.backend == "apt":
-            self.createDeb(name, version + '-' + release, depends, postinst, install, content, arch, provides)
+            self.createDeb(name, version + '-' + release, depends, postinst, install=install, content=content, arch=arch, provides=provides)
         elif self.backend == "alpm":
-            self.createPacmanPkg(name, version, release, depends, postinst, install, content, arch, provides)
+            self.createPacmanPkg(name, version, release, depends, postinst, install=install, content=content, arch=arch, provides=provides)
         else:
-            self.createRpm(name, version, release, depends, postinst, install, content, arch, provides)
+            self.createRpm(name, version, release, depends, postinst, install=install, content=content, arch=arch, provides=provides)
         if updateinfo:
             self.updateInfo[name, version, release] = updateinfo
 
-    def createDeb(self, name, version, depends, postinst, install, content, arch, provides):
+    def createDeb(self, name: str, version: str, depends: str, postinst: str | None = None, *, install: bool,
+                  content: Mapping[str, Mapping[str, str] | str] | None = None, arch: str | None = None, provides: str | None = None) -> None:
         """Create a dummy deb in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -178,7 +181,7 @@ class PackageCase(MachineCase):
             for path, data in content.items():
                 dest = "/tmp/b/" + path
                 m.execute(f"mkdir -p '{os.path.dirname(dest)}'")
-                if isinstance(data, dict):
+                if isinstance(data, Mapping):
                     m.execute(f"cp '{data['path']}' '{dest}'")
                 else:
                     m.write(dest, data)
@@ -206,7 +209,8 @@ class PackageCase(MachineCase):
         m.execute(cmd)
         self.addCleanup(m.execute, f"dpkg -P --force-depends --force-remove-reinstreq {name} 2>/dev/null || true")
 
-    def createRpm(self, name, version, release, requires, post, install, content, arch, provides):
+    def createRpm(self, name: str, version: str, release: str, requires: str, post: str | None = None, *, install: bool,
+                  content: Mapping[str, Mapping[str, str] | str] | None = None, arch: str | None = None, provides: str | None = None) -> None:
         """Create a dummy rpm in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -225,7 +229,7 @@ class PackageCase(MachineCase):
         if content is not None:
             for path, data in content.items():
                 installcmds += f'mkdir -p $(dirname "$RPM_BUILD_ROOT/{path}")\n'
-                if isinstance(data, dict):
+                if isinstance(data, Mapping):
                     installcmds += f"cp {data['path']} \"$RPM_BUILD_ROOT/{path}\""
                 else:
                     installcmds += f'cat >"$RPM_BUILD_ROOT/{path}" <<\'EOF\'\n' + data + '\nEOF\n'
@@ -267,7 +271,8 @@ rm -rf ~/rpmbuild
         self.machine.execute(cmd.format(self.repo_dir, name, version, release, arch))
         self.addCleanup(self.machine.execute, f"rpm -e --nodeps {name} 2>/dev/null || true")
 
-    def createPacmanPkg(self, name, version, release, requires, postinst, install, content, arch, provides):
+    def createPacmanPkg(self, name: str, version: str, release: str, requires: str, postinst: str | None = None, *, install: bool,
+                        content: Mapping[str, Mapping[str, str] | str] | None = None, arch: str | None = None, provides: str | None = None) -> None:
         """Create a dummy pacman package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -285,7 +290,7 @@ rm -rf ~/rpmbuild
             for path, data in content.items():
                 p = os.path.dirname(path)
                 installcmds += f'mkdir -p $pkgdir{p}\n'
-                if isinstance(data, dict):
+                if isinstance(data, Mapping):
                     dpath = data["path"]
 
                     file = os.path.basename(dpath)
@@ -348,7 +353,7 @@ post_upgrade() {{
         self.machine.execute(cmd)
         self.addCleanup(self.machine.execute, f"pacman -Rdd --noconfirm {name} 2>/dev/null || true")
 
-    def createAptChangelogs(self):
+    def createAptChangelogs(self) -> None:
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog
         for ((pkg, ver, rel), info) in self.updateInfo.items():
             changes = info.get("changes", "some changes")
@@ -366,7 +371,7 @@ post_upgrade() {{
 """
             self.machine.execute(f"mkdir -p $(dirname {path}); echo '{contents}' > {path}")
 
-    def createYumUpdateInfo(self):
+    def createYumUpdateInfo(self) -> str:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n<updates>\n'
         for ((pkg, ver, rel), info) in self.updateInfo.items():
             refs = ""
@@ -402,10 +407,10 @@ post_upgrade() {{
         xml += '</updates>\n'
         return xml
 
-    def addPackageSet(self, name):
+    def addPackageSet(self, name: str) -> None:
         self.machine.execute(f"mkdir -p {self.repo_dir}; cp /var/lib/package-sets/{name}/* {self.repo_dir}")
 
-    def enableRepo(self):
+    def enableRepo(self) -> None:
         if self.backend == "apt":
             self.createAptChangelogs()
             self.machine.execute(f"""echo 'deb [trusted=yes] file://{self.repo_dir} /' > /etc/apt/sources.list.d/test.list

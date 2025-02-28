@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include "common/cockpitconf.h"
 #include "common/cockpitframe.h"
 #include "common/cockpitjsonprint.h"
 #include "common/cockpitmemory.h"
@@ -798,6 +799,53 @@ perform_tlscert (const char *rhost,
   return pamh;
 }
 
+static pam_handle_t *
+perform_external (
+                 const char *command,
+                 const char *rhost,
+                 const char *type,
+                 const char *authorization)
+{
+  struct pam_conv conv = { pam_conv_func_dummy, };
+  pam_handle_t *pamh;
+  int res;
+
+  assert (rhost != NULL);
+  assert (type != NULL);
+  assert (authorization != NULL);
+
+  /* Strip the type from the authorization string */
+  assert (strncmp (authorization, type, strlen (type)) == 0);
+  /* Strip the space (+1) */
+  authorization += strlen (type) + 1;
+
+  debug ("start external authentication (%s) for cockpit-ws %u", type, getppid ());
+
+  /* Run the external command. If it fails, set username to NULL */
+  char *username = run_user_command(command, rhost, authorization);
+  if (username == NULL)
+    errx (EX, "no user provided by external command: %s", command);
+
+  res = pam_start ("cockpit", username, &conv, &pamh);
+  if (res != PAM_SUCCESS)
+    errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
+
+  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
+    errx (EX, "couldn't setup pam rhost");
+
+  res = open_session (pamh);
+
+  create_s4u_ticket (username);
+
+  free (username);
+
+  /* Our exit code is a PAM code */
+  if (res != PAM_SUCCESS)
+    exit_pam_init_problem (res);
+
+  return pamh;
+}
+
 
 /* Return path of ccache file (including FILE: prefix), clean this up at session end */
 static char *
@@ -987,6 +1035,12 @@ main (int argc,
     pamh = perform_gssapi (rhost, response);
   else if (strcmp (type, "tls-cert") == 0)
     pamh = perform_tlscert (rhost, response);
+  else {
+    const char *command = cockpit_conf_string (type, "SessionUserCommand");
+    if (command != NULL) {
+      pamh = perform_external (command, rhost, type, response);
+    }
+  }
 
   cockpit_memory_clear (response, -1);
   free (response);

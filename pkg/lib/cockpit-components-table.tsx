@@ -57,7 +57,6 @@ const _ = cockpit.gettext;
  * - emptyCaption: header caption to show if list is empty
  * - emptyCaptionDetail: extra details to show after emptyCaption if list is empty
  * - emptyComponent: Whole empty state component to show if the list is empty
- * - isEmptyStateInTable: if empty state is result of a filter function this should be set, otherwise false
  * - loading: Set to string when the content is still loading. This string is shown.
  * - variant: For compact tables pass 'compact'
  * - gridBreakPoint: Specifies the grid breakpoints ('', 'grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
@@ -107,7 +106,6 @@ export interface ListingTableProps extends Omit<TableProps, 'rows' | 'onSelect'>
     emptyCaption?: React.ReactNode,
     emptyCaptionDetail?: React.ReactNode,
     emptyComponent?: React.ReactNode,
-    isEmptyStateInTable?: boolean,
     loading?: string,
     onRowClick?: (event: React.KeyboardEvent | React.MouseEvent | undefined, row: ListingTableRowProps) => void,
     onSelect?: OnSelect;
@@ -127,7 +125,6 @@ export const ListingTable = ({
     emptyCaption = '',
     emptyCaptionDetail,
     emptyComponent,
-    isEmptyStateInTable = false,
     loading = '',
     onRowClick,
     onSelect,
@@ -214,8 +211,6 @@ export const ListingTable = ({
                     </EmptyStateFooter>}
                 </EmptyState>
             );
-        if (!isEmptyStateInTable)
-            return emptyState;
 
         const emptyStateCell = (
             [{

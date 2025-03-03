@@ -64,127 +64,127 @@
   }
 }
 
-// .pf-v6-l-gallery.ct-system-overview {
-//   --cards: 2;
-//   --pf-v6-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
+.pf-v6-l-gallery.ct-system-overview {
+  --cards: 2;
+  --pf-v6-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
 
-//   // Small mobile: Reduce spacing
-//   @media (max-width: 320px) {
-//     // --pf-v5-l-gallery--m-gutter--GridGap: 0.25rem;
-//   }
+  // Small mobile: Reduce spacing
+  @media (max-width: 320px) {
+    --pf-v6-l-gallery--m-gutter--GridGap: 0.25rem;
+  }
 
-//   // Mobile: reduce to 1 card wide and minimize spacing
-//   @media (max-width: 680px) {
-//     --pf-v6-l-gallery--m-gutter--GridGap: var(--pf-t--global--spacer--sm);
-//     --cards: 1;
-//   }
+  // Mobile: reduce to 1 card wide and minimize spacing
+  @media (max-width: 680px) {
+    --pf-v6-l-gallery--m-gutter--GridGap: var(--pf-t--global--spacer--sm);
+    --cards: 1;
+  }
 
-//   // Large desktop: Jump up to 4 cards wide
-//   @media (min-width: 1400px) {
-//     --cards: 4;
-//   }
+  // Large desktop: Jump up to 4 cards wide
+  @media (min-width: 1400px) {
+    --cards: 4;
+  }
 
-//   // Extra large desktop: Let cards align to the left at an optimal size
-//   @media (min-width: 110rem) {
-//     --pf-v6-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
-//   }
+  // Extra large desktop: Let cards align to the left at an optimal size
+  @media (min-width: 113rem) {
+    --pf-v6-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
+  }
 
-//   // VMs @ 1024x768; add a little leeway For titlebars, start bar, etc.
-//   @media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
-//     --pf-v6-l-gallery--m-gutter--GridGap: var(--pf-t--global--spacer--sm);
+  // VMs @ 1024x768; add a little leeway For titlebars, start bar, etc.
+  @media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
+    --pf-v6-l-gallery--m-gutter--GridGap: var(--pf-t--global--spacer--sm);
 
-//     // Also skim off some vertical space for the cards
-//     .pf-v6-c-card {
-//       --pf-v6-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--md);
-//       --pf-v6-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
-//     }
-//   }
+    // Also skim off some vertical space for the cards
+    .pf-v6-c-card {
+      --pf-v6-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--md);
+      --pf-v6-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
+    }
+  }
 
-//   .motd-box {
-//     grid-column: 1 / -1;
-//   }
+  .motd-box {
+    grid-column: 1 / -1;
+  }
 
-//   .pf-v6-c-card {
-//     &__title-text {
-//       font-size: var(--pf-t--global--font--size--xl);
-//       font-weight: var(--pf-t--global--font--weight--body);
-//     }
+  .pf-v6-c-card {
+    &__title-text {
+      font-size: var(--pf-t--global--font--size--xl);
+      font-weight: var(--pf-t--global--font--weight--body);
+    }
 
-//     &__body {
-//       &:last-child .pf-v6-c-table:last-child tr:last-child {
-//         /* Remove the border of tables when it's the last item in a card and there isn't a card footer */
-//         border-block-end: none;
-//       }
+    &__body {
+      &:last-child .pf-v6-c-table:last-child tr:last-child {
+        /* Remove the border of tables when it's the last item in a card and there isn't a card footer */
+        border-block-end: none;
+      }
 
-//       p {
-//         + p,
-//         + button {
-//           margin-block-start: calc(var(--pf-t--global--font--line-height--body) * 1rem);
-//         }
-//       }
+      p {
+        + p,
+        + button {
+          margin-block-start: calc(var(--pf-t--global--font--line-height--body) * 1rem);
+        }
+      }
 
-//       td {
-//         vertical-align: middle;
-//       }
+      td {
+        vertical-align: middle;
+      }
 
-//       th {
-//         font-size: var(--pf-t--global--font--size--sm);
-//       }
-//     }
-//   }
+      th {
+        font-size: var(--pf-t--global--font--size--sm);
+      }
+    }
+  }
 
-//   .pf-v6-c-progress {
-//     &__status {
-//       display: flex;
-//       align-items: baseline;
+  .pf-v6-c-progress {
+    &__status {
+      display: flex;
+      align-items: baseline;
 
-//       &-icon {
-//         display: flex;
-//         align-self: center;
-//       }
-//     }
-//   }
+      &-icon {
+        display: flex;
+        align-self: center;
+      }
+    }
+  }
 
-//   .pf-m-compact {
-//     th, td {
-//       &:first-child {
-//         :not([dir="rtl"]) & {
-//           padding-inline-start: 0;
-//         }
+  .pf-m-compact {
+    th, td {
+      &:first-child {
+        :not([dir="rtl"]) & {
+          padding-inline-start: 0;
+        }
 
-//         [dir="rtl"] & {
-//           padding-inline-end: 0;
-//         }
-//       }
+        [dir="rtl"] & {
+          padding-inline-end: 0;
+        }
+      }
 
-//       &:last-child {
-//         :not([dir="rtl"]) & {
-//           padding-inline-end: 0;
-//         }
+      &:last-child {
+        :not([dir="rtl"]) & {
+          padding-inline-end: 0;
+        }
 
-//         [dir="rtl"] & {
-//           padding-inline-start: 0;
-//         }
-//       }
-//     }
-//   }
-// }
+        [dir="rtl"] & {
+          padding-inline-start: 0;
+        }
+      }
+    }
+  }
+}
 
-// @media (max-width: 779px) {
-//   /* Reduce gutter & padding on smaller widths, for desktop & mobile */
+@media (max-width: 779px) {
+  /* Reduce gutter & padding on smaller widths, for desktop & mobile */
 
-//   // .pf-v6-l-gallery.ct-system-overview {
-//   //   --pf-v6-l-gallery--m-gutter--GridGap: calc(var(--pf-v5-global--gutter--md)/2);
-//   // // }
+  .pf-v6-l-gallery.ct-system-overview {
+    --pf-v6-l-gallery--m-gutter--GridGap: calc(var(--pf-t--global--spacer--md)/2);
+  }
 
-//   // .pf-v6-c-card {
-//   //   --pf-v5-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--md);
-//   //   --pf-v5-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
-//   //   --pf-v5-c-card--child--PaddingBottom: var(--pf-t--global--spacer--md);
-//   //   --pf-v5-c-card--child--PaddingLeft: var(--pf-t--global--spacer--md);
-//   //   --pf-v5-c-card__title--not-last-child--PaddingBottom: var(--pf-t--global--spacer--sm);
-//   // }
-// }
+  .pf-v6-c-card {
+    --pf-v6-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingBottom: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingLeft: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card__title--not-last-child--PaddingBottom: var(--pf-t--global--spacer--sm);
+  }
+}
 
 @media (min-width: 780px) {
   /* Embiggen subheading & card headings when there's space */

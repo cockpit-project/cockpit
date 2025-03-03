@@ -109,7 +109,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
     const [edited_locked, set_edited_locked] = useState(null);
 
     function change_real_name() {
-        if (edited_real_name == null || edited_real_name == undefined)
+        if (edited_real_name === null || edited_real_name === undefined)
             return;
 
         set_committing_real_name(true);

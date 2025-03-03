@@ -5,10 +5,7 @@
 @import "@patternfly/patternfly/components/Table/table.scss";
 
 .ct-limited-access-alert {
-  --pf-v5-c-alert--GridTemplateColumns: auto auto 1fr;
-
-  // Set the right padding so that the button aligns with the other alerts in the page on the side
-  padding-inline-end: var(--pf-v5-c-page__main-section--PaddingRight);
+  --pf-v6-c-alert--GridTemplateAreas: "icon title action" ". description description";
 
   // Deconstruct nicely on small screen sizes (especially mobile)
   // This will not be needed in a future PF4 update
@@ -33,10 +30,6 @@
 }
 
 .ct-overview-header {
-  align-items: center;
-  display: flex;
-  flex: none;
-
   &,
   &-hostname {
     flex-wrap: wrap;
@@ -51,11 +44,9 @@
   &-hostname {
     align-items: baseline;
     flex: auto;
-    /* Collapse down to 15rem, to help preserve button on the right */
-    flex-basis: 15rem;
 
     > h1 {
-      font-size: var(--pf-v5-global--FontSize--2xl) !important;
+      font-size: var(--pf-t--global--font--size--2xl) !important;
     }
   }
 
@@ -69,7 +60,7 @@
   }
 
   &-subheading {
-    font-size: var(--pf-v5-global--FontSize--md);
+    font-size: var(--pf-t--global--font--size--md);
   }
 }
 
@@ -199,66 +190,51 @@
   /* Embiggen subheading & card headings when there's space */
 
   .pf-v6-l-gallery.ct-system-overview .pf-v6-c-card__title-text {
-    font-size: var(--pf-v5-global--FontSize--2xl);
+    font-size: var(--pf-t--global--font--size--2xl);
   }
 
   .ct-overview-header-subheading {
-    font-size: var(--pf-v5-global--FontSize--lg);
+    font-size: var(--pf-t--global--font--size--lg);
   }
 }
 
-.pf-v6-c-table tr > * {
-  vertical-align: top;
-}
+// .pf-v6-c-table tr > * {
+//   vertical-align: top;
+// }
 
-.ct-inline-list .pf-v6-c-list.pf-m-inline {
-  display: inline-flex;
-  margin-inline-start: 1rem;
-}
+// .ct-inline-list .pf-v6-c-list.pf-m-inline {
+//   display: inline-flex;
+//   margin-inline-start: 1rem;
+// }
 
-/* Add a subtle dropshadow to the alerts, to separate them from the background, similar to the cards on the page */
-.pf-v6-c-page__main-section:not(.ct-overview-header),
-.pf-v6-l-gallery {
-  > .pf-v6-c-alert {
-    box-shadow: var(--pf-v5-global--BoxShadow--sm);
+// #motd-box > .pf-v6-c-alert {
+//   /* Spacing between the MOTD is handled by the .pf-v6-l-gallery grid */
+//   margin-block-end: 0;
+// }
 
-    // Default PF4 blue and background grey are too close in shade
-    // So: Lighten up the blue to provide a touch more contrast
-    // (Based on default's light green, but in a blue shade)
-    &.pf-m-info {
-      --pf-v5-c-alert--BackgroundColor: #f1f8fe;
-    }
-  }
-}
+// .pf-v6-c-alert .pf-v6-c-alert__description a {
+//   padding-inline-start: 15px;
+// }
 
-#motd-box > .pf-v6-c-alert {
-  /* Spacing between the MOTD is handled by the .pf-v6-l-gallery grid */
-  margin-block-end: 0;
-}
+// // Stretch modal content to fill body
+// // This redirects scrolling from the modal body to the select widget
+// .ct-m-stretch-body {
+//   // Use flex to let children fully expand to the content
+//   .pf-v6-c-modal-box__body {
+//     &, > :only-child {
+//       // Let children fully stretch to content
+//       display: flex;
+//     }
 
-.pf-v6-c-alert .pf-v6-c-alert__description a {
-  padding-inline-start: 15px;
-}
+//     > :only-child,
+//     .pf-v6-c-menu__content {
+//       // Get squishy with children and the menu content
+//       flex: auto;
+//     }
 
-// Stretch modal content to fill body
-// This redirects scrolling from the modal body to the select widget
-.ct-m-stretch-body {
-  // Use flex to let children fully expand to the content
-  .pf-v6-c-modal-box__body {
-    &, > :only-child {
-      // Let children fully stretch to content
-      display: flex;
-    }
-
-    > :only-child,
-    .pf-v6-c-menu__content {
-      // Get squishy with children and the menu content
-      flex: auto;
-    }
-
-    .pf-v6-c-menu__content {
-      // Relax the height constraint
-      --pf-v5-c-menu__content--MaxHeight: 100%;
-    }
-  }
-}
+//     .pf-v6-c-menu__content {
+//       // Relax the height constraint
+//       --pf-v6-c-menu__content--MaxHeight: 100%;
+//     }
+//   }
+// }

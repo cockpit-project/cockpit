@@ -20,17 +20,17 @@ import os.path
 import re
 import textwrap
 
-from testlib import Error, MachineCase, wait
+from testlib import Error, MachineCase, MachineProtocol, wait
 
 
-def from_udisks_ascii(codepoints):
+def from_udisks_ascii(codepoints: list[int]) -> str:
     return ''.join(map(chr, codepoints[:-1]))
 
 
-class StorageHelpers:
+class StorageHelpers(MachineProtocol):
     """Mix-in class for using in tests that derive from something else than MachineCase or StorageCase"""
 
-    def inode(self, f):
+    def inode(self, f: str) -> str:
         return self.machine.execute("stat -L '%s' -c %%i" % f)
 
     def retry(self, setup, check, teardown):
@@ -45,7 +45,7 @@ class StorageHelpers:
 
         self.browser.wait(step)
 
-    def add_ram_disk(self, size=50, delay=None):
+    def add_ram_disk(self, size: int = 50, delay: int | None = None):
         """Add per-test RAM disk
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
@@ -119,7 +119,7 @@ class StorageHelpers:
             raise Error("Device not found")
         return dev
 
-    def force_remove_disk(self, device):
+    def force_remove_disk(self, device: str) -> None:
         """Act like the given device gets physically removed.
 
         This circumvents all the normal EBUSY failures, and thus can be used for testing
@@ -140,7 +140,7 @@ class StorageHelpers:
 
     # Dialogs
 
-    def dialog_wait_open(self):
+    def dialog_wait_open(self) -> None:
         self.browser.wait_visible('#dialog')
 
     def dialog_wait_alert(self, text1, text2=None):
@@ -149,10 +149,10 @@ class StorageHelpers:
             return text1 in t or (text2 is not None and text2 in t)
         self.browser.wait(has_alert_title)
 
-    def dialog_wait_title(self, text):
+    def dialog_wait_title(self, text: str) -> None:
         self.browser.wait_in_text('#dialog .pf-v5-c-modal-box__title', text)
 
-    def dialog_field(self, field):
+    def dialog_field(self, field: str) -> str:
         return f'#dialog [data-field="{field}"]'
 
     def dialog_val(self, field):
@@ -233,22 +233,22 @@ class StorageHelpers:
     def dialog_wait_not_present(self, field):
         self.browser.wait_not_present(self.dialog_field(field))
 
-    def dialog_wait_apply_enabled(self):
+    def dialog_wait_apply_enabled(self) -> None:
         self.browser.wait_attr('#dialog button.apply:nth-of-type(1)', "disabled", None)
 
-    def dialog_wait_apply_disabled(self):
+    def dialog_wait_apply_disabled(self) -> None:
         self.browser.wait_visible('#dialog button.apply:nth-of-type(1)[disabled]')
 
-    def dialog_apply(self):
+    def dialog_apply(self) -> None:
         self.browser.click('#dialog button.apply:nth-of-type(1)')
 
-    def dialog_apply_secondary(self):
+    def dialog_apply_secondary(self) -> None:
         self.browser.click('#dialog button.apply:nth-of-type(2)')
 
-    def dialog_cancel(self):
+    def dialog_cancel(self) -> None:
         self.browser.click('#dialog button.cancel')
 
-    def dialog_wait_close(self):
+    def dialog_wait_close(self) -> None:
         # file system operations often take longer than 10s
         with self.browser.wait_timeout(max(self.browser.timeout, 60)):
             self.browser.wait_not_present('#dialog')
@@ -386,7 +386,7 @@ class StorageHelpers:
                 "org.freedesktop.DBus.ObjectManager",
                 "GetManagedObjects", "", [])))""")]))
 
-    def configuration_field(self, dev, tab, field):
+    def configuration_field(self, dev: str, tab: str, field: str) -> str:
         managerObjects = self.udisks_objects()
         for path in managerObjects:
             if "org.freedesktop.UDisks2.Block" in managerObjects[path]:
@@ -405,7 +405,7 @@ class StorageHelpers:
     def assert_not_in_configuration(self, dev, tab, field, text):
         self.assertNotIn(text, self.configuration_field(dev, tab, field))
 
-    def child_configuration_field(self, dev, tab, field):
+    def child_configuration_field(self, dev: str, tab: str, field: str) -> str:
         udisks_objects = self.udisks_objects()
         for path in udisks_objects:
             if "org.freedesktop.UDisks2.Encrypted" in udisks_objects[path]:
@@ -579,13 +579,13 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
 
     # Cards and tables
 
-    def card(self, title):
+    def card(self, title: str) -> str:
         return f"[data-test-card-title='{title}']"
 
-    def card_parent_link(self):
+    def card_parent_link(self) -> str:
         return ".pf-v5-c-breadcrumb__item:nth-last-child(2) > a"
 
-    def card_header(self, title):
+    def card_header(self, title: str) -> str:
         return self.card(title) + " .pf-v5-c-card__header"
 
     def card_row(self, title, index=None, name=None, location=None):
@@ -604,51 +604,51 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
     def card_row_col(self, title, row_index=None, col_index=None, row_name=None, row_location=None):
         return self.card_row(title, row_index, row_name, row_location) + f" td:nth-child({col_index})"
 
-    def card_desc(self, card_title, desc_title):
+    def card_desc(self, card_title: str, desc_title: str) -> str:
         return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] [data-test-value=true]"
 
-    def card_desc_action(self, card_title, desc_title):
+    def card_desc_action(self, card_title: str, desc_title: str) -> str:
         return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] [data-test-action=true] button"
 
-    def card_button(self, card_title, button_title):
+    def card_button(self, card_title: str, button_title: str) -> str:
         return self.card(card_title) + f" button:contains('{button_title}')"
 
-    def dropdown_toggle(self, parent):
+    def dropdown_toggle(self, parent: str) -> str:
         return parent + " .pf-v5-c-menu-toggle"
 
-    def dropdown_action(self, parent, title):
+    def dropdown_action(self, parent: str, title: str) -> str:
         return parent + f" .pf-v5-c-menu button:contains('{title}')"
 
-    def dropdown_description(self, parent, title):
+    def dropdown_description(self, parent: str, title: str) -> str:
         return parent + f" .pf-v5-c-menu button:contains('{title}') .pf-v5-c-menu__item-description"
 
-    def click_dropdown(self, parent, title):
+    def click_dropdown(self, parent: str, title: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
         self.browser.click(self.dropdown_action(parent, title))
 
-    def click_card_dropdown(self, card_title, button_title):
+    def click_card_dropdown(self, card_title: str, button_title: str) -> None:
         self.click_dropdown(self.card_header(card_title), button_title)
 
-    def click_devices_dropdown(self, title):
+    def click_devices_dropdown(self, title: str) -> None:
         self.click_card_dropdown("Storage", title)
 
-    def check_dropdown_action_disabled(self, parent, title, expected_text):
+    def check_dropdown_action_disabled(self, parent: str, title: str, expected_text: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
         self.browser.wait_visible(self.dropdown_action(parent, title) + "[disabled]")
         self.browser.wait_text(self.dropdown_description(parent, title), expected_text)
         self.browser.click(self.dropdown_toggle(parent))
 
-    def wait_mounted(self, card_title):
+    def wait_mounted(self, card_title: str) -> None:
         with self.browser.wait_timeout(30):
             self.browser.wait_not_in_text(self.card_desc(card_title, "Mount point"),
                                           "The filesystem is not mounted.")
 
-    def wait_not_mounted(self, card_title):
+    def wait_not_mounted(self, card_title: str) -> None:
         with self.browser.wait_timeout(30):
             self.browser.wait_in_text(self.card_desc(card_title, "Mount point"),
                                       "The filesystem is not mounted.")
 
-    def wait_card_button_disabled(self, card_title, button_title):
+    def wait_card_button_disabled(self, card_title: str, button_title: str) -> None:
         with self.browser.wait_timeout(30):
             self.browser.wait_visible(self.card_button(card_title, button_title) + ":disabled")
 

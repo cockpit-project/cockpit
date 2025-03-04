@@ -40,7 +40,7 @@ import traceback
 import unittest
 from collections.abc import Collection, Container, Coroutine, Iterator, Mapping, Sequence
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Literal, TypedDict, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Literal, Protocol, TypedDict, TypeVar
 
 import webdriver_bidi
 from lcov import write_lcov
@@ -2896,3 +2896,13 @@ def sit(machines: Mapping[str, testvm.Machine] = {}) -> None:
         sys.stderr.write(machine.diagnose())
     print("Press RET to continue...")
     sys.stdin.readline()
+
+
+if TYPE_CHECKING:
+    class MachineProtocol(Protocol):
+        machine: testvm.Machine
+        browser: Browser
+
+        def allow_browser_errors(self, *patterns: str) -> None: ...
+else:
+    class MachineProtocol: ...

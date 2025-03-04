@@ -40,6 +40,7 @@ import { split_connection_string } from "./machines/machines";
 import { add_host, edit_host, connect_host } from "./hosts_dialog.jsx";
 
 import { ShellState } from "./state";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -244,23 +245,28 @@ export class CockpitHosts extends React.Component {
             <div className="ct-switcher">
                 <div className="pf-v6-c-select pf-m-dark">
                     <button onClick={this.toggleMenu} id="host-toggle" aria-labelledby="host-toggle" aria-expanded={(this.state.opened ? "true" : "false")} aria-haspopup="listbox" type="button" className="ct-nav-toggle pf-v6-c-select__toggle pf-v6-c-menu-toggle pf-m-plain">
-                        <span className="pf-v6-c-select__toggle-wrapper desktop_v">
-                            <span className="pf-v6-c-select__toggle-text">
-                                <HostLine user={user} host={label} />
+                        <span className="pf-v6-c-button__text">
+                            <span className="pf-v6-c-select__toggle-wrapper desktop_v">
+                                <span className="pf-v6-c-select__toggle-text">
+                                    <HostLine user={user} host={label} />
+                                </span>
                             </span>
+                            <Icon size="xl">
+                                <CaretUpIcon
+                                    className={`pf-v6-c-select__toggle-arrow mobile_v ${this.state.opened ? 'clicked' : ''}`}
+                                    aria-hidden="true"
+                                />
+                            </Icon>
+                            <span className="pf-v6-c-select__toggle-wrapper mobile_v">
+                                {_("Host")}
+                            </span>
+                            <Icon size="xl">
+                                <CaretDownIcon
+                                    className={`pf-v6-c-select__toggle-arrow desktop_v ${this.state.opened ? 'clicked' : ''}`}
+                                    aria-hidden="true"
+                                />
+                            </Icon>
                         </span>
-                        <CaretUpIcon
-                            className={`pf-v6-c-select__toggle-arrow mobile_v pf-v6-c-icon pf-m-lg ${this.state.opened ? 'clicked' : ''}`}
-                            aria-hidden="true"
-                        />
-                        <span className="pf-v6-c-select__toggle-wrapper mobile_v">
-                            {_("Host")}
-                        </span>
-                        <CaretDownIcon
-                            className={`pf-v6-c-select__toggle-arrow desktop_v pf-v6-c-icon ${this.state.opened ? 'clicked' : ''}`}
-                            aria-hidden="true"
-                        />
-
                     </button>
                 </div>
 

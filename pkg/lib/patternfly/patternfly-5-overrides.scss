@@ -2,6 +2,8 @@
 // Pull in variables (for breakpoints)
 @use "global-variables" as *;
 
+$phone: 767px;
+
 // PF Select is deprecated - no issue reported upstream - this needs to be removed from our codebase
 // Make select have the expected width
 // REVIEW @Venefilyn: Check if still relevant
@@ -354,11 +356,21 @@ to wrap around when there isn't enough space.
 // intended mainly for PF PageSection elements (pf-v6-c-page__main-section).
 // It's similar to adding padding={{ default: 'noPadding', sm: 'padding' }},
 // except this only affects the sides, not the top and bottom.
-// @media screen and (max-width: $pf-v6-global--breakpoint--sm) {
-//   .pf-v6-c-page__main>section.pf-v6-c-page__main-section:not(.pf-m-padding) {
-//     padding-inline: 0;
-//   }
-// }
+@media screen and (max-width: $pf-v6-global--breakpoint--sm) {
+  .pf-v6-c-page__main>section.pf-v6-c-page__main-section:not(.pf-m-padding) {
+    padding-inline: 0;
+  }
+}
+
+// Drop page padding and radius for page container in mobile mode. Make sure
+// the page container is also covering as much as possible
+@media screen and (max-width: $phone) {
+  .pf-v6-c-page {
+    --pf-v6-c-page--inset: 0;
+    --pf-v6-c-page__main-container--BorderRadius: 0;
+    --pf-v6-c-page__main-container--MaxHeight: 100%;
+  }
+}
 
 // Patch tabular number 0s to not have the slash inside
 // https://github.com/RedHatOfficial/RedHatFont/issues/53

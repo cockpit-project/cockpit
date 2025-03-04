@@ -37,6 +37,7 @@ import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
 import { SuperuserIndicator } from "./superuser.jsx";
 import { read_os_release } from "os-release.js";
 import { DialogsContext } from "dialogs.jsx";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -264,8 +265,9 @@ export class TopNav extends React.Component {
                                         <MenuToggle
                                           ref={toggleRef}
                                           id="toggle-docs"
+                                          variant="plain"
                                           className="ct-nav-toggle"
-                                          icon={<HelpIcon className="toggle-docs-icon pf-v6-c-icon pf-m-lg" />}
+                                          icon={<Icon size="lg"><HelpIcon className="toggle-docs-icon" /></Icon>}
                                           isExpanded={this.state.docsOpened}
                                           isFullHeight
                                           onClick={() => {
@@ -298,8 +300,9 @@ export class TopNav extends React.Component {
                                         <MenuToggle
                                           ref={toggleRef}
                                           id="toggle-menu"
+                                          variant="plain"
                                           className="ct-nav-toggle"
-                                          icon={<CogIcon className="pf-v6-c-icon pf-m-lg" />}
+                                          icon={<Icon size="lg"><CogIcon /></Icon>}
                                           isExpanded={this.state.menuOpened}
                                           isFullHeight
                                           onClick={(event) => {

@@ -31,6 +31,7 @@ import { Status } from "notifications";
 import { Location, encode_location, ManifestItem } from "./util.jsx";
 import { ShellState } from "./state";
 import { ManifestKeyword } from "./manifests";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -65,7 +66,9 @@ export const SidebarToggle = () => {
         <Button className={"pf-v6-c-select__toggle ct-nav-toggle " + (active ? "active" : "")}
                 id="nav-system-item" variant="plain"
                 onClick={() => setActive(!active)}>
-            <ContainerNodeIcon className="pf-v6-c-icon pf-m-lg" />
+            <Icon size="xl">
+                <ContainerNodeIcon />
+            </Icon>
             {_("System")}
         </Button>
     );

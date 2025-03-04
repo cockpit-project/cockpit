@@ -111,7 +111,7 @@ export class CompiledComponents {
                     label: info.label ? cockpit.gettext(info.label) : prop,
                     order: info.order === undefined ? 1000 : info.order,
                     docs: info.docs,
-                    keywords: info.keywords || [{ matches: [], weight: 3, translate: true }],
+                    keywords: info.keywords || [{ matches: [], weight: 3, translate: true, goto: undefined }],
                 };
 
                 // Always first keyword should be page name

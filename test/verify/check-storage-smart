@@ -1,0 +1,105 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2025 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
+
+from sys import stderr
+
+import storagelib
+import testlib
+
+
+@testlib.skipImage("Debian and Ubuntu does not boot, drive is not detected.", "debian-*", "ubuntu-*")
+class TestStorageSmart(storagelib.StorageSmartCase):
+
+    def udisks_mock_smart_supported(self):
+        m = self.machine
+        # udisks2 version > 2.10.1 is required to mock SMART data on virtual disks
+        if m.image.startswith("fedora") or m.image.startswith("rhel") or m.image.startswith("centos"):
+            version_str = self.machine.execute("rpm -q udisks2 --qf '%{NAME} %{VERSION}\n'").strip()
+        elif m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            version_str = self.machine.execute("dpkg-query -f '${Package} ${Version}\n' --show udisks2").strip()
+        elif m.image == "arch":
+            version_str = self.machine.execute("pacman -Q udisks2").strip()
+        else:
+            return False
+
+        version = tuple(int(v) for v in version_str.split()[1].split('-')[0].split('.'))
+
+        return version > (2, 10, 1)
+
+    def testSmart(self):
+        def set_smart_dump(name: str, block: str):
+            self.machine.execute(f"udisksctl smart-simulate -f /tmp/smart-dumps/{name} -b {block}")
+
+        def check_smart_info(assessment: str, hours: str, status: str, bad_sectors: str | None = None,
+                             failing_attrs: str | None = None):
+            self.assertIn(assessment, b.text(self.card_desc("Device health (SMART)", "Assessment")))
+            b.wait_in_text(self.card_desc("Device health (SMART)", "Power on hours"), hours)
+            b.wait_in_text(self.card_desc("Device health (SMART)", "Self-test status"), status)
+            if bad_sectors is not None:
+                b.wait_in_text(self.card_desc("Device health (SMART)", "Number of bad sectors"), bad_sectors)
+            if failing_attrs is not None:
+                b.wait_in_text(self.card_desc("Device health (SMART)", "Attributes failing"), failing_attrs)
+
+        m = self.machine
+        b = self.browser
+
+        # udisks2 version > 2.10.1 is required to mock SMART data on virtual disks
+        if not self.udisks_mock_smart_supported():
+            stderr.write("Image has old udisks2 version, cannot run SMART test.\n")
+            return
+
+        m.upload(["verify/files/smart-dumps"], "/tmp")
+        # new disk, no failing sectors
+        set_smart_dump("MCCOE64GEMPP--2.9.09", "/dev/sda")
+
+        self.login_and_go("/storage")
+        b.wait_visible(self.card("Storage"))
+        self.click_card_row("Storage", name="sda")
+        b.wait_visible(self.card("Device health (SMART)"))
+        check_smart_info("Disk is OK", "1 hours", "Successful")
+
+        # Disk with running self test
+        set_smart_dump("SAMSUNG_MMCQE28G8MUP--0VA_VAM08L1Q", "/dev/sda")
+        check_smart_info("Disk is OK", "2417 hours", "In progress, 30%")
+
+        # Interrupted self test, disk is OK
+        set_smart_dump("INTEL_SSDSA2MH080G1GC--045C8820", "/dev/sda")
+        check_smart_info("Disk is OK", "2309 hours", "Interrupted")
+
+        # Aborted self test and has known bad sector
+        set_smart_dump("ST9160821AS--3.CLH", "/dev/sda")
+        check_smart_info("Disk is failing", "556 hours", "Aborted", bad_sectors="1")
+
+        # Multiple bad sectors
+        set_smart_dump("Maxtor_96147H8--BAC51KJ0", "/dev/sda")
+        check_smart_info("Disk is failing", "2016 hours", "Successful", bad_sectors="71")
+
+        # Multiple bad sectors with failing attribute
+        set_smart_dump("Maxtor_96147H8--BAC51KJ0--2", "/dev/sda")
+        check_smart_info("Disk is failing", "2262 hours", "Successful", bad_sectors="71", failing_attrs="1")
+
+        # Check that SMART card is not visible on DVD drive
+        b.go("/storage")
+        self.click_card_row("Storage", name="sr0")
+        b.wait_visible(self.card("Media drive"))
+        b.wait_not_present(self.card("Device health (SMART)"))
+
+
+if __name__ == '__main__':
+    testlib.test_main()

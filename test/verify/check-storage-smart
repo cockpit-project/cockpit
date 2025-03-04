@@ -23,25 +23,22 @@ import storagelib
 import testlib
 
 
+@testlib.skipImage("Debian and Ubuntu does not boot, drive is not detected.", "debian-*", "ubuntu-*")
 class TestStorageSmart(storagelib.StorageSmartCase):
 
     def udisks_mock_smart_supported(self):
         m = self.machine
         # udisks2 version > 2.10.1 is required to mock SMART data on virtual disks
         if m.image.startswith("fedora") or m.image.startswith("rhel") or m.image.startswith("centos"):
-            # udisks2-2.10.1-6.fc41.x86_64
-            version_str = self.machine.execute("rpm -q udisks2").strip()
-            version = tuple(int(v) for v in version_str.split('-')[1].split('.'))
+            version_str = self.machine.execute("rpm -q udisks2 --qf '%{NAME} %{VERSION}\n'").strip()
         elif m.image.startswith("debian") or m.image.startswith("ubuntu"):
-            # udisks2/stable,now 2.9.4-4 amd64 [installed]
-            version_str = self.machine.execute("apt list --installed udisks2").strip()
-            version = tuple(int(v) for v in version_str.split()[1].split('-')[0].split('.'))
+            version_str = self.machine.execute("dpkg-query -f '${Package} ${Version}\n' --show udisks2").strip()
         elif m.image == "arch":
-            # udisks2 2.10.1-5
             version_str = self.machine.execute("pacman -Q udisks2").strip()
-            version = tuple(int(v) for v in version_str.split()[1].split('-')[0].split('.'))
         else:
             return False
+
+        version = tuple(int(v) for v in version_str.split()[1].split('-')[0].split('.'))
 
         return version > (2, 10, 1)
 

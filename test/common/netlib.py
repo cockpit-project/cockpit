@@ -132,9 +132,9 @@ class NetworkCase(MachineCase, NetworkHelpers):
         self.allow_journal_messages("pcp-archive: no such metric: network.interface.* Unknown metric name",
                                     "direct: instance name lookup failed: network.*")
 
-    def get_iface(self, m, mac):
-        def getit():
-            path = m.execute(f"grep -li '{mac}' /sys/class/net/*/address")
+    def get_iface(self, mac: str) -> str:
+        def getit() -> str:
+            path = self.machine.execute(f"grep -li '{mac}' /sys/class/net/*/address")
             return path.split("/")[-2]
         iface = wait(getit).strip()
         print(f"{mac} -> {iface}")
@@ -144,10 +144,10 @@ class NetworkCase(MachineCase, NetworkHelpers):
         m = self.machine
         mac = m.add_netiface(networking=self.network.interface())
         # Wait for the interface to show up
-        self.get_iface(m, mac)
+        self.get_iface(mac)
         # Trigger udev to make sure that it has been renamed to its final name
         m.execute("udevadm trigger; udevadm settle")
-        iface = self.get_iface(m, mac)
+        iface = self.get_iface(mac)
         if activate:
             self.nm_activate_eth(iface)
         return iface

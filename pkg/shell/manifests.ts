@@ -54,6 +54,7 @@ export interface Manifest {
     tools?: ManifestSection;
 
     preload?: string[];
+    fullscreen?: string[] | Record<string, string[]>;
     parent?: ManifestParentSection;
     ".checksum"?: string;
 }

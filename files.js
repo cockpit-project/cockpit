@@ -26,6 +26,7 @@ const info = {
         "playground/notifications-receiver.js",
         "playground/journal.jsx",
         "playground/remote.tsx",
+        "playground/fullscreen.tsx",
 
         "selinux/selinux.js",
         "shell/shell.jsx",
@@ -115,6 +116,7 @@ const info = {
         "playground/notifications-receiver.html",
         "playground/journal.html",
         "playground/remote.html",
+        "playground/fullscreen.html",
 
         "selinux/index.html",
 

@@ -220,6 +220,10 @@ $desktop: $phone + 1px;
     grid-area: main;
   }
 
+  &.ct-fullscreen .area-ct-content {
+    grid-area: switcher / switcher / main / main;
+  }
+
   .header {
     grid-area: header;
   }

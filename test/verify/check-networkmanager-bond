@@ -302,7 +302,7 @@ class TestBondingVirt(netlib.NetworkCase):
         b = self.browser
         m = self.machine
 
-        iface = self.get_iface(m, m.networking["mac"])
+        iface = self.get_iface(m.networking["mac"])
 
         self.login_and_go("/network")
         self.wait_for_iface(iface)
@@ -334,7 +334,7 @@ class TestBondingVirt(netlib.NetworkCase):
         b = self.browser
         m = self.machine
 
-        iface = self.get_iface(m, m.networking["mac"])
+        iface = self.get_iface(m.networking["mac"])
         self.ensure_nm_uses_dhclient()
 
         self.login_and_go("/network")

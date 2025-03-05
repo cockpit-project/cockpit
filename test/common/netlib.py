@@ -17,14 +17,16 @@
 
 import re
 import subprocess
+from collections.abc import Sequence, Set
 
+from machine.machine_core.machine_virtual import VirtMachine
 from testlib import Error, MachineCase, wait
 
 
-class NetworkHelpers:
+class NetworkHelpers(MachineCase):
     """Mix-in class for tests that require network setup"""
 
-    def add_veth(self, name, dhcp_cidr=None, dhcp_range=None):
+    def add_veth(self, name: str, dhcp_cidr: str | None = None, dhcp_range: Sequence[str] | None = None) -> None:
         """Add a veth device that is manageable with NetworkManager
 
         This is safe for @nondestructive tests, the interface gets cleaned up automatically.
@@ -53,7 +55,7 @@ class NetworkHelpers:
             self.addCleanup(self.machine.execute, f"kill {server}; rm -rf /run/dnsmasq")
             self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
 
-    def nm_activate_eth(self, iface):
+    def nm_activate_eth(self, iface: str) -> None:
         """Create an NM connection for a given interface"""
 
         m = self.machine
@@ -62,26 +64,26 @@ class NetworkHelpers:
         m.execute(f"nmcli con up {iface} ifname {iface}")
         self.addCleanup(m.execute, f"nmcli con delete {iface}")
 
-    def nm_checkpoints_disable(self):
+    def nm_checkpoints_disable(self) -> None:
         self.browser.eval_js("window.cockpit_tests_disable_checkpoints = true;")
 
-    def nm_checkpoints_enable(self, settle_time=3.0):
+    def nm_checkpoints_enable(self, settle_time: float = 3.0) -> None:
         self.browser.eval_js("window.cockpit_tests_disable_checkpoints = false;")
         self.browser.eval_js(f"window.cockpit_tests_checkpoint_settle_time = {settle_time};")
 
 
-class NetworkCase(MachineCase, NetworkHelpers):
-    def setUp(self):
+class NetworkCase(NetworkHelpers):
+    def setUp(self) -> None:
         super().setUp()
 
         m = self.machine
 
         # clean up after nondestructive tests
         if self.is_nondestructive():
-            def devs():
+            def devs() -> Set[str]:
                 return set(self.machine.execute("ls /sys/class/net/ | grep -v bonding_masters").strip().split())
 
-            def cleanupDevs():
+            def cleanupDevs() -> None:
                 new = devs() - self.orig_devs
                 self.machine.execute(f"for d in {' '.join(new)}; do nmcli dev del $d; done")
 
@@ -140,8 +142,10 @@ class NetworkCase(MachineCase, NetworkHelpers):
         print(f"{mac} -> {iface}")
         return iface
 
-    def add_iface(self, activate=True):
+    def add_iface(self, activate: bool = True) -> str:
         m = self.machine
+        assert isinstance(m, VirtMachine)
+        assert self.network is not None
         mac = m.add_netiface(networking=self.network.interface())
         # Wait for the interface to show up
         self.get_iface(m, mac)
@@ -152,7 +156,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
             self.nm_activate_eth(iface)
         return iface
 
-    def wait_for_iface(self, iface, active=True, state=None, prefix="10.111."):
+    def wait_for_iface(self, iface: str, active: bool = True, state: str | None = None, prefix: str = "10.111.") -> None:
         sel = f"#networking-interfaces tr[data-interface='{iface}']"
 
         if state:
@@ -170,31 +174,31 @@ class NetworkCase(MachineCase, NetworkHelpers):
             print(self.machine.execute(f"grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show {iface} || true"))
             raise e
 
-    def select_iface(self, iface):
+    def select_iface(self, iface: str) -> None:
         b = self.browser
         b.click(f"#networking-interfaces tr[data-interface='{iface}'] button")
 
-    def iface_con_id(self, iface):
+    def iface_con_id(self, iface: str) -> str | None:
         con_id = self.machine.execute(f"nmcli -m tabular -t -f GENERAL.CONNECTION device show {iface}").strip()
         if con_id == "" or con_id == "--":
             return None
         else:
             return con_id
 
-    def wait_for_iface_setting(self, setting_title, setting_value):
+    def wait_for_iface_setting(self, setting_title: str, setting_value: str) -> None:
         b = self.browser
         b.wait_in_text(f"dt:contains('{setting_title}') + dd", setting_value)
 
-    def configure_iface_setting(self, setting_title):
+    def configure_iface_setting(self, setting_title: str) -> None:
         b = self.browser
         b.click(f"dt:contains('{setting_title}') + dd button")
 
-    def ensure_nm_uses_dhclient(self):
+    def ensure_nm_uses_dhclient(self) -> None:
         m = self.machine
         m.write("/etc/NetworkManager/conf.d/99-dhcp.conf", "[main]\ndhcp=dhclient\n")
         m.execute("systemctl restart NetworkManager")
 
-    def slow_down_dhclient(self, delay):
+    def slow_down_dhclient(self, delay: int) -> None:
         self.machine.execute(f"""
         mkdir -p {self.vm_tmpdir}
         cp -a /usr/sbin/dhclient {self.vm_tmpdir}/dhclient.real
@@ -205,12 +209,25 @@ class NetworkCase(MachineCase, NetworkHelpers):
         """)
         self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
 
-    def wait_onoff(self, sel, val):
+    def wait_onoff(self, sel: str, *, val: bool) -> None:
         self.browser.wait_visible(sel + " input[type=checkbox]" + (":checked" if val else ":not(:checked)"))
 
-    def toggle_onoff(self, sel):
+    def toggle_onoff(self, sel: str) -> None:
         self.browser.click(sel + " input[type=checkbox]")
 
-    def login_and_go(self, *args, **kwargs):
-        super().login_and_go(*args, **kwargs)
+    def login_and_go(
+        self,
+        path: str | None = None,
+        *,
+        user: str | None = None,
+        password: str | None = None,
+        host: str | None = None,
+        superuser: bool = True,
+        urlroot: str | None = None,
+        tls: bool = False,
+        enable_root_login: bool = False
+    ) -> None:
+        super().login_and_go(path=path, user=user, password=password,
+                             host=host, superuser=superuser, urlroot=urlroot,
+                             tls=tls, enable_root_login=enable_root_login)
         self.nm_checkpoints_disable()

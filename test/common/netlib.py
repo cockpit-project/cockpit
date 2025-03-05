@@ -152,7 +152,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
             self.nm_activate_eth(iface)
         return iface
 
-    def wait_for_iface(self, iface, active=True, state=None, prefix="10.111."):
+    def wait_for_iface(self, iface: str, active: bool = True, state: str | None = None, prefix: str = "10.111.") -> None:
         sel = f"#networking-interfaces tr[data-interface='{iface}']"
 
         if state:
@@ -170,22 +170,22 @@ class NetworkCase(MachineCase, NetworkHelpers):
             print(self.machine.execute(f"grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show {iface} || true"))
             raise e
 
-    def select_iface(self, iface):
+    def select_iface(self, iface: str) -> None:
         b = self.browser
         b.click(f"#networking-interfaces tr[data-interface='{iface}'] button")
 
-    def iface_con_id(self, iface):
+    def iface_con_id(self, iface: str) -> str | None:
         con_id = self.machine.execute(f"nmcli -m tabular -t -f GENERAL.CONNECTION device show {iface}").strip()
         if con_id == "" or con_id == "--":
             return None
         else:
             return con_id
 
-    def wait_for_iface_setting(self, setting_title, setting_value):
+    def wait_for_iface_setting(self, setting_title: str, setting_value: str) -> None:
         b = self.browser
         b.wait_in_text(f"dt:contains('{setting_title}') + dd", setting_value)
 
-    def configure_iface_setting(self, setting_title):
+    def configure_iface_setting(self, setting_title: str) -> None:
         b = self.browser
         b.click(f"dt:contains('{setting_title}') + dd button")
 
@@ -194,7 +194,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
         m.write("/etc/NetworkManager/conf.d/99-dhcp.conf", "[main]\ndhcp=dhclient\n")
         m.execute("systemctl restart NetworkManager")
 
-    def slow_down_dhclient(self, delay):
+    def slow_down_dhclient(self, delay: int) -> None:
         self.machine.execute(f"""
         mkdir -p {self.vm_tmpdir}
         cp -a /usr/sbin/dhclient {self.vm_tmpdir}/dhclient.real
@@ -205,10 +205,10 @@ class NetworkCase(MachineCase, NetworkHelpers):
         """)
         self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
 
-    def wait_onoff(self, sel, val):
+    def wait_onoff(self, sel: str, val: bool) -> None:
         self.browser.wait_visible(sel + " input[type=checkbox]" + (":checked" if val else ":not(:checked)"))
 
-    def toggle_onoff(self, sel):
+    def toggle_onoff(self, sel: str) -> None:
         self.browser.click(sel + " input[type=checkbox]")
 
     def login_and_go(self, *args, **kwargs):

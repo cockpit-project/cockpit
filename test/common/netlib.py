@@ -17,14 +17,18 @@
 
 import re
 import subprocess
+import unittest
 
-from testlib import Error, MachineCase, wait
+from machine import testvm
+from testlib import Browser, Error, MachineCase, wait
 
 
-class NetworkHelpers:
+class NetworkHelpers(unittest.TestCase):
     """Mix-in class for tests that require network setup"""
+    browser: Browser
+    machine: testvm.Machine
 
-    def add_veth(self, name, dhcp_cidr=None, dhcp_range=None):
+    def add_veth(self, name: str, dhcp_cidr: str | None = None, dhcp_range: list[str] | None = None):
         """Add a veth device that is manageable with NetworkManager
 
         This is safe for @nondestructive tests, the interface gets cleaned up automatically.
@@ -53,7 +57,7 @@ class NetworkHelpers:
             self.addCleanup(self.machine.execute, f"kill {server}; rm -rf /run/dnsmasq")
             self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
 
-    def nm_activate_eth(self, iface):
+    def nm_activate_eth(self, iface: str) -> None:
         """Create an NM connection for a given interface"""
 
         m = self.machine
@@ -62,10 +66,10 @@ class NetworkHelpers:
         m.execute(f"nmcli con up {iface} ifname {iface}")
         self.addCleanup(m.execute, f"nmcli con delete {iface}")
 
-    def nm_checkpoints_disable(self):
+    def nm_checkpoints_disable(self) -> None:
         self.browser.eval_js("window.cockpit_tests_disable_checkpoints = true;")
 
-    def nm_checkpoints_enable(self, settle_time=3.0):
+    def nm_checkpoints_enable(self, settle_time: float = 3.0) -> None:
         self.browser.eval_js("window.cockpit_tests_disable_checkpoints = false;")
         self.browser.eval_js(f"window.cockpit_tests_checkpoint_settle_time = {settle_time};")
 

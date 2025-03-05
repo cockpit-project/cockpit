@@ -290,7 +290,7 @@ class TestStorageNfs(storagelib.StorageCase):
 # Re-use allowed journal messages from StorageCase
 @testlib.skipOstree("No udisks/cockpit-storaged on OSTree images")
 @testlib.nondestructive
-class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase, storagelib.StorageHelpers):
+class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase):
 
     def testNfsMissingPackages(self):
         m = self.machine

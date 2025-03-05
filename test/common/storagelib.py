@@ -19,17 +19,21 @@ import json
 import os.path
 import re
 import textwrap
+import unittest
+from collections.abc import Mapping
 from typing import Any
 
 from machine import testvm
 from testlib import Browser, Error, MachineCase, wait
+
+DialogValues = Mapping[str, str | bool]
 
 
 def from_udisks_ascii(codepoints: list[int]) -> str:
     return ''.join(map(chr, codepoints[:-1]))
 
 
-class StorageHelpers:
+class StorageHelpers(unittest.TestCase):
     """Mix-in class for using in tests that derive from something else than MachineCase or StorageCase"""
     machine: testvm.Machine
     browser: Browser
@@ -70,7 +74,7 @@ class StorageHelpers:
 
         return dev
 
-    def add_loopback_disk(self, size=50, name=None):
+    def add_loopback_disk(self, size: int = 50, name: str | None = None) -> str:
         """Add per-test loopback disk
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
@@ -103,7 +107,7 @@ class StorageHelpers:
 
         return dev
 
-    def add_targetd_loopback_disk(self, index, size=50):
+    def add_targetd_loopback_disk(self, index: str, size: int = 50) -> str:
         """Add per-test loopback device that can be forcefully removed.
         """
 
@@ -135,12 +139,12 @@ class StorageHelpers:
         # the removal trips up PCP and our usage graphs
         self.allow_browser_errors("direct: instance name lookup failed.*")
 
-    def addCleanupVG(self, vgname):
+    def addCleanupVG(self, vgname: str) -> None:
         """Ensure the given VG is removed after the test"""
 
         self.addCleanup(self.machine.execute, f"if [ -d /dev/{vgname} ]; then vgremove --force {vgname}; fi")
 
-    def addCleanupMount(self, mount_point):
+    def addCleanupMount(self, mount_point: str) -> None:
         self.addCleanup(self.machine.execute,
                         f"if mountpoint -q {mount_point}; then umount {mount_point}; fi")
 
@@ -174,14 +178,16 @@ class StorageHelpers:
         else:
             return self.browser.val(sel)
 
-    def dialog_set_val(self, field, val):
+    def dialog_set_val(self, field: str, val: str | bool | dict[str, bool]):
         sel = self.dialog_field(field)
         ftype = self.browser.attr(sel, "data-field-type")
         if ftype == "checkbox":
+            assert isinstance(val, bool)
             self.browser.set_checked(sel, val)
         elif ftype == "select-spaces":
-            for label in val:
-                self.browser.set_checked(f'{sel} :contains("{label}") input', val)
+            assert isinstance(val, dict)
+            for label, value in val.items():
+                self.browser.set_checked(f'{sel} :contains("{label}") input', value)
         elif ftype == "size-slider":
             self.browser.set_val(sel + " .size-unit select", "1000000")
             self.browser.set_input_text(sel + " .size-text input", str(val))
@@ -191,11 +197,13 @@ class StorageHelpers:
         elif ftype == "select-radio":
             self.browser.click(sel + f" input[data-data='{val}']")
         elif ftype == "text-input":
+            assert isinstance(val, str)
             self.browser.set_input_text(sel, val)
         elif ftype == "text-input-checked":
             if not val:
                 self.browser.set_checked(sel + " input[type=checkbox]", val=False)
             else:
+                assert isinstance(val, str)
                 self.browser.set_checked(sel + " input[type=checkbox]", val=True)
                 self.browser.set_input_text(sel + " [type=text]", val)
         elif ftype == "combobox":
@@ -216,7 +224,7 @@ class StorageHelpers:
     def dialog_is_present(self, field: str, label: str) -> bool:
         return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}") input')
 
-    def dialog_wait_val(self, field: str, val: str, unit: str | None = None) -> None:
+    def dialog_wait_val(self, field: str, val: str | bool, unit: str | None = None) -> None:
         if unit is None:
             unit = "1000000"
 
@@ -259,13 +267,13 @@ class StorageHelpers:
         with self.browser.wait_timeout(max(self.browser.timeout, 60)):
             self.browser.wait_not_present('#dialog')
 
-    def dialog_check(self, expect):
+    def dialog_check(self, expect: Mapping[str, str]) -> bool:
         for f in expect:
             if not self.dialog_val(f) == expect[f]:
                 return False
         return True
 
-    def dialog_set_vals(self, values):
+    def dialog_set_vals(self, values: DialogValues):
         # Sometimes a certain field needs to be set before other
         # fields come into existence and thus the order matters that
         # we set the fields in.  The tests however just give us a
@@ -274,7 +282,7 @@ class StorageHelpers:
         # can and then starting over.  As long as we make progress in
         # each iteration, everything is good.
         failed = {}
-        last_error = Exception
+        last_error = None
         for f in values:
             try:
                 self.dialog_set_val(f, values[f])
@@ -284,10 +292,10 @@ class StorageHelpers:
         if failed:
             if len(failed) < len(values):
                 self.dialog_set_vals(failed)
-            else:
+            elif last_error is not None:
                 raise last_error
 
-    def dialog(self, values, expect=None, secondary=False):
+    def dialog(self, values: DialogValues, expect: DialogValues | None = None, secondary: bool = False):
         if expect is None:
             expect = {}
         self.dialog_wait_open()
@@ -327,7 +335,7 @@ class StorageHelpers:
             self.dialog_wait_close()
         self.retry(setup, check, teardown)
 
-    def dialog_apply_with_retry(self, expected_errors=None):
+    def dialog_apply_with_retry(self, expected_errors: list[str] | None = None) -> None:
         def step():
             try:
                 self.dialog_apply()
@@ -405,10 +413,10 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def assert_in_configuration(self, dev, tab, field, text):
+    def assert_in_configuration(self, dev: str, tab: str, field: str, text: str) -> None:
         self.assertIn(text, self.configuration_field(dev, tab, field))
 
-    def assert_not_in_configuration(self, dev, tab, field, text):
+    def assert_not_in_configuration(self, dev: str, tab: str, field: str, text: str) -> None:
         self.assertNotIn(text, self.configuration_field(dev, tab, field))
 
     def child_configuration_field(self, dev: str, tab: str, field: str) -> str:
@@ -426,10 +434,10 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def assert_in_child_configuration(self, dev, tab, field, text):
+    def assert_in_child_configuration(self, dev: str, tab: str, field: str, text: str) -> None:
         self.assertIn(text, self.child_configuration_field(dev, tab, field))
 
-    def lvol_child_configuration_field(self, lvol, tab, field):
+    def lvol_child_configuration_field(self, lvol: str, tab: str, field: str) -> str:
         udisk_objects = self.udisks_objects()
         for path in udisk_objects:
             if "org.freedesktop.UDisks2.LogicalVolume" in udisk_objects[path]:
@@ -443,7 +451,7 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def assert_in_lvol_child_configuration(self, lvol, tab, field, text):
+    def assert_in_lvol_child_configuration(self, lvol: str, tab: str, field: str, text: str) -> None:
         self.assertIn(text, self.lvol_child_configuration_field(lvol, tab, field))
 
     def setup_systemd_password_agent(self, password):
@@ -607,7 +615,8 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
         # We need to click on a <td> element since that's where the handlers are...
         self.browser.click(self.card_row(title, index, name, location) + " td:nth-child(1)")
 
-    def card_row_col(self, title, row_index=None, col_index=None, row_name=None, row_location=None):
+    def card_row_col(self, title: str, row_index: int | None = None, col_index: int | None = None,
+                     row_name: str | None = None, row_location: str | None = None):
         return self.card_row(title, row_index, row_name, row_location) + f" td:nth-child({col_index})"
 
     def card_desc(self, card_title: str, desc_title: str) -> str:

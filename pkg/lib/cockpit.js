@@ -2547,7 +2547,7 @@ function factory() {
                         channel.send(data);
                     });
                 }
-                http_debug("http done");
+                http_debug("http", req.method, req.path, "request sent, channel done");
                 channel.control({ command: "done" });
             }
 
@@ -2594,10 +2594,10 @@ function factory() {
                             if (type.indexOf("text/plain") === 0)
                                 message = body;
                         }
-                        http_debug("http status: ", resp.status);
+                        http_debug("http", req.method, req.path, "failed:", resp.status, resp.reason);
                         dfd.reject(new HttpError(resp.status, resp.reason, message), body);
                     } else {
-                        http_debug("http done");
+                        http_debug("http", req.method, req.path, "succeeded:", resp.status);
                         dfd.resolve(body);
                     }
                 }

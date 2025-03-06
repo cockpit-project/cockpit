@@ -1737,7 +1737,7 @@ class MachineCase(unittest.TestCase):
 
         return int(v[0]) < version
 
-    def setUp(self, restrict: bool = True) -> None:
+    def setUp(self) -> None:
         self.allowed_messages = self.default_allowed_messages
         self.allowed_console_errors = self.default_allowed_console_errors
         self.allow_core_dumps = False
@@ -1780,8 +1780,6 @@ class MachineCase(unittest.TestCase):
                 options.pop('address', None)
                 options.pop('dns', None)
                 options.pop('dhcp', None)
-                if 'restrict' not in options:
-                    options['restrict'] = restrict
                 machine = self.new_machine(**options)
                 self.machines[key] = machine
                 if first_machine:

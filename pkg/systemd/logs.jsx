@@ -181,8 +181,8 @@ export const LogsPage = () => {
     };
 
     return (
-        <Page>
-            <PageSection hasBodyWrapper={false} id="journal" className="journal-filters" padding={{ default: 'noPadding' }}>
+        <Page className='no-masthead-sidebar'>
+            <PageSection hasBodyWrapper={false} id="journal" className="journal-filters">
                 <Toolbar>
                     <ToolbarContent>
                         <ToolbarToggleGroup className="pf-v6-u-flex-wrap pf-v6-u-flex-grow-1 pf-v6-u-align-items-flex-start" toggleIcon={<><span className="pf-v6-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
@@ -259,7 +259,7 @@ export const LogsPage = () => {
 
             </PageSection>
             <PageSection hasBodyWrapper={false}
-                         padding={{ default: 'noPadding' }}
+
                          id="journal-box"
                          className="journal-filters-box">
                 <JournalBox dataFollowing={dataFollowing}

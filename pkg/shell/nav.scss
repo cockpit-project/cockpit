@@ -692,7 +692,7 @@ $desktop: $phone + 1px;
   }
 }
 
-.ct-locked > .ct-lock-wrapper > svg {
+.ct-locked .ct-lock-wrapper > svg {
   margin-inline-end: var(--pf-t--global--spacer--sm);
   color: var(--pf-v5-global--palette--gold-400);
 }
@@ -700,9 +700,9 @@ $desktop: $phone + 1px;
 .super-user-indicator {
   @media (min-width: $desktop) {
     > .ct-locked {
-      > .ct-lock-wrapper {
-        background: var(--pf-v5-global--BackgroundColor--dark-200);
-        border-radius: var(--pf-v5-global--BorderRadius--sm);
+      .ct-lock-wrapper {
+        background: var(--pf-t--global--background--color--secondary--default);
+        border-radius: var(--pf-v6-c-button--BorderRadius);
         padding-block: var(--pf-t--global--spacer--xs);
         padding-inline: var(--pf-t--global--spacer--sm);
 
@@ -714,8 +714,8 @@ $desktop: $phone + 1px;
       &:hover, &:focus {
         background: none;
 
-        > .ct-lock-wrapper {
-          background: var(--pf-v5-global--BackgroundColor--dark-400);
+        .ct-lock-wrapper {
+          background: var(--pf-t--global--background--color--secondary--hover);
         }
       }
     }

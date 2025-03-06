@@ -53,19 +53,21 @@ to wrap around when there isn't enough space.
   overflow-y: auto;
 }
 
-/* Adjust padding on form selects to resemble PF non-form selects */
-/* (This can be seen when the longest text is selected on a non-stretched select) */
-/* Upstream: https://github.com/patternfly/patternfly/issues/4387 */
-/* Cockpit-Podman: https://github.com/cockpit-project/cockpit-podman/issues/755 */
-select.pf-v5-c-form-control {
-  --pf-v5-c-form-control--PaddingRight: 41px;
-  --pf-v5-c-form-control--PaddingLeft: 8px;
+/* New issue based on the regression based on workaround causing this issue: https://github.com/cockpit-project/cockpit/issues/21671
+*/
+/* Old upstream: https://github.com/patternfly/patternfly/issues/4387 */
+/* Old Cockpit-Podman: https://github.com/cockpit-project/cockpit-podman/issues/755 */
+.pf-v5-c-form-control > select {
+  /* Right side needs to compensate for the icon and space around it,
+  for all browsers */
+  --pf-v5-c-form-control--PaddingRight: calc(
+    var(--pf-v5-global--icon--FontSize--md) + var(--pf-v5-global--spacer--lg)
+  );
 
-  // Firefox's select text has additional padding (4px)
-  /* stylelint-disable-next-line at-rule-no-vendor-prefix */
-  @-moz-document url-prefix() {
-    --pf-v5-c-form-control--PaddingRight: 37px;
-    --pf-v5-c-form-control--PaddingLeft: 4px;
+  @-moz-document url-prefix() { // stylelint-disable-line at-rule-no-vendor-prefix
+    /* "Unset" Firefox special handling in PatternFly; using consistent
+    spacing with others; this can be removed after PatternFly removes it */
+    --pf-v5-c-form-control--PaddingLeft: var(--pf-v5-c-form-control--inset--base);
   }
 }
 

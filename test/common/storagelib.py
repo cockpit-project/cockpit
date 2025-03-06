@@ -19,18 +19,28 @@ import json
 import os.path
 import re
 import textwrap
+import unittest
+from collections.abc import Mapping
+from typing import Any
 
-from testlib import Error, MachineCase, wait
+from machine import testvm
+from testlib import Browser, Error, MachineCase, wait
+
+DialogValues = Mapping[str, str | bool]
 
 
-def from_udisks_ascii(codepoints):
+def from_udisks_ascii(codepoints: list[int]) -> str:
     return ''.join(map(chr, codepoints[:-1]))
 
 
-class StorageHelpers:
+class StorageHelpers(unittest.TestCase):
     """Mix-in class for using in tests that derive from something else than MachineCase or StorageCase"""
+    machine: testvm.Machine
+    browser: Browser
 
-    def inode(self, f):
+    def allow_browser_errors(self, *patterns: str) -> None: ...
+
+    def inode(self, f: str) -> str:
         return self.machine.execute("stat -L '%s' -c %%i" % f)
 
     def retry(self, setup, check, teardown):
@@ -45,7 +55,7 @@ class StorageHelpers:
 
         self.browser.wait(step)
 
-    def add_ram_disk(self, size=50, delay=None):
+    def add_ram_disk(self, size: int = 50, delay: int | None = None):
         """Add per-test RAM disk
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
@@ -64,7 +74,7 @@ class StorageHelpers:
 
         return dev
 
-    def add_loopback_disk(self, size=50, name=None):
+    def add_loopback_disk(self, size: int = 50, name: str | None = None) -> str:
         """Add per-test loopback disk
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
@@ -97,7 +107,7 @@ class StorageHelpers:
 
         return dev
 
-    def add_targetd_loopback_disk(self, index, size=50):
+    def add_targetd_loopback_disk(self, index: str, size: int = 50) -> str:
         """Add per-test loopback device that can be forcefully removed.
         """
 
@@ -119,7 +129,7 @@ class StorageHelpers:
             raise Error("Device not found")
         return dev
 
-    def force_remove_disk(self, device):
+    def force_remove_disk(self, device: str) -> None:
         """Act like the given device gets physically removed.
 
         This circumvents all the normal EBUSY failures, and thus can be used for testing
@@ -129,33 +139,33 @@ class StorageHelpers:
         # the removal trips up PCP and our usage graphs
         self.allow_browser_errors("direct: instance name lookup failed.*")
 
-    def addCleanupVG(self, vgname):
+    def addCleanupVG(self, vgname: str) -> None:
         """Ensure the given VG is removed after the test"""
 
         self.addCleanup(self.machine.execute, f"if [ -d /dev/{vgname} ]; then vgremove --force {vgname}; fi")
 
-    def addCleanupMount(self, mount_point):
+    def addCleanupMount(self, mount_point: str) -> None:
         self.addCleanup(self.machine.execute,
                         f"if mountpoint -q {mount_point}; then umount {mount_point}; fi")
 
     # Dialogs
 
-    def dialog_wait_open(self):
+    def dialog_wait_open(self) -> None:
         self.browser.wait_visible('#dialog')
 
-    def dialog_wait_alert(self, text1, text2=None):
+    def dialog_wait_alert(self, text1: str, text2: str | None = None) -> None:
         def has_alert_title():
             t = self.browser.text('#dialog .pf-v5-c-alert__title')
             return text1 in t or (text2 is not None and text2 in t)
         self.browser.wait(has_alert_title)
 
-    def dialog_wait_title(self, text):
+    def dialog_wait_title(self, text: str) -> None:
         self.browser.wait_in_text('#dialog .pf-v5-c-modal-box__title', text)
 
-    def dialog_field(self, field):
+    def dialog_field(self, field: str) -> str:
         return f'#dialog [data-field="{field}"]'
 
-    def dialog_val(self, field):
+    def dialog_val(self, field: str) -> Any:
         sel = self.dialog_field(field)
         ftype = self.browser.attr(sel, "data-field-type")
         if ftype == "text-input-checked":
@@ -168,14 +178,16 @@ class StorageHelpers:
         else:
             return self.browser.val(sel)
 
-    def dialog_set_val(self, field, val):
+    def dialog_set_val(self, field: str, val: str | bool | dict[str, bool]):
         sel = self.dialog_field(field)
         ftype = self.browser.attr(sel, "data-field-type")
         if ftype == "checkbox":
+            assert isinstance(val, bool)
             self.browser.set_checked(sel, val)
         elif ftype == "select-spaces":
-            for label in val:
-                self.browser.set_checked(f'{sel} :contains("{label}") input', val)
+            assert isinstance(val, dict)
+            for label, value in val.items():
+                self.browser.set_checked(f'{sel} :contains("{label}") input', value)
         elif ftype == "size-slider":
             self.browser.set_val(sel + " .size-unit select", "1000000")
             self.browser.set_input_text(sel + " .size-text input", str(val))
@@ -185,11 +197,13 @@ class StorageHelpers:
         elif ftype == "select-radio":
             self.browser.click(sel + f" input[data-data='{val}']")
         elif ftype == "text-input":
+            assert isinstance(val, str)
             self.browser.set_input_text(sel, val)
         elif ftype == "text-input-checked":
             if not val:
                 self.browser.set_checked(sel + " input[type=checkbox]", val=False)
             else:
+                assert isinstance(val, str)
                 self.browser.set_checked(sel + " input[type=checkbox]", val=True)
                 self.browser.set_input_text(sel + " [type=text]", val)
         elif ftype == "combobox":
@@ -198,7 +212,7 @@ class StorageHelpers:
         else:
             self.browser.set_val(sel, val)
 
-    def dialog_combobox_choices(self, field):
+    def dialog_combobox_choices(self, field: str) -> None:
         return self.browser.call_js_func("""(function (sel) {
                                                var lis = ph_find(sel).querySelectorAll('li');
                                                var result = [];
@@ -207,10 +221,10 @@ class StorageHelpers:
                                                return result;
                                              })""", self.dialog_field(field))
 
-    def dialog_is_present(self, field, label):
+    def dialog_is_present(self, field: str, label: str) -> bool:
         return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}") input')
 
-    def dialog_wait_val(self, field, val, unit=None):
+    def dialog_wait_val(self, field: str, val: str | bool, unit: str | None = None) -> None:
         if unit is None:
             unit = "1000000"
 
@@ -226,40 +240,40 @@ class StorageHelpers:
         else:
             self.browser.wait_val(sel, val)
 
-    def dialog_wait_error(self, field, val):
+    def dialog_wait_error(self, field: str, val: str) -> None:
         # XXX - allow for more than one error
         self.browser.wait_in_text('#dialog .pf-v5-c-form__helper-text .pf-m-error', val)
 
-    def dialog_wait_not_present(self, field):
+    def dialog_wait_not_present(self, field: str) -> None:
         self.browser.wait_not_present(self.dialog_field(field))
 
-    def dialog_wait_apply_enabled(self):
+    def dialog_wait_apply_enabled(self) -> None:
         self.browser.wait_attr('#dialog button.apply:nth-of-type(1)', "disabled", None)
 
-    def dialog_wait_apply_disabled(self):
+    def dialog_wait_apply_disabled(self) -> None:
         self.browser.wait_visible('#dialog button.apply:nth-of-type(1)[disabled]')
 
-    def dialog_apply(self):
+    def dialog_apply(self) -> None:
         self.browser.click('#dialog button.apply:nth-of-type(1)')
 
-    def dialog_apply_secondary(self):
+    def dialog_apply_secondary(self) -> None:
         self.browser.click('#dialog button.apply:nth-of-type(2)')
 
-    def dialog_cancel(self):
+    def dialog_cancel(self) -> None:
         self.browser.click('#dialog button.cancel')
 
-    def dialog_wait_close(self):
+    def dialog_wait_close(self) -> None:
         # file system operations often take longer than 10s
         with self.browser.wait_timeout(max(self.browser.timeout, 60)):
             self.browser.wait_not_present('#dialog')
 
-    def dialog_check(self, expect):
+    def dialog_check(self, expect: Mapping[str, str]) -> bool:
         for f in expect:
             if not self.dialog_val(f) == expect[f]:
                 return False
         return True
 
-    def dialog_set_vals(self, values):
+    def dialog_set_vals(self, values: DialogValues):
         # Sometimes a certain field needs to be set before other
         # fields come into existence and thus the order matters that
         # we set the fields in.  The tests however just give us a
@@ -268,7 +282,7 @@ class StorageHelpers:
         # can and then starting over.  As long as we make progress in
         # each iteration, everything is good.
         failed = {}
-        last_error = Exception
+        last_error = None
         for f in values:
             try:
                 self.dialog_set_val(f, values[f])
@@ -278,10 +292,10 @@ class StorageHelpers:
         if failed:
             if len(failed) < len(values):
                 self.dialog_set_vals(failed)
-            else:
+            elif last_error is not None:
                 raise last_error
 
-    def dialog(self, values, expect=None, secondary=False):
+    def dialog(self, values: DialogValues, expect: DialogValues | None = None, secondary: bool = False):
         if expect is None:
             expect = {}
         self.dialog_wait_open()
@@ -321,7 +335,7 @@ class StorageHelpers:
             self.dialog_wait_close()
         self.retry(setup, check, teardown)
 
-    def dialog_apply_with_retry(self, expected_errors=None):
+    def dialog_apply_with_retry(self, expected_errors: list[str] | None = None) -> None:
         def step():
             try:
                 self.dialog_apply()
@@ -386,7 +400,7 @@ class StorageHelpers:
                 "org.freedesktop.DBus.ObjectManager",
                 "GetManagedObjects", "", [])))""")]))
 
-    def configuration_field(self, dev, tab, field):
+    def configuration_field(self, dev: str, tab: str, field: str) -> str:
         managerObjects = self.udisks_objects()
         for path in managerObjects:
             if "org.freedesktop.UDisks2.Block" in managerObjects[path]:
@@ -399,13 +413,13 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def assert_in_configuration(self, dev, tab, field, text):
+    def assert_in_configuration(self, dev: str, tab: str, field: str, text: str) -> None:
         self.assertIn(text, self.configuration_field(dev, tab, field))
 
-    def assert_not_in_configuration(self, dev, tab, field, text):
+    def assert_not_in_configuration(self, dev: str, tab: str, field: str, text: str) -> None:
         self.assertNotIn(text, self.configuration_field(dev, tab, field))
 
-    def child_configuration_field(self, dev, tab, field):
+    def child_configuration_field(self, dev: str, tab: str, field: str) -> str:
         udisks_objects = self.udisks_objects()
         for path in udisks_objects:
             if "org.freedesktop.UDisks2.Encrypted" in udisks_objects[path]:
@@ -420,10 +434,10 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def assert_in_child_configuration(self, dev, tab, field, text):
+    def assert_in_child_configuration(self, dev: str, tab: str, field: str, text: str) -> None:
         self.assertIn(text, self.child_configuration_field(dev, tab, field))
 
-    def lvol_child_configuration_field(self, lvol, tab, field):
+    def lvol_child_configuration_field(self, lvol: str, tab: str, field: str) -> str:
         udisk_objects = self.udisks_objects()
         for path in udisk_objects:
             if "org.freedesktop.UDisks2.LogicalVolume" in udisk_objects[path]:
@@ -437,7 +451,7 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def assert_in_lvol_child_configuration(self, lvol, tab, field, text):
+    def assert_in_lvol_child_configuration(self, lvol: str, tab: str, field: str, text: str) -> None:
         self.assertIn(text, self.lvol_child_configuration_field(lvol, tab, field))
 
     def setup_systemd_password_agent(self, password):
@@ -579,16 +593,16 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
 
     # Cards and tables
 
-    def card(self, title):
+    def card(self, title: str) -> str:
         return f"[data-test-card-title='{title}']"
 
-    def card_parent_link(self):
+    def card_parent_link(self) -> str:
         return ".pf-v5-c-breadcrumb__item:nth-last-child(2) > a"
 
-    def card_header(self, title):
+    def card_header(self, title: str) -> str:
         return self.card(title) + " .pf-v5-c-card__header"
 
-    def card_row(self, title, index=None, name=None, location=None):
+    def card_row(self, title: str, index: int | None = None, name: str | None = None, location: str | None = None) -> str:
         if index is not None:
             return self.card(title) + f" tbody tr:nth-child({index})"
         elif name is not None:
@@ -597,58 +611,59 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
         else:
             return self.card(title) + f" tbody [data-test-row-location='{location}']"
 
-    def click_card_row(self, title, index=None, name=None, location=None):
+    def click_card_row(self, title: str, index: int | None = None, name: str | None = None, location: str | None = None) -> None:
         # We need to click on a <td> element since that's where the handlers are...
         self.browser.click(self.card_row(title, index, name, location) + " td:nth-child(1)")
 
-    def card_row_col(self, title, row_index=None, col_index=None, row_name=None, row_location=None):
+    def card_row_col(self, title: str, row_index: int | None = None, col_index: int | None = None,
+                     row_name: str | None = None, row_location: str | None = None):
         return self.card_row(title, row_index, row_name, row_location) + f" td:nth-child({col_index})"
 
-    def card_desc(self, card_title, desc_title):
+    def card_desc(self, card_title: str, desc_title: str) -> str:
         return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] [data-test-value=true]"
 
-    def card_desc_action(self, card_title, desc_title):
+    def card_desc_action(self, card_title: str, desc_title: str) -> str:
         return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] [data-test-action=true] button"
 
-    def card_button(self, card_title, button_title):
+    def card_button(self, card_title: str, button_title: str) -> str:
         return self.card(card_title) + f" button:contains('{button_title}')"
 
-    def dropdown_toggle(self, parent):
+    def dropdown_toggle(self, parent: str) -> str:
         return parent + " .pf-v5-c-menu-toggle"
 
-    def dropdown_action(self, parent, title):
+    def dropdown_action(self, parent: str, title: str) -> str:
         return parent + f" .pf-v5-c-menu button:contains('{title}')"
 
-    def dropdown_description(self, parent, title):
+    def dropdown_description(self, parent: str, title: str) -> str:
         return parent + f" .pf-v5-c-menu button:contains('{title}') .pf-v5-c-menu__item-description"
 
-    def click_dropdown(self, parent, title):
+    def click_dropdown(self, parent: str, title: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
         self.browser.click(self.dropdown_action(parent, title))
 
-    def click_card_dropdown(self, card_title, button_title):
+    def click_card_dropdown(self, card_title: str, button_title: str) -> None:
         self.click_dropdown(self.card_header(card_title), button_title)
 
-    def click_devices_dropdown(self, title):
+    def click_devices_dropdown(self, title: str) -> None:
         self.click_card_dropdown("Storage", title)
 
-    def check_dropdown_action_disabled(self, parent, title, expected_text):
+    def check_dropdown_action_disabled(self, parent: str, title: str, expected_text: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
         self.browser.wait_visible(self.dropdown_action(parent, title) + "[disabled]")
         self.browser.wait_text(self.dropdown_description(parent, title), expected_text)
         self.browser.click(self.dropdown_toggle(parent))
 
-    def wait_mounted(self, card_title):
+    def wait_mounted(self, card_title: str) -> None:
         with self.browser.wait_timeout(30):
             self.browser.wait_not_in_text(self.card_desc(card_title, "Mount point"),
                                           "The filesystem is not mounted.")
 
-    def wait_not_mounted(self, card_title):
+    def wait_not_mounted(self, card_title: str) -> None:
         with self.browser.wait_timeout(30):
             self.browser.wait_in_text(self.card_desc(card_title, "Mount point"),
                                       "The filesystem is not mounted.")
 
-    def wait_card_button_disabled(self, card_title, button_title):
+    def wait_card_button_disabled(self, card_title: str, button_title: str) -> None:
         with self.browser.wait_timeout(30):
             self.browser.wait_visible(self.card_button(card_title, button_title) + ":disabled")
 

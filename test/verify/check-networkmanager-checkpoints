@@ -28,7 +28,7 @@ class TestNetworkingCheckpoints(netlib.NetworkCase):
         b = self.browser
         m = self.machine
 
-        iface = self.get_iface(m, "52:54:00:12:34:56")
+        iface = self.get_iface("52:54:00:12:34:56")
 
         if "debian" in m.image:
             self.sed_file("s/managed=false/managed=true/", "/etc/NetworkManager/NetworkManager.conf",
@@ -113,7 +113,7 @@ class TestNetworkingCheckpoints(netlib.NetworkCase):
         # into the UI and wait for the expected interface to appear
         # and be active, and then slow down dhclient.
 
-        iface = self.get_iface(m, "52:54:00:12:34:56")
+        iface = self.get_iface("52:54:00:12:34:56")
         con_id = self.iface_con_id(iface)
         m.execute(f'nmcli con mod "{con_id}" ipv4.dhcp-timeout {dhcp_timeout}')
 

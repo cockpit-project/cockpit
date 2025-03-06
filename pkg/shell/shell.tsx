@@ -78,6 +78,7 @@ const Shell = () => {
 
         config,
 
+        current_fullscreen,
         current_machine,
         current_manifest_item,
     } = state;
@@ -112,7 +113,7 @@ const Shell = () => {
     }
 
     return (
-        <div id="main" className="page"
+        <div id="main" className={"page" + (current_fullscreen ? " ct-fullscreen" : "")}
              style={
                  {
                      '--ct-color-host-accent': (current_machine.address == "localhost" ? undefined : current_machine.color)
@@ -122,28 +123,32 @@ const Shell = () => {
             <SkipLink focus_id="content">{_("Skip to content")}</SkipLink>
             <SkipLink focus_id="hosts-sel">{_("Skip main navigation")}</SkipLink>
 
-            <div id="sidebar-toggle" className="pf-v5-c-select pf-m-dark sidebar-toggle">
-                <SidebarToggle />
-            </div>
+            { !current_fullscreen &&
+                <>
+                    <div id="sidebar-toggle" className="pf-v5-c-select pf-m-dark sidebar-toggle">
+                        <SidebarToggle />
+                    </div>
 
-            <div id="nav-system" className="area-ct-subnav nav-system-menu sidebar interact">
-                <nav id="host-apps" className="host-apps">
-                    <PageNav state={state} />
-                </nav>
-            </div>
+                    <div id="nav-system" className="area-ct-subnav nav-system-menu sidebar interact">
+                        <nav id="host-apps" className="host-apps">
+                            <PageNav state={state} />
+                        </nav>
+                    </div>
 
-            <nav id="hosts-sel" className="navbar navbar-default navbar-pf navbar-pf-vertical" tabIndex={-1}>
-                { config.host_switcher_enabled
-                    ? <CockpitHosts state={state} host_modal_state={host_modal_state} selector="nav-hosts" />
-                    : <CockpitCurrentHost current_user={current_user} machine={current_machine} />
-                }
-            </nav>
+                    <nav id="hosts-sel" className="navbar navbar-default navbar-pf navbar-pf-vertical" tabIndex={-1}>
+                        { config.host_switcher_enabled
+                            ? <CockpitHosts state={state} host_modal_state={host_modal_state} selector="nav-hosts" />
+                            : <CockpitCurrentHost current_user={current_user} machine={current_machine} />
+                        }
+                    </nav>
 
-            <div id="nav-hosts" className="area-ct-subnav nav-hosts-menu sidebar" />
+                    <div id="nav-hosts" className="area-ct-subnav nav-hosts-menu sidebar" />
 
-            <div id="topnav" className="header">
-                <TopNav state={state} />
-            </div>
+                    <div id="topnav" className="header">
+                        <TopNav state={state} />
+                    </div>
+                </>
+            }
 
             <Frames hidden={!!failure} state={state} idle_state={idle_state} />
 

@@ -177,6 +177,11 @@ html:not(.index-page) body {
   }
 }
 
+/* Makes loading new pages not flicker white but keep the natural background */
+body {
+  background: var(--pf-t--global--background--color--secondary--default);
+}
+
 .ct-icon-info-circle {
   color: var(--pf-t--global--icon--color--status--info--default);
 }

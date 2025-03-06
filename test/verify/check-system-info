@@ -102,10 +102,12 @@ class TestSystemInfo(testlib.MachineCase):
         # need to wait until CPU usage settles down, to avoid a layout-shifting error/warning icon
         b.wait_not_present("#system-usage-cpu-progress + td .pf-v5-c-progress__status-icon")
         testlib.wait(lambda: b.get_pf_progress_value("#system-usage-cpu-progress + td") < 30)
-        # Wait for tuned text to appear, even thought we ignore it we need to button to have some text.
         if b.pixels_label:
+            # Wait for tuned text to appear, even thought we ignore it we need to button to have some text.
             recommended_profile = m.execute("tuned-adm recommend").strip()
             b.wait_text("#tuned-status-button", recommended_profile)
+            # Wait for there to be no warning icons in the usage.
+            b.wait_not_present('#system-usage .pf-v5-c-progress__status-icon')
         b.assert_pixels("#overview", "overview", ignore=[
             ".system-health .pf-v5-c-card__body",
             "#system_uptime",

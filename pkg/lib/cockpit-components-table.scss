@@ -1,15 +1,6 @@
 @import "global-variables";
 
 .ct-table {
-  &.pf-m-compact {
-    > thead, > tbody {
-      > tr:not(.pf-v6-c-table__expandable-row) {
-        // We actually want the normal font size for our lists
-        --pf-v5-c-table-cell--FontSize: var(--pf-v5-global--FontSize--md);
-      }
-    }
-  }
-
   &-header {
     display: flex;
     align-items: center;

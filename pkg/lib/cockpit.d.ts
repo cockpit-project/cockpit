@@ -350,6 +350,57 @@ declare module 'cockpit' {
     };
     /** @deprecated */ export function user(): Promise<Readonly<UserInfo>>;
 
+    /* === cockpit.http ====================== */
+
+    export interface TlsCert {
+        file?: string;
+        data?: string;
+    }
+
+    export interface HttpOptions {
+        // target address; if omitted, the endpoint string must include the host
+        address?: string;
+        port?: number;
+        tls?: {
+            authority?: TlsCert;
+            certificate?: TlsCert;
+            key?: TlsCert;
+            validate?: boolean;
+        };
+        superuser?: "require" | "try";
+        binary?: boolean;
+        // default HTTP headers to send with every request
+        headers?: HttpHeaders;
+        // Default query parameters to include with every request
+        params?: { [key: string]: string | number };
+    }
+
+    export type HttpHeaders = { [key: string]: string };
+
+    export interface HttpRequestOptions {
+        path?: string;
+        method?: string;
+        headers?: HttpHeaders;
+        params?: { [key: string]: string | number };
+        body?: string | Uint8Array | null;
+    }
+
+    // Cockpit HTTP client instance
+    // The generic parameter TResponse controls the type returned by the request methods.
+    export interface HttpInstance<TResponse = string> {
+        request(options: HttpRequestOptions): Promise<TResponse>;
+        get(path: string, options?: Omit<HttpRequestOptions, "method" | "path" | "body">): Promise<TResponse>;
+        post(path: string,
+             // JSON stringification is only implemented in post()
+             body?: string | Uint8Array | JsonObject | null,
+             options?: Omit<HttpRequestOptions, "method" | "path" | "body">
+        ): Promise<TResponse>;
+    }
+
+    function http(endpoint: string): HttpInstance<string>;
+    function http(endpoint: string, options: HttpOptions & { binary?: false | undefined }): HttpInstance<string>;
+    function http(endpoint: string, options: HttpOptions & { binary: true }): HttpInstance<Uint8Array>;
+
     /* === String helpers ======================== */
 
     function message(problem: string | JsonObject): string;

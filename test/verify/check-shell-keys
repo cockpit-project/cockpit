@@ -69,8 +69,8 @@ class TestKeys(testlib.MachineCase):
 
         # remove key on mobile, on mobile we show a kebab menu
         b.set_layout("mobile")
-        b.click("#account-authorized-keys button.pf-v5-c-menu-toggle")
-        b.click("button.pf-v5-c-menu__item")
+        b.click("#account-authorized-keys button.pf-v6-c-menu-toggle")
+        b.click("button.pf-v6-c-menu__item")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
         b.set_layout("desktop")
 
@@ -169,7 +169,7 @@ class TestKeys(testlib.MachineCase):
             b.wait_visible(f"tr[data-name='{identifier}'][data-loaded={'true' if enabled else 'false'}]")
 
         def toggleKeyState(identifier):
-            b.click(f"tr[data-name='{identifier}'] .pf-v5-c-switch__input")
+            b.click(f"tr[data-name='{identifier}'] .pf-v6-c-switch__input")
 
         def selectTab(identifier, title):
             b.click(f"tr[data-name='{identifier}'] + tr li > button:contains('{title}')")
@@ -310,13 +310,13 @@ session    optional     pam_ssh_add.so
         b.click("#ssh-file-add")
         b.wait_text("#credentials-modal .pf-m-error > .pf-v5-c-helper-text__item-text", "Not a valid private key")
 
-        b.set_input_text("#credentials-modal .pf-v5-c-menu-toggle input", "/var/test/")
-        b.wait_in_text("#credentials-modal .pf-v5-c-menu__list-item.pf-m-aria-disabled", "No such file or directory")
-        b.focus("#credentials-modal .pf-v5-c-menu-toggle input")
+        b.set_input_text("#credentials-modal .pf-v6-c-menu-toggle input", "/var/test/")
+        b.wait_in_text("#credentials-modal .pf-v6-c-menu__list-item.pf-m-aria-disabled", "No such file or directory")
+        b.focus("#credentials-modal .pf-v6-c-menu-toggle input")
         b.key("Backspace", 5)
-        b.wait_visible("#credentials-modal .pf-v5-c-menu__list-item.directory:contains('/var/lib/')")
-        b.click("#credentials-modal .pf-v5-c-menu-toggle button[aria-label='Clear input value']")
-        b.wait_val("#credentials-modal .pf-v5-c-menu-toggle input", "")
+        b.wait_visible("#credentials-modal .pf-v6-c-menu__list-item.directory:contains('/var/lib/')")
+        b.click("#credentials-modal .pf-v6-c-menu-toggle button[aria-label='Clear input value']")
+        b.wait_val("#credentials-modal .pf-v6-c-menu-toggle input", "")
 
         b.set_file_autocomplete_val("#ssh-file-add-key", "/tmp/new.rsa")
         b.click("#ssh-file-add")

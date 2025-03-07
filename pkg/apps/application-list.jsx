@@ -79,7 +79,7 @@ const ApplicationRow = ({ comp, progress, progress_title, action }) => {
                 <DataListItemCells
                     dataListCells={[
                         <DataListCell isIcon key="icon">
-                            <img src={icon_url(comp.icon)} role="presentation" alt="" />
+                            <img src={icon_url(comp.icon)} alt="" />
                         </DataListCell>,
                         <DataListCell width={1} key="app name">
                             {name}

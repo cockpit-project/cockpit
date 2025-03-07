@@ -719,7 +719,7 @@ class Browser:
         self.set_val(selector, value)
         self.wait_val(selector, value)
 
-    def select_PF(self, selector: str, value: str, menu_class: str = ".pf-v5-c-menu") -> None:
+    def select_PF(self, selector: str, value: str, menu_class: str = ".pf-v6-c-menu") -> None:
         """For a PatternFly Select-like component
 
         For things like <Select> or <TimePicker>. Unfortunately none of them render as an actual <select>, but a
@@ -749,12 +749,12 @@ class Browser:
             self.wait_val(selector, val)
 
     def set_file_autocomplete_val(self, group_identifier: str, location: str) -> None:
-        self.set_input_text(f"{group_identifier} .pf-v5-c-menu-toggle input", location)
+        self.set_input_text(f"{group_identifier} .pf-v6-c-menu-toggle input", location)
         # select the file
         self.wait_text(f"{group_identifier} ul li:nth-child(1) button", location)
         self.click(f"{group_identifier} ul li:nth-child(1) button")
-        self.wait_not_present(f"{group_identifier} .pf-v5-c-menu")
-        self.wait_val(f"{group_identifier} .pf-v5-c-menu-toggle input", location)
+        self.wait_not_present(f"{group_identifier} .pf-v6-c-menu")
+        self.wait_val(f"{group_identifier} .pf-v6-c-menu-toggle input", location)
 
     @contextlib.contextmanager
     def wait_timeout(self, timeout: int) -> Iterator[None]:
@@ -1109,9 +1109,9 @@ class Browser:
 
             if passwordless:
                 self.wait_in_text("div[role=dialog]", "Administrative access")
-                self.wait_in_text("div[role=dialog] .pf-v5-c-modal-box__body", "You now have administrative access.")
+                self.wait_in_text("div[role=dialog] .pf-v6-c-modal-box__body", "You now have administrative access.")
                 # there should be only one ("Close") button
-                self.click("div[role=dialog] .pf-v5-c-modal-box__footer button")
+                self.click("div[role=dialog] .pf-v6-c-modal-box__footer button")
             else:
                 self.wait_in_text("div[role=dialog]", "Switch to administrative access")
                 self.wait_in_text("div[role=dialog]", f"Password for {user}:")
@@ -1145,7 +1145,7 @@ class Browser:
 
     def get_pf_progress_value(self, progress_bar_sel: str) -> int:
         """Get numeric value of a PatternFly <ProgressBar> component"""
-        sel = progress_bar_sel + " .pf-v5-c-progress__indicator"
+        sel = progress_bar_sel + " .pf-v6-c-progress__indicator"
         self.wait_visible(sel)
         self.wait_attr_contains(sel, "style", "width:")
         style = self.attr(sel, "style")
@@ -1492,7 +1492,7 @@ class Browser:
         if not self.is_present("#shell-page") and not self.is_present("#login-details") and not self.is_present("#system-terminal-page"):
             classes = self.attr("main", "class")
             if "pf-v5-c-page__main" in classes:
-                self.set_attr("main.pf-v5-c-page__main", "class", f"{classes} pixel-test")
+                self.set_attr("main.pf-v6-c-page__main", "class", f"{classes} pixel-test")
 
         # move the mouse to a harmless place where it doesn't accidentally focus anything (as that changes UI)
         self.bidi("input.performActions", context=self.driver.context, actions=[{

@@ -136,7 +136,7 @@ class TestMenu(testlib.MachineCase):
         time.sleep(35)
         with b.wait_timeout(3):
             b.wait_visible("#session-timeout-modal")
-            self.assertGreater(int(b.text("#session-timeout-modal .pf-v5-c-modal-box__body").split()[-2]), 15)
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-v6-c-modal-box__body").split()[-2]), 15)
         # click on "Continue session"
         b.click("#session-timeout-modal footer button")
         b.wait_not_present("#session-timeout-modal")
@@ -145,7 +145,7 @@ class TestMenu(testlib.MachineCase):
         time.sleep(30)
         with b.wait_timeout(8):
             b.wait_popup("session-timeout-modal")
-            self.assertGreater(int(b.text("#session-timeout-modal .pf-v5-c-modal-box__body").split()[-2]), 20)
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-v6-c-modal-box__body").split()[-2]), 20)
 
         time.sleep(30)
         # that logs you out

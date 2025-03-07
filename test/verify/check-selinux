@@ -132,8 +132,8 @@ class TestSelinux(testlib.MachineCase):
         sebool_path = m.execute("command -v setsebool").strip()
         m.execute(f"chmod a-x {sebool_path}")
         b.click(f"{sebool_selector1} button{self.default_btn_class}")
-        b.wait_in_text(f"{sebool_selector1} .pf-v5-c-alert", "Solution failed")
-        b.wait_in_text(f"{sebool_selector1} .pf-v5-c-alert", "setsebool: Permission denied")
+        b.wait_in_text(f"{sebool_selector1} .pf-v6-c-alert", "Solution failed")
+        b.wait_in_text(f"{sebool_selector1} .pf-v6-c-alert", "setsebool: Permission denied")
 
         # we can't re-attempt the solution, dismiss it
         b.click(row_selector + " input[type=checkbox]")
@@ -148,7 +148,7 @@ class TestSelinux(testlib.MachineCase):
 
         # applying solution works now
         b.click(sebool_selector1 + " button" + self.default_btn_class)
-        b.wait_in_text(sebool_selector1 + " .pf-v5-c-alert__title", "Solution applied successfully")
+        b.wait_in_text(sebool_selector1 + " .pf-v6-c-alert__title", "Solution applied successfully")
         self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))
         # system modifications automatically update for this new sebool
         # was "enable homedir", is now "read home directory"
@@ -191,7 +191,7 @@ class TestSelinux(testlib.MachineCase):
             b.wait_not_present(btn_sel)
 
             # the fix should be applied
-            b.wait_in_text(row_selector + " .pf-v5-c-alert__title", "Solution applied successfully")
+            b.wait_in_text(row_selector + " .pf-v6-c-alert__title", "Solution applied successfully")
 
             # and the button should not come back
             b.wait_not_present(btn_sel)
@@ -212,8 +212,8 @@ class TestSelinux(testlib.MachineCase):
         b.wait_visible(".pf-v5-c-data-list__cell:contains(Allow zebra)")
         b.wait_visible(".pf-v5-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
         b.click("button:contains('View automation script')")
-        ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
-        shell_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(3) textarea"
+        ansible_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(2) textarea"
+        shell_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(3) textarea"
         b.click("button:contains('Shell')")
         b.wait_in_text(shell_script_sel, "boolean -D")
         b.wait_in_text(shell_script_sel, "fcontext -D")
@@ -309,7 +309,7 @@ class TestSelinuxEnforcing(testlib.MachineCase):
         def assertEnforce(active):
             # polled every 10s
             with b.wait_timeout(20):
-                b.wait_visible(".pf-v5-c-switch__input" + (":checked" if active else ":not(:checked)"))
+                b.wait_visible(".pf-v6-c-switch__input" + (":checked" if active else ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(active=True)
@@ -317,7 +317,7 @@ class TestSelinuxEnforcing(testlib.MachineCase):
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button
-        b.click(".pf-v5-c-switch__input")
+        b.click(".pf-v6-c-switch__input")
         assertEnforce(active=False)
         m.execute("getenforce | grep -q 'Permissive'")
 

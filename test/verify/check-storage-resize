@@ -333,14 +333,14 @@ class TestStorageResize(storagelib.StorageCase):
         b.click(self.card_row_col("LVM2 logical volumes", 1, 1))
         check_btn("Shrink", "udf can not be resized")
         check_btn("Grow", "udf can not be resized")
-        b.click(".pf-v5-c-breadcrumb__link:contains('TEST')")
+        b.click(".pf-v6-c-breadcrumb__link:contains('TEST')")
 
         fake_fstype("fake")  # This is not a real filesystem and UDisks2 knows nothing about it.
         b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "fake filesystem")
         b.click(self.card_row_col("LVM2 logical volumes", 1, 1))
         check_btn("Shrink", "fake can not be resized here")
         check_btn("Grow", "fake can not be resized here")
-        b.click(".pf-v5-c-breadcrumb__link:contains('TEST')")
+        b.click(".pf-v6-c-breadcrumb__link:contains('TEST')")
 
 
 if __name__ == '__main__':

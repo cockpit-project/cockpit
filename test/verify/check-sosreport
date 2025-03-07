@@ -101,8 +101,8 @@ class TestSOS(testlib.MachineCase):
             topdir = names[0].split("/")[0]
             tar.getmember(os.path.join(topdir, "etc/os-release"))
 
-        b.click("tr:contains(mylabel) button.pf-v5-c-menu-toggle")
-        b.click("tr:contains(mylabel) .pf-v5-c-menu__list-item:contains(Delete) button")
+        b.click("tr:contains(mylabel) button.pf-v6-c-menu-toggle")
+        b.click("tr:contains(mylabel) .pf-v6-c-menu__list-item:contains(Delete) button")
         b.click("#sos-remove-dialog button:contains(Delete)")
         # ensure it removes the report itself, and auxiliary files like .gpg
         m.execute(f"while ls {self.report_dir}/{base_report}*; do sleep 1; done", stdout=None, timeout=10)
@@ -114,8 +114,8 @@ exit 1""", perm="755")
         b.click("button:contains('Run report')")
         b.wait_visible("#sos-dialog")
         b.click("#sos-dialog button:contains(Run report)")
-        b.wait_in_text("#sos-dialog .pf-v5-c-alert", "sos report failed")
-        b.wait_in_text("#sos-dialog .pf-v5-c-alert", "EssOhEss is kaputt")
+        b.wait_in_text("#sos-dialog .pf-v6-c-alert", "sos report failed")
+        b.wait_in_text("#sos-dialog .pf-v6-c-alert", "EssOhEss is kaputt")
         b.click("#sos-dialog button:contains(Cancel)")
         b.wait_not_present("#sos-dialog")
 
@@ -173,7 +173,7 @@ exit 1""", perm="755")
         self.allow_journal_messages(".*xml.*")
 
         self.login_and_go("/apps")
-        b.wait_not_present(".pf-v5-c-empty-state")
+        b.wait_not_present(".pf-v6-c-empty-state")
         image_os = m.image.split('-')[0]
         if image_os in ['fedora', 'debian', 'ubuntu']:
             b.wait_visible(".app-list .pf-v5-c-data-list__item-row div[rowId='Diagnostic reports'] "

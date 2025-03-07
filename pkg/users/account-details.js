@@ -178,7 +178,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
     if (!account) {
         return (
             <EmptyState variant={EmptyStateVariant.sm} id="account-failure">
-                <EmptyStateHeader titleText={<>{_("Account not available or cannot be edited.")}</>} icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h1" />
+                <EmptyStateHeader titleText={_("Account not available or cannot be edited.")} icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h1" />
                 <EmptyStateFooter>
                     <EmptyStateActions>
                         <Breadcrumb>

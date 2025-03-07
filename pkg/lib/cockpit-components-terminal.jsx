@@ -27,6 +27,7 @@ import { Terminal as Term } from "@xterm/xterm";
 
 import { ContextMenu } from "cockpit-components-context-menu.jsx";
 import cockpit from "cockpit";
+import { useObject } from "hooks";
 
 import "console.css";
 
@@ -101,7 +102,34 @@ const themes = {
  *
  * Also it is possible to set up theme by property 'theme'.
  */
-export class Terminal extends React.Component {
+export const useTerminalState = ({ cols, rows, fontSize }) => {
+    function create() {
+        const terminal = new Term({
+            cols: cols || 80,
+            rows: rows || 25,
+            screenKeys: true,
+            cursorBlink: true,
+            fontSize: fontSize || 16,
+            fontFamily: 'Menlo, Monaco, Consolas, monospace',
+            screenReaderMode: true,
+            showPastingModal: false,
+        });
+        terminal.loadAddon(new CanvasAddon());
+        const element = document.createElement("div");
+        return {
+            terminal,
+            element,
+        };
+    }
+
+    function destroy(obj) {
+        obj.terminal.dispose();
+    }
+
+    return useObject(create, destroy, [cols, rows, fontSize]);
+};
+
+export class TerminalWithState extends React.Component {
     constructor(props) {
         super(props);
         this.onChannelMessage = this.onChannelMessage.bind(this);
@@ -118,16 +146,7 @@ export class Terminal extends React.Component {
         this.getText = this.getText.bind(this);
         this.setTerminalTheme = this.setTerminalTheme.bind(this);
 
-        const term = new Term({
-            cols: props.cols || 80,
-            rows: props.rows || 25,
-            screenKeys: true,
-            cursorBlink: true,
-            fontSize: props.fontSize || 16,
-            fontFamily: 'Menlo, Monaco, Consolas, monospace',
-            screenReaderMode: true,
-            showPastingModal: false,
-        });
+        const term = this.props.state.terminal;
 
         this.terminalRef = React.createRef();
 
@@ -153,20 +172,21 @@ export class Terminal extends React.Component {
         this.terminal = term;
         this.state = {
             showPastingModal: false,
-            cols: props.cols || 80,
-            rows: props.rows || 25
+            cols: term.cols,
+            rows: term.rows
         };
     }
 
     componentDidMount() {
-        this.terminal.open(this.terminalRef.current);
-        this.terminal.loadAddon(new CanvasAddon());
+        this.terminalRef.current.appendChild(this.props.state.element);
+        this.terminal.open(this.props.state.element);
         this.connectChannel();
 
         if (!this.props.rows) {
             window.addEventListener('resize', this.onWindowResize);
             this.onWindowResize();
         }
+
         this.setTerminalTheme(this.props.theme || 'black-theme');
         this.terminal.focus();
     }
@@ -258,9 +278,11 @@ export class Terminal extends React.Component {
 
     componentWillUnmount() {
         this.disconnectChannel();
-        this.terminal.dispose();
         window.removeEventListener('resize', this.onWindowResize);
         this.onFocusOut();
+        this.terminalRef.current.removeChild(this.props.state.element);
+        if (!this.props.rows)
+            this.resizeTerminal(1, 1);
     }
 
     setText() {
@@ -365,6 +387,19 @@ export class Terminal extends React.Component {
         window.removeEventListener('beforeunload', this.onBeforeUnload);
     }
 }
+
+export const Terminal = ({ cols, rows, channel, onTitleChanged, theme, parentId }) => {
+    const state = useTerminalState({ cols, rows });
+    return (
+        <TerminalWithState
+            state={state}
+            channel={channel}
+            onTitleChanged={onTitleChanged}
+            theme={theme}
+            parentId={parentId}
+        />
+    );
+};
 
 Terminal.propTypes = {
     cols: PropTypes.number,

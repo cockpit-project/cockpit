@@ -220,7 +220,8 @@ function component_checksum(machine: Machine, path: string): string | undefined 
 }
 
 export function compute_frame_url(machine: Machine, path: string): string {
-    let base, checksum;
+    let base;
+    let checksum;
     if (machine.manifests && machine.manifests[".checksum"])
         checksum = "$" + machine.manifests[".checksum"];
     else

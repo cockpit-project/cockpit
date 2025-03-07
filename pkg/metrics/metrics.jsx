@@ -1857,7 +1857,8 @@ class MetricsHistory extends React.Component {
         let nodata_alert = null;
         const lastHourIndex = this.state.hours.length - 1;
         if (!this.state.loading && this.state.hours.length > 0 && this.oldest_timestamp < this.state.hours[lastHourIndex]) {
-            let t1, t2;
+            let t1;
+            let t2;
             if (this.state.hours[lastHourIndex] - this.oldest_timestamp < 24 * MSEC_PER_H) {
                 t1 = timeformat.time(this.oldest_timestamp);
                 t2 = timeformat.time(this.state.hours[lastHourIndex]);

@@ -165,7 +165,8 @@ export const NetworkInterfacePage = ({
     }
 
     function renderDesc() {
-        let desc, cs;
+        let desc;
+        let cs;
         if (dev) {
             if (dev.DeviceType == 'ethernet' || dev.IdVendor || dev.IdModel) {
                 desc = cockpit.format("$IdVendor $IdModel $Driver", dev);

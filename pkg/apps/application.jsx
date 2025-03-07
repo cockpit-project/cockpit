@@ -117,7 +117,7 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
                 }}>
                     <CardTitle>
                         <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                            <img src={icon_url(comp.icon)} role="presentation" alt="" />
+                            <img src={icon_url(comp.icon)} alt="" />
                             <span>{comp.summary}</span>
                         </Flex>
                     </CardTitle>
@@ -128,7 +128,7 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
                         <div className="app-description">{render_description(comp.description)}</div>
                         {comp.screenshots.length
                             ? <div className="text-center">
-                                { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" alt="" src={s.full} />) }
+                                { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" alt="" src={s.full} />) }
                             </div>
                             : null}
                     </Stack>

@@ -140,7 +140,8 @@ export function WireGuardDialog({ settings, connection, dev }) {
         // Validate Addresses before submit
         // Also validate listenPort as PF TextInput[type=number] accepts normal text as well on firefox
         // See - https://github.com/patternfly/patternfly-react/issues/9391
-        let addr, peersArr;
+        let addr;
+        let peersArr;
         const listen_port = Number(listenPort);
         try {
             addr = stringToAddresses(addresses);

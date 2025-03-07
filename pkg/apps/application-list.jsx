@@ -79,7 +79,7 @@ const ApplicationRow = ({ comp, progress, progress_title, action }) => {
                 <DataListItemCells
                     dataListCells={[
                         <DataListCell isIcon key="icon">
-                            <img src={icon_url(comp.icon)} role="presentation" alt="" />
+                            <img src={icon_url(comp.icon)} alt="" />
                         </DataListCell>,
                         <DataListCell width={1} key="app name">
                             {name}
@@ -143,7 +143,9 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         }
     }
 
-    let refresh_progress, refresh_button, tbody;
+    let refresh_progress;
+    let refresh_button;
+    let tbody;
     if (progress) {
         refresh_progress = <ProgressBar id="refresh-progress" size="sm" data={progress} />;
         refresh_button = <CancelButton data={progress} />;

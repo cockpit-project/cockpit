@@ -130,7 +130,8 @@ function decode_proc_str(s) {
 }
 
 export function devicetree_info() {
-    let model, serial;
+    let model;
+    let serial;
 
     return Promise.all([
         // these succeed with content === null if files are absent

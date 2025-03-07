@@ -56,7 +56,8 @@ export class History extends React.Component {
      */
     mergeHistory() {
         const history = [];
-        let prevTime, prevPackages;
+        let prevTime;
+        let prevPackages;
 
         for (let i = 0; i < this.props.packagekit.length; ++i) {
             const packages = Object.keys(this.props.packagekit[i]).filter(i => i != "_time");

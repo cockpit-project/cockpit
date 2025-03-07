@@ -66,7 +66,8 @@ function make_partition_pages(parent, block) {
     }
 
     function process_partitions(parent, partitions, enable_dos_extended) {
-        let i, p;
+        let i;
+        let p;
         for (i = 0; i < partitions.length; i++) {
             p = partitions[i];
             if (p.type == 'free')

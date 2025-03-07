@@ -176,7 +176,8 @@ export class InsightsStatus extends React.Component {
         else
             url = "https://console.redhat.com/insights";
 
-        let icon, text;
+        let icon;
+        let text;
         if (this.state.hits) {
             const n = this.state.hits.n;
             if (n == 0) {

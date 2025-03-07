@@ -200,7 +200,8 @@ const TunedDialog = ({
         const withInfo = (active, recommended, profiles) => {
             const model = [];
             profiles.forEach(p => {
-                let name, desc;
+                let name;
+                let desc;
                 if (typeof p === "string") {
                     name = p;
                     desc = "";

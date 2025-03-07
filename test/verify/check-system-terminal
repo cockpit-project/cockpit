@@ -350,6 +350,68 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.wait_line(2, "/var")
         self.assertIn("No such process", m.execute(f"kill -0 {pid} 2>&1 || true"))
 
+    def testExternalState(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/playground/terminal")
+
+        b.wait_text('.pf-v6-c-toggle-group__button.pf-m-selected', "Terminal 1")
+
+        # Run something in Terminal 1
+        b.wait_in_text(line_sel(1), "admin@local")
+        b.input_text("echo Terminal 1\n")
+        b.wait_text(line_sel(2), "Terminal 1")
+
+        # Switch to Terminal 2
+        b.click('.pf-v6-c-toggle-group__button:contains(Terminal 2)')
+        b.wait_text('.pf-v6-c-toggle-group__button.pf-m-selected', "Terminal 2")
+        b.wait_not_in_text(".terminal .xterm-accessibility-tree", "Terminal 1")
+
+        # Run something else there
+        b.wait_in_text(line_sel(1), "admin@local")
+        b.input_text("echo Terminal 2\n")
+        b.wait_text(line_sel(2), "Terminal 2")
+
+        # Switch back to Terminal 1, old output should still be there
+        b.click('.pf-v6-c-toggle-group__button:contains(Terminal 1)')
+        b.wait_text('.pf-v6-c-toggle-group__button.pf-m-selected', "Terminal 1")
+        b.wait_text(line_sel(2), "Terminal 1")
+
+        # Reset, this will output "disconnected" and start a new shell
+        # process
+
+        b.input_text("echo $$\n")
+        b.wait_in_text(line_sel(5), "admin@local")
+        old_pid = b.text(line_sel(4))
+
+        b.click('button:contains(Reset)')
+        b.click(".terminal")  # Focus the terminal again
+        b.wait_in_text(line_sel(1), "disconnected")
+        b.wait_in_text(line_sel(2), "admin@local")
+        b.input_text("echo $$\n")
+        b.wait_in_text(line_sel(4), "admin@local")
+        new_pid = b.text(line_sel(3))
+
+        # Converting the pid string to int will throw an error if we
+        # have picked up anything other than a number.
+
+        self.assertNotEqual(int(old_pid), int(new_pid))
+
+        # Now we should have four bash processes, one for each tab
+
+        def count_admin_bashes():
+            return int(m.execute("loginctl user-status admin | grep /bin/bash | wc -l"))
+
+        testlib.wait(lambda: count_admin_bashes() == 4)
+
+        # Remove all terminals, this closes all channels and kills all bash processes
+
+        b.click("label:contains(Show terminals)")
+        b.wait_not_present(".terminal")
+
+        testlib.wait(lambda: count_admin_bashes() == 0)
+
 
 if __name__ == '__main__':
     testlib.test_main()

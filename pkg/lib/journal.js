@@ -140,7 +140,8 @@ journal.journalctl = function journalctl(/* ... */) {
     let interval = null;
 
     function fire_streamers() {
-        let ents, i;
+        let ents;
+        let i;
         if (streamers.length && entries.length > 0) {
             ents = entries;
             entries = [];
@@ -347,7 +348,8 @@ journal.renderer = function renderer(output_funcs) {
     // line has been output so far, top_state and bottom_state point
     // to the same object.
 
-    let top_state, bottom_state;
+    let top_state;
+    let bottom_state;
 
     top_state = bottom_state = { };
 

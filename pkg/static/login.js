@@ -69,7 +69,10 @@ function debug(...args) {
 
     const _ = gettext;
 
-    let login_path, application, org_login_path, org_application;
+    let login_path;
+    let application;
+    let org_login_path;
+    let org_application;
     const qs_re = /[?&]?([^=]+)=([^&]*)/g;
     let oauth_redirect_to = null;
 

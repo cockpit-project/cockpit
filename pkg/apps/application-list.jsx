@@ -143,7 +143,9 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         }
     }
 
-    let refresh_progress, refresh_button, tbody;
+    let refresh_progress;
+    let refresh_button;
+    let tbody;
     if (progress) {
         refresh_progress = <ProgressBar id="refresh-progress" size="sm" data={progress} />;
         refresh_button = <CancelButton data={progress} />;

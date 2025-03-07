@@ -44,7 +44,8 @@ export function check_unused_space(path) {
     const lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
     const part = client.blocks_part[path];
 
-    let size, min_change;
+    let size;
+    let min_change;
 
     if (lvol) {
         size = lvol.Size;
@@ -235,7 +236,9 @@ function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passp
 }
 
 export function get_resize_info(client, block, to_fit) {
-    let info, shrink_excuse, grow_excuse;
+    let info;
+    let shrink_excuse;
+    let grow_excuse;
 
     if (block) {
         if (block.IdUsage == 'crypto' && client.blocks_crypto[block.path]) {
@@ -337,8 +340,17 @@ export function free_space_after_part(client, part) {
 }
 
 export function grow_dialog(client, lvol_or_part, info, to_fit) {
-    let title, block, name, orig_size, max_size, allow_infinite, round_size;
-    let has_subvols, subvols, pvs_as_spaces, initial_pvs;
+    let title;
+    let block;
+    let name;
+    let orig_size;
+    let max_size;
+    let allow_infinite;
+    let round_size;
+    let has_subvols;
+    let subvols;
+    let pvs_as_spaces;
+    let initial_pvs;
 
     function compute_max_size(spaces) {
         const layout = lvol_or_part.Layout;
@@ -543,7 +555,11 @@ export function grow_dialog(client, lvol_or_part, info, to_fit) {
 }
 
 export function shrink_dialog(client, lvol_or_part, info, to_fit) {
-    let title, block, name, orig_size, round_size;
+    let title;
+    let block;
+    let name;
+    let orig_size;
+    let round_size;
 
     if (lvol_or_part.iface == "org.freedesktop.UDisks2.LogicalVolume") {
         const vgroup = client.vgroups[lvol_or_part.VolumeGroup];

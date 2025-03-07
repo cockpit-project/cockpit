@@ -433,7 +433,17 @@ function is_toplevel_drive(block) {
 }
 
 function update_indices() {
-    let path, block, mdraid, vgroup, pvol, lvol, pool, blockdev, fsys, part, i;
+    let path;
+    let block;
+    let mdraid;
+    let vgroup;
+    let pvol;
+    let lvol;
+    let pool;
+    let blockdev;
+    let fsys;
+    let part;
+    let i;
 
     client.broken_multipath_present = false;
     client.drives_multipath_blocks = { };

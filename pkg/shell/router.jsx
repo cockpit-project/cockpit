@@ -131,7 +131,8 @@ export function Router(callbacks) {
     }
 
     function register(child) {
-        let host, page;
+        let host;
+        let page;
         const name = child.name || "";
         if (name.indexOf("cockpit1:") === 0) {
             const parts = name.substring(9).split("/");
@@ -187,7 +188,8 @@ export function Router(callbacks) {
         if (typeof data !== "string")
             return;
 
-        let source, control;
+        let source;
+        let control;
 
         /*
          * On Internet Explorer we see Access Denied when non Cockpit

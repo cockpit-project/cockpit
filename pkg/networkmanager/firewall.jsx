@@ -121,7 +121,8 @@ function serviceRow(props) {
         });
     }
 
-    let description, includes;
+    let description;
+    let includes;
     if (props.service.description)
         description = <p>{props.service.description}</p>;
 

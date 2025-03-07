@@ -135,7 +135,7 @@ export class UsageCard extends React.Component {
                                     <Progress value={this.state.cpuUsed}
                                         className="pf-m-sm"
                                         min={0} max={100}
-                                        variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
+                                        variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : undefined }
                                         label={ this.state.cpuUsed + '% ' + cores_str }
                                         aria-labelledby="system-usage-cpu-progress"
                                         measureLocation={ProgressMeasureLocation.outside} />

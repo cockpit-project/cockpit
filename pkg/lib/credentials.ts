@@ -127,7 +127,9 @@ export class Keys extends EventTarget {
 
     #parse_key(line: string, items: Record<string, Key>): Key | undefined {
         const parts = line.trim().split(" ");
-        let id, type, comment;
+        let id;
+        let type;
+        let comment;
 
         /* SSHv1 keys */
         if (!isNaN(parseInt(parts[0], 10))) {

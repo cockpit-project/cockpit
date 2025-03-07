@@ -1038,7 +1038,8 @@ class SizeSliderElement extends React.Component {
             onChange({ text: value, unit });
         };
 
-        let slider_val, text_val;
+        let slider_val;
+        let text_val;
         if (val.text && val.unit) {
             slider_val = Number(val.text) * val.unit;
             text_val = val.text;

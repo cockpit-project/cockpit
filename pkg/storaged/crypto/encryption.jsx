@@ -133,7 +133,8 @@ const EncryptionCard = ({ card, block }) => {
                                 [block]);
     useEvent(luks_info, "changed");
 
-    let old_options, passphrase_path;
+    let old_options;
+    let passphrase_path;
     const old_config = block.Configuration.find(c => c[0] == "crypttab");
     if (old_config) {
         old_options = (decode_filename(old_config[1].options.v)

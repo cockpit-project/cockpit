@@ -1354,7 +1354,9 @@ class OsUpdates extends React.Component {
     }
 
     renderContent() {
-        let applySecurity, applyKpatches, applyAll;
+        let applySecurity;
+        let applyKpatches;
+        let applyAll;
 
         /* On unregistered RHEL systems we need some heuristics: If the "main" OS repos (which provide coreutils) require
          * a subscription, then point this out and don't show available updates, even if there are some auxiliary

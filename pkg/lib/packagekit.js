@@ -493,7 +493,9 @@ export function install_missing_packages(data, progress_cb) {
     if (!data || data.missing_ids.length === 0)
         return Promise.resolve();
 
-    let last_progress, last_info, last_name;
+    let last_progress;
+    let last_info;
+    let last_name;
 
     function report_progess() {
         progress_cb({

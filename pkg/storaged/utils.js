@@ -73,7 +73,8 @@ export function extract_option(split, opt) {
 }
 
 export function edit_crypto_config(block, modify) {
-    let old_config, new_config;
+    let old_config;
+    let new_config;
 
     function commit() {
         new_config[1]["track-parents"] = { t: 'b', v: true };
@@ -306,7 +307,9 @@ export function drive_name(drive) {
 }
 
 export function get_block_link_parts(client, path) {
-    let is_part, is_crypt, is_lvol;
+    let is_part;
+    let is_crypt;
+    let is_lvol;
 
     while (true) {
         if (client.blocks_part[path] && client.blocks_ptable[client.blocks_part[path].Table]) {
@@ -326,7 +329,8 @@ export function get_block_link_parts(client, path) {
     if (!block)
         return;
 
-    let location, link;
+    let location;
+    let link;
     if (client.mdraids[block.MDRaid]) {
         location = ["mdraid", client.mdraids[block.MDRaid].UUID];
         link = cockpit.format(_("MDRAID device $0"), mdraid_name(client.mdraids[block.MDRaid]));
@@ -384,7 +388,11 @@ export function get_partitions(client, block) {
         let n;
         let last_end = container_start;
         const total_end = container_start + container_size;
-        let block, start, size, is_container, is_contained;
+        let block;
+        let start;
+        let size;
+        let is_container;
+        let is_contained;
 
         const result = [];
 
@@ -517,7 +525,10 @@ export function get_available_spaces(client) {
 
     function add_free_spaces(block) {
         const parts = get_partitions(client, block);
-        let i, p, link_parts, text;
+        let i;
+        let p;
+        let link_parts;
+        let text;
         for (i in parts) {
             p = parts[i];
             if (p.type == 'free') {

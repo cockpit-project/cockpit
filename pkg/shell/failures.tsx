@@ -117,7 +117,8 @@ export const Disconnected = ({ problem }) => {
 
 export const MachineTroubleshoot = ({ machine, onClick }) => {
     const connecting = (machine.state == "connecting");
-    let title, message;
+    let title;
+    let message;
     if (machine.restarting) {
         title = _("The machine is rebooting");
         message = "";

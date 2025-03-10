@@ -55,9 +55,8 @@ Description: Web Console for Linux servers
  troubleshooting, interactive command-line sessions, and more.
 
 Package: cockpit-bridge
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends},
-         ${shlibs:Depends},
          ${python3:Depends},
 Recommends: openssh-client
 Replaces: cockpit-pcp (<< 236)

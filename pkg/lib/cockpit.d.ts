@@ -368,4 +368,134 @@ declare module 'cockpit' {
 
     export let localStorage: Storage;
     export let sessionStorage: Storage;
+
+    /**
+     * Options passed to the HTTP client constructor.
+     */
+    export interface HttpOptions {
+        /**
+         * The target address. If omitted, the endpoint string must include the host.
+         */
+        address?: string;
+        /**
+         * The port to connect to.
+         */
+        port?: number;
+        /**
+         * Enable TLS (HTTPS) connection.
+         */
+        tls?: boolean;
+        /**
+         * Whether to connect as superuser.
+         */
+        superuser?: boolean;
+        /**
+         * If true, responses will be delivered as binary (Uint8Array) instead of string.
+         */
+        binary?: boolean;
+        /**
+         * Default HTTP headers to send with every request.
+         */
+        headers?: { [key: string]: string };
+        /**
+         * Default query parameters to include with every request.
+         */
+        params?: { [key: string]: string | number };
+    }
+
+    /**
+     * Allowed types for HTTP request bodies.
+     * A body may be a string or a plain JavaScript object that will be encoded as JSON.
+     * If the body is undefined or null, an empty HTTP body is sent.
+     */
+    export type HttpBody = string | { [key: string]: any } | null | undefined;
+
+    /**
+     * Options for a single HTTP request.
+     */
+    export interface HttpRequestOptions {
+        /**
+         * The path (or endpoint) of the request.
+         */
+        path: string;
+        /**
+         * The HTTP method to use, e.g. "GET", "POST", etc.
+         */
+        method: string;
+        /**
+         * Headers specific to this request.
+         */
+        headers?: { [key: string]: string };
+        /**
+         * Query parameters specific to this request.
+         */
+        params?: { [key: string]: string | number };
+        /**
+         * Request body. Can be a string or a plain object to be JSON encoded.
+         */
+        body?: HttpBody;
+    }
+
+    /**
+     * The Cockpit HTTP client instance.
+     * The generic parameter TResponse controls the type returned by the request methods.
+     */
+    export interface HttpInstance<TResponse = string> {
+        /**
+         * Performs a custom HTTP request.
+         * @param options Options including path, method, headers, params, and body.
+         * @returns A promise resolving to the response body.
+         */
+        request(options: HttpRequestOptions): Promise<TResponse>;
+
+        /**
+         * Performs an HTTP GET request.
+         * @param path The endpoint path.
+         * @param options Optional additional headers or query parameters.
+         * @returns A promise resolving to the response body.
+         */
+        get(
+            path: string,
+            options?: Omit<HttpRequestOptions, "method" | "path" | "body">
+        ): Promise<TResponse>;
+
+        /**
+         * Performs an HTTP POST request.
+         * @param path The endpoint path.
+         * @param body The request body (string or object). If omitted, an empty body is sent.
+         * @param options Optional additional headers or query parameters.
+         * @returns A promise resolving to the response body.
+         */
+        post(
+            path: string,
+            body?: HttpBody,
+            options?: Omit<HttpRequestOptions, "method" | "path" | "body">
+        ): Promise<TResponse>;
+    }
+
+    /**
+     * Creates a new Cockpit HTTP client instance.
+     * The client can be constructed with just the endpoint string or with additional options.
+     * The type of the response (string vs. Uint8Array) is determined by the "binary" flag.
+     *
+     * @param endpoint The HTTP endpoint (address or URL).
+     * @returns HTTP client instance with string response.
+     */
+    export function http(endpoint: string): HttpInstance<string>;
+
+    /**
+     * Creates a new Cockpit HTTP client instance with custom options.
+     *
+     * @param endpoint The HTTP endpoint (address or URL).
+     * @param options Additional options to configure the HTTP client.
+     * @returns HTTP client instance with response type based on the binary flag.
+     */
+    export function http(
+        endpoint: string,
+        options: HttpOptions & { binary?: false | undefined }
+    ): HttpInstance<string>;
+    export function http(
+        endpoint: string,
+        options: HttpOptions & { binary: true }
+    ): HttpInstance<Uint8Array>;
 }

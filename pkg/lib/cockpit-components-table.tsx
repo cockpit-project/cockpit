@@ -284,7 +284,7 @@ export const ListingTable = ({
                                     setExpanded({ ...expanded, [rowKey]: !expanded[rowKey] });
                                 }
                             }} />
-                            : <Td className="pf-v5-c-table__toggle" />)
+                            : <Td className="pf-v6-c-table__toggle" />)
                         : null
                     }
                     {onSelect &&

@@ -265,7 +265,7 @@ export class TopNav extends React.Component {
                                           ref={toggleRef}
                                           id="toggle-docs"
                                           className="ct-nav-toggle"
-                                          icon={<HelpIcon className="toggle-docs-icon pf-v5-c-icon pf-m-lg" />}
+                                          icon={<HelpIcon className="toggle-docs-icon pf-v6-c-icon pf-m-lg" />}
                                           isExpanded={this.state.docsOpened}
                                           isFullHeight
                                           onClick={() => {
@@ -299,7 +299,7 @@ export class TopNav extends React.Component {
                                           ref={toggleRef}
                                           id="toggle-menu"
                                           className="ct-nav-toggle"
-                                          icon={<CogIcon className="pf-v5-c-icon pf-m-lg" />}
+                                          icon={<CogIcon className="pf-v6-c-icon pf-m-lg" />}
                                           isExpanded={this.state.menuOpened}
                                           isFullHeight
                                           onClick={(event) => {

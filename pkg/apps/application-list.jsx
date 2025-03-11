@@ -173,7 +173,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         <Page id="list-page" data-packages-checked={dataPackagesInstalled !== null}>
             <PageSection hasBodyWrapper={false}>
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                    <h2 className="pf-v5-u-font-size-3xl">{_("Applications")}</h2>
+                    <h2 className="pf-v6-u-font-size-3xl">{_("Applications")}</h2>
                     <FlexItem align={{ default: 'alignRight' }}>
                         <Flex alignItems={{ default: 'alignItemsCenter' }} spacer={{ default: 'spacerXs' }}>
                             <FlexItem>

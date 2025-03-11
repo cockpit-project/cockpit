@@ -216,19 +216,19 @@ export function WireGuardDialog({ settings, connection, dev }) {
                 <Radio label={_("Paste existing key")} name="private-key" id={idPrefix + '-paste-key'} onChange={() => { setIsPrivKeyGenerated(false) }} />
 
                 {isPrivKeyGenerated
-                    ? <InputGroup className='pf-v5-u-pt-sm'>
-                        <Flex className='pf-v5-u-w-100' spaceItems={{ default: 'spaceItemsSm' }}>
+                    ? <InputGroup className='pf-v6-u-pt-sm'>
+                        <Flex className='pf-v6-u-w-100' spaceItems={{ default: 'spaceItemsSm' }}>
                             <FlexItem grow={{ default: 'grow' }}>
-                                <ClipboardCopy isReadOnly id={idPrefix + '-private-key-input'} className='pf-v5-u-font-family-monospace pf-v5-u-w-100'>{generatedPrivateKey}</ClipboardCopy>
+                                <ClipboardCopy isReadOnly id={idPrefix + '-private-key-input'} className='pf-v6-u-font-family-monospace pf-v6-u-w-100'>{generatedPrivateKey}</ClipboardCopy>
                             </FlexItem>
                             {connection && <FlexItem>
                                 <Button variant='secondary' onClick={generatePrivateKey}>{_("Regenerate")}</Button>
                             </FlexItem>}
                         </Flex>
                     </InputGroup>
-                    : <InputGroup className='pf-v5-u-pt-sm'>
+                    : <InputGroup className='pf-v6-u-pt-sm'>
                         <TextInput id={idPrefix + '-private-key-input'}
-                            className='pf-v5-u-font-family-monospace'
+                            className='pf-v6-u-font-family-monospace'
                             value={pastedPrivateKey}
                             onChange={(_, val) => setPastedPrivatedKey(val)}
                             isDisabled={isPrivKeyGenerated}
@@ -237,7 +237,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
             </FormGroup>
             <FormGroup label={_("Public key")}>
                 {(isPrivKeyGenerated || publicKey)
-                    ? <ClipboardCopy isReadOnly className='pf-v5-u-font-family-monospace' id={idPrefix + '-public-key'}>{publicKey}</ClipboardCopy>
+                    ? <ClipboardCopy isReadOnly className='pf-v6-u-font-family-monospace' id={idPrefix + '-public-key'}>{publicKey}</ClipboardCopy>
                     : <Flex className='placeholder-text' alignItems={{ default: 'alignItemsCenter' }}><Content component="p">{_("Public key will be generated when a valid private key is entered")}</Content></Flex>}
             </FormGroup>
             <FormGroup label={_("Listen port")} fieldId={idPrefix + '-listen-port-input'}>
@@ -261,7 +261,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
             <FormFieldGroup
                 header={
                     <FormFieldGroupHeader
-                        className='pf-v5-u-align-items-center'
+                        className='pf-v6-u-align-items-center'
                         titleText={{
                             text: (
                                 <Flex className='pf-m-space-items-none'>

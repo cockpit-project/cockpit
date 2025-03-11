@@ -308,7 +308,7 @@ const HardwareInfo = ({ info }) => {
         <Page>
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
-                    <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-v5-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
+                    <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-v6-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
                     <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                 </Breadcrumb>
             </PageBreadcrumb>

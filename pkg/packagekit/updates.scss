@@ -4,11 +4,11 @@
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
 /* Style the list cards as ct-cards */
-.pf-v5-c-page__main-section .pf-v5-c-card {
+.pf-v6-c-page__main-section .pf-v6-c-card {
   @extend .ct-card;
 }
 
-.pf-v5-c-table tr:nth-child(1) {
+.pf-v6-c-table tr:nth-child(1) {
   > td, th {
     --pf-v5-c-table--cell--PaddingTop: var(--pf-v5-global--spacer--sm);
     --pf-v5-c-table--cell--PaddingBottom: var(--pf-v5-global--spacer--sm);
@@ -19,8 +19,8 @@
   }
 }
 
-.kpatches-labelgroup ul.pf-v5-c-label-group__list,
-.kpatches-labelgroup li.pf-v5-c-label-group__list-item:last-child, {
+.kpatches-labelgroup ul.pf-v6-c-label-group__list,
+.kpatches-labelgroup li.pf-v6-c-label-group__list-item:last-child, {
   margin-block-end: 0;
 }
 
@@ -33,7 +33,7 @@
   padding-inline: 0;
 
   &--actions {
-    > .pf-v5-c-button,
+    > .pf-v6-c-button,
     > .btn-group {
       margin-block: 5px 0;
       margin-inline: 0 5px;
@@ -52,7 +52,7 @@
 }
 
 // Make header's content bold
-.pf-v5-c-table tr:nth-child(1) td:nth-child(2) {
+.pf-v6-c-table tr:nth-child(1) td:nth-child(2) {
   font-weight: var(--pf-v5-global--FontWeight--bold);
 }
 
@@ -120,13 +120,13 @@ div.changelog {
   margin-block: 10ex 0;
   margin-inline: auto;
 
-  .pf-v5-l-grid {
+  .pf-v6-l-grid {
     align-items: end;
   }
 }
 
 /* workaround font not supporting tabular numbers yet https://github.com/cockpit-project/cockpit/issues/15090 */
-.pf-v5-c-progress__status {
+.pf-v6-c-progress__status {
   min-inline-size: 3ch;
 }
 
@@ -211,7 +211,7 @@ table.header-buttons {
   row-gap: var(--pf-v5-global--spacer--sm);
 }
 
-.pk-updates .pf-v5-c-description-list + div {
+.pk-updates .pf-v6-c-description-list + div {
   padding-block-start: var(--pf-v5-global--spacer--md);
 }
 
@@ -220,7 +220,7 @@ table.header-buttons {
   padding-inline: 0;
 }
 
-.pf-v5-c-content ul {
+.pf-v6-c-content ul {
   list-style-type: none;
 }
 

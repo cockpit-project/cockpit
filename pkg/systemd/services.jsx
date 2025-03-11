@@ -814,7 +814,7 @@ const ServicesPageFilters = ({
     }, [filtersRef, onClearAllFilters]);
 
     const toolbarItems =
-        <ToolbarToggleGroup toggleIcon={<><span className="pf-v5-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
+        <ToolbarToggleGroup toggleIcon={<><span className="pf-v6-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
                             variant="filter-group">
             <ToolbarItem>
                 <SearchInput id="services-text-filter"

@@ -122,7 +122,7 @@ const Shell = () => {
             <SkipLink focus_id="content">{_("Skip to content")}</SkipLink>
             <SkipLink focus_id="hosts-sel">{_("Skip main navigation")}</SkipLink>
 
-            <div id="sidebar-toggle" className="pf-v5-c-select pf-m-dark sidebar-toggle">
+            <div id="sidebar-toggle" className="pf-v6-c-select pf-m-dark sidebar-toggle">
                 <SidebarToggle />
             </div>
 

@@ -874,8 +874,8 @@ export const SelectSpace = (tag, title, options) => {
                         return (
                             <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
                                 <DataListItemRow>
-                                    <div className="pf-v5-c-data-list__item-control">
-                                        <div className="pf-v5-c-data-list__check">
+                                    <div className="pf-v6-c-data-list__item-control">
+                                        <div className="pf-v6-c-data-list__check">
                                             <input type='radio' value={desc} name='space' checked={val == spc} onChange={on_change} />
                                         </div>
                                     </div>
@@ -1291,7 +1291,7 @@ export const TeardownMessage = (usage, expect_single_unmount) => {
                     use.actions.length ? use.actions.join(", ") : "-",
                     {
                         title: <UsersPopover users={use.users || []} />,
-                        props: { className: "pf-v5-u-text-align-right" }
+                        props: { className: "pf-v6-u-text-align-right" }
                     }
                 ]
             });
@@ -1325,7 +1325,7 @@ const AnacondaTeardownMessage = ({ usage }) => {
 
             rows.push(
                 <Tr key={index}>
-                    <Td className="pf-v5-u-font-weight-bold">{name}</Td>
+                    <Td className="pf-v6-u-font-weight-bold">{name}</Td>
                     <Td>{location}</Td>
                     <Td>{use.data_warning}</Td>
                 </Tr>);

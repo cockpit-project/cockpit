@@ -30,7 +30,7 @@
     grid-template-areas: "icon title" ". content" "action action";
   }
 
-  > .pf-v5-c-alert__action {
+  > .pf-v6-c-alert__action {
     margin-inline: var(--pf-v5-global--spacer--md) 0;
   }
 
@@ -81,7 +81,7 @@
   }
 }
 
-.pf-v5-l-gallery.ct-system-overview {
+.pf-v6-l-gallery.ct-system-overview {
   --cards: 2;
   --pf-v5-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
 
@@ -111,7 +111,7 @@
     --pf-v5-l-gallery--m-gutter--GridGap: var(--pf-v5-global--spacer--sm);
 
     // Also skim off some vertical space for the cards
-    .pf-v5-c-card {
+    .pf-v6-c-card {
       --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--md);
       --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
     }
@@ -121,14 +121,14 @@
     grid-column: 1 / -1;
   }
 
-  .pf-v5-c-card {
+  .pf-v6-c-card {
     &__title-text {
       font-size: var(--pf-v5-global--FontSize--xl);
       font-weight: var(--pf-v5-global--FontWeight--normal);
     }
 
     &__body {
-      &:last-child .pf-v5-c-table:last-child tr:last-child {
+      &:last-child .pf-v6-c-table:last-child tr:last-child {
         /* Remove the border of tables when it's the last item in a card and there isn't a card footer */
         border-block-end: none;
       }
@@ -150,7 +150,7 @@
     }
   }
 
-  .pf-v5-c-progress {
+  .pf-v6-c-progress {
     &__status {
       display: flex;
       align-items: baseline;
@@ -190,11 +190,11 @@
 @media (max-width: 779px) {
   /* Reduce gutter & padding on smaller widths, for desktop & mobile */
 
-  .pf-v5-l-gallery.ct-system-overview {
+  .pf-v6-l-gallery.ct-system-overview {
     --pf-v5-l-gallery--m-gutter--GridGap: calc(var(--pf-v5-global--gutter--md)/2);
   }
 
-  .pf-v5-c-card {
+  .pf-v6-c-card {
     --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--md);
     --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
     --pf-v5-c-card--child--PaddingBottom: var(--pf-v5-global--spacer--md);
@@ -206,7 +206,7 @@
 @media (min-width: 780px) {
   /* Embiggen subheading & card headings when there's space */
 
-  .pf-v5-l-gallery.ct-system-overview .pf-v5-c-card__title-text {
+  .pf-v6-l-gallery.ct-system-overview .pf-v6-c-card__title-text {
     font-size: var(--pf-v5-global--FontSize--2xl);
   }
 
@@ -215,19 +215,19 @@
   }
 }
 
-.pf-v5-c-table tr > * {
+.pf-v6-c-table tr > * {
   vertical-align: top;
 }
 
-.ct-inline-list .pf-v5-c-list.pf-m-inline {
+.ct-inline-list .pf-v6-c-list.pf-m-inline {
   display: inline-flex;
   margin-inline-start: 1rem;
 }
 
 /* Add a subtle dropshadow to the alerts, to separate them from the background, similar to the cards on the page */
-.pf-v5-c-page__main-section:not(.ct-overview-header),
-.pf-v5-l-gallery {
-  > .pf-v5-c-alert {
+.pf-v6-c-page__main-section:not(.ct-overview-header),
+.pf-v6-l-gallery {
+  > .pf-v6-c-alert {
     box-shadow: var(--pf-v5-global--BoxShadow--sm);
 
     // Default PF4 blue and background grey are too close in shade
@@ -239,12 +239,12 @@
   }
 }
 
-#motd-box > .pf-v5-c-alert {
-  /* Spacing between the MOTD is handled by the .pf-v5-l-gallery grid */
+#motd-box > .pf-v6-c-alert {
+  /* Spacing between the MOTD is handled by the .pf-v6-l-gallery grid */
   margin-block-end: 0;
 }
 
-.pf-v5-c-alert .pf-v5-c-alert__description a {
+.pf-v6-c-alert .pf-v6-c-alert__description a {
   padding-inline-start: 15px;
 }
 
@@ -252,19 +252,19 @@
 // This redirects scrolling from the modal body to the select widget
 .ct-m-stretch-body {
   // Use flex to let children fully expand to the content
-  .pf-v5-c-modal-box__body {
+  .pf-v6-c-modal-box__body {
     &, > :only-child {
       // Let children fully stretch to content
       display: flex;
     }
 
     > :only-child,
-    .pf-v5-c-menu__content {
+    .pf-v6-c-menu__content {
       // Get squishy with children and the menu content
       flex: auto;
     }
 
-    .pf-v5-c-menu__content {
+    .pf-v6-c-menu__content {
       // Relax the height constraint
       --pf-v5-c-menu__content--MaxHeight: 100%;
     }

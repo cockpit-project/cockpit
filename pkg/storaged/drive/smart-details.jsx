@@ -17,7 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-// bump
 import cockpit from "cockpit";
 import React, { useState } from "react";
 

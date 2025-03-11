@@ -45,6 +45,7 @@ export class MultipathAlert extends React.Component {
 
     render() {
         const { client } = this.props;
+        console.log('client', client);
 
         // When in doubt, assume everything is alright
         const multipathd_running = !this.multipathd_service.state || this.multipathd_service.state === "running";

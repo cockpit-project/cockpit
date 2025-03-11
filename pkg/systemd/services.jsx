@@ -869,7 +869,7 @@ const ServicesPageFilters = ({
                  clearAllFilters={onClearAllFilters}
                  className="pf-m-sticky-top ct-compact services-toolbar"
                  id="services-toolbar"
-                 numberOfFiltersText={n => cockpit.format("$0 filters applied")}>
+                 numberOfFiltersText={n => cockpit.format(_("$0 filters applied"), n)}>
             <ToolbarContent>{toolbarItems}</ToolbarContent>
         </Toolbar>
     );

@@ -66,10 +66,10 @@ class TestStorageSmart(storagelib.StorageSmartCase):
         else:
             return False
 
-    def testSmart(self):
-        def set_smart_dump(name: str, block: str):
-            self.machine.execute(f"udisksctl smart-simulate -f /tmp/smart-dumps/{name} -b {block}")
+    def set_smart_dump(self, name: str, block: str):
+        self.machine.execute(f"udisksctl smart-simulate -f /tmp/smart-dumps/{name} -b {block}")
 
+    def testSmart(self):
         def check_smart_info(assessment: str, hours: str, status: str, bad_sectors: str | None = None,
                              failing_attrs: str | None = None):
             self.assertIn(assessment, b.text(self.card_desc("Device health (SMART)", "Assessment")))
@@ -91,42 +91,58 @@ class TestStorageSmart(storagelib.StorageSmartCase):
             return
 
         m.upload(["verify/files/smart-dumps"], "/tmp")
-        # new disk, no failing sectors
-        set_smart_dump("MCCOE64GEMPP--2.9.09", "/dev/sda")
+        # Failing disk, storage page is not loaded
+        self.set_smart_dump("Maxtor_96147H8--BAC51KJ0--2", "/dev/sda")
+        self.login_and_go("/system")
+        b.wait_in_text("#smart-status", "1 disk is failing")
 
-        self.login_and_go("/storage")
+        self.set_smart_dump("MCCOE64GEMPP--2.9.09", "/dev/sda")
+        b.wait_not_present("#smart-status")
+
+        # Clicking the link navigates to storage page, failing disk has red icon
+        self.set_smart_dump("Maxtor_96147H8--BAC51KJ0--2", "/dev/sda")
+        b.wait_in_text("#smart-status", "1 disk is failing")
+        b.click("#smart-status a")
+        b.enter_page("/storage")
+        b.wait_visible(self.card("Storage"))
+        b.wait_visible(self.card_row("Storage", name="sda"))
+        b.wait_visible(self.card_row("Storage", name="sda") + " .ct-icon-times-circle")
+
+        # new disk, no failing sectors
+        self.set_smart_dump("MCCOE64GEMPP--2.9.09", "/dev/sda")
+
         b.wait_visible(self.card("Storage"))
         self.click_card_row("Storage", name="sda")
         b.wait_visible(self.card("Device health (SMART)"))
         check_smart_info("Disk is OK", "1 hours", "Successful")
 
         # Disk with running self test
-        set_smart_dump("SAMSUNG_MMCQE28G8MUP--0VA_VAM08L1Q", "/dev/sda")
+        self.set_smart_dump("SAMSUNG_MMCQE28G8MUP--0VA_VAM08L1Q", "/dev/sda")
         check_smart_info("Disk is OK", "2417 hours", "In progress, 30%")
 
         # Interrupted self test, disk is OK
-        set_smart_dump("INTEL_SSDSA2MH080G1GC--045C8820", "/dev/sda")
+        self.set_smart_dump("INTEL_SSDSA2MH080G1GC--045C8820", "/dev/sda")
         check_smart_info("Disk is OK", "2309 hours", "Interrupted")
 
         # latest libblockdev builds (since 3.3.0-99) from copr have different behavior when assessing disk as failed
         has_new_libblockdev = self.has_new_libblockdev()
 
         # Aborted self test and has known bad sector (overall assessment is still OK)
-        set_smart_dump("ST9160821AS--3.CLH", "/dev/sda")
+        self.set_smart_dump("ST9160821AS--3.CLH", "/dev/sda")
         if has_new_libblockdev:
             check_smart_info("Disk is OK", "556 hours", "Aborted", bad_sectors="1")
         else:
             check_smart_info("Disk is failing", "556 hours", "Aborted", bad_sectors="1")
 
         # Multiple bad sectors
-        set_smart_dump("Maxtor_96147H8--BAC51KJ0", "/dev/sda")
+        self.set_smart_dump("Maxtor_96147H8--BAC51KJ0", "/dev/sda")
         if has_new_libblockdev:
             check_smart_info("Disk is OK", "2016 hours", "Successful", bad_sectors="71")
         else:
             check_smart_info("Disk is failing", "2016 hours", "Successful", bad_sectors="71")
 
         # Multiple bad sectors with failing attribute
-        set_smart_dump("Maxtor_96147H8--BAC51KJ0--2", "/dev/sda")
+        self.set_smart_dump("Maxtor_96147H8--BAC51KJ0--2", "/dev/sda")
         check_smart_info("Disk is failing", "2262 hours", "Successful", bad_sectors="71", failing_attrs="1")
         b.wait_visible(self.card_desc("Device health (SMART)", "Assessment") + " .pf-m-danger")
 

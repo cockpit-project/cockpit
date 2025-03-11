@@ -1053,7 +1053,7 @@ export class Firewall extends React.Component {
             <Page>
                 <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                     <Breadcrumb>
-                        <BreadcrumbItem onClick={go_up} className="pf-v5-c-breadcrumb__link">{_("Networking")}</BreadcrumbItem>
+                        <BreadcrumbItem onClick={go_up} className="pf-v6-c-breadcrumb__link">{_("Networking")}</BreadcrumbItem>
                         <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
                     </Breadcrumb>
                 </PageBreadcrumb>

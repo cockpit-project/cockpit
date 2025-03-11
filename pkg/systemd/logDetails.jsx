@@ -182,7 +182,7 @@ export class LogEntry extends React.Component {
             <Page id="log-details" className="log-details">
                 <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                     <Breadcrumb>
-                        <BreadcrumbItem onClick={this.goHome} className="pf-v5-c-breadcrumb__link">{_("Logs")}</BreadcrumbItem>
+                        <BreadcrumbItem onClick={this.goHome} className="pf-v6-c-breadcrumb__link">{_("Logs")}</BreadcrumbItem>
                         <BreadcrumbItem isActive>
                             {breadcrumb}
                         </BreadcrumbItem>

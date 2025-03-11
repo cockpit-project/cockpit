@@ -435,7 +435,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
                       toggleProps={{ id: "account-groups" }} />
                 : chipGroupComponent()}
             {(history.length > 0)
-                ? <HelperText className="pf-v5-c-form__helper-text">
+                ? <HelperText className="pf-v6-c-form__helper-text">
                     <Flex>
                         {loggedIn && <HelperTextItem id="account-groups-helper" variant="warning">{_("The user must log out and log back in for the new configuration to take effect.")}</HelperTextItem>}
                         {history.length > 0 && <Button variant="link" id="group-undo-btn" isInline icon={<UndoIcon />} onClick={undoGroupChanges}>{_("Undo")}</Button>}

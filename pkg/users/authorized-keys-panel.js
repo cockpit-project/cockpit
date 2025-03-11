@@ -152,7 +152,7 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                                         />
                                     </OverflowMenuControl>
                                 </OverflowMenu>,
-                                props: { className: "pf-v5-c-table__action" }
+                                props: { className: "pf-v6-c-table__action" }
                             }
                         ],
                         props: { key: k.fp }

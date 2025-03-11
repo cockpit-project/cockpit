@@ -214,7 +214,7 @@ function debug(...args) {
                 // Render a "helper text" warning above the log in button
                 document.querySelector("#login .login-actions").insertAdjacentHTML(
                     "beforebegin",
-                    "<div class='pf-v5-c-helper-text pf-m-warning' id='bypass-warning'>" +
+                    "<div class='pf-v6-c-helper-text pf-m-warning' id='bypass-warning'>" +
                     _("Cockpit might not render correctly in your browser") +
                     "</div>"
                 );
@@ -556,7 +556,7 @@ function debug(...args) {
                 show_form(form || "login");
                 id("login-error-title").textContent = title;
                 id("login-error-message").textContent = msg;
-                hideToggle("#error-group .pf-v5-c-alert__description", !msg);
+                hideToggle("#error-group .pf-v6-c-alert__description", !msg);
                 show("#error-group");
             }
         }
@@ -577,7 +577,7 @@ function debug(...args) {
             clear_errors();
             id("login-error-title").textContent = title;
             id("login-error-message").textContent = msg;
-            hideToggle("#error-group .pf-v5-c-alert__description", !msg);
+            hideToggle("#error-group .pf-v6-c-alert__description", !msg);
             show("#error-group");
             toggle_options(null, true);
             show_form("login");
@@ -697,7 +697,7 @@ function debug(...args) {
 
             const b1 = document.createElement("button");
             b1.textContent = host;
-            b1.classList.add("pf-v5-c-button", "pf-m-tertiary", "host-name");
+            b1.classList.add("pf-v6-c-button", "pf-m-tertiary", "host-name");
             b1.addEventListener("click", () => {
                 id("server-field").value = host;
                 call_login();

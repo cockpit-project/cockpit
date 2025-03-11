@@ -266,7 +266,7 @@ const _ = cockpit.gettext;
                                 </ToolbarGroup>
                                 <ToolbarItem>
                                     <button ref={this.resetButtonRef}
-                                            className="pf-v5-c-button pf-m-secondary terminal-reset"
+                                            className="pf-v6-c-button pf-m-secondary terminal-reset"
                                             onClick={this.onResetClick}>{_("Reset")}</button>
                                 </ToolbarItem>
                             </ToolbarContent>

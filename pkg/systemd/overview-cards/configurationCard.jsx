@@ -62,36 +62,36 @@ export const ConfigurationCard = ({ hostname }) => {
         <Card className="system-configuration">
             <CardTitle>{_("Configuration")}</CardTitle>
             <CardBody>
-                <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">
-                    <tbody className="pf-v5-c-table__tbody">
-                        <tr className="pf-v5-c-table__tr">
-                            <th className="pf-v5-c-table__th" scope="row">{_("Hostname")}</th>
-                            <td className="pf-v5-c-table__td">
+                <table className="pf-v6-c-table pf-m-grid-md pf-m-compact">
+                    <tbody className="pf-v6-c-table__tbody">
+                        <tr className="pf-v6-c-table__tr">
+                            <th className="pf-v6-c-table__th" scope="row">{_("Hostname")}</th>
+                            <td className="pf-v6-c-table__td">
                                 {hostname && <span id="system_information_hostname_text">{hostname}</span>}
                                 <span>{hostname_button}</span>
                             </td>
                         </tr>
 
-                        <tr className="pf-v5-c-table__tr">
-                            <th className="pf-v5-c-table__th" scope="row">{_("System time")}</th>
-                            <td className="pf-v5-c-table__td"><ServerTimeConfig /></td>
+                        <tr className="pf-v6-c-table__tr">
+                            <th className="pf-v6-c-table__th" scope="row">{_("System time")}</th>
+                            <td className="pf-v6-c-table__td"><ServerTimeConfig /></td>
                         </tr>
 
-                        <tr className="pf-v5-c-table__tr">
-                            <th className="pf-v5-c-table__th" scope="row">{_("Domain")}</th>
-                            <td className="pf-v5-c-table__td"><RealmButton realmd_client={realmd_client} /></td>
+                        <tr className="pf-v6-c-table__tr">
+                            <th className="pf-v6-c-table__th" scope="row">{_("Domain")}</th>
+                            <td className="pf-v6-c-table__td"><RealmButton realmd_client={realmd_client} /></td>
                         </tr>
 
-                        <tr className="pf-v5-c-table__tr">
-                            <th className="pf-v5-c-table__th" scope="row">{_("Performance profile")}</th>
-                            <td className="pf-v5-c-table__td"><TunedPerformanceProfile /></td>
+                        <tr className="pf-v6-c-table__tr">
+                            <th className="pf-v6-c-table__th" scope="row">{_("Performance profile")}</th>
+                            <td className="pf-v6-c-table__td"><TunedPerformanceProfile /></td>
                         </tr>
 
                         <CryptoPolicyRow />
 
-                        <tr className="pf-v5-c-table__tr">
-                            <th className="pf-v5-c-table__th" scope="row">{_("Secure shell keys")}</th>
-                            <td className="pf-v5-c-table__td">
+                        <tr className="pf-v6-c-table__tr">
+                            <th className="pf-v6-c-table__th" scope="row">{_("Secure shell keys")}</th>
+                            <td className="pf-v6-c-table__td">
                                 <Button variant="link" isInline id="system-ssh-keys-link"
                                             onClick={() => Dialogs.show(<SystemInformationSshKeys />)}>
                                     {_("Show fingerprints")}

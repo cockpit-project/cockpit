@@ -188,6 +188,7 @@ function init_proxies () {
     client.vdo_vols = proxies("VDOVolume");
     client.blocks_fsys_btrfs = proxies("Filesystem.BTRFS");
     client.jobs = proxies("Job");
+    client.nvme_controller = proxies("NVMe.Controller");
 
     return client.storaged_client.watch({ path_namespace: "/org/freedesktop/UDisks2" });
 }

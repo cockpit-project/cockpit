@@ -605,7 +605,7 @@ class CurrentMetrics extends React.Component {
         };
 
         let name_text = (
-            <Button variant="link" isInline component="a" key={name}
+            <Button variant="link" isInline isBlock component="a" key={name}
                     onClick={() => cgroupClickHandler(name, is_user, is_container, uid)}
                     isDisabled={is_container && !podman_installed}>
                 <TableText wrapModifier="truncate">
@@ -1994,7 +1994,9 @@ export const Application = () => {
 
     return (
         <WithDialogs>
-            <Page additionalGroupedContent={
+            <Page
+            className='no-masthead-sidebar'
+            additionalGroupedContent={
                 <PageSection hasBodyWrapper={false} id="metrics-header-section" type='breadcrumb'>
                     <Flex>
                         <FlexItem>

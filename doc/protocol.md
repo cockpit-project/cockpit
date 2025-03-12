@@ -947,11 +947,11 @@ is simply not reported.
    (`S_IMODE(st_mode)`).  As per JSON, this is transmitted as a decimal value,
    but it is meant to be interpreted in octal, in the usual way.
  * `uid`: an integer, the uid of the file owner (`st_uid`)
- * `owner`: a string, or an integer if the lookup failed
+ * `user`: a string, or an integer if the lookup failed
  * `gid`: an integer, the gid of the file group (`st_gid`)
  * `group`: a string, or an integer if the lookup failed
  * `size`: an integer, the (apparent) size of the file (`st_size`)
- * `modified`: a float, the mtime of the file (`st_mtim`)
+ * `mtime`: a float, the mtime of the file (`st_mtim`)
  * `tag`: a value type: the current 'transaction tag' of the file, with the
    same meaning as elsewhere in this document.  Ideally: this changes if the
    content of the file changes.  This is the same as the tag used in `fsread1`

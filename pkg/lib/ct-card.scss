@@ -6,26 +6,25 @@
 }
 
 // FIXME: Once PF4 provides a property for removing padding: https://github.com/patternfly/patternfly-react/issues/5606
-.ct-card.pf-v6-c-card .pf-v6-c-card__body.contains-list {
-  padding-inline: 0;
-  padding-block-end: 0;
+// .ct-card.pf-v6-c-card .pf-v6-c-card__body.contains-list {
+//   padding-block-end: 0;
 
-  > .pf-v6-c-table > :last-child > tr:last-child {
-    border-block-end: none;
-  }
+//   > .pf-v6-c-table > :last-child > tr:last-child {
+//     border-block-end: none;
+//   }
 
-  // Remove excess padding from compact tables toggles
-  // And adjust the padding to left align the toggles with the card header
-  > .pf-v6-c-table {
-    .pf-v6-c-table__toggle {
-      padding-inline-start: 0;
+//   // Remove excess padding from compact tables toggles
+//   // And adjust the padding to left align the toggles with the card header
+//   > .pf-v6-c-table {
+//     .pf-v6-c-table__toggle {
+//       padding-inline-start: 0;
 
-      > .pf-v6-c-button {
-        padding-inline-start: var(--pf-v5-global--spacer--lg);
-      }
-    }
-  }
-}
+//       > .pf-v6-c-button {
+//         padding-inline-start: var(--pf-v5-global--spacer--lg);
+//       }
+//     }
+//   }
+// }
 
 .ct-card.pf-v6-c-card .pf-v6-c-card__title-text {
   font-weight: normal;
@@ -34,10 +33,10 @@
 
 // Remove excess top padding from top-level empty state in cards,
 // as card headers already add enough space
-.ct-card > .pf-v6-c-card__body > .pf-v6-c-empty-state {
-  --pf-v5-c-empty-state__body--MarginTop: 0;
-  padding-block: 0 var(--pf-v5-global--spacer--md);
-}
+// .ct-card > .pf-v6-c-card__body > .pf-v6-c-empty-state {
+//   --pf-v6-c-empty-state__body--MarginBlockStart: 0;
+//   padding-block: 0 var(--pf-t--global--spacer--md);
+// }
 
 .ct-cards-grid {
   --ct-grid-columns: 2;

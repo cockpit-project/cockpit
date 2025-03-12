@@ -41,7 +41,7 @@ export const EarlyFailure = () => {
 
     return (
         <div id="early-failure" className="early-failure">
-            <Page>
+            <Page className='no-masthead-sidebar'>
                 <PageSection hasBodyWrapper={false} >
                     <EmptyStatePanel icon={ExclamationCircleIcon}
                                      title={ _("Connection failed") }

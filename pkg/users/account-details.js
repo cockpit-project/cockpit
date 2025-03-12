@@ -400,7 +400,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
                 {(selected || []).map((currentLabel, index) => {
                     return (
                         <Label key={currentLabel}
-                               color={groups.find(group => group.name === currentLabel).isAdmin ? "gold" : "cyan"}
+                               color={groups.find(group => group.name === currentLabel).isAdmin ? "yellow" : "blue"}
                         >
                             {currentLabel}
                         </Label>
@@ -427,7 +427,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
                           return {
                               value: option.name,
                               content: option.name,
-                              color: option.isAdmin ? "gold" : "cyan",
+                              color: option.isAdmin ? "yellow" : "blue",
                               isDisabled: option.name == primaryGroupName,
                           };
                       })}

@@ -371,11 +371,11 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label:contains(users)")
         if not m.ostree_image:  # Users group does not exist in coreos image
             m.execute("/usr/bin/gpasswd -a robert users")
-            b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-cyan:contains(users)", "users")
+            b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains(users)", "users")
         m.execute(f"/usr/bin/gpasswd -a robert {m.get_admin_group()}")
-        b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-gold", m.get_admin_group())
+        b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-yellow", m.get_admin_group())
         m.execute(f"/usr/bin/gpasswd -d robert {m.get_admin_group()}")
-        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-gold")
+        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-yellow")
 
         # test filters
         b.set_input_text("#accounts-filter input", "root")
@@ -1190,8 +1190,8 @@ class TestAccounts(testlib.MachineCase):
 
         # Delete it
         performGroupAction(b, 'testgroup0', 'Delete group')
-        b.wait_text("#group-confirm-delete-dialog footer .pf-v5-c-button.apply", "Delete")
-        b.click("#group-confirm-delete-dialog footer .pf-v5-c-button.apply")
+        b.wait_text("#group-confirm-delete-dialog footer .pf-v6-c-button.apply", "Delete")
+        b.click("#group-confirm-delete-dialog footer .pf-v6-c-button.apply")
         b.wait_not_present('#group-confirm-delete-dialog')
         b.wait_not_in_text('#groups-list', "testgroup0")
 
@@ -1200,9 +1200,9 @@ class TestAccounts(testlib.MachineCase):
 
         # Groups used as primary need force deletion
         performGroupAction(b, 'anton', 'Delete group')
-        b.wait_text("#group-confirm-delete-dialog footer .pf-v5-c-button.apply", "Force delete")
+        b.wait_text("#group-confirm-delete-dialog footer .pf-v6-c-button.apply", "Force delete")
         b.assert_pixels("#group-confirm-delete-dialog", "group-delete-dialog")
-        b.click("#group-confirm-delete-dialog footer .pf-v5-c-button.apply")
+        b.click("#group-confirm-delete-dialog footer .pf-v6-c-button.apply")
         b.wait_not_present('#account-confirm-delete-dialog')
         b.wait(lambda: "#/" == b.eval_js('window.location.hash'))
         b.wait_not_in_text('#groups-list', "anton")

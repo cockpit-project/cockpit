@@ -23,7 +23,7 @@
 }
 
 .delete-resource-red {
-  color: var(--pf-v5-global--danger-color--200);
+  color: var(--pf-t--global--icon--color--status--danger--default);
 }
 
 #account-details div.checkbox:first-child {
@@ -82,39 +82,50 @@
 }
 
 // Iterate through supported PF color names for light and dark modes
-@each $color in cyan gold {
+@each $color in blue yellow {
   .group-#{"" + $color} {
-    background-color: var(--pf-v5-global--palette--#{$color}-100);
+    background-color: var(--pf-t--color--#{$color}--30);
 
     .pf-v6-theme-dark & {
-      background-color: var(--pf-v5-global--palette--#{$color}-300);
+      background-color: var(--pf-t--color--#{$color}--40);
     }
   }
 }
-// PF adapts this color properly across light and dark
+.group-blue {
+  background-color: var(--pf-t--global--color--nonstatus--blue--default);
+}
+
+.group-yellow {
+  background-color: var(--pf-t--global--color--nonstatus--yellow--default);
+}
+
 .group-grey {
-  background-color: var(--pf-v5-global--BorderColor--100);
+  background-color: var(--pf-t--global--color--nonstatus--gray--default);
 }
 
 .group-more-btn {
-  font-size: var(--pf-v5-global--FontSize--sm);
+  font-size: var(--pf-t--global--font--size--body--default);
 }
 
 #groups-list td:first-child {
   vertical-align: middle;
 }
 
-#groups-create, #account-create {
+// Create new group and Create new account are
+// different characters and different lengths
+// This makes buttons the same size.
+#groups-create, #accounts-create {
   min-inline-size: 11rem;
 }
 
-#group-confirm-delete-dialog .list-item {
-  margin-inline-end: var(--pf-v5-global--spacer--lg);
-}
+// @Venefilyn: Seemingly does nothing atm
+// #group-confirm-delete-dialog .list-item {
+//   margin-inline-end: var(--pf-v5-global--spacer--lg);
+// }
 
 // We cannot use the PF helper pf-v6-u-ml-lg here, as it doesn't support RTL yet
 #current-account-badge {
-  margin-inline-start: var(--pf-v5-global--spacer--lg);
+  margin-inline-start: var(--pf-t--global--spacer--lg);
 }
 
 // Pretty sure paths are LTR, even in an RTL display

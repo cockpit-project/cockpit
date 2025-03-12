@@ -24,6 +24,7 @@ import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/comp
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { apply_modal_dialog, show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { Alert } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 
@@ -60,7 +61,6 @@ export function rename_group_dialog(group) {
             title: cockpit.format(_("Rename group $0"), group),
             body: <RenameGroupDialogBody state={state} change={change} />,
             variant: 'small',
-            titleIconVariant: 'warning',
         };
 
         const footer = {

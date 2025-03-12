@@ -87,9 +87,9 @@ const UserActions = ({ account, current }) => {
 const getGroupRow = (group, accounts) => {
     let groupColorClass;
     if (group.isAdmin)
-        groupColorClass = "group-gold";
+        groupColorClass = "group-yellow";
     else if (group.members > 0)
-        groupColorClass = "group-cyan";
+        groupColorClass = "group-blue";
     else
         groupColorClass = "group-grey";
 
@@ -147,7 +147,7 @@ const getGroupRow = (group, accounts) => {
 const getAccountRow = (account, current, groups) => {
     const userGroups = groups.filter(group => group.gid === account.gid || group.userlist.find(accountName => accountName === account.name));
     const userGroupLabels = userGroups.map(group => {
-        const color = group.isAdmin ? "gold" : "cyan";
+        const color = group.isAdmin ? "yellow" : "blue";
         return (
             <Label key={group.name} variant="filled" color={color}>
                 {!group.isAdmin ? group.name : ("admin" + " (" + group.name + ")") }
@@ -319,7 +319,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
                     {(!isExpanded && filtered_groups.length > 0) && <>
                         {filtered_groups.slice(0, 3)
                                 .map(group => {
-                                    const color = group.isAdmin ? "gold" : "cyan";
+                                    const color = group.isAdmin ? "yellow" : "blue";
                                     return (
                                         <Label key={group.name} variant="filled" color={color}>
                                             {group.name + ": " + (group.userlistPrimary.length + group.userlist.length)}
@@ -471,7 +471,7 @@ export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpan
     });
 
     return (
-        <Page id="accounts">
+        <Page id="accounts" className='no-masthead-sidebar'>
             <PageSection hasBodyWrapper={false}>
                 <Stack hasGutter>
                     <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} min_gid={min_gid} max_gid={max_gid} />

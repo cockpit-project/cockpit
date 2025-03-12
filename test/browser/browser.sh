@@ -27,8 +27,8 @@ fi
 # our tests, and only causes trouble; https://github.com/amazonlinux/amazon-ec2-utils/issues/37
 if rpm -q amazon-ec2-utils; then
     rpm -e --verbose amazon-ec2-utils
-    # clean up the symlinks
-    udevadm trigger /dev/nvme*
+    # clean up the symlinks, if they exist
+    udevadm trigger /dev/nvme* || true
 fi
 
 if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "main" ]; then

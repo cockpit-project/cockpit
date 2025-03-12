@@ -2597,7 +2597,10 @@ function factory() {
                         http_debug("http", req.method, req.path, "failed:", resp.status, resp.reason);
                         dfd.reject(new HttpError(resp.status, resp.reason, message), body);
                     } else {
-                        http_debug("http", req.method, req.path, "succeeded:", resp.status);
+                        if (resp)
+                            http_debug("http", req.method, req.path, "succeeded:", resp.status);
+                        else
+                            http_debug("http", req.method, req.path, "failed without response");
                         dfd.resolve(body);
                     }
                 }

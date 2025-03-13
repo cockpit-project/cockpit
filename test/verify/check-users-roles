@@ -22,6 +22,7 @@ import testlib
 
 class TestRoles(testlib.MachineCase):
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     @testlib.nondestructive
     def testBasic(self):
         m = self.machine

@@ -1108,7 +1108,7 @@ class Browser:
 
             # In (open)SUSE images, superuser access always requires the root password
             if user is None:
-                user = "root" if "suse" in self.machine.image else "admin"
+                user = get_superuser(self.machine.image)
 
             if passwordless:
                 self.wait_in_text("div[role=dialog]", "Administrative access")
@@ -1832,7 +1832,7 @@ class MachineCase(unittest.TestCase):
             self.sshd_socket = 'ssh.socket'
         else:
             self.sshd_service = 'sshd.service'
-            if image == 'arch':
+            if image == 'arch' or "suse" in image:
                 self.sshd_socket = None
             else:
                 self.sshd_socket = 'sshd.socket'
@@ -1840,7 +1840,8 @@ class MachineCase(unittest.TestCase):
 
         # only enabled by default on released OSes; see pkg/shell/manifest.json
         self.multihost_enabled = image.startswith(("rhel-9", "centos-9")) or image in [
-                "ubuntu-2204", "ubuntu-2404", "debian-stable"]
+                "ubuntu-2204", "ubuntu-2404", "debian-stable",
+                "opensuse-tumbleweed"]
         # Transitional code while we move ubuntu-stable from 24.04 to 24.10
         if image == "ubuntu-stable" and m.execute(". /etc/os-release; echo $VERSION_ID").strip() == "24.04":
             self.multihost_enabled = True
@@ -2107,6 +2108,12 @@ class MachineCase(unittest.TestCase):
 
         # timedatex.service shuts down after timeout, runs into race condition with property watching
         ".*org.freedesktop.timedate1: couldn't get all properties.*Error:org.freedesktop.DBus.Error.NoReply.*",
+
+        # https://github.com/cockpit-project/cockpit/issues/19235
+        "invalid non-UTF8 @data passed as text to web_socket_connection_send.*",
+
+        # Noise from btmp file missing systems where it doesn't exists
+        r"cockpit-session: open\(\/var\/log\/btmp\) failed: No such file or directory",
     ]
 
     default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")
@@ -2535,6 +2542,15 @@ def get_decorator(method: object, class_: object, name: str, default: Any = None
     attr = "_testlib__" + name
     return getattr(method, attr, getattr(class_, attr, default))
 
+
+def get_superuser(image: str) -> str:
+    # In (open)SUSE images, superuser access always requires the root password
+    return "root" if "suse" in image else "admin"
+
+
+def get_sshd_config_path(image: str) -> str:
+    # In (open)SUSE images, superuser access always requires the root password
+    return "/usr/etc/ssh/sshd_config" if "suse" in image else "/etc/ssh/sshd_config"
 
 ###########################
 # Test decorators

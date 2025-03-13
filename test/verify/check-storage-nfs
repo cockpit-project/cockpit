@@ -25,6 +25,7 @@ import testlib
 @testlib.nondestructive
 class TestStorageNfs(storagelib.StorageCase):
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testNfsClient(self):
         m = self.machine
         b = self.browser

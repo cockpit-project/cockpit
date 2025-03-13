@@ -1221,6 +1221,7 @@ Where=/fail
         b.wait_js_cond('window.location.pathname == "/system/services"')
 
     @testlib.nondestructive
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testServicesThemeConsistency(self):
         b = self.browser
 

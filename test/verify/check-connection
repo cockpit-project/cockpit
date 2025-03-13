@@ -634,7 +634,20 @@ class TestConnection(testlib.MachineCase):
         m.execute("passwd -d admin")
         m.execute("passwd -d bob")
 
-        self.sed_file('$ a\\\nPermitEmptyPasswords yes', '/etc/ssh/sshd_config',
+        # HACK: For SUSE images, PAM for ssh is setup in a way that disallowed passwordless ssh
+        # In order to get around this lets generate an ssh key and handle auth that way
+        if "suse" in m.image:
+            m.execute("ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N ''")
+            m.execute("""cat /root/.ssh/id_ed25519.pub > /home/admin/.ssh/authorized_keys
+                      chown admin:admin /home/admin/.ssh/authorized_keys
+                      chmod 600 /home/admin/.ssh/authorized_keys""")
+            m.execute("""mkdir -p /home/bob/.ssh
+                      cat /root/.ssh/id_ed25519.pub > /home/bob/.ssh/authorized_keys
+                      chown -R bob:bob /home/bob/.ssh
+                      chmod 700 /home/bob/.ssh
+                      chmod 600 /home/bob/.ssh/authorized_keys""")
+
+        self.sed_file('$ a\\\nPermitEmptyPasswords yes', testlib.get_sshd_config_path(m.image),
                       self.restart_sshd)
 
         def assertInOrNot(string: str, result: str, *, expected: bool) -> None:
@@ -1148,7 +1161,24 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
             # branding.css undergoes variable substitution based on the content of
             # /usr/lib/os-release.  Perform the substitution for ourselves for
             # validation.  envsubst comes from gettext.
-            os_release_vars = m.execute("cat /usr/lib/os-release").replace('\n', ' ')
+            os_release_vars = m.execute("cat /usr/lib/os-release")
+            # Sometimes os-release has lines containing comments which messes up the shell
+            if "#" in os_release_vars:
+                valid_lines = []
+                for line in os_release_vars.split('\n'):
+                    line = line.strip()
+                    # Ignore commented out lines
+                    if line.startswith('#'):
+                        continue
+
+                    # remove the comment at the end of line if it exists
+                    line = line.split('#')[0]
+                    valid_lines.append(line)
+
+                os_release_vars = ' '.join(valid_lines)
+            else:
+                os_release_vars = os_release_vars.replace('\n', ' ')
+
             m.execute(f'{os_release_vars} envsubst < {branddir}/branding.css > /tmp/branding.ref')
             self.addCleanup(m.execute, "rm /tmp/branding.ref")
 
@@ -1171,7 +1201,10 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
 
         # some brands miss the images, but the OSes we CI have them all
         curl_and_compare('branding.css', 'text/css', reference='/tmp/branding.ref')
-        curl_and_compare('logo.png', 'image/png')
+        if "suse" in m.image:
+            curl_and_compare('square-hicolor.svg', 'image/svg')
+        else:
+            curl_and_compare('logo.png', 'image/png')
         curl_and_compare('favicon.ico')
 
         # do a pixel test to make sure everything looks like we expect
@@ -1375,6 +1408,7 @@ ProtocolHeader = X-Forwarded-Proto
 
     @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testNginxTLS(self):
         """test proxying to Cockpit with TLS
 
@@ -1455,6 +1489,7 @@ server {
 
     @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testNginxNoTLS(self):
         """test proxying to Cockpit with plain HTTP
 

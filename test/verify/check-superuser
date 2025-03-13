@@ -69,7 +69,9 @@ class TestSuperuser(testlib.MachineCase):
         if "ubuntu" not in m.image and "debian" not in m.image:
             b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')",
                            "We trust you have received the usual lecture")
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+
+        user = testlib.get_superuser(m.image)
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user}:")
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.focus(".pf-v5-c-modal-box button:contains('Cancel')")
         b.assert_pixels(".pf-v5-c-modal-box:contains('Switch to administrative access')", "superuser-modal",
@@ -142,6 +144,14 @@ auth required mock-pam-conv-mod.so
 @include common-account
 @include common-session-noninteractive
 """)
+        elif "suse" in m.image:
+            self.write_file("/etc/pam.d/sudo", """
+auth required pam_unix.so
+auth required mock-pam-conv-mod.so
+account include common-account
+password include common-password
+session include common-session
+""")
         else:
             self.write_file("/etc/pam.d/sudo", """
 auth required pam_unix.so
@@ -152,7 +162,8 @@ session include system-auth
 """)
 
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        user = testlib.get_superuser(m.image)
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user}:")
         # Let the dialog sit there for 45 seconds, to test that this doesn't trigger a D-Bus timeout.
         time.sleep(45)
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
@@ -171,14 +182,15 @@ session include system-auth
         b.check_superuser_indicator("Limited access")
 
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        user = testlib.get_superuser(self.machine.image)
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user}:")
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "wrong")
         b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user}:")
         b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Sorry, try again")
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "wronger")
         b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user}:")
         b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Sorry, try again")
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "wrongest")
         b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
@@ -198,6 +210,11 @@ session include system-auth
         if "ubuntu" in m.image:
             self.sed_file("/^%admin/d", "/etc/sudoers")
 
+        # The default in tumbleweed is to allow passworded sudo to root
+        # We need to remove this before we actually run this test
+        if "suse" in m.image:
+            self.sed_file("/^ALL/d", "/usr/etc/sudoers")
+
         m.execute(f"gpasswd -d admin {m.get_admin_group()}")
 
         self.login_and_go()
@@ -216,7 +233,8 @@ session include system-auth
         # cancelling auth dialog stops sudo
         b.open_superuser_dialog()
         b.wait_in_text(".pf-v5-c-modal-box", "Switch to administrative access")
-        b.wait_in_text(".pf-v5-c-modal-box", "Password for admin")
+        user = testlib.get_superuser(m.image)
+        b.wait_in_text(".pf-v5-c-modal-box", f"Password for {user}")
         status = m.execute("loginctl --lines=0 user-status admin")
         self.assertIn("sudo", status)
         if not m.ws_container:
@@ -229,7 +247,7 @@ session include system-auth
 
         # logging out cleans up pending sudo auth; user should either go to "State: closing" or disappear completely
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v5-c-modal-box", "Password for admin")
+        b.wait_in_text(".pf-v5-c-modal-box", f"Password for {user}")
         if not m.ws_container:
             self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
         b.click(".pf-v5-c-modal-box button:contains('Cancel')")
@@ -332,6 +350,7 @@ session include system-auth
         b.check_superuser_indicator("Limited access")
 
     @testlib.skipBeiboot("no local overrides/PAM config in beiboot mode")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testMultipleBridgeConfig(self):
         b = self.browser
 
@@ -392,7 +411,8 @@ session include system-auth
         b.set_val(".pf-v5-c-modal-box:contains('Switch to administrative access') select", "Sudo")
         b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access') select", "Sudo")
         b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        user = testlib.get_superuser(self.machine.image)
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user}:")
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")
@@ -404,7 +424,8 @@ session include system-auth
         self.login_and_go("/system", superuser=False)
         b.wait_visible(".pf-v5-c-alert:contains('Web console is running in limited access mode.')")
         b.click(".pf-v5-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
-        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        user = testlib.get_superuser(self.machine.image)
+        b.wait_in_text(".pf-v5-c-modal-box:contains('Switch to administrative access')", f"Password for {user}:")
         b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v5-c-modal-box:contains('Switch to administrative access')")

@@ -54,7 +54,7 @@ class TestSelinux(testlib.MachineCase):
         "ansible_machine": {"image": TEST_OS_DEFAULT, "memory_mb": 650}
     }
 
-    @testlib.skipImage("No setroubleshoot", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No setroubleshoot", "debian-*", "ubuntu-*", "arch", "*suse*")
     @testlib.skipOstree("No setroubleshoot")
     @testlib.skipBrowser("Firefox fails to recognize 'clipboard-read' permission", "firefox")
     def testTroubleshootAlerts(self):
@@ -292,7 +292,7 @@ class TestSelinux(testlib.MachineCase):
         b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
 
 
-@testlib.skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch", "*suse*")
 @testlib.skipOstree("No cockpit-selinux")
 @testlib.nondestructive
 class TestSelinuxEnforcing(testlib.MachineCase):

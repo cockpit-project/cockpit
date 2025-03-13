@@ -92,8 +92,9 @@ def change_ssh_port(machine, address, sshd_socket, sshd_service, port=None, time
         machine.execute("systemctl daemon-reload")
         machine.execute("systemctl restart ssh.socket")
     else:
-        machine.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
-        machine.write("/etc/ssh/sshd_config",
+        sshd_path = testlib.get_sshd_config_path(machine.image)
+        machine.execute(f"sed -i 's/.*Port .*/#\\0/' {sshd_path}")
+        machine.write(sshd_path,
                       f"ListenAddress 127.27.0.15:22\nListenAddress {address}:{port}\n",
                       append=True)
         # We stop the sshd.socket unit and just go with a regular
@@ -450,6 +451,7 @@ class TestMultiMachine(testlib.MachineCase):
         self.assertEqual(200, http_code("/cockpit/@localhost/manifests.json"))
         self.assertEqual(403, http_code("/cockpit/@10.111.113.2/manifests.json"))
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testUrlRoot(self):
         b = self.browser
         m = self.machine
@@ -669,13 +671,15 @@ class TestMultiMachine(testlib.MachineCase):
 
         self.allow_hostkey_messages()
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testTroubleshooting(self):
         b = self.browser
         m1 = self.machine
         m2 = self.machine2
 
         # Logging in as root is no longer allowed by default by sshd
-        m2.execute("sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
+        sshd_path = testlib.get_sshd_config_path(m1.image)
+        m2.execute(f"sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' {sshd_path}")
         m2.execute(self.restart_sshd)
 
         machine_path = "/@10.111.113.2"
@@ -814,6 +818,7 @@ class TestMultiMachine(testlib.MachineCase):
                                     '.*: server offered unsupported authentication methods: .*')
 
     @testlib.skipImage("TODO: Broken on Arch Linux", "arch")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testSshKeySetup(self):
         b = self.browser
         m1 = self.machine

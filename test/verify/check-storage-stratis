@@ -46,7 +46,7 @@ def create_pool_key(machine, keyname, passphrase):
     machine.execute(f"echo -n '{passphrase}' | stratis key set --keyfile-path /dev/stdin {keyname}")
 
 
-@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "*suse*")
 @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
 @testlib.nondestructive
 class TestStorageStratis(storagelib.StorageCase):
@@ -537,7 +537,7 @@ systemctl restart stratisd
         b.wait_text(self.card_desc("Stratis filesystem", "Virtual size limit"), "none")
 
 
-@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "*suse*")
 @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
 class TestStorageStratisReboot(storagelib.StorageCase):
     # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
@@ -826,7 +826,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         b.wait_in_text(self.card_row("Storage", name="pool0"), "1.8 GB")
 
 
-@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch", "*suse*")
 class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase):
 
     def testStratisOndemandInstallation(self):
@@ -869,7 +869,7 @@ class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase)
             b.wait_not_present(stratis_action)
 
 
-@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*")
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "*suse*")
 @testlib.skipImage("Stratis too old", "rhel-8-*")
 class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
     provision = {

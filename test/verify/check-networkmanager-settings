@@ -28,6 +28,7 @@ class TestNetworkingSettings(netlib.NetworkCase):
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 512}
     }
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testNoConnectionSettings(self):
         b = self.browser
         m = self.machine
@@ -151,6 +152,7 @@ class TestNetworkingSettings(netlib.NetworkCase):
             for method in unsupported_ip6_methods:
                 b.wait_not_present(f"#network-ip-settings-select-method option[value='{method}']")
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testOtherSettings(self):
         b = self.browser
         m = self.machine

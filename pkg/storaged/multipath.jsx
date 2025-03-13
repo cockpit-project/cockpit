@@ -50,17 +50,29 @@ export class MultipathAlert extends React.Component {
         const multipathd_running = !this.multipathd_service.state || this.multipathd_service.state === "running";
         const multipath_broken = client.broken_multipath_present === true;
 
-        function activate(event) {
+        async function activate(event) {
             if (!event || event.button !== 0)
                 return;
-            cockpit.spawn(["mpathconf", "--enable", "--with_multipathd", "y"],
-                          { superuser: "try" })
-                    .catch(function (error) {
-                        dialog_open({
-                            Title: _("Error"),
-                            Body: error.toString()
+            try {
+                await cockpit.spawn(["type", "mpathconf"], { err: "ignore" });
+                cockpit.spawn(["mpathconf", "--enable", "--with_multipathd", "y"],
+                              { superuser: "try" })
+                        .catch(function (error) {
+                            dialog_open({
+                                Title: _("Error"),
+                                Body: error.toString()
+                            });
                         });
-                    });
+            } catch (err1) {
+                cockpit.spawn(["systemctl", "enable", "--now", "multipathd.service"],
+                              { superuser: "try" })
+                        .catch(function (error) {
+                            dialog_open({
+                                Title: _("Error"),
+                                Body: error.toString()
+                            });
+                        });
+            }
         }
 
         if (multipath_broken && !multipathd_running)

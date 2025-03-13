@@ -39,6 +39,7 @@ class TestLogin(testlib.MachineCase):
             b.set_layout("desktop")
 
     # @testlib.skipBeiboot("no local cockpit PAM config in beiboot mode")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -59,7 +60,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         if not m.ws_container:
             deny_non_root("/etc/pam.d/cockpit")
-        deny_non_root("/etc/pam.d/sshd")
+
+        if "suse" in m.image:
+            deny_non_root("/usr/lib/pam.d/sshd")
+        else:
+            deny_non_root("/etc/pam.d/sshd")
 
         m.start_cockpit()
         b.open("/system")
@@ -213,6 +218,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "noise-rc-.*")
 
     @testlib.skipWsContainer("logs in via ssh, not cockpit-session")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testLogging(self):
         m = self.machine
         b = self.browser
@@ -278,13 +284,16 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # with the ws container this happens over ssh
         if m.ws_container:
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
+            sshd_path = testlib.get_sshd_config_path(m.image)
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' "
-                      "/etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
+                      f"{sshd_path} $(ls {sshd_path}.d/* 2>/dev/null || true)")
             m.execute(self.restart_sshd)
 
         # test steps below assume a pam_pwquality config with retry > 1; on some images authselect drops that setting
-        if not m.image.startswith('debian') and not m.image.startswith('ubuntu') and not m.image.startswith("arch"):
+        if not m.image.startswith('debian') and not m.image.startswith('ubuntu') and not m.image.startswith("arch") and "suse" not in m.image:
             self.sed_file("/password.*requisite.*pam_pwquality/ s/$/ retry=3/", "/etc/pam.d/password-auth")
+        elif "suse" in m.image:
+            self.sed_file("/password.*requisite.*pam_pwquality/ s/$/ retry=3/", "/etc/pam.d/common-password-pc")
 
         m.execute("chage -d 0 admin")
         m.start_cockpit()
@@ -379,9 +388,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if m.ostree_image:
             conf = "/etc/pam.d/sshd"
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
+            sshd_path = testlib.get_sshd_config_path(m.image)
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' "
-                      "/etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
+                      f"{sshd_path} $(ls {sshd_path}.d/* 2>/dev/null || true)")
             m.execute(self.restart_sshd)
+
+        if "suse" in m.image:
+            conf = "/usr/lib/pam.d/cockpit"
 
         # On Arch Linux the ordering matters due to an auth include for system-remote-login
         if self.machine.image == "arch":
@@ -420,7 +433,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch", "*suse*")
     @testlib.skipOstree("No tlog")
     @testlib.skipImage("FIXME: tlog messes up bridge frame protocol", "rhel-8-10")
     def testSessionRecordingShell(self):
@@ -476,7 +489,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 
-    @testlib.skipImage("No SELinux", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No SELinux", "debian-*", "ubuntu-*", "arch", "*suse*")
     @testlib.skipOstree("No semanage")
     def testSELinuxRestrictedUser(self):
         m = self.machine
@@ -664,6 +677,16 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                           "/etc/pam.d/common-auth")
         elif m.image == "arch":
             self.sed_file(f"s/# deny = 3/deny = {count}/", "/etc/security/faillock.conf")
+        elif "suse" in m.image:
+            m.execute("""cat <<EOF > /etc/security/faillock.conf
+deny = 4
+EOF""")
+            m.execute("""cat <<EOF >> /etc/pam.d/common-auth
+auth     [success=1 default=bad] pam_unix.so
+auth     [default=die]  pam_faillock.so authfail
+auth     sufficient     pam_faillock.so authsucc
+auth     required       pam_deny.so
+EOF""")
         else:
             # see https://access.redhat.com/solutions/62949
             sed = ("/^auth.*pam_unix/ {"
@@ -810,6 +833,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.logout()
 
     @testlib.skipWsContainer("root logins disabled by default with ssh")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testPamAccess(self):
         b = self.browser
         m = self.machine
@@ -1040,6 +1064,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 
     # enable this once our cockpit/ws container can beiboot
     @testlib.skipWsContainer("client setup does not work with ws container")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testSSH(self):
         m = self.machine
         b = self.browser

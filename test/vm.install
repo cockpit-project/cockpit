@@ -42,6 +42,25 @@ if [ "$ID" = "debian" ]; then
     echo '* soft core unlimited' >> /etc/security/limits.conf
 fi
 
+if [ "$ID" = "opensuse-tumbleweed" ]; then
+    # Default pam policy notes pam last login date due to lastlog.so
+    # This will add cockpit's pam config to the silent list so we
+    # Don't fail due to unexpected journal lines
+    sed -i 's/sddm/sddm,cockpit/' /etc/pam.d/postlogin-session
+
+    # Force allowing memory accounting and cgroup delegation in suse
+    # This is because by default suse images disable both of these
+    # so we can't run any tests that rely on checking memory usage
+    printf '[Manager]\nDefaultMemoryAccounting=yes\n' > /usr/lib/systemd/system.conf.d/80-memory-accounting.conf
+    mkdir -p /etc/systemd/system/user@.service.d
+    printf '[Service]\nDelegate=cpu io memory\n' > /etc/systemd/system/user@.service.d/80-cgroups-delegation.conf
+
+    # Zypper will take forever to work out these don't have net access
+    # Let's lo them
+    echo "127.0.1.1 download.opensuse.org" >> /etc/hosts
+    echo "127.0.1.1 codecs.opensuse.org" >> /etc/hosts
+fi
+
 PLATFORM_ID="${PLATFORM_ID:-}"
 if [ "${PLATFORM_ID#platform:el}" != "$PLATFORM_ID" ]; then
     # allow /usr/local/bin/ in sudo shells, to use our installed tools like the Python bridge

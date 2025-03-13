@@ -593,7 +593,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.open("/system")
         b.wait_visible("#unsupported-browser")
         b.wait_in_text("#bypass-browser-check", "Bypass browser check")
-        b.click(".pf-v5-c-expandable-section")
+        b.click(".pf-v6-c-expandable-section")
 
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")

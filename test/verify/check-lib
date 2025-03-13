@@ -32,7 +32,7 @@ class TestLib(testlib.MachineCase):
 
         # No clear button
 
-        b.wait_not_visible("#demo-typeahead .pf-v5-c-text-input-group__utilities button")
+        b.wait_not_visible("#demo-typeahead .pf-v6-c-text-input-group__utilities button")
 
         # Open menu, pixel test
 
@@ -52,15 +52,15 @@ class TestLib(testlib.MachineCase):
 
         # Clear
 
-        b.click("#demo-typeahead .pf-v5-c-text-input-group__utilities button")
-        b.wait_not_visible("#demo-typeahead .pf-v5-c-text-input-group__utilities button")
+        b.click("#demo-typeahead .pf-v6-c-text-input-group__utilities button")
+        b.wait_not_visible("#demo-typeahead .pf-v6-c-text-input-group__utilities button")
         b.wait_text("#value", "-")
         b.wait_text("#toggles", "2")
         b.wait_text("#changes", "1")
 
         # Open by clicking into input, close with ESC
 
-        b.click("#demo-typeahead .pf-v5-c-text-input-group__text-input")
+        b.click("#demo-typeahead .pf-v6-c-text-input-group__text-input")
         b.wait_visible("#typeahead-widget")
         b.key("Escape")
         b.wait_not_present("#typeahead-widget")
@@ -81,18 +81,18 @@ class TestLib(testlib.MachineCase):
         b.key("Enter")
         b.wait_not_present("#typeahead-widget")
         b.wait_text("#value", "AL")
-        b.wait_val("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Alabama")
+        b.wait_val("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Alabama")
         b.wait_text("#toggles", "6")
         b.wait_text("#changes", "1")
 
-        b.click("#demo-typeahead .pf-v5-c-text-input-group__utilities button")
+        b.click("#demo-typeahead .pf-v6-c-text-input-group__utilities button")
         b.wait_text("#value", "-")
         b.wait_text("#toggles", "6")
         b.wait_text("#changes", "2")
 
         # Search for non-existent
 
-        b.set_input_text("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Olabama")
+        b.set_input_text("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Olabama")
         b.wait_text("#typeahead-widget .pf-v6-c-menu__item", "'Olabama' not found")
         b.click("#demo-typeahead .pf-v6-c-menu-toggle__button")
         b.wait_not_present("#typeahead-widget")
@@ -102,7 +102,7 @@ class TestLib(testlib.MachineCase):
         # Again with formatted "not found" message
 
         b.set_checked("#notFoundIsString", val=True)
-        b.set_input_text("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Olabama")
+        b.set_input_text("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Olabama")
         b.wait_text("#typeahead-widget .pf-v6-c-menu__item", "Not found")
         b.click("#demo-typeahead .pf-v6-c-menu-toggle__button")
         b.wait_not_present("#typeahead-widget")
@@ -111,7 +111,7 @@ class TestLib(testlib.MachineCase):
 
         # Search for existing, pixel test, select
 
-        b.set_input_text("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Flori")
+        b.set_input_text("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Flori")
         b.wait_visible("#typeahead-widget")
         b.assert_pixels("#typeahead-widget", "search")
         b.click("#typeahead-widget .pf-v6-c-menu__item:contains(Florida)")
@@ -123,11 +123,11 @@ class TestLib(testlib.MachineCase):
         # Enable creation, create new state
 
         b.set_checked("#isCreatable", val=True)
-        b.set_input_text("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Flori")
+        b.set_input_text("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Flori")
         b.click("#typeahead-widget .pf-v6-c-menu__item:contains(Create Flori)")
         b.wait_not_present("#typeahead-widget")
         b.wait_text("#value", "Flori")
-        b.wait_val("#demo-typeahead .pf-v5-c-text-input-group__text-input", "Flori")
+        b.wait_val("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Flori")
         b.wait_text("#toggles", "14")
         b.wait_text("#changes", "26")
 
@@ -140,7 +140,7 @@ class TestLib(testlib.MachineCase):
 
         # No clear button
 
-        b.wait_not_visible("#demo-multi-typeahead .pf-v5-c-text-input-group__utilities button")
+        b.wait_not_visible("#demo-multi-typeahead .pf-v6-c-text-input-group__utilities button")
 
         # Open menu, pixel test
 
@@ -177,7 +177,7 @@ class TestLib(testlib.MachineCase):
 
         # Open by clicking into input, close with ESC
 
-        b.click("#demo-multi-typeahead .pf-v5-c-text-input-group__text-input")
+        b.click("#demo-multi-typeahead .pf-v6-c-text-input-group__text-input")
         b.wait_visible("#multi-typeahead-widget")
         b.key("Escape")
         b.wait_not_present("#multi-typeahead-widget")
@@ -207,8 +207,8 @@ class TestLib(testlib.MachineCase):
 
         # Search for non-existent
 
-        b.click("#demo-multi-typeahead .pf-v5-c-text-input-group__text-input")
-        b.set_input_text("#demo-multi-typeahead .pf-v5-c-text-input-group__text-input", "Salmiak")
+        b.click("#demo-multi-typeahead .pf-v6-c-text-input-group__text-input")
+        b.set_input_text("#demo-multi-typeahead .pf-v6-c-text-input-group__text-input", "Salmiak")
         b.wait_text("#multi-typeahead-widget .pf-v6-c-menu__item", "'Salmiak' not found")
         b.click("#demo-multi-typeahead .pf-v6-c-menu-toggle__button")
         b.wait_not_present("#multi-typeahead-widget")
@@ -218,8 +218,8 @@ class TestLib(testlib.MachineCase):
         # Again with formatted "not found" message
 
         b.set_checked("#notFoundIsStringMulti", val=True)
-        b.click("#demo-multi-typeahead .pf-v5-c-text-input-group__text-input")
-        b.set_input_text("#demo-multi-typeahead .pf-v5-c-text-input-group__text-input", "Salmiaki")
+        b.click("#demo-multi-typeahead .pf-v6-c-text-input-group__text-input")
+        b.set_input_text("#demo-multi-typeahead .pf-v6-c-text-input-group__text-input", "Salmiaki")
         b.wait_text("#multi-typeahead-widget .pf-v6-c-menu__item", "Not found")
         b.click("#demo-multi-typeahead .pf-v6-c-menu-toggle__button")
         b.wait_not_present("#multi-typeahead-widget")
@@ -228,8 +228,8 @@ class TestLib(testlib.MachineCase):
 
         # Search for existing, pixel test, select
 
-        b.click("#demo-multi-typeahead .pf-v5-c-text-input-group__text-input")
-        b.set_input_text("#demo-multi-typeahead .pf-v5-c-text-input-group__text-input", "Rum")
+        b.click("#demo-multi-typeahead .pf-v6-c-text-input-group__text-input")
+        b.set_input_text("#demo-multi-typeahead .pf-v6-c-text-input-group__text-input", "Rum")
         b.wait_visible("#multi-typeahead-widget")
         b.click("#multi-typeahead-widget .pf-v6-c-menu__item")
         b.wait_not_present("#multi-typeahead-widget")

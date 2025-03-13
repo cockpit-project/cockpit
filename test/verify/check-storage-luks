@@ -461,7 +461,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
 
         # remove one slot
         slots_list = panel + " ul "
-        b.wait_visible(".pf-v5-c-data-list__cell:contains('Slot 7')")
+        b.wait_visible(".pf-v6-c-data-list__cell:contains('Slot 7')")
         b.click(slots_list + "li:last-child button[aria-label='Remove']")
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-6")
         b.click("button:contains('Remove')")

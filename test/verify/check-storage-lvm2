@@ -670,7 +670,7 @@ class TestStorageLvm2(storagelib.StorageCase):
             # Grow to max with default pvs
             b.click(self.card_button("LVM2 logical volume", "Grow"))
             self.dialog_wait_open()
-            slider = self.dialog_field("size") + " .pf-v5-c-slider .pf-v5-c-slider__rail"
+            slider = self.dialog_field("size") + " .pf-v6-c-slider .pf-v6-c-slider__rail"
             width = b.call_js_func('(function (sel) { return ph_find(sel).offsetWidth; })', slider)
             b.mouse(slider, "click", width, 0)
             self.dialog_apply()

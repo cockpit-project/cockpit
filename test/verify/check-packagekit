@@ -119,7 +119,7 @@ class TestUpdates(NoSubManCase):
         good_count = 0
         for _ in range(60):
             classes = self.browser.attr(self.update_icon, "class")
-            if classes is not None and "pf-v5-c-spinner" in classes:
+            if classes is not None and "pf-v6-c-spinner" in classes:
                 good_count = 0
             else:
                 good_count += 1
@@ -192,7 +192,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.addCleanup(m.execute, "umount /usr/sbin/kpatch")
 
         b.click("#status .pf-v6-c-card__actions button")
-        b.wait_visible(".pf-v5-c-badge:contains('patches')")
+        b.wait_visible(".pf-v6-c-badge:contains('patches')")
         b.click("button:contains('Install kpatch updates')")
         b.click("button:contains('Continue')")
         b.wait_in_text("#status", "Kernel live patch kpatch_3_10_0_1062_1_1 is active")
@@ -713,7 +713,7 @@ ExecStart=/usr/local/bin/{packageName}
         ch = b.eval_js(f"document.querySelector(\"{sel + ' td.changelog'}\").innerHTML")
         self.assertNotIn("<li>", ch)
         self.assertNotIn("*", ch)
-        # should show bug fix icon and pf-v5-c-tooltip
+        # should show bug fix icon and pf-v6-c-tooltip
         self.assertEqual(b.attr(sel + " .severity-icon", "aria-label"), "bug fix")
         b.mouse(sel + " .severity-icon", "mouseenter")
         b.wait_text(".pf-v6-c-tooltip", "bug fix")
@@ -758,7 +758,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # history on restart page should show the three security updates
         b.click(".pf-v6-c-expandable-section__toggle")
-        self.assertHistory(".pf-v5-c-expandable-section ul", ["secdeclare", "secparse", "sevcritical"])
+        self.assertHistory(".pf-v6-c-expandable-section ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
         b.click("#ignore")
@@ -794,7 +794,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # history on restart page should show the three non-security updates
         b.click(".pf-v6-c-expandable-section__toggle")
-        self.assertHistory(".pf-v5-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
+        self.assertHistory(".pf-v6-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):
             # do the reboot; this will disconnect the web UI
@@ -1179,10 +1179,10 @@ class TestKpatchInstall(NoSubManCase):
         b.wait_in_text("#kpatch-settings", "Not available")
         # show unavailable packages in popover
         b.click("#kpatch-settings .ct-info-circle")
-        b.wait_in_text(".pf-v5-c-popover", "Unavailable packages")
-        b.wait_in_text(".pf-v5-c-popover", "kpatch-dnf")
+        b.wait_in_text(".pf-v6-c-popover", "Unavailable packages")
+        b.wait_in_text(".pf-v6-c-popover", "kpatch-dnf")
         b.click("#kpatch-settings .ct-info-circle")
-        b.wait_not_present(".pf-v5-c-popover")
+        b.wait_not_present(".pf-v6-c-popover")
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
         self.createPackage("kpatch", "999", "1", content={"/lib/systemd/system/kpatch.service": dummy_service})

@@ -201,7 +201,7 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
-        b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-v5-c-table__expandable-row", "Post Office Protocol")
+        b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-v6-c-table__expandable-row", "Post Office Protocol")
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
         b.click(".zone-section[data-id='public'] .pf-v6-c-menu__list-item.pf-m-danger button")
@@ -295,7 +295,7 @@ class TestFirewall(netlib.NetworkCase):
         addService('public', 'pop3')
         addService('public', 'freeipa-4')
         b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
-        b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-v5-c-table__expandable-row:contains(Included Services)")
+        b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-v6-c-table__expandable-row:contains(Included Services)")
         b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
 
         # pop3 should now not appear any more in Add Services dialog

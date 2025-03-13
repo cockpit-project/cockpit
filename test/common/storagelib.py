@@ -19,6 +19,7 @@ import json
 import os.path
 import re
 import textwrap
+from collections.abc import Callable
 
 from testlib import Error, MachineCase, wait
 
@@ -33,7 +34,7 @@ class StorageHelpers:
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)
 
-    def retry(self, setup, check, teardown):
+    def retry(self, check: Callable[[], bool], setup: Callable[[], None] | None = None, teardown: Callable[[], None] | None = None) -> None:
         def step():
             if setup:
                 setup()
@@ -319,7 +320,7 @@ class StorageHelpers:
         def teardown():
             self.dialog_cancel()
             self.dialog_wait_close()
-        self.retry(setup, check, teardown)
+        self.retry(check, setup, teardown)
 
     def dialog_apply_with_retry(self, expected_errors=None):
         def step():

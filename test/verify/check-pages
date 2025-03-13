@@ -217,7 +217,7 @@ OnCalendar=daily
         # TestSystemInfo.testHardwareInfo does this more carefully
         b.go("/system/hwinfo")
         b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(3) dd', " 20")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v6-c-description-list__group:nth-of-type(3) dd', " 20")
 
         # Check the playground page
         b.switch_to_top()
@@ -439,7 +439,7 @@ OnCalendar=daily
 
         self.login_and_go()
 
-        filter_sel = ".pf-v5-c-text-input-group__text-input"
+        filter_sel = ".pf-v6-c-text-input-group__text-input"
 
         # Check that some page disappears and some stay
         b.focus(filter_sel)

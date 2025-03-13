@@ -927,7 +927,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
 
         b.assert_pixels(self.card("Encrypted Stratis pool"), "header",
-                        ignore=['.pf-v5-c-description-list__group:contains(UUID)'])
+                        ignore=['.pf-v6-c-description-list__group:contains(UUID)'])
 
         # Remove passphrase
         b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove)")

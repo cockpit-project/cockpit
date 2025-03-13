@@ -107,7 +107,7 @@ class TestSystemInfo(testlib.MachineCase):
             recommended_profile = m.execute("tuned-adm recommend").strip()
             b.wait_text("#tuned-status-button", recommended_profile)
             # Wait for there to be no warning icons in the usage.
-            b.wait_not_present('#system-usage .pf-v5-c-progress__status-icon')
+            b.wait_not_present('#system-usage .pf-v6-c-progress__status-icon')
         b.assert_pixels("#overview", "overview", ignore=[
             ".system-health .pf-v6-c-card__body",
             "#system_uptime",

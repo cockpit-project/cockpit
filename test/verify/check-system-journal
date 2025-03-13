@@ -43,7 +43,7 @@ class TestJournal(testlib.MachineCase):
                     var count = '';
                     if (e.querySelectorAll('.cockpit-log-service-container').length > 0) {
                         ident = e.querySelector('.cockpit-log-service-reduced').textContent;
-                        count = e.querySelector('.pf-v5-c-badge').textContent;
+                        count = e.querySelector('.pf-v6-c-badge').textContent;
                     } else {
                         ident = e.querySelector('.cockpit-log-service');
                         ident = ident ? ident.textContent : "";
@@ -220,15 +220,15 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         # Test popover in advanced search
         b.click("#journal-grep button[aria-label='Open advanced search']")
-        b.assert_pixels(".pf-v5-c-panel", "logs-filter-panel", skip_layouts=["mobile"])
+        b.assert_pixels(".pf-v6-c-panel", "logs-filter-panel", skip_layouts=["mobile"])
 
-        b.click(".pf-v5-c-form__group:contains('Since') button")
-        b.wait_text(".pf-v5-c-popover__title-text", "Start showing entries on or newer than the specified date.")
+        b.click(".pf-v6-c-form__group:contains('Since') button")
+        b.wait_text(".pf-v6-c-popover__title-text", "Start showing entries on or newer than the specified date.")
         # FIXME: Closing the popover with the X button also closes the whole search form (just not with ph_mouse)
-        # b.click(".pf-v5-c-popover__close button")
+        # b.click(".pf-v6-c-popover__close button")
         # Thus close the popover the same way as we opened it, with the (i) icon
-        b.click(".pf-v5-c-form__group:contains('Since') button")
-        b.wait_not_present(".pf-v5-c-popover")
+        b.click(".pf-v6-c-form__group:contains('Since') button")
+        b.wait_not_present(".pf-v6-c-popover")
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")
 

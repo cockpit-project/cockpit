@@ -811,11 +811,11 @@ class TestCurrentMetrics(testlib.MachineCase):
         b.wait_not_in_text("#current-metrics-card-cpu", "cpu-piglet")
 
         # Load is a flex, each part looks like "1 min: 1.41,"; wait until the 1min load is low
-        b.wait(lambda: float(b.text("#load-avg .pf-v5-l-flex div:first-child").split()[-1].rstrip(',')) < 5)
+        b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) < 5)
 
         m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
                   "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=100K count=500 status=none & done'")
-        b.wait(lambda: float(b.text("#load-avg .pf-v5-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
+        b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
         m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
 
         container_name = "pod-cpu-hog"
@@ -865,7 +865,7 @@ class TestCurrentMetrics(testlib.MachineCase):
 
         # this settles down slowly, don't wait for becoming really quiet
         with b.wait_timeout(300):
-            b.wait(lambda: float(b.text("#load-avg .pf-v5-l-flex div:first-child").split()[-1].rstrip(',')) < 10)
+            b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) < 10)
 
         # Files with CPU temperature do not exist, nothing is displayed
         b.wait_not_present("#current-metrics-card-cpu .temperature")
@@ -1123,7 +1123,7 @@ BEGIN {{
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))  # this should stay calm
         # read in popover
         b.click("#current-metrics-card-disks .all-disks-no-gap button")
-        b.wait_visible(".pf-v5-c-popover .disks-nowrap")
+        b.wait_visible(".pf-v6-c-popover .disks-nowrap")
         b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Read']")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Write']")))  # write should stay calm
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='sr0'] [data-label='Read']")))  # other disks should stay calm
@@ -1137,7 +1137,7 @@ BEGIN {{
         m.execute("systemctl stop disk-read-hog")
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Read']")))  # back to quiet
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-read")))  # back to quiet
-        b.click(".pf-v5-c-popover__close > button")
+        b.click(".pf-v6-c-popover__close > button")
         # writing lots of data
         m.execute("systemd-run --collect --slice cockpittest --unit disk-write-hog sh -ec "
                   " 'while true; do dd if=/dev/zero of=/var/tmp/blob bs=1M count=100; done'")
@@ -1159,7 +1159,7 @@ BEGIN {{
         m.execute("systemctl stop disk-write-hog")
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Write']")))  # back to quiet
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))  # back to quiet
-        b.click(".pf-v5-c-popover__close > button")
+        b.click(".pf-v6-c-popover__close > button")
         # top service should be podman container busybox-write-hog
         m.execute(f"podman run --rm -d --name busybox-write-hog {self.busybox_image} /bin/ash -c 'while true; do dd if=/dev/urandom of=/testfile bs=20M count=100; done'")
         self.addCleanup(m.execute, "podman rm -f busybox-write-hog || true")
@@ -1433,10 +1433,10 @@ class TestMultiCPU(testlib.MachineCase):
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=20% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
         # View all CPUs
         b.click("#current-metrics-card-cpu button")
-        b.wait(lambda: int(b.text(".pf-v5-c-popover .cpu-all dd:nth-of-type(1)")[:-1]) > 40)
-        b.wait(lambda: int(b.text(".pf-v5-c-popover .cpu-all dd:nth-of-type(2)")[:-1]) > 15)
-        b.click(".pf-v5-c-popover button")
-        b.wait_not_present(".pf-v5-c-popover")
+        b.wait(lambda: int(b.text(".pf-v6-c-popover .cpu-all dd:nth-of-type(1)")[:-1]) > 40)
+        b.wait(lambda: int(b.text(".pf-v6-c-popover .cpu-all dd:nth-of-type(2)")[:-1]) > 15)
+        b.click(".pf-v6-c-popover button")
+        b.wait_not_present(".pf-v6-c-popover")
 
         # the top CPU core runs cpu-hog
         b.wait(lambda: b.get_pf_progress_value("#current-top-cpu-usage") >= 38)

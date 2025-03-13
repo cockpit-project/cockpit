@@ -1517,7 +1517,7 @@ class Browser:
         # Don't apply this hack for login and terminal and shell as they don't use PF Page
         if not self.is_present("#shell-page") and not self.is_present("#login-details") and not self.is_present("#system-terminal-page"):
             classes = self.attr("main", "class")
-            if "pf-v5-c-page__main" in classes:
+            if "pf-v6-c-page__main" in classes:
                 self.set_attr("main.pf-v6-c-page__main", "class", f"{classes} pixel-test")
 
         # move the mouse to a harmless place where it doesn't accidentally focus anything (as that changes UI)

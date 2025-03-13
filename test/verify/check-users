@@ -42,7 +42,7 @@ def performUserAction(browser, user, action):
 
 def performGroupAction(browser, group, action):
     browser.click(f"#groups-list tbody tr:contains({group}) button.pf-v6-c-menu-toggle")
-    browser.click(f"#groups-list tbody tr:contains({group}) .pf-v6-c-menu__list-item:contains({action}) button")
+    browser.click(f"body > .pf-v6-c-menu .pf-v6-c-menu__list-item:contains({action}) button")
 
 
 def createUser(
@@ -569,7 +569,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait(lambda: not is_locked())
         b.wait_not_present(admin_role_sel + f" .pf-v6-c-label:contains(:{m.get_admin_group()})")
         b.click("#account-groups > button")
-        b.click(admin_role_sel + f" li:contains({m.get_admin_group()}) > button")
+        b.click(f"body .pf-v6-c-menu li:contains({m.get_admin_group()}) > button")
         b.wait(is_admin)
         b.wait_not_present("#account-groups-helper")
 
@@ -589,7 +589,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_text("#account-user-name", "jussi")
         b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains({m.get_admin_group()})")
         b.wait_not_present("#account-groups-helper")
-        b.click(f".pf-v6-c-label-group__list .pf-v6-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
+        b.click(f".pf-v6-c-label-group__list .pf-v6-c-label:contains({m.get_admin_group()}) .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']")
         b.wait(lambda: not is_admin())
         b.wait_not_present(admin_role_sel + f" .pf-v6-c-label:contains({m.get_admin_group()})")
         if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
@@ -1040,7 +1040,7 @@ class TestAccounts(testlib.MachineCase):
         # Try an invalid date
         b.set_input_text("#account-expiration-input input", "blah")
         b.click("#account-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
-        b.wait_text("#account-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid expiration date")
+        b.wait_text("#account-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid expiration date: error status;")
 
         # Now a valid date 30 days in the future
         when = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)
@@ -1069,7 +1069,7 @@ class TestAccounts(testlib.MachineCase):
         # Try an invalid number
         b.set_input_text("#password-expiration-input", "-3")
         b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
-        b.wait_text("#password-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid number of days")
+        b.wait_text("#password-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid number of days: error status;")
 
         # Expire password every 30 days
         b.set_input_text("#password-expiration-input", "30")
@@ -1216,10 +1216,11 @@ class TestAccounts(testlib.MachineCase):
         # Primary group cannot be remove but others have a remove button
         b.wait_visible(".pf-v6-c-label-group__list .pf-v6-c-label__content:contains(admin)")
         b.wait_not_present(".pf-v6-c-label-group__list .pf-v6-c-label__content:contains(admin) + span > button")
-        b.wait_visible(f".pf-v6-c-label-group__list .pf-v6-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
+        close_button = f".pf-v6-c-label-group__list .pf-v6-c-label:contains({m.get_admin_group()}) .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']"
+        b.wait_visible(close_button)
 
         # Clicking on the close button removes the group
-        b.click(f".pf-v6-c-label-group__list .pf-v6-c-label__content:contains({m.get_admin_group()}) + span > button[aria-label='Close {m.get_admin_group()}']")
+        b.click(close_button)
         b.wait_not_present(f".pf-v6-c-label-group__list .pf-v6-c-label__content:contains({m.get_admin_group()})")
         b.wait_not_present(".pf-v5-c-select__menu")
 

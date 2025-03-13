@@ -1075,6 +1075,7 @@ class Browser:
         self.wait_visible("#toggle-menu")
         if (self.attr("#toggle-menu", "aria-expanded") != "true"):
             self.click("#toggle-menu")
+            self.wait_visible("#toggle-menu-menu")
 
     def layout_is_mobile(self) -> bool:
         if not self.current_layout:

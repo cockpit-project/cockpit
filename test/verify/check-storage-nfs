@@ -181,7 +181,7 @@ class TestStorageNfs(storagelib.StorageCase):
             def check():
                 choices = self.dialog_combobox_choices("remote")
                 return len(choices) == 2 and "/home/foo" in choices and "/home/bar" in choices
-            self.retry(None, check, None)
+            self.retry(check)
 
         b.click('#dialog [data-field="remote"] button.pf-v5-c-menu-toggle__button')
         wait_for_exports()

@@ -61,7 +61,7 @@ class TestServices(testlib.MachineCase):
 
     def do_action(self, action):
         self.browser.click(".service-top-panel button.pf-v6-c-menu-toggle")
-        self.browser.click(f".service-top-panel .pf-v6-c-menu__list-item:contains('{action}') button")
+        self.browser.click(f"#services-page .pf-v6-c-menu__list-item:contains('{action}') button")
 
     def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
         with self.browser.wait_timeout(60):
@@ -73,11 +73,11 @@ class TestServices(testlib.MachineCase):
 
         if kebab:
             self.browser.click(".service-top-panel button.pf-v6-c-menu-toggle")
-            self.browser.wait_text(".service-top-panel .pf-v6-c-menu__list", "".join(actions))
+            self.browser.wait_text("#services-page .pf-v6-c-menu__list", "".join(actions))
             # Click away to close the pf-v6-c-menu__list
             self.browser.click(".service-top-panel button.pf-v6-c-menu-toggle")
         else:
-            self.browser.wait_not_present(".service-top-panel .pf-v6-c-menu__list")
+            self.browser.wait_not_present("#services-page .pf-v6-c-menu__list")
 
     def check_service_on(self, expect_reload=True):
         self.check_service_details(
@@ -630,17 +630,17 @@ WantedBy=default.target
             # wait for layout to settle
             time.sleep(1)
             b.click(".service-top-panel button.pf-v6-c-menu-toggle")
-            b.wait_in_text(".service-top-panel .pf-v6-c-menu__list", "Disallow running")
+            b.wait_in_text("#services-page .pf-v6-c-menu__list", "Disallow running")
             b.assert_pixels_in_current_layout("#service-details-unit", "services-kebabdropdown-rtl")
             # Close menu
             b.click(".service-top-panel button.pf-v6-c-menu-toggle")
             b.wait_not_present(".pf-v6-c-menu__list")
             b.set_layout("desktop")
             b.click(".service-top-panel button.pf-v6-c-menu-toggle")
-            b.wait_in_text(".service-top-panel .pf-v6-c-menu__list", "Disallow running")
+            b.wait_in_text("#services-page .pf-v6-c-menu__list", "Disallow running")
             # check if our custom kebab menu renders properly
             b.assert_pixels("#service-details-unit", "services-kebabdropdown", skip_layouts=['rtl'])
-            b.wait_not_in_text(".service-top-panel .pf-v6-c-menu__list", "Delete")
+            b.wait_not_in_text("#services-page .pf-v6-c-menu__list", "Delete")
             b.click(".pf-v6-c-breadcrumb a:contains('Services')")
 
     @testlib.nondestructive

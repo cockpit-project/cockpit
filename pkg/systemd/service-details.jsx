@@ -51,6 +51,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import './service-details.scss';
 import { KebabDropdown } from "cockpit-components-dropdown";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 const METRICS_POLL_DELAY = 30000; // 30s
@@ -456,7 +457,9 @@ export class ServiceDetails extends React.Component {
             if (active) {
                 status.push(
                     <div key="running" className="status-running">
-                        <OnRunningIcon className="status-icon" />
+                        <Icon status="success">
+                            <OnRunningIcon className="status-icon" />
+                        </Icon>
                         <span className="status">{ _("Running") }</span>
                         <span className="side-note font-xs">{ _("Active since ") + timeformat.dateTime(this.props.unit.ActiveEnterTimestamp / 1000) }</span>
                     </div>
@@ -464,7 +467,9 @@ export class ServiceDetails extends React.Component {
             } else {
                 status.push(
                     <div key="stopped" className="status-stopped">
-                        <OffIcon className="status-icon" />
+                        <Icon>
+                            <OffIcon className="status-icon" />
+                        </Icon>
                         <span className="status">{ _("Not running") }</span>
                     </div>
                 );

@@ -25,7 +25,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { createRoot } from 'react-dom/client';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
-import { Card } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Card, CardHeader } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/components/ToggleGroup/index.js";
 import { Toolbar, ToolbarContent, ToolbarFilter, ToolbarItem, ToolbarToggleGroup } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
@@ -706,13 +706,15 @@ class ServicesPageBody extends React.Component {
         return (
             <PageSection hasBodyWrapper={false}>
                 <Card isCompact>
-                    <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
-                                         fileStateDropdownOptions={fileStateDropdownOptions}
-                                         filtersRef={this.filtersRef}
-                                         loadingUnits={this.props.isLoading}
-                                         options={cockpit.location.options}
-                                         onOptionsChanged={this.onOptionsChanged}
-                    />
+                    <CardHeader id='services-card-header'>
+                        <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
+                                            fileStateDropdownOptions={fileStateDropdownOptions}
+                                            filtersRef={this.filtersRef}
+                                            loadingUnits={this.props.isLoading}
+                                            options={cockpit.location.options}
+                                            onOptionsChanged={this.onOptionsChanged}
+                        />
+                    </CardHeader>
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
                                   isTimer={activeTab == 'timer'}
                                   filtersRef={this.filtersRef}
@@ -865,7 +867,8 @@ const ServicesPageFilters = ({
         </ToolbarToggleGroup>;
 
     return (
-        <Toolbar data-loading={loadingUnits}
+        <Toolbar
+                data-loading={loadingUnits}
                  clearAllFilters={onClearAllFilters}
                  className="pf-m-sticky-top ct-compact services-toolbar"
                  id="services-toolbar"
@@ -904,7 +907,7 @@ const ServicesPage = () => {
 
     return (
         <WithDialogs>
-            <Page>
+            <Page className='no-masthead-sidebar'>
                 {cockpit.location.path.length == 0 &&
                 <PageSection hasBodyWrapper={false} className="services-header">
                     <Flex>

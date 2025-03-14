@@ -1040,7 +1040,7 @@ class TestAccounts(testlib.MachineCase):
         # Try an invalid date
         b.set_input_text("#account-expiration-input input", "blah")
         b.click("#account-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
-        b.wait_text("#account-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid expiration date: error status;")
+        b.wait_text("#account-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
         when = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)
@@ -1069,7 +1069,7 @@ class TestAccounts(testlib.MachineCase):
         # Try an invalid number
         b.set_input_text("#password-expiration-input", "-3")
         b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
-        b.wait_text("#password-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid number of days: error status;")
+        b.wait_text("#password-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid number of days")
 
         # Expire password every 30 days
         b.set_input_text("#password-expiration-input", "30")

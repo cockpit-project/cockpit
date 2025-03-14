@@ -201,18 +201,18 @@ class StorageHelpers(MachineCase):
                 self.browser.set_input_text(sel + " [type=text]", val)
         elif ftype == "combobox":
             self.browser.click(sel + " button.pf-v6-c-menu-toggle__button")
-            self.browser.click(sel + f" .pf-v6-c-menu li:contains('{val}') button")
+            self.browser.click(f".pf-v6-c-menu li:contains('{val}') button")
         else:
             self.browser.set_val(sel, val)
 
     def dialog_combobox_choices(self, field: str) -> Any:
-        return self.browser.call_js_func("""(function (sel) {
-                                               var lis = ph_find(sel).querySelectorAll('li');
+        return self.browser.call_js_func("""(function () {
+                                               var lis = ph_find('.pf-v6-c-menu').querySelectorAll('li');
                                                var result = [];
                                                for (i = 0; i < lis.length; ++i)
                                                  result.push(lis[i].textContent);
                                                return result;
-                                             })""", self.dialog_field(field))
+                                             })""")
 
     def dialog_is_present(self, field: str, label: str) -> bool:
         return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}") input')

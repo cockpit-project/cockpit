@@ -383,7 +383,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_visible("#update-log"))
         # expand it
-        b.click(".pf-v6-c-expandable-section__toggle")
+        b.click(".pf-v6-c-expandable-section__toggle button")
         # should eventually show chocolate when vanilla starts installing
         b.wait_in_text("#update-log", "chocolate")
 
@@ -757,7 +757,7 @@ ExecStart=/usr/local/bin/{packageName}
             b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
 
         # history on restart page should show the three security updates
-        b.click(".pf-v6-c-expandable-section__toggle")
+        b.click(".pf-v6-c-expandable-section__toggle button")
         self.assertHistory(".pf-v6-c-expandable-section ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
@@ -793,7 +793,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("#ignore")
 
         # history on restart page should show the three non-security updates
-        b.click(".pf-v6-c-expandable-section__toggle")
+        b.click(".pf-v6-c-expandable-section__toggle button")
         self.assertHistory(".pf-v6-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):

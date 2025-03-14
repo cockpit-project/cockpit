@@ -73,7 +73,7 @@ class TestSshDialog(testlib.MachineCase):
         # try again
         b.click("button")
         b.wait_in_text("#ssh-unknown-host-dialog", "You are connecting to 127.0.0.1 for the first time.")
-        b.click("#ssh-unknown-host-dialog .pf-v6-c-expandable-section__toggle-text")
+        b.click("#ssh-unknown-host-dialog .pf-v6-c-expandable-section__toggle button")
         b.wait_visible("#ssh-unknown-host-dialog .hostkey-verify-help-cmds input")
         b.assert_pixels("#ssh-unknown-host-dialog", "unknown-host", ignore=[".hostkey-fingerprint"])
         command = b.val("#ssh-unknown-host-dialog .hostkey-verify-help-cmds input")

@@ -27,7 +27,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import {
-	Modal
+    Modal
 } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { useInit } from "hooks";
 

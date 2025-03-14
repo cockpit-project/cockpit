@@ -184,7 +184,7 @@ export class TopNav extends React.Component {
                 onClick={() => {
                     this.setState((prevState: TopNavState) => { return { menuOpened: !prevState.menuOpened } });
                 }}>
-                    <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
+                <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
             </li>,
             <Divider key="separator2" className="mobile_v" />,
             <DropdownGroup label={_("Style")} key="dark-switcher">

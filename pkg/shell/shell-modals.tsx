@@ -27,7 +27,7 @@ import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/inde
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Menu, MenuContent, MenuSearch, MenuSearchInput, MenuItem, MenuList } from "@patternfly/react-core/dist/esm/components/Menu/index.js";
 import {
-	Modal
+    Modal
 } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";

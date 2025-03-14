@@ -102,7 +102,7 @@ class TestSOS(testlib.MachineCase):
             tar.getmember(os.path.join(topdir, "etc/os-release"))
 
         b.click("tr:contains(mylabel) button.pf-v6-c-menu-toggle")
-        b.click("tr:contains(mylabel) .pf-v6-c-menu__list-item:contains(Delete) button")
+        b.click(".pf-v6-c-menu__list-item:contains(Delete) button")
         b.click("#sos-remove-dialog button:contains(Delete)")
         # ensure it removes the report itself, and auxiliary files like .gpg
         m.execute(f"while ls {self.report_dir}/{base_report}*; do sleep 1; done", stdout=None, timeout=10)

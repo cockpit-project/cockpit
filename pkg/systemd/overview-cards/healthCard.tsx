@@ -28,6 +28,7 @@ import LastLogin from "./lastLogin.jsx";
 import { CryptoPolicyStatus } from "./cryptoPolicies.jsx";
 
 import "./healthCard.scss";
+import { SmartOverviewStatus } from './smart-status.jsx';
 
 const _ = cockpit.gettext;
 
@@ -40,6 +41,7 @@ export const HealthCard = () =>
                 <InsightsStatus />
                 <CryptoPolicyStatus />
                 <ShutDownStatus />
+                <SmartOverviewStatus />
                 <LastLogin />
             </ul>
         </CardBody>

@@ -279,7 +279,7 @@ class TestFirewall(netlib.NetworkCase):
         b.assert_pixels(".pf-v6-c-modal-box", "firewall-add-services-to-zone-modal", wait_delay=3)
 
         # don't select anything in the dialog
-        b.wait_visible(f"#add-services-dialog .{self.btn_primary}.pf-m-disabled")
+        b.wait_visible(f"#add-services-dialog .{self.btn_primary}:disabled")
         b.click("#add-services-dialog footer .btn-cancel")
         b.wait_not_present(".pf-v6-c-modal-box")
 
@@ -323,7 +323,7 @@ class TestFirewall(netlib.NetworkCase):
         # belonging either libvirt or public
         for service in services:
             b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] button.pf-v6-c-menu-toggle")
-            b.click(".zone-section[data-id='public'] .pf-v6-c-menu__list-item.pf-m-danger button")
+            b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
             # removing cockpit services requires confirmation
             if service == "cockpit":
                 b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
@@ -340,7 +340,7 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_visible(".zone-section[data-id='public'] td:contains('Additional ports') + td:contains('9998')")
         # remove service in cockpit
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
-        b.click(".zone-section[data-id='public'] .pf-v6-c-menu__list-item.pf-m-danger button")
+        b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
     def testAddCustomServices(self):

@@ -204,7 +204,7 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-v6-c-table__expandable-row", "Post Office Protocol")
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
-        b.click(".zone-section[data-id='public'] .pf-v6-c-menu__list-item.pf-m-danger button")
+        b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
@@ -516,7 +516,7 @@ class TestFirewall(netlib.NetworkCase):
 
         def removeZone(zone):
             b.click(f".zone-section[data-id='{zone}'] .zone-section-buttons button.pf-v6-c-menu-toggle")
-            b.click(f".zone-section[data-id='{zone}'] .pf-v6-c-menu__list-item.pf-m-danger button")
+            b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
             b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
             b.wait_not_present(f".zone-section[data-id='{zone}']")
 
@@ -535,13 +535,13 @@ class TestFirewall(netlib.NetworkCase):
         # Remove the service from public zone
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
-        b.click(".zone-section[data-id='public'] .pf-v6-c-menu__list-item.pf-m-danger button")
+        b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_visible(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # Remove the service from the work zone
         b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
-        b.click(".zone-section[data-id='work'] .pf-v6-c-menu__list-item.pf-m-danger button")
+        b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # remove predefined work zone

@@ -754,9 +754,9 @@ class Browser:
     def set_file_autocomplete_val(self, group_identifier: str, location: str) -> None:
         self.set_input_text(f"{group_identifier} .pf-v6-c-menu-toggle input", location)
         # select the file
-        self.wait_text(f"{group_identifier} ul li:nth-child(1) button", location)
-        self.click(f"{group_identifier} ul li:nth-child(1) button")
-        self.wait_not_present(f"{group_identifier} .pf-v6-c-menu")
+        self.wait_text(".pf-v6-c-menu ul li:nth-child(1) button", location)
+        self.click(".pf-v6-c-menu ul li:nth-child(1) button")
+        self.wait_not_present(".pf-v6-c-menu")
         self.wait_val(f"{group_identifier} .pf-v6-c-menu-toggle input", location)
 
     @contextlib.contextmanager

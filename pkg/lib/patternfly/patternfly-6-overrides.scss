@@ -93,7 +93,7 @@ to wrap around when there isn't enough space.
 // The default gap between the rows in horizontal lists is too large
 .pf-v6-c-description-list.pf-m-horizontal-on-sm,
 .pf-v6-c-description-list.pf-m-horizontal {
-  --pf-v6-c-description-list--RowGap: --pf-t--global--spacer--300; // 1rem
+  --pf-v6-c-description-list--RowGap: var(--pf-t--global--spacer--300); // 1rem
 }
 
 .pf-v6-c-description-list {
@@ -102,6 +102,11 @@ to wrap around when there isn't enough space.
   // FIXME @Venefilyn: This seems weird.. we should not have hr like this if it's only for spacing..
   > hr {
     border-block-start: none;
+  }
+
+  // FIXME @tmatus description list term is not bold when using the default value
+  .pf-v6-c-description-list__term {
+    font-weight: var(--pf-t--global--font--weight--400);
   }
 }
 

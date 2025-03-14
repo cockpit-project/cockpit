@@ -177,7 +177,7 @@ export class TopNav extends React.Component {
 
         // HACK: This should be a DropdownItem so the normal onSelect closing behaviour works, but we can't embed a button in a button
         const main_menu = [
-            <li // eslint-disable-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
+            <li // eslint-disable-line jsx-a11y/no-noninteractive-element-interactions,jsx-a11y/click-events-have-key-events
                 id="super-user-indicator-mobile"
                 className="pf-v6-c-menu__list-item pf-v6-c-menu__item mobile_v"
                 key="superusermobile"

@@ -27,7 +27,7 @@ import { ActionGroup, Form, FormGroup } from "@patternfly/react-core/dist/esm/co
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import {
-	Modal
+    Modal
 } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";

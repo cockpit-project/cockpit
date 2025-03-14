@@ -600,28 +600,28 @@ OnCalendar=daily
         b.focus("#demo-file-ac input[type=text]")
         b.input_text(stuff + "/")
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
-        b.wait_in_text("#demo-file-ac li:nth-of-type(1) button", stuff + "/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(2) button", "dir/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(3) button", "dir1/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(4) button", "file1.txt")
-        b.click("#demo-file-ac li:nth-of-type(2) button")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", stuff + "/")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(2) button", "dir/")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(3) button", "dir1/")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(4) button", "file1.txt")
+        b.click(".pf-v6-c-menu li:nth-of-type(2) button")
 
         # clear the file completion widget
         b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
         # test if input matches one entry, but is the prefix of other entry, widget should not descend into directory
         b.focus("#demo-file-ac input[type=text]")
         b.input_text(stuff + "/dir")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(1) button", stuff + "/dir")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(2) button", stuff + "/dir1")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", stuff + "/dir")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(2) button", stuff + "/dir1")
 
         # clear the file completion widget
         b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
         b.focus("#demo-file-ac input[type=text]")
         b.input_text(stuff + "/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(1) button", stuff + "/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(4) button", "file1.txt")
-        b.click("#demo-file-ac li:nth-of-type(4) button")
-        b.wait_not_present("#demo-file-ac li")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", stuff + "/")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(4) button", "file1.txt")
+        b.click(".pf-v6-c-menu li:nth-of-type(4) button")
+        b.wait_not_present(".pf-v6-c-menu")
 
         # now update file1, check robustness with dynamic events
         m.execute(f"touch {stuff}/file1.txt")
@@ -629,10 +629,10 @@ OnCalendar=daily
         time.sleep(1)
         b.key("Backspace", 5)
         # input is now $stuff/file
-        b.wait_in_text("#demo-file-ac li:nth-of-type(1) button", "file1.txt")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", "file1.txt")
         b.key("Backspace", 4)
         # input is now $stuff/, so all listings should be available
-        b.wait_in_text("#demo-file-ac li:nth-of-type(4) button", "file1.txt")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(4) button", "file1.txt")
 
         # add new file
         m.execute(f"touch {stuff}/other")
@@ -644,10 +644,10 @@ OnCalendar=daily
         b.key("Backspace", 6)
         time.sleep(1)
         b.input_text("stuff/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(5) button", "other")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(5) button", "other")
         # close the selector
         b.click("#demo-file-ac input")
-        b.wait_not_present("#demo-file-ac li")
+        b.wait_not_present(".pf-v6-c-menu")
 
         # Create test folder with known files
         m.execute("mkdir /home/admin/newdir")
@@ -659,15 +659,15 @@ OnCalendar=daily
         b.wait_val("#demo-file-ac-preselected input", "/home/admin/newdir/file1")
         # open the selector
         b.click("#demo-file-ac-preselected input")
-        b.wait_visible("#demo-file-ac-preselected .pf-v6-c-menu")
+        b.wait_visible(".pf-v6-c-menu")
         # close and open again to reload the dir (which just got created)
         b.click("#demo-file-ac-preselected .pf-v6-c-menu-toggle__button")
-        b.wait_not_present("#demo-file-ac-preselected .pf-v6-c-menu")
+        b.wait_not_present(".pf-v6-c-menu")
         b.click("#demo-file-ac-preselected input")
         # selection has all the files in the directory
         paths = ["/home/admin/newdir", "/home/admin/newdir/dir1", "/home/admin/newdir/dir2", "/home/admin/newdir/file1", "/home/admin/newdir/file2"]
         for i in range(5):
-            b.wait_in_text(f"#demo-file-ac-preselected li:nth-of-type({i + 1}) button", paths[i])
+            b.wait_in_text(f".pf-v6-c-menu li:nth-of-type({i + 1}) button", paths[i])
 
     @testlib.skipOstree("No PCP available")
     @testlib.skipImage("pcp not currently in testing", "debian-testing")

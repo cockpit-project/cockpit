@@ -152,7 +152,7 @@ class CommonTests:
         b.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
         b.wait_in_text("#statuses", "Running")
         b.click(".service-top-panel button.pf-v6-c-menu-toggle")
-        b.click(".service-top-panel button.pf-v6-c-menu__item:contains('Stop')")
+        b.click("button.pf-v6-c-menu__item:contains('Stop')")
         b.wait_in_text("#statuses", "Not running")
         # stopping the unit may interrupt the D-Bus proxy inspection of that unit
         self.allow_journal_messages(".*systemd1:.*systemd_2dtmpfiles_2dclean_2etimer: Timeout was reached")
@@ -165,7 +165,7 @@ class CommonTests:
         b.enter_page('/system/services')
         b.wait_in_text("#statuses", "Not running")
         b.click(".service-top-panel button.pf-v6-c-menu-toggle")
-        b.click(".service-top-panel button.pf-v6-c-menu__item:contains('Start')")
+        b.click("button.pf-v6-c-menu__item:contains('Start')")
         b.wait_in_text("#statuses", "Running")
         b.logout()
 
@@ -190,7 +190,7 @@ class CommonTests:
         # leave button should be hidden behind expander by default
         b.wait_not_visible("#realms-op-leave")
         b.wait_not_visible("#realms-leave-dialog .pf-v6-c-alert")
-        b.click("#realms-leave-dialog .pf-v6-c-expandable-section__toggle")
+        b.click("#realms-leave-dialog .pf-v6-c-expandable-section__toggle button")
         b.wait_visible("#realms-leave-dialog .pf-v6-c-alert")
         # caret expander is animated and not reproducible even after a sleep
         # FIXME: there is tons of subpixel noise in the fonts, impossible to match with our naïve algorithm
@@ -318,7 +318,7 @@ class CommonTests:
 
         b.wait_in_text("#statuses", "Running")
         b.click(".service-top-panel button.pf-v6-c-menu-toggle")
-        b.click(".service-top-panel button.pf-v6-c-menu__item:contains('Stop')")
+        b.click("button.pf-v6-c-menu__item:contains('Stop')")
         b.wait_in_text("#statuses", "Not running")
 
         b.go('/system')

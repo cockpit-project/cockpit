@@ -655,8 +655,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
         self.enterAnacondaMode(anaconda_config)
 
         dropdown_toggle = self.dropdown_toggle(self.card_header("Storage"))
-        raid_action = self.dropdown_action(self.card_header("Storage"), "Create MDRAID device")
-        stratis_action = self.dropdown_action(self.card_header("Storage"), "Create Stratis pool")
+        raid_action = self.dropdown_action("Create MDRAID device")
+        stratis_action = self.dropdown_action("Create Stratis pool")
         b.click(dropdown_toggle)
         b.wait_visible(raid_action)
         b.wait_not_present(stratis_action)

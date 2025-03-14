@@ -83,9 +83,8 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # The remaining lone disk is not removable
         b.click(self.dropdown_toggle(self.card_row("LVM2 volume group", name=dev_1)))
-        b.wait_visible(self.dropdown_action(self.card_row("LVM2 volume group", name=dev_1), "Remove") + "[disabled]")
-        b.wait_text(self.dropdown_description(self.card_row("LVM2 volume group", name=dev_1), "Remove"),
-                    "Last cannot be removed")
+        b.wait_visible(self.dropdown_action("Remove") + "[disabled]")
+        b.wait_text(self.dropdown_description("Remove"), "Last cannot be removed")
 
         # Wipe the disk and make sure lvmetad forgets about it.  This
         # might help with reusing it in the second half of this test.

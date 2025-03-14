@@ -442,9 +442,8 @@ systemctl restart stratisd
 
         sel = self.card_row("Stratis filesystems", name="fsys1")
         b.click(self.dropdown_toggle(sel))
-        b.wait_visible(self.dropdown_action(sel, "Snapshot") + "[disabled]")
-        b.wait_text(self.dropdown_description(sel, "Snapshot"),
-                    "Not enough free space")
+        b.wait_visible(self.dropdown_action("Snapshot") + "[disabled]")
+        b.wait_text(self.dropdown_description("Snapshot"), "Not enough free space")
         b.click(self.dropdown_toggle(sel))
 
         # Switch overprov on
@@ -862,8 +861,8 @@ class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase)
             b.wait_visible(self.card_row("Storage", name="pool0"))
         else:
             dropdown_toggle = self.dropdown_toggle(self.card_header("Storage"))
-            raid_action = self.dropdown_action(self.card_header("Storage"), "Create MDRAID device")
-            stratis_action = self.dropdown_action(self.card_header("Storage"), "Create Stratis pool")
+            raid_action = self.dropdown_action("Create MDRAID device")
+            stratis_action = self.dropdown_action("Create Stratis pool")
             b.click(dropdown_toggle)
             b.wait_visible(raid_action)
             b.wait_not_present(stratis_action)

@@ -628,15 +628,15 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
     def dropdown_toggle(self, parent: str) -> str:
         return parent + " .pf-v6-c-menu-toggle"
 
-    def dropdown_action(self, parent: str, title: str) -> str:
-        return parent + f" .pf-v6-c-menu button:contains('{title}')"
+    def dropdown_action(self, title: str) -> str:
+        return f".pf-v6-c-menu button:contains('{title}')"
 
-    def dropdown_description(self, parent: str, title: str) -> str:
-        return parent + f" .pf-v6-c-menu button:contains('{title}') .pf-v6-c-menu__item-description"
+    def dropdown_description(self, title: str) -> str:
+        return f".pf-v6-c-menu button:contains('{title}') .pf-v6-c-menu__item-description"
 
     def click_dropdown(self, parent: str, title: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
-        self.browser.click(self.dropdown_action("", title))
+        self.browser.click(self.dropdown_action(title))
 
     def click_card_dropdown(self, card_title: str, button_title: str) -> None:
         self.click_dropdown(self.card_header(card_title), button_title)
@@ -646,8 +646,8 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
 
     def check_dropdown_action_disabled(self, parent: str, title: str, expected_text: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
-        self.browser.wait_visible(self.dropdown_action(parent, title) + "[disabled]")
-        self.browser.wait_text(self.dropdown_description(parent, title), expected_text)
+        self.browser.wait_visible(self.dropdown_action(title) + "[disabled]")
+        self.browser.wait_text(self.dropdown_description(title), expected_text)
         self.browser.click(self.dropdown_toggle(parent))
 
     def wait_mounted(self, card_title: str) -> None:

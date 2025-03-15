@@ -2,7 +2,7 @@
 @use "../lib/journal.css";
 @use "_global-variables.scss";
 
-#service-details .pf-v5-c-card {
+#service-details .pf-v6-c-card {
   @extend .ct-card;
 }
 
@@ -22,13 +22,13 @@
 }
 
 /* Rely on flex for spacing only */
-.service-top-panel button.pf-v5-c-menu-toggle {
+.service-top-panel button.pf-v6-c-menu-toggle {
   padding-inline-start: 0;
 }
 
-.service-thumbtack-icon {
-  color: var(--pf-v5-global--icon--Color--light);
-}
+// .service-thumbtack-icon {
+//   color: var(--pf-v5-global--icon--Color--light);
+// }
 
 .action-button {
   margin-inline-start: 2rem;
@@ -43,10 +43,11 @@
   color: var(--pf-v5-global--icon--Color--light);
 }
 
+// REVIEW @Venefilyn: Green = good/success; Running or enabled is a status so
+// we should use something that is better suited for informational stuff -- like purple
 .status-running > .status-icon,
 .status-enabled > .status-icon {
-  /* mid-way between PF4 success-100 & 200; then rounded to AA contrast */
-  color: #6da000;
+  color: var(--pf-t--global--border--color--status--success--default);
 }
 
 .status-failed > .status-icon,
@@ -59,7 +60,7 @@
   padding-inline-start: 1em;
 }
 
-.pf-v5-theme-dark .side-note {
+.pf-v6-theme-dark .side-note {
   color: var(--pf-v5-global--Color--200);
 }
 
@@ -67,6 +68,6 @@
   font-size: var(--pf-v5-global--FontSize--xs);
 }
 
-.pf-v5-c-dropdown__menu-item.pf-m-danger {
+.pf-v6-c-dropdown__menu-item.pf-m-danger {
   color: var(--pf-v5-global--danger-color--200);
 }

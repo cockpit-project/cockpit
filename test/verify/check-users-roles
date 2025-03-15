@@ -52,7 +52,7 @@ class TestRoles(testlib.MachineCase):
         b.go("/users#/user")
         b.enter_page("/users")
 
-        admin_role_sel = f'.pf-v5-c-label:contains({m.get_admin_group()})'
+        admin_role_sel = f'.pf-v6-c-label:contains({m.get_admin_group()})'
 
         b.wait_text("#account-user-name", "user")
         b.wait_visible("#account-locked[disabled]")
@@ -64,7 +64,7 @@ class TestRoles(testlib.MachineCase):
 
         # Check permissions for admin account
         b.go("/users")
-        b.wait_visible("#accounts-list tbody tr:contains(admin) td[data-label='Group'] .pf-v5-c-label.pf-m-cyan:contains(admin)")
+        b.wait_visible("#accounts-list tbody tr:contains(admin) td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains(admin)")
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
         b.wait_visible("#account-locked")
@@ -110,10 +110,10 @@ class TestRoles(testlib.MachineCase):
         b.go("#/admin")
 
         b.click("#account-groups > button")
-        b.wait_visible(".pf-v5-c-menu li:contains(docker)")
+        b.wait_visible(".pf-v6-c-menu li:contains(docker)")
 
         m.execute("groupdel docker")
-        b.wait_not_present(".pf-v5-c-menu li:contains(docker)")
+        b.wait_not_present(".pf-v6-c-menu li:contains(docker)")
 
 
 if __name__ == '__main__':

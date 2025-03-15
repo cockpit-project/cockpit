@@ -30,7 +30,7 @@ import type {
     OnSelect,
 } from '@patternfly/react-table';
 import { EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateActions } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
-import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 
 import './cockpit-components-table.scss';
 
@@ -202,11 +202,9 @@ export const ListingTable = ({
                 <EmptyState>
                     <EmptyStateBody>
                         <div>{emptyCaption}</div>
-                        <TextContent>
-                            <Text component={TextVariants.small}>
-                                {emptyCaptionDetail}
-                            </Text>
-                        </TextContent>
+                        <Content component={ContentVariants.small}>
+                            {emptyCaptionDetail}
+                        </Content>
                     </EmptyStateBody>
                     {actions.length > 0 &&
                     <EmptyStateFooter>
@@ -286,7 +284,7 @@ export const ListingTable = ({
                                     setExpanded({ ...expanded, [rowKey]: !expanded[rowKey] });
                                 }
                             }} />
-                            : <Td className="pf-v5-c-table__toggle" />)
+                            : <Td className="pf-v6-c-table__toggle" />)
                         : null
                     }
                     {onSelect &&

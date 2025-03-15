@@ -42,7 +42,7 @@ class TestStorageIgnored(storagelib.StorageCase):
         self.addCleanup(m.execute, "rm /run/udev/rules.d/99-ignore.rules; udevadm control --reload; udevadm trigger")
         m.execute("udevadm control --reload; udevadm trigger")
 
-        b.wait_in_text(".pf-v5-c-breadcrumb", "Not found")
+        b.wait_in_text(".pf-v6-c-breadcrumb", "Not found")
         b.go("#/")
         b.wait_visible(self.card("Storage"))
         b.wait_not_present(self.card_row("Storage", name=disk))

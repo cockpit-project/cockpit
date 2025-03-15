@@ -120,7 +120,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
         b.click(self.card_button("ext4 filesystem", "Unmount"))
         self.dialog_wait_open()
-        b.wait_text("#dialog .pf-v5-c-modal-box__title-text", "Unmount filesystem /var")
+        b.wait_text("#dialog .pf-v6-c-modal-box__title-text", "Unmount filesystem /var")
         self.dialog_apply()
         self.dialog_wait_close()
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot/var"))
@@ -229,7 +229,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
         b.click(self.card_button("Stratis filesystem", "Unmount"))
         self.dialog_wait_open()
-        b.wait_text("#dialog .pf-v5-c-modal-box__title-text", "Unmount filesystem /var")
+        b.wait_text("#dialog .pf-v6-c-modal-box__title-text", "Unmount filesystem /var")
         self.dialog_apply()
         self.dialog_wait_close()
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot/var"))
@@ -655,8 +655,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
         self.enterAnacondaMode(anaconda_config)
 
         dropdown_toggle = self.dropdown_toggle(self.card_header("Storage"))
-        raid_action = self.dropdown_action(self.card_header("Storage"), "Create MDRAID device")
-        stratis_action = self.dropdown_action(self.card_header("Storage"), "Create Stratis pool")
+        raid_action = self.dropdown_action("Create MDRAID device")
+        stratis_action = self.dropdown_action("Create Stratis pool")
         b.click(dropdown_toggle)
         b.wait_visible(raid_action)
         b.wait_not_present(stratis_action)

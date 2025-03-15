@@ -29,20 +29,20 @@
   padding: 0;
 }
 
-.cockpit-log-panel .pf-v5-c-card__body .panel-heading,
+.cockpit-log-panel .pf-v6-c-card__body .panel-heading,
 .cockpit-log-panel .panel-body .panel-heading {
   border-block-start: 0;
   background-color: var(--ct-color-bg);
-  font-weight: var(--pf-v5-global--FontWeight--normal);
-  padding-block: var(--pf-v5-global--spacer--sm);
+  font-weight: var(--pf-t--global--font--weight--heading--bold);
+  padding-block: var(--pf-t--global--spacer--sm);
   inline-size: auto;
   color: var(--ct-color-list-text);
   display: flex;
 }
 
-.cockpit-log-panel .pf-v5-c-card__body .panel-heading {
+.cockpit-log-panel .pf-v6-c-card__body .panel-heading {
   /* Align sub-heading within a PF4 card to the heading of the card */
-  padding-inline-start: var(--pf-v5-global--spacer--lg);
+  padding-inline-start: var(--pf-t--global--spacer--lg);
 }
 
 .cockpit-log-panel .panel-body .panel-heading:not(:first-child)::after {
@@ -61,12 +61,12 @@
   --log-service-min: 0;
   --log-service: minmax(var(--log-service-min), max-content);
   background-color: var(--ct-color-list-bg);
-  font-size: var(--font-small);
+  font-size: var(--pf-t--global--font--size--sm);
   padding-block: 0.5rem;
   padding-inline: 1rem;
   display: grid;
   grid-template-columns: var(--log-icon) var(--log-time) var(--log-message) var(--log-service);
-  grid-gap: var(--pf-v5-global--spacer--sm);
+  grid-gap: var(--pf-t--global--spacer--sm);
   align-items: baseline;
 }
 
@@ -80,7 +80,7 @@
   text-decoration: underline;
 }
 
-.cockpit-log-panel .cockpit-logline + .panel-heading {
+.cockpit-log-panel .cockpit-logline+.panel-heading {
   border-block-start-width: 1px;
 }
 
@@ -101,7 +101,7 @@
 
 .empty-message {
   inline-size: 100%;
-  color: var(--pf-v5-global--Color--200);
+  color: var(--pf-v6-global--Color--200);
   display: block;
   padding-block: 0.5rem;
   padding-inline: 1rem;
@@ -111,13 +111,13 @@
 .cockpit-log-time,
 .cockpit-log-service,
 .cockpit-log-service-reduced {
-  color: var(--pf-v5-global--Color--200);
+  color: var(--pf-v6-global--Color--200);
 }
 
 .cockpit-log-time {
-  color: var(--pf-v5-global--Color--200);
+  color: var(--pf-v6-global--Color--200);
   font-family: monospace;
-  font-size: var(--pf-v5-global--FontSize--xs);
+  font-size: var(--pf-t--global--font--size--xs);
   justify-self: end;
   white-space: nowrap;
 }
@@ -134,11 +134,11 @@
 .cockpit-log-message,
 .cockpit-log-service,
 .cockpit-log-service-reduced {
-  font-size: var(--pf-v5-global--FontSize--sm);
+  font-size: var(--pf-t--global--font--size--sm);
 }
 
-.cockpit-log-service-container > .pf-v5-c-badge {
-  margin-inline-start: var(--pf-v5-global--spacer--xs);
+.cockpit-log-service-container>.pf-v6-c-badge {
+  margin-inline-start: var(--pf-t--global--spacer--xs);
 }
 
 .cockpit-log-service-container {

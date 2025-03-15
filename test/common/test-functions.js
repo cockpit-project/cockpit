@@ -113,8 +113,8 @@ window.ph_text = function(sel) {
 
     // HACK: https://github.com/patternfly/patternfly-react/issues/11678
     const el_copy = el.cloneNode(true);
-    // find and clear .pf-v6-screen-reader subelements
-    el_copy.querySelectorAll('.pf-v6-screen-reader').forEach(el => { el.textContent = '' });
+    // find and clear .pf-v6-screen-reader subelements for HelperText
+    el_copy.querySelectorAll('.pf-v6-c-helper-text__item-text > .pf-v6-screen-reader').forEach(el => { el.textContent = '' });
 
     // 0xa0 is a non-breakable space, which is a rendering detail of Chromium
     // and awkward to handle in tests; turn it into normal spaces

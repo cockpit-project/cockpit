@@ -33,6 +33,7 @@ class TestRHEL8(testlib.MachineCase):
         if (b.attr("#toggle-menu", "aria-expanded") != "true"):
             b.click("#toggle-menu")
         b.mouse('#logout', "click", scrollVisible=False)
+        b.wait_visible('#login')
 
     def test(self):
         dev_m = self.machine

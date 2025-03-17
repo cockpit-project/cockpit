@@ -1243,7 +1243,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
 
         # Wait for the web service to be accessible
         m.execute("until curl --fail --silent --show-error https://services.cockpit.lan:8443/candlepin/status; do sleep 1; done")
-        self.update_icon = "#page_status_notification_updates svg"
+        self.update_icon = "#page_status_notification_updates"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
 
@@ -1263,7 +1263,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         # show unregistered status on system front page
         with b.wait_timeout(30):
             b.wait_in_text(self.update_text, "Not registered")
-        self.assertIn("triangle", b.attr(self.update_icon, "class"))
+        self.assertIn("pf-m-warning", b.attr(self.update_icon + " .pf-v6-c-icon__content", "class"))
 
         # software updates page also shows unregistered
         b.go("/updates")
@@ -1288,7 +1288,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         # same on system page
         b.go("/system")
         b.enter_page("/system")
-        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
+        self.assertEqual(b.attr(self.update_icon + " svg", "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
     def testAvailableUpdates(self):
@@ -1303,7 +1303,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         # by default our rhel-* images are not registered; show warning on system page
         with b.wait_timeout(30):
             b.wait_in_text(self.update_text, "Not registered")
-        self.assertIn("triangle", b.attr(self.update_icon, "class"))
+        self.assertIn("pf-m-warning", b.attr(self.update_icon + " .pf-v6-c-icon__content", "class"))
         # should be a link leading to subscriptions page
         b.click(self.update_text_action)
         b.enter_page("/subscriptions")
@@ -1334,7 +1334,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         b.go("/system")
         b.enter_page("/system")
         b.wait_text(self.update_text, "Bug fix updates available")
-        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "bug")
+        self.assertEqual(b.attr(self.update_icon + " svg", "data-pficon"), "bug")
 
     def testNoSubOsRepo(self):
         m = self.machine

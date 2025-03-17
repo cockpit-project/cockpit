@@ -464,7 +464,7 @@ let narrow_query = null;
 
 export const useIsNarrow = (onChange) => {
     if (!narrow_query) {
-        const val = window.getComputedStyle(window.document.body).getPropertyValue("--pf-v5-global--breakpoint--md");
+        const val = window.getComputedStyle(window.document.body).getPropertyValue("--pf-t--global--breakpoint--md");
         narrow_query = window.matchMedia(`(max-width: ${val})`);
     }
     useEvent(narrow_query, "change", onChange);
@@ -842,11 +842,11 @@ export const StoragePage = ({ location, plot_state }) => {
     return (
         <Page id="storage">
             { (!client.in_anaconda_mode() && page.parent) &&
-            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <StorageBreadcrumb page={page} />
             </PageBreadcrumb>
             }
-            <PageSection isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
+            <PageSection hasBodyWrapper={false} isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
                 <Stack hasGutter>
                     <MultipathAlert client={client} />
                     <PageCardStackItems page={page} plot_state={plot_state} noarrow />

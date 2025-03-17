@@ -29,7 +29,7 @@ import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/comp
 import { InputGroup } from '@patternfly/react-core/dist/esm/components/InputGroup/index.js';
 import { Popover } from '@patternfly/react-core/dist/esm/components/Popover/index.js';
 import { Radio } from '@patternfly/react-core/dist/esm/components/Radio/index.js';
-import { Text } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
 import { HelpIcon, TrashIcon } from '@patternfly/react-icons';
 
@@ -238,7 +238,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
             <FormGroup label={_("Public key")}>
                 {(isPrivKeyGenerated || publicKey)
                     ? <ClipboardCopy isReadOnly className='pf-v5-u-font-family-monospace' id={idPrefix + '-public-key'}>{publicKey}</ClipboardCopy>
-                    : <Flex className='placeholder-text' alignItems={{ default: 'alignItemsCenter' }}><Text>{_("Public key will be generated when a valid private key is entered")}</Text></Flex>}
+                    : <Flex className='placeholder-text' alignItems={{ default: 'alignItemsCenter' }}><Content component="p">{_("Public key will be generated when a valid private key is entered")}</Content></Flex>}
             </FormGroup>
             <FormGroup label={_("Listen port")} fieldId={idPrefix + '-listen-port-input'}>
                 <Flex>
@@ -266,7 +266,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
                             text: (
                                 <Flex className='pf-m-space-items-none'>
                                     <FlexItem>
-                                        <Text>{_("Peers")}</Text>
+                                        <Content component="p">{_("Peers")}</Content>
                                     </FlexItem>
                                     <FlexItem>
                                         <Popover

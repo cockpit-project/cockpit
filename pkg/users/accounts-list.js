@@ -33,7 +33,7 @@ import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js
 import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
-import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import * as timeformat from "timeformat";
 import { EmptyStatePanel } from 'cockpit-components-empty-state.jsx';
@@ -114,19 +114,19 @@ const getGroupRow = (group, accounts) => {
         },
         {
             title: (
-                <TextContent>
-                    <Text component={TextVariants.p}>
+                <Content>
+                    <Content component={ContentVariants.p}>
                         {(group.userlistPrimary.concat(group.userlist))
                                 .map(account => {
                                     if (accounts.map(account => account.name).includes(account))
-                                        return <Text key={account} component={TextVariants.a} href={"#" + account}>{account}</Text>;
+                                        return <Content key={account} component={ContentVariants.a} href={"#" + account}>{account}</Content>;
                                     else
                                         return account;
                                 })
                                 .reduce((acc, curr) => [...acc, ", ", curr], [])
                                 .slice(1)}
-                    </Text>
-                </TextContent>
+                    </Content>
+                </Content>
             ),
             props: { width: 50, },
         },
@@ -292,7 +292,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
                 { superuser.allowed &&
                     <>
                         {isExpanded && <ToolbarItem variant="separator" />}
-                        <ToolbarItem align={{ md: 'alignRight' }}>
+                        <ToolbarItem align={{ md: "alignEnd" }}>
                             <Button variant="secondary" id="groups-create" onClick={() => group_create_dialog(groups, setIsExpanded, min_gid, max_gid)}>
                                 {_("Create new group")}
                             </Button>
@@ -314,7 +314,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
                     'aria-expanded': isExpanded
                 }}>
                 <CardTitle className="pf-v5-l-flex pf-m-align-items-center pf-m-space-items-md">
-                    <Text component={TextVariants.h2}>{_("Groups")}</Text>
+                    <Content component={ContentVariants.h2}>{_("Groups")}</Content>
                     {(!isExpanded && !groups.length) && <HelperText> <HelperTextItem variant="indeterminate">{_("Loading...")}</HelperTextItem></HelperText>}
                     {(!isExpanded && filtered_groups.length > 0) && <>
                         {filtered_groups.slice(0, 3)
@@ -431,7 +431,7 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
                 { superuser.allowed &&
                     <>
                         <ToolbarItem variant="separator" />
-                        <ToolbarItem align={{ md: 'alignRight' }}>
+                        <ToolbarItem align={{ md: "alignEnd" }}>
                             <Button id="accounts-create" onClick={() => account_create_dialog(accounts, min_uid, max_uid, shells)}>
                                 {_("Create new account")}
                             </Button>
@@ -472,7 +472,7 @@ export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpan
 
     return (
         <Page id="accounts">
-            <PageSection>
+            <PageSection hasBodyWrapper={false}>
                 <Stack hasGutter>
                     <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} min_gid={min_gid} max_gid={max_gid} />
                     <AccountsList accounts={accounts} current_user={current_user} groups={groups} shells={shells} min_uid={min_uid} max_uid={max_uid} />

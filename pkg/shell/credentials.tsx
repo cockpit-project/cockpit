@@ -26,7 +26,9 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { ActionGroup, Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+	Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
@@ -168,7 +170,7 @@ const KeyPassword = ({
     return (
         <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
             {inProgress === false && <HelperText>
-                <HelperTextItem variant="success" hasIcon>
+                <HelperTextItem variant="success">
                     {_("Password changed successfully")}
                 </HelperTextItem>
             </HelperText>}

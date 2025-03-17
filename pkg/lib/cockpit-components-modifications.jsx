@@ -31,6 +31,7 @@ import { CheckIcon, CopyIcon, ExternalLinkAltIcon, OutlinedQuestionCircleIcon } 
 
 import cockpit from "cockpit";
 import 'cockpit-components-modifications.css';
+import { Icon } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 
@@ -71,7 +72,7 @@ export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
 
     const footer = (
         <>
-            <Button variant='secondary' className="btn-clipboard" onClick={copyToClipboard} icon={copied ? <CheckIcon className="green-icon" /> : <CopyIcon />}>
+            <Button variant='secondary' className="btn-clipboard" onClick={copyToClipboard} icon={copied ? <Icon status="success" ><CheckIcon /></Icon> : <CopyIcon />}>
                 { _("Copy to clipboard") }
             </Button>
             <Button variant='secondary' className='btn-cancel' onClick={onClose}>

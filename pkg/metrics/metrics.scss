@@ -16,23 +16,9 @@
 }
 
 html {
-  --metrics-heading-time-color: var(--pf-v5-global--BackgroundColor--light-100);
-  --resource-icon-color-empty: var(--pf-v5-global--palette--black-400);
-  --resource-icon-color-middle: var(--pf-v5-global--palette--orange-200);
-  --resource-icon-color-full: var(--pf-v5-global--palette--orange-400);
-}
-
-.pf-v6-theme-dark {
-  --metrics-heading-time-color: var(--pf-v5-global--BackgroundColor--300);
-  --metrics-events-border-color: #000;
-  --resource-icon-color-empty: var(--pf-v5-global--palette--black-400);
-  --resource-icon-color-middle: var(--pf-v5-global--palette--orange-500);
-  --resource-icon-color-full: var(--pf-v5-global--palette--orange-200);
-
-  // Adjust alert color to separate itself from the history section background
-  .pf-v6-c-alert {
-    --pf-v5-c-alert--m-inline--m-info--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
-  }
+  --resource-icon-color-empty: var(--pf-t--global--border--color--nonstatus--gray--default);
+  --resource-icon-color-middle: var(--pf-t--global--background--color--highlight--default);
+  --resource-icon-color-full: var(--pf-t--global--icon--color--status--warning--default);
 }
 
 // Remove doubled-up padding on "main" sections, when two+ sections are used.
@@ -91,19 +77,19 @@ html {
     }
 
     .text-color-warning {
-      color: var(--pf-v5-global--warning-color--200);
+      color: var(--pf-t--global--text--color--status--warning--default);
     }
 
     .icon-color-warning {
-      color: var(--pf-v5-global--warning-color--100);
+      color: var(--pf-t--global--icon--color--status--warning--default);
     }
 
     .text-color-critical {
-      color: var(--pf-v5-global--danger-color--200);
+      color: var(--pf-t--global--text--color--status--danger--default);
     }
 
     .icon-color-critical {
-      color: var(--pf-v5-global--danger-color--100);
+      color: var(--pf-t--global--icon--color--status--danger--default);
     }
 
     .progress-stack {
@@ -177,11 +163,12 @@ html {
   }
 
   // Only underline the description
-  .pf-v6-c-button.pf-m-link.pf-m-inline:hover {
-    text-decoration: none;
+  .pf-v6-c-button.pf-m-link.pf-m-inline {
+    --pf-v6-c-button--TextDecorationLine: var(--pf-t--global--text-decoration--line--100);
+    --pf-v6-c-button--hover--TextDecorationLine: var(--pf-t--global--text-decoration--line--100);
 
-    .pf-v6-c-progress__description {
-      text-decoration: var(--pf-v6-c-button--m-link--m-inline--hover--TextDecoration);
+    &:hover .pf-v6-c-progress__description {
+      text-decoration: var(--pf-t--global--text-decoration--line--200);
     }
   }
 
@@ -198,7 +185,7 @@ html {
   .pf-m-link {
     &, &:hover {
       .pf-v6-c-progress__measure {
-        color: var(--pf-v5-global--Color--100);
+        color: var(--pf-t--global--text--color--regular);
       }
     }
   }
@@ -331,17 +318,17 @@ html {
 $graphs: cpu, memory, disks, network;
 
 .metrics {
-  --cpu-color: var(--pf-v5-chart-color-purple-200);
-  --cpu-color-extreme: var(--pf-v5-chart-color-purple-300);
+  --cpu-color: var(--pf-t--global--border--color--nonstatus--purple--default);
+  --cpu-color-extreme: var(--pf-t--global--border--color--nonstatus--purple--clicked);
 
-  --memory-color: var(--pf-v5-chart-color-green-200);
-  --memory-color-extreme: var(--pf-v5-chart-color-green-300);
+  --memory-color: var(--pf-t--global--border--color--nonstatus--green--default);
+  --memory-color-extreme: var(--pf-t--global--icon--color--status--success--default);
 
-  --disks-color: var(--pf-v5-chart-color-gold-300);
-  --disks-color-extreme: var(--pf-v5-chart-color-gold-400);
+  --disks-color: var(--pf-t--global--icon--color--status--warning--default);
+  --disks-color-extreme: var(--pf-t--global--icon--color--status--warning--clicked);
 
-  --network-color: var(--pf-v5-chart-color-black-300);
-  --network-color-extreme: var(--pf-v5-chart-color-black-400);
+  --network-color: var(--pf-t--global--icon--color--severity--undefined--default);
+  --network-color-extreme: var(--pf-t--global--icon--color--disabled);
 
   --column-size: 10vw;
   --half-column-size: 8vw;
@@ -349,29 +336,13 @@ $graphs: cpu, memory, disks, network;
 
   --graph-column-size: 60%;
 
-  .pf-v6-theme-dark & {
-    --cpu-color: var(--pf-v5-chart-color-purple-500);
-    --cpu-color-extreme: var(--pf-v5-chart-color-purple-300);
-
-    --memory-color: var(--pf-v5-chart-color-green-500);
-    --memory-color-extreme: var(--pf-v5-chart-color-green-400);
-
-    --disks-color: var(--pf-v5-chart-color-gold-500);
-    --disks-color-extreme: var(--pf-v5-chart-color-gold-300);
-
-    --network-color: var(--pf-v5-chart-color-black-400);
-    --network-color-extreme: var(--pf-v5-chart-color-black-300);
-  }
-
   &-hour-compressed {
     --data-min-height: 1px;
     display: flex;
-    background-color: var(--pf-v5-global--BackgroundColor--light-300);
   }
 
   &-heading,
   &-hour:not(.metrics-hour-compressed) .metrics-minute {
-    background-color: var(--pf-v5-global--BackgroundColor--light-300);
     display: flex;
   }
 
@@ -447,7 +418,7 @@ $graphs: cpu, memory, disks, network;
 
       + .spikes_count {
         padding-inline-start: calc(var(--pf-t--global--spacer--xl) + var(--pf-t--global--spacer--md));
-        color: var(--pf-v5-global--Color--200);
+        color: var(--pf-t--global--text--color--subtle);
       }
     }
 
@@ -498,7 +469,6 @@ $graphs: cpu, memory, disks, network;
   }
 
   &-time {
-    background: var(--metrics-heading-time-color);
     padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm);
 
     // Time has tabular numbers, but it's not what we want for a heading
@@ -512,7 +482,6 @@ $graphs: cpu, memory, disks, network;
   }
 
   &-history {
-    background-color: var(--pf-v5-global--BackgroundColor--light-300);
     padding: 0;
   }
 
@@ -794,7 +763,7 @@ $graphs: cpu, memory, disks, network;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   display: webkit-box; /* stylelint-disable-line */
-  color: var(--pf-v5-global--active-color--100);
+  color: var(--pf-t--global--text--color--link--default);
 }
 
 // Log warning icon is incorrectly aligned (especially when messages wrap);
@@ -853,13 +822,4 @@ $graphs: cpu, memory, disks, network;
       display: none;
     }
   }
-}
-
-/* Menu toggles are transparent in light mode (but not in dark
-   mode). This makes them white on a white page (fine), but grey in a
-   grey toolbar. The deprecated Select had a white background. Let's
-   make MenuToggles match.
-*/
-html:not(.pf-v6-theme-dark) .pf-v6-c-menu-toggle:not(.pf-m-primary) {
-    background-color: var(--pf-v5-global--BackgroundColor--100);
 }

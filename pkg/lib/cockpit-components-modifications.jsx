@@ -72,7 +72,7 @@ export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
 
     const footer = (
         <>
-            <Button variant='secondary' className="btn-clipboard" onClick={copyToClipboard} icon={copied ? <Icon status="success" ><CheckIcon /></Icon> : <CopyIcon />}>
+            <Button variant='secondary' className="btn-clipboard" onClick={copyToClipboard} icon={copied ? <Icon status="success"><CheckIcon /></Icon> : <CopyIcon />}>
                 { _("Copy to clipboard") }
             </Button>
             <Button variant='secondary' className='btn-cancel' onClick={onClose}>

@@ -40,6 +40,7 @@ import { proxy as serviceProxy } from "service";
 import { check_missing_packages } from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { read_os_release } from "os-release.js";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -244,7 +245,9 @@ export class KpatchSettings extends React.Component {
                 <span>
                     { _("Not available") }
                     &nbsp;
-                    <InfoCircleIcon className="ct-info-circle" />
+                    <Icon status="info">
+                        <InfoCircleIcon className="ct-info-circle" />
+                    </Icon>
                 </span>
             </Popover>;
         } else if (this.state.missing.length > 0) {

@@ -734,7 +734,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         # show fingerprint validation
         b.wait_not_visible("#hosts_setup_server_dialog .hostkey-verify-help-cmds")
-        b.click("#hosts_setup_server_dialog .pf-v6-c-expandable-section__toggle")
+        b.click("#hosts_setup_server_dialog .pf-v6-c-expandable-section__toggle button")
         b.wait_visible("#hosts_setup_server_dialog .hostkey-verify-help-cmds")
         # run validation command
         cmd = b.val("#hosts_setup_server_dialog .hostkey-verify-help-cmds input")

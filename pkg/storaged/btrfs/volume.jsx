@@ -27,12 +27,21 @@ import { VolumeIcon } from "../icons/gnome-icons.jsx";
 
 import {
     new_card, new_page, PAGE_CATEGORY_VIRTUAL,
-    get_crossrefs, ChildrenTable, PageTable, StorageCard, StorageDescription
+    get_crossrefs, ChildrenTable, PageTable, StorageCard, StorageDescription,
+    navigate_away_from_card
 } from "../pages.jsx";
 import { StorageUsageBar, StorageLink } from "../storage-controls.jsx";
-import { fmt_size_long, validate_fsys_label, should_ignore } from "../utils.js";
+import {
+    fmt_size_long, validate_fsys_label, should_ignore,
+    get_active_usage, teardown_active_usage,
+    reload_systemd,
+} from "../utils.js";
 import { btrfs_usage } from "./utils.jsx";
-import { dialog_open, TextInput } from "../dialog.jsx";
+import {
+    dialog_open, TextInput,
+    BlockingMessage, TeardownMessage,
+    init_teardown_usage
+} from "../dialog.jsx";
 import { make_btrfs_subvolume_pages } from "./subvolume.jsx";
 import { btrfs_device_actions } from "./device.jsx";
 
@@ -49,6 +58,46 @@ const _ = cockpit.gettext;
  *        -> btrfs device
  *            -> block device
  */
+
+async function btrfs_delete(uuid, card) {
+    const volume = client.uuids_btrfs_volume[uuid];
+    const name = volume.data.label || uuid;
+
+    const usage = get_active_usage(client, volume.path, _("delete"), undefined, false, undefined, true);
+
+    if (usage.Blocking) {
+        dialog_open({
+            Title: cockpit.format(_("$0 is in use"), name),
+            Body: BlockingMessage(usage)
+        });
+        return;
+    }
+
+    dialog_open({
+        Title: cockpit.format(_("Permanently delete $0?"), name),
+        Teardown: TeardownMessage(usage),
+        Action: {
+            Danger: _("Deleting erases all data on a btrfs volume."),
+            Title: _("Delete"),
+            disable_on_error: usage.Teardown,
+            action: async function () {
+                await teardown_active_usage(client, usage);
+                const blocks = client.uuids_btrfs_blocks[uuid];
+                for (let i = 0; i < blocks.length; i++) {
+                    // All block devices share the same Configuration
+                    // property, so we only tear down the first.
+                    await blocks[i].Format("empty", { 'tear-down': { t: 'b', v: i == 0 } });
+                }
+                await reload_systemd();
+                navigate_away_from_card(card);
+            }
+        },
+        Inits: [
+            init_teardown_usage(client, usage)
+        ]
+    });
+}
+
 export function make_btrfs_volume_page(parent, uuid) {
     const block_devices = client.uuids_btrfs_blocks[uuid];
     const block_btrfs = client.blocks_fsys_btrfs[block_devices[0].path];
@@ -74,6 +123,13 @@ export function make_btrfs_volume_page(parent, uuid) {
         page_size: use[1],
         component: BtrfsVolumeCard,
         props: { block_devices, uuid, use },
+        actions: [
+            {
+                title: _("Delete filesystem"),
+                action: () => btrfs_delete(uuid, btrfs_volume_card),
+                danger: true,
+            },
+        ],
     });
 
     const subvolumes_card = make_btrfs_subvolumes_card(btrfs_volume_card, null, null);

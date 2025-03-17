@@ -5,8 +5,12 @@
 @import "@patternfly/patternfly/utilities/Flex/flex.scss";
 
 .placeholder-text {
-  color: var(--pf-v5-global--Color--200);
+  color: var(--pf-t--global--text--color--placeholder);
   block-size: 2.25rem;
+}
+
+.wg-listen-port {
+  inline-size: 4.75rem;
 }
 
 .dynamic-form-group {
@@ -32,8 +36,8 @@
   // However we want to save space and not add indent to the left so we need to override it
   .pf-v6-c-form__field-group-body {
     // Stretch content fully
-    --pf-v5-c-form__field-group-body--GridColumn: 1 / -1;
+    --pf-v6-c-form__field-group-body--GridColumn: 1 / -1;
     // Reduce padding at the top
-    --pf-v5-c-form__field-group-body--PaddingTop: var(--pf-v5-global--spacer--xs);
+    --pf-v6-c-form__field-group-body--PaddingBlockStart: var(--pf-t--global--spacer--xs);
   }
 }

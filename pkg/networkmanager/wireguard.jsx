@@ -242,7 +242,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
             </FormGroup>
             <FormGroup label={_("Listen port")} fieldId={idPrefix + '-listen-port-input'}>
                 <Flex>
-                    <TextInput id={idPrefix + '-listen-port-input'} className='network-number-field' value={listenPort} onChange={(_, val) => { setListenPort(val) }} />
+                    <TextInput id={idPrefix + '-listen-port-input'} className='wg-listen-port' value={listenPort} onChange={(_, val) => { setListenPort(val) }} />
                     {!parseInt(listenPort) && <FormHelperText>
                         <HelperText>
                             <HelperTextItem>{_("Will be set to \"Automatic\"")}</HelperTextItem>

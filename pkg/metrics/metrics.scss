@@ -57,7 +57,7 @@ html {
 
   .pf-v6-c-card {
     &__title-text {
-      font-size: var(--pf-v5-global--FontSize--xl);
+      font-size: var(--pf-t--global--font--size--xl);
       font-weight: var(--pf-v5-global--FontWeight--normal);
     }
 
@@ -158,7 +158,7 @@ html {
     }
 
     .pf-v6-c-description-list__description {
-      font-size: var(--pf-v5-global--FontSize--sm);
+      font-size: var(--pf-t--global--font--size--sm);
     }
   }
 
@@ -238,9 +238,9 @@ html {
     }
 
     tbody tr:not(.pf-v6-c-table__expandable-row) {
-      --pf-v5-c-table-tr--responsive--PaddingTop: var(--pf-v5-global--spacer--sm);
+      --pf-v5-c-table-tr--responsive--PaddingTop: var(--pf-t--global--spacer--sm);
       --pf-v5-c-table-tr--responsive--PaddingRight: 0;
-      --pf-v5-c-table-tr--responsive--PaddingBottom: var(--pf-v5-global--spacer--sm);
+      --pf-v5-c-table-tr--responsive--PaddingBottom: var(--pf-t--global--spacer--sm);
       --pf-v5-c-table-tr--responsive--PaddingLeft: 0;
       --pf-v5-c-table-tr--responsive--border-width--base: 1px;
 
@@ -297,12 +297,12 @@ html {
 
   // Shave off a few pixels from cards
   .pf-v6-c-card__header, .pf-v6-c-card__title, .pf-v6-c-card__body, .pf-v6-c-card__footer {
-    --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-card__title--not--last-child--PaddingBottom: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-card--child--PaddingTop: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card--child--PaddingBottom: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-card--child--PaddingLeft: var(--pf-v5-global--spacer--md);
+    --pf-v5-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--sm);
+    --pf-v5-c-card__title--not--last-child--PaddingBottom: var(--pf-t--global--spacer--sm);
+    --pf-v5-c-card--child--PaddingTop: var(--pf-t--global--spacer--sm);
+    --pf-v5-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
+    --pf-v5-c-card--child--PaddingBottom: var(--pf-t--global--spacer--sm);
+    --pf-v5-c-card--child--PaddingLeft: var(--pf-t--global--spacer--md);
   }
 }
 
@@ -323,7 +323,7 @@ html {
     .pf-v6-c-table > tbody {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
-      grid-gap: 0 var(--pf-v5-global--spacer--lg);
+      grid-gap: 0 var(--pf-t--global--spacer--lg);
     }
   }
 }
@@ -395,8 +395,8 @@ $graphs: cpu, memory, disks, network;
     display: flex;
 
     small {
-      font-size: var(--pf-v5-global--FontSize--xs);
-      margin-block-end: var(--pf-v5-global--spacer--xs) !important;
+      font-size: var(--pf-t--global--font--size--xs);
+      margin-block-end: var(--pf-t--global--spacer--xs) !important;
     }
   }
 
@@ -433,20 +433,20 @@ $graphs: cpu, memory, disks, network;
 
   &-events {
     display: flex;
-    column-gap: var(--pf-v5-global--spacer--sm);
+    column-gap: var(--pf-t--global--spacer--sm);
     flex-basis: calc(100% - var(--graph-column-size));
     align-items: baseline;
-    font-size: var(--pf-v5-global--FontSize--sm);
+    font-size: var(--pf-t--global--font--size--sm);
 
     &-expander {
       min-inline-size: 3rem;
     }
 
     time:first-child {
-      margin-inline-start: calc(3rem + var(--pf-v5-global--spacer--sm));
+      margin-inline-start: calc(3rem + var(--pf-t--global--spacer--sm));
 
       + .spikes_count {
-        padding-inline-start: calc(var(--pf-v5-global--spacer--xl) + var(--pf-v5-global--spacer--md));
+        padding-inline-start: calc(var(--pf-t--global--spacer--xl) + var(--pf-t--global--spacer--md));
         color: var(--pf-v5-global--Color--200);
       }
     }
@@ -499,7 +499,7 @@ $graphs: cpu, memory, disks, network;
 
   &-time {
     background: var(--metrics-heading-time-color);
-    padding-block: var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--sm);
+    padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm);
 
     // Time has tabular numbers, but it's not what we want for a heading
     time {
@@ -523,7 +523,7 @@ $graphs: cpu, memory, disks, network;
     display: grid;
     contain: strict;
     margin-block: 0;
-    margin-inline: var(--pf-v5-global--spacer--sm);
+    margin-inline: var(--pf-t--global--spacer--sm);
     // Make SVG and generated before/after line position relative to metrics-data
     position: relative;
     grid-template-areas: "utilization";
@@ -632,7 +632,7 @@ $graphs: cpu, memory, disks, network;
 
   &-hour {
     padding-block: 0;
-    padding-inline: var(--pf-v5-global--spacer--sm);
+    padding-inline: var(--pf-t--global--spacer--sm);
   }
 
   &-hour:not(.metrics-hour-compressed) .metrics-minute,
@@ -654,7 +654,7 @@ $graphs: cpu, memory, disks, network;
 // Graph column labels are the widest part; scale down the labels for narrow widths
 @media (min-width: 800px) and (max-width: 1200px) {
   .metrics-label-graph {
-    font-size: var(--pf-v5-global--FontSize--sm);
+    font-size: var(--pf-t--global--font--size--sm);
   }
 }
 
@@ -681,9 +681,9 @@ $graphs: cpu, memory, disks, network;
   }
 
   .metrics-label-graph-mobile {
-    padding-inline-start: var(--pf-v5-global--spacer--sm);
-    padding-block-start: var(--pf-v5-global--spacer--sm);
-    font-size: var(--pf-v5-global--FontSize--sm);
+    padding-inline-start: var(--pf-t--global--spacer--sm);
+    padding-block-start: var(--pf-t--global--spacer--sm);
+    font-size: var(--pf-t--global--font--size--sm);
   }
 
   .square {
@@ -735,7 +735,7 @@ $graphs: cpu, memory, disks, network;
 }
 
 .cpu-all {
-  --pf-v5-l-grid--m-gutter--GridGap: var(--pf-v5-global--spacer--xs) var(--pf-v5-global--spacer--md);
+  --pf-v5-l-grid--m-gutter--GridGap: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--md);
   // Mixing font families need to be aligned properly (to the baseline)
   align-items: baseline;
   // In monospaced text, "100%" is 4 characters
@@ -800,9 +800,9 @@ $graphs: cpu, memory, disks, network;
 // Log warning icon is incorrectly aligned (especially when messages wrap);
 // this fixes it by realigning and offsetting
 .cockpit-log-warning {
-  transform: translateY(calc((var(--pf-v5-global--spacer--md) - 22px) / -2));
+  transform: translateY(calc((var(--pf-t--global--spacer--md) - 22px) / -2));
   margin: 0;
-  margin-inline-end: var(--pf-v5-global--spacer--xs);
+  margin-inline-end: var(--pf-t--global--spacer--xs);
   align-self: baseline;
 }
 

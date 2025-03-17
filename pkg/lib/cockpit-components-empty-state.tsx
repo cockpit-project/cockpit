@@ -25,7 +25,7 @@ import {
     EmptyStateActions, EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateVariant
 } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import type { EmptyStateProps } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
-import { Spinner } from "@patternfly/react-core";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import "./cockpit-components-empty-state.css";
 
 export const EmptyStatePanel = ({

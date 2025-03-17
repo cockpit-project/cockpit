@@ -28,6 +28,7 @@ class TestRHEL8(testlib.MachineCase):
     }
 
     def logout_pf5(self, b):
+        b.switch_to_top()
         b.wait_visible("#toggle-menu")
         if (b.attr("#toggle-menu", "aria-expanded") != "true"):
             b.click("#toggle-menu")

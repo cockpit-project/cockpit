@@ -848,7 +848,7 @@ export function get_fstab_config_with_client(client, block, also_child_config, s
         return [];
 }
 
-export function get_active_usage(client, path, top_action, child_action, is_temporary, subvol) {
+export function get_active_usage(client, path, top_action, child_action, is_temporary, subvol, allow_multi_device_delete) {
     function get_usage(usage, path, level) {
         const block = client.blocks[path];
         const fsys = client.blocks_fsys[path];
@@ -909,7 +909,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
 
         // We allow a btrfs volume with one device to be formatted as this
         // looks the most like a normal filesystem use case.
-        if (btrfs_volume && btrfs_volume.data.num_devices !== 1 && !subvol) {
+        if (btrfs_volume && btrfs_volume.data.num_devices !== 1 && !subvol && !allow_multi_device_delete) {
             usage.push({
                 level,
                 usage: 'btrfs-device',

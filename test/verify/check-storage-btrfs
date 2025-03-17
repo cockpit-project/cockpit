@@ -499,6 +499,22 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.confirm()
         b.wait_visible(self.card_row("Storage", location=f"{subvol_mount_point} (not mounted)"))
 
+        # Make sure we still have btrfs on both disks and have the entries in fstab
+        self.assertIn('TYPE="btrfs"', m.execute(f"blkid -p {disk1}"))
+        self.assertIn('TYPE="btrfs"', m.execute(f"blkid -p {disk2}"))
+        m.execute(f"findmnt --fstab -n {mount_point}")
+        m.execute(f"findmnt --fstab -n {subvol_mount_point}")
+
+        # Delete the whole thing
+        self.click_dropdown(self.card_row("Storage", name=label), "Delete filesystem")
+        self.confirm()
+
+        # Disks should be empty, fstab entries should be gone
+        m.execute(f"! findmnt --fstab -n {mount_point}")
+        m.execute(f"! findmnt --fstab -n {subvol_mount_point}")
+        m.execute(f"! blkid -p {disk1}")
+        m.execute(f"! blkid -p {disk2}")
+
     def testDefaultSubvolume(self):
         m = self.machine
         b = self.browser

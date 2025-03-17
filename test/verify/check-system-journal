@@ -487,7 +487,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         ])
 
         b.click("#journal-identifier-menu .pf-v6-c-menu-toggle__button")
-        b.wait_visible("#journal-identifier-menu ul button:contains('check-journal')")
+        b.wait_visible(".pf-v6-c-menu ul button:contains('check-journal')")
 
         # New messages are not streamed when 'until' is in the past
         m.execute("logger -p user.err --tag check-journal RIGHT NOW")

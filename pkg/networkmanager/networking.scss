@@ -160,7 +160,12 @@ th {
     grid-column: -1;
     // Move 'Remove' button to the bottom of the line so as to align with the other form fields
     display: flex;
+    flex-direction: row;
     align-items: flex-end;
+
+    button {
+      margin: var(--pf-t--global--spacer--xs);
+    }
   }
 }
 

@@ -329,6 +329,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
                                 <Button
                                     variant='plain'
                                     id={idPrefix + '-btn-close-peer-' + i}
+                                    size='sm'
                                     onClick={() => {
                                         setPeers(peers => peers.filter((_, index) => i !== index));
                                     }}

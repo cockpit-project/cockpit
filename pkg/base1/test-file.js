@@ -306,7 +306,7 @@ QUnit.test("binary watching", assert => {
 
     const file = cockpit.file(dir + "/foobar", { binary: true });
     let n = 0;
-    const watch = file.watch((content, tag) => {
+    const watch = file.watch(content => {
         n += 1;
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
@@ -328,7 +328,7 @@ QUnit.test("syntax watching", assert => {
 
     const file = cockpit.file(dir + "/foobar.json", { syntax: JSON });
     let n = 0;
-    const watch = file.watch((content, tag, err) => {
+    const watch = file.watch((content, _tag, err) => {
         n += 1;
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
@@ -393,7 +393,7 @@ QUnit.test("watching directory", assert => {
 
     let n = 0;
     const watch = cockpit.channel({ payload: "fswatch1", path: dir });
-    watch.addEventListener("message", (event, payload) => {
+    watch.addEventListener("message", (_event, payload) => {
         const msg = JSON.parse(payload);
         n += 1;
 
@@ -488,7 +488,7 @@ QUnit.test("closing", assert => {
     }
 
     file.read()
-            .then((content, tag) => {
+            .then(() => {
                 assert.ok(false, "read didn't complete");
             })
             .catch(error => {
@@ -496,7 +496,7 @@ QUnit.test("closing", assert => {
                 start_after_two();
             });
 
-    function changed(content, tag, err) {
+    function changed(_content, _tag, err) {
         if (err) {
             assert.equal(err.problem, "cancelled", "watch got cancelled");
             start_after_two();

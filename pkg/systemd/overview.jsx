@@ -153,9 +153,7 @@ class OverviewPage extends React.Component {
 
         return (
             <Page className='no-masthead-sidebar'>
-                <PageSection hasBodyWrapper={false} padding={{ default: 'padding' }}>
-                    <SuperuserAlert />
-                </PageSection>
+                <SuperuserAlert />
                 <PageSection hasBodyWrapper={false} className='ct-overview-header' padding={{ default: 'padding' }}>
                     <div className='ct-overview-header-hostname'>
                         <h1>

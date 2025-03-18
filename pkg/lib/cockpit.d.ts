@@ -30,6 +30,7 @@ declare module 'cockpit' {
 
     function assert(predicate: unknown, message?: string): asserts predicate;
 
+    export const capabilities: JsonObject | undefined;
     export const manifests: { [package in string]?: JsonObject };
 
     export let language: string;

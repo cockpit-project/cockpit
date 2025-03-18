@@ -767,6 +767,17 @@ $desktop: $phone + 1px;
   }
 }
 
+.pf-v6-c-nav__section-title {
+  /* FIXME: Font seems different, so weight needs to be adjusted meanwhile */
+  --pf-v6-c-nav__section-title--FontWeight: 600;
+}
+
+.view-hosts .sidebar-hosts,
+.nav-system-menu {
+  /* FIXME: We need to change the widgets to PF6 ones; instead of CSS to fake it */
+  padding-inline-start: var(--pf-t--global--spacer--inset--page-chrome);
+}
+
 /* Navigation animation */
 
 @keyframes navHostsSlide {

@@ -1,7 +1,7 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
-let dir;
+let dir = "/uninitialized";
 
 QUnit.test("simple read", async assert => {
     const file = cockpit.file(dir + "/foo");
@@ -37,7 +37,7 @@ QUnit.test("read non-regular", async assert => {
         await cockpit.file(dir, { binary: true }).read();
         assert.ok(false, "should have failed");
     } catch (error) {
-        assert.equal(error.problem, "internal-error", "got error");
+        assert.equal((error as cockpit.BasicError).problem, "internal-error", "got error");
     }
 });
 
@@ -51,7 +51,7 @@ QUnit.test("read too large", async assert => {
         await cockpit.file(dir + "/large.bin", { binary: true, max_read_size: 8 * 1024 }).read();
         assert.ok(false, "should have failed");
     } catch (error) {
-        assert.equal(error.problem, "too-large", "got error");
+        assert.equal((error as cockpit.BasicError).problem, "too-large", "got error");
     }
 });
 
@@ -80,7 +80,8 @@ QUnit.test("stringify replace", async assert => {
 });
 
 QUnit.test("stringify replace error", async assert => {
-    const cycle = { };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cycle: any = { };
     cycle.me = cycle;
     try {
         await cockpit.file(dir + "/bar", { syntax: JSON }).replace(cycle);
@@ -147,9 +148,9 @@ QUnit.test("remove", async assert => {
     assert.equal(res, "gone\n", "gone");
 });
 
-QUnit.test("abort replace", assert => {
+QUnit.test("abort replace", async assert => {
     const done = assert.async();
-    assert.expect(2);
+    assert.expect(0);
 
     const file = cockpit.file(dir + "/bar");
 
@@ -160,17 +161,18 @@ QUnit.test("abort replace", assert => {
             done();
     }
 
-    file.replace("1234\n")
-            .always(function () {
-                assert.equal(this.state(), "rejected", "failed as expected");
-                start_after_two();
-            });
+    const first = file.replace("1234\n");
+    const second = file.replace("abcd\n");
 
-    file.replace("abcd\n")
-            .always(function () {
-                assert.equal(this.state(), "resolved", "didn't fail");
-                start_after_two();
-            });
+    try {
+        await first;
+        throw new Error("unexpectedly succeeded first promise");
+    } catch (_error) {
+        start_after_two();
+    }
+
+    await second;
+    start_after_two();
 });
 
 QUnit.test("replace with tag", async assert => {
@@ -178,6 +180,7 @@ QUnit.test("replace with tag", async assert => {
     const file = cockpit.file(dir + "/barfoo");
 
     file.read()
+            // @ts-expect-error cannot represent read promise signature with tag
             .then(async (content, tag_1) => {
                 assert.equal(content, null, "file does not exist");
                 assert.equal(tag_1, "-", "first tag is -");
@@ -189,7 +192,7 @@ QUnit.test("replace with tag", async assert => {
                     await file.replace("opqr\n", tag_2);
                     assert.ok(false, "should have failed");
                 } catch (error) {
-                    assert.equal(error.problem, "change-conflict", "wrong tag is rejected");
+                    assert.equal((error as cockpit.BasicError).problem, "change-conflict", "wrong tag is rejected");
                     done();
                 }
             });
@@ -254,10 +257,13 @@ QUnit.test("modify with conflict", async assert => {
             })
             .finally(() => assert.equal(n, 1, "callback called once"))
 
+            // @ts-expect-error cannot represent modify promise signature with tag
             .then(async (content, tag) => {
                 let n = 0;
                 await cockpit.spawn(["bash", "-c", "sleep 1; echo XYZ > " + dir + "/baz"]);
                 await file.modify(old => {
+                    if (!old)
+                        throw new Error("old is null");
                     n += 1;
                     if (n == 1)
                         assert.equal(old, "ABCD\n", "correct old (out-of-date) content");
@@ -288,7 +294,10 @@ QUnit.test("watching", assert => {
         } else if (n == 2) {
             assert.equal(content, "1234\n", "correct new content");
             assert.notEqual(tag, "-");
-            assert.ok(tag.length > 5, "tag has a reasonable size");
+            if (tag)
+                assert.ok(tag.length > 5, "tag has a reasonable size");
+            else
+                throw new Error("tag is null");
             cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
         } else if (n == 3) {
             assert.equal(content, null, "finally non-existent");
@@ -359,7 +368,10 @@ QUnit.test("watching without reading", assert => {
         } else if (n == 2) {
             assert.equal(content, null, "no content as reading is disabled");
             assert.notEqual(tag, "-");
-            assert.ok(tag.length > 5, "tag has a reasonable size");
+            if (tag)
+                assert.ok(tag.length > 5, "tag has a reasonable size");
+            else
+                throw new Error("tag is null");
             cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
         } else if (n == 3) {
             assert.equal(content, null, "finally non-existent");
@@ -380,7 +392,10 @@ QUnit.test("watching without reading pre-created", async assert => {
     const watch = file.watch((content, tag) => {
         assert.equal(content, null, "non-existant because read is false");
         assert.notEqual(tag, null, "non empty tag");
-        assert.equal(tag.startsWith("1:"), true, "tag always starts with 1:");
+        if (tag)
+            assert.equal(tag.startsWith("1:"), true, "tag always starts with 1:");
+        else
+            throw new Error("tag is null");
         watch.remove();
         done();
     }, { read: false });
@@ -455,14 +470,17 @@ QUnit.test("watching error", async assert => {
     const file = cockpit.file(`${dir}/dir/file`);
 
     try {
-        const [content, tag, error] = await new Promise(resolve => {
+        await new Promise<void>(resolve => {
             file.watch((content, tag, error) => {
-                resolve([content, tag, error]);
+                assert.equal(content, null);
+                assert.equal(tag, null);
+                if (error)
+                    assert.equal(error.problem, 'access-denied');
+                else
+                    throw new Error("error is null");
+                resolve();
             });
         });
-        assert.equal(content, null);
-        assert.equal(tag, null);
-        assert.equal(error.problem, 'access-denied');
     } finally {
         file.close();
         await cockpit.spawn(["chmod", "-R", "u+rwX", dir]);
@@ -495,7 +513,7 @@ QUnit.test("closing", assert => {
                 start_after_two();
             });
 
-    function changed(_content, _tag, err) {
+    function changed(_content: string | null, _tag: string | null, err: cockpit.BasicError | null) {
         if (err) {
             assert.equal(err.problem, "cancelled", "watch got cancelled");
             start_after_two();

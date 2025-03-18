@@ -199,7 +199,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                             </StackItem>
                         }
                         <StackItem>
-                            <Card>
+                            <Card isPlain>
                                 <DataList aria-label={_("Applications list")}>
                                     { tbody }
                                 </DataList>

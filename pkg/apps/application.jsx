@@ -111,7 +111,7 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
         }
 
         return (
-            <Card>
+            <Card isPlain>
                 <CardHeader actions={{
                     actions: <>{progress_or_launch}<ActionButton comp={comp} progress={progress} action={action} /></>,
                 }}>

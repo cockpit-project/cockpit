@@ -612,7 +612,7 @@ ${enableCrashKernel}
                             {alertDetail}
                         </Alert>
                     }
-                    <Card>
+                    <Card isPlain>
                         <CardTitle>
                             <Title headingLevel="h4" size="xl">
                                 {_("Kdump settings")}

@@ -231,7 +231,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
             </PageBreadcrumb>
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
-                    <Card className="account-details" id="account-details">
+                    <Card isPlain className="account-details" id="account-details">
                         <CardHeader actions={{ actions }}>
                             <CardTitle id="account-title" component="h2">{title_name}</CardTitle>
                         </CardHeader>

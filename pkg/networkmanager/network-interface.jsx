@@ -715,7 +715,7 @@ export const NetworkInterfacePage = ({
             </PageSection>
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
-                    <Card className="network-interface-details">
+                    <Card isPlain className="network-interface-details">
                         <CardHeader actions={{
                             actions: (
                                 <>

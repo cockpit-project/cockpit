@@ -153,7 +153,7 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
                 <ModificationsExportDialog shell={shell} ansible={ansible}
                 onClose={() => setShowDialog(false)} />
             }
-            <Card className="modifications-table">
+            <Card isPlain className="modifications-table">
                 <CardHeader>
                     <CardTitle component="h2">{title}</CardTitle>
                     { !emptyRow &&

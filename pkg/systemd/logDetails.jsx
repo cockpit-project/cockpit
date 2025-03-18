@@ -54,7 +54,7 @@ const LogDetails = ({ entry }) => {
 
     return (
         <GalleryItem>
-            <Card>
+            <Card isPlain>
                 <CardHeader actions={{ actions }}>
                     <h2 id="entry-heading">{id}</h2>
                 </CardHeader>

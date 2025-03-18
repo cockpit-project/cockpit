@@ -187,7 +187,7 @@ function ZoneSection(props) {
 
     const actions = !firewall.readonly && <div className="zone-section-buttons">{addServiceAction}{deleteButton}</div>;
 
-    return <Card className="zone-section" data-id={props.zone.id}>
+    return <Card isPlain className="zone-section" data-id={props.zone.id}>
         <CardHeader actions={{ actions }} className="zone-section-heading">
             <Flex alignItems={{ default: 'alignSelfBaseline' }} spaceItems={{ default: 'spaceItemsXl' }}>
                 <CardTitle component="h2">

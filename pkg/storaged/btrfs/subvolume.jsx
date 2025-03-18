@@ -490,7 +490,7 @@ const BtrfsSubvolumeCard = ({ card, volume, subvol, snapshot_origin, mismount_wa
                                page={card.page} />
             </CardBody>
             {crossrefs &&
-            <Card data-test-card-title="Snapshots">
+            <Card isPlain data-test-card-title="Snapshots">
                 <CardHeader>
                     <CardTitle component="h2">{_("Snapshots")}</CardTitle>
                 </CardHeader>

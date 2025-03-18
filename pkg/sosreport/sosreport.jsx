@@ -491,7 +491,7 @@ const SOSBody = () => {
 
     return (
         <PageSection hasBodyWrapper={false}>
-            <Card className="ct-card">
+            <Card isPlain className="ct-card">
                 <CardHeader actions={{
                     actions: <Button id="create-button" variant="primary" onClick={run_report}>
                         {_("Run report")}

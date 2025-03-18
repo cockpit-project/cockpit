@@ -587,7 +587,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
 
         if (narrow) {
             rows.push(
-                <Card key={key}
+                <Card isPlain key={key}
                       className={"ct-small-table-card" +
                                  (page.location ? " ct-clickable-card" : null) +
                                  (is_new ? " ct-new-item" : "")}
@@ -797,7 +797,7 @@ const StorageBreadcrumb = ({ page }) => {
 
 export const StorageCard = ({ card, alert, alerts, actions, children }) => {
     return (
-        <Card data-test-card-title={card.title}>
+        <Card isPlain data-test-card-title={card.title}>
             { (client.in_anaconda_mode() && card.page.parent && !card.next) &&
             <CardBody>
                 <StorageBreadcrumb page={card.page} />

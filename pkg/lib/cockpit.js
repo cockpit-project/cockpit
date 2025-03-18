@@ -1081,6 +1081,7 @@ function factory() {
         cockpit.transport.options = options;
         cockpit.transport.csrf_token = options["csrf-token"];
         cockpit.transport.host = transport_globals.default_host;
+        cockpit.capabilities = options['bridge-init']?.capabilities;
     };
 
     let the_user = null;

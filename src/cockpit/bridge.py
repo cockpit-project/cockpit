@@ -62,6 +62,7 @@ class InternalBus:
 
 
 class Bridge(Router, PackagesListener):
+    channels: ChannelRoutingRule
     internal_bus: InternalBus
     packages: Optional[Packages]
     bridge_configs: Sequence[BridgeConfig]
@@ -97,10 +98,12 @@ class Bridge(Router, PackagesListener):
             self.internal_bus.export('/packages', self.packages)
             self.packages_loaded()
 
+        self.channels = ChannelRoutingRule(self, CHANNEL_TYPES)
+
         super().__init__([
             HostRoutingRule(self),
             self.superuser_rule,
-            ChannelRoutingRule(self, CHANNEL_TYPES),
+            self.channels,
             self.peers_rule,
         ])
 
@@ -126,7 +129,10 @@ class Bridge(Router, PackagesListener):
 
     def do_send_init(self) -> None:
         init_args = {
-            'capabilities': {'explicit-superuser': True},
+            'capabilities': {
+                'explicit-superuser': True,
+                'channels': self.channels.capabilities(),
+            },
             'command': 'init',
             'os-release': self.get_os_release(),
             'version': 1,

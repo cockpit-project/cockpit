@@ -52,6 +52,16 @@ class ChannelRoutingRule(RoutingRule):
         for entry in self.table.values():
             entry.sort(key=lambda cls: len(cls.restrictions), reverse=True)
 
+    def capabilities(self) -> JsonObject:
+        result: 'dict[str, list[str]]' = {}
+
+        for payload, impls in self.table.items():
+            caps: 'list[str]' = []
+            for impl in impls:
+                caps.extend(impl.capabilities)
+            result[payload] = caps
+        return result
+
     def check_restrictions(self, restrictions: 'Collection[tuple[str, object]]', options: JsonObject) -> bool:
         for key, expected_value in restrictions:
             our_value = options.get(key)
@@ -108,6 +118,7 @@ class Channel(Endpoint):
     # Must be filled in by the channel implementation
     payload: 'ClassVar[str]'
     restrictions: 'ClassVar[Sequence[tuple[str, object]]]' = ()
+    capabilities: 'ClassVar[Sequence[str]]' = ()
 
     # These get filled in from .do_open()
     channel = ''

@@ -26,9 +26,7 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import { StorageCard, StorageDescription, new_card, register_crossref } from "../pages.jsx";
-import { std_format_action } from "../block/actions.jsx";
-import { block_short_name, fmt_size, mdraid_name } from "../utils.js";
-import { std_lock_action } from "../crypto/actions.jsx";
+import { block_name, fmt_size, mdraid_name } from "../utils.js";
 
 const _ = cockpit.gettext;
 
@@ -39,13 +37,9 @@ export function make_mdraid_disk_card(next, backing_block, content_block) {
     const disk_card = new_card({
         title: _("MDRAID disk"),
         next,
-        location: mdraid_block ? block_short_name(mdraid_block) : (mdraid ? mdraid_name(mdraid) : null),
+        location: mdraid_block ? block_name(mdraid_block) : (mdraid ? mdraid_name(mdraid) : null),
         component: MDRaidDiskCard,
-        props: { backing_block, content_block, mdraid },
-        actions: [
-            std_lock_action(backing_block, content_block),
-            std_format_action(backing_block, content_block),
-        ]
+        props: { backing_block, content_block, mdraid }
     });
 
     if (mdraid) {

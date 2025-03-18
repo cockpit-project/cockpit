@@ -45,7 +45,7 @@ jobs:
               sleep 60;
               if dnf copr enable -y packit/$COPR_NAME &&
                  out=$(dnf repoquery --refresh --repo='copr:*cockpit*' --queryformat '%{release}\n' --recent cockpit-bridge) &&
-                 stamp=$(echo $out | tail -n 1 | awk '{ split($0, v, "."); print substr(v[2], 0, 14)}') &&
+                 stamp=$(echo "$out" | tail -n 1 | awk '{ split($0, v, "."); print substr(v[2], 0, 14)}') &&
                  [ "$stamp" -gt "$PUSH_TIME" ]; then
                   exit 0
               fi

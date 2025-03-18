@@ -133,6 +133,21 @@ export function set_crypto_auto_option(block, flag) {
     return set_crypto_options(block, null, flag, null, null);
 }
 
+export async function set_fstab_auto_option(block, flag) {
+    for (const item of block.Configuration) {
+        if (item[0] == "fstab") {
+            const conf = item[1];
+            const new_conf = Object.assign({ }, conf);
+            const opts = conf.opts ? parse_options(decode_filename(conf.opts.v)) : [];
+            extract_option(opts, "noauto");
+            if (!flag)
+                opts.push("noauto");
+            new_conf.opts = { t: 'ay', v: encode_filename(unparse_options(opts)) };
+            await block.UpdateConfigurationItem(item, ["fstab", new_conf], { });
+        }
+    }
+}
+
 export let hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
 
 // for unit tests
@@ -241,12 +256,12 @@ export function validate_fsys_label(label, type) {
     }
 }
 
-export function block_name(block) {
+export function block_long_name(block) {
     return decode_filename(block.PreferredDevice);
 }
 
-export function block_short_name(block) {
-    return block_name(block).replace(/^\/dev\//, "");
+export function block_name(block) {
+    return block_long_name(block).replace(/^\/dev\//, "");
 }
 
 export function mdraid_name(mdraid) {
@@ -346,7 +361,7 @@ export function get_block_link_parts(client, path) {
             location = ["vdo", vdo.name];
             link = cockpit.format(_("VDO device $0"), vdo.name);
         } else {
-            location = [block_short_name(block)];
+            location = [block_name(block)];
             if (client.drives[block.Drive])
                 link = drive_name(client.drives[block.Drive]);
             else

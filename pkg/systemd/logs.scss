@@ -6,7 +6,7 @@
 
 // https://github.com/patternfly/patternfly-react/issues/5993
 .pf-v6-c-popover.pf-m-width-auto {
-  --pf-v5-c-popover--MaxWidth: min(300px, 90%);
+  --pf-v6-c-popover--MaxWidth: min(300px, 90%);
 }
 
 .journal-filters {
@@ -57,12 +57,12 @@
   }
 
   .pf-v6-l-split {
-    padding-block-end: var(--pf-v5-global--gutter);
+    padding-block-end: var(--pf-t--global--spacer--md);
     align-items: center;
   }
 
   .pf-v6-c-description-list {
-    --pf-v5-c-description-list--m-horizontal__term--width: 25ch;
+    --pf-v6-c-description-list--m-horizontal__term--width: 25ch;
   }
 
   // For abrt log details: add some gutter between the tabs and their content
@@ -105,7 +105,7 @@
 
 .pf-v6-theme-dark {
   .journal-filters-box .panel-heading {
-    color: var(--pf-v5-global--Color--400);
+    color: var(--pf-t--global--text--color--subtle);
   }
 }
 
@@ -115,7 +115,8 @@
 }
 
 .pf-v6-c-toolbar {
-  --pf-v5-c-toolbar--BackgroundColor: var(--pf-v5-c-page__main-section--BackgroundColor);
+  // FIXME: PF6 migration requires design review
+  --pf-v6-c-toolbar--BackgroundColor: var(--pf-v5-c-page__main-section--BackgroundColor);
 
   // Make toolbar stretch to all the available space and wrap up to two lines
   .pf-v6-c-toolbar__group:nth-child(3) {
@@ -153,7 +154,7 @@
     padding-inline-start: var(--pf-t--global--spacer--sm);
 
     svg {
-      color: var(--pf-v5-global--Color--100);
+      color: var(--pf-t--global--icon--color--regular);
     }
 }
 
@@ -163,5 +164,6 @@
    make MenuToggles match.
 */
 html:not(.pf-v6-theme-dark) .pf-v6-c-menu-toggle:not(.pf-m-primary) {
+    // FIXME: PF6 migration requires design review
     background-color: var(--pf-v5-global--BackgroundColor--100);
 }

@@ -1134,6 +1134,7 @@ on_web_socket_open (WebSocketConnection *connection,
   json_object_set_string_member (object, "channel-seed", socket->id);
   json_object_set_string_member (object, "host", "localhost");
   json_object_set_string_member (object, "csrf-token", cockpit_creds_get_csrf_token (self->creds));
+  json_object_set_object_member (object, "bridge-init", json_object_ref (cockpit_web_service_get_init (self)));
 
   capabilities = json_array_new ();
   json_array_add_string_element (capabilities, "multi");

@@ -42,6 +42,7 @@ from ..jsonutil import (
     JsonError,
     JsonObject,
     get_bool,
+    get_dict,
     get_int,
     get_str,
     get_strv,
@@ -161,6 +162,7 @@ class FsReadChannel(GeneratorChannel):
 
 class FsReplaceChannel(AsyncChannel):
     payload = 'fsreplace1'
+    capabilities = 'attrs',
 
     def delete(self, path: str, tag: 'str | None') -> str:
         if tag is not None and tag != tag_from_path(path):
@@ -237,9 +239,13 @@ class FsReplaceChannel(AsyncChannel):
         return tag_from_path(path)
 
     async def run(self, options: JsonObject) -> JsonObject:
+        attrs = get_dict(options, 'attrs', None)
         path = get_str(options, 'path')
         size = get_int(options, 'size', None)
         tag = get_str(options, 'tag', None)
+
+        if attrs:
+            raise ChannelError('not-supported', message='attrs must be empty')
 
         try:
             # In the `size` case, .set_contents() sends the ready only after

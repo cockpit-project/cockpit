@@ -123,6 +123,22 @@ QUnit.test("binary replace large", async assert => {
     assert.ok(eq, "got back same data");
 });
 
+QUnit.test("fsreplace1 no path", async assert => {
+    const invalid = cockpit.channel({ payload: "fsreplace1", attrs: {} });
+    await assert.rejects(invalid.wait(), /attribute 'path' required/, "rejects no path");
+});
+
+QUnit.test("fsreplace1 attrs", async assert => {
+    assert.propContains(cockpit.capabilities?.channels, { fsreplace1: ['attrs'] });
+
+    const valid = cockpit.channel({ payload: "fsreplace1", path: `${dir}/tmp`, attrs: {} });
+    await valid.wait();
+    valid.close(); // no-op
+
+    const invalid = cockpit.channel({ payload: "fsreplace1", path: `${dir}/tmp`, attrs: { foo: 1 } });
+    await assert.rejects(invalid.wait(), /attrs must be empty/, "rejects non-empty attrs");
+});
+
 QUnit.test("remove", async assert => {
     const exists = await cockpit.spawn(["bash", "-c", "test -f " + dir + "/bar && echo exists"]);
     assert.equal(exists, "exists\n", "exists");

@@ -446,10 +446,10 @@ const UpdatesList = ({ updates }) => {
         <ListingTable aria-label={_("Available updates")}
                 gridBreakPoint='grid-lg'
                 columns={[
-                    { title: _("Name"), transforms: [cellWidth(40)] },
-                    { title: _("Version"), transforms: [cellWidth(15)] },
-                    { title: _("Severity"), transforms: [cellWidth(15)] },
-                    { title: _("Details"), transforms: [cellWidth(30)] },
+                    { title: _("Name"), props: {width: 40} },
+                    { title: _("Version"), props: {width: 15} },
+                    { title: _("Severity"), props: {width: 15} },
+                    { title: _("Details"), props: {width: 30} },
                 ]}
                 rows={update_ids.map(id => updateItem(remarkable, updates[id], packageNames[id].sort((a, b) => a.name > b.name), id))} />
     );

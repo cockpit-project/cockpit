@@ -533,6 +533,8 @@ class AsyncChannel(Channel):
             self.close()
         except ChannelError as exc:
             self.close(exc.get_attrs())
+        except JsonError as exc:
+            self.close({'problem': 'protocol-error', 'message': str(exc)})
         except BaseException:
             self.close({'problem': 'internal-error', 'cause': traceback.format_exc()})
             raise

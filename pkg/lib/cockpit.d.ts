@@ -292,10 +292,12 @@ declare module 'cockpit' {
     }
 
     interface FileHandle<T> {
+        // BUG: This should be Promise<T, FileTag>, but this isn't representable (it's a cockpit.defer underneath)
         read(): Promise<T>;
         replace(new_content: T | null, expected_tag?: FileTag): Promise<FileTag>;
         watch(callback: FileWatchCallback<T>, options?: { read?: boolean }): FileWatchHandle;
-        modify(callback: (data: T | null) => T | null, initial_content?: string, initial_tag?: FileTag): Promise<[T, FileTag]>;
+        // BUG: same as read
+        modify(callback: (data: T | null) => T | null, initial_content?: string, initial_tag?: FileTag): Promise<T>;
         close(): void;
         path: string;
     }

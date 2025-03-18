@@ -24,6 +24,7 @@ import { useEvent } from "hooks.js";
 
 import { AlertGroup } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardHeader, CardTitle, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Divider } from '@patternfly/react-core/dist/esm/components/Divider/index.js';
 import { DropdownGroup, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
@@ -61,7 +62,7 @@ const _ = cockpit.gettext;
    The tree of pages starts with "make_overview_page" in
    overview/overview.jsx. That function creates the data structures
    that represent the overview page (using functions exported from
-   this file), and is also responsible for kicking of the creation of
+   this file), and is also responsible for kicking off the creation of
    its child pages. (And each page construction function of course
    also creates the cards and actions for that page).
 
@@ -336,8 +337,11 @@ function make_page_kebab(page) {
     let c = page.card;
     while (c) {
         const g = card_item_group(c);
-        if (g)
+        if (g) {
+            if (items.length > 0)
+                items.push(<Divider key={"div" + items.length} />);
             items.push(g);
+        }
         c = c.next;
     }
 

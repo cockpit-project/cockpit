@@ -295,27 +295,27 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.clear_terminal()
         b.input_text("pwd\n")
         self.wait_line(2, "/tmp")
-        b.wait_not_present(".pf-v5-c-alert")
+        b.wait_not_present(".pf-v6-c-alert")
 
         # Error on dir non-exist
         b.go("#/?path=/doesnotexist")
-        b.wait_in_text(".pf-v5-c-alert", "does not exist")
+        b.wait_in_text(".pf-v6-c-alert", "does not exist")
         # If there's an error, we shouldn't reset the terminal
         b.input_text("pwd\n")
         self.wait_line(4, "/tmp")
         # Clear the error
-        b.click('.pf-v5-c-alert__action button')
-        b.wait_not_present(".pf-v5-c-alert")
+        b.click('.pf-v6-c-alert__action button')
+        b.wait_not_present(".pf-v6-c-alert")
 
         # Error on change to non-dir
         b.go("#/?path=/etc%2Fos-release")
-        b.wait_in_text(".pf-v5-c-alert", "not a directory")
+        b.wait_in_text(".pf-v6-c-alert", "not a directory")
         # If there's an error, we shouldn't reset the terminal
         b.input_text("pwd\n")
         self.wait_line(6, "/tmp")
         # Clear the error
-        b.click('div.pf-v5-c-alert__action button')
-        b.wait_not_present(".pf-v5-c-alert")
+        b.click('div.pf-v6-c-alert__action button')
+        b.wait_not_present(".pf-v6-c-alert")
         b.wait_js_cond('window.location.hash == "#/"')
 
         # Prompt for change if terminal busy
@@ -323,19 +323,19 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_in_text(line_sel(8), 'busybusybusy')
         pid = b.text(line_sel(9))
         b.go("#/?path=/tmp")
-        b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "Running process prevents directory change")
+        b.wait_in_text(".pf-v6-c-alert.pf-m-danger", "Running process prevents directory change")
         # Cancel change
         b.click("button:contains('Cancel')")
-        b.wait_not_present(".pf-v5-c-alert")
+        b.wait_not_present(".pf-v6-c-alert")
         b.wait_js_cond('window.location.hash == "#/"')
         # Check busy process is still running
         m.execute(f"kill -0 {pid}")
         b.wait_in_text(line_sel(8), 'busybusybusy')
         # Confirm change
         b.go("#/?path=/var")
-        b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "Running process prevents directory change")
+        b.wait_in_text(".pf-v6-c-alert.pf-m-danger", "Running process prevents directory change")
         b.click("button:contains('Change directory')")
-        b.wait_not_present(".pf-v5-c-alert.pf-m-danger")
+        b.wait_not_present(".pf-v6-c-alert.pf-m-danger")
         self.wait_line(1, "disconnected")
         self.clear_terminal()
         b.input_text("pwd\n")

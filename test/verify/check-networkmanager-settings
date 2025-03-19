@@ -67,7 +67,7 @@ class TestNetworkingSettings(netlib.NetworkCase):
 
         # The interface will be activated. Deactivate it.
         self.wait_for_iface_setting('Status', '1.2.3.4/24')
-        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
+        self.toggle_onoff(f".pf-v6-c-card__header:contains('{iface}')")
         self.wait_for_iface_setting('Status', 'Inactive')
 
         # Delete the connection settings again and wait for the ghost
@@ -76,7 +76,7 @@ class TestNetworkingSettings(netlib.NetworkCase):
         self.wait_for_iface_setting('IPv4', 'Automatic')
 
         # Activate with ghost settings
-        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
+        self.toggle_onoff(f".pf-v6-c-card__header:contains('{iface}')")
         self.wait_for_iface_setting('Status', '10.111.')
 
         # Check again that we now have connection settings

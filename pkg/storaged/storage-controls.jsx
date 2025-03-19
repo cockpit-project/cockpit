@@ -24,6 +24,7 @@ import { Dropdown, DropdownItem } from '@patternfly/react-core/dist/esm/componen
 import { MenuToggle } from '@patternfly/react-core/dist/esm/components/MenuToggle/index.js';
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import { BarsIcon, EllipsisVIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
@@ -195,7 +196,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, short }
 
     return (
         <div>
-            <span className="usage-text pf-v5-u-text-nowrap">
+            <span className="usage-text pf-v6-u-text-nowrap">
                 {labelText}
             </span>
             <div className={"usage-bar" + (fraction > critical ? " usage-bar-danger" : "") + (short ? " usage-bar-short" : "")}
@@ -216,7 +217,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, short }
 export const StorageSize = ({ size }) => {
     return (
         <div>
-            <span className="usage-text pf-v5-u-text-nowrap">
+            <span className="usage-text pf-v6-u-text-nowrap">
                 {utils.fmt_size(size)}
             </span>
             <div className="usage-bar usage-bar-short usage-bar-empty" />
@@ -246,14 +247,16 @@ export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
         setIsOpen(false);
     };
 
-    const toggle = ref => <MenuToggle ref={ref}
-                                      variant="plain"
-                                      className={isKebab ? "" : "pf-m-primary"}
-                                      onClick={onToggleClick}
-                                      isExpanded={isOpen}
-                                      aria-label={label}>
-        {isKebab ? <EllipsisVIcon /> : <BarsIcon color="white" />}
-    </MenuToggle>;
+    const toggle = ref => (
+        <MenuToggle
+            ref={ref}
+            variant="plain"
+            onClick={onToggleClick}
+            isExpanded={isOpen}
+            aria-label={label}>
+            {isKebab ? <EllipsisVIcon /> : <Icon size="lg"><BarsIcon /></Icon>}
+        </MenuToggle>
+    );
 
     return (
         <Dropdown isOpen={isOpen}

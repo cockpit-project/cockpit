@@ -93,10 +93,10 @@ class TestBonding(netlib.NetworkCase):
 
         # Deactivate the bond and make sure it is still there after a
         # reload.
-        self.wait_onoff(".pf-v5-c-card__header:contains('tbond')", val=True)
-        self.toggle_onoff(".pf-v5-c-card__header:contains('tbond')")
+        self.wait_onoff(".pf-v6-c-card__header:contains('tbond')", val=True)
+        self.toggle_onoff(".pf-v6-c-card__header:contains('tbond')")
         self.wait_for_iface_setting('Status', 'Inactive')
-        b.wait_not_present(".pf-v5-c-card__header:contains('tbond') input[type=checkbox]:disabled")
+        b.wait_not_present(".pf-v6-c-card__header:contains('tbond') input[type=checkbox]:disabled")
 
         b.reload()
         b.enter_page("/network")
@@ -178,7 +178,7 @@ class TestBonding(netlib.NetworkCase):
         self.addCleanup(m.execute, "nmcli dev delete tbond3000 2>/dev/null || true")
 
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
-        self.wait_onoff("#network-interface .pf-v5-c-card__header", val=True)
+        self.wait_onoff("#network-interface .pf-v6-c-card__header", val=True)
         self.wait_for_iface_setting('Status', 'Configuring')
 
         self.configure_iface_setting('Bond')
@@ -221,7 +221,7 @@ class TestBonding(netlib.NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
         b.wait_visible("#network-interface")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
-        b.wait_in_text("#network-interface .pf-v5-c-card:contains('tbond')", ip)
+        b.wait_in_text("#network-interface .pf-v6-c-card:contains('tbond')", ip)
 
     def testPrimary(self):
         b = self.browser
@@ -319,7 +319,7 @@ class TestBondingVirt(netlib.NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
         b.wait_visible("#network-interface")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
-        b.wait_in_text("#network-interface .pf-v5-c-card:contains('tbond')", "10.111.113.1")
+        b.wait_in_text("#network-interface .pf-v6-c-card:contains('tbond')", "10.111.113.1")
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
@@ -358,7 +358,7 @@ class TestBondingVirt(netlib.NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
         b.wait_visible("#network-interface")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
-        b.wait_in_text("#network-interface .pf-v5-c-card:contains('tbond')", "10.111.113.1")
+        b.wait_in_text("#network-interface .pf-v6-c-card:contains('tbond')", "10.111.113.1")
 
 
 if __name__ == '__main__':

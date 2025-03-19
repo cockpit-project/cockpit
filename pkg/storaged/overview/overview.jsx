@@ -177,7 +177,7 @@ const OverviewCard = ({ card, plot_state }) => {
         <Stack hasGutter>
             { !client.in_anaconda_mode() &&
             <StackItem>
-                <Card>
+                <Card isPlain>
                     <CardBody>
                         <StoragePlots plot_state={plot_state} />
                     </CardBody>

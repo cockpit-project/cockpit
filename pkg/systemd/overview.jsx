@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import '../lib/patternfly/patternfly-5-cockpit.scss';
+import '../lib/patternfly/patternfly-6-cockpit.scss';
 import 'polyfills';
 import 'cockpit-dark-theme'; // once per page
 import cockpit from "cockpit";
@@ -124,18 +124,15 @@ class OverviewPage extends React.Component {
                         <MenuToggle
                             ref={toggleRef}
                             variant="secondary"
-                            splitButtonOptions={{
-                                variant: "action",
-                                items: [
-                                    <MenuToggleAction
+                            splitButtonItems={[
+                                <MenuToggleAction
                                         id='reboot-button'
                                         key='reboot-button'
                                         onClick={() => Dialogs.show(<ShutdownModal />)}
-                                    >
-                                        {_("Reboot")}
-                                    </MenuToggleAction>
-                                ],
-                            }}
+                                >
+                                    {_("Reboot")}
+                                </MenuToggleAction>
+                            ]}
                             onClick={() => this.setState({ actionIsOpen: !actionIsOpen })}
                             id="shutdown-group"
                         />
@@ -155,11 +152,9 @@ class OverviewPage extends React.Component {
               window.parent.features.navbar_is_for_current_machine));
 
         return (
-            <Page>
-                <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
-                    <SuperuserAlert />
-                </PageSection>
-                <PageSection variant={PageSectionVariants.light} className='ct-overview-header' padding={{ default: 'padding' }}>
+            <Page className='no-masthead-sidebar'>
+                <SuperuserAlert />
+                <PageSection hasBodyWrapper={false} className='ct-overview-header' padding={{ default: 'padding' }}>
                     <div className='ct-overview-header-hostname'>
                         <h1>
                             {this.hostname_text()}
@@ -174,7 +169,7 @@ class OverviewPage extends React.Component {
                         { headerActions }
                     </div>
                 </PageSection>
-                <PageSection variant={PageSectionVariants.default}>
+                <PageSection hasBodyWrapper={false} variant={PageSectionVariants.default}>
                     <Gallery className='ct-system-overview' hasGutter>
                         <MotdCard />
                         <HealthCard />

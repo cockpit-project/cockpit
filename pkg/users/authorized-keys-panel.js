@@ -114,7 +114,7 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
     );
 
     return (
-        <Card id="account-authorized-keys">
+        <Card isPlain id="account-authorized-keys">
             <CardHeader actions={{ actions }}>
                 <CardTitle component="h2">{_("Authorized public SSH keys")}</CardTitle>
             </CardHeader>
@@ -152,7 +152,7 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                                         />
                                     </OverflowMenuControl>
                                 </OverflowMenu>,
-                                props: { className: "pf-v5-c-table__action" }
+                                props: { className: "pf-v6-c-table__action" }
                             }
                         ],
                         props: { key: k.fp }

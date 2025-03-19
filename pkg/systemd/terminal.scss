@@ -58,12 +58,12 @@
   flex-wrap: wrap;
 
   /* Move the padding handling to the container element outside of the toolbar */
-  padding: var(--pf-v5-global--spacer--md);
+  padding: var(--pf-t--global--spacer--md);
 
-  > .pf-v5-c-toolbar {
+  > .pf-v6-c-toolbar {
     padding: 0;
 
-    > .pf-v5-c-toolbar__content {
+    > .pf-v6-c-toolbar__content {
       padding: 0;
 
       select {
@@ -74,6 +74,6 @@
 }
 
 // HACK for https://forum.patternfly.org/t/read-only-number-input/422
-.font-size .pf-v5-c-form-control[readonly] {
+.font-size .pf-v6-c-form-control[readonly] {
   cursor: default;
 }

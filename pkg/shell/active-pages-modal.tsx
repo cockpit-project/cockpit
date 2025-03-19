@@ -26,7 +26,9 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { useInit } from "hooks";
 
 import { ShellState } from "./state";

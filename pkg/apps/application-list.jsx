@@ -24,7 +24,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Card } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DataList, DataListAction, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 
 import { RebootingIcon } from "@patternfly/react-icons";
@@ -170,10 +170,10 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         : null;
 
     return (
-        <Page id="list-page" data-packages-checked={dataPackagesInstalled !== null}>
-            <PageSection variant={PageSectionVariants.light}>
+        <Page id="list-page" data-packages-checked={dataPackagesInstalled !== null} className='no-masthead-sidebar'>
+            <PageSection hasBodyWrapper={false}>
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                    <h2 className="pf-v5-u-font-size-3xl">{_("Applications")}</h2>
+                    <h2 className="pf-v6-u-font-size-3xl">{_("Applications")}</h2>
                     <FlexItem align={{ default: 'alignRight' }}>
                         <Flex alignItems={{ default: 'alignItemsCenter' }} spacer={{ default: 'spacerXs' }}>
                             <FlexItem>
@@ -190,7 +190,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                 ? <EmptyStatePanel title={ _("No applications installed or available.") }
                                    paragraph={data_missing_msg}
                                    action={ data_missing_msg && _("Install application information")} onAction={refresh} />
-                : <PageSection>
+                : <PageSection hasBodyWrapper={false}>
                     <Stack hasGutter>
                         {!progress && data_missing_msg &&
                             <StackItem key="missing-meta-alert">
@@ -199,7 +199,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                             </StackItem>
                         }
                         <StackItem>
-                            <Card>
+                            <Card isPlain>
                                 <DataList aria-label={_("Applications list")}>
                                     { tbody }
                                 </DataList>

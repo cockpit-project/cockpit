@@ -24,6 +24,7 @@ import { useEvent } from "hooks.js";
 
 import { AlertGroup } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardHeader, CardTitle, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Divider } from '@patternfly/react-core/dist/esm/components/Divider/index.js';
 import { DropdownGroup, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
@@ -61,7 +62,7 @@ const _ = cockpit.gettext;
    The tree of pages starts with "make_overview_page" in
    overview/overview.jsx. That function creates the data structures
    that represent the overview page (using functions exported from
-   this file), and is also responsible for kicking of the creation of
+   this file), and is also responsible for kicking off the creation of
    its child pages. (And each page construction function of course
    also creates the cards and actions for that page).
 
@@ -336,8 +337,11 @@ function make_page_kebab(page) {
     let c = page.card;
     while (c) {
         const g = card_item_group(c);
-        if (g)
+        if (g) {
+            if (items.length > 0)
+                items.push(<Divider key={"div"+items.length}/>);
             items.push(g);
+        }
         c = c.next;
     }
 
@@ -464,7 +468,7 @@ let narrow_query = null;
 
 export const useIsNarrow = (onChange) => {
     if (!narrow_query) {
-        const val = window.getComputedStyle(window.document.body).getPropertyValue("--pf-v5-global--breakpoint--md");
+        const val = window.getComputedStyle(window.document.body).getPropertyValue("--pf-t--global--breakpoint--md");
         narrow_query = window.matchMedia(`(max-width: ${val})`);
     }
     useEvent(narrow_query, "change", onChange);
@@ -587,7 +591,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
 
         if (narrow) {
             rows.push(
-                <Card key={key}
+                <Card isPlain key={key}
                       className={"ct-small-table-card" +
                                  (page.location ? " ct-clickable-card" : null) +
                                  (is_new ? " ct-new-item" : "")}
@@ -604,7 +608,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                         <Split hasGutter isWrappable onClick={onClick}>
                             <SplitItem>{type}</SplitItem>
                             <SplitItem isFilled>{location}</SplitItem>
-                            <SplitItem isFilled className="pf-v5-u-text-align-right">{size}</SplitItem>
+                            <SplitItem isFilled className="pf-v6-u-text-align-right">{size}</SplitItem>
                         </Split>
                     </CardBody>
                 </Card>);
@@ -619,7 +623,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 <Td key="2" onClick={onClick} modifier="nowrap">{type}</Td>,
                 <Td key="3" onClick={onClick} modifier="nowrap">{location}</Td>,
                 <Td key="4" onClick={onClick} className="storage-size-column">{size}</Td>,
-                <Td key="5" className="pf-v5-c-table__action">{actions || <div /> }</Td>,
+                <Td key="5" className="pf-v6-c-table__action">{actions || <div /> }</Td>,
             ];
             if (show_icons)
                 cols.unshift(<Td key="0" onClick={onClick} className="storage-device-icon">{icon}</Td>);
@@ -797,7 +801,7 @@ const StorageBreadcrumb = ({ page }) => {
 
 export const StorageCard = ({ card, alert, alerts, actions, children }) => {
     return (
-        <Card data-test-card-title={card.title}>
+        <Card isPlain data-test-card-title={card.title}>
             { (client.in_anaconda_mode() && card.page.parent && !card.next) &&
             <CardBody>
                 <StorageBreadcrumb page={card.page} />
@@ -840,13 +844,13 @@ export const StoragePage = ({ location, plot_state }) => {
     const page = get_page_from_location(location);
 
     return (
-        <Page id="storage">
+        <Page id="storage" className="no-masthead-sidebar">
             { (!client.in_anaconda_mode() && page.parent) &&
-            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <StorageBreadcrumb page={page} />
             </PageBreadcrumb>
             }
-            <PageSection isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
+            <PageSection hasBodyWrapper={false} isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
                 <Stack hasGutter>
                     <MultipathAlert client={client} />
                     <PageCardStackItems page={page} plot_state={plot_state} noarrow />

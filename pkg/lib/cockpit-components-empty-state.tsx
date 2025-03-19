@@ -22,9 +22,9 @@ import PropTypes from 'prop-types';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import type { ButtonProps } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import {
-    EmptyStateActions, EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon, EmptyStateVariant
+    EmptyStateActions, EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateVariant
 } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
-import type { EmptyStateIconProps, EmptyStateHeaderProps } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import type { EmptyStateProps } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import "./cockpit-components-empty-state.css";
 
@@ -40,27 +40,22 @@ export const EmptyStatePanel = ({
     secondary,
     headingLevel = "h1"
 }: {
-    title?: EmptyStateHeaderProps["titleText"],
+    title?: EmptyStateProps["titleText"],
     paragraph?: React.ReactNode,
     loading?: boolean,
-    icon?: EmptyStateIconProps["icon"],
+    icon?: EmptyStateProps["icon"],
     action?: React.ReactNode | string,
     isActionInProgress?: boolean,
     onAction?: ButtonProps["onClick"],
     actionVariant?: ButtonProps["variant"],
     secondary?: React.ReactNode,
-    headingLevel?: EmptyStateHeaderProps['headingLevel'],
+    headingLevel?: EmptyStateProps['headingLevel'],
 }) => {
     const slimType = title || paragraph ? "" : "slim";
     const emptyStateHeaderIcon = loading ? Spinner : icon;
 
     return (
-        <EmptyState variant={EmptyStateVariant.full}>
-            <EmptyStateHeader
-                titleText={title}
-                headingLevel={headingLevel}
-                {...emptyStateHeaderIcon && { icon: <EmptyStateIcon icon={emptyStateHeaderIcon} /> }}
-            />
+        <EmptyState headingLevel={headingLevel} titleText={title} variant={EmptyStateVariant.full} {...emptyStateHeaderIcon && { icon: emptyStateHeaderIcon }}>
             <EmptyStateBody>
                 {paragraph}
             </EmptyStateBody>

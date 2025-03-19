@@ -24,7 +24,7 @@ import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/di
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Page, PageBreadcrumb, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 
 import { Privileged } from "cockpit-components-privileged.jsx";
@@ -698,8 +698,9 @@ export const NetworkInterfacePage = ({
 
     return (
         <Page id="network-interface"
-              data-test-wait={operationInProgress}>
-            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+              data-test-wait={operationInProgress}
+              className='no-masthead-sidebar'>
+            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to='#/'>
                         {_("Networking")}
@@ -709,12 +710,12 @@ export const NetworkInterfacePage = ({
                     </BreadcrumbItem>
                 </Breadcrumb>
             </PageBreadcrumb>
-            <PageSection variant={PageSectionVariants.light}>
+            <PageSection hasBodyWrapper={false}>
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>
-            <PageSection>
+            <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
-                    <Card className="network-interface-details">
+                    <Card isPlain className="network-interface-details">
                         <CardHeader actions={{
                             actions: (
                                 <>

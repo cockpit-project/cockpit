@@ -417,6 +417,32 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
+    # returns ExecMainStartTimestamp
+    def createServicePackageUpgrade(self, package: str) -> str:
+        m = self.machine
+
+        scriptContent = "#!/bin/sh\nsleep infinity"
+        unitContent = f"""
+[Service]
+ExecStart=/usr/local/bin/{package}
+"""
+        self.createPackage(package, "1", "1", install=True, changes="initial package with service and run script",
+                           content={f"/usr/local/bin/{package}": scriptContent,
+                                    f"/etc/systemd/system/{package}.service": unitContent},
+                           postinst=(f"chmod a+x /usr/local/bin/{package};"
+                                     f"systemctl daemon-reload; systemctl start {package}.service"))
+        self.createPackage(package, "1", "2",
+                           content={f"/usr/local/bin/{package}": scriptContent,
+                                    f"/etc/systemd/system/{package}.service": unitContent},
+                           postinst=f"chmod a+x /usr/local/bin/{package}")
+
+        startTime = m.execute(f"systemctl show {package}.service --property=ExecMainStartTimestamp")
+
+        self.addCleanup(m.execute, ("pacman -R --noconfirm " if m.image == "arch" else "rpm -e ") + package)
+        self.addCleanup(m.execute, f"systemctl stop {package}")
+
+        return startTime
+
     @testlib.skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
     @testlib.skipImage("tracer not available", *OSesWithoutTracer)
     def testTracer(self):
@@ -446,21 +472,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 </applications>
 """)
 
-                scriptContent = "#!/bin/sh\nsleep infinity"
-                unitContent = f"""
-[Service]
-ExecStart=/usr/local/bin/{self.packageName}
-"""
-                self.testObj.createPackage(self.packageName, "1", "1", install=True, changes="initial package with service and run script",
-                                           content={f"/usr/local/bin/{self.packageName}": scriptContent, f"/etc/systemd/system/{self.packageName}.service": unitContent},
-                                           postinst=(f"chmod a+x /usr/local/bin/{self.packageName};"
-                                                     f"systemctl daemon-reload; systemctl start {self.packageName}.service"))
-                self.testObj.createPackage(self.packageName, "1", "2",
-                                           content={f"/usr/local/bin/{self.packageName}": scriptContent, f"/etc/systemd/system/{self.packageName}.service": unitContent},
-                                           postinst=f"chmod a+x /usr/local/bin/{self.packageName}")
-
-                self.serviceStartTime = m.execute(f"systemctl show {self.packageName}.service --property=ExecMainStartTimestamp")
-
+                self.serviceStartTime = self.testObj.createServicePackageUpgrade(self.packageName)
                 self.testObj.enableRepo()
 
             def test_frontend(self):
@@ -558,12 +570,6 @@ ExecStart=/usr/local/bin/{self.packageName}
                 m.execute("tracer --all --root")
 
             def cleanup(self):
-                if not self.rebootRequired:
-                    m.execute(f"systemctl stop {self.packageName}")
-                if m.image == "arch":
-                    m.execute(f"pacman -R --noconfirm {self.packageName}")
-                else:
-                    m.execute(f"rpm -e {self.packageName}")
                 if self.rebootRequired:
                     m.execute("rm /etc/tracer/applications.xml")
 

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import client from "../client";
 
-import { mdraid_name, validate_mdraid_name, get_available_spaces, prepare_available_spaces } from "../utils.js";
+import { mdraid_name, validate_mdraid_name, get_available_spaces, prepare_available_spaces, block_name } from "../utils.js";
 import { dialog_open, TextInput, SelectOne, SelectSpaces } from "../dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -110,12 +110,25 @@ export function create_mdraid() {
         ],
         Action: {
             Title: _("Create"),
-            action: function (vals) {
-                return prepare_available_spaces(client, vals.disks).then(paths => {
-                    return client.manager.MDRaidCreate(paths, vals.level,
-                                                       vals.name, (vals.chunk || 0) * 1024,
-                                                       { });
-                });
+            action: async function (vals) {
+                if (client.in_anaconda_mode()) {
+                    // HACK - Anaconda has trouble detecting invalid
+                    // storage configurations that involve MDRAID
+                    // devices on bare disks.  Let's prevent the user
+                    // from creating them for now.
+                    for (const spc of vals.disks) {
+                        if (spc.type == "block") {
+                            if (!client.blocks_part[spc.block.path])
+                                throw new Error(cockpit.format(_("$0 is not a partition"), block_name(spc.block)));
+                        }
+                    }
+                }
+
+                const paths = await prepare_available_spaces(client, vals.disks);
+                await client.manager.MDRaidCreate(
+                    paths, vals.level,
+                    vals.name, (vals.chunk || 0) * 1024,
+                    { });
             }
         }
     });

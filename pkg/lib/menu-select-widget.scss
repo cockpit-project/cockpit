@@ -4,6 +4,10 @@
 // Therefore, we're changing the visuals here locally.
 // PF4 upstream request for multi-select @ https://github.com/patternfly/patternfly/issues/4027
 .ct-menu-select-widget.pf-v6-c-menu {
+  /* PF rounds the element, but it doesn't have a borderr or background;
+  we don't want to clip it in children elements */
+  border-radius: var(--pf-t--global--border--radius--0);
+
   // Divider is silly between the widgets in this context
   .pf-v6-c-divider {
     display: none;
@@ -16,7 +20,8 @@
 
   .pf-v6-c-menu__content {
     // An overflow multi-select widget needs an outline
-    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    border: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
+    border-radius: var(--pf-t--global--border--radius--small);
   }
 
   // Search should not be inset when there's no border containing it

@@ -230,7 +230,7 @@ class PackageCase(MachineCase):
             for path, data in content.items():
                 installcmds += f'mkdir -p $(dirname "$RPM_BUILD_ROOT/{path}")\n'
                 if isinstance(data, Mapping):
-                    installcmds += f"cp {data['path']} \"$RPM_BUILD_ROOT/{path}\""
+                    installcmds += f"cp {data['path']} \"$RPM_BUILD_ROOT/{path}\"\n"
                 else:
                     installcmds += f'cat >"$RPM_BUILD_ROOT/{path}" <<\'EOF\'\n' + data + '\nEOF\n'
                 installedfiles += f"{path}\n"

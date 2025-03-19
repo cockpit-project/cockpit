@@ -248,6 +248,8 @@ License: BSD
 {architecture}
 {requires}
 
+%define _build_id_links none
+
 %%install
 {installcmds}
 

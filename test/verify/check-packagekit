@@ -421,20 +421,20 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
     def createServicePackageUpgrade(self, package: str) -> str:
         m = self.machine
 
-        scriptContent = "#!/bin/sh\nsleep infinity"
-        unitContent = f"""
-[Service]
-ExecStart=/usr/local/bin/{package}
+        unitContent = f"""[Service]
+ExecStart=/usr/local/bin/{package} infinity
 """
         self.createPackage(package, "1", "1", install=True, changes="initial package with service and run script",
-                           content={f"/usr/local/bin/{package}": scriptContent,
+                           content={f"/usr/local/bin/{package}": {"path": "/usr/bin/sleep"},
                                     f"/etc/systemd/system/{package}.service": unitContent},
                            postinst=(f"chmod a+x /usr/local/bin/{package};"
-                                     f"systemctl daemon-reload; systemctl start {package}.service"))
+                                     f"systemctl daemon-reload; systemctl start {package}.service"),
+                           arch=self.secondary_arch)
         self.createPackage(package, "1", "2",
-                           content={f"/usr/local/bin/{package}": scriptContent,
+                           content={f"/usr/local/bin/{package}": {"path": "/usr/bin/sleep"},
                                     f"/etc/systemd/system/{package}.service": unitContent},
-                           postinst=f"chmod a+x /usr/local/bin/{package}")
+                           postinst=f"chmod a+x /usr/local/bin/{package}",
+                           arch=self.secondary_arch)
 
         startTime = m.execute(f"systemctl show {package}.service --property=ExecMainStartTimestamp")
 

@@ -435,3 +435,21 @@ to wrap around when there isn't enough space.
     --pf-v6-c-page__main-container--GridArea: var(--pf-v6-c-page--masthead--main-container--GridArea);
   }
 }
+
+/* FIXME: Temporary rework plain cards to make it look like how PF6 is designed, removing the extra padding */
+.pf-v6-c-card.pf-m-plain {
+  .pf-v6-c-card__header {
+    padding-inline: 0;
+  }
+
+  .pf-v6-c-card__body.contains-list {
+    padding: 0;
+  }
+}
+
+/* FIXME: Temporary rework plain cards to make it look like how PF6 is designed, adding borders between sections */
+.pf-v6-c-card.pf-m-plain + .pf-v6-c-card.pf-m-plain,
+.pf-v6-l-stack__item + .pf-v6-l-stack__item > .pf-v6-c-card.pf-m-plain {
+  border-block-start: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
+  border-radius: var(--pf-t--global--border--radius--0);
+}

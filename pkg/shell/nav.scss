@@ -21,11 +21,6 @@ $desktop: $phone + 1px;
 
   // Overrides for dark theme (as PF's dark theme is currently odd with nav)
   .pf-v6-theme-dark & {
-    // --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--150);
-    // --ct-color-nav-search: var(--pf-v5-global--BackgroundColor--200);
-    // --ct-color-nav-highlight: var(--pf-v5-global--palette--gold-600);
-    // --ct-color-nav-highlight-text: var(--pf-v5-global--palette--gold-300);
-
     .nav-item-hint {
       color: var(--pf-t--global--text--color--link--default);
     }
@@ -124,11 +119,6 @@ $desktop: $phone + 1px;
     display: none !important;
   }
 
-  // .area-ct-subnav {
-  //   // Make a separator between host selector & search
-  //   border-block-start: 1px solid var(--pf-v5-global--Color--300);
-  // }
-
   .view-hosts .sidebar-hosts {
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
@@ -149,8 +139,6 @@ $desktop: $phone + 1px;
   }
 
   .header {
-    // border-inline-start: 1px solid var(--pf-v5-global--BackgroundColor--dark-100);
-    // background: linear-gradient(to right, var(--pf-v5-global--BackgroundColor--dark-100) -1rem, var(--pf-v5-global--BackgroundColor--dark-300) 1rem);
     background-color: var(--pf-t--global--background--color--tertiary--default);
 
     .credential-unlocked {
@@ -158,12 +146,6 @@ $desktop: $phone + 1px;
       opacity: 0.6;
     }
   }
-
-  // .pf-v6-theme-dark {
-  //   > .pf-v6-c-select__toggle {
-  //     background-color: var(--pf-v5-global--BackgroundColor--dark-300);
-  //   }
-  // }
 
   .ct-switcher {
     background-color: var(--pf-t--global--background--color--secondary--default);
@@ -249,7 +231,6 @@ $desktop: $phone + 1px;
 
   .pf-m-dark.pf-v6-c-select {
     .pf-v6-c-select__toggle {
-      color: var(--pf-v5-global--Color--light-100) !important;
       background-color: transparent;
     }
   }
@@ -338,15 +319,6 @@ $desktop: $phone + 1px;
 .ct-switcher-localonly {
   padding-inline-start: var(--pf-t--global--spacer--lg);
   padding-block-start: var(--pf-t--global--spacer--sm);
-  color: var(--pf-v5-global--Color--light-100);
-}
-
-.pf-v6-theme-dark {
-  .pf-v6-c-select__toggle {
-    > * {
-      color: var(--pf-v5-global--Color--light-100);
-    }
-  }
 }
 
 .pf-v6-c-select__toggle {
@@ -363,7 +335,6 @@ $desktop: $phone + 1px;
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
-  scrollbar-color: var(--pf-v5-global--Color--400) var(--pf-v5-global--BackgroundColor--dark-200);
 
   // In mobile, make the search at the top and the rest scroll
   @media (max-width: $phone) {
@@ -378,25 +349,6 @@ $desktop: $phone + 1px;
     }
   }
 }
-
-// Support links in headings
-// .nav-group-heading {
-//   display: flex;
-//   justify-content: space-between;
-
-//   > .pf-v6-c-nav__section-title:not(a) {
-//     flex: auto;
-//   }
-
-//   a {
-//     color: var(--pf-v5-global--link--Color--light);
-//     font-weight: normal;
-
-//     &:hover {
-//       color: var(--pf-v5-global--link--Color--light--hover);
-//     }
-//   }
-// }
 
 .nav-system-menu {
   // Flow items, if wider (useful for mobile)
@@ -453,16 +405,6 @@ $desktop: $phone + 1px;
         // Move the icon up the stack
         z-index: 1;
       }
-
-      // Fill the interior gaps
-      &::before {
-        position: absolute;
-        content: "";
-        background-color: var(--pf-v5-c-nav__link--Color);
-        border-radius: 3px;
-        inset-block: 6px;
-        inset-inline: 5px;
-      }
     }
   }
 }
@@ -497,20 +439,9 @@ $desktop: $phone + 1px;
     gap: var(--pf-t--global--spacer--sm);
     margin-block: var(--button-margin-y);
     margin-inline: var(--button-margin-x);
-
-    > button {
-      html:not(.pf-v6-theme-dark) & {
-        color: var(--pf-v5-global--BackgroundColor--200);
-
-        &::after {
-          border-color: var(--pf-v5-global--BackgroundColor--200);
-        }
-      }
-    }
   }
 
   .nav-item {
-    --pf-v5-c-nav--m-dark__item--m-current--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
     display: grid;
     grid-template-columns: 1fr auto;
 
@@ -527,7 +458,6 @@ $desktop: $phone + 1px;
     padding-block: var(--pf-t--global--spacer--xs);
     padding-inline: var(--pf-t--global--spacer--sm);
     // Pull the background color over
-    background: var(--pf-v5-c-nav__link--BackgroundColor);
 
     @media (min-width: $desktop) {
       // Desktop has limited horizontal space, so stack these
@@ -550,7 +480,7 @@ $desktop: $phone + 1px;
 
   // Use the "current" background for actions color when item is selected
   .pf-m-current + .nav-item-actions {
-    background-color: var(--pf-v5-c-nav__link--m-current--BackgroundColor);
+    background-color: var(--pf-v6-c-nav__link--m-current--BackgroundColor);
   }
 }
 
@@ -561,7 +491,6 @@ $desktop: $phone + 1px;
 // Rework navigation toggles in desktop and (especially) mobile modes
 .super-user-indicator > button,
 .ct-nav-toggle:not(.pf-v6-c-menu) {
-  // color: var(--pf-v5-global--Color--light-100) !important;
   background: transparent !important;
   // The normal margin to the right of the select dropdown makes them look uncentered in the masthead.
   // https://github.com/patternfly/patternfly/issues/6632
@@ -583,7 +512,6 @@ $desktop: $phone + 1px;
 
   &:focus {
     text-decoration: none;
-    outline: 1px dotted var(--pf-v5-global--BackgroundColor--light-100);
   }
 
   // The way the event is handled, it checks for the button, but not the icon. It should bubble, but doesn't. We can work around this by passing mouse events through.
@@ -609,7 +537,6 @@ $desktop: $phone + 1px;
 
     &:focus {
       text-decoration: none;
-      outline: 1px dotted var(--pf-v5-global--BackgroundColor--light-100);
     }
   }
 
@@ -731,39 +658,6 @@ $desktop: $phone + 1px;
 
   .pf-v6-c-page__sidebar {
     inline-size: unset;
-  }
-}
-
-/* Dark mode adjustments */
-
-.pf-v6-theme-dark {
-  // Change sidebar background color when dark
-  nav,
-  .ct-switcher > .pf-v6-c-select {
-    --ct-color-nav-menu: var(--pf-v5-global--BackgroundColor--dark-100);
-    --pf-v5-global--BackgroundColor--300: var(--pf-t--global--background--color--secondary--default);
-  }
-
-  // Redefine the background color for current links
-  .area-ct-subnav .pf-v6-c-nav__item {
-    > .pf-m-current, .pf-m-current + .nav-item-actions {
-      --pf-v5-c-nav__link--m-current--BackgroundColor: var(--pf-t--global--background--color--secondary--default);
-    }
-  }
-
-  // Add a border to the right of the sidebar (without affecting flow)
-  .ct-switcher > .pf-v6-c-select,
-  .area-ct-subnav.nav-system-menu.sidebar,
-  .navbar.navbar-default navbar-pf.navbar-pf-vertical {
-    &::after {
-      pointer-events: none;
-      border: 1px solid #444548;
-      border-width: 0;
-      border-inline-end: 1px;
-      position: absolute;
-      inset: 0;
-      content: "";
-    }
   }
 }
 

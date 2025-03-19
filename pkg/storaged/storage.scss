@@ -214,7 +214,7 @@ td.job-action {
   // Hatched effect for progressbars that are parts of a group, but not the main
   &-other {
     // Use the page's default background color
-    --bg-light: var(--pf-v5-global--BackgroundColor--100);
+    --bg-light: transparent;
     // Alternate with the used color of the progress bar
     --bg-dark: var(--bg-color);
     // Repeat a gradient with hard stops, a perfect slant, and a consistency
@@ -304,13 +304,8 @@ td.job-action {
   border-block-end: 0 !important;
 }
 
-.ct-small-table-card {
-    border-block-start: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--BorderColor--100);
-}
-
 .ct-clickable-card:hover {
-    background: var(--pf-v5-global--BackgroundColor--150);
-    box-shadow: var(--pf-v5-global--BoxShadow--md);
+    background: var(--pf-t--global--background--color--primary--hover);
     cursor: pointer;
 }
 

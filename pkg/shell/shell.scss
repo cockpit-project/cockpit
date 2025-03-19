@@ -35,10 +35,6 @@
     block-size: 100%;
 }
 
-// .pf-v6-theme-dark {
-//   --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-200);
-// }
-
 /* Hacks on top for now */
 
 html.index-page body {
@@ -146,7 +142,6 @@ $desktop: $phone + 1px;
     .sidebar-toggle {
       grid-area: sidebar;
       display: flex;
-      background: var(--pf-v5-global--BackgroundColor--dark-100);
     }
 
     > .header,
@@ -249,13 +244,6 @@ $desktop: $phone + 1px;
 // Header menu buttons don't need a background color (especially in dark mode)
 .pf-v6-c-toolbar .pf-v6-c-dropdown__toggle {
   --pf-v5-c-dropdown__toggle--BackgroundColor: transparent;
-}
-
-// PF hardcodes header colors to dark, which does funky things
-// ...so swap them back properly for dropdown menus
-.pf-v6-c-masthead .pf-v6-c-dropdown__menu {
-  --pf-v5-global--BackgroundColor--100: var(--pf-v5-global--BackgroundColor--light-100);
-  --pf-v5-global--Color--100: var(--pf-v5-global--Color--dark-100);
 }
 
 // Customize the about screen with the Cockpit logo

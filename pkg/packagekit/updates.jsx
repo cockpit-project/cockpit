@@ -967,7 +967,7 @@ class CardsPage extends React.Component {
 
         return cardContents.map(card => {
             return (
-                <Card isPlain key={card.id} className={card.className} id={card.id}>
+                <Card key={card.id} className={card.className} id={card.id}>
                     <CardHeader actions={{ actions: card.actions }}>
                         <CardTitle component="h2">{card.title}</CardTitle>
                     </CardHeader>

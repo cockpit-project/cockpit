@@ -115,9 +115,6 @@
 }
 
 .pf-v6-c-toolbar {
-  // FIXME: PF6 migration requires design review
-  --pf-v6-c-toolbar--BackgroundColor: var(--pf-v5-c-page__main-section--BackgroundColor);
-
   // Make toolbar stretch to all the available space and wrap up to two lines
   .pf-v6-c-toolbar__group:nth-child(3) {
     flex-grow: 1;
@@ -156,14 +153,4 @@
     svg {
       color: var(--pf-t--global--icon--color--regular);
     }
-}
-
-/* Menu toggles are transparent in light mode (but not in dark
-   mode). This makes them white on a white page (fine), but grey in a
-   grey toolbar. The deprecated Select had a white background. Let's
-   make MenuToggles match.
-*/
-html:not(.pf-v6-theme-dark) .pf-v6-c-menu-toggle:not(.pf-m-primary) {
-    // FIXME: PF6 migration requires design review
-    background-color: var(--pf-v5-global--BackgroundColor--100);
 }

@@ -196,7 +196,7 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
 
         def detail(index):
             card = self.card("VDO device vdo0")
-            return f'{card} .pf-v5-c-description-list__group:nth-of-type({index}) > dd'
+            return f'{card} .pf-v6-c-description-list__group:nth-of-type({index}) > dd'
 
         b.wait_text(detail(1), "/dev/mapper/vdo0")
         b.wait_in_text(detail(2), "used of 5.37 GB")
@@ -219,9 +219,9 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
         # Grow physical
 
         m.execute("lvresize vdo_vgroup/lvol -L 9G")
-        b.wait_in_text(".pf-v5-c-alert__description", 'Only 5.37 GB of 9')
+        b.wait_in_text(".pf-v6-c-alert__description", 'Only 5.37 GB of 9')
         b.click("button:contains('Grow to take all space')")
-        b.wait_not_present(".pf-v5-c-alert")
+        b.wait_not_present(".pf-v6-c-alert")
         b.wait_in_text(detail(2), "used of 9.66 GB")
 
         # Grow logical
@@ -412,22 +412,22 @@ class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
         # no package installation helper text
-        self.assertFalse(b.is_present("#dialog .pf-v5-c-helper-text"))
+        self.assertFalse(b.is_present("#dialog .pf-v6-c-helper-text"))
         self.dialog_set_val("purpose", "vdo")
         # shows the package installation note
-        b.wait_in_text("#dialog .pf-v5-c-helper-text", "vdo package will be installed")
+        b.wait_in_text("#dialog .pf-v6-c-helper-text", "vdo package will be installed")
 
         # vdo package does not exist
         self.dialog_apply()
-        b.wait_in_text("#dialog .pf-v5-c-alert.pf-m-danger", "vdo is not available from any repository")
+        b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "vdo is not available from any repository")
 
         self.createPackage("vdo", "999", "1")
         self.enableRepo()
 
         self.dialog_apply()
         # gets over package installation now, but it's a mock package
-        b.wait_in_text("#dialog .pf-v5-c-alert.pf-m-danger", "vdoformat")
-        b.wait_in_text("#dialog .pf-v5-c-alert.pf-m-danger", "No such file or directory")
+        b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "vdoformat")
+        b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "No such file or directory")
         # but it got past package installation
         self.assertIn("999", m.execute("rpm -q vdo"))
 

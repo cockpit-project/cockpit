@@ -40,6 +40,7 @@ import { split_connection_string } from "./machines/machines";
 import { add_host, edit_host, connect_host } from "./hosts_dialog.jsx";
 
 import { ShellState } from "./state";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -242,31 +243,36 @@ export class CockpitHosts extends React.Component {
 
         return (
             <div className="ct-switcher">
-                <div className="pf-v5-c-select pf-m-dark">
-                    <button onClick={this.toggleMenu} id="host-toggle" aria-labelledby="host-toggle" aria-expanded={(this.state.opened ? "true" : "false")} aria-haspopup="listbox" type="button" className="ct-nav-toggle pf-v5-c-select__toggle pf-m-plain">
-                        <span className="pf-v5-c-select__toggle-wrapper desktop_v">
-                            <span className="pf-v5-c-select__toggle-text">
-                                <HostLine user={user} host={label} />
+                <div className="pf-v6-c-select pf-m-dark">
+                    <button onClick={this.toggleMenu} id="host-toggle" aria-labelledby="host-toggle" aria-expanded={(this.state.opened ? "true" : "false")} aria-haspopup="listbox" type="button" className="ct-nav-toggle pf-v6-c-select__toggle pf-v6-c-menu-toggle pf-m-plain">
+                        <span className="pf-v6-c-button__text desktop_v">
+                            <span className="pf-v6-c-select__toggle-wrapper">
+                                <span className="pf-v6-c-select__toggle-text">
+                                    <HostLine user={user} host={label} />
+                                </span>
                             </span>
                         </span>
-                        <CaretUpIcon
-                            className={`pf-v5-c-select__toggle-arrow mobile_v pf-v5-c-icon pf-m-lg ${this.state.opened ? 'clicked' : ''}`}
-                            aria-hidden="true"
-                        />
-                        <span className="pf-v5-c-select__toggle-wrapper mobile_v">
+                        <Icon size="xl" className="mobile_v">
+                            <CaretUpIcon
+                                className={`pf-v6-c-select__toggle-arrow ${this.state.opened ? 'clicked' : ''}`}
+                                aria-hidden="true"
+                            />
+                        </Icon>
+                        <span className="pf-v6-c-select__toggle-wrapper mobile_v">
                             {_("Host")}
                         </span>
-                        <CaretDownIcon
-                            className={`pf-v5-c-select__toggle-arrow desktop_v pf-v5-c-icon ${this.state.opened ? 'clicked' : ''}`}
-                            aria-hidden="true"
-                        />
-
+                        <Icon size="xl" className="desktop_v">
+                            <CaretDownIcon
+                                className={`pf-v6-c-select__toggle-arrow ${this.state.opened ? 'clicked' : ''}`}
+                                aria-hidden="true"
+                            />
+                        </Icon>
                     </button>
                 </div>
 
                 { this.state.opened &&
                 <HostsSelector>
-                    <PageSidebar theme="dark" className={"sidebar-hosts" + (this.state.editing ? " edit-hosts" : "")}>
+                    <PageSidebar className={"sidebar-hosts" + (this.state.editing ? " edit-hosts" : "")}>
                         <CockpitNav
                             selector={this.props.selector}
                             groups={groups}

@@ -10,7 +10,7 @@ import cockpit from "cockpit";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 import { connect_host } from "cockpit-connect-ssh";
 
-import '../lib/patternfly/patternfly-5-cockpit.scss';
+import '../lib/patternfly/patternfly-6-cockpit.scss';
 
 const RemotePage = () => {
     const dialogs = useDialogs();
@@ -33,7 +33,7 @@ const RemotePage = () => {
     };
 
     return (
-        <Page>
+        <Page className="no-masthead-sidebar">
             <Form isHorizontal>
                 <FormGroup fieldId="host" label="Host" isRequired>
                     <TextInput id="host" value={host} onChange={(_ev, value) => setHost(value)} isRequired />

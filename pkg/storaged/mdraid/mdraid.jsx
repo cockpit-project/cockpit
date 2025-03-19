@@ -34,7 +34,7 @@ import {
 } from "../pages.jsx";
 import { make_block_page } from "../block/create-pages.jsx";
 import {
-    block_short_name, mdraid_name, encode_filename, decode_filename,
+    block_name, mdraid_name, encode_filename, decode_filename,
     fmt_size, fmt_size_long, get_active_usage, teardown_active_usage,
     get_available_spaces, prepare_available_spaces,
     reload_systemd, should_ignore,
@@ -46,7 +46,7 @@ import {
     init_teardown_usage
 } from "../dialog.jsx";
 
-import { partitionable_block_actions } from "../partitions/actions.jsx";
+import { partitionable_block_actions } from "../block/actions.jsx";
 
 const _ = cockpit.gettext;
 
@@ -203,7 +203,7 @@ export function make_mdraid_page(parent, mdraid) {
         title: _("MDRAID device"),
         next: null,
         page_location: ["mdraid", mdraid.UUID],
-        page_name: block ? block_short_name(block) : mdraid_name(mdraid),
+        page_name: block ? block_name(block) : mdraid_name(mdraid),
         page_icon: VolumeIcon,
         page_category: PAGE_CATEGORY_VIRTUAL,
         page_size: mdraid.Size,
@@ -228,7 +228,7 @@ export function make_mdraid_page(parent, mdraid) {
                  excuse: add_excuse,
                  tag: "disks",
              }),
-            ...(block ? partitionable_block_actions(block, "device") : []),
+            ...partitionable_block_actions(block),
             {
                 title: _("Delete"),
                 action: () => mdraid_delete(mdraid, block, mdraid_card),

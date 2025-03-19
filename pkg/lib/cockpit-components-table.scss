@@ -1,15 +1,6 @@
 @import "global-variables";
 
 .ct-table {
-  &.pf-m-compact {
-    > thead, > tbody {
-      > tr:not(.pf-v5-c-table__expandable-row) {
-        // We actually want the normal font size for our lists
-        --pf-v5-c-table-cell--FontSize: var(--pf-v5-global--FontSize--md);
-      }
-    }
-  }
-
   &-header {
     display: flex;
     align-items: center;
@@ -60,7 +51,7 @@
   }
 
   // Fix toggle button alignment
-  .pf-v5-c-table__toggle {
+  .pf-v6-c-table__toggle {
     // Workaround: Chrome sometimes oddly expands the table,
     // unless a width is set. (This affects panels the most, but not only.)
     // As the width is smaller than the contents, and this is a table,
@@ -83,7 +74,7 @@
 }
 
 // Special handling for rows with errors
-.pf-v5-c-table tbody tr:first-child.error {
+.pf-v6-c-table tbody tr:first-child.error {
   &, tbody.pf-m-expanded > & {
     background-color: var(--ct-color-list-critical-bg) !important; /* keep red background when expanded */
     border-block-start: 1px solid var(--ct-color-list-critical-border);

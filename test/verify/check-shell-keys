@@ -69,8 +69,8 @@ class TestKeys(testlib.MachineCase):
 
         # remove key on mobile, on mobile we show a kebab menu
         b.set_layout("mobile")
-        b.click("#account-authorized-keys button.pf-v5-c-menu-toggle")
-        b.click("button.pf-v5-c-menu__item")
+        b.click("#account-authorized-keys button.pf-v6-c-menu-toggle")
+        b.click("button.pf-v6-c-menu__item")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
         b.set_layout("desktop")
 
@@ -156,7 +156,7 @@ class TestKeys(testlib.MachineCase):
             return b.eval_js("cockpit.spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
 
         def toggleExpandedStateKey(identifier):
-            b.click(f"tr[data-name='{identifier}'] .pf-v5-c-table__toggle > button")
+            b.click(f"tr[data-name='{identifier}'] .pf-v6-c-table__toggle > button")
 
         def waitKeyPresent(identifier, present):
             if present:
@@ -169,7 +169,7 @@ class TestKeys(testlib.MachineCase):
             b.wait_visible(f"tr[data-name='{identifier}'][data-loaded={'true' if enabled else 'false'}]")
 
         def toggleKeyState(identifier):
-            b.click(f"tr[data-name='{identifier}'] .pf-v5-c-switch__input")
+            b.click(f"tr[data-name='{identifier}'] .pf-v6-c-switch__input")
 
         def selectTab(identifier, title):
             b.click(f"tr[data-name='{identifier}'] + tr li > button:contains('{title}')")
@@ -235,7 +235,7 @@ session    optional     pam_ssh_add.so
         self.assertEqual(text, id_rsa[5:])
 
         selectTab('id_rsa', 'Public key')
-        b.wait_val("tr[data-name=id_rsa] + tr .pf-v5-c-clipboard-copy input",
+        b.wait_val("tr[data-name=id_rsa] + tr .pf-v6-c-clipboard-copy input",
                    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP"
                    "2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQW"
                    "nT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIy"
@@ -277,7 +277,7 @@ session    optional     pam_ssh_add.so
         b.assert_pixels("#credentials-modal", "ssh-keys-dialog")
 
         b.click("#id_ed25519-change-password")
-        b.wait_visible('#credentials-modal .pf-v5-c-helper-text__item.pf-m-success')
+        b.wait_visible('#credentials-modal .pf-v6-c-helper-text__item.pf-m-success')
 
         # Log off and log back in, and we should have both loaded automatically
         if auto_load:
@@ -308,15 +308,15 @@ session    optional     pam_ssh_add.so
         b.click("#ssh-file-add-custom")
         b.set_file_autocomplete_val("#ssh-file-add-key", "/etc/")
         b.click("#ssh-file-add")
-        b.wait_text("#credentials-modal .pf-m-error > .pf-v5-c-helper-text__item-text", "Not a valid private key")
+        b.wait_text("#credentials-modal .pf-m-error > .pf-v6-c-helper-text__item-text", "Not a valid private key")
 
-        b.set_input_text("#credentials-modal .pf-v5-c-menu-toggle input", "/var/test/")
-        b.wait_in_text("#credentials-modal .pf-v5-c-menu__list-item.pf-m-aria-disabled", "No such file or directory")
-        b.focus("#credentials-modal .pf-v5-c-menu-toggle input")
+        b.set_input_text("#credentials-modal .pf-v6-c-menu-toggle input", "/var/test/")
+        b.wait_in_text(".pf-v6-c-menu__list-item.pf-m-aria-disabled", "No such file or directory")
+        b.focus("#credentials-modal .pf-v6-c-menu-toggle input")
         b.key("Backspace", 5)
-        b.wait_visible("#credentials-modal .pf-v5-c-menu__list-item.directory:contains('/var/lib/')")
-        b.click("#credentials-modal .pf-v5-c-menu-toggle button[aria-label='Clear input value']")
-        b.wait_val("#credentials-modal .pf-v5-c-menu-toggle input", "")
+        b.wait_visible(".pf-v6-c-menu__list-item.directory:contains('/var/lib/')")
+        b.click("#credentials-modal .pf-v6-c-menu-toggle button[aria-label='Clear input value']")
+        b.wait_val("#credentials-modal .pf-v6-c-menu-toggle input", "")
 
         b.set_file_autocomplete_val("#ssh-file-add-key", "/tmp/new.rsa")
         b.click("#ssh-file-add")
@@ -336,7 +336,7 @@ session    optional     pam_ssh_add.so
         waitKeyDetail(new_key, 'Type', 'RSA')
         self.assertNotEqual(getKeyDetail(new_key, 'Fingerprint'), "")
         selectTab(new_key, 'Public key')
-        self.assertTrue(b.val(f"tr[data-name='{new_key}'] + tr .pf-v5-c-clipboard-copy input").startswith(new_pk))
+        self.assertTrue(b.val(f"tr[data-name='{new_key}'] + tr .pf-v6-c-clipboard-copy input").startswith(new_pk))
 
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality

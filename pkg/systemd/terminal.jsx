@@ -1,6 +1,6 @@
 import cockpit from "cockpit";
 import 'cockpit-dark-theme'; // once per page
-import '../lib/patternfly/patternfly-5-cockpit.scss';
+import '../lib/patternfly/patternfly-6-cockpit.scss';
 
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -266,7 +266,7 @@ const _ = cockpit.gettext;
                                 </ToolbarGroup>
                                 <ToolbarItem>
                                     <button ref={this.resetButtonRef}
-                                            className="pf-v5-c-button pf-m-secondary terminal-reset"
+                                            className="pf-v6-c-button pf-m-secondary terminal-reset"
                                             onClick={this.onResetClick}>{_("Reset")}</button>
                                 </ToolbarItem>
                             </ToolbarContent>

@@ -57,7 +57,7 @@ class TestSshDialog(testlib.MachineCase):
         # previously unknown host
         b.set_input_text("#host", "user@127.0.0.1")
         b.click("button")
-        b.wait_text("#ssh-unknown-host-dialog .pf-v5-c-modal-box__title-text", "Unknown host: 127.0.0.1")
+        b.wait_text("#ssh-unknown-host-dialog .pf-v6-c-modal-box__title-text", "Unknown host: 127.0.0.1")
 
         # cancel dialog with footer button
         b.click("#ssh-unknown-host-dialog button.btn-cancel")
@@ -73,7 +73,7 @@ class TestSshDialog(testlib.MachineCase):
         # try again
         b.click("button")
         b.wait_in_text("#ssh-unknown-host-dialog", "You are connecting to 127.0.0.1 for the first time.")
-        b.click("#ssh-unknown-host-dialog .pf-v5-c-expandable-section__toggle-text")
+        b.click("#ssh-unknown-host-dialog .pf-v6-c-expandable-section__toggle button")
         b.wait_visible("#ssh-unknown-host-dialog .hostkey-verify-help-cmds input")
         b.assert_pixels("#ssh-unknown-host-dialog", "unknown-host", ignore=[".hostkey-fingerprint"])
         command = b.val("#ssh-unknown-host-dialog .hostkey-verify-help-cmds input")
@@ -89,7 +89,7 @@ class TestSshDialog(testlib.MachineCase):
         self.assertIn("127.0.0.1", m.execute("cat /home/user/.ssh/known_hosts"))
 
         # user has no SSH key, so only offers password
-        b.wait_text("#ssh-change-auth-dialog .pf-v5-c-modal-box__title-text", "Log in to 127.0.0.1")
+        b.wait_text("#ssh-change-auth-dialog .pf-v6-c-modal-box__title-text", "Log in to 127.0.0.1")
         b.wait_in_text("#ssh-change-auth-dialog", "Unable to log in to user@127.0.0.1 using SSH key authentication")
         b.assert_pixels("#ssh-change-auth-dialog", "change-auth")
         # empty password
@@ -100,7 +100,7 @@ class TestSshDialog(testlib.MachineCase):
         # wrong password
         b.set_input_text("#login-custom-password", "wrong")
         b.click("#ssh-change-auth-dialog button.pf-m-primary")
-        b.wait_in_text("#ssh-change-auth-dialog .pf-v5-c-alert", "Login failed")
+        b.wait_in_text("#ssh-change-auth-dialog .pf-v6-c-alert", "Login failed")
         # right password
         b.set_input_text("#login-custom-password", self.password)
         b.click("#ssh-change-auth-dialog button.pf-m-primary")
@@ -138,7 +138,7 @@ class TestSshDialog(testlib.MachineCase):
         b.set_input_text("#command", "echo newkey")
         b.click("button")
 
-        b.wait_text("#ssh-unknown-host-dialog .pf-v5-c-modal-box__title-text", "127.0.0.1 key changed")
+        b.wait_text("#ssh-unknown-host-dialog .pf-v6-c-modal-box__title-text", "127.0.0.1 key changed")
         b.wait_val("#ssh-unknown-host-dialog .hostkey-fingerprint input", shown_fp)
         b.click("#ssh-unknown-host-dialog button.pf-m-primary")
         b.wait_not_present("#ssh-unknown-host-dialog")
@@ -238,13 +238,13 @@ class TestSshDialog(testlib.MachineCase):
         b.click("button")
 
         # unknown host
-        b.wait_text("#ssh-unknown-host-dialog .pf-v5-c-modal-box__title-text", "Unknown host: 127.0.0.1")
+        b.wait_text("#ssh-unknown-host-dialog .pf-v6-c-modal-box__title-text", "Unknown host: 127.0.0.1")
         b.click("#ssh-unknown-host-dialog button.pf-m-primary")
         b.wait_not_present("#ssh-unknown-host-dialog")
 
         # create an SSH key with password
 
-        b.wait_text("#ssh-change-auth-dialog .pf-v5-c-modal-box__title-text", "Log in to 127.0.0.1")
+        b.wait_text("#ssh-change-auth-dialog .pf-v6-c-modal-box__title-text", "Log in to 127.0.0.1")
         # no SSH key present yet
         b.wait_not_present("#auth-key")
         b.click("#login-setup-keys")
@@ -285,7 +285,7 @@ class TestSshDialog(testlib.MachineCase):
         b.set_input_text("#locked-identity-password", "wrong")
         b.click("#ssh-change-auth-dialog button.pf-m-primary")
         b.wait_attr("#locked-identity-password", "aria-invalid", "false")
-        b.wait_in_text("#ssh-change-auth-dialog .pf-v5-c-alert", "Password not accepted")
+        b.wait_in_text("#ssh-change-auth-dialog .pf-v6-c-alert", "Password not accepted")
 
         b.set_input_text("#locked-identity-password", key_password)
         b.assert_pixels("#ssh-change-auth-dialog", "add-key")
@@ -372,7 +372,7 @@ class TestSshDialog(testlib.MachineCase):
         # create passwordless key
         b.set_input_text("#command", "echo create-nopwd-key")
         b.click("button")
-        b.wait_text("#ssh-change-auth-dialog .pf-v5-c-modal-box__title-text", "Log in to 127.0.0.1")
+        b.wait_text("#ssh-change-auth-dialog .pf-v6-c-modal-box__title-text", "Log in to 127.0.0.1")
         # no SSH key present yet
         b.wait_not_present("#auth-key")
         b.click("#login-setup-keys")

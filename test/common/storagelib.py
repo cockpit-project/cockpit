@@ -148,12 +148,12 @@ class StorageHelpers(MachineCase):
 
     def dialog_wait_alert(self, text1: str, text2: str | None = None) -> None:
         def has_alert_title() -> bool:
-            t = self.browser.text('#dialog .pf-v5-c-alert__title')
+            t = self.browser.text('#dialog .pf-v6-c-alert__title')
             return text1 in t or (text2 is not None and text2 in t)
         self.browser.wait(has_alert_title)
 
     def dialog_wait_title(self, text: str) -> None:
-        self.browser.wait_in_text('#dialog .pf-v5-c-modal-box__title', text)
+        self.browser.wait_in_text('#dialog .pf-v6-c-modal-box__title', text)
 
     def dialog_field(self, field: str) -> str:
         return f'#dialog [data-field="{field}"]'
@@ -200,19 +200,19 @@ class StorageHelpers(MachineCase):
                 self.browser.set_checked(sel + " input[type=checkbox]", val=True)
                 self.browser.set_input_text(sel + " [type=text]", val)
         elif ftype == "combobox":
-            self.browser.click(sel + " button.pf-v5-c-menu-toggle__button")
-            self.browser.click(sel + f" .pf-v5-c-menu li:contains('{val}') button")
+            self.browser.click(sel + " button.pf-v6-c-menu-toggle__button")
+            self.browser.click(f".pf-v6-c-menu li:contains('{val}') button")
         else:
             self.browser.set_val(sel, val)
 
     def dialog_combobox_choices(self, field: str) -> Any:
-        return self.browser.call_js_func("""(function (sel) {
-                                               var lis = ph_find(sel).querySelectorAll('li');
+        return self.browser.call_js_func("""(function () {
+                                               var lis = ph_find('.pf-v6-c-menu').querySelectorAll('li');
                                                var result = [];
                                                for (i = 0; i < lis.length; ++i)
                                                  result.push(lis[i].textContent);
                                                return result;
-                                             })""", self.dialog_field(field))
+                                             })""")
 
     def dialog_is_present(self, field: str, label: str) -> bool:
         return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}") input')
@@ -235,7 +235,7 @@ class StorageHelpers(MachineCase):
 
     def dialog_wait_error(self, field: str, val: str) -> None:
         # XXX - allow for more than one error
-        self.browser.wait_in_text('#dialog .pf-v5-c-form__helper-text .pf-m-error', val)
+        self.browser.wait_in_text('#dialog .pf-v6-c-form__helper-text .pf-m-error', val)
 
     def dialog_wait_not_present(self, field: str) -> None:
         self.browser.wait_not_present(self.dialog_field(field))
@@ -376,7 +376,7 @@ class StorageHelpers(MachineCase):
                 self.dialog_wait_close()
                 return True
             except Exception:
-                dialog_text = self.browser.text('#dialog .pf-v5-c-alert__title')
+                dialog_text = self.browser.text('#dialog .pf-v6-c-alert__title')
                 for err in errors:
                     if err in dialog_text:
                         print("WARNING: retrying dialog")
@@ -594,10 +594,10 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
         return f"[data-test-card-title='{title}']"
 
     def card_parent_link(self) -> str:
-        return ".pf-v5-c-breadcrumb__item:nth-last-child(2) > a"
+        return ".pf-v6-c-breadcrumb__item:nth-last-child(2) > a"
 
     def card_header(self, title: str) -> str:
-        return self.card(title) + " .pf-v5-c-card__header"
+        return self.card(title) + " .pf-v6-c-card__header"
 
     def card_row(self, title: str, index: int | None = None, name: str | None = None, location: str | None = None) -> str:
         if index is not None:
@@ -626,17 +626,17 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
         return self.card(card_title) + f" button:contains('{button_title}')"
 
     def dropdown_toggle(self, parent: str) -> str:
-        return parent + " .pf-v5-c-menu-toggle"
+        return parent + " .pf-v6-c-menu-toggle"
 
-    def dropdown_action(self, parent: str, title: str) -> str:
-        return parent + f" .pf-v5-c-menu button:contains('{title}')"
+    def dropdown_action(self, title: str) -> str:
+        return f".pf-v6-c-menu button:contains('{title}')"
 
-    def dropdown_description(self, parent: str, title: str) -> str:
-        return parent + f" .pf-v5-c-menu button:contains('{title}') .pf-v5-c-menu__item-description"
+    def dropdown_description(self, title: str) -> str:
+        return f".pf-v6-c-menu button:contains('{title}') .pf-v6-c-menu__item-description"
 
     def click_dropdown(self, parent: str, title: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
-        self.browser.click(self.dropdown_action(parent, title))
+        self.browser.click(self.dropdown_action(title))
 
     def click_card_dropdown(self, card_title: str, button_title: str) -> None:
         self.click_dropdown(self.card_header(card_title), button_title)
@@ -646,8 +646,8 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
 
     def check_dropdown_action_disabled(self, parent: str, title: str, expected_text: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
-        self.browser.wait_visible(self.dropdown_action(parent, title) + "[disabled]")
-        self.browser.wait_text(self.dropdown_description(parent, title), expected_text)
+        self.browser.wait_visible(self.dropdown_action(title) + "[disabled]")
+        self.browser.wait_text(self.dropdown_description(title), expected_text)
         self.browser.click(self.dropdown_toggle(parent))
 
     def wait_mounted(self, card_title: str) -> None:

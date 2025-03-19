@@ -27,12 +27,12 @@
 @import "@patternfly/patternfly/utilities/Text/text.scss";
 @import "@patternfly/patternfly/utilities/Alignment/alignment.scss";
 
-#storage .pf-v5-c-card {
+#storage .pf-v6-c-card {
   @extend .ct-card;
 }
 
-.ct-card.pf-v5-c-card .pf-v5-c-card__title-text.ct-card-small-title {
-  font-size: var(--pf-v5-global--FontSize--xl);
+.ct-card.pf-v6-c-card .pf-v6-c-card__title-text.ct-card-small-title {
+  font-size: var(--pf-t--global--font--size--xl);
 }
 
 // Only used in iSCSI dialog
@@ -57,7 +57,7 @@
 
   th {font-weight: bold;
     text-align: start;
-    color: var(--pf-v5-global--palette--black-800);
+    color: var(--pf-t--global--text--color--regular);
     padding-block: 0.75em;
     padding-inline: 0;
   }
@@ -75,7 +75,7 @@
 
 div.progress {
   inline-size: 100%;
-  block-size: var(--pf-v5-global--FontSize-xs);
+  block-size: var(--pf-t--global--font--size--xs);
 }
 
 td.job-description {
@@ -100,26 +100,26 @@ td.job-action {
   text-align: start;
 }
 
-.pf-v5-c-modal-box__body table {
+.pf-v6-c-modal-box__body table {
   --pf-v5-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
 }
 
 * + .modal-footer-teardown {
-  padding-block-start: var(--pf-v5-global--spacer--xl);
+  padding-block-start: var(--pf-t--global--spacer--xl);
 }
 
 // FIXME: This is visual only; it needs to be fixed for a11y reasons, likely at the JSX level
 .indent {
-  padding-inline-start: calc(var(--pf-v5-global--spacer--md) * min(var(--level, 0), 10));
+  padding-inline-start: calc(var(--pf-t--global--spacer--md) * min(var(--level, 0), 10));
   white-space: nowrap;
 }
 
 // FIXME: Is this used?
-a.disabled {
-  color: var(--pf-v5-global--palette--light-blue-200);
-  text-decoration: none;
-  cursor: not-allowed;
-}
+// a.disabled {
+//   color: var(--pf-v5-global--palette--light-blue-200);
+//   text-decoration: none;
+//   cursor: not-allowed;
+// }
 
 .widest-title {
   visibility: hidden;
@@ -131,22 +131,22 @@ a.disabled {
   font-size: 140%;
 }
 
-.pf-v5-c-modal-box h3 {
+.pf-v6-c-modal-box h3 {
   margin-block-start: 0;
   line-height: 24px;
 }
 
 .delete-resource-dangerous {
-  color: var(--pf-v5-global--danger-color--200);
+  color: var(--pf-t--global--color--status--danger--default);
 }
 
-.pf-v5-c-modal-box .slot-warning {
-  color: var(--pf-v5-global--danger-color--200);
+.pf-v6-c-modal-box .slot-warning {
+  color: var(--pf-t--global--color--status--danger--default);
 }
 
 // This is needed to avoid showing scrollbar in dialog
 .size-slider {
-  padding-block-end: var(--pf-v5-global--spacer--xs);
+  padding-block-end: var(--pf-t--global--spacer--xs);
 }
 
 .panel-heading {
@@ -172,16 +172,16 @@ a.disabled {
 }
 
 // So that "Stored passphrase" fits
-.pf-v5-c-description-list.wide-label {
-  --pf-v5-c-description-list--m-horizontal__term--width: minmax(0, 18ch);
-}
+// .pf-v6-c-description-list.wide-label {
+//   --pf-v5-c-description-list--m-horizontal__term--width: minmax(0, 18ch);
+// }
 
-.pf-v5-c-description-list .pf-v5-c-progress {
+.pf-v6-c-description-list .pf-v6-c-progress {
   max-inline-size: 30ch;
 }
 
 .usage-bar {
-  --bg-color: var(--pf-v5-global--primary-color--100);
+  --bg-color: var(--pf-t--chart--theme--colorscales--blue--colorscale--100);
   display: inline-block;
   inline-size: 20em;
   block-size: 1rem;
@@ -195,7 +195,7 @@ a.disabled {
   }
 
   &-danger {
-    --bg-color: var(--pf-v5-global--danger-color--100);
+    --bg-color: var(--pf-t--chart--global--danger--color--100);
   }
 
   &-empty {
@@ -249,7 +249,7 @@ a.disabled {
   border: 1px solid var(--pf-v5-global--palette--purple-400);
   background: var(--pf-v5-global--palette--purple-100);
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     border-color: var(--pf-v5-global--palette--purple-300);
     background: var(--pf-v5-global--palette--purple-500);
   }
@@ -262,7 +262,7 @@ a.disabled {
     border-inline-end: 1px solid var(--pf-v5-global--palette--purple-400);
   }
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     border-color: var(--pf-v5-global--palette--purple-300);
   }
 }
@@ -276,7 +276,7 @@ a.disabled {
   border: 1px solid var(--pf-v5-global--palette--purple-400);
   background: var(--pf-v5-global--palette--purple-100);
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     border-color: var(--pf-v5-global--palette--purple-300);
     background: var(--pf-v5-global--palette--purple-500);
   }
@@ -289,7 +289,7 @@ a.disabled {
 .storage-stripe-pv-box:not(:last-child) {
   border-block-end: 1px solid var(--pf-v5-global--palette--purple-400);
 
-  .pf-v5-theme-dark & {
+  .pf-v6-theme-dark & {
     border-color: var(--pf-v5-global--palette--purple-300);
   }
 }
@@ -319,7 +319,7 @@ a.disabled {
     white-space: nowrap !important;
 }
 
-.pf-v5-c-table__tbody .storage-device-icon {
+.pf-v6-c-table__tbody .storage-device-icon {
   --icon-size: 18px;
   // Ensure the icon's cell size is as minimal as the icon allows
   // (WebKit needs a size; 0 doesn't work for it)
@@ -329,11 +329,11 @@ a.disabled {
 
   > svg {
     // Bump the icon down to align with text, based on the difference between icon and text size, just for the top
-    inset-block-start: calc((var(--pf-v5-global--spacer--md) * var(--pf-v5-global--LineHeight--md) - var(--icon-size)) / 2);
+    inset-block-start: calc((var(--pf-t--global--spacer--md) * var(--pf-t--global--font--line-height--body) - var(--icon-size)) / 2);
     position: relative;
 
     path {
-      fill: var(--pf-v5-global--Color--200);
+      fill: var(--pf-t--global--text--color--subtle);
     }
   }
 }

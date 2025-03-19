@@ -238,7 +238,7 @@ export class TopNav extends React.Component {
                         <ToolbarContent className="ct-topnav-content">
                             { (current_frame && !current_frame.ready) &&
                                 <ToolbarItem id="machine-spinner">
-                                    <Spinner size="lg" style={{ "--pf-v5-c-spinner--Color": "#fff", "--pf-v5-c-spinner--diameter": "2rem" } as React.CSSProperties } />
+                                    <Spinner size="lg" style={{ "--pf-v6-c-spinner--diameter": "2rem" } as React.CSSProperties } />
                                 </ToolbarItem>
                             }
                             { connected &&

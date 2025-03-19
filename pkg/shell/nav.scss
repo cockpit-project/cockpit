@@ -464,18 +464,6 @@ $desktop: $phone + 1px;
       // Ironically, mobile has more space here (due to being a popup)
       flex-direction: column;
     }
-
-    > button {
-      --pf-v5-c-button--m-secondary--Color: rgb(255 255 255 / 75%);
-      --pf-v5-c-button--m-secondary--BorderColor: rgb(255 255 255 / 75%);
-      --pf-v5-c-button--m-secondary--hover--Color: rgb(255 255 255 / 100%);
-      --pf-v5-c-button--m-secondary--hover--BorderColor: rgb(255 255 255 / 100%);
-
-      // Simulate PF4's disabled icon, but with alpha
-      --pf-v5-c-button--disabled--BackgroundColor: rgb(255 255 255 / 17%);
-      --pf-v5-c-button--disabled--Color: rgb(0 7 13 / 45%);
-      margin: 0;
-    }
   }
 
   // Use the "current" background for actions color when item is selected
@@ -527,8 +515,6 @@ $desktop: $phone + 1px;
   .ct-nav-toggle {
     &:hover, &:active, &.active, &.interact, &[aria-expanded="true"], &.pf-m-expanded {
       text-decoration: none;
-      // approximate --pf-v5-global--BackgroundColor--dark-400, but with opacity
-      background: rgb(249 252 255 / 32%);
 
       .hostname {
         text-decoration: underline;

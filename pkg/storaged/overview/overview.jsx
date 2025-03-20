@@ -142,7 +142,8 @@ const OverviewCard = ({ card, plot_state }) => {
     };
 
     const local_menu_items = [
-        menu_item(null, _("Create MDRAID device"), () => create_mdraid()),
+        // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=2353304
+        !client.in_anaconda_mode() && menu_item(null, _("Create MDRAID device"), () => create_mdraid()),
         menu_item(lvm2_feature, _("Create LVM2 volume group"), () => create_vgroup()),
         menu_item(stratis_feature, _("Create Stratis pool"), () => create_stratis_pool()),
     ].filter(item => !!item);

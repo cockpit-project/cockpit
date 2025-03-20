@@ -20,10 +20,44 @@
 import cockpit from "cockpit";
 import client from "../client";
 
-import { mdraid_name, validate_mdraid_name, get_available_spaces, prepare_available_spaces } from "../utils.js";
+import {
+    mdraid_name, validate_mdraid_name, get_available_spaces, prepare_available_spaces,
+    encode_filename, decode_filename
+} from "../utils.js";
 import { dialog_open, TextInput, SelectOne, SelectSpaces } from "../dialog.jsx";
 
 const _ = cockpit.gettext;
+
+async function mdraid_create(members, level, name, chunk, metadata_version) {
+    if (!metadata_version || client.at_least("2.11")) {
+        const opts = { };
+        if (metadata_version)
+            opts.version = { t: "ay", v: encode_filename(metadata_version) };
+        await client.manager.MDRaidCreate(members, level, name, chunk, opts);
+    } else {
+        // Let's call mdadm explicitly if we need to set the metadata
+        // version and UDisks2 is older than 2.11.
+
+        // The member block devices are all empty already and we don't
+        // need to wipe them.  We need to wait for their D-Bus proxies
+        // since they might have just been created by
+        // prepare_available_spaces.
+
+        const devs = [];
+        for (const path of members) {
+            devs.push(decode_filename((await client.wait_for(() => client.blocks[path])).PreferredDevice));
+        }
+
+        await cockpit.spawn([
+            "mdadm", "--create", name, "--run",
+            "--level=" + level,
+            ...(chunk ? ["--chunk=" + String(chunk / 1024)] : []),
+            "--metadata=" + metadata_version,
+            "--raid-devices=" + String(devs.length),
+            ...devs
+        ], { superuser: "require", err: "message" });
+    }
+}
 
 export function create_mdraid() {
     function mdraid_exists(name) {
@@ -111,10 +145,14 @@ export function create_mdraid() {
         Action: {
             Title: _("Create"),
             action: function (vals) {
+                // When in Anaconda mode, we explicitly use metadata
+                // version 1.0 since the default doesn't work for
+                // things that the bootloaders need to access.
+                //
+                const metadata_version = client.in_anaconda_mode() ? "1.0" : null;
+
                 return prepare_available_spaces(client, vals.disks).then(paths => {
-                    return client.manager.MDRaidCreate(paths, vals.level,
-                                                       vals.name, (vals.chunk || 0) * 1024,
-                                                       { });
+                    return mdraid_create(paths, vals.level, vals.name, (vals.chunk || 0) * 1024, metadata_version);
                 });
             }
         }

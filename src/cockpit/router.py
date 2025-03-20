@@ -146,6 +146,10 @@ class Router(CockpitProtocolServer):
         self.no_endpoints = asyncio.Event()
         self.no_endpoints.set()  # at first there are no endpoints
 
+    def info(self) -> JsonObject:
+        """Used by the 'info' channel.  Gets overridden in Bridge."""
+        return {}
+
     def check_rules(self, options: JsonObject) -> Endpoint:
         for rule in self.routing_rules:
             logger.debug('  applying rule %s', rule)

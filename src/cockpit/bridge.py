@@ -156,10 +156,7 @@ class Bridge(Router, PackagesListener):
 
     def do_send_init(self) -> None:
         init_args: 'dict[str, JsonValue]' = {
-            'capabilities': {
-                'explicit-superuser': True,
-                'channels': self.channels.capabilities(),
-            },
+            'capabilities': {'explicit-superuser': True},
             'command': 'init',
             'os-release': self.get_os_release(),
             'version': 1,

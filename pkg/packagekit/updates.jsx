@@ -476,7 +476,7 @@ class RestartServices extends React.Component {
 
     restart() {
         // make sure cockpit package is the last to restart
-        const daemons = this.props.tracerPackages.daemons.sort((a, b) => {
+        const daemons = this.props.restartPackages.daemons.sort((a, b) => {
             if (a.includes("cockpit") && b.includes("cockpit"))
                 return 0;
             if (a.includes("cockpit"))
@@ -487,7 +487,7 @@ class RestartServices extends React.Component {
         this.setState({ restartInProgress: true });
         Promise.all(restarts)
                 .then(() => {
-                    this.props.onValueChanged({ tracerPackages: { reboot: this.props.tracerPackages.reboot, daemons: [], manual: this.props.tracerPackages.manual } });
+                    this.props.onValueChanged({ restartPackages: { reboot: this.props.restartPackages.reboot, daemons: [], manual: this.props.restartPackages.manual } });
                     if (this.props.state === "updateSuccess")
                         this.props.loadUpdates();
                     this.setState({ restartInProgress: false });
@@ -495,24 +495,24 @@ class RestartServices extends React.Component {
                 })
                 .catch(ex => {
                     this.dialogErrorSet(_("Failed to restart service"), ex.message);
-                    // call Tracer again to see what services remain
-                    this.props.callTracer(null);
+                    // see what services remain
+                    this.props.checkNeedsRestart(null);
                 });
     }
 
     render() {
         let body;
-        if (this.props.tracerRunning) {
+        if (this.props.checkRestartRunning) {
             body = (
                 <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                     <Spinner size="sm" />
                     <p>{_("Reloading the state of remaining services")}</p>
                 </Flex>
             );
-        } else if (this.props.tracerPackages.daemons.length > 0) {
+        } else if (this.props.restartPackages.daemons.length > 0) {
             body = (<>
-                {cockpit.ngettext("The following service will be restarted:", "The following services will be restarted:", this.props.tracerPackages.daemons.length)}
-                <TwoColumnContent list={this.props.tracerPackages.daemons} flexClassName="restart-services-modal-body" />
+                {cockpit.ngettext("The following service will be restarted:", "The following services will be restarted:", this.props.restartPackages.daemons.length)}
+                <TwoColumnContent list={this.props.restartPackages.daemons} flexClassName="restart-services-modal-body" />
             </>);
         }
 
@@ -524,7 +524,7 @@ class RestartServices extends React.Component {
                    title={_("Restart services")}
                    footer={
                        <>
-                           {this.props.tracerPackages.daemons.includes("cockpit") &&
+                           {this.props.restartPackages.daemons.includes("cockpit") &&
                                <Alert variant="warning"
                                    title={_("Web Console will restart")}
                                    isInline>
@@ -670,8 +670,8 @@ const TwoColumnTitle = ({ icon, str }) => {
     </>);
 };
 
-const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, restart, manual, reboot, tracerAvailable, history }) => {
-    if (!tracerAvailable) {
+const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, restart, manual, reboot, checkRestartAvailable, history }) => {
+    if (!checkRestartAvailable) {
         /* tracer is not available any more in RHEL 10; as a special case, if only kpatch and kernel were
          * updated, don't reboot (as that's their whole raison d'être) */
         const pkgs = Object.keys(history[0] ?? {}).filter(p => p != "_time");
@@ -780,12 +780,12 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
     </>);
 };
 
-const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, tracerPackages, onValueChanged }) => {
+const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, restartPackages, onValueChanged }) => {
     const numUpdates = Object.keys(updates).length;
     const numSecurity = count_security_updates(updates);
-    const numRestartServices = tracerPackages.daemons.length;
-    const numManualSoftware = tracerPackages.manual.length;
-    const numRebootPackages = tracerPackages.reboot.length;
+    const numRestartServices = restartPackages.daemons.length;
+    const numManualSoftware = restartPackages.manual.length;
+    const numRebootPackages = restartPackages.reboot.length;
     let lastChecked;
     // PackageKit returns G_MAXUINT if the db was never checked.
     if (timeSinceRefresh !== null && timeSinceRefresh !== 2 ** 32 - 1)
@@ -850,7 +850,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, tracerPacka
             id: "processes-need-restart",
             stateStr: _("Some software needs to be restarted manually"),
             icon: <ProcessAutomationIcon />,
-            secondary: <Text component={TextVariants.small}>{tracerPackages.manual.join(", ")}</Text>
+            secondary: <Text component={TextVariants.small}>{restartPackages.manual.join(", ")}</Text>
         });
     }
 
@@ -896,7 +896,7 @@ class CardsPage extends React.Component {
             <UpdatesStatus key="updates-status"
                                 updates={this.props.updates}
                                 onValueChanged={this.props.onValueChanged}
-                                tracerPackages={this.props.tracerPackages}
+                                restartPackages={this.props.restartPackages}
                                 highestSeverity={this.props.highestSeverity}
                                 timeSinceRefresh={this.props.timeSinceRefresh} />
             <KpatchStatus />
@@ -1000,9 +1000,9 @@ class OsUpdates extends React.Component {
             unregistered: false,
             privileged: false,
             autoUpdatesEnabled: undefined,
-            tracerPackages: { daemons: [], manual: [], reboot: [] },
-            tracerAvailable: false,
-            tracerRunning: false,
+            restartPackages: { daemons: [], manual: [], reboot: [] },
+            checkRestartAvailable: false,
+            checkRestartRunning: false,
             showRestartServicesDialog: false,
             showRebootSystemDialog: false,
             backend: "",
@@ -1027,7 +1027,7 @@ class OsUpdates extends React.Component {
 
     componentDidMount() {
         this._mounted = true;
-        this.callTracer(null);
+        this.checkNeedsRestart(null);
 
         PK.getBackendName().then(([prop]) => this.setState({ backend: prop.v }));
 
@@ -1066,16 +1066,16 @@ class OsUpdates extends React.Component {
         this._mounted = false;
     }
 
-    callTracer(state) {
-        this.setState({ tracerRunning: true });
+    checkNeedsRestart(state) {
+        this.setState({ checkRestartRunning: true });
         python.spawn(callTracerScript, null, { err: "message", superuser: "require" })
                 .then(output => {
-                    const tracerPackages = JSON.parse(output);
+                    const restartPackages = JSON.parse(output);
                     // Filter out duplicates
-                    tracerPackages.reboot = [...new Set(shortenCockpitWsInstance(tracerPackages.reboot))];
-                    tracerPackages.daemons = [...new Set(shortenCockpitWsInstance(tracerPackages.daemons))];
-                    tracerPackages.manual = [...new Set(shortenCockpitWsInstance(tracerPackages.manual))];
-                    const nextState = { tracerAvailable: true, tracerRunning: false, tracerPackages };
+                    restartPackages.reboot = [...new Set(shortenCockpitWsInstance(restartPackages.reboot))];
+                    restartPackages.daemons = [...new Set(shortenCockpitWsInstance(restartPackages.daemons))];
+                    restartPackages.manual = [...new Set(shortenCockpitWsInstance(restartPackages.manual))];
+                    const nextState = { checkRestartAvailable: true, checkRestartRunning: false, restartPackages };
                     if (state)
                         nextState.state = state;
 
@@ -1094,7 +1094,7 @@ class OsUpdates extends React.Component {
                         exception.problem !== "terminated")
                         console.error(`Tracer failed: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
                     // When tracer fails, act like it's not available (demand reboot after every update)
-                    const nextState = { tracerAvailable: false, tracerRunning: false, tracerPackages: { reboot: [], daemons: [], manual: [] } };
+                    const nextState = { checkRestartAvailable: false, checkRestartRunning: false, restartPackages: { reboot: [], daemons: [], manual: [] } };
                     if (state)
                         nextState.state = state;
                     this.setState(nextState);
@@ -1286,17 +1286,17 @@ class OsUpdates extends React.Component {
                                            this.setState({ applyTransaction: null, applyTransactionProps: {}, applyActions: [] });
 
                                            if (exit === PK.Enum.EXIT_SUCCESS) {
-                                               if (this.state.tracerAvailable) {
+                                               if (this.state.checkRestartAvailable) {
                                                    this.setState({ state: "loading", loadPercent: null });
-                                                   this.callTracer("updateSuccess");
+                                                   this.checkNeedsRestart("updateSuccess");
                                                } else {
                                                    this.setState({ state: "updateSuccess", loadPercent: null });
                                                }
                                                this.loadHistory();
                                            } else if (exit === PK.Enum.EXIT_CANCELLED) {
-                                               if (this.state.tracerAvailable) {
+                                               if (this.state.checkRestartAvailable) {
                                                    this.setState({ state: "loading", loadPercent: null });
-                                                   this.callTracer(null);
+                                                   this.checkNeedsRestart(null);
                                                }
                                                this.loadUpdates();
                                            } else {
@@ -1465,10 +1465,10 @@ class OsUpdates extends React.Component {
                     </PageSection>
                     { this.state.showRestartServicesDialog &&
                         <RestartServices
-                            tracerPackages={this.state.tracerPackages}
+                            restartPackages={this.state.restartPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
-                            callTracer={(state) => this.callTracer(state)}
+                            checkNeedsRestart={state => this.checkNeedsRestart(state)}
                             onValueChanged={delta => this.setState(delta)}
                             loadUpdates={this.loadUpdates} />
                     }
@@ -1524,18 +1524,18 @@ class OsUpdates extends React.Component {
             }
 
             let warningTitle;
-            if (!this.state.tracerAvailable) {
+            if (!this.state.checkRestartAvailable) {
                 warningTitle = _("Reboot recommended");
             } else {
-                if (this.state.tracerPackages.reboot.length > 0)
+                if (this.state.restartPackages.reboot.length > 0)
                     warningTitle = cockpit.ngettext("A package needs a system reboot for the updates to take effect:",
                                                     "Some packages need a system reboot for the updates to take effect:",
-                                                    this.state.tracerPackages.reboot.length);
-                else if (this.state.tracerPackages.daemons.length > 0)
+                                                    this.state.restartPackages.reboot.length);
+                else if (this.state.restartPackages.daemons.length > 0)
                     warningTitle = cockpit.ngettext("A service needs to be restarted for the updates to take effect:",
                                                     "Some services need to be restarted for the updates to take effect:",
-                                                    this.state.tracerPackages.daemons.length);
-                else if (this.state.tracerPackages.manual.length > 0)
+                                                    this.state.restartPackages.daemons.length);
+                else if (this.state.restartPackages.manual.length > 0)
                     warningTitle = _("Some software needs to be restarted manually");
             }
 
@@ -1551,19 +1551,19 @@ class OsUpdates extends React.Component {
                     <UpdateSuccess onIgnore={this.loadUpdates}
                         openServiceRestartDialog={() => this.setState({ showRestartServicesDialog: true })}
                         openRebootDialog={() => this.setState({ showRebootSystemDialog: true })}
-                        restart={this.state.tracerPackages.daemons}
-                        manual={this.state.tracerPackages.manual}
-                        reboot={this.state.tracerPackages.reboot}
-                        tracerAvailable={this.state.tracerAvailable}
+                        restart={this.state.restartPackages.daemons}
+                        manual={this.state.restartPackages.manual}
+                        reboot={this.state.restartPackages.reboot}
+                        checkRestartAvailable={this.state.checkRestartAvailable}
                         history={this.state.history} />
                     { this.state.showRebootSystemDialog &&
                         <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />
                     }
                     { this.state.showRestartServicesDialog &&
-                        <RestartServices tracerPackages={this.state.tracerPackages}
+                        <RestartServices restartPackages={this.state.restartPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
-                            callTracer={(state) => this.callTracer(state)}
+                            checkNeedsRestart={(state) => this.checkNeedsRestart(state)}
                             onValueChanged={delta => this.setState(delta)}
                             loadUpdates={this.loadUpdates} />
                     }
@@ -1595,12 +1595,12 @@ class OsUpdates extends React.Component {
                         <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
                     </Gallery>
                     { this.state.showRestartServicesDialog &&
-                    <RestartServices tracerPackages={this.state.tracerPackages}
-                                close={() => this.setState({ showRestartServicesDialog: false })}
-                                state={this.state.state}
-                                callTracer={(state) => this.callTracer(state)}
-                                onValueChanged={delta => this.setState(delta)}
-                                loadUpdates={this.loadUpdates} />
+                    <RestartServices restartPackages={this.state.restartPackages}
+                                     close={() => this.setState({ showRestartServicesDialog: false })}
+                                     state={this.state.state}
+                                     checkNeedsRestart={state => this.checkNeedsRestart(state)}
+                                     onValueChanged={delta => this.setState(delta)}
+                                     loadUpdates={this.loadUpdates} />
                     }
                     { this.state.showRebootSystemDialog &&
                     <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />

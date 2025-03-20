@@ -129,7 +129,8 @@ QUnit.test("fsreplace1 no path", async assert => {
 });
 
 QUnit.test("fsreplace1 attrs", async assert => {
-    assert.propContains(cockpit.capabilities?.channels, { fsreplace1: ['attrs'] });
+    await cockpit.init();
+    assert.propContains(cockpit.info.channels, { fsreplace1: ['attrs'] });
 
     const valid = cockpit.channel({ payload: "fsreplace1", path: `${dir}/tmp`, attrs: {} });
     await valid.wait();

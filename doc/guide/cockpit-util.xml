@@ -84,25 +84,105 @@ string = cockpit.format_bits_per_sec(number, [options])
       <code>options</code>.</para>
   </refsection>
 
+  <refsection id="cockpit-init">
+    <title>cockpit.init()</title>
+<programlisting>
+await cockpit.init();
+
+cockpit.init().then(() => { ... });
+</programlisting>
+    <para>Requests initialization of the Cockpit client library.  This will ensure that the transport is
+      connected and we are ready to create channels.  It also populates the <code>cockpit.info</code>
+      field.</para>
+    <para>This function returns a promise.  Initialization isn't complete until the promise has resolved.  You
+    can either <code>await</code> it or call <code>.then()</code> on it.</para>
+  </refsection>
+
   <refsection id="cockpit-info">
     <title>cockpit.info</title>
 <programlisting>
-cockpit.info["version"]
-cockpit.info["build"]
+cockpit.info.channels[payload]
+
+cockpit.info.os_release[field]
+
+cockpit.info.user
+
+cockpit.info.ws.version
 </programlisting>
-    <para>This object contains information about cockpit itself. Note that when cockpit is
-      running on multiple servers, this only reflects the server that was connected to.
-      The following fields are defined:</para>
+    <para>This object contains information about Cockpit itself.  It is only available after cockpit.init() has
+      been called and awaited.</para>
 
     <variablelist>
       <varlistentry>
-        <term><code>"build"</code></term>
-        <listitem><para>A string containing build details.</para></listitem>
+        <term><code>channels</code></term>
+        <listitem><para>This is a mapping of channel payload types (keys, strings) supported by the bridge to
+          capabilities advertised by those channels (values, lists of strings). Channels are listed even if they
+          don't advertise any capabilities, making this useful as a way to determine which channel types are
+          supported by the bridge.</para></listitem>
       </varlistentry>
+
       <varlistentry>
-        <term><code>"version"</code></term>
-        <listitem><para>A string containing the cockpit version number. It is almost always
-          incorrect to use this to make a decision in code.</para></listitem>
+        <term><code>os_release</code></term>
+        <listitem><para>This is the data from the <filename>/etc/os-release</filename> or
+          <filename>/usr/lib/os-release</filename> on the system that the bridge is running on.  It is a mapping
+          from the key names to their values.  See the <ulink
+          url="https://www.freedesktop.org/software/systemd/man/latest/os-release.html">os-release
+          Specification</ulink> for information about the available keys.</para></listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><code>user</code></term>
+        <listitem>
+          <para>Contains information about the user we're logged in as.</para>
+          <variablelist>
+            <varlistentry>
+              <term><code>uid</code></term>
+              <listitem><para>This is unix user id as an integer.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><code>gid</code></term>
+              <listitem><para>This is unix user group id as an integer.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><code>name</code></term>
+              <listitem><para>This is the unix user name like <code>"root"</code>.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><code>fullname</code></term>
+              <listitem><para>This is a readable name for the user, from the GECOS field.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><code>group</code></term>
+              <listitem><para>This is the primary group name of the user.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><code>groups</code></term>
+              <listitem><para>This is an array of group names to which the user belongs.  The first item in this
+                list is the primary group.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><code>home</code></term>
+              <listitem><para>This is user's home directory.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><code>shell</code></term>
+              <listitem><para>This is unix user shell.</para></listitem>
+            </varlistentry>
+          </variablelist>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><code>ws</code></term>
+        <listitem>
+          <para>Contains information about the webserver Cockpit is being served with.</para>
+          <variablelist>
+            <varlistentry>
+              <term><code>version</code></term>
+              <listitem><para>The version of the webserver.</para></listitem>
+            </varlistentry>
+          </variablelist>
+        </listitem>
       </varlistentry>
     </variablelist>
 

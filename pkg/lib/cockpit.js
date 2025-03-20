@@ -30,10 +30,16 @@ import { transport_origin, calculate_application, calculate_url } from './cockpi
 import { Location } from 'cockpit/_internal/location';
 import { ensure_transport, transport_globals } from './cockpit/_internal/transport';
 import { FsInfoClient } from "./cockpit/fsinfo";
+import { fetch_info } from './cockpit/_internal/info';
 
 function factory() {
     const cockpit = { };
     event_mixin(cockpit, { });
+
+    cockpit.init = async () => {
+        await new Promise(resolve => ensure_transport(resolve));
+        Object.assign(cockpit.info, await fetch_info());
+    };
 
     cockpit.channel = function channel(options) {
         return new Channel(options);
@@ -1073,15 +1079,16 @@ function factory() {
     event_mixin(cockpit.info, { });
 
     transport_globals.init_callback = function(options) {
-        if (options.system)
+        if (options.system) {
+            cockpit.info.ws = options.system;
             Object.assign(cockpit.info, options.system);
+        }
         if (options.system)
             cockpit.info.dispatchEvent("changed");
 
         cockpit.transport.options = options;
         cockpit.transport.csrf_token = options["csrf-token"];
         cockpit.transport.host = transport_globals.default_host;
-        cockpit.capabilities = options['bridge-init']?.capabilities;
     };
 
     let the_user = null;

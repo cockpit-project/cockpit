@@ -17,6 +17,7 @@
  */
 
 import '_internal/common'; // side-effecting import (`window` augmentations)
+import type { Info } from './cockpit/_internal/info';
 
 declare module 'cockpit' {
     type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
@@ -28,10 +29,12 @@ declare module 'cockpit' {
         toString(): string;
     }
 
+    function init(): Promise<void>;
+
     function assert(predicate: unknown, message?: string): asserts predicate;
 
-    export const capabilities: JsonObject | undefined;
     export const manifests: { [package in string]?: JsonObject };
+    export const info: Info;
 
     export let language: string;
     export let language_direction: string;

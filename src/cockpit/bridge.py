@@ -18,6 +18,7 @@
 import argparse
 import asyncio
 import contextlib
+import grp
 import json
 import logging
 import os
@@ -37,7 +38,7 @@ from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
 from .config import Config, Environment
 from .internal_endpoints import EXPORTS
-from .jsonutil import JsonError, JsonObject, get_dict
+from .jsonutil import JsonError, JsonObject, JsonValue, get_dict
 from .packages import BridgeConfig, Packages, PackagesListener
 from .peer import PeersRoutingRule
 from .remote import HostRoutingRule
@@ -107,8 +108,34 @@ class Bridge(Router, PackagesListener):
             self.peers_rule,
         ])
 
+    def info(self) -> JsonObject:
+        pw = pwd.getpwuid(os.getuid())
+
+        # We want the primary group first in the list, without duplicates.
+        # This is a bit awkward because `set()` is unordered...
+        group = grp.getgrgid(pw.pw_gid).gr_name
+        groups = [group]
+        for gr in grp.getgrall():
+            if pw.pw_name in gr.gr_mem and gr.gr_name not in groups:
+                groups.append(gr.gr_name)
+
+        return {
+            'channels': self.channels.capabilities(),
+            'os_release': self.get_os_release(),
+            'user': {
+                'fullname': pw.pw_gecos,
+                'gid': pw.pw_gid,
+                'group': group,
+                'groups': groups,
+                'home': pw.pw_dir,
+                'name': pw.pw_name,
+                'shell': pw.pw_shell,
+                'uid': pw.pw_uid,
+            },
+        }
+
     @staticmethod
-    def get_os_release():
+    def get_os_release() -> JsonObject:
         try:
             file = open('/etc/os-release', encoding='utf-8')
         except FileNotFoundError:
@@ -128,7 +155,7 @@ class Bridge(Router, PackagesListener):
             self.superuser_rule.init(superuser)
 
     def do_send_init(self) -> None:
-        init_args = {
+        init_args: 'dict[str, JsonValue]' = {
             'capabilities': {
                 'explicit-superuser': True,
                 'channels': self.channels.capabilities(),

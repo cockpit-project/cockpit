@@ -127,7 +127,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
                           disk3: "In sync"})
 
         def wait_degraded_state(is_degraded):
-            degraded_selector = ".pf-v5-c-alert h4"
+            degraded_selector = ".pf-v6-c-alert h4"
             if is_degraded:
                 b.wait_in_text(degraded_selector, 'The MDRAID device is in a degraded state')
             else:
@@ -362,13 +362,13 @@ class TestStorageMdRaid(storagelib.StorageCase):
             # Earlier versions of mdadm automatically add a bitmap for
             # large arrays. Check that Cockpit doesn't complain and
             # then remove the bitmap to provoke the alert.
-            b.wait_not_present('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
+            b.wait_not_present('.pf-v6-c-alert:contains("This MDRAID device has no write-intent bitmap")')
             m.execute("mdadm --grow --bitmap=none /dev/md/md0; udevadm trigger /dev/md/md0")
 
         self.assertNotIn("bitmap", m.execute("mdadm --misc -D /dev/md/md0"))
-        b.wait_visible('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
+        b.wait_visible('.pf-v6-c-alert:contains("This MDRAID device has no write-intent bitmap")')
         b.click('button:contains("Add a bitmap")')
-        b.wait_not_present('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
+        b.wait_not_present('.pf-v6-c-alert:contains("This MDRAID device has no write-intent bitmap")')
         self.assertIn("Consistency Policy : bitmap", m.execute("mdadm --misc -D /dev/md/md0"))
 
         # Delete the device and create a new one with a journal
@@ -391,7 +391,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         # There should be no bitmap (regardless of mdadm version), and cockpit should not complain
 
         self.assertNotIn("bitmap", m.execute("mdadm --misc -D /dev/md/md1"))
-        b.wait_not_present('.pf-v5-c-alert:contains("This MDRAID device has no write-intent bitmap")')
+        b.wait_not_present('.pf-v6-c-alert:contains("This MDRAID device has no write-intent bitmap")')
 
 
 if __name__ == '__main__':

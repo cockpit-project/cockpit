@@ -127,23 +127,23 @@ export class UsageCard extends React.Component {
             <Card className="system-usage">
                 <CardTitle>{_("Usage")}</CardTitle>
                 <CardBody>
-                    <table className="pf-v5-c-table pf-m-grid-md pf-m-compact">
-                        <tbody className="pf-v5-c-table__tbody">
-                            <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th" id="system-usage-cpu-progress" scope="row">{_("CPU")}</th>
-                                <td className="pf-v5-c-table__td">
+                    <table className="pf-v6-c-table pf-m-grid-md pf-m-compact">
+                        <tbody className="pf-v6-c-table__tbody">
+                            <tr className="pf-v6-c-table__tr">
+                                <th className="pf-v6-c-table__th" id="system-usage-cpu-progress" scope="row">{_("CPU")}</th>
+                                <td className="pf-v6-c-table__td">
                                     <Progress value={this.state.cpuUsed}
                                         className="pf-m-sm"
                                         min={0} max={100}
-                                        variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
+                                        variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : undefined }
                                         label={ this.state.cpuUsed + '% ' + cores_str }
                                         aria-labelledby="system-usage-cpu-progress"
                                         measureLocation={ProgressMeasureLocation.outside} />
                                 </td>
                             </tr>
-                            <tr className="pf-v5-c-table__tr">
-                                <th className="pf-v5-c-table__th" id="system-usage-memory-progress" scope="row">{_("Memory")}</th>
-                                <td className="pf-v5-c-table__td">
+                            <tr className="pf-v6-c-table__tr">
+                                <th className="pf-v6-c-table__th" id="system-usage-memory-progress" scope="row">{_("Memory")}</th>
+                                <td className="pf-v6-c-table__td">
                                     <Progress value={this.state.memUsed}
                                         className="pf-m-sm"
                                         min={0} max={this.state.memTotal}

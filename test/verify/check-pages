@@ -144,7 +144,7 @@ OnCalendar=daily
         b.switch_to_top()
         self.checkDocs(["Configuring system settings"])
         b.click_system_menu("/system/services")
-        b.wait_visible("ol.pf-v5-c-breadcrumb__list")
+        b.wait_visible("ol.pf-v6-c-breadcrumb__list")
         b.wait_text(".service-name", "Test Service")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
@@ -217,7 +217,7 @@ OnCalendar=daily
         # TestSystemInfo.testHardwareInfo does this more carefully
         b.go("/system/hwinfo")
         b.enter_page("/system/hwinfo")
-        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v5-c-description-list__group:nth-of-type(3) dd', " 20")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-v6-c-description-list__group:nth-of-type(3) dd', " 20")
 
         # Check the playground page
         b.switch_to_top()
@@ -439,7 +439,7 @@ OnCalendar=daily
 
         self.login_and_go()
 
-        filter_sel = ".pf-v5-c-text-input-group__text-input"
+        filter_sel = ".pf-v6-c-text-input-group__text-input"
 
         # Check that some page disappears and some stay
         b.focus(filter_sel)
@@ -600,28 +600,28 @@ OnCalendar=daily
         b.focus("#demo-file-ac input[type=text]")
         b.input_text(stuff + "/")
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
-        b.wait_in_text("#demo-file-ac li:nth-of-type(1) button", stuff + "/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(2) button", "dir/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(3) button", "dir1/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(4) button", "file1.txt")
-        b.click("#demo-file-ac li:nth-of-type(2) button")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", stuff + "/")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(2) button", "dir/")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(3) button", "dir1/")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(4) button", "file1.txt")
+        b.click(".pf-v6-c-menu li:nth-of-type(2) button")
 
         # clear the file completion widget
         b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
         # test if input matches one entry, but is the prefix of other entry, widget should not descend into directory
         b.focus("#demo-file-ac input[type=text]")
         b.input_text(stuff + "/dir")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(1) button", stuff + "/dir")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(2) button", stuff + "/dir1")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", stuff + "/dir")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(2) button", stuff + "/dir1")
 
         # clear the file completion widget
         b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
         b.focus("#demo-file-ac input[type=text]")
         b.input_text(stuff + "/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(1) button", stuff + "/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(4) button", "file1.txt")
-        b.click("#demo-file-ac li:nth-of-type(4) button")
-        b.wait_not_present("#demo-file-ac li")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", stuff + "/")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(4) button", "file1.txt")
+        b.click(".pf-v6-c-menu li:nth-of-type(4) button")
+        b.wait_not_present(".pf-v6-c-menu")
 
         # now update file1, check robustness with dynamic events
         m.execute(f"touch {stuff}/file1.txt")
@@ -629,10 +629,10 @@ OnCalendar=daily
         time.sleep(1)
         b.key("Backspace", 5)
         # input is now $stuff/file
-        b.wait_in_text("#demo-file-ac li:nth-of-type(1) button", "file1.txt")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", "file1.txt")
         b.key("Backspace", 4)
         # input is now $stuff/, so all listings should be available
-        b.wait_in_text("#demo-file-ac li:nth-of-type(4) button", "file1.txt")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(4) button", "file1.txt")
 
         # add new file
         m.execute(f"touch {stuff}/other")
@@ -644,10 +644,10 @@ OnCalendar=daily
         b.key("Backspace", 6)
         time.sleep(1)
         b.input_text("stuff/")
-        b.wait_in_text("#demo-file-ac li:nth-of-type(5) button", "other")
+        b.wait_in_text(".pf-v6-c-menu li:nth-of-type(5) button", "other")
         # close the selector
         b.click("#demo-file-ac input")
-        b.wait_not_present("#demo-file-ac li")
+        b.wait_not_present(".pf-v6-c-menu")
 
         # Create test folder with known files
         m.execute("mkdir /home/admin/newdir")
@@ -659,15 +659,15 @@ OnCalendar=daily
         b.wait_val("#demo-file-ac-preselected input", "/home/admin/newdir/file1")
         # open the selector
         b.click("#demo-file-ac-preselected input")
-        b.wait_visible("#demo-file-ac-preselected .pf-v5-c-menu")
+        b.wait_visible(".pf-v6-c-menu")
         # close and open again to reload the dir (which just got created)
-        b.click("#demo-file-ac-preselected .pf-v5-c-menu-toggle__button")
-        b.wait_not_present("#demo-file-ac-preselected .pf-v5-c-menu")
+        b.click("#demo-file-ac-preselected .pf-v6-c-menu-toggle__button")
+        b.wait_not_present(".pf-v6-c-menu")
         b.click("#demo-file-ac-preselected input")
         # selection has all the files in the directory
         paths = ["/home/admin/newdir", "/home/admin/newdir/dir1", "/home/admin/newdir/dir2", "/home/admin/newdir/file1", "/home/admin/newdir/file2"]
         for i in range(5):
-            b.wait_in_text(f"#demo-file-ac-preselected li:nth-of-type({i + 1}) button", paths[i])
+            b.wait_in_text(f".pf-v6-c-menu li:nth-of-type({i + 1}) button", paths[i])
 
     @testlib.skipOstree("No PCP available")
     @testlib.skipImage("pcp not currently in testing", "debian-testing")
@@ -760,9 +760,9 @@ OnCalendar=daily
         b.switch_to_top()
         b.wait_visible("#development-info")
         b.mouse("#development-info", "mouseenter")
-        b.wait_in_text(".pf-v5-c-tooltip", "My Little Page Status")
+        b.wait_in_text(".pf-v6-c-tooltip", "My Little Page Status")
         b.mouse("#development-info", "mouseleave")
-        b.wait_not_present(".pf-v5-c-tooltip")
+        b.wait_not_present(".pf-v6-c-tooltip")
 
         b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")
@@ -943,7 +943,7 @@ OnCalendar=daily
             b.wait(lambda: b.get_pf_progress_value(".upload-progress-0") >= 2)
             b.click(".cancel-button-0")
             b.wait_visible("#upload-file-btn:not(:disabled)")
-            b.wait_in_text(".pf-v5-c-alert", "Aborted")
+            b.wait_in_text(".pf-v6-c-alert", "Aborted")
             m.execute('! test -f /home/admin/bigfile.img')
 
             # Early ENOSPC error (before we would block on 'ack')
@@ -952,7 +952,7 @@ OnCalendar=daily
             b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/")
             b.upload_files("#demo-upload input[type='file']", [big_file])
             b.wait_visible("#upload-file-btn:not(:disabled)")
-            b.wait_in_text(".pf-v5-c-alert", "No space left on device")
+            b.wait_in_text(".pf-v6-c-alert", "No space left on device")
             self.assertEqual(m.execute('ls -A /mnt/upload'), '')  # nothing left behind
 
             # Later ENOSPC error (after we've blocked)
@@ -960,14 +960,14 @@ OnCalendar=daily
             b.set_file_autocomplete_val("#demo-upload", "/mnt/upload/")
             b.upload_files("#demo-upload input[type='file']", [big_file])
             b.wait_visible("#upload-file-btn:not(:disabled)")
-            b.wait_in_text(".pf-v5-c-alert", "No space left on device")
+            b.wait_in_text(".pf-v6-c-alert", "No space left on device")
             self.assertEqual(m.execute('ls -A /mnt/upload'), '')
 
         # Upload permission error
         b.drop_superuser()
         b.set_file_autocomplete_val("#demo-upload", "/var/")
         b.upload_files("#demo-upload input[type='file']", [test_upload_file])
-        b.wait_in_text(".pf-v5-c-alert", "Not permitted to perform this action")
+        b.wait_in_text(".pf-v6-c-alert", "Not permitted to perform this action")
 
     def testUploadMultiple(self) -> None:
         b = self.browser

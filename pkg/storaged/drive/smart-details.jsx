@@ -22,8 +22,8 @@ import React, { useState } from "react";
 
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
-import { ExclamationCircleIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { Dropdown, DropdownItem, MenuToggle } from "@patternfly/react-core";
+import { EllipsisVIcon, ExclamationCircleIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
@@ -84,32 +84,29 @@ const SmartActions = ({ smart_info }) => {
 
     const testDisabled = !superuser.allowed || smartSelftestStatus === "inprogress";
 
-    const actions = [
-        <DropdownItem key="smart-short-test"
-                      isDisabled={testDisabled}
-                      onClick={() => { setKebabOpen(false); runSelfTest('short') }}>
-            {_("Run short test")}
-        </DropdownItem>,
-        <DropdownItem key="smart-extended-test"
-                      isDisabled={testDisabled}
-                      onClick={() => { setKebabOpen(false); runSelfTest('extended') }}>
-            {_("Run extended test")}
-        </DropdownItem>,
-        <DropdownItem key="abort-smart-test"
-                      isDisabled={testDisabled}
-                      onClick={() => { setKebabOpen(false); abortSelfTest() }}>
-            {_("Abort test")}
-        </DropdownItem>,
-    ];
-
     return (
-        <Dropdown toggle={<KebabToggle onToggle={(_, isOpen) => setKebabOpen(isOpen)} />}
+        <Dropdown
+                toggle={toggleRef => <MenuToggle ref={toggleRef} icon={<EllipsisVIcon />} variant="plain" aria-label={_("SMART actions")} onClick={() => setKebabOpen(!isKebabOpen)} isExpanded={isKebabOpen} />}
                 isPlain
                 isOpen={isKebabOpen}
-                position="right"
                 id="smart-actions"
-                dropdownItems={actions}
-        />
+        >
+            <DropdownItem key="smart-short-test"
+                        isDisabled={testDisabled}
+                        onClick={() => { setKebabOpen(false); runSelfTest('short') }}>
+                {_("Run short test")}
+            </DropdownItem>,
+            <DropdownItem key="smart-extended-test"
+                        isDisabled={testDisabled}
+                        onClick={() => { setKebabOpen(false); runSelfTest('extended') }}>
+                {_("Run extended test")}
+            </DropdownItem>,
+            <DropdownItem key="abort-smart-test"
+                        isDisabled={testDisabled}
+                        onClick={() => { setKebabOpen(false); abortSelfTest() }}>
+                {_("Abort test")}
+            </DropdownItem>,
+        </Dropdown>
     );
 };
 

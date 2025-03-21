@@ -37,7 +37,7 @@ class KdumpHelpers(testlib.MachineCase):
 
     def assertActive(self, active, browser=None):
         browser = browser or self.browser
-        browser.wait_visible(".pf-v5-c-switch__input" + (":checked" if active else ":not(:checked)"))
+        browser.wait_visible(".pf-v6-c-switch__input" + (":checked" if active else ":not(:checked)"))
 
     def enableKdump(self):
         if self.machine.image.startswith("fedora"):
@@ -49,12 +49,12 @@ class KdumpHelpers(testlib.MachineCase):
         machine = machine or self.machine
 
         browser.click("button:contains('Test configuration')")
-        browser.wait_in_text(".pf-v5-c-modal-box__body", message)
+        browser.wait_in_text(".pf-v6-c-modal-box__body", message)
         if cancel:
-            browser.click(".pf-v5-c-modal-box button:contains('Cancel')")
+            browser.click(".pf-v6-c-modal-box button:contains('Cancel')")
         else:
             # we should get a warning dialog, confirm
-            browser.click(f".pf-v5-c-modal-box button{self.danger_btn_class}")
+            browser.click(f".pf-v6-c-modal-box button{self.danger_btn_class}")
             # wait until we've actually triggered a crash
             browser.wait_visible(".apply.pf-m-in-progress")
 
@@ -76,7 +76,7 @@ class KdumpHelpers(testlib.MachineCase):
 
     def run_ansible_playbook(self, browser, machine, allow_failure=False):
         browser.click("#kdump-automation-script")
-        ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
+        ansible_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(2) textarea"
         machine.execute("mkdir -p roles/kdump/tasks")
         ansible_script = browser.text(ansible_script_sel)
         # show role for debugging
@@ -86,7 +86,7 @@ class KdumpHelpers(testlib.MachineCase):
         machine.write("roles/kdump/tasks/main.yml", ansible_script)
         # Show stdout as this can fail, if so we want logs
         machine.execute("ansible -vv -m include_role -a name=kdump localhost", check=not allow_failure, stdout=None)
-        browser.click(".pf-v5-c-modal-box__footer button:contains('Close')")
+        browser.click(".pf-v6-c-modal-box__footer button:contains('Close')")
         browser.wait_not_present(".automation-script-modal")
 
 
@@ -106,14 +106,14 @@ class TestKdump(KdumpHelpers):
 
         if m.image.startswith("fedora"):
             # crashkernel command line not set, needs to be explicitly enabled in Fedora
-            b.wait_in_text(".pf-v5-c-alert__title", "Kernel did not boot with the crashkernel setting")
+            b.wait_in_text(".pf-v6-c-alert__title", "Kernel did not boot with the crashkernel setting")
             # no service on/off button
-            b.wait_not_present(".pf-v5-c-switch__input")
+            b.wait_not_present(".pf-v6-c-switch__input")
 
             # disabled "Test configuration" button should have a tooltip
             b.wait_visible("button:contains(Test configuration)[aria-disabled=true]")
             b.mouse("button:contains(Test configuration)", "mouseenter")
-            b.wait_in_text(".pf-v5-c-tooltip", "kdump service")
+            b.wait_in_text(".pf-v6-c-tooltip", "kdump service")
             b.mouse("button:contains(Test configuration)", "mouseleave")
 
             # enable it
@@ -125,7 +125,7 @@ class TestKdump(KdumpHelpers):
             self.assertActive(active=True)
 
         # no alert about configuration
-        b.wait_not_present(".pf-v5-c-alert__title")
+        b.wait_not_present(".pf-v6-c-alert__title")
 
         # there shouldn't be any crash reports in the target directory
         self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
@@ -185,7 +185,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text(pathInput, customPath)
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # we should get an error
-        b.wait_in_text("#kdump-settings-dialog h4.pf-v5-c-alert__title",
+        b.wait_in_text("#kdump-settings-dialog h4.pf-v6-c-alert__title",
                        f"Unable to save settings: Directory {customPath} isn't writable or doesn't exist")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
@@ -211,11 +211,11 @@ class TestKdump(KdumpHelpers):
         m.execute("cp /etc/kdump.conf /etc/kdump.conf.orig")
         b.click("#kdump-automation-script")
         b.click("button:contains('Shell script')")
-        shell_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(3) textarea"
+        shell_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(3) textarea"
         # Change the kdump.conf while the dialog is open as changing it before does not allow us to open the dialog
         m.write("/etc/kdump.conf", "invalid")
         m.execute(b.text(shell_script_sel))
-        b.click(".pf-v5-c-modal-box__footer button:contains('Close')")
+        b.click(".pf-v6-c-modal-box__footer button:contains('Close')")
         b.wait_not_present(".automation-script-modal")
         m.execute("diff /etc/kdump.conf /etc/kdump.conf.orig", stdout=None)
 
@@ -223,24 +223,24 @@ class TestKdump(KdumpHelpers):
 
         m.execute("systemctl disable --now kdump.service")
         self.assertActive(active=False)
-        b.wait_not_present(".pf-v5-c-alert__title")
+        b.wait_not_present(".pf-v6-c-alert__title")
 
         # service is absent (not installed)
         m.execute("mv /usr/lib/systemd/system/kdump.service /usr/lib/systemd/system/kdump.service.disabled")
         m.execute("systemctl daemon-reload")
-        b.wait_in_text(".pf-v5-c-alert__title", "Kdump service is not installed")
+        b.wait_in_text(".pf-v6-c-alert__title", "Kdump service is not installed")
 
         # put it back, but cause error on startup
         m.execute("mv /usr/lib/systemd/system/kdump.service.disabled /usr/lib/systemd/system/kdump.service")
         m.write("/etc/systemd/system/kdump.service.d/break.conf",
                 "[Service]\nExecStart=\nExecStart=/bin/false\n")
         m.execute("systemctl daemon-reload")
-        b.wait_not_present(".pf-v5-c-alert__title")
-        b.click(".pf-v5-c-switch__input")
-        b.wait_in_text(".pf-v5-c-alert__title", "Service has an error")
+        b.wait_not_present(".pf-v6-c-alert__title")
+        b.click(".pf-v6-c-switch__input")
+        b.wait_in_text(".pf-v6-c-alert__title", "Service has an error")
         self.assertActive(active=False)
         # "more details" leads to services page
-        b.click(".pf-v5-c-alert__title button")
+        b.click(".pf-v6-c-alert__title button")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === "#/kdump.service"')
@@ -482,7 +482,7 @@ class TestKdumpNFS(KdumpHelpers):
         self.enableKdump()
         self.login_and_go("/kdump")
         with b.wait_timeout(120):  # needs to rebuild initrd
-            b.wait_visible(".pf-v5-c-switch__input:checked")
+            b.wait_visible(".pf-v6-c-switch__input:checked")
 
         # Wait a few seconds so that the newly written kdump.conf is
         # guaranteed to look older to kdump.service than the just
@@ -518,16 +518,16 @@ class TestKdumpNFS(KdumpHelpers):
 
         # set custom path
         self.login_and_go("/kdump")
-        b.wait_visible(".pf-v5-c-switch__input:checked")
+        b.wait_visible(".pf-v6-c-switch__input:checked")
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_input_text("#kdump-settings-nfs-directory", "dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # dumps directory does not exist, error
-        b.wait_in_text("#kdump-settings-dialog h4.pf-v5-c-alert__title", "Unable to save settings")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-v6-c-alert__title", "Unable to save settings")
         # also shows error details
-        b.click("#kdump-settings-dialog div.pf-v5-c-alert__toggle button")
-        b.wait_in_text("#kdump-settings-dialog .pf-v5-c-code-block__code", 'does not exist in dump target "10.111.113.2:/srv/kdump"')
+        b.click("#kdump-settings-dialog div.pf-v6-c-alert__toggle button")
+        b.wait_in_text("#kdump-settings-dialog .pf-v6-c-code-block__code", 'does not exist in dump target "10.111.113.2:/srv/kdump"')
         # create the directory on the NFS server
         self.machines["nfs"].execute("mkdir /srv/kdump/dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
@@ -537,7 +537,7 @@ class TestKdumpNFS(KdumpHelpers):
         self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
         self.assertIn("\npath dumps\n", conf)
 
-        b.wait_visible(".pf-v5-c-switch__input:checked")
+        b.wait_visible(".pf-v6-c-switch__input:checked")
 
         try:
             self.crashKernel("copied through NFS to 10.111.113.2:/srv/kdump/dumps")
@@ -590,7 +590,7 @@ class TestKdumpNFSAnsible(KdumpHelpers):
         # Verify that kdump runs and crashkernel is configured
         kdump_machine.execute("until systemctl is-active kdump; do sleep 1; done")
         kdump_browser.login_and_go("/kdump")
-        kdump_browser.wait_visible(".pf-v5-c-switch__input:checked")
+        kdump_browser.wait_visible(".pf-v6-c-switch__input:checked")
         kdump_browser.wait_in_text("#app", "192 MiB")
         self.assertActive(active=True, browser=kdump_browser)
 

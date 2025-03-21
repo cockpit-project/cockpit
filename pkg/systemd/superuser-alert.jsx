@@ -26,6 +26,7 @@ import { LockIcon } from '@patternfly/react-icons';
 
 import { SuperuserButton } from "../shell/superuser.jsx";
 import { superuser } from "superuser.js";
+import { PageSection } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -33,9 +34,16 @@ export const SuperuserAlert = () => {
     if (superuser.allowed || !superuser.configured)
         return null;
 
-    return <Alert className="ct-limited-access-alert"
-                  variant="warning" isInline
-                  customIcon={<LockIcon />}
-                  actionClose={<SuperuserButton />}
-                  title={_("Web console is running in limited access mode.")} />;
+    // @Venefilyn: We have a PageSection here to get padding when rendered
+    // and avoid that padding when Alert is not rendered. If we start using this
+    // in another place we need to make it work in the aformentioned scenarios.
+    return (
+        <PageSection>
+            <Alert className="ct-limited-access-alert"
+                variant="warning" isInline
+                customIcon={<LockIcon />}
+                actionClose={<SuperuserButton />}
+                title={_("Web console is running in limited access mode.")} />
+        </PageSection>
+    );
 };

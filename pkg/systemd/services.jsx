@@ -17,15 +17,15 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import '../lib/patternfly/patternfly-5-cockpit.scss';
+import '../lib/patternfly/patternfly-6-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
 import React, { useState, useEffect, useCallback } from "react";
 import { createRoot } from 'react-dom/client';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
-import { Card } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Card, CardHeader } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/components/ToggleGroup/index.js";
 import { Toolbar, ToolbarContent, ToolbarFilter, ToolbarItem, ToolbarToggleGroup } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
@@ -704,15 +704,17 @@ class ServicesPageBody extends React.Component {
         const activeTab = this.props.activeTab;
 
         return (
-            <PageSection>
-                <Card isCompact>
-                    <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
-                                         fileStateDropdownOptions={fileStateDropdownOptions}
-                                         filtersRef={this.filtersRef}
-                                         loadingUnits={this.props.isLoading}
-                                         options={cockpit.location.options}
-                                         onOptionsChanged={this.onOptionsChanged}
-                    />
+            <PageSection hasBodyWrapper={false}>
+                <Card isPlain isCompact>
+                    <CardHeader id='services-card-header'>
+                        <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
+                                            fileStateDropdownOptions={fileStateDropdownOptions}
+                                            filtersRef={this.filtersRef}
+                                            loadingUnits={this.props.isLoading}
+                                            options={cockpit.location.options}
+                                            onOptionsChanged={this.onOptionsChanged}
+                        />
+                    </CardHeader>
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
                                   isTimer={activeTab == 'timer'}
                                   filtersRef={this.filtersRef}
@@ -814,9 +816,9 @@ const ServicesPageFilters = ({
     }, [filtersRef, onClearAllFilters]);
 
     const toolbarItems =
-        <ToolbarToggleGroup toggleIcon={<><span className="pf-v5-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
-                            variant="filter-group" alignment={{ default: 'alignLeft' }}>
-            <ToolbarItem variant="search-filter">
+        <ToolbarToggleGroup toggleIcon={<><span className="pf-v6-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
+                            variant="filter-group">
+            <ToolbarItem>
                 <SearchInput id="services-text-filter"
                              className="services-text-filter"
                              placeholder={_("Filter by name or description")}
@@ -824,9 +826,9 @@ const ServicesPageFilters = ({
                              onChange={(_, val) => onTextFilterChanged(val)}
                              onClear={() => onTextFilterChanged('')} />
             </ToolbarItem>
-            <ToolbarFilter chips={filters.activeState}
-                           deleteChip={onDeleteChip}
-                           deleteChipGroup={onDeleteChipGroup}
+            <ToolbarFilter labels={filters.activeState}
+                           deleteLabel={onDeleteChip}
+                           deleteLabelGroup={onDeleteChipGroup}
                            categoryName={_("Active state")}>
                 <CheckboxSelect
                     toggleProps={{
@@ -843,9 +845,9 @@ const ServicesPageFilters = ({
                         };
                     })} />
             </ToolbarFilter>
-            <ToolbarFilter chips={filters.fileState}
-                           deleteChip={onDeleteChip}
-                           deleteChipGroup={onDeleteChipGroup}
+            <ToolbarFilter labels={filters.fileState}
+                           deleteLabel={onDeleteChip}
+                           deleteLabelGroup={onDeleteChipGroup}
                            categoryName={_("File state")}>
                 <CheckboxSelect
                     toggleProps={{
@@ -865,7 +867,8 @@ const ServicesPageFilters = ({
         </ToolbarToggleGroup>;
 
     return (
-        <Toolbar data-loading={loadingUnits}
+        <Toolbar
+                data-loading={loadingUnits}
                  clearAllFilters={onClearAllFilters}
                  className="pf-m-sticky-top ct-compact services-toolbar"
                  id="services-toolbar"
@@ -904,9 +907,9 @@ const ServicesPage = () => {
 
     return (
         <WithDialogs>
-            <Page>
+            <Page className='no-masthead-sidebar'>
                 {cockpit.location.path.length == 0 &&
-                <PageSection variant={PageSectionVariants.light} type="nav" className="services-header">
+                <PageSection hasBodyWrapper={false} className="services-header">
                     <Flex>
                         <ServiceTabs activeTab={activeTab}
                                       tabErrors={tabErrors}

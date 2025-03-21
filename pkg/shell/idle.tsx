@@ -22,7 +22,9 @@
 import cockpit from "cockpit";
 
 import React from 'react';
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
 import { EventEmitter } from "cockpit/event";

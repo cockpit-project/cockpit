@@ -29,7 +29,7 @@ import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/comp
 import { InputGroup } from '@patternfly/react-core/dist/esm/components/InputGroup/index.js';
 import { Popover } from '@patternfly/react-core/dist/esm/components/Popover/index.js';
 import { Radio } from '@patternfly/react-core/dist/esm/components/Radio/index.js';
-import { Text } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
 import { HelpIcon, TrashIcon } from '@patternfly/react-icons';
 
@@ -216,19 +216,19 @@ export function WireGuardDialog({ settings, connection, dev }) {
                 <Radio label={_("Paste existing key")} name="private-key" id={idPrefix + '-paste-key'} onChange={() => { setIsPrivKeyGenerated(false) }} />
 
                 {isPrivKeyGenerated
-                    ? <InputGroup className='pf-v5-u-pt-sm'>
-                        <Flex className='pf-v5-u-w-100' spaceItems={{ default: 'spaceItemsSm' }}>
+                    ? <InputGroup className='pf-v6-u-pt-sm'>
+                        <Flex className='pf-v6-u-w-100' spaceItems={{ default: 'spaceItemsSm' }}>
                             <FlexItem grow={{ default: 'grow' }}>
-                                <ClipboardCopy isReadOnly id={idPrefix + '-private-key-input'} className='pf-v5-u-font-family-monospace pf-v5-u-w-100'>{generatedPrivateKey}</ClipboardCopy>
+                                <ClipboardCopy isReadOnly id={idPrefix + '-private-key-input'} className='pf-v6-u-font-family-monospace pf-v6-u-w-100'>{generatedPrivateKey}</ClipboardCopy>
                             </FlexItem>
                             {connection && <FlexItem>
                                 <Button variant='secondary' onClick={generatePrivateKey}>{_("Regenerate")}</Button>
                             </FlexItem>}
                         </Flex>
                     </InputGroup>
-                    : <InputGroup className='pf-v5-u-pt-sm'>
+                    : <InputGroup className='pf-v6-u-pt-sm'>
                         <TextInput id={idPrefix + '-private-key-input'}
-                            className='pf-v5-u-font-family-monospace'
+                            className='pf-v6-u-font-family-monospace'
                             value={pastedPrivateKey}
                             onChange={(_, val) => setPastedPrivatedKey(val)}
                             isDisabled={isPrivKeyGenerated}
@@ -237,12 +237,12 @@ export function WireGuardDialog({ settings, connection, dev }) {
             </FormGroup>
             <FormGroup label={_("Public key")}>
                 {(isPrivKeyGenerated || publicKey)
-                    ? <ClipboardCopy isReadOnly className='pf-v5-u-font-family-monospace' id={idPrefix + '-public-key'}>{publicKey}</ClipboardCopy>
-                    : <Flex className='placeholder-text' alignItems={{ default: 'alignItemsCenter' }}><Text>{_("Public key will be generated when a valid private key is entered")}</Text></Flex>}
+                    ? <ClipboardCopy isReadOnly className='pf-v6-u-font-family-monospace' id={idPrefix + '-public-key'}>{publicKey}</ClipboardCopy>
+                    : <Flex className='placeholder-text' alignItems={{ default: 'alignItemsCenter' }}><Content component="p">{_("Public key will be generated when a valid private key is entered")}</Content></Flex>}
             </FormGroup>
             <FormGroup label={_("Listen port")} fieldId={idPrefix + '-listen-port-input'}>
                 <Flex>
-                    <TextInput id={idPrefix + '-listen-port-input'} className='network-number-field' value={listenPort} onChange={(_, val) => { setListenPort(val) }} />
+                    <TextInput id={idPrefix + '-listen-port-input'} className='wg-listen-port' value={listenPort} onChange={(_, val) => { setListenPort(val) }} />
                     {!parseInt(listenPort) && <FormHelperText>
                         <HelperText>
                             <HelperTextItem>{_("Will be set to \"Automatic\"")}</HelperTextItem>
@@ -261,12 +261,12 @@ export function WireGuardDialog({ settings, connection, dev }) {
             <FormFieldGroup
                 header={
                     <FormFieldGroupHeader
-                        className='pf-v5-u-align-items-center'
+                        className='pf-v6-u-align-items-center'
                         titleText={{
                             text: (
                                 <Flex className='pf-m-space-items-none'>
                                     <FlexItem>
-                                        <Text>{_("Peers")}</Text>
+                                        <Content component="p">{_("Peers")}</Content>
                                     </FlexItem>
                                     <FlexItem>
                                         <Popover
@@ -329,6 +329,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
                                 <Button
                                     variant='plain'
                                     id={idPrefix + '-btn-close-peer-' + i}
+                                    size='sm'
                                     onClick={() => {
                                         setPeers(peers => peers.filter((_, index) => i !== index));
                                     }}

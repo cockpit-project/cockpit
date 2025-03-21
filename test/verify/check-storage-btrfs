@@ -171,8 +171,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         root_sel = self.card_row("Storage", name="sda") + " + tr"
         b.click(self.dropdown_toggle(root_sel))
-        b.wait_visible(self.dropdown_action(root_sel, "Create subvolume") + "[disabled]")
-        b.wait_text(self.dropdown_description(root_sel, "Create subvolume"),
+        b.wait_visible(self.dropdown_action("Create subvolume") + "[disabled]")
+        b.wait_text(self.dropdown_description("Create subvolume"),
                     "At least one subvolume needs to be mounted")
         b.click(self.dropdown_toggle(root_sel))
 
@@ -283,7 +283,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         # No Delete button for the root subvolume
         b.click(self.dropdown_toggle(root_sel))
-        b.wait_not_present(self.dropdown_action(root_sel, "Delete"))
+        b.wait_not_present(self.dropdown_action("Delete"))
         b.click(self.dropdown_toggle(root_sel))
 
         # Delete subvolume
@@ -368,7 +368,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.checkTeardownAction(1, "Action", "unmount, delete")
         b.wait_in_text(".modal-footer-teardown tbody:nth-of-type(1)", "Currently in use")
         b.click(".modal-footer-teardown tbody:nth-of-type(1) button")
-        b.wait_in_text(".pf-v5-c-popover", str(sleep_pid))
+        b.wait_in_text(".pf-v6-c-popover", str(sleep_pid))
 
         self.confirm()
         b.wait_not_present(self.card_row("Storage", location=subvol_mount_point))
@@ -384,8 +384,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         sel = self.card_row("Storage", location=subvol_mount_point)
         b.click(self.dropdown_toggle(sel))
-        b.wait_visible(self.dropdown_action(sel, "Delete") + "[disabled]")
-        b.wait_text(self.dropdown_description(sel, "Delete"),
+        b.wait_visible(self.dropdown_action("Delete") + "[disabled]")
+        b.wait_text(self.dropdown_description("Delete"),
                     "The last mounted subvolume can not be deleted")
         b.click(self.dropdown_toggle(sel))
 

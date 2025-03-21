@@ -60,7 +60,6 @@ export function rename_group_dialog(group) {
             title: cockpit.format(_("Rename group $0"), group),
             body: <RenameGroupDialogBody state={state} change={change} />,
             variant: 'small',
-            titleIconVariant: 'warning',
         };
 
         const footer = {

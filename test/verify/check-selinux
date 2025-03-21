@@ -73,7 +73,7 @@ class TestSelinux(testlib.MachineCase):
         # starting rhsm.service), so let's give them some time to
         # appear before cleaning it all out.
         with b.wait_timeout(60):
-            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v5-c-table__toggle')")
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v6-c-table__toggle')")
         time.sleep(30)
 
         dismiss_sel = ".selinux-alert-dismiss"
@@ -81,7 +81,7 @@ class TestSelinux(testlib.MachineCase):
         # there are some distros with broken SELinux policies which always appear; so first, clean these up
         while True:
             # we either have no alerts, or an expand button in the table
-            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v5-c-table__toggle')")
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v6-c-table__toggle')")
             if "No SELinux alerts." in b.text('body'):
                 break
             num_alerts = b.call_js_func("ph_count", "#selinux-alerts tbody")
@@ -111,7 +111,7 @@ class TestSelinux(testlib.MachineCase):
             b.wait_visible(row_selector)
 
         # expand it to see details
-        toggle_selector = row_selector + " .pf-v5-c-table__toggle button"
+        toggle_selector = row_selector + " .pf-v6-c-table__toggle button"
         b.click(toggle_selector)
 
         # this should have two alerts, but there seems to be a known issue that some messages are delayed
@@ -132,8 +132,8 @@ class TestSelinux(testlib.MachineCase):
         sebool_path = m.execute("command -v setsebool").strip()
         m.execute(f"chmod a-x {sebool_path}")
         b.click(f"{sebool_selector1} button{self.default_btn_class}")
-        b.wait_in_text(f"{sebool_selector1} .pf-v5-c-alert", "Solution failed")
-        b.wait_in_text(f"{sebool_selector1} .pf-v5-c-alert", "setsebool: Permission denied")
+        b.wait_in_text(f"{sebool_selector1} .pf-v6-c-alert", "Solution failed")
+        b.wait_in_text(f"{sebool_selector1} .pf-v6-c-alert", "setsebool: Permission denied")
 
         # we can't re-attempt the solution, dismiss it
         b.click(row_selector + " input[type=checkbox]")
@@ -148,7 +148,7 @@ class TestSelinux(testlib.MachineCase):
 
         # applying solution works now
         b.click(sebool_selector1 + " button" + self.default_btn_class)
-        b.wait_in_text(sebool_selector1 + " .pf-v5-c-alert__title", "Solution applied successfully")
+        b.wait_in_text(sebool_selector1 + " .pf-v6-c-alert__title", "Solution applied successfully")
         self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))
         # system modifications automatically update for this new sebool
         # was "enable homedir", is now "read home directory"
@@ -176,7 +176,7 @@ class TestSelinux(testlib.MachineCase):
             b.wait_visible(row_selector)
 
         # expand it to see details
-        toggle_selector = row_selector + " .pf-v5-c-table__toggle button"
+        toggle_selector = row_selector + " .pf-v6-c-table__toggle button"
         b.click(toggle_selector)
 
         try:
@@ -191,7 +191,7 @@ class TestSelinux(testlib.MachineCase):
             b.wait_not_present(btn_sel)
 
             # the fix should be applied
-            b.wait_in_text(row_selector + " .pf-v5-c-alert__title", "Solution applied successfully")
+            b.wait_in_text(row_selector + " .pf-v6-c-alert__title", "Solution applied successfully")
 
             # and the button should not come back
             b.wait_not_present(btn_sel)
@@ -209,11 +209,11 @@ class TestSelinux(testlib.MachineCase):
 
         b.grant_permissions("clipboard-read", "clipboard-write")
 
-        b.wait_visible(".pf-v5-c-data-list__cell:contains(daemons to)")
-        b.wait_visible(".pf-v5-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
+        b.wait_visible(".pf-v6-c-data-list__cell:contains(daemons to)")
+        b.wait_visible(".pf-v6-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
         b.click("button:contains('View automation script')")
-        ansible_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(2) textarea"
-        shell_script_sel = ".automation-script-modal .pf-v5-c-modal-box__body section:nth-child(3) textarea"
+        ansible_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(2) textarea"
+        shell_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(3) textarea"
         b.click("button:contains('Shell')")
         b.wait_in_text(shell_script_sel, "boolean -D")
         b.wait_in_text(shell_script_sel, "fcontext -D")
@@ -251,7 +251,7 @@ class TestSelinux(testlib.MachineCase):
         b.reload()
         b.enter_page("/selinux")
         with b.wait_timeout(30):
-            b.wait_text_matches(".pf-v5-c-data-list__cell:contains(daemons)", "Disallow.*daemons.*core")
+            b.wait_text_matches(".pf-v6-c-data-list__cell:contains(daemons)", "Disallow.*daemons.*core")
         b.click("button:contains('View automation script')")
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
         se_before = se_after
@@ -309,7 +309,7 @@ class TestSelinuxEnforcing(testlib.MachineCase):
         def assertEnforce(active):
             # polled every 10s
             with b.wait_timeout(20):
-                b.wait_visible(".pf-v5-c-switch__input" + (":checked" if active else ":not(:checked)"))
+                b.wait_visible(".pf-v6-c-switch__input" + (":checked" if active else ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(active=True)
@@ -317,7 +317,7 @@ class TestSelinuxEnforcing(testlib.MachineCase):
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button
-        b.click(".pf-v5-c-switch__input")
+        b.click(".pf-v6-c-switch__input")
         assertEnforce(active=False)
         m.execute("getenforce | grep -q 'Permissive'")
 

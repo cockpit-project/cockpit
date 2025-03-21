@@ -27,7 +27,7 @@ import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/inde
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
@@ -360,16 +360,16 @@ export class SETroubleshootPage extends React.Component {
                 ];
                 // if the alert has level "red", it's critical
                 const criticalAlert = (itm.details && 'level' in itm.details && itm.details.level == "red")
-                    ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle pf-v5-c-icon pf-m-lg" />
+                    ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle pf-v6-c-icon pf-m-lg" />
                     : null;
                 const columns = [
                     { title: criticalAlert },
                     { title: itm.description }
                 ];
                 if (itm.count > 1) {
-                    columns.push({ title: <Badge isRead>{itm.count}</Badge>, props: { className: "pf-v5-c-table__action" } });
+                    columns.push({ title: <Badge isRead>{itm.count}</Badge>, props: { className: "pf-v6-c-table__action" } });
                 } else {
-                    columns.push({ title: <span />, props: { className: "pf-v5-c-table__action" } });
+                    columns.push({ title: <span />, props: { className: "pf-v6-c-table__action" } });
                 }
                 return ({
                     props: { key: itm.details ? itm.details.localId : index },
@@ -399,7 +399,7 @@ export class SETroubleshootPage extends React.Component {
                 : null
         );
         const troubleshooting = (
-            <Card>
+            <Card isPlain>
                 <CardHeader actions={{ actions }}>
                     <CardTitle component="h2">{title}</CardTitle>
                 </CardHeader>
@@ -445,8 +445,8 @@ export class SETroubleshootPage extends React.Component {
         return (
             <>
                 {errorMessage}
-                <Page>
-                    <PageSection padding={{ default: "padding" }} variant={PageSectionVariants.light}>
+                <Page className="no-masthead-sidebar">
+                    <PageSection hasBodyWrapper={false} padding={{ default: "padding" }}>
                         <SELinuxStatus
                             selinuxStatus={this.props.selinuxStatus}
                             selinuxStatusError={this.props.selinuxStatusError}
@@ -454,7 +454,7 @@ export class SETroubleshootPage extends React.Component {
                             dismissError={this.props.dismissStatusError}
                         />
                     </PageSection>
-                    <PageSection>
+                    <PageSection hasBodyWrapper={false}>
                         <Stack hasGutter>
                             <StackItem>{modifications}</StackItem>
                             <StackItem>{troubleshooting}</StackItem>

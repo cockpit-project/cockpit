@@ -195,7 +195,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, short }
 
     return (
         <div>
-            <span className="usage-text pf-v5-u-text-nowrap">
+            <span className="usage-text pf-v6-u-text-nowrap">
                 {labelText}
             </span>
             <div className={"usage-bar" + (fraction > critical ? " usage-bar-danger" : "") + (short ? " usage-bar-short" : "")}
@@ -216,7 +216,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, short }
 export const StorageSize = ({ size }) => {
     return (
         <div>
-            <span className="usage-text pf-v5-u-text-nowrap">
+            <span className="usage-text pf-v6-u-text-nowrap">
                 {utils.fmt_size(size)}
             </span>
             <div className="usage-bar usage-bar-short usage-bar-empty" />

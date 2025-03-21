@@ -39,7 +39,7 @@ import { IdleTimeoutState, FinalCountdownModal } from "./idle.jsx";
 
 import 'cockpit-dark-theme'; // once per page
 
-import '../lib/patternfly/patternfly-5-cockpit.scss';
+import '../lib/patternfly/patternfly-6-cockpit.scss';
 import "./shell.scss";
 
 const _ = cockpit.gettext;
@@ -122,7 +122,7 @@ const Shell = () => {
             <SkipLink focus_id="content">{_("Skip to content")}</SkipLink>
             <SkipLink focus_id="hosts-sel">{_("Skip main navigation")}</SkipLink>
 
-            <div id="sidebar-toggle" className="pf-v5-c-select pf-m-dark sidebar-toggle">
+            <div id="sidebar-toggle" className="pf-v6-c-select pf-m-dark sidebar-toggle">
                 <SidebarToggle />
             </div>
 

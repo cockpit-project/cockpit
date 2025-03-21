@@ -5,17 +5,21 @@
 @import "@patternfly/patternfly/utilities/Flex/flex.scss";
 
 .placeholder-text {
-  color: var(--pf-v5-global--Color--200);
+  color: var(--pf-t--global--text--color--placeholder);
   block-size: 2.25rem;
 }
 
+.wg-listen-port {
+  inline-size: 4.75rem;
+}
+
 .dynamic-form-group {
-  .pf-v5-c-empty-state {
+  .pf-v6-c-empty-state {
     padding: 0;
   }
 
-  .pf-v5-c-form__field-group-body {
-    .pf-v5-c-form__group {
+  .pf-v6-c-form__field-group-body {
+    .pf-v6-c-form__group {
       display: block;
     }
 
@@ -24,16 +28,21 @@
       grid-column: -1;
       // Move 'Remove' button to the bottom of the line so as to align with the other form fields
       display: flex;
+      flex-direction: row;
       align-items: flex-end;
+
+      button {
+        margin: var(--pf-t--global--spacer--xs);
+      }
     }
   }
 
   // We use FormFieldGroup PF component for the nested look and for ability to add buttons to the header
   // However we want to save space and not add indent to the left so we need to override it
-  .pf-v5-c-form__field-group-body {
+  .pf-v6-c-form__field-group-body {
     // Stretch content fully
-    --pf-v5-c-form__field-group-body--GridColumn: 1 / -1;
+    --pf-v6-c-form__field-group-body--GridColumn: 1 / -1;
     // Reduce padding at the top
-    --pf-v5-c-form__field-group-body--PaddingTop: var(--pf-v5-global--spacer--xs);
+    --pf-v6-c-form__field-group-body--PaddingBlockStart: var(--pf-t--global--spacer--xs);
   }
 }

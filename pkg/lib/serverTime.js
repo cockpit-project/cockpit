@@ -40,6 +40,7 @@ import get_timesync_backend_py from "./get-timesync-backend.py";
 import { superuser } from "superuser.js";
 
 import "serverTime.scss";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -442,7 +443,7 @@ export function ServerTimeConfig() {
     if (ntp?.active) {
         let icon; let header; let body = ""; let footer = null;
         if (ntp.synch) {
-            icon = <InfoCircleIcon className="ct-info-circle" />;
+            icon = <Icon status="info"><InfoCircleIcon className="ct-info-circle" /></Icon>;
             header = _("Synchronized");
             if (ntp.server)
                 body = <div>{cockpit.format(_("Synchronized with $0"), ntp.server)}</div>;
@@ -452,7 +453,7 @@ export function ServerTimeConfig() {
                 header = _("Synchronizing");
                 body = <div>{cockpit.format(_("Trying to synchronize with $0"), ntp.server)}</div>;
             } else {
-                icon = <ExclamationCircleIcon className="ct-exclamation-circle" />;
+                icon = <Icon status="danger"><ExclamationCircleIcon className="ct-exclamation-circle" /></Icon>;
                 header = _("Not synchronized");
                 if (ntp.service) {
                     footer = (

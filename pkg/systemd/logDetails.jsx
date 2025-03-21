@@ -54,7 +54,7 @@ const LogDetails = ({ entry }) => {
 
     return (
         <GalleryItem>
-            <Card>
+            <Card isPlain>
                 <CardHeader actions={{ actions }}>
                     <h2 id="entry-heading">{id}</h2>
                 </CardHeader>
@@ -179,16 +179,16 @@ export class LogEntry extends React.Component {
         }
 
         return (
-            <Page id="log-details" className="log-details">
-                <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+            <Page id="log-details" className="log-details no-masthead-sidebar">
+                <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                     <Breadcrumb>
-                        <BreadcrumbItem onClick={this.goHome} className="pf-v5-c-breadcrumb__link">{_("Logs")}</BreadcrumbItem>
+                        <BreadcrumbItem onClick={this.goHome} className="pf-v6-c-breadcrumb__link">{_("Logs")}</BreadcrumbItem>
                         <BreadcrumbItem isActive>
                             {breadcrumb}
                         </BreadcrumbItem>
                     </Breadcrumb>
                 </PageBreadcrumb>
-                <PageSection>
+                <PageSection hasBodyWrapper={false}>
                     <Gallery hasGutter>
                         {content}
                     </Gallery>

@@ -19,7 +19,9 @@
 
 import React from "react";
 import PropTypes from "prop-types";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { MenuList, MenuItem } from "@patternfly/react-core/dist/esm/components/Menu";
 import { CanvasAddon } from '@xterm/addon-canvas';

@@ -221,7 +221,7 @@ class VDODetails extends React.Component {
 
         if (vdo.broken) {
             return (
-                <Card>
+                <Card isPlain>
                     <Alert variant='danger' isInline
                            title={_("The creation of this VDO device did not finish and the device can't be used.")}
                            actionClose={<StorageButton onClick={force_delete}>

@@ -27,9 +27,9 @@ function changeDarkThemeClass(documentElement: Element, dark_mode: boolean) {
     debug(`Setting cockpit theme to ${dark_mode ? "dark" : "light"}`);
 
     if (dark_mode) {
-        documentElement.classList.add('pf-v5-theme-dark');
+        documentElement.classList.add('pf-v6-theme-dark');
     } else {
-        documentElement.classList.remove('pf-v5-theme-dark');
+        documentElement.classList.remove('pf-v6-theme-dark');
     }
 }
 

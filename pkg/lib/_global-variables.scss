@@ -1,4 +1,4 @@
-@import "@patternfly/patternfly/sass-utilities/all";
+@import "@patternfly/patternfly/sass-utilities";
 
 /*
  * PatternFly 4 adapting the lists too early.
@@ -6,9 +6,10 @@
  * (This does use the intended content area, but there's a mismatch between content and browser width as we use iframes.)
  * So redefine grid breakpoints
  */
-$pf-v5-global--breakpoint--xs: 0 !default;
+// REVIEW @Venefilyn: Check if still relevant, maybe use rem instead
+$pf-v6-global--breakpoint--xs: 0 !default;
 // Do not override the sm breakpoint as for width < 768px the left nav is hidden
-$pf-v5-global--breakpoint--md: 428px !default;
-$pf-v5-global--breakpoint--lg: 652px !default;
-$pf-v5-global--breakpoint--xl: 860px !default;
-$pf-v5-global--breakpoint--2xl: 1110px !default;
+$pf-v6-global--breakpoint--md: 428px !default;
+$pf-v6-global--breakpoint--lg: 652px !default;
+$pf-v6-global--breakpoint--xl: 860px !default;
+$pf-v6-global--breakpoint--2xl: 1110px !default;

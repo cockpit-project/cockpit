@@ -4,23 +4,19 @@
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
 /* Style the list cards as ct-cards */
-.pf-v5-c-page__main-section .pf-v5-c-card {
+.pf-v6-c-page__main-section .pf-v6-c-card {
   @extend .ct-card;
 }
 
-.pf-v5-c-table tr:nth-child(1) {
+.pf-v6-c-table tr:nth-child(1) {
   > td, th {
-    --pf-v5-c-table--cell--PaddingTop: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-table--cell--PaddingBottom: var(--pf-v5-global--spacer--sm);
-
-    padding-block: var(--pf-v5-c-table--cell--PaddingTop) var(--pf-v5-c-table--cell--PaddingBottom);
-
-    padding-inline: var(--pf-v5-c-table--cell--PaddingLeft) var(--pf-v5-c-table--cell--PaddingRight);
+    padding-block: var(--pf-v6-c-table--cell--PaddingBlockStart) var(--pf-v6-c-table--cell--PaddingBlockEnd);
+    padding-inline: var(--pf-v6-c-table--cell--PaddingInlineStart) var(--pf-v6-c-table--cell--PaddingInlineEnd);
   }
 }
 
-.kpatches-labelgroup ul.pf-v5-c-label-group__list,
-.kpatches-labelgroup li.pf-v5-c-label-group__list-item:last-child, {
+.kpatches-labelgroup ul.pf-v6-c-label-group__list,
+.kpatches-labelgroup li.pf-v6-c-label-group__list-item:last-child {
   margin-block-end: 0;
 }
 
@@ -33,7 +29,7 @@
   padding-inline: 0;
 
   &--actions {
-    > .pf-v5-c-button,
+    > .pf-v6-c-button,
     > .btn-group {
       margin-block: 5px 0;
       margin-inline: 0 5px;
@@ -52,13 +48,13 @@
 }
 
 // Make header's content bold
-.pf-v5-c-table tr:nth-child(1) td:nth-child(2) {
-  font-weight: var(--pf-v5-global--FontWeight--bold);
+.pf-v6-c-table tr:nth-child(1) td:nth-child(2) {
+  font-weight: var(--pf-t--global--font--weight--heading);
 }
 
 .ct-table tr {
   .severity-icon {
-    margin-inline-end: var(--pf-v5-global--spacer--xs);
+    margin-inline-end: var(--pf-t--global--spacer--xs);
   }
 
   td.changelog {
@@ -120,19 +116,19 @@ div.changelog {
   margin-block: 10ex 0;
   margin-inline: auto;
 
-  .pf-v5-l-grid {
+  .pf-v6-l-grid {
     align-items: end;
   }
 }
 
 /* workaround font not supporting tabular numbers yet https://github.com/cockpit-project/cockpit/issues/15090 */
-.pf-v5-c-progress__status {
+.pf-v6-c-progress__status {
   min-inline-size: 3ch;
 }
 
 /* Add some space between the spinner and the text */
 .progress-description > svg {
-  margin-inline-end: var(--pf-v5-global--spacer--sm);
+  margin-inline-end: var(--pf-t--global--spacer--sm);
 }
 
 .flow-list-blank-slate {
@@ -208,11 +204,11 @@ table.header-buttons {
 
 .auto-update-group {
   // Add spacing between rows for when the flex items wrap
-  row-gap: var(--pf-v5-global--spacer--sm);
+  row-gap: var(--pf-t--global--spacer--sm);
 }
 
-.pk-updates .pf-v5-c-description-list + div {
-  padding-block-start: var(--pf-v5-global--spacer--md);
+.pk-updates .pf-v6-c-description-list + div {
+  padding-block-start: var(--pf-t--global--spacer--md);
 }
 
 .restart-services-modal-body {
@@ -220,7 +216,7 @@ table.header-buttons {
   padding-inline: 0;
 }
 
-.pf-v5-c-content ul {
+.pf-v6-c-content ul {
   list-style-type: none;
 }
 
@@ -246,30 +242,33 @@ table.header-buttons {
 }
 
 .update-success-actions > button {
-  margin-block: var(--pf-v5-global--spacer--xs);
-  margin-inline: var(--pf-v5-global--spacer--sm) 0;
+  margin-block: var(--pf-t--global--spacer--xs);
+  margin-inline: var(--pf-t--global--spacer--sm) 0;
 }
 
 .update-success-table-title {
-  padding-inline-start: var(--pf-v5-global--spacer--sm);
+  padding-inline-start: var(--pf-t--global--spacer--sm);
 }
 
 .cockpit-update-warning {
-  margin-inline-end: var(--pf-v5-global--spacer--md);
+  margin-inline-end: var(--pf-t--global--spacer--md);
 }
 
 .cockpit-update-warning-icon {
-  margin-inline-end: var(--pf-v5-global--spacer--sm);
+  margin-inline-end: var(--pf-t--global--spacer--sm);
 }
 
+// TODO @Venefilyn: Cleanup and remove
+// Alerts no longer need yellow background
 .cockpit-update-warning-text {
-  color: var(--pf-v5-global--warning-color--200);
+  color: var(--pf-t--global--text--color--regular);
 }
 
 .autoupdates-card-error {
-  margin-block-end: var(--pf-v5-global--spacer--md);
+  margin-block-end: var(--pf-t--global--spacer--md);
 }
 
+// TODO @Venefilyn: Can be replaced with normal icon now
 .ct-info-circle {
-  color: var(--pf-v5-global--info-color--100);
+  color: var(--pf-t--global--icon--color--status--info--default);
 }

@@ -51,10 +51,10 @@ class TestNetworkingBasic(netlib.NetworkCase):
         # zoom/range selectors are hidden when PCP is disabled
         if b.pixels_label:
             b.click("#zoom-control button:nth-of-type(2)")
-            b.wait_in_text("#zoom-control button.pf-v5-c-menu-toggle", "1 hour")
-            b.click("#zoom-control button.pf-v5-c-menu-toggle")
-            b.click("#zoom-control .pf-v5-c-menu ul li:nth-child(3) > button")
-            b.wait_in_text("#zoom-control button.pf-v5-c-menu-toggle", "5 minutes")
+            b.wait_in_text("#zoom-control button.pf-v6-c-menu-toggle", "1 hour")
+            b.click("#zoom-control button.pf-v6-c-menu-toggle")
+            b.click(".pf-v6-c-menu ul li:nth-child(3) > button")
+            b.wait_in_text("#zoom-control button.pf-v6-c-menu-toggle", "5 minutes")
 
         # FIXME: rtl test was flaky, debug it and remove the skip
         b.assert_pixels(
@@ -63,9 +63,9 @@ class TestNetworkingBasic(netlib.NetworkCase):
                 "td[data-label=Sending]",
                 "td[data-label=Receiving]",
                 "td[data-label='IP address']",
-                "#networking-graphs .pf-v5-l-grid",
-                ".cockpit-log-panel .pf-v5-c-card__body",
-                "#networking-firewall-summary .pf-v5-c-card__body",
+                "#networking-graphs .pf-v6-l-grid",
+                ".cockpit-log-panel .pf-v6-c-card__body",
+                "#networking-firewall-summary .pf-v6-c-card__body",
             ],
             # IPv6 addresses vary wildly, and their different rendered widths change the column widths
             skip_layouts=['medium', 'mobile', 'rtl']
@@ -129,17 +129,17 @@ class TestNetworkingBasic(netlib.NetworkCase):
                   timeout=10)
 
         # Disconnect
-        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=True)
-        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
+        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=True)
+        self.toggle_onoff(f".pf-v6-c-card__header:contains('{iface}')")
         self.wait_for_iface_setting('Status', 'Inactive')
 
         # Reconnect through the UI
-        self.toggle_onoff(f".pf-v5-c-card__header:contains('{iface}')")
-        b.wait_in_text(f"#network-interface .pf-v5-c-card:contains('{iface}')", "1.2.3.4/18")
+        self.toggle_onoff(f".pf-v6-c-card__header:contains('{iface}')")
+        b.wait_in_text(f"#network-interface .pf-v6-c-card:contains('{iface}')", "1.2.3.4/18")
 
         # Disconnect from the CLI, UI reacts
         m.execute(f"nmcli device disconnect {iface}")
-        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=False)
+        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=False)
 
         # Switch it back to "auto" from the command line and bring it
         # up again
@@ -264,8 +264,8 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.click("#networking-nm-crashed a")
         b.enter_page("/system/services")
         b.wait_text(".service-name", "Network Manager")
-        b.click(".service-top-panel button.pf-v5-c-menu-toggle")
-        b.click(".service-top-panel .pf-v5-c-menu__list-item:contains('Start') button")
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page > .pf-v6-c-menu .pf-v6-c-menu__list-item:contains('Start') button")
         b.wait_in_text("#statuses", "Running")
 
         # networking page should notice start from Services page
@@ -309,8 +309,8 @@ class TestNetworkingBasic(netlib.NetworkCase):
         self.select_iface(iface)
         b.wait_visible("#network-interface")
         # On/Off button is disabled, but shows the correct value
-        b.wait_visible(f".pf-v5-c-card__header:contains('{iface}') .pf-v5-c-switch input:disabled")
-        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=True)
+        b.wait_visible(f".pf-v6-c-card__header:contains('{iface}') .pf-v6-c-switch input:disabled")
+        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=True)
 
         # not editable
         b.wait_visible('#autoreconnect:disabled')
@@ -320,16 +320,16 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         # unpriv UI reacts to system change
         m.execute(f"nmcli device disconnect {iface}")
-        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=False)
+        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=False)
         m.execute(f"nmcli connection up '{con_id}'")
-        self.wait_onoff(f".pf-v5-c-card__header:contains('{iface}')", val=True)
+        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=True)
 
         # UI becomes editable when gaining privileges
         b.become_superuser()
         b.wait_visible('#autoreconnect:not(disabled)')
         b.wait_visible("#networking-edit-ipv4")
         b.wait_visible("#networking-edit-mac")
-        b.wait_visible(f".pf-v5-c-card__header:contains('{iface}') .pf-v5-c-switch input:not(disabled)")
+        b.wait_visible(f".pf-v6-c-card__header:contains('{iface}') .pf-v6-c-switch input:not(disabled)")
 
 
 if __name__ == '__main__':

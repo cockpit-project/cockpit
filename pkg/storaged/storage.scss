@@ -27,12 +27,12 @@
 @import "@patternfly/patternfly/utilities/Text/text.scss";
 @import "@patternfly/patternfly/utilities/Alignment/alignment.scss";
 
-#storage .pf-v5-c-card {
+#storage .pf-v6-c-card {
   @extend .ct-card;
 }
 
-.ct-card.pf-v5-c-card .pf-v5-c-card__title-text.ct-card-small-title {
-  font-size: var(--pf-v5-global--FontSize--xl);
+.ct-card.pf-v6-c-card .pf-v6-c-card__title-text.ct-card-small-title {
+  font-size: var(--pf-t--global--font--size--xl);
 }
 
 // Only used in iSCSI dialog
@@ -57,7 +57,7 @@
 
   th {font-weight: bold;
     text-align: start;
-    color: var(--pf-v5-global--palette--black-800);
+    color: var(--pf-t--global--text--color--regular);
     padding-block: 0.75em;
     padding-inline: 0;
   }
@@ -75,7 +75,7 @@
 
 div.progress {
   inline-size: 100%;
-  block-size: var(--pf-v5-global--FontSize-xs);
+  block-size: var(--pf-t--global--font--size--xs);
 }
 
 td.job-description {
@@ -100,25 +100,14 @@ td.job-action {
   text-align: start;
 }
 
-.pf-v5-c-modal-box__body table {
-  --pf-v5-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
-}
-
 * + .modal-footer-teardown {
-  padding-block-start: var(--pf-v5-global--spacer--xl);
+  padding-block-start: var(--pf-t--global--spacer--xl);
 }
 
 // FIXME: This is visual only; it needs to be fixed for a11y reasons, likely at the JSX level
 .indent {
-  padding-inline-start: calc(var(--pf-v5-global--spacer--md) * min(var(--level, 0), 10));
+  padding-inline-start: calc(var(--pf-t--global--spacer--md) * min(var(--level, 0), 10));
   white-space: nowrap;
-}
-
-// FIXME: Is this used?
-a.disabled {
-  color: var(--pf-v5-global--palette--light-blue-200);
-  text-decoration: none;
-  cursor: not-allowed;
 }
 
 .widest-title {
@@ -131,22 +120,22 @@ a.disabled {
   font-size: 140%;
 }
 
-.pf-v5-c-modal-box h3 {
+.pf-v6-c-modal-box h3 {
   margin-block-start: 0;
   line-height: 24px;
 }
 
 .delete-resource-dangerous {
-  color: var(--pf-v5-global--danger-color--200);
+  color: var(--pf-t--global--color--status--danger--default);
 }
 
-.pf-v5-c-modal-box .slot-warning {
-  color: var(--pf-v5-global--danger-color--200);
+.pf-v6-c-modal-box .slot-warning {
+  color: var(--pf-t--global--color--status--danger--default);
 }
 
 // This is needed to avoid showing scrollbar in dialog
 .size-slider {
-  padding-block-end: var(--pf-v5-global--spacer--xs);
+  padding-block-end: var(--pf-t--global--spacer--xs);
 }
 
 .panel-heading {
@@ -171,17 +160,12 @@ a.disabled {
   border: none;
 }
 
-// So that "Stored passphrase" fits
-.pf-v5-c-description-list.wide-label {
-  --pf-v5-c-description-list--m-horizontal__term--width: minmax(0, 18ch);
-}
-
-.pf-v5-c-description-list .pf-v5-c-progress {
+.pf-v6-c-description-list .pf-v6-c-progress {
   max-inline-size: 30ch;
 }
 
 .usage-bar {
-  --bg-color: var(--pf-v5-global--primary-color--100);
+  --bg-color: var(--pf-t--chart--theme--colorscales--blue--colorscale--100);
   display: inline-block;
   inline-size: 20em;
   block-size: 1rem;
@@ -195,7 +179,7 @@ a.disabled {
   }
 
   &-danger {
-    --bg-color: var(--pf-v5-global--danger-color--100);
+    --bg-color: var(--pf-t--chart--global--danger--color--100);
   }
 
   &-empty {
@@ -214,7 +198,7 @@ a.disabled {
   // Hatched effect for progressbars that are parts of a group, but not the main
   &-other {
     // Use the page's default background color
-    --bg-light: var(--pf-v5-global--BackgroundColor--100);
+    --bg-light: transparent;
     // Alternate with the used color of the progress bar
     --bg-dark: var(--bg-color);
     // Repeat a gradient with hard stops, a perfect slant, and a consistency
@@ -227,7 +211,7 @@ a.disabled {
       var(--bg-dark) 50%,
       var(--bg-light) 50%
     ) top left;
-    background-size: var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--sm);
+    background-size: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--sm);
     // Overlay at 1/3  to mix the light and dark against the through color
     opacity: 0.333;
   }
@@ -246,71 +230,51 @@ a.disabled {
 }
 
 .storage-pvs-box {
-  border: 1px solid var(--pf-v5-global--palette--purple-400);
-  background: var(--pf-v5-global--palette--purple-100);
-
-  .pf-v5-theme-dark & {
-    border-color: var(--pf-v5-global--palette--purple-300);
-    background: var(--pf-v5-global--palette--purple-500);
-  }
+  border: 1px solid var(--pf-t--global--border--color--nonstatus--purple--default);
+  background: var(--pf-t--global--color--nonstatus--purple--default);
+  color: var(--pf-t--global--text--color--on-highlight);
+  border-radius: var(--pf-t--global--border--radius--tiny);
 }
 
 .storage-pvs-pv-box {
-  padding: 0.3em;
+  padding: var(--pf-t--global--spacer--sm);
 
   &:not(:last-child) {
-    border-inline-end: 1px solid var(--pf-v5-global--palette--purple-400);
-  }
-
-  .pf-v5-theme-dark & {
-    border-color: var(--pf-v5-global--palette--purple-300);
+    border-block-end: 1px solid var(--pf-t--global--border--color--nonstatus--purple--clicked);
   }
 }
 
 .storage-pvs-pv-box-dev {
-  font-size: 120%;
-  font-weight: bold;
+  font-size: var(--pf-t--global--font--size--sm);
+  font-weight: var(--pf-t--global--font--weight--400);
 }
 
 .storage-stripe-box {
-  border: 1px solid var(--pf-v5-global--palette--purple-400);
-  background: var(--pf-v5-global--palette--purple-100);
-
-  .pf-v5-theme-dark & {
-    border-color: var(--pf-v5-global--palette--purple-300);
-    background: var(--pf-v5-global--palette--purple-500);
-  }
+  border: 1px solid var(--pf-t--global--border--color--nonstatus--purple--default);
+  background: var(--pf-t--global--color--nonstatus--purple--default);
+  color: var(--pf-t--global--text--color--on-highlight);
+  border-radius: var(--pf-t--global--border--radius--tiny);
 }
 
 .storage-stripe-pv-box {
-  padding: 0.3em;
+  padding: var(--pf-t--global--spacer--sm);
 }
 
 .storage-stripe-pv-box:not(:last-child) {
-  border-block-end: 1px solid var(--pf-v5-global--palette--purple-400);
-
-  .pf-v5-theme-dark & {
-    border-color: var(--pf-v5-global--palette--purple-300);
-  }
+  border-block-end: 1px solid var(--pf-t--global--border--color--nonstatus--purple--clicked);
 }
 
 .storage-stripe-pv-box-dev {
-  // FIXME: Font size should be a PF size, not a relative percentage
-  font-size: 120%;
-  font-weight: bold;
+  font-size: var(--pf-t--global--font--size--sm);
+  font-weight: var(--pf-t--global--font--weight--400);
 }
 
 .remove-border {
   border-block-end: 0 !important;
 }
 
-.ct-small-table-card {
-    border-block-start: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--BorderColor--100);
-}
-
 .ct-clickable-card:hover {
-    background: var(--pf-v5-global--BackgroundColor--150);
-    box-shadow: var(--pf-v5-global--BoxShadow--md);
+    background: var(--pf-t--global--background--color--primary--hover);
     cursor: pointer;
 }
 
@@ -319,7 +283,7 @@ a.disabled {
     white-space: nowrap !important;
 }
 
-.pf-v5-c-table__tbody .storage-device-icon {
+.pf-v6-c-table__tbody .storage-device-icon {
   --icon-size: 18px;
   // Ensure the icon's cell size is as minimal as the icon allows
   // (WebKit needs a size; 0 doesn't work for it)
@@ -329,11 +293,11 @@ a.disabled {
 
   > svg {
     // Bump the icon down to align with text, based on the difference between icon and text size, just for the top
-    inset-block-start: calc((var(--pf-v5-global--spacer--md) * var(--pf-v5-global--LineHeight--md) - var(--icon-size)) / 2);
+    inset-block-start: calc((var(--pf-t--global--spacer--md) * var(--pf-t--global--font--line-height--body) - var(--icon-size)) / 2);
     position: relative;
 
     path {
-      fill: var(--pf-v5-global--Color--200);
+      fill: var(--pf-t--global--text--color--subtle);
     }
   }
 }
@@ -346,8 +310,8 @@ a.disabled {
 .storage-size-column-header {
     text-align: end;
     // Align the "Size" header with the text of the usage bars.
-    // var(--pf-v5-global--spacer--sm): padding of compact td cells
+    // var(--pf-t--global--spacer--sm): padding of compact td cells
     // 3.5em: width of short progress bars
     // 1em: margin between text and progress bar
-    padding-inline-end: calc(var(--pf-v5-global--spacer--sm) + 3.5em + 1em) !important;
+    padding-inline-end: calc(var(--pf-t--global--spacer--sm) + 3.5em + 1em) !important;
 }

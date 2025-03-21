@@ -29,7 +29,9 @@ import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/in
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
@@ -130,10 +132,10 @@ const UnknownHostDialog = ({ host, error, dialogResult }: {
         body = <>
             <Alert variant='danger' isInline title={_("Changed keys are often the result of an operating system reinstallation. However, an unexpected change may indicate a third-party attempt to intercept your connection.")} />
             <p>{_("To ensure that your connection is not intercepted by a malicious third-party, please verify the host key fingerprint:")}</p>
-            <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-fingerprint pf-v5-u-font-family-monospace">{host_fp}</ClipboardCopy>
+            <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-fingerprint pf-v6-u-font-family-monospace">{host_fp}</ClipboardCopy>
             <p className="hostkey-type">({key_type})</p>
             <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), address.address)}</p>
-            <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{scan_cmd}</ClipboardCopy>
+            <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-v6-u-font-family-monospace">{scan_cmd}</ClipboardCopy>
             <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
             <p>{_("If the fingerprint matches, click 'Trust and add host'. Otherwise, do not connect and contact your administrator.")}</p>
         </>;
@@ -148,9 +150,9 @@ const UnknownHostDialog = ({ host, error, dialogResult }: {
                                 isExpanded={verifyExpanded}
                                 onToggle={(_ev, value) => setVerifyExpanded(value) }>
                 <div>{_("Run this command over a trusted network or physically on the remote machine:")}</div>
-                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v5-u-font-family-monospace">{scan_cmd}</ClipboardCopy>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-verify-help-cmds pf-v6-u-font-family-monospace">{scan_cmd}</ClipboardCopy>
                 <div>{_("The fingerprint should match:")} {fingerprint_help}</div>
-                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v5-u-font-family-monospace">{host_fp}</ClipboardCopy>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help hostkey-fingerprint pf-v6-u-font-family-monospace">{host_fp}</ClipboardCopy>
             </ExpandableSection>
         </>;
     }

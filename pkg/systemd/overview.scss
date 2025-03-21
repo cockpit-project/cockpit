@@ -5,10 +5,7 @@
 @import "@patternfly/patternfly/components/Table/table.scss";
 
 .ct-limited-access-alert {
-  --pf-v5-c-alert--GridTemplateColumns: auto auto 1fr;
-
-  // Set the right padding so that the button aligns with the other alerts in the page on the side
-  padding-inline-end: var(--pf-v5-c-page__main-section--PaddingRight);
+  --pf-v6-c-alert--GridTemplateAreas: "icon title action" ". description description";
 
   // Deconstruct nicely on small screen sizes (especially mobile)
   // This will not be needed in a future PF4 update
@@ -20,30 +17,20 @@
   //
   // When we have the upcoming version of PF4 in Cockpit, we should drop this code
   // (and adjust things for the button to show up on the side of desktop mode instead)
-  @media (max-width: $pf-v5-global--breakpoint--lg) {
-    grid-template-areas: "icon title" ". content" ". action";
-    grid-gap: var(--pf-v5-global--spacer--sm) 0;
+  @media (max-width: $pf-v6-global--breakpoint--md) {
+    --pf-v6-c-alert--GridTemplateAreas: "icon title" ". description" ". action";
+    --pf-v6-c-alert__action--MarginBlockStart: 0;
   }
 
   @media (max-width: 320px) {
     // Allow the action button to have a bit more space on iPhone SE sized phones
-    grid-template-areas: "icon title" ". content" "action action";
-  }
-
-  > .pf-v5-c-alert__action {
-    margin-inline: var(--pf-v5-global--spacer--md) 0;
-  }
-
-  // Align left content with the rest of the page
-  @media (min-width: $pf-v5-global--breakpoint--xl) {
-    padding-inline-start: var(--pf-v5-global--spacer--lg);
+    --pf-v6-c-alert--GridTemplateAreas: "icon title" "description description" "action action";
+    --pf-v6-c-alert__action--MarginBlockStart: 0;
   }
 }
 
 .ct-overview-header {
-  align-items: center;
-  display: flex;
-  flex: none;
+  flex-direction: row;
 
   &,
   &-hostname {
@@ -59,11 +46,9 @@
   &-hostname {
     align-items: baseline;
     flex: auto;
-    /* Collapse down to 15rem, to help preserve button on the right */
-    flex-basis: 15rem;
 
     > h1 {
-      font-size: var(--pf-v5-global--FontSize--2xl) !important;
+      font-size: var(--pf-t--global--font--size--2xl) !important;
     }
   }
 
@@ -77,22 +62,22 @@
   }
 
   &-subheading {
-    font-size: var(--pf-v5-global--FontSize--md);
+    font-size: var(--pf-t--global--font--size--md);
   }
 }
 
-.pf-v5-l-gallery.ct-system-overview {
+.pf-v6-l-gallery.ct-system-overview {
   --cards: 2;
-  --pf-v5-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
+  --pf-v6-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
 
   // Small mobile: Reduce spacing
   @media (max-width: 320px) {
-    // --pf-v5-l-gallery--m-gutter--GridGap: 0.25rem;
+    --pf-v6-l-gallery--m-gutter--GridGap: 0.25rem;
   }
 
   // Mobile: reduce to 1 card wide and minimize spacing
   @media (max-width: 680px) {
-    --pf-v5-l-gallery--m-gutter--GridGap: var(--pf-v5-global--spacer--sm);
+    --pf-v6-l-gallery--m-gutter--GridGap: var(--pf-t--global--spacer--sm);
     --cards: 1;
   }
 
@@ -102,18 +87,18 @@
   }
 
   // Extra large desktop: Let cards align to the left at an optimal size
-  @media (min-width: 110rem) {
-    --pf-v5-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
+  @media (min-width: 114rem) {
+    --pf-v6-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
   }
 
   // VMs @ 1024x768; add a little leeway For titlebars, start bar, etc.
   @media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
-    --pf-v5-l-gallery--m-gutter--GridGap: var(--pf-v5-global--spacer--sm);
+    --pf-v6-l-gallery--m-gutter--GridGap: var(--pf-t--global--spacer--sm);
 
     // Also skim off some vertical space for the cards
-    .pf-v5-c-card {
-      --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--md);
-      --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
+    .pf-v6-c-card {
+      --pf-v6-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--md);
+      --pf-v6-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
     }
   }
 
@@ -121,14 +106,14 @@
     grid-column: 1 / -1;
   }
 
-  .pf-v5-c-card {
+  .pf-v6-c-card {
     &__title-text {
-      font-size: var(--pf-v5-global--FontSize--xl);
-      font-weight: var(--pf-v5-global--FontWeight--normal);
+      font-size: var(--pf-t--global--font--size--xl);
+      font-weight: var(--pf-t--global--font--weight--body);
     }
 
     &__body {
-      &:last-child .pf-v5-c-table:last-child tr:last-child {
+      &:last-child .pf-v6-c-table:last-child tr:last-child {
         /* Remove the border of tables when it's the last item in a card and there isn't a card footer */
         border-block-end: none;
       }
@@ -136,7 +121,7 @@
       p {
         + p,
         + button {
-          margin-block-start: calc(var(--pf-v5-global--LineHeight--md) * 1rem);
+          margin-block-start: calc(var(--pf-t--global--font--line-height--body) * 1rem);
         }
       }
 
@@ -145,12 +130,12 @@
       }
 
       th {
-        font-size: var(--pf-v5-global--FontSize--sm);
+        font-size: var(--pf-t--global--font--size--sm);
       }
     }
   }
 
-  .pf-v5-c-progress {
+  .pf-v6-c-progress {
     &__status {
       display: flex;
       align-items: baseline;
@@ -190,83 +175,68 @@
 @media (max-width: 779px) {
   /* Reduce gutter & padding on smaller widths, for desktop & mobile */
 
-  .pf-v5-l-gallery.ct-system-overview {
-    --pf-v5-l-gallery--m-gutter--GridGap: calc(var(--pf-v5-global--gutter--md)/2);
+  .pf-v6-l-gallery.ct-system-overview {
+    --pf-v6-l-gallery--m-gutter--GridGap: calc(var(--pf-t--global--spacer--md)/2);
   }
 
-  .pf-v5-c-card {
-    --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card--child--PaddingBottom: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card--child--PaddingLeft: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card__title--not-last-child--PaddingBottom: var(--pf-v5-global--spacer--sm);
+  .pf-v6-c-card {
+    --pf-v6-c-card--first-child--PaddingTop: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingRight: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingBottom: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingLeft: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card__title--not-last-child--PaddingBottom: var(--pf-t--global--spacer--sm);
   }
 }
 
 @media (min-width: 780px) {
   /* Embiggen subheading & card headings when there's space */
 
-  .pf-v5-l-gallery.ct-system-overview .pf-v5-c-card__title-text {
-    font-size: var(--pf-v5-global--FontSize--2xl);
+  .pf-v6-l-gallery.ct-system-overview .pf-v6-c-card__title-text {
+    font-size: var(--pf-t--global--font--size--2xl);
   }
 
   .ct-overview-header-subheading {
-    font-size: var(--pf-v5-global--FontSize--lg);
+    font-size: var(--pf-t--global--font--size--lg);
   }
 }
 
-.pf-v5-c-table tr > * {
-  vertical-align: top;
-}
+// .pf-v6-c-table tr > * {
+//   vertical-align: top;
+// }
 
-.ct-inline-list .pf-v5-c-list.pf-m-inline {
-  display: inline-flex;
-  margin-inline-start: 1rem;
-}
+// .ct-inline-list .pf-v6-c-list.pf-m-inline {
+//   display: inline-flex;
+//   margin-inline-start: 1rem;
+// }
 
-/* Add a subtle dropshadow to the alerts, to separate them from the background, similar to the cards on the page */
-.pf-v5-c-page__main-section:not(.ct-overview-header),
-.pf-v5-l-gallery {
-  > .pf-v5-c-alert {
-    box-shadow: var(--pf-v5-global--BoxShadow--sm);
+// #motd-box > .pf-v6-c-alert {
+//   /* Spacing between the MOTD is handled by the .pf-v6-l-gallery grid */
+//   margin-block-end: 0;
+// }
 
-    // Default PF4 blue and background grey are too close in shade
-    // So: Lighten up the blue to provide a touch more contrast
-    // (Based on default's light green, but in a blue shade)
-    &.pf-m-info {
-      --pf-v5-c-alert--BackgroundColor: #f1f8fe;
-    }
-  }
-}
+// .pf-v6-c-alert .pf-v6-c-alert__description a {
+//   padding-inline-start: 15px;
+// }
 
-#motd-box > .pf-v5-c-alert {
-  /* Spacing between the MOTD is handled by the .pf-v5-l-gallery grid */
-  margin-block-end: 0;
-}
+// // Stretch modal content to fill body
+// // This redirects scrolling from the modal body to the select widget
+// .ct-m-stretch-body {
+//   // Use flex to let children fully expand to the content
+//   .pf-v6-c-modal-box__body {
+//     &, > :only-child {
+//       // Let children fully stretch to content
+//       display: flex;
+//     }
 
-.pf-v5-c-alert .pf-v5-c-alert__description a {
-  padding-inline-start: 15px;
-}
+//     > :only-child,
+//     .pf-v6-c-menu__content {
+//       // Get squishy with children and the menu content
+//       flex: auto;
+//     }
 
-// Stretch modal content to fill body
-// This redirects scrolling from the modal body to the select widget
-.ct-m-stretch-body {
-  // Use flex to let children fully expand to the content
-  .pf-v5-c-modal-box__body {
-    &, > :only-child {
-      // Let children fully stretch to content
-      display: flex;
-    }
-
-    > :only-child,
-    .pf-v5-c-menu__content {
-      // Get squishy with children and the menu content
-      flex: auto;
-    }
-
-    .pf-v5-c-menu__content {
-      // Relax the height constraint
-      --pf-v5-c-menu__content--MaxHeight: 100%;
-    }
-  }
-}
+//     .pf-v6-c-menu__content {
+//       // Relax the height constraint
+//       --pf-v6-c-menu__content--MaxHeight: 100%;
+//     }
+//   }
+// }

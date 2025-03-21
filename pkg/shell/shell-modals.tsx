@@ -26,9 +26,11 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Menu, MenuContent, MenuSearch, MenuSearchInput, MenuItem, MenuList } from "@patternfly/react-core/dist/esm/components/Menu/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
-import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { SearchIcon } from '@patternfly/react-icons';
 
 import { useInit } from "hooks";
@@ -67,25 +69,23 @@ export const AboutCockpitModal = ({ dialogResult }) => {
             brandImageSrc="../shell/images/cockpit-icon.svg"
             brandImageAlt={_("Web console logo")}
         >
-            <TextContent>
-                <Text component={TextVariants.p}>
-                    {_("Cockpit is an interactive Linux server admin interface.")}
-                </Text>
-                <Text component={TextVariants.p}>
-                    <Text component={TextVariants.a} href="https://cockpit-project.org" target="_blank" rel="noopener noreferrer">
-                        {_("Project website")}
-                    </Text>
-                </Text>
-                <TextList component="dl">
-                    {packages === null && <span>{_("Loading packages...")}</span>}
-                    {packages !== null && packages.map(p =>
-                        <React.Fragment key={p.name}>
-                            <TextListItem key={p.name} component="dt">{p.name}</TextListItem>
-                            <TextListItem component="dd">{p.version}</TextListItem>
-                        </React.Fragment>
-                    )}
-                </TextList>
-            </TextContent>
+            <Content component={ContentVariants.p}>
+                {_("Cockpit is an interactive Linux server admin interface.")}
+            </Content>
+            <Content component={ContentVariants.p}>
+                <Content component={ContentVariants.a} href="https://cockpit-project.org" target="_blank" rel="noopener noreferrer">
+                    {_("Project website")}
+                </Content>
+            </Content>
+            <Content component="dl">
+                {packages === null && <span>{_("Loading packages...")}</span>}
+                {packages !== null && packages.map(p =>
+                    <React.Fragment key={p.name}>
+                        <Content key={p.name} component="dt">{p.name}</Content>
+                        <Content component="dd">{p.version}</Content>
+                    </React.Fragment>
+                )}
+            </Content>
         </AboutModal>
     );
 };

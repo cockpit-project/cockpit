@@ -464,7 +464,7 @@ let narrow_query = null;
 
 export const useIsNarrow = (onChange) => {
     if (!narrow_query) {
-        const val = window.getComputedStyle(window.document.body).getPropertyValue("--pf-v5-global--breakpoint--md");
+        const val = window.getComputedStyle(window.document.body).getPropertyValue("--pf-t--global--breakpoint--md");
         narrow_query = window.matchMedia(`(max-width: ${val})`);
     }
     useEvent(narrow_query, "change", onChange);
@@ -587,7 +587,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
 
         if (narrow) {
             rows.push(
-                <Card key={key}
+                <Card isPlain key={key}
                       className={"ct-small-table-card" +
                                  (page.location ? " ct-clickable-card" : null) +
                                  (is_new ? " ct-new-item" : "")}
@@ -604,7 +604,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                         <Split hasGutter isWrappable onClick={onClick}>
                             <SplitItem>{type}</SplitItem>
                             <SplitItem isFilled>{location}</SplitItem>
-                            <SplitItem isFilled className="pf-v5-u-text-align-right">{size}</SplitItem>
+                            <SplitItem isFilled className="pf-v6-u-text-align-right">{size}</SplitItem>
                         </Split>
                     </CardBody>
                 </Card>);
@@ -619,7 +619,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 <Td key="2" onClick={onClick} modifier="nowrap">{type}</Td>,
                 <Td key="3" onClick={onClick} modifier="nowrap">{location}</Td>,
                 <Td key="4" onClick={onClick} className="storage-size-column">{size}</Td>,
-                <Td key="5" className="pf-v5-c-table__action">{actions || <div /> }</Td>,
+                <Td key="5" className="pf-v6-c-table__action">{actions || <div /> }</Td>,
             ];
             if (show_icons)
                 cols.unshift(<Td key="0" onClick={onClick} className="storage-device-icon">{icon}</Td>);
@@ -797,7 +797,7 @@ const StorageBreadcrumb = ({ page }) => {
 
 export const StorageCard = ({ card, alert, alerts, actions, children }) => {
     return (
-        <Card data-test-card-title={card.title}>
+        <Card isPlain data-test-card-title={card.title}>
             { (client.in_anaconda_mode() && card.page.parent && !card.next) &&
             <CardBody>
                 <StorageBreadcrumb page={card.page} />
@@ -840,13 +840,13 @@ export const StoragePage = ({ location, plot_state }) => {
     const page = get_page_from_location(location);
 
     return (
-        <Page id="storage">
+        <Page id="storage" className="no-masthead-sidebar">
             { (!client.in_anaconda_mode() && page.parent) &&
-            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <StorageBreadcrumb page={page} />
             </PageBreadcrumb>
             }
-            <PageSection isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
+            <PageSection hasBodyWrapper={false} isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
                 <Stack hasGutter>
                     <MultipathAlert client={client} />
                     <PageCardStackItems page={page} plot_state={plot_state} noarrow />

@@ -67,12 +67,12 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         b.click("#dialog button:contains(Currently in use)")
-        b.wait_in_text(".pf-v5-c-popover", str(sleep_pid))
-        b.wait_in_text(".pf-v5-c-popover", "keep-mnt-busy")
-        b.assert_pixels(".pf-v5-c-popover", "popover",
-                        mock={".pf-v5-c-popover__body ul:nth-of-type(2) li": "process (user: root, pid: 1234)"},
+        b.wait_in_text(".pf-v6-c-popover", str(sleep_pid))
+        b.wait_in_text(".pf-v6-c-popover", "keep-mnt-busy")
+        b.assert_pixels(".pf-v6-c-popover", "popover",
+                        mock={".pf-v6-c-popover__body ul:nth-of-type(2) li": "process (user: root, pid: 1234)"},
                         scroll_into_view="#dialog button:contains(Currently in use)")
-        b.click(".pf-v5-c-popover button")
+        b.click(".pf-v6-c-popover button")
         b.assert_pixels('#dialog', "format", wait_after_layout_change=True)
         self.dialog_cancel()
         self.dialog_wait_close()

@@ -4,8 +4,8 @@
 // The service list lacks a top border.
 // However, the toolbar also lacks a border and is sticky, so add a bottom
 // border to the toolbar to separate the toolbar and list.
-.services-toolbar {
-  border-block-end: 1px solid var(--pf-v5-global--BorderColor--100);
+.pf-m-grid-lg.pf-v6-c-table tbody:where(.pf-v6-c-table__tbody):first-of-type {
+  border-block-start: var(--pf-v6-c-table__tbody--responsive--border-width--base) solid var(--pf-v6-c-table--responsive--BorderColor);
 }
 
 // Magic pixie dust to make the list a bit faster and more furious
@@ -32,33 +32,20 @@
 
 .service-unit-file-state {
   display: inline-block;
-  font-size: var(--pf-v5-global--FontSize--sm);
+  // font-size: var(--pf-t--global--font--size--sm);
   min-inline-size: 5rem;
   text-align: center;
 }
 
-.service-unit-file-state:not(.pf-v5-c-badge) {
+.service-unit-file-state:not(.pf-v6-c-badge) {
   text-align: center;
   opacity: 0.8;
 }
 
 // Add some spacing between the tab label and the icon
-.pf-v5-c-nav__link > .ct-exclamation-circle {
+.pf-v6-c-nav__link > .ct-exclamation-circle {
   margin-inline-start: 0.5rem;
 }
-
-.services-header.pf-v5-c-page__main-nav {
-  padding-block-end: 1rem;
-  padding-inline-end: 0;
-
-  > .pf-v5-l-flex {
-    // Add spacing between the tabs and the 'Create timer' button in mobile
-    row-gap: var(--pf-v5-global--spacer--sm);
-    // Align 'Create timer' button with the right side of the services list card
-    margin-inline-end: var(--pf-v5-c-page__main-section--PaddingRight);
-  }
-}
-
 // Add some spacing between the icon and the status string in the list
 .service-unit-status-failed > .ct-exclamation-circle {
   margin-inline-end: 0.5rem;
@@ -68,35 +55,38 @@
   min-inline-size: 20rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(5rem, 25rem));
-  grid-gap: var(--pf-v5-global--spacer--sm);
+  grid-gap: var(--pf-t--global--spacer--sm);
 
   .service-unit-description {
     font-weight: bold;
   }
 }
 
-.service-thumbtack-icon-color {
-  color: var(--pf-v5-global--icon--Color--light);
+// FIXME @Venefilyn: Long-named services causes the cell to exceed its length
+// as it won't wrap correctly. It does seem like (inline-)flex itself cause the
+// issues. For now we go to how it was in PF5 and set it to display: block.
+#services .service-unit-id {
+  --pf-v6-c-button--Display: block;
 }
 
 .service-unit-triggers {
   min-inline-size: 20ch;
 }
 
-.pf-v5-c-table .service-unit-second-column {
-  --pf-v5-c-table--cell--Width: 20%;
+.pf-v6-c-table .service-unit-second-column {
+  --pf-v6-c-table--cell--Width: 20%;
 }
 
 // Don't show labels from mobile mode
-.pf-v5-c-table [data-label]::before {
+.pf-v6-c-table [data-label]::before {
   display: none;
 }
 
-.pf-v5-c-table [data-label] {
+.pf-v6-c-table [data-label] {
   display: revert;
 }
 
 // FIXME: When porting the selects to the PF5 select implementation drop this
-.pf-v5-c-toolbar__item {
+.pf-v6-c-toolbar__item {
   align-self: center;
 }

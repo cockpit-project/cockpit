@@ -498,7 +498,7 @@ class RestartServices extends React.Component {
                 .catch(ex => {
                     this.dialogErrorSet(_("Failed to restart service"), ex.message);
                     // see what services remain
-                    this.props.checkNeedsRestart(null);
+                    this.props.checkNeedsRestart();
                 });
     }
 
@@ -1010,6 +1010,7 @@ class OsUpdates extends React.Component {
         this.handleRefresh = this.handleRefresh.bind(this);
         this.loadUpdates = this.loadUpdates.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
+        this.checkNeedsRestart = this.checkNeedsRestart.bind(this);
 
         superuser.addEventListener("changed", () => {
             this.setState({ privileged: superuser.allowed });
@@ -1025,7 +1026,7 @@ class OsUpdates extends React.Component {
 
     componentDidMount() {
         this._mounted = true;
-        this.checkNeedsRestart(null);
+        this.checkNeedsRestart();
 
         PK.getBackendName().then(([prop]) => this.setState({ backend: prop.v }));
 
@@ -1064,20 +1065,16 @@ class OsUpdates extends React.Component {
         this._mounted = false;
     }
 
-    checkNeedsRestart(state) {
+    checkNeedsRestart() {
         this.setState({ checkRestartRunning: true });
-        python.spawn(callTracerScript, null, { err: "message", superuser: "require" })
+        return python.spawn(callTracerScript, undefined, { err: "message", superuser: "require" })
                 .then(output => {
                     const restartPackages = JSON.parse(output);
                     // Filter out duplicates
                     restartPackages.reboot = [...new Set(shortenCockpitWsInstance(restartPackages.reboot))];
                     restartPackages.daemons = [...new Set(shortenCockpitWsInstance(restartPackages.daemons))];
                     restartPackages.manual = [...new Set(shortenCockpitWsInstance(restartPackages.manual))];
-                    const nextState = { checkRestartAvailable: true, checkRestartRunning: false, restartPackages };
-                    if (state)
-                        nextState.state = state;
-
-                    this.setState(nextState);
+                    this.setState({ checkRestartAvailable: true, checkRestartRunning: false, restartPackages });
                 })
                 .catch((exception, data) => {
                     // common cases: this platform does not have tracer installed
@@ -1092,10 +1089,11 @@ class OsUpdates extends React.Component {
                         exception.problem !== "terminated")
                         console.error(`Tracer failed: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
                     // When tracer fails, act like it's not available (demand reboot after every update)
-                    const nextState = { checkRestartAvailable: false, checkRestartRunning: false, restartPackages: { reboot: [], daemons: [], manual: [] } };
-                    if (state)
-                        nextState.state = state;
-                    this.setState(nextState);
+                    this.setState({
+                        checkRestartAvailable: false,
+                        checkRestartRunning: false,
+                        restartPackages: { reboot: [], daemons: [], manual: [] },
+                    });
                 });
     }
 
@@ -1286,7 +1284,8 @@ class OsUpdates extends React.Component {
                                            if (exit === PK.Enum.EXIT_SUCCESS) {
                                                if (this.state.checkRestartAvailable) {
                                                    this.setState({ state: "loading", loadPercent: null });
-                                                   this.checkNeedsRestart("updateSuccess");
+                                                   this.checkNeedsRestart()
+                                                           .finally(() => this.setState({ state: "updateSuccess" }));
                                                } else {
                                                    this.setState({ state: "updateSuccess", loadPercent: null });
                                                }
@@ -1294,7 +1293,7 @@ class OsUpdates extends React.Component {
                                            } else if (exit === PK.Enum.EXIT_CANCELLED) {
                                                if (this.state.checkRestartAvailable) {
                                                    this.setState({ state: "loading", loadPercent: null });
-                                                   this.checkNeedsRestart(null);
+                                                   this.checkNeedsRestart();
                                                }
                                                this.loadUpdates();
                                            } else {
@@ -1466,7 +1465,7 @@ class OsUpdates extends React.Component {
                             restartPackages={this.state.restartPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
-                            checkNeedsRestart={state => this.checkNeedsRestart(state)}
+                            checkNeedsRestart={this.checkNeedsRestart}
                             onValueChanged={delta => this.setState(delta)}
                             loadUpdates={this.loadUpdates} />
                     }
@@ -1559,7 +1558,7 @@ class OsUpdates extends React.Component {
                         <RestartServices restartPackages={this.state.restartPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
-                            checkNeedsRestart={(state) => this.checkNeedsRestart(state)}
+                            checkNeedsRestart={this.checkNeedsRestart}
                             onValueChanged={delta => this.setState(delta)}
                             loadUpdates={this.loadUpdates} />
                     }
@@ -1594,7 +1593,7 @@ class OsUpdates extends React.Component {
                     <RestartServices restartPackages={this.state.restartPackages}
                                      close={() => this.setState({ showRestartServicesDialog: false })}
                                      state={this.state.state}
-                                     checkNeedsRestart={state => this.checkNeedsRestart(state)}
+                                     checkNeedsRestart={this.checkNeedsRestart}
                                      onValueChanged={delta => this.setState(delta)}
                                      loadUpdates={this.loadUpdates} />
                     }

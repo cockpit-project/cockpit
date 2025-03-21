@@ -1,0 +1,30 @@
+[[feature-firewall]]
+== Firewall
+
+Cockpit uses https://www.firewalld.org[firewalld] to interact with the
+system's firewall. No firewall configuration UI will be shown if
+firewalld is not installed.
+
+Firewalld controls access to its APIs via PolicyKit. The user logged
+into Cockpit needs to have the appropriate permissions to view or modify
+the settings.
+
+Cockpit can currently only show, add, and remove predefined firewalld
+services in the default zone.
+
+To perform similar tasks from the command line, use
+https://www.firewalld.org/documentation/man-pages/firewall-cmd.html[firewall-cmd].
+For example, to get the same list of allowed services that Cockpit
+displays:
+
+....
+$ sudo firewall-cmd --list-services
+dhcpv6-client samba-client mdns ssh cockpit
+....
+
+To enable an additional service, use:
+
+....
+$ firewall-cmd --add-service pop3
+success
+....

@@ -5,8 +5,8 @@
 @import "@patternfly/patternfly/utilities/Flex/flex.scss";
 
 // https://github.com/patternfly/patternfly-react/issues/5993
-.pf-v5-c-popover.pf-m-width-auto {
-  --pf-v5-c-popover--MaxWidth: min(300px, 90%);
+.pf-v6-c-popover.pf-m-width-auto {
+  --pf-v6-c-popover--MaxWidth: min(300px, 90%);
 }
 
 .journal-filters {
@@ -16,37 +16,37 @@
     border: none;
   }
 
-  .pf-v5-c-page__main {
+  .pf-v6-c-page__main {
     // Constrain page to viewport height, so journal can overflow
     max-block-size: 100vh;
   }
 
   // Static width for the service selector as it likes to resize a lot while loading
-  .journal-filters-identifier-menu ul.pf-v5-c-select__menu {
+  .journal-filters-identifier-menu ul.pf-v6-c-select__menu {
     inline-size: 10rem;
   }
 
   // Long names without spaces do not wrap; triggers overflow and overlaps with check icon
-  .journal-filters-identifier-menu .pf-v5-c-select__menu-item {
+  .journal-filters-identifier-menu .pf-v6-c-select__menu-item {
     white-space: normal;
   }
 
   // PatternFly added align-self oddly; this shouldn't be used in general, except for one-offs. It caused a rendering issue on the way we use the toolbar components in the logs page.
-  .pf-v5-c-toolbar .pf-v5-c-toolbar__item {
+  .pf-v6-c-toolbar .pf-v6-c-toolbar__item {
     align-self: unset;
   }
 }
 
 .log-details {
-  .pf-v5-l-gallery {
-    --pf-v5-l-gallery--GridTemplateColumns: 1fr;
+  .pf-v6-l-gallery {
+    --pf-v6-l-gallery--GridTemplateColumns: 1fr;
   }
 
-  .pf-v5-c-page__main-breadcrumb {
-    padding: var(--pf-v5-global--gutter);
+  .pf-v6-c-page__main-breadcrumb {
+    padding: var(--pf-t--global--spacer--md);
   }
 
-  .pf-v5-c-card__title,
+  .pf-v6-c-card__title,
   .multiline {
     word-break: break-all;
     white-space: pre-wrap !important;
@@ -56,18 +56,18 @@
     font-family: monospace, monospace;
   }
 
-  .pf-v5-l-split {
-    padding-block-end: var(--pf-v5-global--gutter);
+  .pf-v6-l-split {
+    padding-block-end: var(--pf-t--global--spacer--md);
     align-items: center;
   }
 
-  .pf-v5-c-description-list {
-    --pf-v5-c-description-list--m-horizontal__term--width: 25ch;
+  .pf-v6-c-description-list {
+    --pf-v6-c-description-list--m-horizontal__term--width: 25ch;
   }
 
   // For abrt log details: add some gutter between the tabs and their content
-  .pf-v5-c-tab-content > .pf-v5-c-description-list {
-    padding-block-start: var(--pf-v5-global--spacer--md);
+  .pf-v6-c-tab-content > .pf-v6-c-description-list {
+    padding-block-start: var(--pf-t--global--spacer--md);
   }
 
   .table-hide-labels {
@@ -81,7 +81,7 @@
   }
 
   // Let the description list set the color, not the wrapper accordion component
-  .pf-v5-c-accordion__expanded-content {
+  .pf-v6-c-accordion__expanded-content {
     color: unset;
   }
 }
@@ -92,20 +92,20 @@
   .panel-heading {
     position: sticky;
     inset-block-start: 0;
-    color: var(--pf-v5-global--Color--300);
-    background-color: var(--pf-v5-global--BackgroundColor--100);
+    color: var(--pf-t--global--text--color--regular);
+    background-color: var(--pf-t--global--background--color--primary--default);
     border: none;
-    font-size: var(--pf-v5-global--FontSize--md);
-    font-family: var(--pf-v5-global--FontFamily--heading--sans-serif);
-    font-weight: var(--pf-v5-global--FontWeight--bold);
-    padding-block: var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--sm);
-    padding-inline: var(--pf-v5-global--spacer--lg);
+    font-size: var(--pf-t--global--font--size--md);
+    font-family: var(--pf-t--global--font--family--heading);
+    font-weight: var(--pf-t--global--font--weight--heading--default);
+    padding-block: var(--pf-t--global--spacer--lg) var(--pf-t--global--spacer--sm);
+    padding-inline: var(--pf-t--global--spacer--lg);
   }
 }
 
-.pf-v5-theme-dark {
+.pf-v6-theme-dark {
   .journal-filters-box .panel-heading {
-    color: var(--pf-v5-global--Color--400);
+    color: var(--pf-t--global--text--color--subtle);
   }
 }
 
@@ -114,54 +114,43 @@
   --log-service-min: 8rem;
 }
 
-.pf-v5-c-toolbar {
-  --pf-v5-c-toolbar--BackgroundColor: var(--pf-v5-c-page__main-section--BackgroundColor);
-
+.pf-v6-c-toolbar {
   // Make toolbar stretch to all the available space and wrap up to two lines
-  .pf-v5-c-toolbar__group:nth-child(3) {
+  .pf-v6-c-toolbar__group:nth-child(3) {
     flex-grow: 1;
   }
 
   // Make text filter stretch to all the available space
-  .pf-v5-c-toolbar__item.text-search, .journal-filters-grep {
+  .pf-v6-c-toolbar__item.text-search, .journal-filters-grep {
     flex-grow: 1;
   }
 
   .text-help {
-    padding-inline-start: var(--pf-v5-global--spacer--xs);
+    padding-inline-start: var(--pf-t--global--spacer--xs);
   }
 
   // Hide filters from advanced search dropdown entries which already exist in the toolbar
-  .journal-filters-grep .pf-v5-c-panel__main-body {
-    .pf-v5-c-form__group:nth-child(5), .pf-v5-c-form__group:nth-child(6) {
+  .journal-filters-grep .pf-v6-c-panel__main-body {
+    .pf-v6-c-form__group:nth-child(5), .pf-v6-c-form__group:nth-child(6) {
       display: none;
     }
   }
 
-  .pf-v5-c-toolbar__expandable-content.pf-m-expanded .pf-v5-c-divider {
+  .pf-v6-c-toolbar__expandable-content.pf-m-expanded .pf-v6-c-divider {
     display: none;
   }
 
   // FIXME: When porting the selects to the PF5 select implementation drop this
-  .pf-v5-c-toolbar__item {
+  .pf-v6-c-toolbar__item {
     align-self: center;
   }
 }
 
 .log-text-filter-popover-button {
     padding: unset;
-    padding-inline-start: var(--pf-v5-global--spacer--sm);
+    padding-inline-start: var(--pf-t--global--spacer--sm);
 
     svg {
-      color: var(--pf-v5-global--Color--100);
+      color: var(--pf-t--global--icon--color--regular);
     }
-}
-
-/* Menu toggles are transparent in light mode (but not in dark
-   mode). This makes them white on a white page (fine), but grey in a
-   grey toolbar. The deprecated Select had a white background. Let's
-   make MenuToggles match.
-*/
-html:not(.pf-v5-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
-    background-color: var(--pf-v5-global--BackgroundColor--100);
 }

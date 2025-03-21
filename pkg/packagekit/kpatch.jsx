@@ -24,13 +24,15 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Form } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
-import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { InfoIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";
@@ -38,6 +40,7 @@ import { proxy as serviceProxy } from "service";
 import { check_missing_packages } from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { read_os_release } from "os-release.js";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -242,7 +245,9 @@ export class KpatchSettings extends React.Component {
                 <span>
                     { _("Not available") }
                     &nbsp;
-                    <InfoCircleIcon className="ct-info-circle" />
+                    <Icon status="info">
+                        <InfoCircleIcon className="ct-info-circle" />
+                    </Icon>
                 </span>
             </Popover>;
         } else if (this.state.missing.length > 0) {
@@ -365,16 +370,16 @@ export class KpatchStatus extends React.Component {
     render() {
         let text = [];
         text = this.state.loaded.map(i =>
-            <Text key={i} component={TextVariants.p}>
+            <Content key={i} component={ContentVariants.p}>
                 { cockpit.format(_("Kernel live patch $0 is active"), i) }
-            </Text>
+            </Content>
         );
 
         if (text.length === 0)
             text = this.state.installed.map(i =>
-                <Text key={i} component={TextVariants.p}>
+                <Content key={i} component={ContentVariants.p}>
                     { cockpit.format(_("Kernel live patch $0 is installed"), i) }
-                </Text>
+                </Content>
             );
 
         if (text.length > 0)

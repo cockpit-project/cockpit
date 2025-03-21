@@ -1,27 +1,29 @@
-@use "@patternfly/patternfly/base/patternfly-themes.scss";
-@use "@patternfly/patternfly/patternfly-theme-dark.scss";
-@use "./patternfly/patternfly-5-overrides.scss";
-@import "global-variables";
+@use "@patternfly/patternfly/base";
+@use "./global-variables";
+@use "./patternfly/patternfly-6-overrides.scss";
 
 /* Globally resize headings */
 h1 {
-  --ct-heading-font-size: var(--pf-v5-global--FontSize--4xl);
+  --ct-heading-font-size: var(--pf-t--global--font--size--4xl);
 }
 
 h2 {
-  --ct-heading-font-size: var(--pf-v5-global--FontSize--3xl);
+  --ct-heading-font-size: var(--pf-t--global--font--size--3xl);
 }
 
 h3 {
-  --ct-heading-font-size: var(--pf-v5-global--FontSize--2xl);
+  --ct-heading-font-size: var(--pf-t--global--font--size--2xl);
 }
 
 h4 {
-  --ct-heading-font-size: var(--pf-v5-global--FontSize--lg);
+  --ct-heading-font-size: var(--pf-t--global--font--size--lg);
 }
 
 // Only apply a custom font size when a heading does NOT have a PF4 class
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   &:not([class*="pf-"]):not([data-pf-content="true"]) {
     font-size: var(--ct-heading-font-size);
   }
@@ -42,11 +44,13 @@ a {
   min-inline-size: 26px;
 }
 
-.btn.disabled, .pf-v5-c-button.disabled {
+.btn.disabled,
+.pf-v6-c-button.disabled {
   pointer-events: auto;
 }
 
-.btn.disabled:hover, .pf-v5-c-button.disabled:hover {
+.btn.disabled:hover,
+.pf-v6-c-button.disabled:hover {
   z-index: auto;
 }
 
@@ -83,7 +87,7 @@ a.disabled:hover {
   --ct-animation-new-background: #fdf4dd;
 }
 
-.pf-v5-theme-dark {
+.pf-v6-theme-dark {
   --ct-animation-new-background: #353428;
 }
 
@@ -104,62 +108,63 @@ a.disabled:hover {
   /* Right align footer idle messages after the buttons */
   margin-inline-start: auto;
   display: flex;
-  column-gap: var(--pf-v5-global--spacer--sm);
+  column-gap: var(--pf-t--global--spacer--sm);
   align-items: center;
 }
 
 :root {
   /* Cockpit custom colors */
   --ct-color-light-red: #f8cccc;
-  --ct-color-red-hat-red : #e00;
+  --ct-color-red-hat-red: #e00;
 
-  // Blend between --pf-v5-global--palette--black-200 and 300
+  // Blend between --pf-v6-global--palette--black-200 and 300
   --ct-global--palette--black-250: #e6e6e6;
 
   /* Semantic colors */
-  --ct-color-fg: var(--pf-v5-global--color--100);
-  --ct-color-bg: var(--pf-v5-global--BackgroundColor--100);
-  --ct-color-text: var(--ct-color-fg);
+  --ct-color-bg: var(--pf-t--global--background--color--primary--default);
+  --ct-color-text: var(--pf-t--global--text--color--regular);
 
-  --ct-color-link        : var(--pf-v5-global--active-color--100);
-  --ct-color-link-visited: var(--pf-v5-global--active-color--100);
+  --ct-color-link: var(--pf-t--global--text--color--link--default);
+  --ct-color-link-visited: var(--pf-t--global--text--color--link--visited);
 
-  --ct-color-subtle-copy: var(--pf-v5-global--disabled-color--100);
+  --ct-color-subtle-copy: var(--pf-t--global--text--color--subtle);
 
   // General border color (semantic shortcut, instead of specifying the color directly)
-  --ct-color-border: var(--pf-v5-global--BorderColor--100);
+  --ct-color-border: var(--pf-v6-global--BorderColor--100);
 
   // Used for highlighting link blocks (with a light background blue)
-  --ct-color-link-hover-bg  : var(--pf-v5-global--palette--light-blue-100);
+  --ct-color-link-hover-bg: var(--pf-v6-global--palette--light-blue-100);
 
   /* Colors used for custom lists */
   // as seen in Journal, Listing, Table widgets and pages like Machines, Updates, Services
-  --ct-color-list-text               : var(--ct-color-text);
-  --ct-color-list-link               : var(--ct-color-link);
-  --ct-color-list-bg                 : var(--ct-color-bg);
-  --ct-color-list-border             : var(--ct-color-border);
-  --ct-color-list-hover-text         : var(--ct-color-link);
-  --ct-color-list-hover-bg           : var(--pf-v5-global--BackgroundColor--150);
-  --ct-color-list-hover-border       : var(--pf-v5-global--BackgroundColor--150);
-  --ct-color-list-hover-icon         : var(--pf-v5-global--palette--light-blue-400);
-  --ct-color-list-selected-text      : var(--ct-color-link);
-  --ct-color-list-selected-bg        : var(--pf-v5-global--BackgroundColor--150);
-  --ct-color-list-selected-border    : var(--pf-v5-global--BackgroundColor--150);
-  --ct-color-list-active-text        : var(--pf-v5-global--palette--blue-500);
-  --ct-color-list-active-bg          : var(--ct-color-bg);
-  --ct-color-list-active-border      : var(--ct-color-list-border);
-  --ct-color-list-critical-bg        : var(--pf-v5-global--palette--red-50);
-  --ct-color-list-critical-border    : #e6bcbc; // red-500 mixed with white @ 50%
-  --ct-color-list-critical-alert-text: var(--pf-v5-global--palette--red-200);
+  --ct-color-list-text: var(--ct-color-text);
+  --ct-color-list-link: var(--ct-color-link);
+  --ct-color-list-bg: var(--ct-color-bg);
+  --ct-color-list-border: var(--ct-color-border);
+  --ct-color-list-hover-text: var(--ct-color-link);
+  --ct-color-list-hover-bg: var(--pf-t--global--background--color--primary--hover);
+  --ct-color-list-hover-border: var(--pf-v6-global--BackgroundColor--150);
+  --ct-color-list-hover-icon: var(--pf-v6-global--palette--light-blue-400);
+  --ct-color-list-selected-text: var(--ct-color-link);
+  --ct-color-list-selected-bg: var(--pf-v6-global--BackgroundColor--150);
+  --ct-color-list-selected-border: var(--pf-v6-global--BackgroundColor--150);
+  --ct-color-list-active-text: var(--pf-v6-global--palette--blue-500);
+  --ct-color-list-active-bg: var(--ct-color-bg);
+  --ct-color-list-active-border: var(--ct-color-list-border);
+  --ct-color-list-critical-bg: var(--pf-t--global--color--nonstatus--red--100);
+  --ct-color-list-critical-border: color-mix(in srgb, var(--pf-t--global--color--nonstatus--red--default), white 50%);
+  --ct-color-list-critical-alert-text: var(--pf-v6-global--palette--red-200);
 }
 
-.pf-v5-theme-dark {
-  --ct-color-list-critical-bg        : #261213; // red-100 mixed with black-850 @ 20%
-  --ct-color-list-critical-border    : var(--pf-v5-global--danger-color--200);
-  --ct-color-list-critical-alert-text: var(--pf-v5-global--palette--red-8888);
+.pf-v6-theme-dark {
+  --ct-color-list-critical-bg: color-mix(in srgb, var(--pf-t--color--red--70), black 50%);
+  --ct-color-list-critical-border: color-mix(in srgb, var(--pf-t--color--red--70), white 50%);
+  --ct-color-list-critical-alert-text: var(--pf-v6-global--palette--red-8888);
 }
 
-[hidden] { display: none !important; }
+[hidden] {
+  display: none !important;
+}
 
 // Let PF4 handle the scrolling through page component otherwise we might get double scrollbar
 html:not(.index-page) body {
@@ -171,27 +176,41 @@ html:not(.index-page) body {
   }
 }
 
+/* Makes loading new pages not flicker white but keep the natural background */
+body {
+  background: var(--pf-t--global--background--color--secondary--default);
+}
+
 .ct-icon-info-circle {
-  color: var(--pf-v5-global--info-color--100);
+  color: var(--pf-t--global--icon--color--status--info--default);
 }
 
 .ct-icon-exclamation-triangle {
-  color: var(--pf-v5-global--warning-color--100);
+  color: var(--pf-t--global--icon--color--status--warning--default);
 }
 
 .ct-icon-times-circle {
-  color: var(--pf-v5-global--danger-color--100);
+  color: var(--pf-t--global--icon--color--status--danger--default);
 }
 
 // Action buttons in headers add extra space. Offset that with a negative margin
 // to compensate, so headings are always the same height regardless of action
 // buttons or not.
-.pf-v5-c-page__main-breadcrumb .pf-v5-c-button {
-  --offset: calc(-1 * var(--pf-v5-global--spacer--sm));
-  margin-block: var(--offset);
-}
+// .pf-v6-c-page__main-breadcrumb .pf-v6-c-button {
+//   --offset: calc(-1 * var(--pf-t--global--spacer--sm));
+//   margin-block: var(--offset);
+// }
 
 // To be used only from testlib.py for pixel-tests
-main.pixel-test {
-  overflow-y: clip;
+.pixel-test {
+  main {
+    overflow-y: clip;
+  }
+
+  // Due to rounded corners in PF6 the pixel tests on modals pick up changes
+  // behind it. To fix this we can make the backdrop (a dimmed layer behind the modal)
+  // completely opaque to prevent these issues.
+  .pf-v6-c-backdrop {
+    --pf-t--global--background--color--backdrop--default: var(--pf-t--global--background--color--secondary--default) !important;
+  }
 }

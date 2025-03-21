@@ -83,9 +83,8 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # The remaining lone disk is not removable
         b.click(self.dropdown_toggle(self.card_row("LVM2 volume group", name=dev_1)))
-        b.wait_visible(self.dropdown_action(self.card_row("LVM2 volume group", name=dev_1), "Remove") + "[disabled]")
-        b.wait_text(self.dropdown_description(self.card_row("LVM2 volume group", name=dev_1), "Remove"),
-                    "Last cannot be removed")
+        b.wait_visible(self.dropdown_action("Remove") + "[disabled]")
+        b.wait_text(self.dropdown_description("Remove"), "Last cannot be removed")
 
         # Wipe the disk and make sure lvmetad forgets about it.  This
         # might help with reusing it in the second half of this test.
@@ -506,19 +505,19 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk1))
 
         b.click(self.card_parent_link())
-        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
+        b.wait_in_text(".pf-v6-c-alert", "This volume group is missing some physical volumes.")
         b.wait_visible(self.card_desc_action("LVM2 volume group", "Name") + ":disabled")
         b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-times-circle')
 
         # Dismiss alert, this will delete the volume
 
-        b.click(".pf-v5-c-alert button:contains(Dismiss)")
+        b.click(".pf-v6-c-alert button:contains(Dismiss)")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "vgroup0/lvol0")
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_not_present(".pf-v5-c-alert")
+        b.wait_not_present(".pf-v6-c-alert")
         b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0"))
 
     def testMaxLayoutSizes(self):
@@ -670,7 +669,7 @@ class TestStorageLvm2(storagelib.StorageCase):
             # Grow to max with default pvs
             b.click(self.card_button("LVM2 logical volume", "Grow"))
             self.dialog_wait_open()
-            slider = self.dialog_field("size") + " .pf-v5-c-slider .pf-v5-c-slider__rail"
+            slider = self.dialog_field("size") + " .pf-v6-c-slider .pf-v6-c-slider__rail"
             width = b.call_js_func('(function (sel) { return ph_find(sel).offsetWidth; })', slider)
             b.mouse(slider, "click", width, 0)
             self.dialog_apply()
@@ -895,7 +894,7 @@ class TestStorageLvm2Destructive(storagelib.StorageCase):
         b.wait_not_in_text(self.card_desc("LVM2 logical volume", "Stripes"), bn(disk1))
 
         b.click(self.card_parent_link())
-        b.wait_in_text(".pf-v5-c-alert", "This volume group is missing some physical volumes.")
+        b.wait_in_text(".pf-v6-c-alert", "This volume group is missing some physical volumes.")
         b.wait_visible(self.card_desc_action("LVM2 volume group", "Name") + ":disabled")
         b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
 
@@ -940,9 +939,9 @@ class TestStorageLvm2Destructive(storagelib.StorageCase):
         b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0"))
         b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
 
-        b.click(".pf-v5-c-alert button:contains(Dismiss)")
+        b.click(".pf-v6-c-alert button:contains(Dismiss)")
         self.dialog({})
-        b.wait_not_present(".pf-v5-c-alert")
+        b.wait_not_present(".pf-v6-c-alert")
 
 
 if __name__ == '__main__':

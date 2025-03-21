@@ -36,14 +36,27 @@ import {
 import "./page-status.scss";
 
 import { page_status } from "notifications";
+import { Icon } from "@patternfly/react-core";
 
 function icon_for_type(type) {
     if (type == "error")
-        return <ExclamationCircleIcon className="ct-exclamation-circle" />;
+        return (
+            <Icon status="danger">
+                <ExclamationCircleIcon />
+            </Icon>
+        );
     else if (type == "warning")
-        return <ExclamationTriangleIcon className="ct-exclamation-triangle" />;
+        return (
+            <Icon status="warning">
+                <ExclamationTriangleIcon />
+            </Icon>
+        );
     else
-        return <InfoCircleIcon className="ct-info-circle" />;
+        return (
+            <Icon status="info">
+                <InfoCircleIcon />
+            </Icon>
+        );
 }
 
 function get_pficon(name) {

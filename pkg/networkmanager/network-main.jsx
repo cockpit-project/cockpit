@@ -25,7 +25,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 
 import { FirewallSwitch } from "./firewall-switch.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -147,13 +147,13 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
     );
 
     return (
-        <Page data-test-wait={operationInProgress} id="networking">
-            <PageSection id="networking-graphs" className="networking-graphs" variant={PageSectionVariants.light}>
+        <Page data-test-wait={operationInProgress} id="networking" className='no-masthead-sidebar'>
+            <PageSection hasBodyWrapper={false} id="networking-graphs" className="networking-graphs">
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>
-            <PageSection>
+            <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
-                    {firewall.installed && <Card id="networking-firewall-summary">
+                    {firewall.installed && <Card isPlain id="networking-firewall-summary">
                         <CardHeader actions={{
                             actions: <Button variant="secondary" id="networking-firewall-link"
                                         component="a"
@@ -175,7 +175,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                             </Button>
                         </CardBody>
                     </Card>}
-                    <Card id="networking-interfaces">
+                    <Card isPlain id="networking-interfaces">
                         <CardHeader actions={{ actions }}>
                             <CardTitle component="h2">{_("Interfaces")}</CardTitle>
                         </CardHeader>
@@ -190,7 +190,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                                       rows={managed} />
                     </Card>
                     {unmanaged.length > 0 &&
-                    <Card id="networking-unmanaged-interfaces">
+                    <Card isPlain id="networking-unmanaged-interfaces">
                         <CardHeader>
                             <CardTitle component="h2">{_("Unmanaged interfaces")}</CardTitle>
                         </CardHeader>

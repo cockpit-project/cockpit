@@ -25,7 +25,9 @@ import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBl
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { CheckIcon, ExclamationCircleIcon, InProgressIcon } from "@patternfly/react-icons";
 

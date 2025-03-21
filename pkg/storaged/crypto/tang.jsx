@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
-import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 
 import { useInit } from "hooks";
 
@@ -137,10 +137,10 @@ export const TangKeyVerification = ({ url, adv }) => {
         return null;
 
     return (
-        <TextContent>
-            <Text component={TextVariants.p}>{_("Check the key hash with the Tang server.")}</Text>
+        <>
+            <Content component={ContentVariants.p}>{_("Check the key hash with the Tang server.")}</Content>
 
-            <Text component={TextVariants.h3}>{_("How to check")}</Text>
+            <Content component={ContentVariants.h3}>{_("How to check")}</Content>
             <span>{_("In a terminal, run: ")}</span>
             <ClipboardCopy hoverTip={_("Copy to clipboard")}
                             clickTip={_("Successfully copied to clipboard!")}
@@ -148,14 +148,14 @@ export const TangKeyVerification = ({ url, adv }) => {
                             isCode>
                 {cmd}
             </ClipboardCopy>
-            <Text component={TextVariants.p}>
+            <Content component={ContentVariants.p}>
                 {_("Check that the SHA-256 or SHA-1 hash from the command matches this dialog.")}
-            </Text>
+            </Content>
 
-            <Text component={TextVariants.h3}>{_("SHA-256")}</Text>
-            { sigkey_thps.map(s => <Text key={s.sha256} component={TextVariants.pre}>{s.sha256}</Text>) }
+            <Content component={ContentVariants.h3}>{_("SHA-256")}</Content>
+            { sigkey_thps.map(s => <Content key={s.sha256} component={ContentVariants.pre}>{s.sha256}</Content>) }
 
-            <Text component={TextVariants.h3}>{_("SHA-1")}</Text>
-            { sigkey_thps.map(s => <Text key={s.sha1} component={TextVariants.pre}>{s.sha1}</Text>) }
-        </TextContent>);
+            <Content component={ContentVariants.h3}>{_("SHA-1")}</Content>
+            { sigkey_thps.map(s => <Content key={s.sha1} component={ContentVariants.pre}>{s.sha1}</Content>) }
+        </>);
 };

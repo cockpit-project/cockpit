@@ -142,12 +142,12 @@ exec "$@"
         # python3-pcp is installed on client, but not on target; recognize that
         b.go("/metrics")
         b.enter_page("/metrics")
-        b.wait_in_text(".pf-v5-c-empty-state", "PCP is missing")
+        b.wait_in_text(".pf-v6-c-empty-state", "PCP is missing")
         # on-demand install is allowed
-        b.wait_in_text(".pf-v5-c-empty-state button.pf-m-primary", "Install PCP support")
-        b.click(".pf-v5-c-empty-state button.pf-m-primary")
-        b.wait_in_text(".pf-v5-c-modal-box", "pcp will be installed")
-        b.click(".pf-v5-c-modal-box button.cancel")
+        b.wait_in_text(".pf-v6-c-empty-state button.pf-m-primary", "Install PCP support")
+        b.click(".pf-v6-c-empty-state button.pf-m-primary")
+        b.wait_in_text(".pf-v6-c-modal-box", "pcp will be installed")
+        b.click(".pf-v6-c-modal-box button.cancel")
 
         b.drop_superuser()
         self.logout()
@@ -181,10 +181,10 @@ exec "$@"
 
         # not a sudoer
         b.open_superuser_dialog()
-        b.set_input_text(".pf-v5-c-modal-box:contains('Switch to administrative access') input", "barfoo")
-        b.click(".pf-v5-c-modal-box button:contains('Authenticate')")
-        b.click(".pf-v5-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
-        b.wait_not_present(".pf-v5-c-modal-box")
+        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "barfoo")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+        b.click(".pf-v6-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
 
         self.logout()

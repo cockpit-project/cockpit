@@ -1,32 +1,36 @@
-/*** PF5 overrides ***/
+/*** PF6 overrides ***/
 // Pull in variables (for breakpoints)
 @use "global-variables" as *;
 
+$phone: 767px;
+
 // PF Select is deprecated - no issue reported upstream - this needs to be removed from our codebase
 // Make select have the expected width
-.pf-v5-c-select[data-popper-reference-hidden="false"] {
+// REVIEW @Venefilyn: Check if still relevant
+.pf-v6-c-select[data-popper-reference-hidden="false"] {
   inline-size: auto;
 }
 
 /* WORKAROUND: Navigation problems with Tertiary Nav widget on mobile */
 /* See: https://github.com/patternfly/patternfly-design/issues/840 */
-/* Helper mod to wrap pf-v5-c-nav__tertiary */
-.ct-m-nav__tertiary-wrap {
-  .pf-v5-c-nav__list {
-    flex-wrap: wrap;
-  }
+/* Helper mod to wrap pf-v6-c-nav__tertiary */
+// REVIEW @Venefilyn: Seems fixed, double-check
+// .ct-m-nav__tertiary-wrap {
+//   .pf-v6-c-nav__list {
+//     flex-wrap: wrap;
+//   }
 
-  .pf-v5-c-nav__scroll-button {
-    display: none;
-  }
-}
+//   .pf-v6-c-nav__scroll-button {
+//     display: none;
+//   }
+// }
 
-/* Helper mod to center pf-v5-c-nav__tertiary when it wraps */
-.ct-m-nav__tertiary-center {
-  .pf-v5-c-nav__list {
-    justify-content: center;
-  }
-}
+// /* Helper mod to center pf-v6-c-nav__tertiary when it wraps */
+// .ct-m-nav__tertiary-center {
+//   .pf-v6-c-nav__list {
+//     justify-content: center;
+//   }
+// }
 
 /* Fix overflow issue with tabs, especially seen in small sizes, like mobile
 seen in:
@@ -41,137 +45,150 @@ seen in:
 This disables the large and halfway useless overflow buttons and causes the tabs
 to wrap around when there isn't enough space.
 */
-.pf-v5-c-tabs__list {
-  flex-wrap: wrap;
-}
+// REVIEW @Venefilyn: Seems fixed as they use grid now
+// .pf-v6-c-tabs__list {
+//   flex-wrap: wrap;
+// }
 
 /* Fix select menu rendering */
-.pf-v5-c-select__menu {
-  /* Don't get too tall */
-  max-block-size: min(20rem, 50vh);
-  /* Don't have a horizontal scrollbar */
-  overflow-y: auto;
-}
+// .pf-v6-c-select__menu {
+//   /* Don't get too tall */
+//   max-block-size: min(20rem, 50vh);
+//   /* Don't have a horizontal scrollbar */
+//   overflow-y: auto;
+// }
 
 /* New issue based on the regression based on workaround causing this issue: https://github.com/cockpit-project/cockpit/issues/21671
 */
 /* Old upstream: https://github.com/patternfly/patternfly/issues/4387 */
 /* Old Cockpit-Podman: https://github.com/cockpit-project/cockpit-podman/issues/755 */
-.pf-v5-c-form-control > select {
+.pf-v6-c-form-control > select {
   /* Right side needs to compensate for the icon and space around it,
   for all browsers */
-  --pf-v5-c-form-control--PaddingRight: calc(
-    var(--pf-v5-global--icon--FontSize--md) + var(--pf-v5-global--spacer--lg)
+  --pf-v6-c-form-control--PaddingInlineEnd: calc(
+    var(--pf-t--global--font--size--body--default) + var(--pf-t--global--spacer--lg)
   );
 
   @-moz-document url-prefix() { // stylelint-disable-line at-rule-no-vendor-prefix
     /* "Unset" Firefox special handling in PatternFly; using consistent
     spacing with others; this can be removed after PatternFly removes it */
-    --pf-v5-c-form-control--PaddingLeft: var(--pf-v5-c-form-control--inset--base);
+    --pf-v6-c-form-control--PaddingInlineStart: var(--pf-v6-c-form-control--inset--base);
   }
 }
 
 // Fix the double-spacing issue in the non-deprecated split buttons
 // https://github.com/patternfly/patternfly/issues/6632
-.pf-m-split-button .pf-v5-c-menu-toggle__controls {
+// REVIEW @Venefilyn: not fixed upstream
+.pf-m-split-button .pf-v6-c-menu-toggle__controls {
   margin: 0;
 }
 
 // Fix menus cropping contents
 // https://github.com/patternfly/patternfly/issues/6565
-.pf-v5-c-menu__item-text {
+// NOTE @Venefilyn: Might need to migrate to some other component
+.pf-v6-c-menu__item-text {
   overflow: visible;
 }
 
 // The default gap between the rows in horizontal lists is too large
-.pf-v5-c-description-list.pf-m-horizontal-on-sm,
-.pf-v5-c-description-list.pf-m-horizontal {
-  --pf-v5-c-description-list--RowGap: 1rem;
+.pf-v6-c-description-list.pf-m-horizontal-on-sm,
+.pf-v6-c-description-list.pf-m-horizontal {
+  --pf-v6-c-description-list--RowGap: var(--pf-t--global--spacer--300); // 1rem
 }
 
-.pf-v5-c-description-list {
+.pf-v6-c-description-list {
+
   // When using horizontal ruler inside description list it's just for the spacing - don't show it
+  // FIXME @Venefilyn: This seems weird.. we should not have hr like this if it's only for spacing..
   > hr {
     border-block-start: none;
   }
+
+  // FIXME @tmatus description list term is not bold when using the default value
+  .pf-v6-c-description-list__term {
+    font-weight: var(--pf-t--global--font--weight--400);
+  }
 }
 
-.pf-v5-c-modal-box.pf-m-align-top {
+.pf-v6-c-modal-box.pf-m-align-top {
+
   // We utilize custom footers in dialogs
   // Make sure that the buttons always appear in the next line from the inline alerts
-  .pf-v5-c-modal-box__footer {
+  .pf-v6-c-modal-box__footer {
     flex-wrap: wrap;
-    row-gap: var(--pf-v5-global--spacer--sm);
+    row-gap: var(--pf-t--global--spacer--sm);
 
-    > div:not(.pf-v5-c-button):not(.dialog-wait-ct) {
+    > div:not(.pf-v6-c-button):not(.dialog-wait-ct) {
       flex: 0 0 100%;
     }
   }
 }
 
 // don't hide long dialog titles
-.pf-v5-c-modal-box__title-text {
-    white-space: normal;
+.pf-v6-c-modal-box__title-text {
+  white-space: normal;
 }
 
-.pf-v5-c-card {
+.pf-v6-c-card {
   // https://github.com/patternfly/patternfly/issues/3959
-  --pf-v5-c-card__header-toggle--MarginTop: 0;
+  // TODO @Venefilyn: Change so we use .pf-m-no-offset, then remove this
+  // --pf-v6-c-card__header-toggle--MarginTop: 0;
 
-  .pf-v5-c-card__header:not(.ct-card-expandable-header),
-  .pf-v5-c-card__header:not(.ct-card-expandable-header) .pf-v5-c-card__header-main {
+  .pf-v6-c-card__header:not(.ct-card-expandable-header),
+  .pf-v6-c-card__header:not(.ct-card-expandable-header) .pf-v6-c-card__header-main {
     // upstream fix (pending): https://github.com/patternfly/patternfly/pull/3714
     display: flex;
     flex-wrap: wrap;
-    row-gap: var(--pf-v5-global--spacer--sm);
+    row-gap: var(--pf-t--global--spacer--sm);
     justify-content: space-between;
   }
 
-  .pf-v5-c-card__header:not(.ct-card-expandable-header) {
-    > .pf-v5-c-card__actions {
+  .pf-v6-c-card__header:not(.ct-card-expandable-header) {
+    > .pf-v6-c-card__actions {
       flex-wrap: wrap;
-      row-gap: var(--pf-v5-global--spacer--sm);
+      row-gap: var(--pf-t--global--spacer--sm);
 
       // PF4 CardActions act up when using buttons while the title is large of font
       // https://github.com/patternfly/patternfly/issues/3713
       // https://github.com/patternfly/patternfly/issues/4362
       margin: unset;
-      padding-inline: var(--pf-v5-c-card__actions--PaddingLeft) unset;
+      padding-inline: var(--pf-v6-c-card__actions--PaddingLeft) unset;
     }
   }
 }
 
 // Add some spacing to nested form groups - PF4 does not support these yet
 // https://github.com/patternfly/patternfly-design/issues/1012
-.pf-v5-c-form__group-control {
-  .pf-v5-c-form__group, .pf-v5-c-form__section {
-    padding-block-start: var(--pf-v5-global--spacer--md);
+.pf-v6-c-form__group-control {
+  .pf-v6-c-form__group,
+  .pf-v6-c-form__section {
+    padding-block-start: var(--pf-t--global--spacer--md);
   }
 }
 
 // Alerts use elements that have fonts set in other frameworks (including PF3);
 // generally, this is an H4 that often has a font size and sometimes family set.
-// Therefore, it should inherit from the alert font set at the pf-v5-c-alert level.
+// Therefore, it should inherit from the alert font set at the pf-v6-c-alert level.
 // https://github.com/patternfly/patternfly/issues/4206
-.pf-v5-c-alert__title {
+.pf-v6-c-alert__title {
   font-size: inherit;
   font-family: inherit;
 }
 
-.pf-v5-c-toolbar {
+.pf-v6-c-toolbar {
   // Make summary content use the same vertical space as the filter toggle,
   // when possible.
   // https://github.com/patternfly/patternfly-design/issues/1055
   &.ct-compact {
-    @media screen and (max-width: $pf-v5-global--breakpoint--lg - 1) {
+    @media screen and (max-width: $pf-v6-global--breakpoint--lg - 1) {
       display: flex;
       flex-wrap: wrap;
 
-      > .pf-v5-c-toolbar__content:first-child {
+      > .pf-v6-c-toolbar__content:first-child {
         flex: auto;
       }
 
-      .pf-v5-c-toolbar__content-section {
+      .pf-v6-c-toolbar__content-section {
         inline-size: auto;
       }
     }
@@ -179,17 +196,17 @@ to wrap around when there isn't enough space.
 }
 
 // When there is an Alert above the Form add some spacing
-.pf-v5-c-modal-box .pf-v5-c-alert + .pf-v5-c-form {
-  padding-block-start: var(--pf-v5-global--FontSize--sm);
+.pf-v6-c-modal-box .pf-v6-c-alert + .pf-v6-c-form {
+  padding-block-start: var(--pf-t--global--font--size--sm);
 }
 
 // HACK: Not possible to specify text, so needs some hacks, see https://github.com/patternfly/patternfly-react/issues/6140
-.pf-v5-c-toolbar__toggle {
-  .pf-v5-c-button.pf-m-plain {
-    color: var(--pf-v5-c-button--m-link--Color);
+.pf-v6-c-toolbar__toggle {
+  .pf-v6-c-button.pf-m-plain {
+    color: var(--pf-v6-c-button--m-link--Color);
 
-    .pf-v5-c-button__icon {
-      margin-inline-end: var(--pf-v5-global--spacer--sm);
+    .pf-v6-c-button__icon {
+      margin-inline-end: var(--pf-t--global--spacer--sm);
     }
   }
 }
@@ -197,27 +214,27 @@ to wrap around when there isn't enough space.
 // Flex should use gap, not a margin hack
 // https://github.com/patternfly/patternfly/issues/4523
 // Override default spacing from lg -> md
-.pf-v5-l-flex {
-  gap: var(--pf-v5-l-flex--spacer-base);
+.pf-v6-l-flex {
+  gap: var(--pf-v6-l-flex--spacer-base);
 
   &:not([class*="pf-m-space-items-"]) {
-    gap: var(--pf-v5-l-flex--spacer--md);
+    gap: var(--pf-v6-l-flex--spacer--md);
 
     > * {
-      --pf-v5-l-flex--spacer--column: 0;
+      --pf-v6-l-flex--spacer--column: 0;
     }
   }
 
   // Negate the margin hack used by immediate flex children
   // (except for nested flex, as we want to mind the gap)
-  > :not(.pf-v5-l-flex) {
-    --pf-v5-l-flex--spacer-base: 0;
+  > :not(.pf-v6-l-flex) {
+    --pf-v6-l-flex--spacer-base: 0;
   }
 
   // Undo all spacer modification adjustments
   &[class*="pf-m-space-items-"] {
     > * {
-      --pf-v5-l-flex--spacer--column: 0;
+      --pf-v6-l-flex--spacer--column: 0;
     }
   }
 
@@ -225,14 +242,14 @@ to wrap around when there isn't enough space.
   // (using class attribute matching for handling breakpoint -on- also)
   @each $size in (none, xs, sm, md, lg, xl, 2xl, 3xl, 4xl) {
     &[class*="pf-m-space-items-#{$size}"] {
-      --pf-v5-l-flex--spacer-base: var(--pf-v5-l-flex--spacer--#{$size});
+      --pf-v6-l-flex--spacer-base: var(--pf-v6-l-flex--spacer--#{$size});
     }
   }
 }
 
 // Realign the radio and checks: https://github.com/patternfly/patternfly/issues/5802
-.pf-v5-c-radio,
-.pf-v5-c-check {
+.pf-v6-c-radio,
+.pf-v6-c-check {
   // `baseline` is different in Firefox than Chrome & WebKit; use `normal`
   align-items: normal;
 
@@ -251,7 +268,7 @@ to wrap around when there isn't enough space.
     // Mozilla doesn't need the translation, so undo it
     -moz-transform: none;  // stylelint-disable-line property-no-vendor-prefix
     // If the size is not specified, browsers may size it between 12px - 16px; so let's set it to the font size (which winds up 16px)
-    block-size: var(--pf-v5-global--FontSize--md);
+    block-size: var(--pf-t--global--font--size--md);
     // Use the height for width too
     aspect-ratio: 1;
   }
@@ -262,7 +279,7 @@ to wrap around when there isn't enough space.
 // Additionally, it needs to be full width to properly align to the widget the
 // popover panel describes.
 // https://github.com/patternfly/patternfly-react/issues/7592
-.pf-v5-c-search-input__menu.pf-v5-c-panel {
+.pf-v6-c-search-input__menu.pf-v6-c-panel {
   position: absolute;
   inline-size: 100%;
 }
@@ -278,75 +295,84 @@ to wrap around when there isn't enough space.
 // linking.
 //
 // Nevertheless, Cockpit needs to be adapted for this to work as expected.
-.pf-v5-c-breadcrumb__link {
+.pf-v6-c-breadcrumb__link {
   cursor: pointer;
 }
 
 //Page headers are inconsistent with shadows and borders
 // https://github.com/patternfly/patternfly/issues/5184
-.pf-v5-c-page__main-group,
-.pf-v5-c-page__main-nav,
-.pf-v5-c-page__main-section.pf-m-light:not(:last-child) {
-  z-index: var(--pf-v5-c-page--section--m-shadow-bottom--ZIndex);
-  box-shadow: var(--pf-v5-c-page--section--m-shadow-bottom--BoxShadow);
-}
+// .pf-v6-c-page__main-group,
+// .pf-v6-c-page__main-nav,
+// .pf-v6-c-page__main-section.pf-m-light:not(:last-child) {
+//   z-index: var(--pf-v6-c-page--section--m-shadow-bottom--ZIndex);
+//   box-shadow: var(--pf-v6-c-page--section--m-shadow-bottom--BoxShadow);
+// }
 
 // Dark mode fixes for several PF components
-.pf-v5-theme-dark {
+.pf-v6-theme-dark {
   // Change background color behind cards
   // (matches PF surge website; PF doesn't specify otherwise)
-  .pf-v5-c-page__main-section {
-    --pf-v5-c-page__main-section--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-300);
-  }
+  // .pf-v6-c-page__main-section {
+  //   --pf-v6-c-page__main-section--BackgroundColor: var(--pf-v6-global--BackgroundColor--dark-300);
+  // }
 
-  // Adapt breadcrumb bar to be similar color as PF website
-  // (We use header bars in slightly different ways from PF)
-  // https://github.com/patternfly/patternfly/issues/5301
-  .pf-v5-c-page__main-breadcrumb {
-    --pf-v5-c-page__main-breadcrumb--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-100);
-    background-color: var(--pf-v5-global--BackgroundColor--dark-100);
-  }
+  // // Adapt breadcrumb bar to be similar color as PF website
+  // // (We use header bars in slightly different ways from PF)
+  // // https://github.com/patternfly/patternfly/issues/5301
+  // .pf-v6-c-page__main-breadcrumb {
+  //   --pf-v6-c-page__main-breadcrumb--BackgroundColor: var(--pf-v6-global--BackgroundColor--dark-100);
+  //   background-color: var(--pf-v6-global--BackgroundColor--dark-100);
+  // }
 
   // Fix input group background and borders
   // (Looks fixed in PF5, but not in PF4)
-  .pf-v5-c-text-input-group {
-    background-color: var(--pf-v5-global--BackgroundColor--400);
+  // .pf-v6-c-text-input-group {
+  //   background-color: var(--pf-v6-global--BackgroundColor--400);
 
-    .pf-v5-c-text-input-group__text {
-      &::before {
-        border-block-start-color: transparent;
-        border-inline-end-color: transparent;
-        border-inline-start-color: transparent;
-      }
+  //   .pf-v6-c-text-input-group__text {
+  //     &::before {
+  //       border-block-start-color: transparent;
+  //       border-inline-end-color: transparent;
+  //       border-inline-start-color: transparent;
+  //     }
 
-      &:is(:focus,:hover)::after {
-        border-block-end-color: var(--pf-v5-global--active-color--100);
-      }
+  //     &:is(:focus, :hover)::after {
+  //       border-block-end-color: var(--pf-v6-global--active-color--100);
+  //     }
 
-      &:not(:focus):not(:hover)::after {
-        border-block-end-color: var(--pf-v5-global--BorderColor--400);
-      }
-    }
-  }
+  //     &:not(:focus):not(:hover)::after {
+  //       border-block-end-color: var(--pf-v6-global--BorderColor--400);
+  //     }
+  //   }
+  // }
 
   // FIXME: https://github.com/patternfly/patternfly/issues/5278
-  .pf-v5-c-modal-box .pf-v5-c-table {
+  .pf-v6-c-modal-box .pf-v6-c-table {
     background-color: inherit;
   }
 }
 
 // Fix icons in buttons
-.pf-v5-c-button__icon.pf-m-start {
-  margin-inline: 0 var(--pf-v5-c-button__icon--m-start--MarginRight);
+.pf-v6-c-button__icon.pf-m-start {
+  margin-inline: 0 var(--pf-v6-c-button__icon--m-start--MarginRight);
 }
 
-// Drop side padding in mobile mode,
-// intended mainly for PF PageSection elements (pf-v5-c-page__main-section).
-// It's similar to adding padding={{ default: 'noPadding', sm: 'padding' }},
-// except this only affects the sides, not the top and bottom.
-@media screen and (max-width: $pf-v5-global--breakpoint--sm) {
-  .pf-v5-c-page__main > section.pf-v5-c-page__main-section:not(.pf-m-padding) {
+
+@media screen and (max-width: $pf-v6-global--breakpoint--md) {
+  // Drop side padding in mobile mode,
+  // intended mainly for PF PageSection elements (pf-v6-c-page__main-section).
+  // It's similar to adding padding={{ default: 'noPadding', sm: 'padding' }},
+  // except this only affects the sides, not the top and bottom.
+  .pf-v6-c-page__main>section.pf-v6-c-page__main-section:not(.pf-m-padding) {
     padding-inline: 0;
+  }
+
+  // Drop page padding and radius for page container in mobile mode. Make sure
+  // the page container is also covering as much as possible
+  .pf-v6-c-page {
+    --pf-v6-c-page--inset: 0;
+    --pf-v6-c-page__main-container--BorderRadius: 0;
+    --pf-v6-c-page__main-container--MaxHeight: 100%;
   }
 }
 
@@ -390,13 +416,40 @@ to wrap around when there isn't enough space.
 }
 
 // Workaround for https://github.com/patternfly/patternfly/issues/5865
-.pf-v5-c-card.pf-m-selectable, .pf-v5-c-card.pf-m-clickable {
+.pf-v6-c-card.pf-m-selectable,
+.pf-v6-c-card.pf-m-clickable {
   isolation: auto;
 }
 
 /* Style secondary button in dark mode as secondary */
-.pf-v5-c-menu-toggle.pf-m-secondary.pf-m-split-button {
-    .pf-v5-theme-dark & {
-    background-color: var(--pf-v5-global--BackgroundColor--400);
+// .pf-v6-c-menu-toggle.pf-m-secondary.pf-m-split-button {
+//   .pf-v6-theme-dark & {
+//     background-color: var(--pf-v6-global--BackgroundColor--400);
+//   }
+// }
+
+
+// Override as PF Page doesn't allow empty masthead and sidebar
+@media (min-width: 75rem) {
+  .pf-v6-c-page.no-masthead-sidebar { /* custom class to scope this style to a specific page component instance */
+    --pf-v6-c-page__main-container--GridArea: var(--pf-v6-c-page--masthead--main-container--GridArea);
   }
+}
+
+/* FIXME: Temporary rework plain cards to make it look like how PF6 is designed, removing the extra padding */
+.pf-v6-c-card.pf-m-plain {
+  .pf-v6-c-card__header {
+    padding-inline: 0;
+  }
+
+  .pf-v6-c-card__body.contains-list {
+    padding: 0;
+  }
+}
+
+/* FIXME: Temporary rework plain cards to make it look like how PF6 is designed, adding borders between sections */
+.pf-v6-c-card.pf-m-plain + .pf-v6-c-card.pf-m-plain,
+.pf-v6-l-stack__item + .pf-v6-l-stack__item > .pf-v6-c-card.pf-m-plain {
+  border-block-start: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
+  border-radius: var(--pf-t--global--border--radius--0);
 }

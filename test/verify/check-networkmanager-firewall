@@ -125,7 +125,7 @@ class TestFirewall(netlib.NetworkCase):
         b.click("#networking-firewall-link")
         b.enter_page("/network/firewall")
 
-        b.click(".pf-v5-c-breadcrumb li:first-of-type")
+        b.click(".pf-v6-c-breadcrumb li:first-of-type")
 
         b.enter_page("/network")
 
@@ -201,10 +201,10 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
-        b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-v5-c-table__expandable-row", "Post Office Protocol")
+        b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-v6-c-table__expandable-row", "Post Office Protocol")
 
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v5-c-menu-toggle")
-        b.click(".zone-section[data-id='public'] .pf-v5-c-menu__list-item.pf-m-danger button")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
+        b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
@@ -243,7 +243,7 @@ class TestFirewall(netlib.NetworkCase):
 
         # click on the "Add services" button
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-pop3")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-pop3")
 
         # check functionality of radio buttons
         b.click("#add-services-dialog input[value='ports']")
@@ -252,42 +252,42 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_visible("#filter-services-input")
 
         # filter for pop3
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-imap")
         b.set_input_text("#filter-services-input", "pop")
-        b.wait_not_present(".pf-v5-c-modal-box .service-list #firewall-service-imap")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-pop3")
-        self.assertIn("TCP: 110", b.text(".pf-v5-c-modal-box .service-list li:first-child .service-ports.tcp"))
-        b.wait_not_present(".pf-v5-c-modal-box .service-list li:first-child .service-ports.udp")
+        b.wait_not_present(".pf-v6-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-pop3")
+        self.assertIn("TCP: 110", b.text(".pf-v6-c-modal-box .service-list li:first-child .service-ports.tcp"))
+        b.wait_not_present(".pf-v6-c-modal-box .service-list li:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-imap")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-pop3")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-pop3")
 
         # filter for port 110
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-imap")
         b.set_input_text("#filter-services-input", "110")
-        b.wait_not_present(".pf-v5-c-modal-box .service-list #firewall-service-imap")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-pop3")
-        self.assertIn("TCP: 110", b.text(".pf-v5-c-modal-box .service-list li:first-child .service-ports.tcp"))
-        b.wait_not_present(".pf-v5-c-modal-box .service-list li:first-child .service-ports.udp")
+        b.wait_not_present(".pf-v6-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-pop3")
+        self.assertIn("TCP: 110", b.text(".pf-v6-c-modal-box .service-list li:first-child .service-ports.tcp"))
+        b.wait_not_present(".pf-v6-c-modal-box .service-list li:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-imap")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-pop3")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-pop3")
 
         # HACK: the dialog needs some time to set up after resizing
-        b.assert_pixels(".pf-v5-c-modal-box", "firewall-add-services-to-zone-modal", wait_delay=3)
+        b.assert_pixels(".pf-v6-c-modal-box", "firewall-add-services-to-zone-modal", wait_delay=3)
 
         # don't select anything in the dialog
-        b.wait_visible(f"#add-services-dialog .{self.btn_primary}.pf-m-disabled")
+        b.wait_visible(f"#add-services-dialog .{self.btn_primary}:disabled")
         b.click("#add-services-dialog footer .btn-cancel")
-        b.wait_not_present(".pf-v5-c-modal-box")
+        b.wait_not_present(".pf-v6-c-modal-box")
 
         def addService(zone, service):
             b.click(f".zone-section[data-id='{zone}'] .add-services-button")
             b.click(f"#add-services-dialog .service-list #firewall-service-{service}")
             b.click(f"#add-services-dialog footer .{self.btn_primary}")
-            b.wait_not_present(".pf-v5-c-modal-box")
+            b.wait_not_present(".pf-v6-c-modal-box")
             b.wait_visible(f".zone-section[data-id='{zone}'] tr[data-row-id='{service}']")
             self.assertIn(service, m.execute(f"firewall-cmd --zone={zone} --list-services"))
 
@@ -295,15 +295,15 @@ class TestFirewall(netlib.NetworkCase):
         addService('public', 'pop3')
         addService('public', 'freeipa-4')
         b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
-        b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-v5-c-table__expandable-row:contains(Included Services)")
+        b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-v6-c-table__expandable-row:contains(Included Services)")
         b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
 
         # pop3 should now not appear any more in Add Services dialog
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-imap")
-        b.wait_not_present(".pf-v5-c-modal-box .service-list #firewall-service-pop3")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-imap")
+        b.wait_not_present(".pf-v6-c-modal-box .service-list #firewall-service-pop3")
         b.click("#add-services-dialog footer .btn-cancel")
-        b.wait_not_present(".pf-v5-c-modal-box")
+        b.wait_not_present(".pf-v6-c-modal-box")
 
         # should still be here
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='http']")
@@ -311,9 +311,9 @@ class TestFirewall(netlib.NetworkCase):
         # Service without name should appear in the dialog
         m.execute("firewall-cmd --permanent --new-service=empty; firewall-cmd --reload")
         b.click(".zone-section[data-id='public'] .add-services-button")
-        b.wait_visible(".pf-v5-c-modal-box .service-list #firewall-service-empty")
+        b.wait_visible(".pf-v6-c-modal-box .service-list #firewall-service-empty")
         b.click("#add-services-dialog footer .btn-cancel")
-        b.wait_not_present(".pf-v5-c-modal-box")
+        b.wait_not_present(".pf-v6-c-modal-box")
 
         # remove all services
         services = set(m.execute("firewall-cmd --list-services").strip().split(" "))
@@ -322,8 +322,8 @@ class TestFirewall(netlib.NetworkCase):
         # requiring checkboxes to be clicked), then remove all the services
         # belonging either libvirt or public
         for service in services:
-            b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] button.pf-v5-c-menu-toggle")
-            b.click(".zone-section[data-id='public'] .pf-v5-c-menu__list-item.pf-m-danger button")
+            b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] button.pf-v6-c-menu-toggle")
+            b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
             # removing cockpit services requires confirmation
             if service == "cockpit":
                 b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
@@ -339,8 +339,8 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_visible(".zone-section[data-id='public'] td:contains('Additional ports') + td:contains('9998')")
         # remove service in cockpit
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v5-c-menu-toggle")
-        b.click(".zone-section[data-id='public'] .pf-v5-c-menu__list-item.pf-m-danger button")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
+        b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
     def testAddCustomServices(self):
@@ -367,7 +367,7 @@ class TestFirewall(netlib.NetworkCase):
             b.wait_val("#service-name", expected)
 
         def check_error(text):
-            b.wait_visible(f".pf-v5-c-form__helper-text .pf-m-error:contains({text})")
+            b.wait_visible(f".pf-v6-c-form__helper-text .pf-m-error:contains({text})")
 
         def save(identifier, tcp, udp, desc="", submit_text="Add ports"):
             b.click(f"button:contains({submit_text})")
@@ -451,8 +451,8 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_not_present("tr[data-row-id='http']")
 
         b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] button[aria-label=Details]")
-        b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] .pf-v5-c-menu-toggle.pf-m-plain")
-        b.click(".pf-v5-c-menu__list-item:contains(Edit) button")
+        b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] .pf-v6-c-menu-toggle.pf-m-plain")
+        b.click(".pf-v6-c-menu__list-item:contains(Edit) button")
         b.wait_val("#tcp-ports", "80-82, 7")
         b.wait_val("#udp-ports", "83-123, 161")
         b.wait_val("#service-name", "custom--80-82-echo-83-123-snmp")
@@ -477,7 +477,7 @@ class TestFirewall(netlib.NetworkCase):
             b.click(f".zone-section[data-id='{zone}'] .add-services-button")
             b.click(f"#add-services-dialog .service-list #firewall-service-{service}")
             b.click(f"#add-services-dialog footer .{self.btn_primary}")
-            b.wait_not_present(".pf-v5-c-modal-box")
+            b.wait_not_present(".pf-v6-c-modal-box")
             b.wait_visible(f".zone-section[data-id='{zone}'] tr[data-row-id='{service}']")
             self.assertIn(service, m.execute(f"firewall-cmd --zone={zone} --list-services"))
 
@@ -515,8 +515,8 @@ class TestFirewall(netlib.NetworkCase):
             b.wait_visible(f"#zones-listing .zone-section[data-id='{zone}'] tr[data-row-id='cockpit']")
 
         def removeZone(zone):
-            b.click(f".zone-section[data-id='{zone}'] .zone-section-buttons button.pf-v5-c-menu-toggle")
-            b.click(f".zone-section[data-id='{zone}'] .pf-v5-c-menu__list-item.pf-m-danger button")
+            b.click(f".zone-section[data-id='{zone}'] .zone-section-buttons button.pf-v6-c-menu-toggle")
+            b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
             b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
             b.wait_not_present(f".zone-section[data-id='{zone}']")
 
@@ -534,14 +534,14 @@ class TestFirewall(netlib.NetworkCase):
 
         # Remove the service from public zone
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v5-c-menu-toggle")
-        b.click(".zone-section[data-id='public'] .pf-v5-c-menu__list-item.pf-m-danger button")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
+        b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_visible(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # Remove the service from the work zone
-        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] button.pf-v5-c-menu-toggle")
-        b.click(".zone-section[data-id='work'] .pf-v5-c-menu__list-item.pf-m-danger button")
+        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
+        b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # remove predefined work zone

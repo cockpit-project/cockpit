@@ -26,7 +26,9 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { ActionGroup, Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
@@ -77,7 +79,7 @@ const AddNewKey = ({
                 <FileAutoComplete onChange={setNewKeyPath}
                                   placeholder={_("Path to file")}
                                   superuser="try" />
-                {newKeyPathError && <HelperText className="pf-v5-c-form__helper-text">
+                {newKeyPathError && <HelperText className="pf-v6-c-form__helper-text">
                     <HelperTextItem variant="error">{newKeyPathError}</HelperTextItem>
                 </HelperText>}
             </GridItem>
@@ -168,7 +170,7 @@ const KeyPassword = ({
     return (
         <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
             {inProgress === false && <HelperText>
-                <HelperTextItem variant="success" hasIcon>
+                <HelperTextItem variant="success">
                     {_("Password changed successfully")}
                 </HelperTextItem>
             </HelperText>}
@@ -187,7 +189,7 @@ const KeyPassword = ({
                         aria-label={_("Password tip")}
                         bodyContent={_("Tip: Make your key password match your login password to automatically authenticate against other systems.")}
                     >
-                        <button className="pf-v5-c-form__group-label-help ct-icon-info-circle"
+                        <button className="pf-v6-c-form__group-label-help ct-icon-info-circle"
                                 onClick={e => e.preventDefault()}
                                 type="button">
                             <InfoCircleIcon />

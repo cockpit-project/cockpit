@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import React from 'react';
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
-import { Text, TextContent } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -33,11 +33,11 @@ export function delete_group_dialog(group) {
         title: cockpit.format(_("Permanently delete $0 group?"), group.name),
         body: group.userlistPrimary.length > 0
             ? <Stack hasGutter>
-                <TextContent>
-                    <Text>
+                <Content>
+                    <Content component="p">
                         {_("This group is the primary group for the following users:")}
-                    </Text>
-                </TextContent>
+                    </Content>
+                </Content>
                 <List>
                     {group.userlistPrimary.map(account => <ListItem className='list-item' key={account}>{account}</ListItem>)}
                 </List>

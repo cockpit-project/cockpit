@@ -40,6 +40,7 @@ export const FormHelper = ({ helperText, helperTextInvalid, variant, icon, field
         <FormHelperText>
             <HelperText>
                 <HelperTextItem
+                    // TODO @Venefilyn: Handle screenreader for this and add translation
                     {...fieldId && { id: fieldId + '-helper' }}
                     variant={formHelperVariant}
                     icon={icon}>

@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import '../lib/patternfly/patternfly-5-cockpit.scss';
+import '../lib/patternfly/patternfly-6-cockpit.scss';
 import 'cockpit-dark-theme'; // once per page
 
 import cockpit from "cockpit";
@@ -26,7 +26,7 @@ import { createRoot } from 'react-dom/client';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
@@ -181,11 +181,11 @@ export const LogsPage = () => {
     };
 
     return (
-        <Page>
-            <PageSection id="journal" className="journal-filters" padding={{ default: 'noPadding' }}>
+        <Page className='no-masthead-sidebar'>
+            <PageSection hasBodyWrapper={false} id="journal" className="journal-filters">
                 <Toolbar>
                     <ToolbarContent>
-                        <ToolbarToggleGroup className="pf-v5-u-flex-wrap pf-v5-u-flex-grow-1 pf-v5-u-align-items-flex-start" toggleIcon={<><span className="pf-v5-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
+                        <ToolbarToggleGroup className="pf-v6-u-flex-wrap pf-v6-u-flex-grow-1 pf-v6-u-align-items-flex-start" toggleIcon={<><span className="pf-v6-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
                             <ToolbarGroup>
                                 <ToolbarItem>
                                     <SimpleSelect
@@ -258,8 +258,7 @@ export const LogsPage = () => {
                 </Toolbar>
 
             </PageSection>
-            <PageSection padding={{ default: 'noPadding' }}
-                         variant={PageSectionVariants.light}
+            <PageSection hasBodyWrapper={false}
                          id="journal-box"
                          className="journal-filters-box">
                 <JournalBox dataFollowing={dataFollowing}

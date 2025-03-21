@@ -146,7 +146,7 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
 
     return (
         <WithDialogs>
-            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to={"#" + cockpit.location.href.replace(/\/[^?]*/, '')}>{_("Services")}</BreadcrumbItem>
                     <BreadcrumbItem isActive>
@@ -154,7 +154,7 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
                     </BreadcrumbItem>
                 </Breadcrumb>
             </PageBreadcrumb>
-            <PageSection id="service-details">
+            <PageSection hasBodyWrapper={false} id="service-details">
                 <Stack hasGutter>
                     <ServiceDetails unit={unitProps}
                                     owner={owner}

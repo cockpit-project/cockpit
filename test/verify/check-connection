@@ -144,7 +144,7 @@ class TestConnection(testlib.MachineCase):
                 b.wait_visible(".curtains-ct")
 
             b.wait_in_text(".curtains-ct h1", "Disconnected")
-            b.wait_in_text('.curtains-ct .pf-v5-c-empty-state__body', "Connection has timed out.")
+            b.wait_in_text('.curtains-ct .pf-v6-c-empty-state__body', "Connection has timed out.")
         finally:
             m.execute("nft delete table ip cockpittest")
 
@@ -1056,7 +1056,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
 
-        b.wait_text(".early-failure .pf-v5-c-empty-state__title", "Connection failed")
+        b.wait_text(".early-failure .pf-v6-c-empty-state__title", "Connection failed")
         b.wait_in_text(".early-failure ", "unexpected error while connecting to the machine")
 
         testlib.wait(lambda: m.execute("grep 'received request from bad Origin' /var/log/ws-notls.log"))
@@ -1451,7 +1451,7 @@ server {
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.wait_visible('.pf-v5-c-card.system-health')
+        b.wait_visible('.pf-v6-c-card.system-health')
 
     @testlib.skipImage("nginx not installed", "centos-*", "rhel-*", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("nginx not installed")

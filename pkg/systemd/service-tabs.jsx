@@ -24,6 +24,7 @@ import { Nav, NavItem, NavList } from "@patternfly/react-core/dist/esm/component
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -47,7 +48,7 @@ export function ServiceTabs({ onChange, activeTab, tabErrors }) {
     const [activeItem, setActiveItem] = useState(activeTab);
 
     return (
-        <Nav variant="tertiary" id="services-filter"
+        <Nav variant="horizontal-subnav" id="services-filter"
              onSelect={(_event, result) => { setActiveItem(result.itemId); onChange(result.itemId) }}>
             <NavList>
                 {Object.keys(service_tabs).map(key => {
@@ -56,9 +57,9 @@ export function ServiceTabs({ onChange, activeTab, tabErrors }) {
                                  key={key}
                                  preventDefault
                                  isActive={activeItem == key}>
-                            <Button variant="link" component="a" style={{ "--pf-v5-c-button--m-link--Color": "var(--pf-v5-global--Color--200)", "--pf-v5-c-nav__link--m-current--Color": "var(--pf-v5-global--Color--100)", "--pf-v5-c-nav__link--hover--Color": "var(--pf-v5-global--Color--200)" }}>
+                            <Button variant="link" component="a">
                                 {service_tabs[key]}
-                                {tabErrors[key] ? <ExclamationCircleIcon className="ct-exclamation-circle" /> : null}
+                                {tabErrors[key] ? <Icon status="danger"><ExclamationCircleIcon className="ct-exclamation-circle" /></Icon> : null}
                             </Button>
                         </NavItem>
                     );

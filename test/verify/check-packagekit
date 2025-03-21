@@ -89,9 +89,9 @@ class TestUpdates(NoSubManCase):
         else:
             self.assertEqual(b.text(row + " tr:first-child [data-label=Name]"), pkgname)
             b.mouse(row + "tr:first-child [data-label=Name] span", "mouseenter")
-            b.wait_text(".pf-v5-c-tooltip", "dummy " + pkgname + " (" + arch + ")")
+            b.wait_text(".pf-v6-c-tooltip", "dummy " + pkgname + " (" + arch + ")")
             b.mouse(row + "tr:first-child [data-label=Name] span", "mouseleave")
-            b.wait_not_present(".pf-v5-c-tooltip")
+            b.wait_not_present(".pf-v6-c-tooltip")
         self.assertEqual(b.text(row + "[data-label=Version]"), version)
         # verify type
         severity_to_aria = {"bug": "bug fix", "enhancement": "enhancement", "security": "security"}
@@ -102,7 +102,7 @@ class TestUpdates(NoSubManCase):
         # should not be expanded by default
         self.assertNotIn("pf-m-expanded", b.attr(row, "class"))
         # expand
-        b.click(row + "td.pf-v5-c-table__toggle button")
+        b.click(row + "td.pf-v6-c-table__toggle button")
         self.assertIn("pf-m-expanded", b.attr(row, "class"))
         b.wait_in_text(row + "> tr.pf-m-expanded", "Packages")
         desc = b.text(row + "> tr.pf-m-expanded")
@@ -119,7 +119,7 @@ class TestUpdates(NoSubManCase):
         good_count = 0
         for _ in range(60):
             classes = self.browser.attr(self.update_icon, "class")
-            if classes is not None and "pf-v5-c-spinner" in classes:
+            if classes is not None and "pf-v6-c-spinner" in classes:
                 good_count = 0
             else:
                 good_count += 1
@@ -191,8 +191,8 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.enableRepo()
         self.addCleanup(m.execute, "umount /usr/sbin/kpatch")
 
-        b.click("#status .pf-v5-c-card__actions button")
-        b.wait_visible(".pf-v5-c-badge:contains('patches')")
+        b.click("#status .pf-v6-c-card__actions button")
+        b.wait_visible(".pf-v6-c-badge:contains('patches')")
         b.click("button:contains('Install kpatch updates')")
         b.click("button:contains('Continue')")
         b.wait_in_text("#status", "Kernel live patch kpatch_3_10_0_1062_1_1 is active")
@@ -302,7 +302,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.enter_page("/updates")
 
         # refresh
-        b.click("#status .pf-v5-c-card__header button")
+        b.click("#status .pf-v6-c-card__header button")
         check_status()
 
         install_lockfile = "/tmp/finish-pk"
@@ -315,7 +315,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.enableRepo()
 
         # check again
-        b.click("#status .pf-v5-c-card__header button")
+        b.click("#status .pf-v6-c-card__header button")
 
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
@@ -355,7 +355,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
             b.click("#available-updates button#install-all")
 
             # applying updates panel present
-            b.wait_visible("#app div.pf-v5-c-progress__bar")
+            b.wait_visible("#app div.pf-v6-c-progress__bar")
 
             # cancel the installation
             b.wait_in_text(".progress-main-view button.pf-m-secondary", "Cancel")
@@ -383,17 +383,17 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_visible("#update-log"))
         # expand it
-        b.click(".pf-v5-c-expandable-section__toggle")
+        b.click(".pf-v6-c-expandable-section__toggle button")
         # should eventually show chocolate when vanilla starts installing
         b.wait_in_text("#update-log", "chocolate")
 
         # finish the package installation
         m.execute(f"touch {install_lockfile}")
 
-        b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
+        b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
         # if tracer is not present, reboot is recommended
         if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):
-            b.wait_in_text("#app .pf-v5-c-empty-state button.pf-m-primary", "Reboot system...")
+            b.wait_in_text("#app .pf-v6-c-empty-state button.pf-m-primary", "Reboot system...")
         b.click("#ignore")
 
         # should go back to updates overview, nothing pending any more
@@ -487,7 +487,7 @@ ExecStart=/usr/local/bin/{package} infinity
                 b.wait_in_text("#install-all", "Install all updates")
                 b.click("#install-all")
                 with b.wait_timeout(60):
-                    b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
+                    b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
 
                 b.wait_visible("#ignore")
                 b.wait_visible(".updates-success-table")
@@ -511,7 +511,7 @@ ExecStart=/usr/local/bin/{package} infinity
                         b.wait_visible("#shutdown-dialog")
                         b.click("#delay")
                         b.click("button:contains('No delay')")
-                        b.wait_text("#delay .pf-v5-c-menu-toggle__text", "No delay")
+                        b.wait_text("#delay .pf-v6-c-menu-toggle__text", "No delay")
                         b.click("#shutdown-dialog button:contains('Reboot')")
                         b.switch_to_top()
                         b.wait_in_text(".curtains-ct h1", "Disconnected")
@@ -536,7 +536,7 @@ ExecStart=/usr/local/bin/{package} infinity
                         b.wait_visible("#shutdown-dialog")
                         b.click("#delay")
                         b.click("button:contains('No delay')")
-                        b.wait_text("#delay .pf-v5-c-menu-toggle__text", "No delay")
+                        b.wait_text("#delay .pf-v6-c-menu-toggle__text", "No delay")
                         b.click("#shutdown-dialog button:contains('Reboot')")
                         b.switch_to_top()
                         b.wait_in_text(".curtains-ct h1", "Disconnected")
@@ -641,7 +641,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_in_text("#install-all", "Install all updates")
         b.click("#install-all")
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
 
         b.wait_visible("#ignore")
         b.wait_visible(".updates-success-table")
@@ -659,8 +659,8 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("#restart-services-modal")
 
         # tracer updated the list of services which need a restart, so our service is no longer present
-        b.wait_not_in_text("#restart-services-modal .pf-v5-l-stack__item", packageName)
-        b.wait_visible("#restart-services-modal .pf-v5-c-alert")
+        b.wait_not_in_text("#restart-services-modal .pf-v6-l-stack__item", packageName)
+        b.wait_visible("#restart-services-modal .pf-v6-c-alert")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")
     def testInfoSecurity(self):
@@ -719,12 +719,12 @@ ExecStart=/usr/local/bin/{packageName}
         ch = b.eval_js(f"document.querySelector(\"{sel + ' td.changelog'}\").innerHTML")
         self.assertNotIn("<li>", ch)
         self.assertNotIn("*", ch)
-        # should show bug fix icon and pf-v5-c-tooltip
+        # should show bug fix icon and pf-v6-c-tooltip
         self.assertEqual(b.attr(sel + " .severity-icon", "aria-label"), "bug fix")
         b.mouse(sel + " .severity-icon", "mouseenter")
-        b.wait_text(".pf-v5-c-tooltip", "bug fix")
+        b.wait_text(".pf-v6-c-tooltip", "bug fix")
         b.mouse(sel + " .severity-icon", "mouseleave")
-        b.wait_not_present(".pf-v5-c-tooltip")
+        b.wait_not_present(".pf-v6-c-tooltip")
 
         # norefs: just changelog, show both binary packages
         sel = self.check_nth_update(5, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,
@@ -760,11 +760,11 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_not_present("#available-updates button#install-kpatches")
         b.click("#available-updates button#install-security")
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
 
         # history on restart page should show the three security updates
-        b.click(".pf-v5-c-expandable-section__toggle")
-        self.assertHistory(".pf-v5-c-expandable-section ul", ["secdeclare", "secparse", "sevcritical"])
+        b.click(".pf-v6-c-expandable-section__toggle button")
+        self.assertHistory(".pf-v6-c-expandable-section ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
         b.click("#ignore")
@@ -795,20 +795,20 @@ ExecStart=/usr/local/bin/{packageName}
 
         # should have succeeded and show restart
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
         b.wait_visible("#ignore")
 
         # history on restart page should show the three non-security updates
-        b.click(".pf-v5-c-expandable-section__toggle")
-        self.assertHistory(".pf-v5-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
+        b.click(".pf-v6-c-expandable-section__toggle button")
+        self.assertHistory(".pf-v6-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):
             # do the reboot; this will disconnect the web UI
-            b.click("#app .pf-v5-c-empty-state button.pf-m-primary")
+            b.click("#app .pf-v6-c-empty-state button.pf-m-primary")
             b.wait_visible("#shutdown-dialog")
             b.click("#delay")
             b.click("button:contains('No delay')")
-            b.wait_text("#delay .pf-v5-c-menu-toggle__text", "No delay")
+            b.wait_text("#delay .pf-v6-c-menu-toggle__text", "No delay")
             b.click("#shutdown-dialog button:contains('Reboot')")
             b.switch_to_top()
             b.wait_in_text(".curtains-ct h1", "Disconnected")
@@ -860,7 +860,7 @@ ExecStart=/usr/local/bin/{packageName}
             self.createPackage("secnocve", "1", "2", severity="security", changes="Fix leak")
             self.enableRepo()
             # check for updates
-            b.click("#status .pf-v5-c-card__header button")
+            b.click("#status .pf-v6-c-card__header button")
             with b.wait_timeout(30):
                 b.wait_visible("#available-updates")
             b.wait_in_text("#status", "2")
@@ -931,7 +931,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.set_layout("desktop")
         b.wait_visible("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
         # collapse it so that check_nth_update is happy
-        b.click("#available-updates table[aria-label='Available updates'] > tbody:nth-of-type(3) td.pf-v5-c-table__toggle button")
+        b.click("#available-updates table[aria-label='Available updates'] > tbody:nth-of-type(3) td.pf-v6-c-table__toggle button")
         self.check_nth_update(3, "verbose", "1-2",
                               desc_matches=["Things change #00", "Things change #29"])
 
@@ -954,7 +954,7 @@ ExecStart=/usr/local/bin/{packageName}
             b.wait_visible("#available-updates")
         b.click("#available-updates button#install-all")
 
-        b.wait_visible("#app div.pf-v5-c-progress__bar")
+        b.wait_visible("#app div.pf-v6-c-progress__bar")
         # auto-reboot is off by default
         b.wait_visible("#reboot-after:not(:checked)")
         b.click("#reboot-after")
@@ -993,9 +993,9 @@ ExecStart=/usr/local/bin/{packageName}
         b.click("#available-updates button#install-all")
 
         # error message visible
-        b.wait_visible("#app .pf-v5-c-page .pf-v5-c-empty-state__body")
+        b.wait_visible("#app .pf-v6-c-page .pf-v6-c-empty-state__body")
 
-        self.assertRegex(b.text("#app .pf-v5-c-page .pf-v5-l-stack .pf-v5-c-code-block .pf-v5-c-code-block__content .pf-v5-c-code-block__pre .pf-v5-c-code-block__code span:first-of-type"),
+        self.assertRegex(b.text("#app .pf-v6-c-page .pf-v6-l-stack .pf-v6-c-code-block .pf-v6-c-code-block__content .pf-v6-c-code-block__pre .pf-v6-c-code-block__code span:first-of-type"),
                          "missing|downloading|not.*available|No such file or directory|download library error")
 
         # not expecting any buttons
@@ -1028,14 +1028,14 @@ ExecStart=/usr/local/bin/{packageName}
             b.click("#available-updates button#install-all")
 
         # let updates start and zap PackageKit
-        b.wait_visible("#app div.pf-v5-c-progress__bar")
+        b.wait_visible("#app div.pf-v6-c-progress__bar")
         m.execute("systemctl kill --signal=SEGV packagekit.service")
         # this crash creates so many messages from systemd-coredump, debug metadata etc. that
         # trying to keep up with specific patterns is too brittle
         self.allow_journal_messages(".*")
 
         # error message visible
-        b.wait_in_text("#app .pf-v5-c-page .pf-v5-l-stack .pf-v5-c-code-block__content", "PackageKit crashed")
+        b.wait_in_text("#app .pf-v6-c-page .pf-v6-l-stack .pf-v6-c-code-block__content", "PackageKit crashed")
 
     @testlib.nondestructive
     def testNoPackageKit(self):
@@ -1085,7 +1085,7 @@ ExecStart=/usr/local/bin/{packageName}
         # but applying updates is not; FIXME: this is a crappy UX
         b.click("#available-updates button#install-all")
         # error message visible
-        b.wait_in_text("#app .pf-v5-c-code-block__content", "authentication")
+        b.wait_in_text("#app .pf-v6-c-code-block__content", "authentication")
 
         # page adjusts automatically to privilege change
         b.become_superuser()
@@ -1096,7 +1096,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.click("#available-updates button#install-all")
 
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
         b.click("#ignore")
 
         # should go back to updates overview, nothing pending any more
@@ -1148,7 +1148,7 @@ class TestWsUpdate(NoSubManCase):
         m.execute(f"touch {install_lockfile}")
 
         # should have succeeded and show restart page; cancel
-        b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
+        b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
         b.click("#ignore")
         b.wait_in_text("#status", "System is up to date")
 
@@ -1158,7 +1158,7 @@ class TestWsUpdate(NoSubManCase):
         self.createPackage("cockpit", "999", "1")
         m.execute("if type apt; then dpkg -P cockpit-ws-dbgsym; fi")
         self.enableRepo()
-        b.click("#status .pf-v5-c-card__header button")
+        b.click("#status .pf-v6-c-card__header button")
 
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
@@ -1185,10 +1185,10 @@ class TestKpatchInstall(NoSubManCase):
         b.wait_in_text("#kpatch-settings", "Not available")
         # show unavailable packages in popover
         b.click("#kpatch-settings .ct-info-circle")
-        b.wait_in_text(".pf-v5-c-popover", "Unavailable packages")
-        b.wait_in_text(".pf-v5-c-popover", "kpatch-dnf")
+        b.wait_in_text(".pf-v6-c-popover", "Unavailable packages")
+        b.wait_in_text(".pf-v6-c-popover", "kpatch-dnf")
         b.click("#kpatch-settings .ct-info-circle")
-        b.wait_not_present(".pf-v5-c-popover")
+        b.wait_not_present(".pf-v6-c-popover")
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
         self.createPackage("kpatch", "999", "1", content={"/lib/systemd/system/kpatch.service": dummy_service})
@@ -1249,7 +1249,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
 
         # Wait for the web service to be accessible
         m.execute("until curl --fail --silent --show-error https://services.cockpit.lan:8443/candlepin/status; do sleep 1; done")
-        self.update_icon = "#page_status_notification_updates svg"
+        self.update_icon = "#page_status_notification_updates"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
 
@@ -1269,17 +1269,17 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         # show unregistered status on system front page
         with b.wait_timeout(30):
             b.wait_in_text(self.update_text, "Not registered")
-        self.assertIn("triangle", b.attr(self.update_icon, "class"))
+        self.assertIn("pf-m-warning", b.attr(self.update_icon + " .pf-v6-c-icon__content", "class"))
 
         # software updates page also shows unregistered
         b.go("/updates")
         b.enter_page("/updates")
         # empty state visible in main area
-        b.wait_visible(".pf-v5-c-empty-state button")
-        b.wait_in_text(".pf-v5-c-empty-state", "This system is not registered")
+        b.wait_visible(".pf-v6-c-empty-state button")
+        b.wait_in_text(".pf-v6-c-empty-state", "This system is not registered")
 
         # test the button to switch to Subscriptions
-        b.click(".pf-v5-c-empty-state button")
+        b.click(".pf-v6-c-empty-state button")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/subscriptions"')
 
@@ -1288,13 +1288,13 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         # check updates
-        b.wait_visible("#status .pf-v5-c-card__header button")
+        b.wait_visible("#status .pf-v6-c-card__header button")
         b.wait_in_text("#status", "System is up to date")
 
         # same on system page
         b.go("/system")
         b.enter_page("/system")
-        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
+        self.assertEqual(b.attr(self.update_icon + " svg", "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
     def testAvailableUpdates(self):
@@ -1309,7 +1309,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         # by default our rhel-* images are not registered; show warning on system page
         with b.wait_timeout(30):
             b.wait_in_text(self.update_text, "Not registered")
-        self.assertIn("triangle", b.attr(self.update_icon, "class"))
+        self.assertIn("pf-m-warning", b.attr(self.update_icon + " .pf-v6-c-icon__content", "class"))
         # should be a link leading to subscriptions page
         b.click(self.update_text_action)
         b.enter_page("/subscriptions")
@@ -1319,28 +1319,28 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         b.enter_page("/updates")
 
         # empty state visible in main area
-        b.wait_visible(".pf-v5-c-empty-state button")
-        b.wait_in_text(".pf-v5-c-empty-state", "This system is not registered")
+        b.wait_visible(".pf-v6-c-empty-state button")
+        b.wait_in_text(".pf-v6-c-empty-state", "This system is not registered")
 
         # after registration it should show available updates
         self.register()
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_not_present(".pf-v5-c-empty-state")
+        b.wait_not_present(".pf-v6-c-empty-state")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
 
         # has action buttons
-        b.wait_visible("#status .pf-v5-c-card__header button")
+        b.wait_visible("#status .pf-v6-c-card__header button")
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
 
         # show available updates on system page too
         b.go("/system")
         b.enter_page("/system")
         b.wait_text(self.update_text, "Bug fix updates available")
-        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "bug")
+        self.assertEqual(b.attr(self.update_icon + " svg", "data-pficon"), "bug")
 
     def testNoSubOsRepo(self):
         m = self.machine
@@ -1357,7 +1357,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
 
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_visible("#status .pf-v5-c-card__header button")
+        b.wait_visible("#status .pf-v6-c-card__header button")
         b.wait_in_text("#status", "System is up to date")
 
 
@@ -1557,7 +1557,7 @@ class TestAutoUpdates(NoSubManCase):
             b.reload()
             b.enter_page("/updates")
             time.sleep(5)
-            b.wait_visible("#settings .pf-v5-c-alert")
+            b.wait_visible("#settings .pf-v6-c-alert")
             # don't allow stomping over unparsable custom settings
             b.wait_not_present("#autoupdates-settings button")
 
@@ -1674,12 +1674,12 @@ class TestAutoUpdatesInstall(NoSubManCase):
         b.click("#available-updates button#install-all")
         # wait until installation is finished
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v5-c-empty-state__title:contains('Update was successful')")
+            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
         b.click("#ignore")
 
         if "dnf" in self.backend:
             b.wait_in_text("#autoupdates-settings", "Not set up")
-            b.wait_not_present("#settings .pf-v5-c-alert")
+            b.wait_not_present("#settings .pf-v6-c-alert")
             b.click("#autoupdates-settings button:contains('Enable')")
         else:
             b.wait_not_present("#settings")
@@ -1731,7 +1731,7 @@ WantedBy=basic.target
         # click through install dialog
         with b.wait_timeout(30):
             b.wait_in_text("#autoupdates-settings", "Not set up")
-        b.wait_not_present("#settings .pf-v5-c-alert")
+        b.wait_not_present("#settings .pf-v6-c-alert")
         b.click("#autoupdates-settings button:contains('Enable')")
         b.wait_popup('dialog')
         b.wait_visible('#dialog button.apply')

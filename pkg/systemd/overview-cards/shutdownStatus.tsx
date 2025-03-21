@@ -106,7 +106,7 @@ export const ShutDownStatus = () => {
                     <FlexItem>
                         <Button variant="link" isInline
                                 id="system-health-shutdown-status-cancel-btn"
-                                className="pf-v5-u-font-size-sm"
+                                className="pf-v6-u-font-size-sm"
                                 onClick={cancelShutdownAction}>
                             {cancelText}
                         </Button>

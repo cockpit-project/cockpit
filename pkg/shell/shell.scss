@@ -22,21 +22,17 @@
 @use "page";
 @use "table";
 @use "nav";
-@import "@patternfly/patternfly/components/Select/select.css";
+@import "@patternfly/patternfly/components/Menu/menu.css";
 @import "@patternfly/patternfly/utilities/Text/text.css";
 @import "@patternfly/patternfly/components/Icon/icon.css";
 
 :root {
-  --ct-color-host-accent: var(--pf-v5-global--active-color--100);
-  --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-100);
+  --ct-color-host-accent: var(--pf-t--global--color--brand--default);
+  --ct-topnav-background: var(--pf-t--global--background--color--secondary--default);
 }
 
 #shell {
     block-size: 100%;
-}
-
-.pf-v5-theme-dark {
-  --ct-topnav-background: var(--pf-v5-global--BackgroundColor--dark-200);
 }
 
 /* Hacks on top for now */
@@ -51,7 +47,7 @@ html.index-page body {
 
 // Fix fingerprint layout
 .add-host-fingerprint {
-  margin-block-start: var(--pf-v5-global--spacer--md);
+  margin-block-start: var(--pf-t--global--spacer--md);
 
   td {
     padding: 0;
@@ -60,7 +56,7 @@ html.index-page body {
     vertical-align: middle !important;
 
     &:first-child {
-      padding-inline-end: var(--pf-v5-global--spacer--md);
+      padding-inline-end: var(--pf-t--global--spacer--md);
     }
   }
 }
@@ -68,8 +64,8 @@ html.index-page body {
 .machine-key {
   margin: 0;
   white-space: pre-line;
-  padding-block: var(--pf-v5-global--spacer--xs);
-  padding-inline: var(--pf-v5-global--spacer--sm);
+  padding-block: var(--pf-t--global--spacer--xs);
+  padding-inline: var(--pf-t--global--spacer--sm);
 }
 
 .login-setup-checkbox-wrapper {
@@ -100,7 +96,7 @@ html.index-page body {
 
 .display-language-modal {
   /* Do not let the language menu expand to the end of the page */
-  .pf-v5-c-menu__content {
+  .pf-v6-c-menu__content {
     max-block-size: 20rem;
     overflow: auto;
   }
@@ -125,12 +121,12 @@ $desktop: $phone + 1px;
   // Set masthead and toolbar to transparent, so the background shows through
   // (including the accent line)
 
-  .pf-v5-c-masthead {
-    --pf-v5-c-masthead--BackgroundColor: transparent;
+  .pf-v6-c-masthead {
+    --pf-v6-c-masthead--BackgroundColor: transparent;
   }
 
-  .pf-v5-c-toolbar {
-    --pf-v5-c-toolbar--BackgroundColor: transparent;
+  .pf-v6-c-toolbar {
+    --pf-v6-c-toolbar--BackgroundColor: transparent;
   }
 
   @media (max-width: $phone) {
@@ -146,7 +142,6 @@ $desktop: $phone + 1px;
     .sidebar-toggle {
       grid-area: sidebar;
       display: flex;
-      background: var(--pf-v5-global--BackgroundColor--dark-100);
     }
 
     > .header,
@@ -167,8 +162,11 @@ $desktop: $phone + 1px;
     }
 
     // Remove excess padding from masthead in mobile
-    .pf-v5-c-masthead {
-      --pf-v5-c-masthead--inset: 0;
+    .pf-v6-c-masthead {
+      --pf-v6-c-masthead--inset: 0;
+      --pf-v6-c-masthead--PaddingBlock: 0;
+      --pf-v6-c-masthead--PaddingInline: 0;
+      block-size: 100%;
     }
   }
 
@@ -193,11 +191,6 @@ $desktop: $phone + 1px;
     > .header {
       // Shadow to the left, Line on top, Base color (with subtle glow)
       background: linear-gradient(
-        to right,
-        var(--ct-topnav-background) -1rem,
-        transparent 1rem
-      ),
-        linear-gradient(
         to bottom,
         var(--ct-color-host-accent),
         var(--ct-color-host-accent) 0.1875rem,
@@ -234,7 +227,7 @@ $desktop: $phone + 1px;
 }
 
 /* Alert fixups */
-.modal-content .pf-v5-c-alert {
+.modal-content .pf-v6-c-alert {
   text-align: start;
   margin-block-end: 24px;
 }
@@ -243,25 +236,8 @@ $desktop: $phone + 1px;
   block-size: 100%;
 }
 
-// Header menu buttons don't need a background color (especially in dark mode)
-.pf-v5-c-toolbar .pf-v5-c-dropdown__toggle {
-  --pf-v5-c-dropdown__toggle--BackgroundColor: transparent;
-}
-
-// Header menu buttons don't need a background color (especially in dark mode)
-.pf-v5-c-toolbar .pf-v5-c-dropdown__toggle {
-  --pf-v5-c-dropdown__toggle--BackgroundColor: transparent;
-}
-
-// PF hardcodes header colors to dark, which does funky things
-// ...so swap them back properly for dropdown menus
-.pf-v5-c-masthead .pf-v5-c-dropdown__menu {
-  --pf-v5-global--BackgroundColor--100: var(--pf-v5-global--BackgroundColor--light-100);
-  --pf-v5-global--Color--100: var(--pf-v5-global--Color--dark-100);
-}
-
 // Customize the about screen with the Cockpit logo
-.pf-v5-c-about-modal-box {
+.pf-v6-c-about-modal-box {
   --pf-v5-c-about-modal-box--BackgroundImage: linear-gradient(#000d, #000d), url(../shell/images/cockpit-icon.svg);
   --pf-v5-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
   --pf-v5-c-about-modal-box--BackgroundSize--min-width: 786px;

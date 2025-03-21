@@ -43,7 +43,7 @@ class TestJournal(testlib.MachineCase):
                     var count = '';
                     if (e.querySelectorAll('.cockpit-log-service-container').length > 0) {
                         ident = e.querySelector('.cockpit-log-service-reduced').textContent;
-                        count = e.querySelector('.pf-v5-c-badge').textContent;
+                        count = e.querySelector('.pf-v6-c-badge').textContent;
                     } else {
                         ident = e.querySelector('.cockpit-log-service');
                         ident = ident ? ident.textContent : "";
@@ -110,7 +110,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         })""", expected)
 
         def wait_journal_empty():
-            b.wait_in_text(".pf-v5-c-empty-state__body", "Can not find any logs using the current combination of filters.")
+            b.wait_in_text(".pf-v6-c-empty-state__body", "Can not find any logs using the current combination of filters.")
 
         b.go("#/?priority=debug&service=log123.service")
         wait_journal_empty()
@@ -193,17 +193,17 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_log_present("JUST ERROR")
 
         # We cannot open this select with tests but we need to wait until it gets loaded
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "just-a-service")
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", "just-a-service")
         wait_log_not_present("JUST ERROR")
         wait_log_present("THE SERVICE")
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "All")
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", "All")
         wait_log_present("JUST ERROR")
         wait_log_present("THE SERVICE")
 
         b.select_PF("#journal-prio-menu", "Error and above")
         wait_log_not_present("THE SERVICE")
         wait_log_present("JUST ERROR")
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "check-journal")
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", "check-journal")
         b.wait_not_present("#journal-identifier-menu + ul button:contains('just-a-service')")
 
         b.go("#/?tag=test-stream&priority=notice")
@@ -220,15 +220,15 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         # Test popover in advanced search
         b.click("#journal-grep button[aria-label='Open advanced search']")
-        b.assert_pixels(".pf-v5-c-panel", "logs-filter-panel", skip_layouts=["mobile"])
+        b.assert_pixels(".pf-v6-c-panel", "logs-filter-panel", skip_layouts=["mobile"])
 
-        b.click(".pf-v5-c-form__group:contains('Since') button")
-        b.wait_text(".pf-v5-c-popover__title-text", "Start showing entries on or newer than the specified date.")
+        b.click(".pf-v6-c-form__group:contains('Since') button")
+        b.wait_text(".pf-v6-c-popover__title-text", "Start showing entries on or newer than the specified date.")
         # FIXME: Closing the popover with the X button also closes the whole search form (just not with ph_mouse)
-        # b.click(".pf-v5-c-popover__close button")
+        # b.click(".pf-v6-c-popover__close button")
         # Thus close the popover the same way as we opened it, with the (i) icon
-        b.click(".pf-v5-c-form__group:contains('Since') button")
-        b.wait_not_present(".pf-v5-c-popover")
+        b.click(".pf-v6-c-form__group:contains('Since') button")
+        b.wait_not_present(".pf-v6-c-popover")
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")
 
@@ -345,21 +345,21 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.go(f"#/?priority=err&since=@{self.test_start_time}")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", tag_error)
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", tag_error)
         b.wait_not_present(f"#journal-identifier-menu + ul button:contains('{tag_info}')")
 
         b.select_PF("#journal-prio-menu", "Debug and above")
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "All")
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", "All")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", tag_error)
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", tag_info)
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", tag_error)
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", tag_info)
 
         b.select_PF("#journal-prio-menu", "Error and above")
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", "All")
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", "All")
         b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_error.upper()}')")
         b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{tag_info.upper()}')")
-        b.select_PF("#journal-identifier-menu .pf-v5-c-menu-toggle__button", tag_error)
+        b.select_PF("#journal-identifier-menu .pf-v6-c-menu-toggle__button", tag_error)
         b.wait_not_present(f"#journal-identifier-menu + ul button:contains('{tag_info}')")
 
     def testRebootAndTime(self):
@@ -486,8 +486,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                         "Load earlier entries"
                         ])
 
-        b.click("#journal-identifier-menu .pf-v5-c-menu-toggle__button")
-        b.wait_visible("#journal-identifier-menu ul button:contains('check-journal')")
+        b.click("#journal-identifier-menu .pf-v6-c-menu-toggle__button")
+        b.wait_visible(".pf-v6-c-menu ul button:contains('check-journal')")
 
         # New messages are not streamed when 'until' is in the past
         m.execute("logger -p user.err --tag check-journal RIGHT NOW")
@@ -510,10 +510,10 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         def check_entry(msg, bin_msg):
             b.click(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
-            b.wait_text(".pf-v5-c-card__title", msg)
+            b.wait_text(".pf-v6-c-card__title", msg)
             wait_field("FOO", "bar")
             wait_field("BIN", bin_msg)
-            b.click('.pf-v5-c-breadcrumb li:first-of-type')
+            b.click('.pf-v6-c-breadcrumb li:first-of-type')
             b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
 
         m.execute(fr"printf 'MESSAGE={bin_data_short['MSG']}\nPRIORITY=3\nFOO=bar\nBIN={bin_data_short['BIN']}\n' | logger --journald")
@@ -531,7 +531,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         m.execute(r"printf 'PRIORITY=3\nFOO=bar\n' | logger --journald")
         self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
         b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')")
-        b.wait_text(".pf-v5-c-card__title", "[no data]")
+        b.wait_text(".pf-v6-c-card__title", "[no data]")
 
     @testlib.nondestructive
     def testLogLevel(self):

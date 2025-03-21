@@ -69,7 +69,7 @@ export function AccountLogs({ name }) {
     }, [name]);
 
     return (
-        <Card id="account-logs">
+        <Card isPlain id="account-logs">
             <CardTitle component="h2">{_("Login history")}</CardTitle>
             <CardBody className="contains-list">
                 <ListingTable variant="compact" aria-label={ _("Login history list") }

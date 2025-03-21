@@ -27,6 +27,14 @@ class TestRHEL8(testlib.MachineCase):
         "stock": {"address": "10.111.113.5/20", "image": "rhel-8-10", "memory_mb": 512}
     }
 
+    def logout_pf5(self, b):
+        b.switch_to_top()
+        b.wait_visible("#toggle-menu")
+        if (b.attr("#toggle-menu", "aria-expanded") != "true"):
+            b.click("#toggle-menu")
+        b.mouse('#logout', "click", scrollVisible=False)
+        b.wait_visible('#login')
+
     def test(self):
         dev_m = self.machine
         dev_b = self.browser
@@ -52,14 +60,15 @@ class TestRHEL8(testlib.MachineCase):
         dev_b.enter_page("/system")
         dev_b.wait_in_text(".ct-overview-header-hostname", "stock")
         dev_b.wait_in_text(".ct-overview-header-hostname", "running Red Hat Enterprise Linux 8")
-        dev_b.logout()
+        # Logout (needs PF5 selectors so we can't use logout())
+        self.logout_pf5(dev_b)
 
         # dev → stock: via shell Add host
         dev_b.login_and_go()
         dev_b.add_machine("10.111.113.5")
         dev_b.wait_in_text(".ct-overview-header-hostname", "stock")
         dev_b.wait_in_text(".ct-overview-header-hostname", "running Red Hat Enterprise Linux 8")
-        dev_b.logout()
+        self.logout_pf5(dev_b)
 
         dev_m.stop_cockpit()
         dev_b.kill()
@@ -75,7 +84,7 @@ class TestRHEL8(testlib.MachineCase):
         stock_b.wait_in_text("#hosts-sel", f"admin@{dev_hostname}")
         stock_b.enter_page("/system")
         stock_b.wait_in_text(".ct-overview-header-hostname", dev_hostname)
-        stock_b.logout()
+        self.logout_pf5(stock_b)
 
         # stock → dev: via shell Add host
         stock_b.login_and_go()

@@ -111,7 +111,7 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
         }
 
         return (
-            <Card>
+            <Card isPlain>
                 <CardHeader actions={{
                     actions: <>{progress_or_launch}<ActionButton comp={comp} progress={progress} action={action} /></>,
                 }}>
@@ -139,14 +139,14 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
 
     return (
         <Page id="app-page"
-              className="application-details">
-            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+              className="application-details no-masthead-sidebar">
+            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to="#/">{_("Applications")}</BreadcrumbItem>
                     <BreadcrumbItem isActive>{comp ? comp.name : id}</BreadcrumbItem>
                 </Breadcrumb>
             </PageBreadcrumb>
-            <PageSection>
+            <PageSection hasBodyWrapper={false}>
                 {render_comp()}
             </PageSection>
         </Page>

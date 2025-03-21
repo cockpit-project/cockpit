@@ -40,7 +40,7 @@ class TestStorageRaid1(storagelib.StorageCase):
         self.click_dropdown(self.card_header("Storage"), "Create MDRAID device")
         self.dialog_wait_open()
         # No swap block devices should show up
-        b.wait_not_in_text("#dialog .pf-v5-c-data-list", "zram")
+        b.wait_not_in_text("#dialog .pf-v6-c-data-list", "zram")
         self.dialog_set_val("level", "raid1")
         self.dialog_set_val("disks", {disk1: True, disk2: True})
         self.dialog_set_val("name", "SOMERAID")

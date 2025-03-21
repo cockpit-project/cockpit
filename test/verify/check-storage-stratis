@@ -119,7 +119,7 @@ class TestStorageStratis(storagelib.StorageCase):
         self.click_card_row("Storage", name="pool0")
         b.wait_text(self.card_desc("Stratis pool", "Name"), "pool0")
         b.wait_in_text(self.card_desc("Stratis pool", "Usage"), "8 GB")
-        b.wait_not_present('.pf-v5-c-alert')
+        b.wait_not_present('.pf-v6-c-alert')
 
         udisk_contains_stratis_private = "physical-originsub" in m.execute("udisksctl dump")
 
@@ -327,7 +327,7 @@ class TestStorageStratis(storagelib.StorageCase):
         # Check that there is no alert on the details page
         self.click_card_row("Storage", name="pool0")
         b.wait_visible(self.card("Encrypted Stratis pool"))
-        b.wait_not_present('.pf-v5-c-alert')
+        b.wait_not_present('.pf-v6-c-alert')
 
         m.execute(f"""
 JSON=$(sudo cryptsetup token export --token-id=1 {dev_1} \
@@ -341,7 +341,7 @@ systemctl restart stratisd
         b.wait_visible(self.card_row("Storage", name="pool0") + " .ct-icon-exclamation-triangle")
 
         self.click_card_row("Storage", name="pool0")
-        b.wait_visible('.pf-v5-c-alert:contains("This pool is in a degraded state")')
+        b.wait_visible('.pf-v6-c-alert:contains("This pool is in a degraded state")')
 
         b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
         self.dialog_wait_open()
@@ -442,9 +442,8 @@ systemctl restart stratisd
 
         sel = self.card_row("Stratis filesystems", name="fsys1")
         b.click(self.dropdown_toggle(sel))
-        b.wait_visible(self.dropdown_action(sel, "Snapshot") + "[disabled]")
-        b.wait_text(self.dropdown_description(sel, "Snapshot"),
-                    "Not enough free space")
+        b.wait_visible(self.dropdown_action("Snapshot") + "[disabled]")
+        b.wait_text(self.dropdown_description("Snapshot"), "Not enough free space")
         b.click(self.dropdown_toggle(sel))
 
         # Switch overprov on
@@ -656,7 +655,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.dialog_set_val('passphrase', "wrong-passphrase")
         self.dialog_apply()
         with b.wait_timeout(60):
-            b.wait_visible("#dialog .pf-v5-c-alert.pf-m-danger")
+            b.wait_visible("#dialog .pf-v6-c-alert.pf-m-danger")
         self.dialog_set_val('passphrase', passphrase)
         self.dialog_apply()
         self.dialog_wait_close()
@@ -803,9 +802,9 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         m.execute("lvresize vgroup0/lvol0 -L +100000256b")
         b.wait_visible(self.card_row("Storage", name="pool0") + ' .ct-icon-exclamation-triangle')
         self.click_card_row("Storage", name="pool0")
-        b.wait_visible('.pf-v5-c-alert:contains("This pool does not use all the space")')
+        b.wait_visible('.pf-v6-c-alert:contains("This pool does not use all the space")')
         b.click('button:contains("Grow the pool")')
-        b.wait_not_present('.pf-v5-c-alert')
+        b.wait_not_present('.pf-v6-c-alert')
         b.wait_in_text(self.card_desc("Stratis pool", "Usage"), "1.7 GB")
 
         b.go("#/")
@@ -862,8 +861,8 @@ class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase)
             b.wait_visible(self.card_row("Storage", name="pool0"))
         else:
             dropdown_toggle = self.dropdown_toggle(self.card_header("Storage"))
-            raid_action = self.dropdown_action(self.card_header("Storage"), "Create MDRAID device")
-            stratis_action = self.dropdown_action(self.card_header("Storage"), "Create Stratis pool")
+            raid_action = self.dropdown_action("Create MDRAID device")
+            stratis_action = self.dropdown_action("Create Stratis pool")
             b.click(dropdown_toggle)
             b.wait_visible(raid_action)
             b.wait_not_present(stratis_action)
@@ -927,7 +926,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
 
         b.assert_pixels(self.card("Encrypted Stratis pool"), "header",
-                        ignore=['.pf-v5-c-description-list__group:contains(UUID)'])
+                        ignore=['.pf-v6-c-description-list__group:contains(UUID)'])
 
         # Remove passphrase
         b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove)")

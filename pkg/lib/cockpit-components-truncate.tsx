@@ -35,8 +35,8 @@ export const Truncate = ({
     content: string,
 }) => {
     return (
-        <span className="pf-v5-c-truncate ct-no-truncate-min-width" {...props}>
-            <span className="pf-v5-c-truncate__start">
+        <span className="pf-v6-c-truncate ct-no-truncate-min-width" {...props}>
+            <span className="pf-v6-c-truncate__start">
                 {content}
             </span>
         </span>

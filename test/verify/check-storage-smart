@@ -42,6 +42,30 @@ class TestStorageSmart(storagelib.StorageSmartCase):
 
         return version > (2, 10, 1)
 
+    def has_new_libblockdev(self):
+        m = self.machine
+
+        if m.image.startswith("fedora") or m.image.startswith("rhel") or m.image.startswith("centos"):
+            version_str = self.machine.execute("rpm -q libblockdev --qf '%{NAME} %{VERSION}-%{RELEASE}\n'").strip()
+        elif m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            version_str = self.machine.execute("dpkg-query -f '${Package} ${Version}\n' --show libblockdev").strip()
+        elif m.image == "arch":
+            version_str = self.machine.execute("pacman -Q libblockdev").strip()
+        else:
+            return False
+
+        base_ver, sub_ver = version_str.split()[1].split('-')
+        base_ver = tuple(int(v) for v in base_ver.split('.'))
+        # split on `dot` to remove extra info from rpm
+        sub_ver = int(sub_ver.split('.')[0])
+
+        if base_ver > (3, 3, 0):
+            return True
+        elif base_ver == (3, 3, 0) and sub_ver >= 99:
+            return True
+        else:
+            return False
+
     def testSmart(self):
         def set_smart_dump(name: str, block: str):
             self.machine.execute(f"udisksctl smart-simulate -f /tmp/smart-dumps/{name} -b {block}")
@@ -53,8 +77,10 @@ class TestStorageSmart(storagelib.StorageSmartCase):
             b.wait_in_text(self.card_desc("Device health (SMART)", "Self-test status"), status)
             if bad_sectors is not None:
                 b.wait_in_text(self.card_desc("Device health (SMART)", "Number of bad sectors"), bad_sectors)
+                b.wait_visible(self.card_desc("Device health (SMART)", "Number of bad sectors") + " .pf-m-warning")
             if failing_attrs is not None:
                 b.wait_in_text(self.card_desc("Device health (SMART)", "Attributes failing"), failing_attrs)
+                b.wait_visible(self.card_desc("Device health (SMART)", "Attributes failing") + " .pf-m-warning")
 
         m = self.machine
         b = self.browser
@@ -82,17 +108,27 @@ class TestStorageSmart(storagelib.StorageSmartCase):
         set_smart_dump("INTEL_SSDSA2MH080G1GC--045C8820", "/dev/sda")
         check_smart_info("Disk is OK", "2309 hours", "Interrupted")
 
-        # Aborted self test and has known bad sector
+        # latest libblockdev builds (since 3.3.0-99) from copr have different behavior when assessing disk as failed
+        has_new_libblockdev = self.has_new_libblockdev()
+
+        # Aborted self test and has known bad sector (overall assessment is still OK)
         set_smart_dump("ST9160821AS--3.CLH", "/dev/sda")
-        check_smart_info("Disk is failing", "556 hours", "Aborted", bad_sectors="1")
+        if has_new_libblockdev:
+            check_smart_info("Disk is OK", "556 hours", "Aborted", bad_sectors="1")
+        else:
+            check_smart_info("Disk is failing", "556 hours", "Aborted", bad_sectors="1")
 
         # Multiple bad sectors
         set_smart_dump("Maxtor_96147H8--BAC51KJ0", "/dev/sda")
-        check_smart_info("Disk is failing", "2016 hours", "Successful", bad_sectors="71")
+        if has_new_libblockdev:
+            check_smart_info("Disk is OK", "2016 hours", "Successful", bad_sectors="71")
+        else:
+            check_smart_info("Disk is failing", "2016 hours", "Successful", bad_sectors="71")
 
         # Multiple bad sectors with failing attribute
         set_smart_dump("Maxtor_96147H8--BAC51KJ0--2", "/dev/sda")
         check_smart_info("Disk is failing", "2262 hours", "Successful", bad_sectors="71", failing_attrs="1")
+        b.wait_visible(self.card_desc("Device health (SMART)", "Assessment") + " .pf-m-danger")
 
         # Check that SMART card is not visible on DVD drive
         b.go("/storage")

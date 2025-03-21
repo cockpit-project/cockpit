@@ -53,8 +53,10 @@ class TestStorageSmart(storagelib.StorageSmartCase):
             b.wait_in_text(self.card_desc("Device health (SMART)", "Self-test status"), status)
             if bad_sectors is not None:
                 b.wait_in_text(self.card_desc("Device health (SMART)", "Number of bad sectors"), bad_sectors)
+                b.wait_visible(self.card_desc("Device health (SMART)", "Number of bad sectors") + " .pf-m-warning")
             if failing_attrs is not None:
                 b.wait_in_text(self.card_desc("Device health (SMART)", "Attributes failing"), failing_attrs)
+                b.wait_visible(self.card_desc("Device health (SMART)", "Attributes failing") + " .pf-m-warning")
 
         m = self.machine
         b = self.browser
@@ -82,17 +84,18 @@ class TestStorageSmart(storagelib.StorageSmartCase):
         set_smart_dump("INTEL_SSDSA2MH080G1GC--045C8820", "/dev/sda")
         check_smart_info("Disk is OK", "2309 hours", "Interrupted")
 
-        # Aborted self test and has known bad sector
+        # Aborted self test and has known bad sector (overall assessment is still OK)
         set_smart_dump("ST9160821AS--3.CLH", "/dev/sda")
-        check_smart_info("Disk is failing", "556 hours", "Aborted", bad_sectors="1")
+        check_smart_info("Disk is OK", "556 hours", "Aborted", bad_sectors="1")
 
         # Multiple bad sectors
         set_smart_dump("Maxtor_96147H8--BAC51KJ0", "/dev/sda")
-        check_smart_info("Disk is failing", "2016 hours", "Successful", bad_sectors="71")
+        check_smart_info("Disk is OK", "2016 hours", "Successful", bad_sectors="71")
 
         # Multiple bad sectors with failing attribute
         set_smart_dump("Maxtor_96147H8--BAC51KJ0--2", "/dev/sda")
         check_smart_info("Disk is failing", "2262 hours", "Successful", bad_sectors="71", failing_attrs="1")
+        b.wait_visible(self.card_desc("Device health (SMART)", "Assessment") + " .pf-m-danger")
 
         # Check that SMART card is not visible on DVD drive
         b.go("/storage")

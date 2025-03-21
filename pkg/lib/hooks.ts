@@ -24,7 +24,8 @@ import { dequal } from 'dequal/lite';
 
 /* HOOKS
  *
- * These are some custom React hooks for Cockpit specific things.
+ * These are some custom React hooks for Cockpit specific things and
+   for general utility.
  *
  * Overview:
  *
@@ -45,6 +46,10 @@ import { dequal } from 'dequal/lite';
  * - useDeepEqualMemo: A utility hook that can help with things that
  * need deep equal comparisons in places where React only offers
  * Object identity comparisons, such as with useEffect.
+ *
+ * - useStateObject: A specialization and combination of useObject and
+ * useEvent for a common pattern of managing state via objects instead
+ * of hooks.
  */
 
 /* - usePageLocation()
@@ -345,4 +350,78 @@ export function useOn<EM extends { [E in keyof EM]: (...args: never[]) => void }
 
 export function useInit<T, D extends Tuple>(func: () => T, deps?: D, comps?: Comparators<D>, destroy: ((value: T) => void) | null = null): T {
     return useObject(func, destroy, deps || [], comps);
+}
+
+/* - useStateObject(constructor, deps, comps)
+
+   There is a common pattern of defining a class to keep all your
+   complicated state (because hooks are only good for simple
+   situations that don't need conditions or loops), and have that
+   class emit signals to trigger re-renders.
+
+   This is abstracted away with the StateObject class and
+   useStateObject hook defined here.  The pattern is not really
+   difficult to implement, but this abstraction here makes it
+   official.
+
+   Use it like this:
+
+      class MyState extends StateObject {
+          constructor() {
+              super();
+              this.whatever = 12;
+          }
+
+          setWhatever(val) {
+              this.whatever = val;
+              this.update();
+          }
+      }
+
+      const MyComp = () => {
+          const state = useStateObject(() => new MyState());
+
+          return <span>{state.whatever}</span>;
+      }
+
+   This call to "this.update" in "setWhatever" will cause a re-render
+   of MyComp.
+
+   There are some more features:
+
+   - When a state object should be disposed off, its "close" method is
+     called.  This method should close all open channels etc.
+
+   - If you want to combine state objects into a larger one, the
+     larger one can call "follow" on its sub-objects.  This will
+     invoke a given callback and the larger object can update itself
+     based on the sub-object. (This is really just a thin wrapper
+     around "EventEmitter.on").
+
+  This is all really not a lot of code, but when using these helpers,
+  it keeps the focus on the actual state and away from the mechanics
+  of how to trigger a render.
+*/
+
+interface StateObjectSignals {
+    render() : void;
+}
+
+export class StateObject extends EventEmitter<StateObjectSignals> {
+    update() {
+        this.emit("render");
+    }
+
+    follow(obj: StateObject, callback: () => void) {
+        return obj.on("render", callback || (() => this.update()));
+    }
+
+    close() {
+    }
+}
+
+export function useStateObject<D extends Tuple>(create: () => StateObject, deps?: D, comps?: Comparators<D>) {
+    const state = useObject(create, obj => obj.close(), deps || [], comps);
+    useOn(state, "render");
+    return state;
 }

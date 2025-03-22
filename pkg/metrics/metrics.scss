@@ -8,72 +8,56 @@
 
 // colors for PF charts
 @import "@patternfly/patternfly/patternfly-charts.css";
-@import "@patternfly/patternfly/patternfly-charts-theme-dark.css";
 
 #app {
-  section.pf-v5-c-page__main-breadcrumb {
-    padding-block-end: var(--pf-v5-c-page__main-breadcrumb--PaddingTop);
+  section.pf-v6-c-page__main-breadcrumb {
+    padding-block-end: var(--pf-v6-c-page__main-breadcrumb--PaddingBlockStart);
   }
 }
 
 html {
-  --metrics-heading-time-color: var(--pf-v5-global--BackgroundColor--light-100);
-  --resource-icon-color-empty: var(--pf-v5-global--palette--black-400);
-  --resource-icon-color-middle: var(--pf-v5-global--palette--orange-200);
-  --resource-icon-color-full: var(--pf-v5-global--palette--orange-400);
-}
-
-.pf-v5-theme-dark {
-  --metrics-heading-time-color: var(--pf-v5-global--BackgroundColor--300);
-  --metrics-events-border-color: #000;
-  --resource-icon-color-empty: var(--pf-v5-global--palette--black-400);
-  --resource-icon-color-middle: var(--pf-v5-global--palette--orange-500);
-  --resource-icon-color-full: var(--pf-v5-global--palette--orange-200);
-
-  // Adjust alert color to separate itself from the history section background
-  .pf-v5-c-alert {
-    --pf-v5-c-alert--m-inline--m-info--BackgroundColor: var(--pf-v5-global--BackgroundColor--dark-400);
-  }
+  --resource-icon-color-empty: var(--pf-t--global--border--color--nonstatus--gray--default);
+  --resource-icon-color-middle: var(--pf-t--global--background--color--highlight--default);
+  --resource-icon-color-full: var(--pf-t--global--icon--color--status--warning--default);
 }
 
 // Remove doubled-up padding on "main" sections, when two+ sections are used.
-.pf-v5-c-page__main-section + .pf-v5-c-page__main-section {
+.pf-v6-c-page__main-section + .pf-v6-c-page__main-section {
   padding-block-start: 0;
 }
 
 // FIXME: More styles from ct-system-overview
 .current-metrics {
   --card-width: 200px;
-  --pf-v5-l-gallery--GridTemplateColumns: repeat(auto-fit, minmax(var(--card-width), 1fr));
+  --pf-v6-l-gallery--GridTemplateColumns: repeat(auto-fit, minmax(var(--card-width), 1fr));
 
   // the cards already have padding, align the "top 5" tables with the other content
-  .pf-v5-c-table {
-    --pf-v5-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
-    --pf-v5-c-table--m-compact--cell--first-last-child--PaddingRight: 0;
+  .pf-v6-c-table {
+    --pf-v6-c-table--cell--first-last-child--PaddingInline: 0;
 
     tr > * {
-      --pf-v5-c-table--cell--PaddingTop: var(--pf-v5-global--spacer--xs);
-      --pf-v5-c-table--cell--PaddingBottom: var(--pf-v5-global--spacer--xs);
+      --pf-v6-c-table--cell--PaddingBlockStart: var(--pf-t--global--spacer--xs);
+      --pf-v6-c-table--cell--PaddingBlockEnd: var(--pf-t--global--spacer--xs);
     }
   }
 
-  .pf-v5-c-card {
-    // Make sure the cards do not get taller than 50% of the screen
-    // ...and when they do, they should scroll
-    @media screen and (orientation: landscape) {
-      max-block-size: 50vh;
-      overflow: auto;
-    }
-
+  .pf-v6-c-card {
     &__title-text {
-      font-size: var(--pf-v5-global--FontSize--xl);
-      font-weight: var(--pf-v5-global--FontWeight--normal);
+      font-size: var(--pf-t--global--font--size--xl);
+      font-weight: var(--pf-t--global--font--weight--body);
     }
 
     // Let the children get flexy
     &__body {
       display: flex;
       flex-direction: column;
+
+      // Make sure the cards do not get taller than 50% of the screen
+      // ...and when they do, they should scroll
+      @media screen and (orientation: landscape) {
+        max-block-size: 50vh;
+        overflow: auto;
+      }
 
       // Strip the padding from the first item,
       // including table headings
@@ -82,8 +66,8 @@ html {
         padding-block-start: 0;
       }
 
-      .pf-v5-c-table thead th:not(:first-child),
-      .pf-v5-c-table tbody td:not(:first-child) {
+      .pf-v6-c-table thead th:not(:first-child),
+      .pf-v6-c-table tbody td:not(:first-child) {
         text-align: end;
       }
     }
@@ -93,42 +77,42 @@ html {
     }
 
     .text-color-warning {
-      color: var(--pf-v5-global--warning-color--200);
+      color: var(--pf-t--global--text--color--status--warning--default);
     }
 
     .icon-color-warning {
-      color: var(--pf-v5-global--warning-color--100);
+      color: var(--pf-t--global--icon--color--status--warning--default);
     }
 
     .text-color-critical {
-      color: var(--pf-v5-global--danger-color--200);
+      color: var(--pf-t--global--text--color--status--danger--default);
     }
 
     .icon-color-critical {
-      color: var(--pf-v5-global--danger-color--100);
+      color: var(--pf-t--global--icon--color--status--danger--default);
     }
 
     .progress-stack {
       display: grid;
-      padding-block-end: var(--pf-v5-global--spacer--sm);
-      grid-gap: var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--md);
+      padding-block-end: var(--pf-t--global--spacer--sm);
+      grid-gap: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
 
       &:not(:first-child) {
-        padding-block-start: var(--pf-v5-global--spacer--sm);
+        padding-block-start: var(--pf-t--global--spacer--sm);
       }
     }
 
     .progress-stack-no-space {
       display: grid;
-      padding-block-end: var(--pf-v5-global--spacer--sm);
+      padding-block-end: var(--pf-t--global--spacer--sm);
       grid-gap: 0;
 
       &:not(:first-child) {
-        padding-block-start: var(--pf-v5-global--spacer--sm);
+        padding-block-start: var(--pf-t--global--spacer--sm);
       }
 
       // avoid the "x" icon on high CPU usage
-      .pf-v5-c-progress__status-icon {
+      .pf-v6-c-progress__status-icon {
         display: none;
       }
 
@@ -142,69 +126,74 @@ html {
     // Stretch the progress stack and description list so they fill up remaining space.
     // This pushes the (unflexing) tables to the bottom.
     .progress-stack,
-    .pf-v5-c-description-list {
+    .pf-v6-c-description-list {
       flex: 1 1 0;
       align-content: start;
     }
 
     // When progress stack and description list are used sequentially,
     // give the most space to the latter of the two elements.
-    .progress-stack + .pf-v5-c-description-list,
-    .pf-v5-c-description-list + .progress-stack {
+    .progress-stack + .pf-v6-c-description-list,
+    .pf-v6-c-description-list + .progress-stack {
       flex-basis: 100%;
     }
 
     // WebKit is a little wonky with flex sizing; it needs specific instructions here
-    .pf-v5-c-description-list:first-child {
+    .pf-v6-c-description-list:first-child {
       flex-grow: 0;
     }
 
-    .pf-v5-c-description-list__description {
-      font-size: var(--pf-v5-global--FontSize--sm);
+    .pf-v6-c-description-list__description {
+      font-size: var(--pf-t--global--font--size--sm);
     }
   }
 
   // Shrink progress bars and their gap a little
-  .pf-v5-c-progress {
+  .pf-v6-c-progress {
     grid-gap: 0;
-    --pf-v5-c-progress__bar--Height: var(--pf-v5-global--spacer--xs);
+    --pf-v6-c-progress__bar--Height: var(--pf-t--global--spacer--xs);
     // PF4 uses end; it probably should arguably use last baseline.
     // (perhaps end may work better for non-text content?)
     align-items: last baseline;
 
-    + .pf-v5-c-progress {
+    + .pf-v6-c-progress {
       // Add a tiny gap for sandwiched usage bars (as in CPU)
       padding-block-start: 1px;
     }
   }
 
   // Only underline the description
-  .pf-v5-c-button.pf-m-link.pf-m-inline:hover {
-    text-decoration: none;
+  .pf-v6-c-button.pf-m-link.pf-m-inline {
+    --pf-v6-c-button--TextDecorationLine: var(--pf-t--global--text-decoration--line--100);
+    --pf-v6-c-button--hover--TextDecorationLine: var(--pf-t--global--text-decoration--line--100);
 
-    .pf-v5-c-progress__description {
-      text-decoration: var(--pf-v5-c-button--m-link--m-inline--hover--TextDecoration);
+    &:hover .pf-v6-c-progress__description {
+      text-decoration: var(--pf-t--global--text-decoration--line--200);
     }
   }
 
+  .pf-v6-c-button .pf-v6-c-button__text {
+    flex: auto;
+  }
+
   // Match font weight with description list terms
-  .pf-v5-c-progress__description {
-    font-weight: var(--pf-v5-global--FontWeight--bold);
+  .pf-v6-c-progress__description {
+    font-weight: var(--pf-t--global--font--weight--300);
   }
 
   // Recolor text
   .pf-m-link {
     &, &:hover {
-      .pf-v5-c-progress__measure {
-        color: var(--pf-v5-global--Color--100);
+      .pf-v6-c-progress__measure {
+        color: var(--pf-t--global--text--color--regular);
       }
     }
   }
 
   // default is way too wide for the cards
-  .pf-v5-c-description-list {
-    --pf-v5-c-description-list--m-horizontal__term--width: minmax(0, auto);
-    --pf-v5-c-description-list--m-horizontal__description--width: minmax(0, auto);
+  .pf-v6-c-description-list {
+    --pf-v6-c-description-list--m-horizontal__term--width: minmax(0, auto);
+    --pf-v6-c-description-list--m-horizontal__description--width: minmax(0, auto);
   }
 
   // Don't wrap network in / out data
@@ -214,7 +203,7 @@ html {
   .network-nowrap-shrink {
     td {
       white-space: nowrap;
-      font-size: var(--pf-v5-global--FontSize--xs);
+      font-size: var(--pf-t--global--size--font--xs);
     }
   }
 
@@ -224,31 +213,20 @@ html {
     inline-size: 2rem;
     min-inline-size: 0;
 
-    .pf-v5-c-table__text {
-      --pf-v5-c-table--cell--MinWidth: 0;
+    .pf-v6-c-table__text {
+      --pf-v6-c-table--cell--MinWidth: 0;
       display: inline;
     }
   }
 
-  .pf-m-grid-lg.pf-v5-c-table {
+  .pf-m-grid-lg.pf-v6-c-table {
     tbody:first-of-type {
       border-block-start: none;
     }
 
-    tbody tr:not(.pf-v5-c-table__expandable-row) {
-      --pf-v5-c-table-tr--responsive--PaddingTop: var(--pf-v5-global--spacer--sm);
-      --pf-v5-c-table-tr--responsive--PaddingRight: 0;
-      --pf-v5-c-table-tr--responsive--PaddingBottom: var(--pf-v5-global--spacer--sm);
-      --pf-v5-c-table-tr--responsive--PaddingLeft: 0;
-      --pf-v5-c-table-tr--responsive--border-width--base: 1px;
-
+    tbody tr:not(.pf-v6-c-table__expandable-row) {
       &:last-child {
         border-block-end: none;
-      }
-
-      > * {
-        --pf-v5-c-table--cell--responsive--PaddingTop: 0;
-        --pf-v5-c-table--cell--responsive--PaddingBottom: 0;
       }
     }
   }
@@ -262,7 +240,7 @@ html {
   }
 }
 
-.pf-v5-c-popover {
+.pf-v6-c-popover {
   thead th:not(:first-child) {
     text-align: end;
   }
@@ -283,31 +261,30 @@ html {
     --card-width: 200px;
   }
 
-  .current-metrics .pf-v5-c-card__body {
+  .current-metrics .pf-v6-c-card__body {
     overflow-block: auto;
     max-block-size: 50vw;
   }
 
   // Trim down the gutter space between cards
-  .current-metrics.pf-v5-l-gallery.pf-m-gutter {
-    grid-gap: var(--pf-v5-global--spacer--sm);
+  .current-metrics.pf-v6-l-gallery.pf-m-gutter {
+    grid-gap: var(--pf-t--global--spacer--sm);
   }
 
   // Shave off a few pixels from cards
-  .pf-v5-c-card__header, .pf-v5-c-card__title, .pf-v5-c-card__body, .pf-v5-c-card__footer {
-    --pf-v5-c-card--first-child--PaddingTop: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-card__title--not--last-child--PaddingBottom: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-card--child--PaddingTop: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-card--child--PaddingRight: var(--pf-v5-global--spacer--md);
-    --pf-v5-c-card--child--PaddingBottom: var(--pf-v5-global--spacer--sm);
-    --pf-v5-c-card--child--PaddingLeft: var(--pf-v5-global--spacer--md);
+  .pf-v6-c-card__header, .pf-v6-c-card__title, .pf-v6-c-card__body, .pf-v6-c-card__footer {
+    --pf-v6-c-card--first-child--PaddingBlockStart: var(--pf-t--global--spacer--sm);
+    --pf-v6-c-card__title--not--last-child--PaddingBlockEnd: var(--pf-t--global--spacer--sm);
+    --pf-v6-c-card--child--PaddingBlockEnd: var(--pf-t--global--spacer--sm);
+    --pf-v6-c-card--child--PaddingInlineStart: var(--pf-t--global--spacer--md);
+    --pf-v6-c-card--child--PaddingInlineEnd: var(--pf-t--global--spacer--md);
   }
 }
 
 // Change progress layout in medium sizes
 @media (min-width: 460px) and (max-width: 1200px) {
   // Stack description lists (instead of grid)
-  .pf-v5-c-description-list__group {
+  .pf-v6-c-description-list__group {
     display: block;
   }
 }
@@ -318,10 +295,10 @@ html {
     grid-column: 1 / -1;
 
     // Reflow interfaces horizontally, with wrapping
-    .pf-v5-c-table > tbody {
+    .pf-v6-c-table > tbody {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
-      grid-gap: 0 var(--pf-v5-global--spacer--lg);
+      grid-gap: 0 var(--pf-t--global--spacer--lg);
     }
   }
 }
@@ -329,17 +306,17 @@ html {
 $graphs: cpu, memory, disks, network;
 
 .metrics {
-  --cpu-color: var(--pf-v5-chart-color-purple-200);
-  --cpu-color-extreme: var(--pf-v5-chart-color-purple-300);
+  --cpu-color: var(--pf-t--global--border--color--nonstatus--purple--default);
+  --cpu-color-extreme: var(--pf-t--global--border--color--nonstatus--purple--clicked);
 
-  --memory-color: var(--pf-v5-chart-color-green-200);
-  --memory-color-extreme: var(--pf-v5-chart-color-green-300);
+  --memory-color: var(--pf-t--global--border--color--nonstatus--green--default);
+  --memory-color-extreme: var(--pf-t--global--icon--color--status--success--default);
 
-  --disks-color: var(--pf-v5-chart-color-gold-300);
-  --disks-color-extreme: var(--pf-v5-chart-color-gold-400);
+  --disks-color: var(--pf-t--global--icon--color--status--warning--default);
+  --disks-color-extreme: var(--pf-t--global--icon--color--status--warning--clicked);
 
-  --network-color: var(--pf-v5-chart-color-black-300);
-  --network-color-extreme: var(--pf-v5-chart-color-black-400);
+  --network-color: var(--pf-t--global--icon--color--severity--undefined--default);
+  --network-color-extreme: var(--pf-t--global--icon--color--disabled);
 
   --column-size: 10vw;
   --half-column-size: 8vw;
@@ -347,29 +324,13 @@ $graphs: cpu, memory, disks, network;
 
   --graph-column-size: 60%;
 
-  .pf-v5-theme-dark & {
-    --cpu-color: var(--pf-v5-chart-color-purple-500);
-    --cpu-color-extreme: var(--pf-v5-chart-color-purple-300);
-
-    --memory-color: var(--pf-v5-chart-color-green-500);
-    --memory-color-extreme: var(--pf-v5-chart-color-green-400);
-
-    --disks-color: var(--pf-v5-chart-color-gold-500);
-    --disks-color-extreme: var(--pf-v5-chart-color-gold-300);
-
-    --network-color: var(--pf-v5-chart-color-black-400);
-    --network-color-extreme: var(--pf-v5-chart-color-black-300);
-  }
-
   &-hour-compressed {
     --data-min-height: 1px;
     display: flex;
-    background-color: var(--pf-v5-global--BackgroundColor--light-300);
   }
 
   &-heading,
   &-hour:not(.metrics-hour-compressed) .metrics-minute {
-    background-color: var(--pf-v5-global--BackgroundColor--light-300);
     display: flex;
   }
 
@@ -389,12 +350,12 @@ $graphs: cpu, memory, disks, network;
     }
   }
 
-  &-sublabels.pf-v5-c-content {
+  &-sublabels.pf-v6-c-content {
     display: flex;
 
     small {
-      font-size: var(--pf-v5-global--FontSize--xs);
-      margin-block-end: var(--pf-v5-global--spacer--xs) !important;
+      font-size: var(--pf-t--global--font--size--xs);
+      margin-block-end: var(--pf-t--global--spacer--xs) !important;
     }
   }
 
@@ -431,21 +392,21 @@ $graphs: cpu, memory, disks, network;
 
   &-events {
     display: flex;
-    column-gap: var(--pf-v5-global--spacer--sm);
+    column-gap: var(--pf-t--global--spacer--sm);
     flex-basis: calc(100% - var(--graph-column-size));
     align-items: baseline;
-    font-size: var(--pf-v5-global--FontSize--sm);
+    font-size: var(--pf-t--global--font--size--sm);
 
     &-expander {
       min-inline-size: 3rem;
     }
 
     time:first-child {
-      margin-inline-start: calc(3rem + var(--pf-v5-global--spacer--sm));
+      margin-inline-start: calc(3rem + var(--pf-t--global--spacer--sm));
 
       + .spikes_count {
-        padding-inline-start: calc(var(--pf-v5-global--spacer--xl) + var(--pf-v5-global--spacer--md));
-        color: var(--pf-v5-global--Color--200);
+        padding-inline-start: calc(var(--pf-t--global--spacer--xl) + var(--pf-t--global--spacer--md));
+        color: var(--pf-t--global--text--color--subtle);
       }
     }
 
@@ -461,7 +422,7 @@ $graphs: cpu, memory, disks, network;
     }
 
     > * {
-      line-height: var(--pf-v5-global--LineHeight--md);
+      line-height: var(--pf-t--global--font--line-height--heading);
     }
 
     > *:not(.metrics-events-expander):not(:last-child) {
@@ -475,7 +436,7 @@ $graphs: cpu, memory, disks, network;
 
     // Just embolden the top level time events
     button + time {
-      font-weight: var(--pf-v5-global--FontWeight--bold);
+      font-weight: var(--pf-t--global--font--weight--300);
     }
 
     // Make messages such as `Loading...` or `No logs found` centered
@@ -492,12 +453,11 @@ $graphs: cpu, memory, disks, network;
 
   &-time,
   &-heading {
-    padding-inline: var(--pf-v5-c-page__main-section--PaddingLeft) var(--pf-v5-c-page__main-section--PaddingRight);
+    padding-inline: var(--pf-v6-c-page__main-section--PaddingBlockStart) var(--pf-v6-c-page__main-section--PaddingBlockEnd);
   }
 
   &-time {
-    background: var(--metrics-heading-time-color);
-    padding-block: var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--sm);
+    padding-block: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--sm);
 
     // Time has tabular numbers, but it's not what we want for a heading
     time {
@@ -510,7 +470,6 @@ $graphs: cpu, memory, disks, network;
   }
 
   &-history {
-    background-color: var(--pf-v5-global--BackgroundColor--light-300);
     padding: 0;
   }
 
@@ -521,7 +480,7 @@ $graphs: cpu, memory, disks, network;
     display: grid;
     contain: strict;
     margin-block: 0;
-    margin-inline: var(--pf-v5-global--spacer--sm);
+    margin-inline: var(--pf-t--global--spacer--sm);
     // Make SVG and generated before/after line position relative to metrics-data
     position: relative;
     grid-template-areas: "utilization";
@@ -630,7 +589,7 @@ $graphs: cpu, memory, disks, network;
 
   &-hour {
     padding-block: 0;
-    padding-inline: var(--pf-v5-global--spacer--sm);
+    padding-inline: var(--pf-t--global--spacer--sm);
   }
 
   &-hour:not(.metrics-hour-compressed) .metrics-minute,
@@ -644,7 +603,7 @@ $graphs: cpu, memory, disks, network;
     }
   }
 
-  .pf-v5-c-card__body:first-child {
+  .pf-v6-c-card__body:first-child {
     padding-block-start: 0;
   }
 }
@@ -652,7 +611,7 @@ $graphs: cpu, memory, disks, network;
 // Graph column labels are the widest part; scale down the labels for narrow widths
 @media (min-width: 800px) and (max-width: 1200px) {
   .metrics-label-graph {
-    font-size: var(--pf-v5-global--FontSize--sm);
+    font-size: var(--pf-t--global--font--size--sm);
   }
 }
 
@@ -679,9 +638,9 @@ $graphs: cpu, memory, disks, network;
   }
 
   .metrics-label-graph-mobile {
-    padding-inline-start: var(--pf-v5-global--spacer--sm);
-    padding-block-start: var(--pf-v5-global--spacer--sm);
-    font-size: var(--pf-v5-global--FontSize--sm);
+    padding-inline-start: var(--pf-t--global--spacer--sm);
+    padding-block-start: var(--pf-t--global--spacer--sm);
+    font-size: var(--pf-t--global--font--size--sm);
   }
 
   .square {
@@ -727,19 +686,19 @@ $graphs: cpu, memory, disks, network;
   }
 
   // leave some space for the focus rings
-  .pf-v5-c-switch {
+  .pf-v6-c-switch {
     margin-block-end: 10px;
   }
 }
 
 .cpu-all {
-  --pf-v5-l-grid--m-gutter--GridGap: var(--pf-v5-global--spacer--xs) var(--pf-v5-global--spacer--md);
+  --pf-v6-l-grid--m-gutter--GridGap: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--md);
   // Mixing font families need to be aligned properly (to the baseline)
   align-items: baseline;
   // In monospaced text, "100%" is 4 characters
   grid-template-columns: 1fr minmax(4ch, auto);
 
-  > .pf-v5-l-grid__item {
+  > .pf-v6-l-grid__item {
     // Don't use PF's hardcoded 12-column grid
     grid-column: auto;
   }
@@ -747,7 +706,7 @@ $graphs: cpu, memory, disks, network;
   > dd {
     // TODO: Use tabular numbers instead of monospace,
     // after new font usage is enabled
-    font-family: var(--pf-v5-global--FontFamily--monospace);
+    font-family: var(--pf-t--global--font--family--mono);
     // Aligning percentages to the right, especially when monospaced,
     // makes  it easier to see high percentages
     text-align: end;
@@ -757,12 +716,6 @@ $graphs: cpu, memory, disks, network;
 .current-cpu-usage:not(:last-child) {
   // Bump CPU average above CPU max
   z-index: 1;
-
-  // Make the background transparent, so CPU max shows through
-  .pf-v5-c-progress__bar {
-    --pf-v5-c-progress__bar--BackgroundColor: transparent;
-    --pf-v5-c-progress__bar--before--Opacity: 0;
-  }
 }
 
 .current-top-cpu-usage {
@@ -771,7 +724,7 @@ $graphs: cpu, memory, disks, network;
 
   // Lighten up the default bar
   &:not(.pf-m-danger):not(.pf-m-warning) {
-    .pf-v5-c-progress__indicator {
+    .pf-v6-c-progress__indicator {
       opacity: 0.33;
     }
   }
@@ -792,15 +745,15 @@ $graphs: cpu, memory, disks, network;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   display: webkit-box; /* stylelint-disable-line */
-  color: var(--pf-v5-global--active-color--100);
+  color: var(--pf-t--global--text--color--link--default);
 }
 
 // Log warning icon is incorrectly aligned (especially when messages wrap);
 // this fixes it by realigning and offsetting
 .cockpit-log-warning {
-  transform: translateY(calc((var(--pf-v5-global--spacer--md) - 22px) / -2));
+  transform: translateY(calc((var(--pf-t--global--spacer--md) - 22px) / -2));
   margin: 0;
-  margin-inline-end: var(--pf-v5-global--spacer--xs);
+  margin-inline-end: var(--pf-t--global--spacer--xs);
   align-self: baseline;
 }
 
@@ -812,9 +765,9 @@ $graphs: cpu, memory, disks, network;
     margin: 0;
   }
 
-  .pf-v5-c-popover__content {
+  .pf-v6-c-popover__content {
     // Remove extra whitespace in the modal
-    --pf-v5-c-popover--c-button--sibling--PaddingRight: 0;
+    --pf-v6-c-popover__close--sibling--PaddingInlineEnd: 0;
   }
 }
 
@@ -825,7 +778,7 @@ $graphs: cpu, memory, disks, network;
       max-block-size: 65vw;
     }
 
-    .pf-v5-c-popover__content {
+    .pf-v6-c-popover__content {
       // Limit the width of the popover in desktop mode
       max-inline-size: max(30rem, 40vw);
     }
@@ -841,23 +794,14 @@ $graphs: cpu, memory, disks, network;
     max-block-size: 100%;
     min-block-size: 25vh;
 
-    .pf-v5-c-popover__content {
+    .pf-v6-c-popover__content {
       // Limit the width of the popover in desktop mode
       max-inline-size: max(100vw);
     }
 
     // As a sheet at the bottom, it doesn't point to anything
-    .pf-v5-c-popover__arrow {
+    .pf-v6-c-popover__arrow {
       display: none;
     }
   }
-}
-
-/* Menu toggles are transparent in light mode (but not in dark
-   mode). This makes them white on a white page (fine), but grey in a
-   grey toolbar. The deprecated Select had a white background. Let's
-   make MenuToggles match.
-*/
-html:not(.pf-v5-theme-dark) .pf-v5-c-menu-toggle:not(.pf-m-primary) {
-    background-color: var(--pf-v5-global--BackgroundColor--100);
 }

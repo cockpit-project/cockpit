@@ -24,7 +24,7 @@ import React from "react";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
@@ -41,8 +41,8 @@ export const EarlyFailure = () => {
 
     return (
         <div id="early-failure" className="early-failure">
-            <Page>
-                <PageSection variant={PageSectionVariants.light}>
+            <Page className='no-masthead-sidebar'>
+                <PageSection hasBodyWrapper={false}>
                     <EmptyStatePanel icon={ExclamationCircleIcon}
                                      title={ _("Connection failed") }
                                      paragraph={
@@ -82,7 +82,7 @@ const EarlyFailureReady = ({
     return (
         <div id="early-failure-ready" className="curtains-ct">
             <Page>
-                <PageSection variant={PageSectionVariants.light}>
+                <PageSection hasBodyWrapper={false}>
                     <EmptyStatePanel {... !loading ? { icon: ExclamationCircleIcon } : {} }
                                      loading={loading}
                                      title={title}

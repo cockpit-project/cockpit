@@ -5,25 +5,20 @@
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 @import "global-variables.scss";
 
-#account .pf-v5-c-card {
+#account .pf-v6-c-card {
   @extend .ct-card;
 }
 
-.account-details .pf-v5-c-card__header {
-  margin-block-end: var(--pf-v5-global--spacer--lg);
+.account-details .pf-v6-c-card__header {
+  margin-block-end: var(--pf-t--global--spacer--lg)
 }
 
-#account .pf-v5-l-gallery {
-  --pf-v5-l-gallery--GridTemplateColumns: 1fr;
-}
-
-#account .pf-v5-c-page__main-section,
-#account .pf-v5-c-page__main-nav {
-  padding: var(--pf-v5-global--gutter);
+#account .pf-v6-l-gallery {
+  --pf-v6-l-gallery--GridTemplateColumns: 1fr;
 }
 
 .delete-resource-red {
-  color: var(--pf-v5-global--danger-color--200);
+  color: var(--pf-t--global--icon--color--status--danger--default);
 }
 
 #account-details div.checkbox:first-child {
@@ -52,12 +47,12 @@
   display: inline-block;
 }
 
-.expiration-modal .pf-v5-c-form__group-control {
-  .pf-v5-c-radio:first-child {
-    padding-block-end: var(--pf-v5-global--spacer--sm);
+.expiration-modal .pf-v6-c-form__group-control {
+  .pf-v6-c-radio:first-child {
+    padding-block-end: var(--pf-t--global--spacer--sm);
   }
   // Work around for https://github.com/patternfly/patternfly/issues/4061
-  .pf-v5-c-radio:nth-child(2) input {
+  .pf-v6-c-radio:nth-child(2) input {
     align-self: center;
   }
 }
@@ -67,11 +62,11 @@
 }
 
 .outline-question-circle-icon {
-  margin-inline-start: var(--pf-v5-global--spacer--sm);
+  margin-inline-start: var(--pf-t--global--spacer--sm);
 }
 
-.accounts-toolbar-header > .pf-v5-c-toolbar__content-section {
-  row-gap: var(--pf-v5-global--spacer--sm);
+.accounts-toolbar-header > .pf-v6-c-toolbar__content-section {
+  row-gap: var(--pf-t--global--spacer--sm);
 }
 
 .dot {
@@ -82,39 +77,51 @@
 }
 
 // Iterate through supported PF color names for light and dark modes
-@each $color in cyan gold {
+@each $color in blue yellow {
   .group-#{"" + $color} {
-    background-color: var(--pf-v5-global--palette--#{$color}-100);
+    background-color: var(--pf-t--color--#{$color}--30);
 
-    .pf-v5-theme-dark & {
-      background-color: var(--pf-v5-global--palette--#{$color}-300);
+    .pf-v6-theme-dark & {
+      background-color: var(--pf-t--color--#{$color}--40);
     }
   }
 }
-// PF adapts this color properly across light and dark
+
+.group-blue {
+  background-color: var(--pf-t--global--color--nonstatus--blue--default);
+}
+
+.group-yellow {
+  background-color: var(--pf-t--global--color--nonstatus--yellow--default);
+}
+
 .group-grey {
-  background-color: var(--pf-v5-global--BorderColor--100);
+  background-color: var(--pf-t--global--color--nonstatus--gray--default);
 }
 
 .group-more-btn {
-  font-size: var(--pf-v5-global--FontSize--sm);
+  font-size: var(--pf-t--global--font--size--body--default);
 }
 
 #groups-list td:first-child {
   vertical-align: middle;
 }
 
-#groups-create, #account-create {
+// Create new group and Create new account are
+// different characters and different lengths
+// This makes buttons the same size.
+#groups-create, #accounts-create {
   min-inline-size: 11rem;
 }
 
-#group-confirm-delete-dialog .list-item {
-  margin-inline-end: var(--pf-v5-global--spacer--lg);
-}
+// @Venefilyn: Seemingly does nothing atm
+// #group-confirm-delete-dialog .list-item {
+//   margin-inline-end: var(--pf-t--global--spacer--lg);
+// }
 
-// We cannot use the PF helper pf-v5-u-ml-lg here, as it doesn't support RTL yet
+// We cannot use the PF helper pf-v6-u-ml-lg here, as it doesn't support RTL yet
 #current-account-badge {
-  margin-inline-start: var(--pf-v5-global--spacer--lg);
+  margin-inline-start: var(--pf-t--global--spacer--lg);
 }
 
 // Pretty sure paths are LTR, even in an RTL display

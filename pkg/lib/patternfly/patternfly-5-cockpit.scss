@@ -1,9 +1,0 @@
-/* Set fake font and icon path variables */
-$pf-v5-global--font-path: "patternfly-fonts-fake-path";
-$pf-v5-global--fonticon-path: "patternfly-icons-fake-path";
-$pf-v5-global--disable-fontawesome: true !default; // Disable Font Awesome 5 Free
-
-@import "@patternfly/patternfly/patternfly-base.scss";
-
-/* Import our own fonts since the PF4 font-face rules are filtered out in build.js */
-@import "./fonts";

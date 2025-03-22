@@ -29,6 +29,7 @@ import { superuser } from "superuser";
 import insights_poll_hack_sh from "./insights-poll-hack.sh";
 
 import "./insights.scss";
+import { Icon } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 
@@ -159,7 +160,7 @@ export class InsightsStatus extends React.Component {
                 return (
                     <li className="system-health-insights">
                         <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                            <ExclamationTriangleIcon className="ct-exclamation-triangle" />
+                            <Icon status='warning'><ExclamationTriangleIcon className="ct-exclamation-triangle" /></Icon>
                             <Button isInline variant="link" component="a" onClick={ev => { ev.preventDefault(); cockpit.jump("/subscriptions") }}>
                                 {_("Not connected to Insights")}
                             </Button>
@@ -181,7 +182,7 @@ export class InsightsStatus extends React.Component {
         if (this.state.hits) {
             const n = this.state.hits.n;
             if (n == 0) {
-                icon = <CheckIcon className="ct-check-circle" />;
+                icon = <Icon status='success'><CheckIcon className="ct-check-circle" /></Icon>;
                 text = _("No rule hits");
             } else {
                 const by_risk = this.state.hits.n_by_risk;

@@ -70,13 +70,13 @@ export const mount_explanation = {
     local:
     <FormHelperText>
         <HelperText>
-            <HelperTextItem hasIcon>
+            <HelperTextItem>
                 {_("Mounts before services start")}
             </HelperTextItem>
-            <HelperTextItem hasIcon>
+            <HelperTextItem>
                 {_("Appropriate for critical mounts, such as /var")}
             </HelperTextItem>
-            <HelperTextItem hasIcon icon={<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />}>
+            <HelperTextItem icon={<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />}>
                 {_("Boot fails if filesystem does not mount, preventing remote access")}
             </HelperTextItem>
         </HelperText>
@@ -84,10 +84,10 @@ export const mount_explanation = {
     nofail:
     <FormHelperText>
         <HelperText>
-            <HelperTextItem hasIcon>
+            <HelperTextItem>
                 {_("Mounts in parallel with services")}
             </HelperTextItem>
-            <HelperTextItem hasIcon icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
+            <HelperTextItem icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
                 {_("Boot still succeeds when filesystem does not mount")}
             </HelperTextItem>
         </HelperText>
@@ -95,10 +95,10 @@ export const mount_explanation = {
     netdev:
     <FormHelperText>
         <HelperText>
-            <HelperTextItem hasIcon>
+            <HelperTextItem>
                 {_("Mounts in parallel with services, but after network is available")}
             </HelperTextItem>
-            <HelperTextItem hasIcon icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
+            <HelperTextItem icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
                 {_("Boot still succeeds when filesystem does not mount")}
             </HelperTextItem>
         </HelperText>
@@ -106,10 +106,10 @@ export const mount_explanation = {
     never:
     <FormHelperText>
         <HelperText>
-            <HelperTextItem hasIcon>
+            <HelperTextItem>
                 {_("Does not mount during boot")}
             </HelperTextItem>
-            <HelperTextItem hasIcon>
+            <HelperTextItem>
                 {_("Useful for mounts that are optional or need interaction (such as passphrases)")}
             </HelperTextItem>
         </HelperText>

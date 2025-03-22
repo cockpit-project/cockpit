@@ -1,15 +1,6 @@
 @import "global-variables";
 
 .ct-table {
-  &.pf-m-compact {
-    > thead, > tbody {
-      > tr:not(.pf-v5-c-table__expandable-row) {
-        // We actually want the normal font size for our lists
-        --pf-v5-c-table-cell--FontSize: var(--pf-v5-global--FontSize--md);
-      }
-    }
-  }
-
   &-header {
     display: flex;
     align-items: center;
@@ -24,9 +15,9 @@
     // Push buttons to the right by stretching the heading
     flex: auto;
     // Add a bit of minimum margin to the right of the heading
-    margin-inline-end: var(--pf-v5-global--spacer--md);
+    margin-inline-end: var(--pf-t--global--spacer--md);
     // Set a minimum height of 3rem, so when buttons wrap, there's spacing
-    min-block-size: var(--pf-v5-global--spacer--2xl);
+    min-block-size: var(--pf-t--global--spacer--2xl);
     // Make sure textual content is aligned to the center
     display: flex;
     align-items: center;
@@ -34,8 +25,8 @@
 
   &-actions {
     > * {
-      margin-block: var(--pf-v5-global--spacer--xs);
-      margin-inline: var(--pf-v5-global--spacer--sm) 0;
+      margin-block: var(--pf-t--global--spacer--xs);
+      margin-inline: var(--pf-t--global--spacer--sm) 0;
     }
 
     > :first-child {
@@ -60,7 +51,7 @@
   }
 
   // Fix toggle button alignment
-  .pf-v5-c-table__toggle {
+  .pf-v6-c-table__toggle {
     // Workaround: Chrome sometimes oddly expands the table,
     // unless a width is set. (This affects panels the most, but not only.)
     // As the width is smaller than the contents, and this is a table,
@@ -77,13 +68,13 @@
 
   // Use PF4 style headings
   > thead th {
-    font-size: var(--pf-v5-global--FontSize--sm);
-    font-weight: var(--pf-v5-global--FontWeight--bold);
+    font-size: var(--pf-t--global--font--size--sm);
+    font-weight: var(--pf-t--global--font--weight--heading--bold);
   }
 }
 
 // Special handling for rows with errors
-.pf-v5-c-table tbody tr:first-child.error {
+.pf-v6-c-table tbody tr:first-child.error {
   &, tbody.pf-m-expanded > & {
     background-color: var(--ct-color-list-critical-bg) !important; /* keep red background when expanded */
     border-block-start: 1px solid var(--ct-color-list-critical-border);

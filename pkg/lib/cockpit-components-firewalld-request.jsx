@@ -125,10 +125,10 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
         return null;
     } else {
         alert = (
-            <Alert isInline variant="info" title={title} className="pf-v5-u-box-shadow-sm">
+            <Alert isInline variant="info" title={title} className="pf-v6-u-box-shadow-sm">
                 <Toolbar className="ct-alert-toolbar">
                     <ToolbarContent>
-                        <ToolbarGroup spaceItems={{ default: "spaceItemsMd" }}>
+                        <ToolbarGroup>
                             <ToolbarItem variant="label">{ _("Zone") }</ToolbarItem>
                             <ToolbarItem>
                                 <SimpleSelect
@@ -160,7 +160,7 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
     }
 
     if (pageSection)
-        return <PageSection className="ct-no-bottom-padding">{alert}</PageSection>;
+        return <PageSection hasBodyWrapper={false} className="ct-no-bottom-padding">{alert}</PageSection>;
     else
         return alert;
 };

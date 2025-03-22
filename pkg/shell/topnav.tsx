@@ -37,6 +37,7 @@ import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
 import { SuperuserIndicator } from "./superuser.jsx";
 import { read_os_release } from "os-release.js";
 import { DialogsContext } from "dialogs.jsx";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -176,15 +177,15 @@ export class TopNav extends React.Component {
 
         // HACK: This should be a DropdownItem so the normal onSelect closing behaviour works, but we can't embed a button in a button
         const main_menu = [
-            <div // eslint-disable-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
-              id="super-user-indicator-mobile"
-              className="mobile_v"
-              key="superusermobile"
-              onClick={() => {
-                  this.setState((prevState: TopNavState) => { return { menuOpened: !prevState.menuOpened } });
-              }}>
+            <li // eslint-disable-line jsx-a11y/no-noninteractive-element-interactions,jsx-a11y/click-events-have-key-events
+                id="super-user-indicator-mobile"
+                className="pf-v6-c-menu__list-item pf-v6-c-menu__item mobile_v"
+                key="superusermobile"
+                onClick={() => {
+                    this.setState((prevState: TopNavState) => { return { menuOpened: !prevState.menuOpened } });
+                }}>
                 <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
-            </div>,
+            </li>,
             <Divider key="separator2" className="mobile_v" />,
             <DropdownGroup label={_("Style")} key="dark-switcher">
                 <DropdownList>
@@ -237,7 +238,7 @@ export class TopNav extends React.Component {
                         <ToolbarContent className="ct-topnav-content">
                             { (current_frame && !current_frame.ready) &&
                                 <ToolbarItem id="machine-spinner">
-                                    <Spinner size="lg" style={{ "--pf-v5-c-spinner--Color": "#fff", "--pf-v5-c-spinner--diameter": "2rem" } as React.CSSProperties } />
+                                    <Spinner size="lg" style={{ "--pf-v6-c-spinner--diameter": "2rem" } as React.CSSProperties } />
                                 </ToolbarItem>
                             }
                             { connected &&
@@ -264,8 +265,9 @@ export class TopNav extends React.Component {
                                         <MenuToggle
                                           ref={toggleRef}
                                           id="toggle-docs"
+                                          variant="plain"
                                           className="ct-nav-toggle"
-                                          icon={<HelpIcon className="toggle-docs-icon pf-v5-c-icon pf-m-lg" />}
+                                          icon={<Icon size="lg"><HelpIcon className="toggle-docs-icon" /></Icon>}
                                           isExpanded={this.state.docsOpened}
                                           isFullHeight
                                           onClick={() => {
@@ -298,8 +300,9 @@ export class TopNav extends React.Component {
                                         <MenuToggle
                                           ref={toggleRef}
                                           id="toggle-menu"
+                                          variant="plain"
                                           className="ct-nav-toggle"
-                                          icon={<CogIcon className="pf-v5-c-icon pf-m-lg" />}
+                                          icon={<Icon size="lg"><CogIcon /></Icon>}
                                           isExpanded={this.state.menuOpened}
                                           isFullHeight
                                           onClick={(event) => {

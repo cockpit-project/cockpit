@@ -28,7 +28,9 @@ import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/Ex
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Card, CardHeader, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
@@ -49,6 +51,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import './service-details.scss';
 import { KebabDropdown } from "cockpit-components-dropdown";
+import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 const METRICS_POLL_DELAY = 30000; // 30s
@@ -454,7 +457,9 @@ export class ServiceDetails extends React.Component {
             if (active) {
                 status.push(
                     <div key="running" className="status-running">
-                        <OnRunningIcon className="status-icon" />
+                        <Icon status="success">
+                            <OnRunningIcon className="status-icon" />
+                        </Icon>
                         <span className="status">{ _("Running") }</span>
                         <span className="side-note font-xs">{ _("Active since ") + timeformat.dateTime(this.props.unit.ActiveEnterTimestamp / 1000) }</span>
                     </div>
@@ -462,7 +467,9 @@ export class ServiceDetails extends React.Component {
             } else {
                 status.push(
                     <div key="stopped" className="status-stopped">
-                        <OffIcon className="status-icon" />
+                        <Icon>
+                            <OffIcon className="status-icon" />
+                        </Icon>
                         <span className="status">{ _("Not running") }</span>
                     </div>
                 );
@@ -596,7 +603,7 @@ export class ServiceDetails extends React.Component {
             });
 
         return (
-            <Card id="service-details-unit" className="ct-card">
+            <Card isPlain id="service-details-unit" className="ct-card">
                 { this.state.showDeleteDialog &&
                 <DeleteModal
                     name={this.props.unit.Description}

@@ -25,7 +25,7 @@ import { CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
-import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { TextInput as TextInputPF } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { EditIcon, MinusIcon, PlusIcon } from "@patternfly/react-icons";
@@ -421,20 +421,20 @@ function ensure_nbde_support_dialog(steps, client, block, url, adv, old_key, exi
     const dlg = dialog_open({
         Title: _("Add Network Bound Disk Encryption"),
         Body: (
-            <TextContent>
-                <Text component={TextVariants.p}>
+            <>
+                <Content component={ContentVariants.p}>
                     { steps.is_root
                         ? _("The system does not currently support unlocking the root filesystem with a Tang keyserver.")
                         : _("The system does not currently support unlocking a filesystem with a Tang keyserver during boot.")
                     }
-                </Text>
-                <Text component={TextVariants.p}>
+                </Content>
+                <Content component={ContentVariants.p}>
                     {_("These additional steps are necessary:")}
-                </Text>
-                <TextList>
-                    { steps.map((s, i) => <TextListItem key={i}>{s.title}</TextListItem>) }
-                </TextList>
-            </TextContent>),
+                </Content>
+                <Content component="ul">
+                    { steps.map((s, i) => <Content component="li" key={i}>{s.title}</Content>) }
+                </Content>
+            </>),
         Fields: existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase.")),
         Action: {
             Title: _("Fix NBDE support"),

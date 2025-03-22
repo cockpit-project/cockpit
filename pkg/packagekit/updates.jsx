@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
-import '../lib/patternfly/patternfly-5-cockpit.scss';
+import '../lib/patternfly/patternfly-6-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
@@ -29,7 +29,9 @@ import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { CodeBlock, CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import {
+    Modal
+} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
@@ -38,12 +40,12 @@ import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/Ex
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { LabelGroup } from "@patternfly/react-core/dist/esm/components/Label/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Progress, ProgressSize } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
-import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 
 import {
     BugIcon,
@@ -56,7 +58,7 @@ import {
     ProcessAutomationIcon,
     SecurityIcon,
 } from "@patternfly/react-icons";
-import { cellWidth, TableText } from "@patternfly/react-table";
+import { TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
 
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
@@ -388,7 +390,7 @@ function updateItem(remarkable, info, pkgNames, key) {
                     </DescriptionListGroup>
                     : null }
             </DescriptionList>
-            <TextContent>{description}</TextContent>
+            <Content>{description}</Content>
         </Flex>
     );
 
@@ -444,10 +446,10 @@ const UpdatesList = ({ updates }) => {
         <ListingTable aria-label={_("Available updates")}
                 gridBreakPoint='grid-lg'
                 columns={[
-                    { title: _("Name"), transforms: [cellWidth(40)] },
-                    { title: _("Version"), transforms: [cellWidth(15)] },
-                    { title: _("Severity"), transforms: [cellWidth(15)] },
-                    { title: _("Details"), transforms: [cellWidth(30)] },
+                    { title: _("Name"), props: { width: 40 } },
+                    { title: _("Version"), props: { width: 15 } },
+                    { title: _("Severity"), props: { width: 15 } },
+                    { title: _("Details"), props: { width: 30 } },
                 ]}
                 rows={update_ids.map(id => updateItem(remarkable, updates[id], packageNames[id].sort((a, b) => a.name > b.name), id))} />
     );
@@ -593,7 +595,7 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
     return (
         <div className="progress-main-view">
             <Grid hasGutter>
-                <GridItem span="9">
+                <GridItem span={12}>
                     <div className="progress-description">
                         <Spinner size="md" />
                         <strong>{ PK_STATUS_STRINGS[lastAction?.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
@@ -602,18 +604,18 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
                     <Progress title={remain}
                               value={percentage}
                               size={ProgressSize.sm}
-                              className="pf-v5-u-mb-xs" />
+                              className="pf-v6-u-mb-xs" />
                 </GridItem>
 
-                <GridItem span="3">{cancelButton}</GridItem>
+                <GridItem span={3}>{cancelButton}</GridItem>
 
-                <GridItem span="12">
+                <GridItem span={12}>
                     <Switch id="reboot-after" isChecked={rebootAfter}
                             label={ _("Reboot after completion") }
                             onChange={setRebootAfter} />
                 </GridItem>
 
-                <GridItem span="12" className="update-log">
+                <GridItem span={12} className="update-log">
                     <ExpandableSection toggleText={_("View update log")} onToggle={() => {
                         // always scroll down on expansion
                         const log = document.getElementById("update-log");
@@ -644,18 +646,14 @@ const TwoColumnContent = ({ list, flexClassName }) => {
     return (
         <Flex className={flexClassName}>
             <FlexItem flex={{ default: 'flex_1' }}>
-                <TextContent>
-                    <TextList>
-                        {col1.map(item => (<TextListItem key={item}>{item}</TextListItem>))}
-                    </TextList>
-                </TextContent>
+                <Content component="ul">
+                    {col1.map(item => (<Content component="li" key={item}>{item}</Content>))}
+                </Content>
             </FlexItem>
             {col2.length > 0 && <FlexItem flex={{ default: 'flex_1' }}>
-                <TextContent>
-                    <TextList>
-                        {col2.map(item => (<TextListItem key={item}>{item}</TextListItem>))}
-                    </TextList>
-                </TextContent>
+                <Content component="ul">
+                    {col2.map(item => (<Content component="li" key={item}>{item}</Content>))}
+                </Content>
             </FlexItem>}
         </Flex>
     );
@@ -799,7 +797,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, restartPack
                 id: "security-updates-available",
                 stateStr: cockpit.format(stateStr, numSecurity),
                 icon: getSeverityIcon(highestSeverity),
-                secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
+                secondary: <Content id="last-checked" component={ContentVariants.small}>{lastChecked}</Content>
             });
         } else {
             let stateStr = cockpit.ngettext("$0 update available", "$0 updates available", numUpdates);
@@ -809,7 +807,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, restartPack
                 id: "updates-available",
                 stateStr: cockpit.format(stateStr, numUpdates, numSecurity),
                 icon: getSeverityIcon(highestSeverity),
-                secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
+                secondary: <Content id="last-checked" component={ContentVariants.small}>{lastChecked}</Content>
             });
         }
     } else if (!numRestartServices && !numRebootPackages && !numManualSoftware) {
@@ -817,7 +815,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, restartPack
             id: "system-up-to-date",
             stateStr: STATE_HEADINGS.uptodate,
             icon: <CheckIcon color="green" />,
-            secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
+            secondary: <Content id="last-checked" component={ContentVariants.small}>{lastChecked}</Content>
         });
     }
 
@@ -850,7 +848,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, restartPack
             id: "processes-need-restart",
             stateStr: _("Some software needs to be restarted manually"),
             icon: <ProcessAutomationIcon />,
-            secondary: <Text component={TextVariants.small}>{restartPackages.manual.join(", ")}</Text>
+            secondary: <Content component={ContentVariants.small}>{restartPackages.manual.join(", ")}</Content>
         });
     }
 
@@ -864,7 +862,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, restartPack
                     <FlexItem>
                         <Stack>
                             <StackItem>
-                                <Text component={TextVariants.p}>{notification.stateStr}</Text>
+                                <Content component={ContentVariants.p}>{notification.stateStr}</Content>
                             </StackItem>
                             <StackItem>
                                 { notification.secondary }
@@ -1452,7 +1450,7 @@ class OsUpdates extends React.Component {
 
             return (
                 <>
-                    <PageSection>
+                    <PageSection hasBodyWrapper={false}>
                         <Gallery className='ct-cards-grid' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh}
                                        applySecurity={applySecurity}
@@ -1490,14 +1488,12 @@ class OsUpdates extends React.Component {
                     <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
                                     icon={ ExclamationCircleIcon }
                                     paragraph={
-                                        <TextContent>
-                                            <Text component={TextVariants.p}>
-                                                {_("Please resolve the issue and reload this page.")}
-                                            </Text>
-                                        </TextContent>
+                                        <Content component={ContentVariants.p}>
+                                            {_("Please resolve the issue and reload this page.")}
+                                        </Content>
                                     }
                     />
-                    <CodeBlock className='pf-v5-u-mx-auto error-log'>
+                    <CodeBlock className='pf-v6-u-mx-auto error-log'>
                         <CodeBlockCode>
                             {this.state.errorMessages
                                     .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
@@ -1590,7 +1586,7 @@ class OsUpdates extends React.Component {
             });
 
             return (
-                <PageSection>
+                <PageSection hasBodyWrapper={false}>
                     <Gallery className='ct-cards-grid' hasGutter>
                         <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
                     </Gallery>
@@ -1631,11 +1627,11 @@ class OsUpdates extends React.Component {
     render() {
         let content = this.renderContent();
         if (!["available", "uptodate"].includes(this.state.state))
-            content = <PageSection variant={PageSectionVariants.light}>{content}</PageSection>;
+            content = <PageSection hasBodyWrapper={false}>{content}</PageSection>;
 
         return (
             <WithDialogs>
-                <Page>
+                <Page className='no-masthead-sidebar'>
                     {content}
                 </Page>
             </WithDialogs>

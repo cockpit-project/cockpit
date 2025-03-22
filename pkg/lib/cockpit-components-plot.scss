@@ -1,28 +1,28 @@
 // Selected set of PF chart colors to optimize for full-spectrum and colorblindness
 // using unique part of PF name and a hex color fallback
 $plotColors: (
-  blue-300   #06c,
-  green-100  #bde2b9,
-  cyan-200   #73c5c5,
-  purple-100 #b2b0ea,
-  gold-300   #f4c145,
-  orange-300 #ec7a08,
-  red-200    #a30000,
-  cyan-300   #009596,
-  black-500  #4d5258
+  "blue--300"   #06c,
+  "green--100"  #bde2b9,
+  "teal--200"   #73c5c5,
+  "purple--100" #b2b0ea,
+  "gold--300"   #f4c145,
+  "orange--300" #ec7a08,
+  "red-orange--200"    #a30000,
+  "teal--300"   #009596,
+  "black--500"  #4d5258
 );
 
 .ct-plot {
-  font-family: var(--pf-v5-chart-global--FontFamily);
+  font-family: var(--pf-t--global--font--family--body);
 
   &-border {
-    stroke: var(--pf-v5-chart-global--Fill--Color--300);
+    stroke: var(--pf-t--chart--global--fill--color--300);
     fill: transparent;
     shape-rendering: crispedges;
   }
 
   &-title {
-    font-size: calc(var(--pf-v5-chart-global--FontSize--md) * 1px);
+    font-size: calc(var(--pf-t--chart--global--FontSize--sm) * 1px);
   }
 
   // Placeholder string to stretch the column, set offscreen
@@ -32,19 +32,19 @@ $plotColors: (
 
   &-axis,
   &-unit {
-    font-size: calc(var(--pf-v5-chart-global--FontSize--xs) * 1px);
-    fill: var(--pf-v5-chart-global--Fill--Color--700);
-    letter-spacing: var(--pf-v5-chart-global--letter-spacing);
+    font-size: calc(var(--pf-t--chart--global--FontSize--xs) * 1px);
+    fill: var(--pf-t--chart--global--fill--color--700);
+    letter-spacing: var(--pf-t--chart--global--letter-spacing);
   }
 
-  .pf-v5-theme-dark &-axis,
-  .pf-v5-theme-dark &-unit {
-    fill: var(--pf-v5-chart-global--Fill--Color--400);
+  .pf-v6-theme-dark &-axis,
+  .pf-v6-theme-dark &-unit {
+    fill: var(--pf-t--chart--global--fill--color--400);
   }
 
   &-lines,
   &-ticks {
-    stroke: var(--pf-v5-chart-global--Fill--Color--300);
+    stroke: var(--pf-t--chart--global--fill--color--300);
     shape-rendering: crispedges;
   }
 
@@ -56,7 +56,7 @@ $plotColors: (
   }
 
   &-paths {
-    stroke-width: var(--pf-v5-chart-global--stroke--Width--sm);
+    stroke-width: var(--pf-t--chart--global--stroke--width--xs);
     shape-rendering: geometricprecision;
 
     > path {
@@ -67,7 +67,7 @@ $plotColors: (
 }
 
 .ct-plot-title {
-  fill: var(--pf-v5-global--Color--100);
+  fill: var(--pf-t--global--text--color--regular);
 }
 
 $plotColorCurrent: 0;
@@ -80,7 +80,7 @@ $plotColorTotal: 0;
 @each $plotColor, $plotColorBackup in $plotColors {
   $plotColorCurrent: $plotColorCurrent + 1;
   .ct-plot-paths > path:nth-last-child(#{$plotColorTotal}n + #{$plotColorCurrent}) {
-    --ct-plot-path-color: var(--pf-v5-chart-color-#{$plotColor}, #{$plotColorBackup});
+    --ct-plot-path-color: var(--pf-t--chart--color--#{$plotColor}, #{$plotColorBackup});
   }
 }
 

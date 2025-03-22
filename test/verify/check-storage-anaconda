@@ -479,6 +479,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
     def testMDRaid(self):
         b = self.browser
+        m = self.machine
 
         disk1 = self.add_loopback_disk(name="loop10")
         disk2 = self.add_loopback_disk(name="loop11")
@@ -502,6 +503,9 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_wait_close()
         # Stop the raid array in case the test fails otherwise losetup can't release the devices
         self.addCleanup(self.machine.execute, "if [ -b /dev/md/raid0 ]; then mdadm --stop /dev/md/raid0; fi;")
+
+        # Check that metadata version is "1.0"
+        self.assertIn("Version : 1.0", m.execute("mdadm --detail /dev/md/raid0"))
 
         # Create a partition with a filesystem on it
         self.click_dropdown(self.card_row("Storage", name="md/raid0"), "Create partition table")

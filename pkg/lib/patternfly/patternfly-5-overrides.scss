@@ -198,20 +198,12 @@ to wrap around when there isn't enough space.
 // https://github.com/patternfly/patternfly/issues/4523
 // Override default spacing from lg -> md
 .pf-v5-l-flex {
-  gap: var(--pf-v5-l-flex--spacer-base);
-
-  &:not([class*="pf-m-space-items-"]) {
-    gap: var(--pf-v5-l-flex--spacer--md);
-
-    > * {
-      --pf-v5-l-flex--spacer--column: 0;
-    }
-  }
+  gap: var(--pf-v5-l-flex--spacer--column--base) var(--pf-v5-l-flex--spacer--row--base);
 
   // Negate the margin hack used by immediate flex children
   // (except for nested flex, as we want to mind the gap)
   > :not(.pf-v5-l-flex) {
-    --pf-v5-l-flex--spacer-base: 0;
+    --pf-v5-l-flex--spacer--column--base: 0;
   }
 
   // Undo all spacer modification adjustments

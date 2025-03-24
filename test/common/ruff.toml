@@ -1,5 +1,8 @@
 extend = "../../pyproject.toml"
 
+# Tests run under the tasks container with Python 3.13
+target-version = "py313"
+
 [lint]
 ignore = [
     "E501",     # https://github.com/charliermarsh/ruff/issues/3206#issuecomment-1562681390

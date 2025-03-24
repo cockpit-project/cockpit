@@ -146,13 +146,21 @@ class TestStorageAnaconda(storagelib.StorageCase):
                                       }
                                   })
 
-        # Activate and mount again, to check location in tear down information
+        # Activate
         b.click(self.card_button("Inactive logical volume", "Activate"))
-        b.click(self.card_button("Filesystem", "Mount"))
+
+        # Crypto is locked.  Unlock and mount via the "Reuse existing
+        # encryption" mode of the Format dialog
+        self.click_card_dropdown("Filesystem", "Format")
         self.dialog_wait_open()
-        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_wait_val("crypto", " keep")
+        self.dialog_set_val("old_passphrase", "vainu-reku-toma-rolle-kaja")
+        b.set_checked("#dialog-confirm", val=True)
         self.dialog_apply()
         self.dialog_wait_close()
+
+        # Passphrase should still be remembered
+        self.expectExportedDevicePassphrase("/dev/vgroup0/lvol0", "vainu-reku-toma-rolle-kaja")
 
         # Check and delete volume group
         b.click(self.card_parent_link())

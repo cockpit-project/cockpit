@@ -86,6 +86,19 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(res).encode("utf-8") + b"\n")
             return
 
+        m = self.match("/r/insights/platform/inventory/v1/host_exists\\?insights_id=(.*)")
+        if m:
+            insights_id = m[1]
+            self.send_response(200)
+            self.end_headers()
+            res = {}
+            for system in systems.values():
+                if system["insights_id"] == insights_id:
+                    res["id"] = system["id"]
+                    break
+            self.wfile.write(json.dumps(res).encode("utf-8") + b"\n")
+            return
+
         m = self.match("/r/insights/platform/insights/v1/system/([^/]+)/reports/")
         if m:
             inventory_id = m[1]

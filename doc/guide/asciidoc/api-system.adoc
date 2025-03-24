@@ -1,0 +1,91 @@
+This package contains general components for basic control of a system.
+
+logs.html
+
+logs.html
+
+System log component
+
+[[api-logs-html-description]]
+== Description
+
+....
+<iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/system/logs.html"
+    width="600" height="400"></iframe>
+....
+
+This is a Cockpit component that brings up system log viewer, with
+filtering capabilities. On systemd based systems this displays the
+entries from journal.
+
+Component URL::
+  `/cockpit+app/@localhost/system/logs.html`
+Filter by priority::
+  `#?prio=notice`
+  +
+  Filters the log to show entries below the specific priority,
+  inclusive. These
+  https://en.wikipedia.org/wiki/Syslog#Severity_levels[priorities are
+  syslog level keywords]. Specifying `*` as a priority will show all
+  available entries. The default priority is `err`.
+Filter by service::
+  `#?service=sshd.service`
+  +
+  Filters the log to show entries related to the specific service. The
+  format of the service is specific to the logging implementation. For
+  journald these are systemd service unit names.
+Filter by tag::
+  `#?tag=kernel`
+  +
+  Filters the log to show entries related to the specific syslog
+  identifier.
+Filter by message::
+  `#?grep=`
+  +
+  Filters the log to show entries where the `MESSAGE=` field matches the
+  specified regular expression. PERL-compatible regular expressions are
+  used. If the pattern is all lowercase, matching is case insensitive.
+  Otherwise, matching is case sensitive.
+Filter by any field::
+  `#?FIELD=VALUE`
+  +
+  A field is referring to the components of a structured journal entry.
+  The match must be exact. Value can be comma separated list in which
+  case they are automatically matched as alternatives.
+Start at point::
+  `#?start=boot`
+  +
+  Filters the log to show entries after the specific point in time.
+  Valid values are `boot` (since last boot), `last-24h` (last 24 hours),
+  `last-week` (last seven days) and `previous-boot` (previous boot).
+Follow the journal::
+  `#?follow=true`
+  +
+  Keep listening on new entries. Valid values are `true` (follow) and
+  `false` (do not follow).
+Show log entry::
+  `#/6e272d82993c4e0d...`
+  +
+  To show a specific log entry, put the log entry cursor in a path after
+  the hash above. Note that cursors are logging system specific, and
+  journal cursors are subject to change.
+
+terminal.html
+
+terminal.html
+
+Server terminal component
+
+[[api-terminal-html-description]]
+== Description
+
+....
+<iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/system/terminal.html"
+    width="600" height="400"></iframe>
+....
+
+This is a Cockpit component that brings up a web-based terminal for the
+logged in user.
+
+Component URL::
+  `/cockpit+app/@localhost/system/terminal.html`

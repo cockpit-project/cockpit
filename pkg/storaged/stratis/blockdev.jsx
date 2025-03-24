@@ -35,21 +35,21 @@ const _ = cockpit.gettext;
 export function make_stratis_blockdev_card(next, backing_block, content_block) {
     const blockdev = client.blocks_stratis_blockdev[content_block.path];
     const pool = blockdev && client.stratis_pools[blockdev.Pool];
-    const stopped_pool = client.blocks_stratis_stopped_pool[content_block.path];
+    const uuid = client.blocks_stratis_stopped_pool[content_block.path];
 
     const blockdev_card = new_card({
         title: _("Stratis block device"),
-        location: pool ? pool.Name : stopped_pool,
+        location: pool ? pool.Name : client.stratis_manager.StoppedPools[uuid]?.name?.v || uuid,
         next,
         component: StratisBlockdevCard,
-        props: { backing_block, content_block, pool, stopped_pool },
+        props: { backing_block, content_block, pool, stopped_pool: uuid },
         actions: [
             std_lock_action(backing_block, content_block),
             std_format_action(backing_block, content_block),
         ]
     });
 
-    if (pool || stopped_pool) {
+    if (pool || uuid) {
         let extra;
         if (blockdev && blockdev.Tier == 0)
             extra = _("data");
@@ -59,7 +59,7 @@ export function make_stratis_blockdev_card(next, backing_block, content_block) {
             extra = null;
 
         register_crossref({
-            key: pool || stopped_pool,
+            key: pool || uuid,
             card: blockdev_card,
             actions: [],
             size: blockdev ? fmt_size(Number(blockdev.TotalPhysicalSize)) : fmt_size(content_block.Size),

@@ -26,6 +26,7 @@ import packagelib
 import testlib
 
 OSesWithoutTracer = ["debian-*", "ubuntu-*", "fedora-coreos", "centos-10", "rhel-10*"]
+OSesWithDnfRestart = ["centos-10", "rhel-10*"]
 OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*"]
 
 
@@ -391,8 +392,9 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         m.execute(f"touch {install_lockfile}")
 
         b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
-        # if tracer is not present, reboot is recommended
-        if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):
+        # if restart checking is not present, reboot is recommended
+        if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer) and not any(
+                fnmatch.fnmatch(m.image, img) for img in OSesWithDnfRestart):
             b.wait_in_text("#app .pf-v6-c-empty-state button.pf-m-primary", "Reboot system...")
         b.click("#ignore")
 
@@ -418,7 +420,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_text(self.update_text, "System is up to date")
 
     # returns ExecMainStartTimestamp
-    def createServicePackageUpgrade(self, package: str) -> str:
+    def createServicePackageUpgrade(self, package: str, *, manual_proc: bool = False) -> str:
         m = self.machine
 
         unitContent = f"""[Service]
@@ -430,6 +432,11 @@ ExecStart=/usr/local/bin/{package} infinity
                            postinst=(f"chmod a+x /usr/local/bin/{package};"
                                      f"systemctl daemon-reload; systemctl start {package}.service"),
                            arch=self.secondary_arch)
+
+        if manual_proc:
+            manual_pid = m.spawn(f"{package} 3600", "non-service-bin.log")
+            self.addCleanup(m.execute, f"kill {manual_pid}")
+
         self.createPackage(package, "1", "2",
                            content={f"/usr/local/bin/{package}": {"path": "/usr/bin/sleep"},
                                     f"/etc/systemd/system/{package}.service": unitContent},
@@ -600,6 +607,80 @@ ExecStart=/usr/local/bin/{package} infinity
             rebootRequired=False,
             testStatusCard=True,
         ).execute()
+
+    @testlib.nondestructive
+    @testlib.onlyImage("dnf needs-restart not available", *OSesWithDnfRestart)
+    def testDnfRestart(self):
+        m = self.machine
+        b = self.browser
+
+        start_time = self.createServicePackageUpgrade("mydaemon")
+        self.enableRepo()
+        self.login_and_go("/updates")
+        # check update is present
+        with b.wait_timeout(30):
+            b.wait_in_text("#status", "1 update available")
+        b.wait_in_text("#available-updates table", "mydaemon")
+
+        b.click("#install-all")
+        with b.wait_timeout(60):
+            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+
+        # update required only a service restart
+        b.wait_text(".update-success-table-title", "1 service needs to be restarted")
+        b.click("#expand-toggleservice")
+        b.wait_in_text(".updates-success-table", "mydaemon.service")
+        b.wait_not_present("#reboot-system")
+        b.click("#choose-service")
+        b.wait_visible("#restart-services-modal")
+        b.wait_in_text(".restart-services-modal-body", "mydaemon")
+        b.click("#restart-services-modal button:contains('Restart services')")
+        b.wait_not_present("#restart-services-modal")
+        b.wait_in_text("#status p", "System is up to date")
+
+        new_start_time = m.execute("systemctl show mydaemon.service --property=ExecMainStartTimestamp")
+        self.assertGreater(new_start_time, start_time)
+
+        # finds manual process
+        self.createServicePackageUpgrade("manual", manual_proc=True)
+        self.enableRepo()
+        b.click("#status .pf-v6-c-card__header button")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
+        b.wait_in_text("#status", "1 update available")
+        b.click("#install-all")
+        with b.wait_timeout(60):
+            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+
+        b.wait_text("#service-row .update-success-table-title", "1 service needs to be restarted")
+        b.wait_visible("#manual-row .update-success-table-title")
+
+        b.click("#expand-togglemanual")
+        b.wait_in_text(".updates-success-table", "manual 3600")
+
+        # offers both service restart and reboot
+        b.wait_visible("#choose-service")
+        b.wait_visible("#reboot-system")
+        b.click("#ignore")
+
+        b.wait_in_text("#status", "1 service needs to be restarted")
+        b.wait_in_text("#status", "Some software needs to be restarted manually")
+        b.wait_in_text("#status", "manual 3600")
+
+        # kernel update for "needs reboot"
+        self.createPackage("kernel-rt", "1.0", "1", install=True)
+        self.createPackage("kernel-rt", "1.0", "2")
+        self.enableRepo()
+        b.click("#status .pf-v6-c-card__header button")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
+        b.wait_in_text("#status", "1 update available")
+        b.click("#install-all")
+        b.click("#expand-togglereboot")
+        b.wait_in_text(".updates-success-table", "kernel-rt")
+        b.wait_visible("#reboot-system")
+        b.click("#ignore")
+        b.wait_in_text("#status", "1 package needs a system reboot")
 
     @testlib.skipImage("Arch Linux does not start services by default", "arch")
     @testlib.skipImage("tracer not available", *OSesWithoutTracer)
@@ -802,7 +883,8 @@ ExecStart=/usr/local/bin/{packageName}
         b.click(".pf-v6-c-expandable-section__toggle button")
         self.assertHistory(".pf-v6-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
 
-        if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer):
+        if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer) and not any(
+                fnmatch.fnmatch(m.image, img) for img in OSesWithDnfRestart):
             # do the reboot; this will disconnect the web UI
             b.click("#app .pf-v6-c-empty-state button.pf-m-primary")
             b.wait_visible("#shutdown-dialog")

@@ -139,7 +139,12 @@ if [ "$PLAN" = "main" ]; then
               "
 
     # Testing Farm machines often have pending restarts/reboot
-    EXCLUDES="$EXCLUDES TestUpdates.testBasic TestUpdates.testFailServiceRestart TestUpdates.testKpatch"
+    EXCLUDES="$EXCLUDES
+              TestUpdates.testBasic
+              TestUpdates.testDnfRestart
+              TestUpdates.testFailServiceRestart
+              TestUpdates.testKpatch
+              "
 fi
 
 if [ "$PLAN" = "storage-basic" ]; then

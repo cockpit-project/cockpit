@@ -328,20 +328,22 @@ If the above systemd-sysext approach does not work for you, you can also test
 changes with some bind mounts.
 
 To test changes to the login page, you can bind-mount the build tree's
-`dist/static/` directory over the system one:
+`dist/` directory over the system one:
 
-    sudo mount -o bind dist/static/ /usr/share/cockpit/static/
+    sudo mount -o bind dist /usr/share/cockpit
 
 Likewise, to test changes to the branding, use:
 
     sudo mount -o bind src/branding/ /usr/share/cockpit/branding/
+
+Do `mkdir dist/branding` if you run both of these commands at the same time.
 
 After that, run `systemctl stop cockpit.service` to ensure that the web server
 restarts on the next browser request.
 
 To make Cockpit use system-installed code again, umount the paths:
 
-    sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
+    sudo umount /usr/share/cockpit /usr/share/cockpit/branding/
     systemctl stop cockpit.service
 
 Similarly, if you change `cockpit-ws` itself, you can make the system (systemd

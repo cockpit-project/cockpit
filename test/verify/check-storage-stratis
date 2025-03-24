@@ -889,6 +889,8 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
 
         self.stop_type_opt = get_stratis_stop_type_opt(self.machine.execute)
 
+        self.stratis_version = list(map(int, self.machine.execute("stratis daemon version").split(".")))
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -946,10 +948,16 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         tang_m.execute("systemctl stop tangd.socket")
         b.click(self.card_button("Stratis pool", "Start"))
         self.dialog_wait_open()
-        # stratis' error message for unreachable tang server is very poor:
-        # https://bugzilla.redhat.com/show_bug.cgi?id=2246920 Version < 3.6.0 said
-        # "Error communicating with server 10.111.112.5", check this again after fixing
-        b.wait_in_text("#dialog", "Error")
+        if self.stratis_version >= [3, 8, 0]:
+            # For V2 pools (created by Stratis 3.8.0 and later),
+            # Cockpit doesn't know whether they have a passphrase or
+            # not. So it asks always.
+            self.dialog_wait_val("passphrase", "")
+        else:
+            # stratis' error message for unreachable tang server is very poor:
+            # https://bugzilla.redhat.com/show_bug.cgi?id=2246920 Version < 3.6.0 said
+            # "Error communicating with server 10.111.112.5", check this again after fixing
+            b.wait_in_text("#dialog", "Error")
         self.dialog_cancel()
         self.dialog_wait_close()
 

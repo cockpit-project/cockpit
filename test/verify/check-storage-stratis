@@ -109,13 +109,12 @@ class TestStorageStratis(storagelib.StorageCase):
         self.dialog_wait_close()
 
         # Stop the pool
-        pool_uuid = m.execute("stratis --unhyphenated-uuids pool list --name pool0 | grep ^UUID | cut -d' ' -f2").strip()
         m.execute(f"stratis pool stop {self.stop_type_opt} pool0")
-        b.wait_in_text(self.card_row("Storage", name=pool_uuid), "Stratis pool")
+        b.wait_in_text(self.card_row("Storage", name="pool0"), "Stratis pool (stopped)")
 
         # Start it
-        self.click_dropdown(self.card_row("Storage", name=pool_uuid), "Start")
-        b.wait_visible(self.card_row("Storage", name="pool0"))
+        self.click_dropdown(self.card_row("Storage", name="pool0"), "Start")
+        b.wait_in_text(self.card_row("Storage", name="pool0"), "Stratis filesystems")
 
         self.click_card_row("Storage", name="pool0")
         b.wait_text(self.card_desc("Stratis pool", "Name"), "pool0")

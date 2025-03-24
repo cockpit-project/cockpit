@@ -152,7 +152,7 @@ export function make_stratis_stopped_pool_page(parent, uuid) {
         type_extra: _("stopped"),
         next: null,
         page_location: ["pool", uuid],
-        page_name: uuid,
+        page_name: client.stratis_manager.StoppedPools[uuid]?.name?.v || uuid,
         page_icon: VolumeIcon,
         page_category: PAGE_CATEGORY_VIRTUAL,
         component: StoppedStratisPoolCard,

@@ -2775,11 +2775,10 @@ def arg_parser(enable_sit: bool = True) -> argparse.ArgumentParser:
 
 
 def test_main(
-     options: argparse.Namespace | None = None,
-     suite: unittest.TestSuite | None = None,
-     attachments: str | None = None,
-     **kwargs: object
-) -> int:
+     options: argparse.Namespace | None = None,  # noqa: PT028
+     suite: unittest.TestSuite | None = None,  # noqa: PT028
+     attachments: str | None = None,  # noqa: PT028
+    ) -> int:
     """
     Run all test cases, as indicated by arguments.
 

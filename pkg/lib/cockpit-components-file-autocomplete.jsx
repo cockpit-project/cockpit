@@ -74,6 +74,9 @@ export class FileAutoComplete extends React.Component {
             }
         };
         this.debouncedChange = debounce(300, this.onPathChange);
+    }
+
+    componentDidMount() {
         this.onPathChange(this.state.value);
     }
 

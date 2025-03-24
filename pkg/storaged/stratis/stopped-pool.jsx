@@ -34,18 +34,63 @@ import {
 import { dialog_open, PassInput } from "../dialog.jsx";
 import { std_reply, with_stored_passphrase } from "./utils.jsx";
 
+import * as python from "python.js";
+import stratis3_start_pool_py from "./stratis3-start-pool.py";
+
 const _ = cockpit.gettext;
+
+async function stratis3_r8_start_pool(uuid, passphrase) {
+    if (passphrase) {
+        return await python.spawn(stratis3_start_pool_py, [uuid, "passphrase"], { superuser: "require" })
+                .input(passphrase);
+    } else {
+        return await python.spawn(stratis3_start_pool_py, [uuid, "clevis"], { superuser: "require" });
+    }
+}
+
+function stratis3_r6_start_pool(uuid, unlock_method) {
+    return client.stratis_manager.StartPool(uuid, "uuid", [!!unlock_method, unlock_method || ""]).then(std_reply);
+}
 
 function start_pool(uuid, show_devs) {
     const devs = client.stratis_manager.StoppedPools[uuid].devs.v.map(d => d.devnode).sort();
-    const key_desc = client.stratis_stopped_pool_key_description[uuid];
-    const clevis_info = client.stratis_stopped_pool_clevis_info[uuid];
 
-    function start(unlock_method) {
-        return client.stratis_manager.StartPool(uuid, "uuid", [!!unlock_method, unlock_method || ""]).then(std_reply);
+    // HACK - if this is a V2 encrypted pool, it needs to be started
+    //        with the r8 StartPool method.
+
+    const r8_stopped_pool = client.stratis_manager_r8?.StoppedPools?.[uuid];
+    const v2_encrypted = (
+        r8_stopped_pool &&
+            r8_stopped_pool.metadata_version.v[0] &&
+            r8_stopped_pool.metadata_version.v[1] == 2 &&
+            r8_stopped_pool.features.v[0] &&
+            r8_stopped_pool.features.v[1].encryption);
+
+    // HACK - https://github.com/stratis-storage/stratisd/issues/3805
+    //
+    // For V2 pools we don't know whether they have clevis or a
+    // passphrase, we just have to try everything.
+
+    const key_desc = v2_encrypted ? true : client.stratis_stopped_pool_key_description[uuid];
+    const clevis_info = v2_encrypted ? true : client.stratis_stopped_pool_clevis_info[uuid];
+
+    function start_with_clevis() {
+        if (v2_encrypted)
+            return stratis3_r8_start_pool(uuid, null);
+        else
+            return stratis3_r6_start_pool(uuid, "clevis");
     }
 
-    function unlock_with_keydesc(key_desc) {
+    function start_with_passphrase(passphrase) {
+        if (v2_encrypted)
+            return stratis3_r8_start_pool(uuid, passphrase);
+        else {
+            return with_stored_passphrase(client, key_desc, passphrase,
+                                          () => stratis3_r6_start_pool(uuid, "keyring"));
+        }
+    }
+
+    function prompt_for_passphrase() {
         dialog_open({
             Title: _("Unlock encrypted Stratis pool"),
             Body: (show_devs &&
@@ -60,33 +105,41 @@ function start_pool(uuid, show_devs) {
             Action: {
                 Title: _("Unlock"),
                 action: function(vals) {
-                    return with_stored_passphrase(client, key_desc, vals.passphrase,
-                                                  () => start("keyring"));
+                    return start_with_passphrase(vals.passphrase);
                 }
             }
         });
     }
 
-    function unlock_with_keyring() {
-        return (client.stratis_manager.ListKeys()
-                .catch(() => [{ }])
-                .then(keys => {
-                    if (keys.indexOf(key_desc) >= 0)
-                        return start("keyring");
-                    else
-                        unlock_with_keydesc(key_desc);
-                }));
+    function unlock_with_passphrase() {
+        if (v2_encrypted) {
+            // HACK - We don't know any concrete key descriptions for
+            // stopped V2 pools so we can't check whether they are
+            // already set.
+            prompt_for_passphrase();
+        } else {
+            // If the key for this pool is already in the keyring, try
+            // that first.
+            return (client.stratis_manager.ListKeys()
+                    .catch(() => [{ }])
+                    .then(keys => {
+                        if (keys.indexOf(key_desc) >= 0)
+                            return stratis3_r6_start_pool(uuid, "keyring");
+                        else
+                            prompt_for_passphrase();
+                    }));
+        }
     }
 
     if (!key_desc && !clevis_info) {
         // Not an encrypted pool, just start it
-        return start();
+        return stratis3_r6_start_pool(uuid, null);
     } else if (key_desc && clevis_info) {
-        return start("clevis").catch(unlock_with_keyring);
+        return start_with_clevis().catch(unlock_with_passphrase);
     } else if (!key_desc && clevis_info) {
-        return start("clevis");
+        return start_with_clevis();
     } else if (key_desc && !clevis_info) {
-        return unlock_with_keyring();
+        return unlock_with_passphrase();
     }
 }
 

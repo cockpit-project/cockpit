@@ -1468,6 +1468,12 @@ function stratis3_start() {
                                                                                    "/org/storage/stratis3",
                                                                                    { watch: false });
 
+                // HACK - give us a sneak preview of the "r8"
+                // manager. It is used to start V2 pools.
+                client.stratis_manager_r8 = stratis.proxy(
+                    "org.storage.stratis3.Manager.r8",
+                    "/org/storage/stratis3");
+
                 return stratis.watch({ path_namespace: "/org/storage/stratis3" }).then(() => {
                     client.stratis_manager.client.addEventListener('notify', (event, data) => {
                         client.update();

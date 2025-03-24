@@ -240,9 +240,12 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded .spikes_count", "3 spikes")
         b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded .spikes_info", "1 Memory, 1 Disk I/O, 1 Network I/O")
 
+        # wait until the toolbar is fully rendered
+        b.wait_visible("#date-picker-select-toggle")
+
         # FIXME: mobile layout is racy in tests (only, not in reality), scrollIntoView() misplaces the menu bar
         b.assert_pixels(".metrics", "metrics-history-expanded-hour", ignore=[".spikes_count"],
-                        skip_layouts=["mobile"], wait_after_layout_change=True)
+                        skip_layouts=["mobile"], wait_after_layout_change=True, wait_delay=1)
 
         b.click("#metrics-hour-1597662000000 button.metrics-events-expander")
         b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed", "1:00")

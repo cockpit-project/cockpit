@@ -596,7 +596,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     const path = new_path || block.path;
                     const new_block = await client.wait_for(() => client.blocks[path]);
 
-                    if (is_encrypted(vals))
+                    if (is_encrypted(vals) && vals.passphrase)
                         remember_passphrase(new_block, vals.passphrase);
 
                     if (is_encrypted(vals) && is_filesystem(vals) && vals.mount_options?.ro) {

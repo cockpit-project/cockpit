@@ -73,9 +73,10 @@ import { WithDialogs } from "dialogs.jsx";
 
 import { superuser } from 'superuser';
 import * as PK from "packagekit.js";
+import * as python from "python.js";
 import * as timeformat from "timeformat";
 
-import * as python from "python.js";
+import { debug } from './utils';
 import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
@@ -1069,11 +1070,13 @@ class OsUpdates extends React.Component {
         this.setState({ checkRestartRunning: true });
         return python.spawn(callTracerScript, undefined, { err: "message", superuser: "require" })
                 .then(output => {
+                    debug("tracer succeeded, output:", output);
                     const restartPackages = JSON.parse(output);
                     // Filter out duplicates
                     restartPackages.reboot = [...new Set(shortenCockpitWsInstance(restartPackages.reboot))];
                     restartPackages.daemons = [...new Set(shortenCockpitWsInstance(restartPackages.daemons))];
                     restartPackages.manual = [...new Set(shortenCockpitWsInstance(restartPackages.manual))];
+                    debug("tracer parsed restartPackages:", JSON.stringify(restartPackages));
                     this.setState({ checkRestartAvailable: true, checkRestartRunning: false, restartPackages });
                 })
                 .catch((exception, data) => {
@@ -1088,6 +1091,8 @@ class OsUpdates extends React.Component {
                         // or the session goes away while checking
                         exception.problem !== "terminated")
                         console.error(`Tracer failed: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+                    else
+                        debug('tracer failed for uninteresting reason:', JSON.stringify(exception));
                     // When tracer fails, act like it's not available (demand reboot after every update)
                     this.setState({
                         checkRestartAvailable: false,

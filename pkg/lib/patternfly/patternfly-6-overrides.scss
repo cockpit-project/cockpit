@@ -453,3 +453,10 @@ to wrap around when there isn't enough space.
   border-block-start: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
   border-radius: var(--pf-t--global--border--radius--0);
 }
+
+
+// NOTE @Venefilyn: This is missing in PF6 so we need to define it ourselves to make sure it works as it should
+// Tracked upstream here https://github.com/patternfly/patternfly/issues/7414
+:root[dir="rtl"] {
+  --pf-v6-global--inverse--multiplier: -1;
+}

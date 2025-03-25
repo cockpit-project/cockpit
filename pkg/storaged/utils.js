@@ -677,13 +677,27 @@ export function is_netdev(client, path) {
 }
 
 export function should_ignore(client, path) {
+    const block = client.blocks[path];
+
+    // HACK - https://github.com/stratis-storage/stratisd/issues/3801
+    //
+    // Filter out Stratis private device mapper devices. This normally
+    // happens by setting the DM_UDEV_DISABLE_OTHER_RULES_FLAG in the
+    // udev database (which causes UDisks2 to ignore the block
+    // device), but since Stratis 3.8 the "*-crypt" devices don't have
+    // them.
+
+    if (block && decode_filename(block.PreferredDevice).startsWith("/dev/mapper/stratis-1-private"))
+        return true;
+
+    // Check what Anaconda tells us.
+
     if (!client.in_anaconda_mode())
         return false;
 
     const parents = get_direct_parent_blocks(client, path);
     if (parents.length == 0) {
-        const b = client.blocks[path];
-        return b && client.should_ignore_block(b);
+        return block && client.should_ignore_block(block);
     } else {
         return parents.some(p => should_ignore(client, p));
     }

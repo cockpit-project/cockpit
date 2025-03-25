@@ -34,12 +34,9 @@ import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { useDialogs } from "dialogs.jsx";
 import { useInit } from "hooks";
 
-const _ = cockpit.gettext;
+import { debug } from "./utils";
 
-function debug() {
-    if (window.debugging == "all" || window.debugging?.includes("packagekit"))
-        console.debug.apply(console, arguments);
-}
+const _ = cockpit.gettext;
 
 /**
  * Package manager specific implementations; PackageKit does not cover

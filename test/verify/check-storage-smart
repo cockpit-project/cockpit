@@ -61,7 +61,7 @@ class TestStorageSmart(storagelib.StorageSmartCase):
 
         if base_ver > (3, 3, 0):
             return True
-        elif base_ver == (3, 3, 0) and sub_ver >= 99:
+        elif base_ver == (3, 3, 0) and sub_ver >= 3:
             return True
         else:
             return False

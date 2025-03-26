@@ -164,7 +164,8 @@ class FsReadChannel(GeneratorChannel):
 class FSReplaceAttrs:
     uid: 'int | None' = None
     gid: 'int | None' = None
-    supported_attrs = {'user', 'group'}
+    supported_attrs = {'user', 'group', 'mode'}
+    mode: 'int | None' = None
 
     def __init__(self, value: JsonObject) -> None:
         # Any unknown keys throw an error
@@ -174,6 +175,7 @@ class FSReplaceAttrs:
                                message=f'"attrs" contains unsupported key(s): {",".join(unsupported_attrs)}',
                                unsupported_attrs=list(unsupported_attrs)) from None
 
+        self.mode = get_int(value, 'mode', None)
         user = get_str_or_int(value, 'user', None)
         group = get_str_or_int(value, 'group', None)
 
@@ -225,6 +227,13 @@ class FsReplaceChannel(AsyncChannel):
             elif buf is not None:
                 os.fchown(fd, buf.st_uid, buf.st_gid)
 
+        def apply_file_mode(fd: 'int', mode: 'int | None' = None):
+            if attrs is not None and attrs.mode is not None:
+                mode = attrs.mode
+            elif mode is None:
+                mode = 0o666 & ~my_umask()
+            os.fchmod(fd, mode)
+
         try:
             if size is not None:
                 logger.debug('fallocate(%s.tmp, %d)', path, size)
@@ -247,14 +256,14 @@ class FsReplaceChannel(AsyncChannel):
             if tag is None:
                 # no preconditions about what currently exists or not
                 # calculate the file mode from the umask
-                os.fchmod(fd, 0o666 & ~my_umask())
+                apply_file_mode(fd)
                 chown_if_required(fd)
                 os.rename(tmpname, path)
                 tmpname = None
 
             elif tag == '-':
                 # the file must not exist.  file mode from umask.
-                os.fchmod(fd, 0o666 & ~my_umask())
+                apply_file_mode(fd)
                 chown_if_required(fd)
                 os.link(tmpname, path)  # will fail if file exists
 
@@ -267,7 +276,7 @@ class FsReplaceChannel(AsyncChannel):
                     if tag != tag_from_stat(buf):
                         raise ChannelError('change-conflict')
                     # chown/chmod from the existing file permissions
-                    os.fchmod(fd, stat.S_IMODE(buf.st_mode))
+                    apply_file_mode(fd, stat.S_IMODE(buf.st_mode))
                     chown_if_required(fd, buf)
                     try:
                         selinux_context = os.getxattr(path_fd, 'security.selinux')

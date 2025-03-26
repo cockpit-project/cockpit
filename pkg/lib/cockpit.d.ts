@@ -294,6 +294,7 @@ declare module 'cockpit' {
     interface ReplaceAttrs {
       user?: string | number;
       group?: string | number;
+      mode?: number;
     }
 
     interface FileHandle<T> {

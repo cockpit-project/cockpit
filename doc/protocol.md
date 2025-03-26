@@ -1070,6 +1070,7 @@ The following options can be specified in the "open" control message:
            to set. Both `user` and `group` are required.
   - `user`: a string, or an integer, the uid of the file owner (`st_uid`)
   - `group`: a string, or an integer, the gid of the file group (`st_gid`)
+  - `mode`:  an integer the octal representation of permission bits
 
 You should write the new content to the channel as one or more
 messages.  To indicate the end of the content, send a "done" message.

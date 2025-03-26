@@ -1042,6 +1042,8 @@ class TestSystemInfoTime(packagelib.PackageCase):
 
         self.assertIn("0.ntp.example.com", m.execute(f"grep '^NTP=' {conf}"))
         self.assertIn("1.ntp.example.com", m.execute(f"grep '^NTP=' {conf}"))
+        # Cockpit created the file with the correct permissions
+        self.assertEqual(m.execute(f"stat --format '%a' {conf}").strip(), "644")
 
         # restarts timesyncd to pick up the new config
         testlib.wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)

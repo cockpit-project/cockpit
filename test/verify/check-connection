@@ -365,69 +365,87 @@ class TestConnection(testlib.MachineCase):
         m = self.machine
         b = self.browser
 
-        # Start Cockpit with TLS, force cert regeneration
+        def check_tls():
+            m.start_cockpit(tls=True)
+
+            # A normal TLS connection works
+            output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
+            m.message(output)
+            self.assertIn("DONE", output)
+
+            # has proper keyUsage and SAN (both with sscg and with self-signed)
+            output = m.execute("openssl s_client -showcerts -connect 172.27.0.15:9090 |"
+                               "openssl x509 -noout -ext keyUsage,extendedKeyUsage,subjectAltName")
+            # keyUsage
+            self.assertIn("Digital Signature", output)
+            self.assertIn("Key Encipherment", output)
+            # extendedKeyUsage
+            self.assertIn("TLS Web Server Authentication", output)
+            # SAN
+            self.assertIn("IP Address:127.0.0.1", output)
+            self.assertIn("DNS:localhost", output)
+
+            # SSLv3 should not work
+            output = m.execute('openssl s_client -connect 172.27.0.15:9090 -ssl3 2>&1 || true')
+            self.assertNotIn("DONE", output)
+
+            # Some operating systems fail SSL3 on the server side
+            self.assertRegex(output, "Secure Renegotiation IS NOT supported|"
+                                     "ssl handshake failure|"
+                                     "[uU]nknown option.* -ssl3|"
+                                     "null ssl method passed|"
+                                     "wrong version number")
+
+            # RC4 should not work
+            output = m.execute('! openssl s_client -connect 172.27.0.15:9090 -tls1_2 -cipher RC4 2>&1')
+            self.assertNotIn("DONE", output)
+            self.assertRegex(
+                output, r"no cipher match|no ciphers available|ssl handshake failure|Cipher is \(NONE\)")
+
+            # fails with useful error message with broken certs/keys
+            if not m.ostree_image:  # not using systemd unit
+                def check_fail(expected: list[str]):
+                    m.start_cockpit(tls=True)
+                    m.execute('! openssl s_client -connect 172.27.0.15:9090 2>&1')
+                    out = m.execute("! systemctl status cockpit.service")
+                    self.assertIn("failed", out)
+                    for s in expected:
+                        self.assertIn(s, out)
+
+                # missing key
+                orig_key = m.execute("cat /etc/cockpit/ws-certs.d/0-self-signed.key")
+                m.execute("mv /etc/cockpit/ws-certs.d/0-self-signed.key /etc/cockpit/ws-certs.d/key.bak")
+                check_fail(["0-self-signed.key", "No such file or directory"])
+                # broken key
+                m.write("/etc/cockpit/ws-certs.d/0-self-signed.key", "-----BEGIN PRIVATE KEY-----\nnope")
+                check_fail(["/etc/cockpit/ws-certs.d/0-self-signed.cert/.key", "decoding error"])
+                m.execute("mv /etc/cockpit/ws-certs.d/key.bak /etc/cockpit/ws-certs.d/0-self-signed.key")
+                # missing cert; does not stomp over the existing key
+                m.execute("rm /etc/cockpit/ws-certs.d/0-self-signed.cert")
+                check_fail(["Found 0-self-signed.key but no 0-self-signed.cert", "Please remove the key file first"])
+                self.assertEqual(m.execute("cat /etc/cockpit/ws-certs.d/0-self-signed.key"), orig_key)
+                # broken cert
+                m.write("/etc/cockpit/ws-certs.d/0-self-signed.cert", "-----BEGIN CERTIFICATE-----\nnope")
+                check_fail(["/etc/cockpit/ws-certs.d/0-self-signed.cert/.key", "header error"])
+
+        # force cert regeneration: sscg by default
         m.execute("rm -f /etc/cockpit/ws-certs.d/*")
-        m.start_cockpit(tls=True)
+        check_tls()
 
-        # A normal TLS connection works
-        output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
-        m.message(output)
-        self.assertIn("DONE", output)
-
-        # has proper keyUsage and SAN (both with sscg and with self-signed)
-        output = m.execute("openssl s_client -showcerts -connect 172.27.0.15:9090 |"
-                           "openssl x509 -noout -ext keyUsage,extendedKeyUsage,subjectAltName")
-        # keyUsage
-        self.assertIn("Digital Signature", output)
-        self.assertIn("Key Encipherment", output)
-        # extendedKeyUsage
-        self.assertIn("TLS Web Server Authentication", output)
-        # SAN
-        self.assertIn("IP Address:127.0.0.1", output)
-        self.assertIn("DNS:localhost", output)
-
-        # SSLv3 should not work
-        output = m.execute('openssl s_client -connect 172.27.0.15:9090 -ssl3 2>&1 || true')
-        self.assertNotIn("DONE", output)
-
-        # Some operating systems fail SSL3 on the server side
-        self.assertRegex(output, "Secure Renegotiation IS NOT supported|"
-                         "ssl handshake failure|"
-                         "[uU]nknown option.* -ssl3|"
-                         "null ssl method passed|"
-                         "wrong version number")
-
-        # RC4 should not work
-        output = m.execute('! openssl s_client -connect 172.27.0.15:9090 -tls1_2 -cipher RC4 2>&1')
-        self.assertNotIn("DONE", output)
-        self.assertRegex(
-            output, r"no cipher match|no ciphers available|ssl handshake failure|Cipher is \(NONE\)")
-
-        # fails with useful error message with broken certs/keys
-        if not m.ostree_image:  # not using systemd unit
-            def check_fail(expected: list[str]):
-                m.start_cockpit(tls=True)
-                m.execute('! openssl s_client -connect 172.27.0.15:9090 2>&1')
-                out = m.execute("! systemctl status cockpit.service")
-                self.assertIn("failed", out)
-                for s in expected:
-                    self.assertIn(s, out)
-
-            # missing key
-            orig_key = m.execute("cat /etc/cockpit/ws-certs.d/0-self-signed.key")
-            m.execute("mv /etc/cockpit/ws-certs.d/0-self-signed.key /etc/cockpit/ws-certs.d/key.bak")
-            check_fail(["0-self-signed.key", "No such file or directory"])
-            # broken key
-            m.write("/etc/cockpit/ws-certs.d/0-self-signed.key", "-----BEGIN PRIVATE KEY-----\nnope")
-            check_fail(["/etc/cockpit/ws-certs.d/0-self-signed.cert/.key", "decoding error"])
-            m.execute("mv /etc/cockpit/ws-certs.d/key.bak /etc/cockpit/ws-certs.d/0-self-signed.key")
-            # missing cert; does not stomp over the existing key
-            m.execute("rm /etc/cockpit/ws-certs.d/0-self-signed.cert")
-            check_fail(["Found 0-self-signed.key but no 0-self-signed.cert", "Please remove the key file first"])
-            self.assertEqual(m.execute("cat /etc/cockpit/ws-certs.d/0-self-signed.key"), orig_key)
-            # broken cert
-            m.write("/etc/cockpit/ws-certs.d/0-self-signed.cert", "-----BEGIN CERTIFICATE-----\nnope")
-            check_fail(["/etc/cockpit/ws-certs.d/0-self-signed.cert/.key", "header error"])
+        # direct openssl fallback
+        m.stop_cockpit()
+        m.execute("rm -f /etc/cockpit/ws-certs.d/*")
+        try:
+            sscg = m.execute("command -v sscg").strip()
+        except subprocess.CalledProcessError:
+            # some images (Arch/Fedora CoreOS) don't have sscg; in that case the above already tested direct openssl
+            pass
+        else:
+            try:
+                m.execute(f"mount -o bind /dev/null {sscg}")
+                check_tls()
+            finally:
+                m.execute(f"umount {sscg}")
 
         # gets along with missing directory
         m.execute("rm -r /etc/cockpit/ws-certs.d")

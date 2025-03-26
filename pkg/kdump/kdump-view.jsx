@@ -551,8 +551,8 @@ ${enableCrashKernel}
             kdumpSwitch = (<Switch isChecked={!!serviceRunning}
                 onChange={this.props.onSetServiceState}
                 aria-label={_("kdump status")}
+                label={serviceRunning ? _("Enabled") : _("Disabled")}
                 isDisabled={this.props.stateChanging} />);
-            kdumpSwitchHelper = serviceRunning ? _("Enabled") : _("Disabled");
         }
 
         let alertMessage;
@@ -595,9 +595,10 @@ ${enableCrashKernel}
                             {_("Kernel crash dump")}
                         </Title>
                         {kdumpSwitch}
-                        <HelperText>
-                            <HelperTextItem variant="indeterminate">{kdumpSwitchHelper}</HelperTextItem>
-                        </HelperText>
+                        {kdumpSwitchHelper &&
+                            <HelperText className="subtle-helper-text">
+                                <HelperTextItem>{kdumpSwitchHelper}</HelperTextItem>
+                            </HelperText>}
                         {automationButton}
                     </Flex>
                 </PageSection>

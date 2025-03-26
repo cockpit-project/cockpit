@@ -18,7 +18,6 @@
  */
 import cockpit from "cockpit";
 import React from "react";
-import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 
@@ -62,6 +61,7 @@ export class FirewallSwitch extends React.Component {
                         id='networking-firewall-switch'
                         className='networking-firewall-switch'
                         onChange={this.onSwitchChanged}
+                        label={enabled ? _("Enabled") : _("Disabled")}
                         aria-label={enabled ? _("Not authorized to disable the firewall") : _("Not authorized to enable the firewall")}
                         isDisabled />
             </Tooltip>;
@@ -71,15 +71,9 @@ export class FirewallSwitch extends React.Component {
                                     className='networking-firewall-switch'
                                     isDisabled={!!this.state.pendingTarget}
                                     onChange={this.onSwitchChanged}
+                                    label={enabled ? _("Enabled") : _("Disabled")}
                                     aria-label={enabled ? _("Disable the firewall") : _("Enable the firewall")} />;
         }
-        return (
-            <>
-                {firewallOnOff}
-                <HelperText>
-                    <HelperTextItem variant="indeterminate">{enabled ? _("Enabled") : _("Disabled")}</HelperTextItem>
-                </HelperText>
-            </>
-        );
+        return firewallOnOff;
     }
 }

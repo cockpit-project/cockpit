@@ -87,6 +87,15 @@ def get_str_or_none(obj: JsonObject, key: str, default: Optional[str]) -> Option
     return _get(obj, lambda v: None if v is None else typechecked(v, str), key, default)
 
 
+def get_str_or_int(obj: JsonObject, key: str, default: Optional[Union[str, int]]) -> Optional[Union[str, int]]:
+    def as_str_or_int(value: JsonValue) -> Union[str, int]:
+        if not isinstance(value, (str, int)):
+            raise JsonError(value, 'must be a string or integer')
+        return value
+
+    return _get(obj, as_str_or_int, key, default)
+
+
 def get_dict(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> Union[DT, JsonObject]:
     return _get(obj, lambda v: typechecked(v, dict), key, default)
 

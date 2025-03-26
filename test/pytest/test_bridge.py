@@ -14,7 +14,7 @@ import sys
 import unittest.mock
 from collections import deque
 from pathlib import Path
-from typing import Dict, Iterable, Iterator, Sequence
+from typing import Dict, Generator, Iterable, Iterator, Optional, Sequence, Union
 
 import pytest
 
@@ -482,6 +482,28 @@ async def test_fslist1_notexist(transport: MockTransport) -> None:
         reply_keys={'message': "[Errno 2] No such file or directory: '/nonexisting'"})
 
 
+class GrpPwMock:
+    def __init__(self, uid: int, gid: Optional[int] = None) -> None:
+        self.pw_uid = uid
+        self.gr_gid = gid
+
+    def __str__(self) -> str:
+        return f'uid={self.pw_uid},gid={self.gr_gid}'
+
+
+@pytest.fixture
+def fchown_mock():
+    with unittest.mock.patch('os.fchown', return_value=True) as fchown_mock:
+        yield fchown_mock
+
+
+@pytest.fixture
+def user_group_mock(user_group_mock_arg: GrpPwMock) -> Generator[GrpPwMock, GrpPwMock, None]:
+    with unittest.mock.patch('pwd.getpwnam', return_value=user_group_mock_arg):
+        with unittest.mock.patch('grp.getgrnam', return_value=user_group_mock_arg):
+            yield user_group_mock_arg
+
+
 @pytest.mark.asyncio
 async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     # create non-existing file
@@ -654,6 +676,84 @@ async def test_fsreplace1_error(transport: MockTransport, tmp_path: Path) -> Non
                                reply_keys={
                                    'message': """attribute 'send-acks': invalid value "not-valid" not in ['bytes']"""
     })
+
+    await transport.check_open('fsreplace1', path=str(tmp_path / 'test'),
+                               attrs={'user': 'cockpit', 'group': 'cockpit', 'selinux': True},
+                               problem='protocol-error',
+                               reply_keys={
+                                   'message': '"attrs" contains unsupported key(s) [\'selinux\']',
+                                   'unsupported_attrs': ['selinux']
+    })
+
+    await transport.check_open('fsreplace1', path=str(tmp_path / 'test'), attrs={'user': 'cockpit'},
+                               problem='protocol-error',
+                               reply_keys={
+                                   'message': '"group" attribute is empty while "user" is provided'
+    })
+
+    await transport.check_open('fsreplace1', path=str(tmp_path / 'test'), attrs={'group': 'cockpit'},
+                               problem='protocol-error',
+                               reply_keys={
+                                   'message': '"user" attribute is empty while "group" is provided'
+    })
+
+    await transport.check_open('fsreplace1', path=str(tmp_path / 'test'), attrs={'user': 'cockpit', 'group': []},
+                               problem='protocol-error',
+                               reply_keys={
+                                   'message': "attribute 'attrs': attribute 'group': must be a string or integer"
+    })
+
+    await transport.check_open('fsreplace1', path=str(tmp_path / 'test'), attrs={'user': [], 'group': 'test'},
+                               problem='protocol-error',
+                               reply_keys={
+                                   'message': "attribute 'attrs': attribute 'user': must be a string or integer"
+    })
+
+    mock_val = GrpPwMock(uid=0, gid=1000)
+    with unittest.mock.patch('pwd.getpwnam', side_effect=KeyError()):
+        await transport.check_open('fsreplace1', path=str(tmp_path / 'test'),
+                                   attrs={'user': 'bazinga', 'group': 'foo'},
+                                   problem='internal-error',
+                                   reply_keys={
+                                       'message': 'uid not found for bazinga'
+        })
+
+    with unittest.mock.patch('pwd.getpwnam', return_value=mock_val):
+        with unittest.mock.patch('grp.getgrnam', side_effect=KeyError()):
+            await transport.check_open('fsreplace1', path=str(tmp_path / 'test'),
+                                       attrs={'user': 'bazinga', 'group': 'test'},
+                                       problem='internal-error',
+                                       reply_keys={
+                                           'message': 'gid not found for test'
+            })
+
+
+ATTRS_TEST_DATA = [
+    (GrpPwMock(1111, 1110), {'user': 1111, 'group': 1110}),
+    (GrpPwMock(1111, 1110), {'user': 'monkey', 'group': 'group'}),
+]
+
+
+@pytest.mark.parametrize(('user_group_mock_arg', 'attrs'), ATTRS_TEST_DATA)
+@pytest.mark.asyncio
+async def test_fsreplace1_attrs(transport: MockTransport, fchown_mock: unittest.mock.MagicMock,
+                                tmp_path: Path, user_group_mock, attrs) -> None:
+    async def create_file_with_attrs(filename: str, attrs: Dict[str, Union[int, str]]) -> None:
+        test_file = str(tmp_path / filename)
+        ch = await transport.check_open('fsreplace1', path=str(test_file), attrs=attrs)
+        transport.send_data(ch, b'content')
+        transport.send_done(ch)
+        await transport.assert_msg('', command='done', channel=ch)
+        await transport.check_close(ch)
+
+    await create_file_with_attrs('test', attrs)
+    fchown_mock.assert_called()
+    _, call_uid, call_gid = fchown_mock.call_args[0]
+    assert call_uid == user_group_mock.pw_uid
+    if user_group_mock.gr_gid is None:
+        assert call_gid == user_group_mock.pw_uid
+    else:
+        assert call_gid == user_group_mock.gr_gid
 
 
 @pytest.mark.asyncio

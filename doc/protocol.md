@@ -1066,6 +1066,11 @@ The following options can be specified in the "open" control message:
    you don't set this field, the actual tag will not be checked.  To
    express that you expect the file to not exist, use "-" as the tag.
 
+* "attrs": a JSON object containing file user and group information
+           to set. Both `user` and `group` are required.
+  - `user`: a string, or an integer, the uid of the file owner (`st_uid`)
+  - `group`: a string, or an integer, the gid of the file group (`st_gid`)
+
 You should write the new content to the channel as one or more
 messages.  To indicate the end of the content, send a "done" message.
 

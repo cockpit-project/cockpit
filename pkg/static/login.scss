@@ -129,7 +129,7 @@
 }
 
 html {
-  block-size: 100%;
+  block-size: 100vh;
   font-size: 87.5%;
 }
 
@@ -689,83 +689,11 @@ html:not(.pf-v6-theme-dark) #login-wait-validating .spinner {
   cursor: default;
 }
 
-/*** Media breakpoints ***/
-/* Optimize for mobile phones in portrait mode */
-@media (width <= 480px) {
-  .login-pf {
-    display: flex;
-    flex-direction: column-reverse;
-    position: relative;
-  }
-
-  .row {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .login-pf .container {
-    inline-size: 100%;
-    padding: 2rem;
-  }
-
-  .login-pf #badge {
-    max-inline-size: calc(100vw - 2rem);
-  }
-
-  /* Brand container */
-  .login-pf #brand {
-    font-size: inherit;
-    background-position: 50% 50%;
-  }
-
-  .details {
-    text-align: center;
-  }
-}
-
-/* Large phones and desktops */
-@media (width > 480px) {
-  .unsupported-browser-heading {
-    margin-block: 2rem 1rem;
-    margin-inline: 0;
-  }
-
-  .login-pf #brand {
-    padding: 0;
-    margin-block-end: 1rem;
-  }
-}
-
-/* Desktop only */
-@media (width > 1024px) {
-  .control-label {
-    text-align: end;
-  }
-
-  .login-pf #brand img {
-    margin: 0;
-    text-align: start;
-  }
-
-  .login-pf .container .login-area {
-    border-inline-end: 1px solid var(--color-secondary-text);
-  }
-}
-
 /* PF4-ish style overrides (depending on grid & CSS variables */
 .row {
   display: flex;
   flex-flow: column;
   margin: 0;
-}
-
-body.login-pf {
-  color: var(--color-input);
-  display: grid;
-  grid-template-areas: "banner" "login" "details" "recent" "logo";
-  grid-template-rows: repeat(3, auto) 1fr;
-  background-position: 0 0 !important;
-  padding: 0;
 }
 
 .login-pf .container .details p:first-child {
@@ -892,34 +820,6 @@ details > summary:hover {
   }
 }
 
-/* Mobile-specific */
-@media (width < 1024px) {
-  body.login-pf {
-    justify-items: center;
-  }
-
-  #badge {
-    background-position: center;
-    margin: 2rem;
-  }
-}
-
-/* Desktop-specific */
-@media (width >= 1024px) {
-  body.login-pf {
-    grid-template-areas:
-      ". banner  banner ."
-      ". .       .      ."
-      ". login   logo   ."
-      ". details logo   ."
-      ". recent  logo   ."
-      ". .       .      .";
-    grid-template-rows: auto 1fr minmax(min-content, max-content) repeat(2, auto) 1fr;
-    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(auto, 38rem)) minmax(0, 1fr);
-    grid-gap: 0 4rem;
-  }
-}
-
 .unsupported-browser {
   #brand {
     display: none;
@@ -1009,8 +909,55 @@ input[type="password"] + .login-password-toggle .password-hide {
   }
 }
 
-/* Animation */
+/* Layout */
+body.login-pf {
+  --content-width: 38rem;
+  --gap: 4rem;
+  color: var(--color-input);
+  display: grid;
+  grid-template-areas:
+    ". banner  ."
+    ". .       ."
+    ". login   ."
+    ". details ."
+    ". recent  ."
+    ". .       ."
+    ". logo    ."
+    ". .       .";
+  grid-template-rows: auto 1fr repeat(3, auto) var(--gap) auto 1fr;
+  grid-template-columns: minmax(1rem, 1fr) minmax(auto, var(--content-width)) minmax(1rem, 1fr);
+  gap: 0;
+  justify-items: center;
 
+  /* Desktop only */
+  @media (width >=900px) {
+    grid-template-areas:
+      ". banner  banner ."
+      ". .       .      ."
+      ". login   logo   ."
+      ". details logo   ."
+      ". recent  logo   ."
+      ". .       .      .";
+    grid-template-rows: auto 1fr minmax(min-content, max-content) repeat(2, auto) 1fr;
+    grid-template-columns: 1fr var(--content-width) auto 1fr;
+    column-gap: var(--gap);
+
+    #brand img {
+      margin: 0;
+      text-align: start;
+    }
+  }
+
+  /* Mobile-specific */
+  @media (width < 900px) {
+    #badge {
+      background-position: center;
+      margin: 2rem;
+    }
+  }
+}
+
+/* Animation */
 @keyframes rotation {
   from {
     transform: rotate(0);

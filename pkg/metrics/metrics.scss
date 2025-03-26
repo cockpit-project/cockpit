@@ -1,13 +1,13 @@
 @use "page";
 @use "ct-card";
-@import "global-variables";
-@import "@patternfly/patternfly/utilities/Text/text.scss";
+@use "global-variables" as *;
+@use "@patternfly/patternfly/utilities/Text/text.scss";
 
 // utilities for `pf-u...` classes
-@import "@patternfly/patternfly/utilities/Spacing/spacing.css";
+@use "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
 // colors for PF charts
-@import "@patternfly/patternfly/patternfly-charts.css";
+@use "@patternfly/patternfly/patternfly-charts.css";
 
 #app {
   section.pf-v6-c-page__main-breadcrumb {

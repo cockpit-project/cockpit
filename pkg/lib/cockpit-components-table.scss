@@ -1,4 +1,4 @@
-@import "global-variables";
+@use "global-variables" as *;
 
 .ct-table {
   &-header {
@@ -69,7 +69,6 @@
   // Use PF4 style headings
   > thead th {
     font-size: var(--pf-t--global--font--size--sm);
-    font-weight: var(--pf-t--global--font--weight--heading--bold);
   }
 }
 

@@ -1,8 +1,8 @@
 @use "./system-global.scss";
 /* System Time Modal dialog needs table.css */
-@use "../lib/table.css";
-@import "global-variables";
-@import "@patternfly/patternfly/components/Table/table.scss";
+@use "../lib/table.css" as *;
+@use "global-variables" as *;
+@use "@patternfly/patternfly/components/Table/table.scss";
 
 .ct-limited-access-alert {
   --pf-v6-c-alert--GridTemplateAreas: "icon title action" ". description description";

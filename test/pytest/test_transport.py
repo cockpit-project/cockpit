@@ -302,13 +302,14 @@ class TestSubprocessTransport:
 
     @pytest.mark.asyncio
     async def test_safe_watcher_ENOSYS(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # this test disables pidfd support in order to force the fallback path
+        # which creates a SafeChildWatcher.  That's deprecated since 3.12 and
+        # removed in 3.14, so skip this test on those versions to avoid issues.
         if sys.version_info >= (3, 12, 0):
             pytest.skip()
 
-        monkeypatch.setattr(asyncio, 'PidfdChildWatcher', unittest.mock.Mock(side_effect=OSError), raising=False)
-        protocol, transport = self.subprocess(['true'])
-        watcher = transport._get_watcher(asyncio.get_running_loop())
-        assert isinstance(watcher, asyncio.SafeChildWatcher)
+        monkeypatch.setattr(os, 'pidfd_open', unittest.mock.Mock(side_effect=OSError), raising=False)
+        protocol, _transport = self.subprocess(['true'])
         await protocol.eof_and_exited_with_code(0)
 
     @pytest.mark.asyncio

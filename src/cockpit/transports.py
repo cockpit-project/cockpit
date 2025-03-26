@@ -305,33 +305,10 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     data from it, making it available via the .get_stderr() method.
     """
 
-    _returncode: 'int | None' = None
-
     _pty_fd: 'int | None' = None
     _process: 'subprocess.Popen[bytes] | None' = None
+    _returncode: 'int | None' = None
     _stderr: 'Spooler | None'
-
-    @staticmethod
-    def _create_watcher() -> asyncio.AbstractChildWatcher:
-        try:
-            os.close(os.pidfd_open(os.getpid(), 0))  # check for kernel support
-            return asyncio.PidfdChildWatcher()
-        except (AttributeError, OSError):
-            pass
-
-        return asyncio.SafeChildWatcher()
-
-    @staticmethod
-    def _get_watcher(loop: asyncio.AbstractEventLoop) -> asyncio.AbstractChildWatcher:
-        quark = '_cockpit_transports_child_watcher'
-        watcher = getattr(loop, quark, None)
-
-        if watcher is None:
-            watcher = SubprocessTransport._create_watcher()
-            watcher.attach_loop(loop)
-            setattr(loop, quark, watcher)
-
-        return watcher
 
     def get_stderr(self, *, reset: bool = False) -> str:
         if self._stderr is not None:
@@ -339,23 +316,48 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         else:
             return ''
 
-    def _exited(self, pid: int, code: int) -> None:
-        # NB: per AbstractChildWatcher API, this handler should be thread-safe,
-        # but we only ever use non-threaded child watcher implementations, so
-        # we can assume we'll always be called in the main thread.
+    def watch_exit(self, process: 'subprocess.Popen[bytes]') -> None:
+        def flag_exit() -> None:
+            assert isinstance(self._protocol, SubprocessProtocol)
+            logger.debug('Process exited with status %d', self._returncode)
+            if not self._closing:
+                self._protocol.process_exited()
 
-        # NB: the subprocess is going to want to waitpid() itself as well, but
-        # will get ECHILD since we already reaped it.  Fortunately, since
-        # Python 3.2 this is supported, and process gets a return status of
-        # zero.  For that reason, we need to store our own copy of the return
-        # status.  See https://github.com/python/cpython/issues/59960
-        assert isinstance(self._protocol, SubprocessProtocol)
-        assert self._process is not None
-        assert self._process.pid == pid
-        self._returncode = code
-        logger.debug('Process exited with status %d', self._returncode)
-        if not self._closing:
-            self._protocol.process_exited()
+        def pidfd_ready() -> None:
+            pid, status = os.waitpid(process.pid, 0)
+            assert pid == process.pid
+            try:
+                self._returncode = os.waitstatus_to_exitcode(status)
+            except ValueError:
+                self._returncode = status
+            self._loop.remove_reader(pidfd)
+            os.close(pidfd)
+            flag_exit()
+
+        def child_watch_fired(pid: int, code: int) -> None:
+            assert process.pid == pid
+            self._returncode = code
+            flag_exit()
+
+        # We first try to create a pidfd to track the process manually.  If
+        # that does work, we need to create a SafeChildWatcher, which has been
+        # deprecated and removed in Python 3.14.  This effectively means that
+        # using Python 3.14 requires that we're running on a kernel with pidfd
+        # support, which is fine: the only place we still care about such old
+        # kernels is on RHEL8 and we have Python 3.6 there.
+        try:
+            pidfd = os.pidfd_open(process.pid)
+            self._loop.add_reader(pidfd, pidfd_ready)
+        except (AttributeError, OSError):
+            quark = '_cockpit_transports_child_watcher'
+            watcher = getattr(self._loop, quark, None)
+
+            if watcher is None:
+                watcher = asyncio.SafeChildWatcher()
+                watcher.attach_loop(self._loop)
+                setattr(self._loop, quark, watcher)
+
+            watcher.add_child_handler(process.pid, child_watch_fired)
 
     def __init__(self,
                  loop: asyncio.AbstractEventLoop,
@@ -401,8 +403,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             self._stderr = None
 
         super().__init__(loop, protocol, in_fd, out_fd)
-
-        self._get_watcher(loop).add_child_handler(self._process.pid, self._exited)
+        self.watch_exit(self._process)
 
     def set_window_size(self, size: WindowSize) -> None:
         assert self._pty_fd is not None
@@ -434,10 +435,10 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         # to waitpid() internally to avoid signalling the wrong process (if a
         # PID gets reused), but:
         #
-        #  - we already detect the process exiting via our PidfdChildWatcher
+        #  - we already detect the process exiting via our pidfd
         #
         #  - the check is actually harmful since collecting the process via
-        #    waitpid() prevents the PidfdChildWatcher from doing the same,
+        #    waitpid() prevents our pidfd-based watcher from doing the same,
         #    resulting in an error.
         #
         # It's on us now to check it, but that's easy:

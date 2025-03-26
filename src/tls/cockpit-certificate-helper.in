@@ -49,19 +49,10 @@ selfsign_openssl() {
         -out "${CERTFILE}" \
         -outform PEM \
         -subj "${MACHINE_ID:+/O=${MACHINE_ID}}/CN=${HOSTNAME}" \
-        -config - \
-        -extensions v3_req << EOF
-    [ req ]
-    req_extensions = v3_req
-    extensions = v3_req
-    distinguished_name = req_distinguished_name
-    [ req_distinguished_name ]
-    [ v3_req ]
-    subjectAltName=IP:127.0.0.1,DNS:localhost
-    basicConstraints = critical, CA:TRUE
-    keyUsage = critical, digitalSignature,cRLSign,keyCertSign,keyEncipherment,keyAgreement
-    extendedKeyUsage = serverAuth
-EOF
+        -addext "subjectAltName=IP:127.0.0.1,DNS:localhost" \
+        -addext "basicConstraints = critical, CA:TRUE" \
+        -addext "keyUsage = critical, digitalSignature,cRLSign,keyCertSign,keyEncipherment,keyAgreement" \
+        -addext "extendedKeyUsage = serverAuth"
 }
 
 cmd_selfsign() {

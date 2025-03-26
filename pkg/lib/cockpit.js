@@ -2070,7 +2070,7 @@ function factory() {
 
         let replace_channel = null;
 
-        function replace(new_content, expected_tag) {
+        function replace(new_content, expected_tag, attrs) {
             const dfd = cockpit.defer();
 
             let file_content;
@@ -2090,6 +2090,14 @@ function factory() {
                 path,
                 tag: expected_tag
             };
+
+            if (attrs) {
+                if (cockpit.info.channels === undefined) {
+                    dfd.reject(new BasicError("not-supported", "must await cockpit.init() before calling cockpit.file.replace()"));
+                }
+                opts.attrs = attrs;
+            }
+
             replace_channel = cockpit.channel(opts);
 
             replace_channel.addEventListener("close", function (event, message) {

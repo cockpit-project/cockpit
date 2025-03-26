@@ -130,6 +130,9 @@ QUnit.test("fsreplace1 no path", async assert => {
 });
 
 QUnit.test("fsreplace1 attrs", async assert => {
+    await assert.rejects(cockpit.file(dir + "/bar").replace(null, undefined, { user: 'admin', group: 'admin' }),
+                         /must await cockpit.init/, "rejects passing 'attrs' without awaiting cockpit.init()");
+
     await cockpit.init();
     assert.propContains(cockpit.info.channels, { fsreplace1: ['attrs'] });
 

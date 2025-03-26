@@ -27,7 +27,7 @@ $desktop: $phone + 1px;
   }
 
   mark {
-    font-weight: bold;
+    font-weight: var(--pf-t--global--font--weight--body--bold);
     background: var(--ct-color-nav-highlight);
     color: var(--ct-color-nav-highlight-text);
   }
@@ -310,7 +310,7 @@ $desktop: $phone + 1px;
 
   .hostname {
     display: block;
-    font-weight: 600;
+    font-weight: var(--pf-t--global--font--weight--heading--bold);
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -636,11 +636,6 @@ $desktop: $phone + 1px;
   .pf-v6-c-page__sidebar {
     inline-size: unset;
   }
-}
-
-.pf-v6-c-nav__section-title {
-  /* FIXME: Font seems different, so weight needs to be adjusted meanwhile */
-  --pf-v6-c-nav__section-title--FontWeight: 600;
 }
 
 .view-hosts .sidebar-hosts,

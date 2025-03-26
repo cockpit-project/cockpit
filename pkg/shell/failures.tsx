@@ -81,7 +81,7 @@ const EarlyFailureReady = ({
 }) => {
     return (
         <div id="early-failure-ready" className="curtains-ct">
-            <Page>
+            <Page className="no-masthead-sidebar">
                 <PageSection hasBodyWrapper={false}>
                     <EmptyStatePanel {... !loading ? { icon: ExclamationCircleIcon } : {} }
                                      loading={loading}

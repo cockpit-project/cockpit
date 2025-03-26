@@ -28,7 +28,7 @@
   <div class="container" id="main">
     <h1 id="brand" class="hide-before"></h1>
 
-    <div id="error-group" class="pf-v6-c-alert pf-m-danger pf-m-inline dialog-error noscript" aria-label="inline danger alert">
+    <div id="error-group" class="pf-v6-c-alert pf-m-danger pf-m-plain pf-m-inline dialog-error noscript" aria-label="inline danger alert">
       <div class="pf-v6-c-alert__icon">
         <svg fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
           <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h28.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
@@ -101,6 +101,8 @@
           <p translate="yes">If the fingerprint matches, click "Accept key and log in". Otherwise, do not log in and contact your administrator.</p>
         </div>
 
+        <p id="login-note" class="login-note"></p>
+
         <div id="user-group" class="form-group">
           <label for="login-user-input" class="control-label" translate="yes">User name</label>
           <input type="text" class="form-control" id="login-user-input" autocorrect="off" autocapitalize="none" autofocus="true" autocomplete="username" />
@@ -126,10 +128,9 @@
         </div>
 
         <div id="option-group">
-          <a href="#" id="show-other-login-options">
-            <svg height="16" width="16" viewBox="0 0 16 16" id="option-caret" class="caret caret-right" aria-hidden="true">
-              <polygon fill="#ffffff" points="4,0 4,14 12,7"></polygon>
-            </svg><span id="show-other-login-options-text" translate="yes">Other options</span>
+          <a href="#" id="show-other-login-options" class="pf-v6-c-expandable-section__toggle">
+            <!-- Icon from FontAwesome 4.7.0; https://fontawesome.com/v4/license/ -->
+            <svg width="1em" height="1em" fill="currentColor" aria-hidden="true" class="pf-v6-c-expandable-section__toggle-icon caret caret-right" viewBox="0 0 256 512"><path d="M224 273 88 409c-9 9-24 9-34 0l-22-23c-10-9-10-24 0-34l96-96-96-96c-10-10-10-25 0-34l22-23c10-9 25-9 34 0l136 136c10 9 10 25 0 34"/></svg><span id="show-other-login-options-text" translate="yes">Other options</span>
             <!-- Above: Span needs to be immediately next to SVG to prevent whitespace in the link -->
           </a>
         </div>
@@ -167,9 +168,8 @@
 
   <div class="details" id="login-details" hidden="true">
     <p>
-      <label class="control-label"><span translate="yes">Server</span>: <b id="server-name"></b></label>
+      <label class="control-label"><span translate="yes">Server</span>: <span id="server-name"></span></label>
     </p>
-    <p id="login-note" class="login-note"></p>
   </div>
 
   <div class="container" id="recent-hosts" hidden="true">

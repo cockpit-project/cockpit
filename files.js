@@ -151,6 +151,15 @@ const nodedir = path.relative(process.cwd(), path.resolve(srcdir, "node_modules"
 
 export const all_subdirs = Array.from(new Set(info.entries.map(key => key.split('/')[0])));
 
+// This are the fonts we used up until migrating to Patternfly v6
+// It is kept here to make sure all dependencies of the fonts works like in
+// third-party plugins etc.
+
+// With the PF6 migration we now want to use Variable Fonts (VF) to ensure better
+// Patternfly visuals, and we will use a new directory structure to avoid hardcoding
+// @font-face.
+//
+// This copies all non-VF Red Hat fonts to our `static/fonts/` directory.
 const redhat_fonts = [
     "Text-Bold", "Text-BoldItalic", "Text-Italic", "Text-Medium", "Text-MediumItalic", "Text-Regular",
     "Display-Black", "Display-BlackItalic", "Display-Bold", "Display-BoldItalic",
@@ -163,6 +172,33 @@ const redhat_fonts = [
     return {
         from: path.resolve(nodedir, fontsdir, subdir, 'RedHat' + name + '.woff2'),
         to: 'static/fonts/'
+    };
+});
+
+// Different directory structure than our redhat_fonts, which makes it easier
+// to use the Patternfly default src and avoid hardcoding our own @font-face.
+//
+// This copies all variable fonts (VF in the name) to subdirectories:
+// static/fonts/
+// ├── RedHatDisplay
+// │   └── RedHatDisplayVF.woff2
+// ├── RedHatMono
+// │   ├── RedHatMonoVF-Italic.woff2
+// │   └── RedHatMonoVF.woff2
+// ├── RedHatText
+// │   ├── RedHatTextVF-Italic.woff2
+// │   └── RedHatTextVF.woff2
+const redhat_fonts_variable_font = [
+    "Text",
+    "Display",
+    "Mono",
+].map(name => {
+    const subdir = 'RedHat' + name;
+    const fontsdir = '@patternfly/patternfly/assets/fonts';
+
+    return {
+        from: path.resolve(nodedir, fontsdir, subdir) + '/**/*VF*.woff2',
+        to: `static/fonts/${subdir}`
     };
 });
 
@@ -193,7 +229,7 @@ export const getFiles = subdir => {
         });
     }
 
-    return ({ entryPoints, assetFiles: files, redhat_fonts });
+    return ({ entryPoints, assetFiles: files, redhat_fonts: redhat_fonts.concat(redhat_fonts_variable_font) });
 };
 
 export const getTestFiles = () => info.tests;

@@ -24,10 +24,6 @@
 
 #network-interface {
   @at-root {
-    #network-interface-name {
-      font-weight: var(--pf-t--global--font--weight--400);
-    }
-
     .network-interface-status > span {
       overflow-wrap: anywhere;
     }
@@ -87,8 +83,6 @@ th {
 
 #networking-interfaces, #networking-unmanaged-interfaces {
   th > .pf-m-link {
-    font-weight: var(--pf-t--global--font--weight--400);
-
     // Preserve the same baseline as other elements, so items align
     display: inline;
     // Expand the link to the container, for easier clickability
@@ -218,7 +212,7 @@ th {
   block-size: 100%;
 
   .ct-table tbody tr:first-of-type td:nth-child(2) {
-    font-weight: var(--pf-t--global--font--weight--400);
+    font-weight: var(--pf-t--global--font--weight--heading--bold);
   }
 }
 

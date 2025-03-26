@@ -42,9 +42,10 @@ from ..jsonutil import (
     JsonError,
     JsonObject,
     get_bool,
-    get_dict,
     get_int,
+    get_object,
     get_str,
+    get_str_or_int,
     get_strv,
     json_merge_and_filter_patch,
 )
@@ -160,6 +161,44 @@ class FsReadChannel(GeneratorChannel):
             raise ChannelError('internal-error', message=str(exc)) from exc
 
 
+class FSReplaceAttrs:
+    uid: 'int | None' = None
+    gid: 'int | None' = None
+    supported_attrs = {'user', 'group'}
+
+    def __init__(self, value: JsonObject) -> None:
+        # Any unknown keys throw an error
+        unsupported_attrs = value.keys() - self.supported_attrs
+        if unsupported_attrs:
+            raise ChannelError('protocol-error',
+                               message=f'"attrs" contains unsupported key(s): {",".join(unsupported_attrs)}',
+                               unsupported_attrs=list(unsupported_attrs)) from None
+
+        user = get_str_or_int(value, 'user', None)
+        group = get_str_or_int(value, 'group', None)
+
+        if user is not None and group is None:
+            raise ChannelError('protocol-error', message='"group" attribute is empty while "user" is provided')
+        if group is not None and user is None:
+            raise ChannelError('protocol-error', message='"user" attribute is empty while "group" is provided')
+
+        if isinstance(user, str):
+            try:
+                self.uid = pwd.getpwnam(user).pw_uid
+            except KeyError:
+                raise ChannelError('not-found', message=f'uid not found for {user}') from None
+        else:
+            self.uid = user
+
+        if isinstance(group, str):
+            try:
+                self.gid = grp.getgrnam(group).gr_gid
+            except KeyError:
+                raise ChannelError('not-found', message=f'gid not found for {group}') from None
+        else:
+            self.gid = group
+
+
 class FsReplaceChannel(AsyncChannel):
     payload = 'fsreplace1'
     capabilities = 'attrs',
@@ -172,11 +211,20 @@ class FsReplaceChannel(AsyncChannel):
         return '-'
 
     async def set_contents(
-        self, path: str, tag: 'str | None', data: 'bytes | None', size: 'int | None'
+        self, path: str, tag: 'str | None', data: 'bytes | None', size: 'int | None',
+        attrs: 'FSReplaceAttrs | None'
     ) -> 'str | None':
         dirname, basename = os.path.split(path)
         tmpname: str | None
         fd, tmpname = tempfile.mkstemp(dir=dirname, prefix=f'.{basename}-')
+
+        def chown_if_required(fd: 'int', buf: 'os.stat_result | None' = None):
+            # Provided attrs are preferred over the existing file permissions
+            if attrs is not None and attrs.uid is not None and attrs.gid is not None:
+                os.fchown(fd, attrs.uid, attrs.gid)
+            elif buf is not None:
+                os.fchown(fd, buf.st_uid, buf.st_gid)
+
         try:
             if size is not None:
                 logger.debug('fallocate(%s.tmp, %d)', path, size)
@@ -200,12 +248,14 @@ class FsReplaceChannel(AsyncChannel):
                 # no preconditions about what currently exists or not
                 # calculate the file mode from the umask
                 os.fchmod(fd, 0o666 & ~my_umask())
+                chown_if_required(fd)
                 os.rename(tmpname, path)
                 tmpname = None
 
             elif tag == '-':
                 # the file must not exist.  file mode from umask.
                 os.fchmod(fd, 0o666 & ~my_umask())
+                chown_if_required(fd)
                 os.link(tmpname, path)  # will fail if file exists
 
             else:
@@ -218,7 +268,7 @@ class FsReplaceChannel(AsyncChannel):
                         raise ChannelError('change-conflict')
                     # chown/chmod from the existing file permissions
                     os.fchmod(fd, stat.S_IMODE(buf.st_mode))
-                    os.fchown(fd, buf.st_uid, buf.st_gid)
+                    chown_if_required(fd, buf)
                     try:
                         selinux_context = os.getxattr(path_fd, 'security.selinux')
                         os.setxattr(fd, 'security.selinux', selinux_context)
@@ -239,13 +289,10 @@ class FsReplaceChannel(AsyncChannel):
         return tag_from_path(path)
 
     async def run(self, options: JsonObject) -> JsonObject:
-        attrs = get_dict(options, 'attrs', None)
+        attrs = get_object(options, 'attrs', FSReplaceAttrs, None)
         path = get_str(options, 'path')
         size = get_int(options, 'size', None)
         tag = get_str(options, 'tag', None)
-
-        if attrs:
-            raise ChannelError('not-supported', message='attrs must be empty')
 
         try:
             # In the `size` case, .set_contents() sends the ready only after
@@ -253,7 +300,7 @@ class FsReplaceChannel(AsyncChannel):
             # `size`, we need to send the ready() up front in order to
             # receive the first frame and decide if we're creating or deleting.
             if size is not None:
-                tag = await self.set_contents(path, tag, b'', size)
+                tag = await self.set_contents(path, tag, b'', size, attrs)
             else:
                 self.ready()
                 data = await self.read()
@@ -261,7 +308,7 @@ class FsReplaceChannel(AsyncChannel):
                 if data is None:
                     tag = self.delete(path, tag)
                 else:
-                    tag = await self.set_contents(path, tag, data, None)
+                    tag = await self.set_contents(path, tag, data, None, attrs)
 
             self.done()
             return {'tag': tag}

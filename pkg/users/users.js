@@ -36,6 +36,7 @@ import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 
 import "./users.scss";
+import { fsinfo } from 'cockpit/fsinfo';
 
 superuser.reload_page_on_change();
 
@@ -91,7 +92,14 @@ function AccountsPage() {
         const handleShadow = cockpit.file("/etc/shadow", { superuser: "try" });
         handleShadow.watch(() => debouncedGetLoginDetails(), { read: false });
 
-        const handleLogindef = cockpit.file("/etc/login.defs");
+        let handleLogindef;
+        try {
+            await fsinfo("/etc/login.defs", []);
+            handleLogindef = cockpit.file("/etc/login.defs");
+        } catch (ex) {
+            handleLogindef = cockpit.file("/usr/etc/login.defs");
+        }
+
         handleLogindef.watch((logindef) => {
             if (logindef === null)
                 return;

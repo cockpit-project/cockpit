@@ -564,6 +564,16 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     # preserves existing permissions when giving expected tag
     assert stat.S_IMODE(myfile.stat().st_mode) == perms
 
+    # mode supplied via attrs overrides existing permissions
+    new_perms = 0o422
+    ch = await transport.check_open('fsreplace1', path=str(myfile), attrs={'mode': new_perms})
+    transport.send_data(ch, b'in the future')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert myfile.read_bytes() == b'in the future'
+    assert stat.S_IMODE(myfile.stat().st_mode) == new_perms
+
     # write empty file
     ch = await transport.check_open('fsreplace1', path=str(myfile))
     transport.send_data(ch, b'')
@@ -603,6 +613,28 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     transport.send_done(ch)
     await transport.assert_msg('', problem='change-conflict', channel=ch)
     assert newfile.exists()
+
+    # create file with a custom mode
+    newfile.unlink()
+    assert not newfile.exists()
+    ch = await transport.check_open('fsreplace1', path=str(newfile), attrs={'mode': perms})
+    transport.send_data(ch, b'some stuff')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert newfile.read_text() == 'some stuff'
+    assert stat.S_IMODE(newfile.stat().st_mode) == perms
+
+    # create file with tag='-' and custom mode
+    newfile.unlink()
+    assert not newfile.exists()
+    ch = await transport.check_open('fsreplace1', path=str(newfile), tag='-', attrs={'mode': perms})
+    transport.send_data(ch, b'some stuff')
+    transport.send_done(ch)
+    await transport.assert_msg('', command='done', channel=ch)
+    await transport.check_close(channel=ch)
+    assert newfile.read_text() == 'some stuff'
+    assert stat.S_IMODE(newfile.stat().st_mode) == perms
 
 
 @pytest.mark.asyncio

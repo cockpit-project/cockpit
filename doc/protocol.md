@@ -1075,6 +1075,8 @@ The following options can be specified in the "open" control message:
     If set `group` also has to be set.
   - `group`: a string, or an integer, the gid of the file group (`st_gid`)
     If set `user` also has to be set.
+  - `mode`:  an integer, usually expressed in octal, but in json it is the
+    equivalent value in decimal.
 
 You should write the new content to the channel as one or more
 messages.  To indicate the end of the content, send a "done" message.

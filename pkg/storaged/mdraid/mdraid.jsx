@@ -91,22 +91,29 @@ function mdraid_stop(mdraid) {
 }
 
 function mdraid_delete(mdraid, block, card) {
-    function delete_() {
-        if (mdraid.Delete)
-            return mdraid.Delete({ 'tear-down': { t: 'b', v: true } }).then(reload_systemd);
+    async function delete_() {
+        const members = client.mdraids_members[mdraid.path];
 
-        // If we don't have a Delete method, we simulate
-        // it by stopping the array and wiping all
-        // members.
+        await mdraid.Delete({ 'tear-down': { t: 'b', v: true } });
 
-        function wipe_members() {
-            return Promise.all(client.mdraids_members[mdraid.path].map(member => member.Format('empty', { })));
+        // HACK - https://github.com/storaged-project/udisks/issues/1375
+        //
+        // Now wipe the members again.  This is necessary when
+        // deleting a MDRAID with metadata 1.0, which stores its
+        // superblock at the end of each member, and the superblock of
+        // the actual content of the mdraid is stored at the very
+        // start of each member (for certain raid levels like a
+        // mirror).  The Delete call above will only remove the mdraid
+        // metadata and leave the content superblock in place. Thus,
+        // after deleting, the members might magically turn into the
+        // previous content.  Wiping the members again will remove any
+        // such metadata that might cause them to be misidentified.
+
+        for (const b of members) {
+            await b.Format('empty', { });
         }
 
-        if (mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0)
-            return mdraid.Stop({}).then(wipe_members);
-        else
-            return wipe_members();
+        await reload_systemd();
     }
 
     const usage = get_active_usage(client, block ? block.path : "", _("delete"));

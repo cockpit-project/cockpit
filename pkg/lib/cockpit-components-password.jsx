@@ -117,10 +117,9 @@ export const PasswordFormFields = ({
             <FormGroup label={password_label}
                        labelHelp={password_label_info &&
                            <Popover bodyContent={password_label_info}>
-                               <button onClick={e => e.preventDefault()}
-                                       className="pf-v6-c-form__group-label-help">
+                               <Button id={`${password_label}-help-popup-button`} variant="plain" aria-label="Help">
                                    <HelpIcon />
-                               </button>
+                               </Button>
                            </Popover>
                        }
                        id={idPrefix + "-pw1-group"}

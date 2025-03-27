@@ -1080,9 +1080,8 @@ class OsUpdates extends React.Component {
                     this.setState({ checkRestartAvailable: true, checkRestartRunning: false, restartPackages });
                 })
                 .catch((exception, data) => {
-                    // tracer not installed? then fall back to dnf needs-restarting
+                    // tracer not installed or supported (like on Arch)? then fall back to dnf needs-restarting
                     if (exception.message?.includes("ModuleNotFoundError") ||
-                        // or supported (like on Arch)
                         exception.message?.includes("UnsupportedDistribution")) {
                         debug('tracer not installed:', JSON.stringify(exception), "trying dnf needs-restarting");
                         return this.checkDnfNeedsRestarting();

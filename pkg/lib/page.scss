@@ -213,4 +213,11 @@ body {
   .pf-v6-c-backdrop {
     --pf-t--global--background--color--backdrop--default: var(--pf-t--global--background--color--secondary--default) !important;
   }
+
+  // We set svg aliasing to precision instead of auto/optimizeSpeed to try to ensure
+  // consistent rendering between test runs.
+  svg {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/shape-rendering
+    shape-rendering: crispedges;
+  }
 }

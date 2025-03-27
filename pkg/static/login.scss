@@ -19,7 +19,7 @@
   --color-body-background: #eee;
   --color-details-background: #ededed;
 
-  --color-text: #333;
+  --color-text: #151515;
   --color-text-light: #999;
   --color-text-lighter: #737373;
   --color-text-white: #fff;
@@ -183,7 +183,6 @@ button {
   cursor: pointer;
 }
 
-#option-group svg,
 .input-clear {
   opacity: 0.7;
 }
@@ -260,7 +259,6 @@ label {
   display: inline-block;
 }
 
-#option-group,
 .control-label {
   font-size: 0.875rem;
 }
@@ -418,16 +416,14 @@ label.checkbox {
 .pf-v6-c-alert {
   display: grid;
   grid-template: "icon content" / auto 1fr;
-  gap: var(--pf-t--global--spacer--gap--text-to-element) var(--pf-t--global--spacer--md);
+  gap: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--sm);
   align-items: start;
-  margin: var(--pf-t--global--spacer--md);
-  padding-block: 0.75rem;
-  padding-inline: var(--pf-t--global--spacer--md);
-  border-block-start: 2px solid;
-
-  color: var(--alert-text-color, var(--color-status-info-text));
-  background-color: var(--alert-background-color, var(--color-status-info-background));
-  border-color: var(--alert-border-color, var(--color-status-info-accent));
+  margin-block-end: var(--pf-t--global--spacer--lg);
+  padding: var(--pf-t--global--spacer--md);
+  border: 2px solid var(--alert-border-color, var(--color-status-info-accent));
+  color: var(--text-color);
+  background-color: var(--color-background);
+  border-radius: var(--pf-t--global--border--radius--medium);
 
   .pf-v6-c-alert__icon {
     grid-column: icon;
@@ -460,15 +456,11 @@ label.checkbox {
 
   &.pf-m-inline {
     &.pf-m-danger {
-      --alert-background-color: var(--color-status-danger-background);
       --alert-border-color: var(--color-status-danger-accent);
-      --alert-text-color: var(--color-status-danger-text);
     }
 
     &.pf-m-warning {
-      --alert-background-color: var(--color-status-warning-background);
       --alert-border-color: var(--color-status-warning-accent);
-      --alert-text-color: var(--color-status-warning-text);
     }
   }
 }
@@ -617,21 +609,23 @@ html:not(.pf-v6-theme-dark) #login-wait-validating .spinner {
   color: var(--color-background);
 }
 
+.pf-v6-c-expandable-section__toggle {
+  display: inline-flex;
+  align-items: center;
+}
+
 .caret {
   vertical-align: middle;
-  margin-block: calc((1.5rem - 16px) / 2);
-  margin-inline: 0;
   margin-inline-end: var(--pf-t--global--spacer--xs);
   transition: all 300ms;
   
   [data-state="true"] &,
   details[open] > summary > & {
-    transform: rotate(90deg) translateX(-3px);
-    transform-origin: 0.5rem;
+    transform: rotate(90deg);
   }
   
-  polygon {
-    fill: var(--color-link);
+  path {
+    fill: var(--color-text);
   }
 }
 
@@ -846,11 +840,6 @@ details > summary:hover {
     font: inherit;
     margin-block-start: 0;
   }
-}
-
-.dialog-error {
-  margin-block: 0 1rem;
-  margin-inline: 0;
 }
 
 #login-again {

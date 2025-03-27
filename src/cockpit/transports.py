@@ -323,6 +323,10 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
     @staticmethod
     def _get_watcher(loop: asyncio.AbstractEventLoop) -> asyncio.AbstractChildWatcher:
+        if hasattr(loop, '_watcher'):
+            # Python 3.14 event loop always has a child process watcher
+            return loop._watcher
+
         quark = '_cockpit_transports_child_watcher'
         watcher = getattr(loop, quark, None)
 

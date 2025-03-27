@@ -308,9 +308,15 @@ function btrfs_update(data) {
         if (data[uuid].error) {
             console.warn("Error polling btrfs", uuid, data[uuid].error);
         } else {
-            uuids_subvols[uuid] = [{ pathname: "/", id: 5, parent: null }].concat(data[uuid].subvolumes);
-            uuids_usage[uuid] = data[uuid].usages;
-            default_subvol[uuid] = data[uuid].default_subvolume;
+            if (data[uuid].subvolumes) {
+                uuids_subvols[uuid] = [{ pathname: "/", id: 5, parent: null }].concat(data[uuid].subvolumes);
+            }
+            if (data[uuid].usages) {
+                uuids_usage[uuid] = data[uuid].usages;
+            }
+            if (data[uuid].default_subvolume) {
+                default_subvol[uuid] = data[uuid].default_subvolume;
+            }
         }
     }
 

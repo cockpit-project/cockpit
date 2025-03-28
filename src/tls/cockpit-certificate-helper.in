@@ -50,8 +50,8 @@ selfsign_openssl() {
         -outform PEM \
         -subj "${MACHINE_ID:+/O=${MACHINE_ID}}/CN=${HOSTNAME}" \
         -addext "subjectAltName=IP:127.0.0.1,DNS:localhost" \
-        -addext "basicConstraints = critical, CA:TRUE" \
-        -addext "keyUsage = critical, digitalSignature,cRLSign,keyCertSign,keyEncipherment,keyAgreement" \
+        -addext "basicConstraints = critical,CA:TRUE" \
+        -addext "keyUsage = critical,digitalSignature,cRLSign,keyCertSign,keyEncipherment,keyAgreement" \
         -addext "extendedKeyUsage = serverAuth"
 }
 

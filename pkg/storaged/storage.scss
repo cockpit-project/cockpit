@@ -97,8 +97,16 @@ td.job-action {
   white-space: nowrap;
 }
 
+.pf-v6-c-modal-box__body table {
+  --pf-v6-c-table--cell--first-last-child--PaddingInline: 0;
+}
+
 .modal-footer-teardown {
   text-align: start;
+}
+
+.modal-footer-teardown td {
+  vertical-align: baseline;
 }
 
 * + .modal-footer-teardown {
@@ -121,11 +129,6 @@ td.job-action {
   font-size: 140%;
 }
 
-.pf-v6-c-modal-box h3 {
-  margin-block-start: 0;
-  line-height: 24px;
-}
-
 .delete-resource-dangerous {
   color: var(--pf-t--global--color--status--danger--default);
 }
@@ -137,10 +140,6 @@ td.job-action {
 // This is needed to avoid showing scrollbar in dialog
 .size-slider {
   padding-block-end: var(--pf-t--global--spacer--xs);
-}
-
-.panel-heading {
-  position: static;
 }
 
 .storage-alert-actions button {
@@ -170,13 +169,13 @@ td.job-action {
   display: inline-block;
   inline-size: 20em;
   block-size: 1rem;
-  margin-inline-start: 1em;
+  margin-inline-start: 1rem;
   position: relative;
   inset-block-start: 0.15rem; // XXX - center it
   inset-inline-start: 0;
 
   &-short {
-    inline-size: 3.5em;
+    inline-size: 3.5rem;
   }
 
   &-danger {
@@ -282,6 +281,7 @@ td.job-action {
 .storage-menu-title {
     text-align: start;
     white-space: nowrap !important;
+    font-size: var(--pf-t--global--font--size--body--sm);
 }
 
 .pf-v6-c-table__tbody .storage-device-icon {
@@ -311,8 +311,27 @@ td.job-action {
 .storage-size-column-header {
     text-align: end;
     // Align the "Size" header with the text of the usage bars.
-    // var(--pf-t--global--spacer--sm): padding of compact td cells
-    // 3.5em: width of short progress bars
-    // 1em: margin between text and progress bar
-    padding-inline-end: calc(var(--pf-t--global--spacer--sm) + 3.5em + 1em) !important;
+    // var(--pf-v6-c-table--cell--PaddingInlineEnd): padding of compact td cells
+    // 3.5rem: width of short progress bars
+    // 1rem: margin between text and progress bar
+    padding-inline-end: calc(var(--pf-v6-c-table--cell--PaddingInlineEnd) + 3.5rem + 1rem) !important;
+}
+
+/* Big tables are big
+ */
+
+.pf-v6-c-card__body.contains-list table {
+    --pf-v6-c-table--cell--first-last-child--PaddingInline: 0;
+}
+
+.pf-v6-c-card__body.contains-list table td {
+    vertical-align: baseline;
+}
+
+.pf-v6-c-card__body.contains-list table tbody:last-child tr:last-child {
+    --pf-v6-c-table__tr--BorderBlockEndWidth: 0;
+}
+
+.pf-v6-c-card__body.contains-list table thead tr:last-child {
+    border-block-end: var(--pf-t--global--border--width--divider--default) solid var(--pf-v6-c-table__tr--BorderBlockEndColor);;
 }

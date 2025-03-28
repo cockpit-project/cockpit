@@ -130,6 +130,9 @@ QUnit.test("fsreplace1 no path", async assert => {
 });
 
 QUnit.test("fsreplace1 attrs", async assert => {
+    await assert.rejects(cockpit.file(dir + "/bar").replace(null, undefined, { user: 'admin', group: 'admin' }),
+                         /must await cockpit.init/, "rejects passing 'attrs' without awaiting cockpit.init()");
+
     await cockpit.init();
     assert.propContains(cockpit.info.channels, { fsreplace1: ['attrs'] });
 
@@ -138,7 +141,7 @@ QUnit.test("fsreplace1 attrs", async assert => {
     valid.close(); // no-op
 
     const invalid = cockpit.channel({ payload: "fsreplace1", path: `${dir}/tmp`, attrs: { foo: 1 } });
-    await assert.rejects(invalid.wait(), /attrs must be empty/, "rejects non-empty attrs");
+    await assert.rejects(invalid.wait(), /"attrs" contains unsupported key/, "rejects non-empty attrs");
 });
 
 QUnit.test("remove", async assert => {

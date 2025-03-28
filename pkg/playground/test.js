@@ -130,9 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("user-info").textContent = JSON.stringify(info);
     });
 
-    cockpit.addEventListener("visibilitychange", show_hidden);
-    show_hidden();
-
     const fsreplace_btn = document.getElementById("fsreplace1-create");
     const fsreplace_error = document.getElementById("fsreplace1-error");
     fsreplace_btn.addEventListener("click", e => {
@@ -142,9 +139,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const content = document.getElementById("fsreplace1-content").value;
         const use_tag = document.getElementById("fsreplace1-use-tag").checked;
         const file = cockpit.file(filename, { superuser: "try" });
+        const attrs = { };
+        for (const field of ["user", "group"]) {
+            const val = document.getElementById(`fsreplace1-${field}`).value;
+            if (!val)
+                continue;
 
+            attrs[field] = val;
+        }
         file.read().then((_content, tag) => {
-            file.replace(content, use_tag ? tag : undefined)
+            file.replace(content, use_tag ? tag : undefined, attrs)
                     .catch(exc => {
                         fsreplace_error.textContent = exc.toString();
                     })
@@ -153,4 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
         });
     });
+
+    cockpit.addEventListener("visibilitychange", show_hidden);
+    show_hidden();
 });

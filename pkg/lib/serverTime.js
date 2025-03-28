@@ -305,8 +305,16 @@ export function ServerTime() {
 
         // this must be readable with tight umask, timesyncd runs as unprivileged user
         await cockpit.spawn(["mkdir", "-p", "-m755", "/etc/systemd/timesyncd.conf.d"], { superuser: "require" });
-        await custom_ntp_config_file.replace(text);
-        await cockpit.spawn(["chmod", "644", conf_path], { superuser: "require" });
+        try {
+            await cockpit.init();
+            await custom_ntp_config_file.replace(text, undefined, { mode: 0o644 });
+        } catch (exc) {
+            // either cockpit.init() fails or replace() as it did not yet support attrs
+            if (exc.problem === 'not-supported') {
+                await custom_ntp_config_file.replace(text);
+                await cockpit.spawn(["chmod", "644", conf_path], { superuser: "require" });
+            }
+        }
     }
 
     const chronyd_sourcedir = "/etc/chrony/sources.d";

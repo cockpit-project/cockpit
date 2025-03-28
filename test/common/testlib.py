@@ -1075,7 +1075,8 @@ class Browser:
         self.wait_visible("#toggle-menu")
         if (self.attr("#toggle-menu", "aria-expanded") != "true"):
             self.click("#toggle-menu")
-            self.wait_visible("#toggle-menu-menu")
+            # Replace with "#toggle-menu-menu" when all our images have Cockpit > 317
+            self.wait_visible("button.display-language-menu")
 
     def layout_is_mobile(self) -> bool:
         if not self.current_layout:

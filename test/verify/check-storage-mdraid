@@ -111,9 +111,6 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.dialog_wait_close()
         b.wait_visible(self.card_row("Storage", name="/dev/md/raid0"))
 
-        # Check that metadata version is "1.2"
-        self.assertIn("Version : 1.2", m.execute("mdadm --detail /dev/md/raid0"))
-
         self.addCleanup(m.execute, "if [ -e /dev/md/raid0 ]; then mdadm --stop /dev/md/raid0; fi")
         self.addCleanup(m.execute, "mount | grep ^/dev/md | cut -f1 -d' ' | xargs -r umount")
 

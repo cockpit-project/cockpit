@@ -455,3 +455,17 @@ to wrap around when there isn't enough space.
 :root[dir="rtl"] {
   --pf-v6-global--inverse--multiplier: -1;
 }
+
+// NOTEs @Venefilyn: Expandable table has an alignment issue with the expand button and the text
+// Tracked upstream here https://github.com/patternfly/patternfly/issues/7423
+.pf-v6-c-table.pf-m-compact .pf-v6-c-table__toggle {
+  --pf-v6-c-table--m-compact__action--PaddingBlockStart: 0
+}
+
+// NOTE @Venefilyn: Selectable table has an alignment issue with the expand button and the text
+// Tracked upstream here https://github.com/patternfly/patternfly/issues/7424
+.pf-v6-c-table__td.pf-v6-c-table__check {
+  // We add 0.125 rem which isn't on PF's spacers variable list, that aligns nicely with
+  // the correct sizing (becomes 10px on compact table, 18px on normal table)
+  padding-block-start: calc(var(--pf-v6-c-table--cell--PaddingBlockStart) + 0.125rem)
+}

@@ -101,6 +101,8 @@
           <p translate="yes">If the fingerprint matches, click "Accept key and log in". Otherwise, do not log in and contact your administrator.</p>
         </div>
 
+        <p id="login-note" class="login-note"></p>
+
         <div id="user-group" class="form-group">
           <label for="login-user-input" class="control-label" translate="yes">User name</label>
           <input type="text" class="form-control" id="login-user-input" autocorrect="off" autocapitalize="none" autofocus="true" autocomplete="username" />
@@ -126,10 +128,8 @@
         </div>
 
         <div id="option-group">
-          <a href="#" id="show-other-login-options">
-            <svg height="16" width="16" viewBox="0 0 16 16" id="option-caret" class="caret caret-right" aria-hidden="true">
-              <polygon fill="#ffffff" points="4,0 4,14 12,7"></polygon>
-            </svg><span id="show-other-login-options-text" translate="yes">Other options</span>
+          <a href="#" id="show-other-login-options" class="pf-v6-c-expandable-section__toggle">
+            <svg width="1em" height="1em" fill="currentColor" aria-hidden="true" class="pf-v6-c-expandable-section__toggle-icon caret caret-right" viewBox="0 0 256 512"><path d="M224 273 88 409c-9 9-24 9-34 0l-22-23c-10-9-10-24 0-34l96-96-96-96c-10-10-10-25 0-34l22-23c10-9 25-9 34 0l136 136c10 9 10 25 0 34"/></svg><span id="show-other-login-options-text" translate="yes">Other options</span>
             <!-- Above: Span needs to be immediately next to SVG to prevent whitespace in the link -->
           </a>
         </div>
@@ -169,7 +169,6 @@
     <p>
       <label class="control-label"><span translate="yes">Server</span>: <b id="server-name"></b></label>
     </p>
-    <p id="login-note" class="login-note"></p>
   </div>
 
   <div class="container" id="recent-hosts" hidden="true">

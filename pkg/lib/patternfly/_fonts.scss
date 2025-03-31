@@ -1,0 +1,44 @@
+// NOTE @Venefilyn: This is here for backwards compatibility. The file should be removed at some point.
+// There are scenarios such as running tests for a plugin with a stable cockpit-shell/ws
+// Since those may be older, for now we should include the old fonts to make sure that the plugins
+// This allows plugins to still utilize the Red Hat fonts when testing plugins on or before Cockpit v336
+
+@mixin printRedHatFont(
+  $weightValue: 400,
+  $weightName: "Regular",
+  $familyName: "RedHatText",
+  $style: "normal",
+  $relative: true
+) {
+  $filePath: "../../static/fonts" + "/" + $familyName + "-" + $weightName;
+
+  @font-face {
+    font-family: $familyName;
+    src: url("#{$filePath}.woff2") format("woff2");
+    font-style: #{$style};
+    font-weight: $weightValue;
+    text-rendering: optimizelegibility;
+    font-display: fallback;
+  }
+}
+
+@include printRedHatFont(700, "Bold", $familyName: "RedHatDisplay");
+@include printRedHatFont(700, "BoldItalic", $style: "italic", $familyName: "RedHatDisplay");
+@include printRedHatFont(900, "Black", $familyName: "RedHatDisplay");
+@include printRedHatFont(900, "BlackItalic", $style: "italic", $familyName: "RedHatDisplay");
+@include printRedHatFont(300, "Italic", $style: "italic", $familyName: "RedHatDisplay");
+@include printRedHatFont(400, "Medium", $familyName: "RedHatDisplay");
+@include printRedHatFont(400, "MediumItalic", $style: "italic", $familyName: "RedHatDisplay");
+@include printRedHatFont(300, "Regular", $familyName: "RedHatDisplay");
+@include printRedHatFont(700, "Bold");
+@include printRedHatFont(700, "BoldItalic", $style: "italic");
+@include printRedHatFont(400, "Italic", $style: "italic");
+@include printRedHatFont(700, "Medium");
+@include printRedHatFont(700, "MediumItalic", $style: "italic");
+@include printRedHatFont(400, "Regular");
+@include printRedHatFont(700, "Bold", $familyName: "RedHatMono");
+@include printRedHatFont(700, "BoldItalic", $style: "italic", $familyName: "RedHatMono");
+@include printRedHatFont(400, "Italic", $style: "italic", $familyName: "RedHatMono");
+@include printRedHatFont(500, "Medium", $familyName: "RedHatMono");
+@include printRedHatFont(500, "MediumItalic", $style: "italic", $familyName: "RedHatMono");
+@include printRedHatFont(400, "Regular", $familyName: "RedHatMono");

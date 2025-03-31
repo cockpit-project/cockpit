@@ -8,3 +8,10 @@ $pf-v6-global--disable-fontawesome: true !default; // Disable Font Awesome 5 Fre
   $pf-v6-global--fonticon-path: "patternfly-icons-fake-path"
 );
 @forward "@patternfly/patternfly/base";
+
+// NOTE @Venefilyn: This is here for backwards compatibility. Should be removed at some point
+// There are scenarios such as running tests for a plugin with a stable cockpit-shell/ws
+// Since those may be older, for now we should include the old fonts to make sure that the plugins
+// This allows plugins to still utilize the Red Hat fonts when testing plugins on or before Cockpit v336
+// Is related to distributions and their Cockpit versions.
+@forward "./fonts";

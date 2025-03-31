@@ -418,7 +418,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         self.assert_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
         self.wait_mounted("ext4 filesystem")
         # delete second key slot
-        b.click(panel + "li:nth-child(2) button[aria-label='Remove']")
+        b.click(panel + "tr:nth-child(2) button[aria-label='Remove']")
         # do not accept the same passphrase
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-1")
         b.click("button:contains('Remove')")
@@ -456,13 +456,13 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         # check if add button is inactive
         b.wait_visible(self.card("Encryption") + " [aria-label='Add']:disabled")
         # check if edit button is inactive
-        slots_row = panel + " ul li:first-child"
+        slots_row = panel + " tr:first-child"
         b.wait_visible(slots_row + " button:disabled")
 
         # remove one slot
-        slots_list = panel + " ul "
-        b.wait_visible(".pf-v6-c-data-list__cell:contains('Slot 7')")
-        b.click(slots_list + "li:last-child button[aria-label='Remove']")
+        slots_list = panel
+        b.wait_visible(slots_list + " td:contains('Slot 7')")
+        b.click(slots_list + "tr:last-child button[aria-label='Remove']")
         b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-6")
         b.click("button:contains('Remove')")
         with b.wait_timeout(30):
@@ -471,7 +471,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         b.wait_not_present(slots_list + ":disabled")
         b.wait_not_present(panel + ":disabled")
         # remove slot 0, with the original passphrase
-        b.click(slots_list + "li:nth-child(1) button[aria-label='Remove']")
+        b.click(slots_list + "tr:nth-child(1) button[aria-label='Remove']")
         b.click("#force-remove-passphrase")
         b.click("button:contains('Remove')")
         with b.wait_timeout(30):
@@ -485,7 +485,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
             self.assertIn(b.text("h4.pf-v6-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
             self.dialog_cancel()
             # change one of the passphrases
-            b.click(slots_list + "li:last-child [aria-label='Edit']")
+            b.click(slots_list + "tr:last-child [aria-label='Edit']")
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
             self.dialog_set_val("old_passphrase", "vainu-reku-toma-rolle-kaja-6")
@@ -572,7 +572,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
         b.wait_in_text(self.card_desc("Encryption", "Options"), "nofail")
         panel = "#encryption-keys "
-        b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
+        b.wait_in_text(panel + "tr:nth-child(1)", "Passphrase")
 
         # Add a key
         #
@@ -595,7 +595,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
             self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_apply()
             self.dialog_wait_close()
-        b.wait_in_text(panel + "ul li:nth-child(2)", "10.111.112.5")
+        b.wait_in_text(panel + "tr:nth-child(2)", "10.111.112.5")
 
         # Adding the key should add "_netdev" options
         #
@@ -631,7 +631,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
         # Edit the key, without providing an existing passphrase
         #
-        b.click(panel + "ul li:nth-child(2) [aria-label='Edit']")
+        b.click(panel + "tr:nth-child(2) [aria-label='Edit']")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_wait_val("tang_url", "10.111.112.5")
@@ -641,7 +641,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text(panel + "ul li:nth-child(2)", "http://10.111.112.5/")
+        b.wait_in_text(panel + "tr:nth-child(2)", "http://10.111.112.5/")
 
         # Reset the options so that we can check that they get added
         # also when a second key is added.
@@ -697,7 +697,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
             self.dialog_wait_close()
 
-        b.wait_in_text(panel + "ul li:nth-child(3)", "http://10.111.112.5")
+        b.wait_in_text(panel + "tr:nth-child(3)", "http://10.111.112.5")
 
         # This should bring the options back.
         #
@@ -715,9 +715,9 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
         # Remove one key on client
         #
-        b.click(panel + 'ul li:contains("Slot 1") button[aria-label="Remove"]')
+        b.click(panel + 'tr:contains("Slot 1") button[aria-label="Remove"]')
         self.confirm()
-        b.wait_not_present(panel + 'ul li:contains("Slot 1")')
+        b.wait_not_present(panel + 'tr:contains("Slot 1")')
 
     @testlib.skipImage("TODO: don't know how to encrypt the rootfs", "debian-*", "ubuntu-*", "arch")
     # this doesn't work in ostree either, but we don't run storage tests there
@@ -753,7 +753,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         self.click_card_row("Storage", location="root")
 
         panel = "#encryption-keys "
-        b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
+        b.wait_in_text(panel + "tr:nth-child(1)", "Passphrase")
 
         with b.wait_timeout(360):
             b.click(self.card("Encryption") + " [aria-label='Add']")
@@ -772,10 +772,10 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-        b.click(panel + "ul li:nth-child(1) button[aria-label='Remove']")
+        b.click(panel + "tr:nth-child(1) button[aria-label='Remove']")
         b.click("#force-remove-passphrase")
         b.click("button:contains('Remove')")
-        b.wait_in_text(panel + "ul li:nth-child(1)", "Keyserver")
+        b.wait_in_text(panel + "tr:nth-child(1)", "Keyserver")
 
         # Tell the initrd to configure our special inter-machine
         # network that has the "tang" machine.

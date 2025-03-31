@@ -40,6 +40,7 @@ export function make_stratis_blockdev_card(next, backing_block, content_block) {
     const blockdev_card = new_card({
         title: _("Stratis block device"),
         location: pool ? pool.Name : stopped_pool,
+        location_goto: [ "pool", pool ? pool.Name : stopped_pool ],
         next,
         component: StratisBlockdevCard,
         props: { backing_block, content_block, pool, stopped_pool },

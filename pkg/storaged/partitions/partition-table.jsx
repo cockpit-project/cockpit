@@ -104,11 +104,10 @@ export function make_partition_table_page(parent, block, next_card) {
 const PartitionsCard = ({ card }) => {
     return (
         <StorageCard card={card}>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No partitions found")}
-                               aria-label={_("Partitions")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No partitions found")}
+                aria-label={_("Partitions")}
+                page={card.page} />
         </StorageCard>
     );
 };

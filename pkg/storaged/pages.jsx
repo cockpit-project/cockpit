@@ -608,7 +608,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                         <Split hasGutter isWrappable onClick={onClick}>
                             <SplitItem>{type}</SplitItem>
                             <SplitItem isFilled>{location}</SplitItem>
-                            <SplitItem isFilled className="pf-v6-u-text-align-right">{size}</SplitItem>
+                            <SplitItem isFilled className="pf-v6-u-text-align-end">{size}</SplitItem>
                         </Split>
                     </CardBody>
                 </Card>);
@@ -708,11 +708,12 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
     }
 
     return (
-        <div>
+        <>
             { narrow
                 ? rows
                 : <Table aria-label={aria_label}
-                       variant="compact">
+                      className="page-table"
+                      variant="compact">
                     { pages &&
                     <Thead>
                         <Tr>
@@ -731,7 +732,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 </Table>
             }
             {show_all_button}
-        </div>);
+        </>);
 };
 
 export const ChildrenTable = ({ emptyCaption, aria_label, page, show_icons }) => {
@@ -801,7 +802,7 @@ const StorageBreadcrumb = ({ page }) => {
 
 export const StorageCard = ({ card, alert, alerts, actions, children }) => {
     return (
-        <Card isPlain data-test-card-title={card.title}>
+        <Card isPlain={card.page_location && card.page_location.length == 0} data-test-card-title={card.title}>
             { (client.in_anaconda_mode() && card.page.parent && !card.next) &&
             <CardBody>
                 <StorageBreadcrumb page={card.page} />

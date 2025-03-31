@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { CardBody, CardHeader } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 
 import { dirname } from "cockpit-path";
@@ -484,22 +484,18 @@ const BtrfsSubvolumeCard = ({ card, volume, subvol, snapshot_origin, mismount_wa
                     </StorageDescription>
                 </DescriptionList>
             </CardBody>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No subvolumes")}
-                               aria-label={_("btrfs subvolumes")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No subvolumes")}
+                aria-label={_("btrfs subvolumes")}
+                page={card.page} />
             {crossrefs &&
-            <Card isPlain data-test-card-title="Snapshots">
-                <CardHeader>
-                    <CardTitle component="h2">{_("Snapshots")}</CardTitle>
-                </CardHeader>
-                <CardBody className="contains-list">
-                    <PageTable emptyCaption={_("No snapshots found")}
-                                       aria-label={_("snapshot")}
-                                       crossrefs={crossrefs} />
-                </CardBody>
-            </Card>
+                <>
+                    <CardHeader><strong>{_("Snapshots")}</strong></CardHeader>
+                    <PageTable
+                        emptyCaption={_("No snapshots found")}
+                        aria-label={_("snapshot")}
+                        crossrefs={crossrefs} />
+                </>
             }
         </StorageCard>);
 };

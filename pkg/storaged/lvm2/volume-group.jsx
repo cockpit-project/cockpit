@@ -274,11 +274,10 @@ export function make_lvm2_volume_group_page(parent, vgroup) {
 const LVM2LogicalVolumesCard = ({ card, vgroup }) => {
     return (
         <StorageCard card={card}>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No logical volumes")}
-                               aria-label={_("LVM2 logical volumes")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No logical volumes")}
+                aria-label={_("LVM2 logical volumes")}
+                page={card.page} />
         </StorageCard>
     );
 };
@@ -367,11 +366,10 @@ const LVM2VolumeGroupCard = ({ card, vgroup }) => {
                 </DescriptionList>
             </CardBody>
             <CardHeader><strong>{_("Physical volumes")}</strong></CardHeader>
-            <CardBody className="contains-list">
-                <PageTable emptyCaption={_("No physical volumes found")}
-                           aria-label={_("LVM2 physical volumes")}
-                           crossrefs={get_crossrefs(vgroup)} />
-            </CardBody>
+            <PageTable
+                emptyCaption={_("No physical volumes found")}
+                aria-label={_("LVM2 physical volumes")}
+                crossrefs={get_crossrefs(vgroup)} />
         </StorageCard>
     );
 };

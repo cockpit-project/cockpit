@@ -672,14 +672,14 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         self.click_card_row("Storage", name=os.path.basename(subdir))
         b.wait_text(self.card_desc("btrfs subvolume", "Name"), "subdir")
-        b.wait_visible(self.card_row("Snapshots", name="snap-1"))
+        b.wait_visible(self.card_row("btrfs subvolume", table_index=2, name="snap-1"))
 
         # Normal subvolume does not show under snapshots
         b.wait_visible(self.card_row("btrfs subvolume", name="foo"))
-        b.wait_not_present(self.card_row("Snapshots", name="foo"))
+        b.wait_not_present(self.card_row("btrfs subvolume", table_index=2, name="foo"))
 
         # Snapshot details
-        self.click_card_row("Snapshots", name="snap-1")
+        self.click_card_row("btrfs subvolume", table_index=2, name="snap-1")
         b.wait_text(self.card_desc("btrfs subvolume", "Name"), "snapshots/snap-1")
         b.wait_text(self.card_desc("btrfs subvolume", "Snapshot origin"), "subdir")
 

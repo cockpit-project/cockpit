@@ -599,22 +599,23 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
     def card_header(self, title: str) -> str:
         return self.card(title) + " .pf-v6-c-card__header"
 
-    def card_row(self, title: str, index: int | None = None, name: str | None = None, location: str | None = None) -> str:
+    def card_row(self, title: str, index: int | None = None, name: str | None = None, location: str | None = None, table_index: int = 1) -> str:
+        pfx = self.card(title) + f" table:nth-of-type({table_index})"
         if index is not None:
-            return self.card(title) + f" tbody tr:nth-child({index})"
+            return pfx + f" tbody tr:nth-child({index})"
         elif name is not None:
             name = name.replace("/dev/", "")
-            return self.card(title) + f" tbody [data-test-row-name='{name}']"
+            return pfx + f" tbody [data-test-row-name='{name}']"
         else:
-            return self.card(title) + f" tbody [data-test-row-location='{location}']"
+            return pfx + f" tbody [data-test-row-location='{location}']"
 
-    def click_card_row(self, title: str, index: int | None = None, name: str | None = None, location: str | None = None) -> None:
+    def click_card_row(self, title: str, index: int | None = None, name: str | None = None, location: str | None = None, table_index: int = 1) -> None:
         # We need to click on a <td> element since that's where the handlers are...
-        self.browser.click(self.card_row(title, index, name, location) + " td:nth-child(1)")
+        self.browser.click(self.card_row(title, index, name, location, table_index) + " td:nth-child(1)")
 
     def card_row_col(self, title: str, row_index: int | None = None, col_index: int | None = None,
-                     row_name: str | None = None, row_location: str | None = None) -> str:
-        return self.card_row(title, row_index, row_name, row_location) + f" td:nth-child({col_index})"
+                     row_name: str | None = None, row_location: str | None = None, table_index: int = 1) -> str:
+        return self.card_row(title, row_index, row_name, row_location, table_index) + f" td:nth-child({col_index})"
 
     def card_desc(self, card_title: str, desc_title: str) -> str:
         return self.card(card_title) + f" [data-test-desc-title='{desc_title}'] [data-test-value=true]"

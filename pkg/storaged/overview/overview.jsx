@@ -186,12 +186,12 @@ const OverviewCard = ({ card, plot_state }) => {
             }
             <StackItem>
                 <StorageCard card={card} actions={actions}>
-                    <CardBody className="contains-list">
-                        <ChildrenTable emptyCaption={_("No storage found")}
-                                       aria-label={_("Storage")}
-                                       show_icons
-                                       page={card.page} />
-                    </CardBody>
+                    <ChildrenTable
+                        emptyCaption={_("No storage found")}
+                        aria-label={_("Storage")}
+                        show_icons
+                        page={card.page}
+                    />
                 </StorageCard>
             </StackItem>
             { !client.in_anaconda_mode() &&

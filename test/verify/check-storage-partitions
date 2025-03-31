@@ -91,7 +91,23 @@ class TestStoragePartitions(storagelib.StorageCase):
         b.select_from_dropdown(".size-unit > select", unit)
         self.dialog_wait_val("size", 26.2, unit)
 
-        # Change unit back to MB
+        # Switch the dialog into the mode where it stores separate text and unit
+        # instead of a numeric value.
+        self.dialog_set_val("size", 26.2)
+
+        # Change to GB
+        unit = "1000000000"
+        b.select_from_dropdown(".size-unit > select", unit)
+
+        # Apply the dialog. This will convert from text+unit back to a
+        # correctly rounded numeric value (which is too large).
+
+        self.dialog_apply()
+        self.dialog_wait_error("size", "Size is too large")
+
+        # Change unit back to MB.  (This must round again, which it
+        # didn't always do.)
+
         unit = "1000000"
         b.select_from_dropdown(".size-unit > select", unit)
 

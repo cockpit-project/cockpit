@@ -136,11 +136,10 @@ const StoppedStratisPoolCard = ({ card, uuid }) => {
                 </DescriptionList>
             </CardBody>
             <CardHeader><strong>{_("Block devices")}</strong></CardHeader>
-            <CardBody className="contains-list">
-                <PageTable emptyCaption={_("No block devices found")}
-                           aria-label={_("Stratis block devices")}
-                           crossrefs={get_crossrefs(uuid)} />
-            </CardBody>
+            <PageTable
+                emptyCaption={_("No block devices found")}
+                aria-label={_("Stratis block devices")}
+                crossrefs={get_crossrefs(uuid)} />
         </StorageCard>
     );
 };

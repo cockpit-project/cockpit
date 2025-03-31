@@ -304,11 +304,10 @@ const MDRaidCard = ({ card, mdraid, block }) => {
                 </DescriptionList>
             </CardBody>
             <CardHeader><strong>{_("Disks")}</strong></CardHeader>
-            <CardBody className="contains-list">
-                <PageTable emptyCaption={_("No disks found")}
-                           aria-label={_("MDRAID disks")}
-                           crossrefs={get_crossrefs(mdraid)} />
-            </CardBody>
+            <PageTable
+                emptyCaption={_("No disks found")}
+                aria-label={_("MDRAID disks")}
+                crossrefs={get_crossrefs(mdraid)} />
         </StorageCard>
     );
 };

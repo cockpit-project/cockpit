@@ -75,11 +75,10 @@ export function make_iscsi_session_page(parent, session) {
 const ISCSIDrivesCard = ({ card, session }) => {
     return (
         <StorageCard card={card}>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No drives found")}
-                               aria-label={_("iSCSI drives")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No drives found")}
+                aria-label={_("iSCSI drives")}
+                page={card.page} />
         </StorageCard>
     );
 };

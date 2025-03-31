@@ -1052,7 +1052,7 @@ class SizeSliderElement extends React.Component {
             if (val.unit)
                 onChange({ text: val.text, unit: Number(u) });
             else
-                onChange(val / unit * Number(u));
+                onChange(size_slider_round(val / unit * Number(u), round));
             this.setState({ unit: Number(u) });
         };
 

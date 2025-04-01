@@ -46,7 +46,7 @@ const _ = cockpit.gettext;
 
 const SkipLink = ({ focus_id, children }) => {
     return (
-        <a className="screenreader-text skiplink desktop_v"
+        <a className="pf-v6-u-screen-reader skiplink desktop_v"
            href={"#" + focus_id}
            onClick={ev => {
                document.getElementById(focus_id)?.focus();

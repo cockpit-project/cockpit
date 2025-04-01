@@ -69,32 +69,6 @@ $desktop: $phone + 1px;
   }
 }
 
-.screenreader-text {
-  position: absolute;
-  inset-inline-start: -999px;
-  inline-size: 1px;
-  block-size: 1px;
-  inset-block-start: auto;
-
-  &:focus {
-    display: inline-block;
-    block-size: auto;
-    inline-size: auto;
-    position: static;
-    padding-block: 19px;
-    padding-inline: 0;
-    inline-size: 100%;
-    text-align: center;
-  }
-}
-
-[dir="rtl"] {
-  // Not setting this breaks pixel tests
-  .screenreader-text {
-    inset-inline-end: -999px;
-  }
-}
-
 /* Desktop navigation */
 @media (min-width: $desktop) {
   // Adapt PF4's new header select for 2-up

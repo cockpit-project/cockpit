@@ -37,6 +37,8 @@ import { EarlyFailure, Disconnected, MachineTroubleshoot } from "./failures.jsx"
 import { ShellState } from "./state.jsx";
 import { IdleTimeoutState, FinalCountdownModal } from "./idle.jsx";
 
+import { SkipToContent } from '@patternfly/react-core';
+
 import 'cockpit-dark-theme'; // once per page
 
 import '../lib/patternfly/patternfly-6-cockpit.scss';
@@ -44,16 +46,26 @@ import "./shell.scss";
 
 const _ = cockpit.gettext;
 
-const SkipLink = ({ focus_id, children }) => {
+interface SkipLinkProps {
+    focus_id: string;
+    children?: React.ReactNode
+}
+
+// We create a wrapper specifically to handle edge-cases like headless browsers
+// not getting focus when clicking an anchor to a heading. We can also scroll
+// it into view in case it wouldn't do that before - just to be safe.
+const SkipLink = ({ focus_id, children }: SkipLinkProps) => {
     return (
-        <a className="screenreader-text skiplink desktop_v"
-           href={"#" + focus_id}
-           onClick={ev => {
-               document.getElementById(focus_id)?.focus();
-               ev.preventDefault();
-           }}>
+        <SkipToContent
+            href={`#${focus_id}`}
+            onClick={ev => {
+                const el = document.getElementById(focus_id);
+                el?.focus();
+                el?.scrollIntoView();
+                ev.preventDefault();
+            }}>
             {children}
-        </a>
+        </SkipToContent>
     );
 };
 

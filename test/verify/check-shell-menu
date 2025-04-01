@@ -162,12 +162,10 @@ class TestMenu(testlib.MachineCase):
         # initially shows host switcher
         b.wait_visible("#hosts-sel")
         self.assertEqual(b.eval_js("document.activeElement.tagName"), "BODY")
-        # conceptually we want that, but we use CSS hacks (-999 offset and 1x1 size) to hide it
-        # b.wait_not_visible(".skiplink")
 
         # press Tab once → "Skip to content" skiplink
         b.key("Tab")
-        b.wait_js_cond("document.activeElement.classList.contains('skiplink')")
+        b.wait_js_cond("document.activeElement.parentElement.classList.contains('pf-v6-c-skip-to-content')")
         self.assertEqual(b.eval_js("document.activeElement.textContent"), "Skip to content")
         self.assertEqual(b.eval_js("document.activeElement.getAttribute('href')"), "#content")
         b.key("Enter")

@@ -372,3 +372,16 @@ $phone: 767px;
   // the correct sizing (becomes 10px on compact table, 18px on normal table)
   padding-block-start: calc(var(--pf-v6-c-table--cell--PaddingBlockStart) + 0.125rem)
 }
+
+// HACK: Patternfly has a weird issue with modals and skip to content
+// button not being hidden as it should on rtl mode. Instead, it will make the
+// page extremely wide and cause modals to be very offset. Changing from
+// `absolute` to `fixed` makes sure that it all works as it should.
+//
+// Only applicable to Firefox, works fine in Chrome. Might also be fine outside
+// of Firefox Responsive Design Mode. Verified to be an issue in PF v6.2.0
+//
+// https://github.com/patternfly/patternfly/issues/7463
+.pf-v6-c-skip-to-content {
+  position: fixed;
+}

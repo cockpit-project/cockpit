@@ -43,7 +43,6 @@ import {
     init_teardown_usage
 } from "../dialog.jsx";
 import { make_btrfs_subvolume_pages } from "./subvolume.jsx";
-import { btrfs_device_actions } from "./device.jsx";
 
 const _ = cockpit.gettext;
 
@@ -210,11 +209,10 @@ const BtrfsVolumeCard = ({ card, block_devices, uuid, use }) => {
                 </DescriptionList>
             </CardBody>
             <CardHeader><strong>{_("btrfs devices")}</strong></CardHeader>
-            <CardBody className="contains-list">
-                <PageTable emptyCaption={_("No devices found")}
-                                   aria-label={_("btrfs device")}
-                                   crossrefs={get_crossrefs(uuid)} />
-            </CardBody>
+            <PageTable
+                emptyCaption={_("No devices found")}
+                aria-label={_("btrfs device")}
+                crossrefs={get_crossrefs(uuid)} />
         </StorageCard>
     );
 };
@@ -223,7 +221,6 @@ export function make_btrfs_subvolumes_card(next, block, backing_block) {
     return new_card({
         title: _("btrfs subvolumes"),
         next,
-        actions: btrfs_device_actions(block, backing_block),
         component: BtrfsSubVolumesCard,
     });
 }
@@ -231,11 +228,10 @@ export function make_btrfs_subvolumes_card(next, block, backing_block) {
 const BtrfsSubVolumesCard = ({ card }) => {
     return (
         <StorageCard card={card}>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No subvolumes")}
-                               aria-label={_("btrfs subvolumes")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No subvolumes")}
+                aria-label={_("btrfs subvolumes")}
+                page={card.page} />
         </StorageCard>
     );
 };

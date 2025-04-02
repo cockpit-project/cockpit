@@ -31,10 +31,6 @@
   @extend .ct-card;
 }
 
-.ct-card.pf-v6-c-card .pf-v6-c-card__title-text.ct-card-small-title {
-  font-size: var(--pf-t--global--font--size--xl);
-}
-
 // Only used in iSCSI dialog
 .dialog-select-row-table {
   inline-size: 100%;
@@ -101,6 +97,10 @@ td.job-action {
   text-align: start;
 }
 
+.modal-footer-teardown td {
+  vertical-align: baseline;
+}
+
 * + .modal-footer-teardown {
   padding-block-start: var(--pf-t--global--spacer--xl);
 }
@@ -121,11 +121,6 @@ td.job-action {
   font-size: 140%;
 }
 
-.pf-v6-c-modal-box h3 {
-  margin-block-start: 0;
-  line-height: 24px;
-}
-
 .delete-resource-dangerous {
   color: var(--pf-t--global--color--status--danger--default);
 }
@@ -137,10 +132,6 @@ td.job-action {
 // This is needed to avoid showing scrollbar in dialog
 .size-slider {
   padding-block-end: var(--pf-t--global--spacer--xs);
-}
-
-.panel-heading {
-  position: static;
 }
 
 .storage-alert-actions button {
@@ -170,13 +161,13 @@ td.job-action {
   display: inline-block;
   inline-size: 20em;
   block-size: 1rem;
-  margin-inline-start: 1em;
+  margin-inline-start: 1rem;
   position: relative;
   inset-block-start: 0.15rem; // XXX - center it
   inset-inline-start: 0;
 
   &-short {
-    inline-size: 3.5em;
+    inline-size: 3.5rem;
   }
 
   &-danger {
@@ -311,8 +302,8 @@ td.job-action {
 .storage-size-column-header {
     text-align: end;
     // Align the "Size" header with the text of the usage bars.
-    // var(--pf-t--global--spacer--sm): padding of compact td cells
-    // 3.5em: width of short progress bars
-    // 1em: margin between text and progress bar
-    padding-inline-end: calc(var(--pf-t--global--spacer--sm) + 3.5em + 1em) !important;
+    // var(--pf-v6-c-table--cell--PaddingInlineEnd): padding of compact td cells
+    // 3.5rem: width of short progress bars
+    // 1rem: margin between text and progress bar
+    padding-inline-end: calc(var(--pf-v6-c-table--cell--PaddingInlineEnd) + 3.5rem + 1rem) !important;
 }

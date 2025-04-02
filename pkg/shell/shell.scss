@@ -151,13 +151,8 @@ $desktop: $phone + 1px;
       background: linear-gradient(
         to top,
         var(--ct-color-host-accent),
-        var(--ct-color-host-accent) 0.1875rem,
-        transparent 0.1875rem
-      ),
-        linear-gradient(
-        to top,
-        var(--ct-color-host-accent) -1.5rem,
-        var(--ct-topnav-background) 0.75rem
+        var(--ct-color-host-accent) 3px,
+        transparent 3px
       );
     }
 
@@ -171,12 +166,21 @@ $desktop: $phone + 1px;
   }
 
   @media (min-width: $desktop) {
-    grid-template-areas: "switcher header" "sidebar main";
+    // Shadow to the left, Line on top, Base color (with subtle glow)
+    background: linear-gradient(
+      to bottom,
+      var(--ct-color-host-accent),
+      var(--ct-color-host-accent) 3px,
+      transparent 3px
+    );
+
+    grid-template-areas: "switcher switcher header" "sidebar main main";
     grid-template-rows: max-content 1fr;
-    grid-template-columns: minmax(min-content, var(--nav-width)) 1fr;
+    grid-template-columns: minmax(min-content, var(--nav-width)) auto 1fr;
 
     > .navbar {
-      max-inline-size: var(--nav-width);
+      grid-area: switcher;
+      margin-inline-end: calc(-1 * var(--pf-t--global--spacer--sm));
     }
 
     .sidebar {
@@ -188,19 +192,10 @@ $desktop: $phone + 1px;
       display: none;
     }
 
-    > .header {
-      // Shadow to the left, Line on top, Base color (with subtle glow)
-      background: linear-gradient(
-        to bottom,
-        var(--ct-color-host-accent),
-        var(--ct-color-host-accent) 0.1875rem,
-        transparent 0.1875rem
-      ),
-        linear-gradient(
-        to bottom,
-        var(--ct-color-host-accent) -1.5rem,
-        var(--ct-topnav-background) 0.75rem
-      );
+    .view-hosts .sidebar-hosts,
+    .nav-system-menu {
+      /* Top of the navbar should start when the curve of the content area ends. This means the search entry should be bumped down a bit. */
+      padding-block-start: var(--pf-t--global--spacer--md);
     }
   }
 

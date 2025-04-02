@@ -175,18 +175,9 @@ const OverviewCard = ({ card, plot_state }) => {
 
     return (
         <Stack hasGutter>
-            { !client.in_anaconda_mode() &&
-            <StackItem>
-                <Card isPlain>
-                    <CardBody>
-                        <StoragePlots plot_state={plot_state} />
-                    </CardBody>
-                </Card>
-            </StackItem>
-            }
             <StackItem>
                 <StorageCard card={card} actions={actions}>
-                    <CardBody className="contains-list">
+                    <CardBody>
                         <ChildrenTable emptyCaption={_("No storage found")}
                                        aria-label={_("Storage")}
                                        show_icons
@@ -197,6 +188,15 @@ const OverviewCard = ({ card, plot_state }) => {
             { !client.in_anaconda_mode() &&
             <StackItem>
                 <StorageLogsPanel />
+            </StackItem>
+            }
+            { !client.in_anaconda_mode() &&
+            <StackItem>
+                <Card isPlain>
+                    <CardBody>
+                        <StoragePlots plot_state={plot_state} />
+                    </CardBody>
+                </Card>
             </StackItem>
             }
         </Stack>);

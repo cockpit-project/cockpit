@@ -14,7 +14,6 @@ $desktop: $phone + 1px;
 }
 
 .area-ct-subnav {
-  background: var(--ct-color-nav-menu);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -119,14 +118,25 @@ $desktop: $phone + 1px;
     display: none !important;
   }
 
+  .view-hosts {
+    background: transparent;
+  }
+
   .view-hosts .sidebar-hosts {
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
     position: absolute;
     inset: 0;
-    background: var(--pf-t--global--background--color--secondary--default);
-
+    background: var(--pf-t--global--background--color--primary--default);
     z-index: 399; // Modals have 400 and modals should be in front of host switcher
+
+    height: auto;
+    box-shadow: var(--pf-t--global--box-shadow--md);
+    height: fit-content;
+    padding: var(--pf-t--global--spacer--gutter--default);
+    position: relative;
+    translate: 1rem 0;
+    border-radius: var(--pf-t--global--border--radius--medium);
 
     &.edit-hosts {
       .pf-v6-c-nav__list {
@@ -251,6 +261,8 @@ $desktop: $phone + 1px;
     inset-block-end: var(--nav-icon-size);
     inset-inline-end: var(--pf-t--global--spacer--md);
     max-inline-size: 100vw;
+    align-self: normal;
+    background: transparent;
   }
 
   .pf-m-dark.pf-v6-c-select {
@@ -448,12 +460,9 @@ $desktop: $phone + 1px;
   }
 
   .nav-hosts-actions {
-    --button-margin-x: 1rem;
-    --button-margin-y: 0.75rem;
     display: grid;
     gap: var(--pf-t--global--spacer--sm);
-    margin-block: var(--button-margin-y);
-    margin-inline: var(--button-margin-x);
+    margin-block-start: var(--pf-t--global--spacer--md);
   }
 
   .nav-item {
@@ -464,6 +473,19 @@ $desktop: $phone + 1px;
       flex-direction: column;
       justify-content: center;
       word-break: break-word;
+
+      &:hover,
+      &.pf-m-current {
+        /* Adjust for being on a white background */
+        background-color: var(--pf-t--global--background--color--action--plain--hover)
+      }
+
+      &.pf-m-current {
+        /* Add a selected color */
+        border-inline-start: var(--pf-t--global--border--width--extra-strong) solid var(--ct-color-host-accent);
+        /* Compensate for border */
+        padding-inline-start: calc(var(--pf-v6-c-nav__link--PaddingInlineStart) - var(--pf-t--global--border--width--extra-strong));
+      }
     }
   }
 

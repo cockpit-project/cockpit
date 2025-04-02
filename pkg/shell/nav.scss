@@ -119,6 +119,10 @@ $desktop: $phone + 1px;
     display: none !important;
   }
 
+  .desktop_v .pf-v6-c-toolbar__item {
+    align-items: center;
+  }
+
   .view-hosts .sidebar-hosts {
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
@@ -139,8 +143,6 @@ $desktop: $phone + 1px;
   }
 
   .header {
-    background-color: var(--pf-t--global--background--color--tertiary--default);
-
     .credential-unlocked {
       /* AAA contrast: simulate #a1a1a1 on #151515 */
       opacity: 0.6;
@@ -148,8 +150,6 @@ $desktop: $phone + 1px;
   }
 
   .ct-switcher {
-    background-color: var(--pf-t--global--background--color--secondary--default);
-
     .pf-v6-c-select__toggle-wrapper {
       display: flex;
     }
@@ -448,6 +448,7 @@ $desktop: $phone + 1px;
     gap: var(--pf-t--global--spacer--xs);
     padding-block: var(--pf-t--global--spacer--xs);
     padding-inline: var(--pf-t--global--spacer--sm);
+
     // Pull the background color over
 
     @media (min-width: $desktop) {
@@ -463,6 +464,11 @@ $desktop: $phone + 1px;
   }
 }
 
+.nav-item-actions:empty {
+  /* Nav item actions are part of the grid, whether they have content or not. If they do not have content, don't add extra spacing. */
+  display: none;
+}
+
 .ct-topnav-content {
   margin-inline-start: auto;
 }
@@ -470,7 +476,6 @@ $desktop: $phone + 1px;
 // Rework navigation toggles in desktop and (especially) mobile modes
 .super-user-indicator > button,
 .ct-nav-toggle:not(.pf-v6-c-menu) {
-  background: transparent !important;
   // The normal margin to the right of the select dropdown makes them look uncentered in the masthead.
   // https://github.com/patternfly/patternfly/issues/6632
   .pf-v6-c-menu-toggle__toggle-icon {
@@ -478,11 +483,23 @@ $desktop: $phone + 1px;
   }
 }
 
+.navbar {
+  margin: var(--pf-t--global--spacer--xs);
+
+  .ct-nav-toggle {
+  }
+}
+
 .ct-nav-toggle:not(.pf-v6-c-menu) {
+  border-radius: var(--pf-t--global--border--radius--small);
+  background: transparent;
+
+  &:hover {
+    background: var(--pf-t--global--background--color--action--plain--alt--hover);
+  }
+
   &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
     text-decoration: none;
-    // add in opacity so the navigation colored line doesn't hide on hover
-    background: color-mix(in srgb, var(--pf-t--global--background--color--secondary--hover) 32%, transparent) !important;
 
     .hostname {
       text-decoration: underline;

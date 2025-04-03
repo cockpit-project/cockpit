@@ -486,6 +486,11 @@ $desktop: $phone + 1px;
   .pf-m-current + .nav-item-actions {
     background-color: var(--pf-v6-c-nav__link--m-current--BackgroundColor);
   }
+
+  // Use hover background for the whole nav item correctly
+  .nav-item:hover {
+    background-color: var(--pf-v6-c-nav__link--hover--BackgroundColor);
+  }
 }
 
 .nav-item-actions:empty {

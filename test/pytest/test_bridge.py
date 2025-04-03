@@ -528,6 +528,10 @@ async def test_fsreplace1(transport: MockTransport, tmp_path: Path) -> None:
     assert myfile.read_bytes() == b'some stuff'
     # no leftover files
     assert os.listdir(tmp_path) == ['newfile']
+    # default umask is applied
+    prev_umask = os.umask(0)
+    os.umask(prev_umask)
+    assert stat.S_IMODE(myfile.stat().st_mode) == 0o666 & ~prev_umask
 
     # now update its contents
     ch = await transport.check_open('fsreplace1', path=str(myfile))

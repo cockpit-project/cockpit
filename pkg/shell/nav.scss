@@ -138,6 +138,11 @@ $desktop: $phone + 1px;
     }
   }
 
+  /* Move host switcher away from the host line and page edges */
+  .navbar {
+    margin: var(--pf-t--global--spacer--xs);
+  }
+
   .header {
     .credential-unlocked {
       /* AAA contrast: simulate #a1a1a1 on #151515 */
@@ -177,7 +182,30 @@ $desktop: $phone + 1px;
   .clicked {
     transform: rotate(180deg);
   }
+
+  .ct-nav-toggle:not(.pf-v6-c-menu) {
+    border-radius: var(--pf-t--global--border--radius--small);
+    background: transparent;
+
+    &:hover {
+      background: var(--pf-t--global--background--color--action--plain--alt--hover);
+    }
+
+    &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
+      text-decoration: none;
+
+      .hostname {
+        text-decoration: underline;
+      }
+    }
+
+    &:focus {
+      text-decoration: none;
+    }
+
+  }
 }
+
 
 /* Mobile navigation */
 @media (max-width: $phone) {
@@ -476,34 +504,6 @@ $desktop: $phone + 1px;
   // https://github.com/patternfly/patternfly/issues/6632
   .pf-v6-c-menu-toggle__toggle-icon {
       margin-inline-end: 0;
-  }
-}
-
-.navbar {
-  margin: var(--pf-t--global--spacer--xs);
-
-  .ct-nav-toggle {
-  }
-}
-
-.ct-nav-toggle:not(.pf-v6-c-menu) {
-  border-radius: var(--pf-t--global--border--radius--small);
-  background: transparent;
-
-  &:hover {
-    background: var(--pf-t--global--background--color--action--plain--alt--hover);
-  }
-
-  &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
-    text-decoration: none;
-
-    .hostname {
-      text-decoration: underline;
-    }
-  }
-
-  &:focus {
-    text-decoration: none;
   }
 
   // The way the event is handled, it checks for the button, but not the icon. It should bubble, but doesn't. We can work around this by passing mouse events through.

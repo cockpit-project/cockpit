@@ -166,7 +166,7 @@ a.disabled:hover {
   display: none !important;
 }
 
-// Let PF4 handle the scrolling through page component otherwise we might get double scrollbar
+// Let PF handle the scrolling through page component otherwise we might get double scrollbar
 html:not(.index-page) body {
   overflow-block: hidden;
 
@@ -209,6 +209,12 @@ body {
 .pixel-test {
   main {
     overflow-y: clip;
+  }
+
+  // Add some background behind menus to hide stuff in the background.
+  // This will prevent any stuff behind the rounded borders to impact tests.
+  .pf-v6-c-menu {
+    --pf-v6-c-menu--BoxShadow: 0 0 0 2em gray !important;
   }
 
   // Due to rounded corners in PF6 the pixel tests on modals pick up changes

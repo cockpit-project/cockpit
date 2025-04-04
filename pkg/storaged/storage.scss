@@ -31,10 +31,6 @@
   @extend .ct-card;
 }
 
-.ct-card.pf-v6-c-card .pf-v6-c-card__title-text.ct-card-small-title {
-  font-size: var(--pf-t--global--font--size--xl);
-}
-
 // Only used in iSCSI dialog
 .dialog-select-row-table {
   inline-size: 100%;
@@ -101,6 +97,10 @@ td.job-action {
   text-align: start;
 }
 
+.modal-footer-teardown td {
+  vertical-align: baseline;
+}
+
 * + .modal-footer-teardown {
   padding-block-start: var(--pf-t--global--spacer--xl);
 }
@@ -121,11 +121,6 @@ td.job-action {
   font-size: 140%;
 }
 
-.pf-v6-c-modal-box h3 {
-  margin-block-start: 0;
-  line-height: 24px;
-}
-
 .delete-resource-dangerous {
   color: var(--pf-t--global--color--status--danger--default);
 }
@@ -137,10 +132,6 @@ td.job-action {
 // This is needed to avoid showing scrollbar in dialog
 .size-slider {
   padding-block-end: var(--pf-t--global--spacer--xs);
-}
-
-.panel-heading {
-  position: static;
 }
 
 .storage-alert-actions button {
@@ -170,13 +161,13 @@ td.job-action {
   display: inline-block;
   inline-size: 20em;
   block-size: 1rem;
-  margin-inline-start: 1em;
+  margin-inline-start: 1rem;
   position: relative;
   inset-block-start: 0.15rem; // XXX - center it
   inset-inline-start: 0;
 
   &-short {
-    inline-size: 3.5em;
+    inline-size: 3.5rem;
   }
 
   &-danger {
@@ -274,11 +265,6 @@ td.job-action {
   border-block-end: 0 !important;
 }
 
-.ct-clickable-card:hover {
-    background: var(--pf-t--global--background--color--primary--hover);
-    cursor: pointer;
-}
-
 .storage-menu-title {
     text-align: start;
     white-space: nowrap !important;
@@ -311,8 +297,63 @@ td.job-action {
 .storage-size-column-header {
     text-align: end;
     // Align the "Size" header with the text of the usage bars.
-    // var(--pf-t--global--spacer--sm): padding of compact td cells
-    // 3.5em: width of short progress bars
-    // 1em: margin between text and progress bar
-    padding-inline-end: calc(var(--pf-t--global--spacer--sm) + 3.5em + 1em) !important;
+    // var(--pf-v6-c-table--cell--PaddingInlineEnd): padding of compact td cells
+    // 3.5rem: width of short progress bars
+    // 1rem: margin between text and progress bar
+    padding-inline-end: calc(var(--pf-v6-c-table--cell--PaddingInlineEnd) + 3.5rem + 1rem) !important;
 }
+
+/** FIXME: Fixup tables. **/
+
+// There are many Cards that contain a PageTable as their main child.
+// Such a PageTable should be aligned with the Card header.
+//
+// Code-wise, such a PageTable is always a direct child of the Card,
+// and is not in a CardBody.  We have to deal with plain Cards and
+// regular Cards.
+//
+// The following things needs adjusting specifically:
+
+// - We want "vertical-align: baseline" for all rows. There are kebabs
+//   in our table rows, and the baselines of regular entries and the
+//   icon should be aligned.  (This is true of all tables, actually.)
+//
+.page-table tbody td,
+.page-table tbody th {
+    vertical-align: baseline;
+}
+
+// - In a regular Card, we need some extra space after the table so
+//   that the last row isn't too close to the bottom of the card.
+//   This is especially a problem with multi-line text in a cell
+//   together with baseline alignment (see above). In that case, the
+//   table would actually overflow the Card by a few pixels and the
+//   Card would gain a scrollbar.  Adding a little extra space looks
+//   better and fixes the unwanted overflow.
+//
+.pf-v6-c-card:not(.pf-m-plain) > .page-table {
+    margin-block-end: var(--pf-t--global--spacer--md);
+}
+
+// - We don't want a divider line after the last row, since it looks wrong.
+//
+//   In a regular Card, it would normally collapse with the border of
+//   the card itself, but adding the extra space (see above) breaks
+//   that and we get two lines too close together.
+//
+//   In a plain Card, the last divider line is shortened somehow by
+//   non-visible round corners and looks out of place.
+//
+.pf-v6-c-card > .page-table tbody tr:last-child {
+    border-block-end-width: 0;
+}
+
+// - A listing table in a regular Card is already aligned with the
+//   header, but not in a plain Card. We need to remove the inline
+//   padding explicitly.
+//
+.pf-v6-c-card.pf-m-plain > .page-table {
+    --pf-v6-c-table--cell--first-last-child--PaddingInline: 0;
+}
+
+/** END FIXME Tables **/

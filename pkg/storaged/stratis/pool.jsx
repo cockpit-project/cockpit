@@ -375,11 +375,10 @@ const StratisFilesystemsCard = ({ card, pool, degraded_ops, can_grow, stats }) =
 
     return (
         <StorageCard card={card} alerts={alerts}>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No filesystems")}
-                               aria-label={_("Stratis filesystems pool")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No filesystems")}
+                aria-label={_("Stratis filesystems pool")}
+                page={card.page} />
         </StorageCard>
     );
 };
@@ -598,11 +597,10 @@ const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, stats }) => {
                 </DescriptionList>
             </CardBody>
             <CardHeader><strong>{_("Block devices")}</strong></CardHeader>
-            <CardBody className="contains-list">
-                <PageTable emptyCaption={_("No block devices found")}
-                           aria-label={_("Stratis block devices")}
-                           crossrefs={get_crossrefs(pool)} />
-            </CardBody>
+            <PageTable
+                emptyCaption={_("No block devices found")}
+                aria-label={_("Stratis block devices")}
+                crossrefs={get_crossrefs(pool)} />
         </StorageCard>
     );
 };

@@ -122,11 +122,10 @@ function perc(ratio) {
 export const LVM2ThinPoolLogicalVolumeCard = ({ card, vgroup, lvol }) => {
     return (
         <StorageCard card={card}>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No logical volumes")}
-                               aria-label={_("Thinly provisioned LVM2 logical volumes")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No logical volumes")}
+                aria-label={_("Thinly provisioned LVM2 logical volumes")}
+                page={card.page} />
         </StorageCard>);
 };
 

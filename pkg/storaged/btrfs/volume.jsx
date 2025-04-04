@@ -210,11 +210,10 @@ const BtrfsVolumeCard = ({ card, block_devices, uuid, use }) => {
                 </DescriptionList>
             </CardBody>
             <CardHeader><strong>{_("btrfs devices")}</strong></CardHeader>
-            <CardBody className="contains-list">
-                <PageTable emptyCaption={_("No devices found")}
-                                   aria-label={_("btrfs device")}
-                                   crossrefs={get_crossrefs(uuid)} />
-            </CardBody>
+            <PageTable
+                emptyCaption={_("No devices found")}
+                aria-label={_("btrfs device")}
+                crossrefs={get_crossrefs(uuid)} />
         </StorageCard>
     );
 };
@@ -231,11 +230,10 @@ export function make_btrfs_subvolumes_card(next, block, backing_block) {
 const BtrfsSubVolumesCard = ({ card }) => {
     return (
         <StorageCard card={card}>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No subvolumes")}
-                               aria-label={_("btrfs subvolumes")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No subvolumes")}
+                aria-label={_("btrfs subvolumes")}
+                page={card.page} />
         </StorageCard>
     );
 };

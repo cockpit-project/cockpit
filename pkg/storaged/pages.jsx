@@ -24,6 +24,7 @@ import { useEvent } from "hooks.js";
 
 import { AlertGroup } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardHeader, CardTitle, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Divider } from '@patternfly/react-core/dist/esm/components/Divider/index.js';
 import { DropdownGroup, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
@@ -61,7 +62,7 @@ const _ = cockpit.gettext;
    The tree of pages starts with "make_overview_page" in
    overview/overview.jsx. That function creates the data structures
    that represent the overview page (using functions exported from
-   this file), and is also responsible for kicking of the creation of
+   this file), and is also responsible for kicking off the creation of
    its child pages. (And each page construction function of course
    also creates the cards and actions for that page).
 
@@ -198,6 +199,7 @@ export function new_page(parent, card, options) {
         card.location,
         size_from_card(card),
     ];
+    page.column_1_goto = card.location_goto;
     if (parent)
         parent.children.push(page);
     while (card) {
@@ -217,7 +219,7 @@ export function new_page(parent, card, options) {
 }
 
 export function new_card({
-    title, location, next,
+    title, location, location_goto, next,
     type_extra, id_extra,
     page_name, page_icon, page_category, page_key, page_location, page_size,
     page_block,
@@ -235,6 +237,7 @@ export function new_card({
     return {
         title,
         location,
+        location_goto,
         next,
         type_extra,
         page_name,
@@ -336,8 +339,11 @@ function make_page_kebab(page) {
     let c = page.card;
     while (c) {
         const g = card_item_group(c);
-        if (g)
+        if (g) {
+            if (items.length > 0)
+                items.push(<Divider key={"div"+items.length}/>);
             items.push(g);
+        }
         c = c.next;
     }
 
@@ -514,6 +520,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
         const name = crossref ? page.name : page_display_name(page);
         const type = crossref ? page_block_summary(page) : page_type(page);
         const location = crossref ? crossref.extra : page.columns[1];
+        const location_goto = crossref ? null : page.column_1_goto;
         let size = crossref ? crossref.size : page.columns[2];
         const actions = crossref ? make_actions_kebab(crossref.actions) : make_page_kebab(page);
 
@@ -523,7 +530,6 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
             else
                 size = <StorageSize size={size} />;
         }
-
         function onClick(event) {
             if (!event || event.button !== 0)
                 return;
@@ -532,54 +538,15 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 cockpit.location.go(page.location);
         }
 
-        function is_clickable(element) {
-            return element.classList.contains("pf-m-clickable");
-        }
 
-        function next_clickable_sibling(element) {
-            do {
-                const next = element.nextElementSibling;
-                if (next && is_clickable(next))
-                    return next;
-                element = next;
-            } while (element);
-
-            return null;
-        }
-
-        function previous_clickable_sibling(element) {
-            do {
-                const prev = element.previousElementSibling;
-                if (prev && is_clickable(prev))
-                    return prev;
-                element = prev;
-            } while (element);
-
-            return null;
-        }
-
-        function onRowKeyDown(event) {
-            const { code, target } = event;
-
-            if (target.nodeName == "TR") {
-                if (code == "Space" || code == "Enter") {
-                    if (page.location)
-                        cockpit.location.go(page.location);
-                    event.preventDefault();
-                }
-                if (code == "ArrowDown") {
-                    const next = next_clickable_sibling(target);
-                    if (next)
-                        next.focus();
-                    event.preventDefault();
-                }
-                if (code == "ArrowUp") {
-                    const prev = previous_clickable_sibling(target);
-                    if (prev)
-                        prev.focus();
-                    event.preventDefault();
-                }
-            }
+        function location_link(loc, children) {
+            if (!loc)
+                return children;
+            return (
+                <Button isInline variant="link" onClick={() => cockpit.location.go(loc)}>
+                    {children}
+                </Button>
+            );
         }
 
         const is_new = firstKeys.current != false && !firstKeys.current.has(key);
@@ -589,36 +556,42 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
             rows.push(
                 <Card isPlain key={key}
                       className={"ct-small-table-card" +
-                                 (page.location ? " ct-clickable-card" : null) +
                                  (is_new ? " ct-new-item" : "")}
                       data-test-row-name={page.name}
                       data-test-row-location={page.columns[1]}>
                     <CardBody>
                         <Split hasGutter>
-                            { icon && <SplitItem onClick={onClick}>{icon}</SplitItem> }
-                            <SplitItem isFilled onClick={onClick}>
-                                <strong><Truncate content={name} /></strong>{info}
+                            { icon && <SplitItem>{icon}</SplitItem> }
+                            <SplitItem isFilled>
+                                {location_link(
+                                    page.location,
+                                    <strong><Truncate content={name} /></strong>)
+                                }
+                                {info}
                             </SplitItem>
                             <SplitItem>{actions}</SplitItem>
                         </Split>
-                        <Split hasGutter isWrappable onClick={onClick}>
+                        <Split hasGutter isWrappable>
                             <SplitItem>{type}</SplitItem>
                             <SplitItem isFilled>{location}</SplitItem>
-                            <SplitItem isFilled className="pf-v6-u-text-align-right">{size}</SplitItem>
+                            <SplitItem isFilled className="pf-v6-u-text-align-end">{size}</SplitItem>
                         </Split>
                     </CardBody>
                 </Card>);
         } else {
             const cols = [
-                <Td key="1" onClick={onClick}>
+                <Td key="1">
                     <div className="indent" style={ { "--level": level } }>
-                        <Truncate content={name} />
+                        {location_link(
+                            page.location,
+                            <Truncate content={name} />)
+                        }
                         {info}
                     </div>
                 </Td>,
-                <Td key="2" onClick={onClick} modifier="nowrap">{type}</Td>,
-                <Td key="3" onClick={onClick} modifier="nowrap">{location}</Td>,
-                <Td key="4" onClick={onClick} className="storage-size-column">{size}</Td>,
+                <Td key="2" modifier="nowrap">{type}</Td>,
+                <Td key="3" modifier="nowrap">{location_link(location_goto, location)}</Td>,
+                <Td key="4" className="storage-size-column">{size}</Td>,
                 <Td key="5" className="pf-v6-c-table__action">{actions || <div /> }</Td>,
             ];
             if (show_icons)
@@ -628,9 +601,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 <Tr key={key}
                     className={(border ? "" : " remove-border") +
                                (is_new ? " ct-new-item" : "")}
-                    data-test-row-name={page.name} data-test-row-location={page.columns[1]}
-                    isClickable={!!page.location}
-                    onKeyDown={onRowKeyDown}>
+                    data-test-row-name={page.name} data-test-row-location={page.columns[1]}>
                     {cols}
                 </Tr>);
         }
@@ -704,11 +675,12 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
     }
 
     return (
-        <div>
+        <>
             { narrow
                 ? rows
                 : <Table aria-label={aria_label}
-                       variant="compact">
+                      className="page-table"
+                      variant="compact">
                     { pages &&
                     <Thead>
                         <Tr>
@@ -727,7 +699,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 </Table>
             }
             {show_all_button}
-        </div>);
+        </>);
 };
 
 export const ChildrenTable = ({ emptyCaption, aria_label, page, show_icons }) => {
@@ -797,7 +769,7 @@ const StorageBreadcrumb = ({ page }) => {
 
 export const StorageCard = ({ card, alert, alerts, actions, children }) => {
     return (
-        <Card isPlain data-test-card-title={card.title}>
+        <Card isPlain={card.page_location && card.page_location.length == 0} data-test-card-title={card.title}>
             { (client.in_anaconda_mode() && card.page.parent && !card.next) &&
             <CardBody>
                 <StorageBreadcrumb page={card.page} />

@@ -67,11 +67,10 @@ const BtrfsFilesystemCard = ({ card, backing_block, content_block }) => {
                     }
                 </DescriptionList>
             </CardBody>
-            <CardBody className="contains-list">
-                <ChildrenTable emptyCaption={_("No subvolumes")}
-                               aria-label={_("btrfs subvolumes")}
-                               page={card.page} />
-            </CardBody>
+            <ChildrenTable
+                emptyCaption={_("No subvolumes")}
+                aria-label={_("btrfs subvolumes")}
+                page={card.page} />
         </StorageCard>
     );
 };

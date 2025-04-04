@@ -1,5 +1,7 @@
 import cockpit from "cockpit";
 
+import { Channel } from '../lib/cockpit/channel';
+
 import '../lib/patternfly/patternfly-6-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
@@ -133,6 +135,28 @@ document.addEventListener("DOMContentLoaded", () => {
     cockpit.addEventListener("visibilitychange", show_hidden);
     show_hidden();
 
+    // HACK: The user/group/mode options are not part yet of the Cockpit File API so
+    // we resort to creating our own channel here. We can't use the new `Channel`
+    // API as importing it with cockpit leads to the wrong cockpit.Channel being
+    // used instead of the new class.
+    const replace = (filename, content, tag, attrs) => {
+        const channel = new Channel({ payload: "fsreplace1", superuser: 'try', path: filename, tag, attrs });
+        channel.wait();
+
+        return new Promise((resolve, reject) => {
+            channel.on('close', message => {
+                if (message.problem) {
+                    reject(message);
+                } else {
+                    resolve();
+                }
+            });
+
+            channel.send_data(content);
+            channel.send_control({ command: 'done' });
+        });
+    };
+
     const fsreplace_btn = document.getElementById("fsreplace1-create");
     const fsreplace_error = document.getElementById("fsreplace1-error");
     fsreplace_btn.addEventListener("click", e => {
@@ -142,12 +166,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const content = document.getElementById("fsreplace1-content").value;
         const use_tag = document.getElementById("fsreplace1-use-tag").checked;
         const file = cockpit.file(filename, { superuser: "try" });
+        const attrs = { };
+        for (const field of ["user", "group", "mode"]) {
+            const val = document.getElementById(`fsreplace1-${field}`).value;
+            if (!val)
+                continue;
+
+            attrs[field] = val;
+        }
+
+        if ('mode' in attrs)
+            attrs.mode = Number.parseInt(attrs.mode);
 
         file.read().then((_content, tag) => {
-            file.replace(content, use_tag ? tag : undefined)
-                    .catch(exc => {
-                        fsreplace_error.textContent = exc.toString();
-                    })
+            replace(filename, content, use_tag ? tag : undefined, attrs).catch(exc => {
+                fsreplace_error.textContent = cockpit.message(exc);
+            })
                     .finally(() => {
                         fsreplace_btn.disabled = false;
                     });

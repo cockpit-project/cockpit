@@ -79,6 +79,8 @@ class TestMenu(testlib.MachineCase):
         if not m.ostree_image:
             pkgname = "cockpit" if m.image == "arch" else "cockpit-bridge"
             b.wait_visible(f'#about-cockpit-modal:contains("{pkgname}")')
+            b.assert_pixels('.pf-v6-c-modal-box:has(#about-cockpit-modal)', "about-cockpit-modal",
+                            mock={".pf-v6-c-content--dd": "v1234"})
         b.click('.pf-v6-c-about-modal-box__close button')
         b.wait_not_present('#about-cockpit-modal')
 

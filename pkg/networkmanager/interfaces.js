@@ -125,29 +125,6 @@ export function connection_settings(c) {
  * TODO - document the details of the data structure.
  */
 
-/* HACK
- *
- * NetworkManager doesn't implement the standard o.fd.DBus.Properties
- * interface.
- *
- * 1) NM does not emit the PropertiesChanged signal on the
- *    o.fd.DBus.Properties interface but rather on its own interfaces
- *    like o.fd.NetworkManager.Device.Wired.
- *
- * 2) NM does not always emit the PropertiesChanged signal on the
- *    interface whose properties have changed.  For example, when a
- *    property on o.fd.NM.Device changes, this might be notified by a
- *    PropertiesChanged signal on the o.fd.NM.Device.Wired interface
- *    for the same object path.
- *
- * https://bugzilla.gnome.org/show_bug.cgi?id=729826
- *
- * We cope with this here by merging all properties of all interfaces
- * for a given object path.  This is appropriate and nice for
- * NetworkManager, and we should probably keep it that way even if
- * NetworkManager would use a standard o.fd.DBus.Properties API.
- */
-
 export function NetworkManagerModel() {
     /*
      * The NetworkManager model doesn't need proxies in its DBus client.

@@ -80,8 +80,6 @@ export function connection_settings(c) {
         // object that doesn't have it's settings yet, and we expect
         // each Connection object to have "connection" settings.
         console.warn("Incomplete 'Connection' object accessed", c);
-        // HACK - phantomjs console.trace() prints nothing
-        try { throw new Error() } catch (e) { console.log(e.stack) }
         return { };
     }
 }

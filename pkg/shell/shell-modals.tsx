@@ -64,9 +64,10 @@ export const AboutCockpitModal = ({ dialogResult }) => {
             isOpen
             onClose={() => dialogResult.resolve()}
             id="about-cockpit-modal"
+            aria-label="About Cockpit and its versions"
             trademark={_("Licensed under GNU LGPL version 2.1")}
             productName={_("Web Console")}
-            brandImageSrc="../shell/images/cockpit-icon.svg"
+            brandImageSrc="../shell/images/cockpit-icon-gray.svg"
             brandImageAlt={_("Web console logo")}
         >
             <Content component={ContentVariants.p}>

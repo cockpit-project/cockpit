@@ -238,11 +238,23 @@ $desktop: $phone + 1px;
 
 // Customize the about screen with the Cockpit logo
 .pf-v6-c-about-modal-box {
-  --pf-v5-c-about-modal-box--BackgroundImage: linear-gradient(#000d, #000d), url(../shell/images/cockpit-icon.svg);
-  --pf-v5-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
-  --pf-v5-c-about-modal-box--BackgroundSize--min-width: 786px;
+  // Gray is best as it works in both light and dark mode
+  // Ideally About modal should allow setting this through DOM instead of CSS
+  // so we can color it easier.
+  //
+  // Or we can see about modifying it inline in scss and changing color there somehow
+  --pf-v6-c-about-modal-box--BackgroundImage: url(../shell/images/cockpit-icon-gray.svg);
+  --pf-v6-c-about-modal-box--BackgroundPosition: max(25rem, 143%) 10rem;
+  --pf-v6-c-about-modal-box--BackgroundSize--min-width: 786px;
+
+  .pf-v6-c-content {
+    /* Don't wrap package names */
+    --pf-v6-c-content--dl--GridTemplateColumns--dt: auto;
+    /* Tidy up the vertical space usage between packages */
+    --pf-v6-c-content--dl--RowGap: var(--pf-t--global--spacer--sm);
+  }
 
   [dir="rtl"] {
-    --pf-v5-c-about-modal-box--BackgroundPosition: calc(100% - 30rem) 10rem;
+    --pf-v6-c-about-modal-box--BackgroundPosition: calc(100% - 30rem) 10rem;
   }
 }

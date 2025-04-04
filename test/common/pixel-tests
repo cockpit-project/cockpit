@@ -61,7 +61,7 @@ cmd_push() {
           echo No changes
       fi
       tag="sha-$(git rev-parse HEAD)"
-      [ $(git tag -l "$tag") ] || git tag "$tag" HEAD
+      [ $(git tag -l "$tag") ] || git tag "$tag" HEAD --no-sign
       git push "$PUSH_REMOTE" "$tag"
     )
     git add "$TEST_REFERENCE_SUBDIR"

@@ -14,7 +14,6 @@ $desktop: $phone + 1px;
 }
 
 .area-ct-subnav {
-  background: var(--ct-color-nav-menu);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -119,14 +118,29 @@ $desktop: $phone + 1px;
     display: none !important;
   }
 
+  .desktop_v .pf-v6-c-toolbar__item {
+    align-items: center;
+  }
+
+  .view-hosts {
+    background: transparent;
+  }
+
   .view-hosts .sidebar-hosts {
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
     position: absolute;
     inset: 0;
-    background: var(--pf-t--global--background--color--secondary--default);
-
+    background: var(--pf-t--global--background--color--primary--default);
     z-index: 399; // Modals have 400 and modals should be in front of host switcher
+
+    height: auto;
+    box-shadow: var(--pf-t--global--box-shadow--md);
+    height: fit-content;
+    padding: var(--pf-t--global--spacer--gutter--default);
+    position: relative;
+    translate: 1rem 0;
+    border-radius: var(--pf-t--global--border--radius--medium);
 
     &.edit-hosts {
       .pf-v6-c-nav__list {
@@ -139,8 +153,6 @@ $desktop: $phone + 1px;
   }
 
   .header {
-    background-color: var(--pf-t--global--background--color--tertiary--default);
-
     .credential-unlocked {
       /* AAA contrast: simulate #a1a1a1 on #151515 */
       opacity: 0.6;
@@ -148,8 +160,6 @@ $desktop: $phone + 1px;
   }
 
   .ct-switcher {
-    background-color: var(--pf-t--global--background--color--secondary--default);
-
     .pf-v6-c-select__toggle-wrapper {
       display: flex;
     }
@@ -227,6 +237,8 @@ $desktop: $phone + 1px;
     inset-block-end: var(--nav-icon-size);
     inset-inline-end: var(--pf-t--global--spacer--md);
     max-inline-size: 100vw;
+    align-self: normal;
+    background: transparent;
   }
 
   .pf-m-dark.pf-v6-c-select {
@@ -424,12 +436,9 @@ $desktop: $phone + 1px;
   }
 
   .nav-hosts-actions {
-    --button-margin-x: 1rem;
-    --button-margin-y: 0.75rem;
     display: grid;
     gap: var(--pf-t--global--spacer--sm);
-    margin-block: var(--button-margin-y);
-    margin-inline: var(--button-margin-x);
+    margin-block-start: var(--pf-t--global--spacer--md);
   }
 
   .nav-item {
@@ -440,6 +449,19 @@ $desktop: $phone + 1px;
       flex-direction: column;
       justify-content: center;
       word-break: break-word;
+
+      &:hover,
+      &.pf-m-current {
+        /* Adjust for being on a white background */
+        background-color: var(--pf-t--global--background--color--action--plain--hover)
+      }
+
+      &.pf-m-current {
+        /* Add a selected color */
+        border-inline-start: var(--pf-t--global--border--width--extra-strong) solid var(--ct-color-host-accent);
+        /* Compensate for border */
+        padding-inline-start: calc(var(--pf-v6-c-nav__link--PaddingInlineStart) - var(--pf-t--global--border--width--extra-strong));
+      }
     }
   }
 
@@ -448,6 +470,7 @@ $desktop: $phone + 1px;
     gap: var(--pf-t--global--spacer--xs);
     padding-block: var(--pf-t--global--spacer--xs);
     padding-inline: var(--pf-t--global--spacer--sm);
+
     // Pull the background color over
 
     @media (min-width: $desktop) {
@@ -463,6 +486,11 @@ $desktop: $phone + 1px;
   }
 }
 
+.nav-item-actions:empty {
+  /* Nav item actions are part of the grid, whether they have content or not. If they do not have content, don't add extra spacing. */
+  display: none;
+}
+
 .ct-topnav-content {
   margin-inline-start: auto;
 }
@@ -470,7 +498,6 @@ $desktop: $phone + 1px;
 // Rework navigation toggles in desktop and (especially) mobile modes
 .super-user-indicator > button,
 .ct-nav-toggle:not(.pf-v6-c-menu) {
-  background: transparent !important;
   // The normal margin to the right of the select dropdown makes them look uncentered in the masthead.
   // https://github.com/patternfly/patternfly/issues/6632
   .pf-v6-c-menu-toggle__toggle-icon {
@@ -478,11 +505,23 @@ $desktop: $phone + 1px;
   }
 }
 
+.navbar {
+  margin: var(--pf-t--global--spacer--xs);
+
+  .ct-nav-toggle {
+  }
+}
+
 .ct-nav-toggle:not(.pf-v6-c-menu) {
+  border-radius: var(--pf-t--global--border--radius--small);
+  background: transparent;
+
+  &:hover {
+    background: var(--pf-t--global--background--color--action--plain--alt--hover);
+  }
+
   &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
     text-decoration: none;
-    // add in opacity so the navigation colored line doesn't hide on hover
-    background: color-mix(in srgb, var(--pf-t--global--background--color--secondary--hover) 32%, transparent) !important;
 
     .hostname {
       text-decoration: underline;

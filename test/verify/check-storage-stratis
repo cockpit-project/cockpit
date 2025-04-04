@@ -936,7 +936,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
 
         # different stratis versions report different usage numbers.
         b.assert_pixels(self.card("Encrypted Stratis pool"), "header",
-                        mock={".usage-text": "0.55 / 4.3 GB"},
+                        mock={".usage-text": "0.55 / 4.3 GB", "[data-test-row-name='sda'] td:nth-child(4)": '4.28 GB'},
                         ignore=['.usage-bar', '.pf-v6-c-description-list__group:contains(UUID)'])
 
         # Remove passphrase

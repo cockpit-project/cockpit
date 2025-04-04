@@ -72,7 +72,7 @@ cmd_install() {
     # We first read the result directly into the cache, then we unpack it.
     tree="$(bots/npm download < package.json | tar_to_cache)"
     commit="$(sha256sum package.json | git_cache commit-tree "${tree}")"
-    git_cache tag "sha-${commit}" "${commit}"
+    git_cache tag "sha-${commit}" "${commit}" "--no-sign"
     cmd_checkout "${commit}"
 
     cat <<EOF

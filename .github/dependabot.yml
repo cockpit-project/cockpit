@@ -36,11 +36,14 @@ updates:
         patterns:
           - "@xterm/*"
     ignore:
-      # lots of work, do this explicitly
+      # When Patternfly gets a major version we don't want to get PRs for it
+      # Would require a lot of work and not something we wanna do in a dependabot PR.
       - dependency-name: "@patternfly/*"
-        versions: ["6.x"]
+        update-types: ["version-update:semver-major"]
 
-      # PF5 requires fixed major React version
+      # PF6 doesn't support React 19 yet and often doesn't support new major versions
+      # right away in general.
+      # https://github.com/patternfly/pf-roadmap/issues/201
       - dependency-name: "*react*"
         update-types: ["version-update:semver-major"]
 

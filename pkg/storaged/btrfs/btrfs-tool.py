@@ -139,15 +139,24 @@ def poll(opt_mount):
     info = {}
     for fs in filesystems.values():
         mp = get_mount_point(fs, opt_mount)
-        if mp:
-            try:
-                info[fs['uuid']] = {
-                    'subvolumes': get_subvolume_info(mp),
-                    'default_subvolume': get_default_subvolume(mp),
-                    'usages': get_usages(fs['uuid']),
-                }
-            except Exception as err:
-                info[fs['uuid']] = {'error': str(err)}
+        try:
+            usages = get_usages(fs['uuid'])
+
+            if mp:
+                subvolumes = get_subvolume_info(mp)
+                default_subvolume = get_default_subvolume(mp)
+            else:
+                subvolumes = None
+                default_subvolume = None
+
+            info[fs['uuid']] = {
+                'subvolumes': subvolumes,
+                'default_subvolume': default_subvolume,
+                'usages': usages,
+            }
+        except Exception as err:
+            info[fs['uuid']] = {'error': str(err)}
+
     return info
 
 

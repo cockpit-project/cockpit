@@ -303,6 +303,7 @@ class TestStorageStratis(storagelib.StorageCase):
         self.assertFalse(udisk_contains_stratis_private)
 
     @testlib.skipImage("Stratis too old", "rhel-8-*")
+    @testlib.skipImage("Stratis V2 pools can't be inconsistent", "fedora-41", "fedora-42")
     def testAlerts(self):
         m = self.machine
         b = self.browser

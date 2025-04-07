@@ -77,6 +77,12 @@ $phone: 767px;
   white-space: normal;
 }
 
+// Modals should accomodate content width, as languages can make elements (especially buttons) too long
+// https://github.com/patternfly/patternfly/issues/7440
+.pf-v6-c-modal-box {
+  min-width: min-content;
+}
+
 .pf-v6-c-card {
   // https://github.com/patternfly/patternfly/issues/3959
   // TODO @Venefilyn: Change so we use .pf-m-no-offset, then remove this

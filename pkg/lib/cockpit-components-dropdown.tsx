@@ -18,12 +18,20 @@
  */
 
 import React, { useState } from 'react';
-import PropTypes from "prop-types";
 
 import { MenuToggle } from "@patternfly/react-core/dist/esm/components/MenuToggle";
 import { Dropdown, DropdownList, DropdownPopperProps } from "@patternfly/react-core/dist/esm/components/Dropdown";
 
 import { EllipsisVIcon } from '@patternfly/react-icons';
+
+interface KebabDropdownProps {
+    dropdownItems: React.ReactNode,
+    position?: DropdownPopperProps['position'],
+    isDisabled?: boolean,
+    toggleButtonId?: string;
+    isOpen?: boolean,
+    setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>,
+}
 
 /*
  * A dropdown with a Kebab button, commonly used in Cockpit pages provided as
@@ -36,13 +44,14 @@ import { EllipsisVIcon } from '@patternfly/react-icons';
  * require a separator between DropdownItem's use PatternFly's Divivder
  * component.
  */
-export const KebabDropdown = ({ dropdownItems, position = "end", isDisabled = false, toggleButtonId, isOpen, setIsOpen } : {
-    dropdownItems: React.ReactNode,
-    position?: DropdownPopperProps['position'],
-    isDisabled?: boolean,
-    toggleButtonId?: string;
-    isOpen?: boolean, setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>,
-}) => {
+export const KebabDropdown = ({
+    dropdownItems,
+    position = "end",
+    isDisabled = false,
+    toggleButtonId,
+    isOpen,
+    setIsOpen
+}: KebabDropdownProps) => {
     const [isKebabOpenInternal, setKebabOpenInternal] = useState(false);
     const isKebabOpen = isOpen ?? isKebabOpenInternal;
     const setKebabOpen = setIsOpen ?? setKebabOpenInternal;
@@ -71,13 +80,4 @@ export const KebabDropdown = ({ dropdownItems, position = "end", isDisabled = fa
             </DropdownList>
         </Dropdown>
     );
-};
-
-KebabDropdown.propTypes = {
-    dropdownItems: PropTypes.array.isRequired,
-    isDisabled: PropTypes.bool,
-    toggleButtonId: PropTypes.string,
-    position: PropTypes.oneOf(['right', 'left', 'center', 'start', 'end']),
-    isOpen: PropTypes.bool,
-    setIsOpen: PropTypes.func,
 };

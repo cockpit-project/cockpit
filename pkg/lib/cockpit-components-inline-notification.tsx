@@ -17,7 +17,6 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import { Alert, AlertActionCloseButton, AlertProps } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
@@ -26,14 +25,23 @@ import './cockpit-components-inline-notification.css';
 
 const _ = cockpit.gettext;
 
-export const InlineNotification = ({ text, detail, type = "danger", onDismiss, isInline = true, isLiveRegion = false }: {
+interface InlineNotificationProps {
     text: string;
     detail?: string;
     type?: AlertProps["variant"];
     onDismiss?: (ev?: Event) => void;
     isInline?: boolean;
     isLiveRegion?: boolean;
-}) => {
+}
+
+export const InlineNotification = ({
+    text,
+    detail,
+    type = "danger",
+    onDismiss,
+    isInline = true,
+    isLiveRegion = false
+}: InlineNotificationProps) => {
     const [isDetail, setIsDetail] = useState(false);
 
     const detailButton = (detail &&
@@ -58,15 +66,6 @@ export const InlineNotification = ({ text, detail, type = "danger", onDismiss, i
             {isDetail && (<p>{detail}</p>)}
         </Alert>
     );
-};
-
-InlineNotification.propTypes = {
-    onDismiss: PropTypes.func,
-    isInline: PropTypes.bool,
-    text: PropTypes.string.isRequired, // main information to render
-    detail: PropTypes.string, // optional, more detailed information. If empty, the more/less button is not rendered.
-    type: PropTypes.string,
-    isLiveRegion: PropTypes.bool,
 };
 
 export const ModalError = ({ dialogError, dialogErrorDetail, id, isExpandable }: {

@@ -18,7 +18,6 @@
  */
 
 import React from "react";
-import PropTypes from 'prop-types';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import type { ButtonProps } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import {
@@ -27,6 +26,19 @@ import {
 import type { EmptyStateProps } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import "./cockpit-components-empty-state.css";
+
+interface EmptyStatePanelProps {
+    title?: EmptyStateProps["titleText"],
+    paragraph?: React.ReactNode,
+    loading?: boolean,
+    icon?: EmptyStateProps["icon"],
+    action?: React.ReactNode | string,
+    isActionInProgress?: boolean,
+    onAction?: ButtonProps["onClick"],
+    actionVariant?: ButtonProps["variant"],
+    secondary?: React.ReactNode,
+    headingLevel?: EmptyStateProps['headingLevel'],
+}
 
 export const EmptyStatePanel = ({
     title,
@@ -39,18 +51,7 @@ export const EmptyStatePanel = ({
     actionVariant = "primary",
     secondary,
     headingLevel = "h1"
-}: {
-    title?: EmptyStateProps["titleText"],
-    paragraph?: React.ReactNode,
-    loading?: boolean,
-    icon?: EmptyStateProps["icon"],
-    action?: React.ReactNode | string,
-    isActionInProgress?: boolean,
-    onAction?: ButtonProps["onClick"],
-    actionVariant?: ButtonProps["variant"],
-    secondary?: React.ReactNode,
-    headingLevel?: EmptyStateProps['headingLevel'],
-}) => {
+}: EmptyStatePanelProps) => {
     const slimType = title || paragraph ? "" : "slim";
     const emptyStateHeaderIcon = loading ? Spinner : icon;
 
@@ -73,16 +74,4 @@ export const EmptyStatePanel = ({
                 </EmptyStateFooter>}
         </EmptyState>
     );
-};
-
-EmptyStatePanel.propTypes = {
-    loading: PropTypes.bool,
-    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.func]),
-    title: PropTypes.string,
-    paragraph: PropTypes.node,
-    action: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
-    actionVariant: PropTypes.string,
-    isActionInProgress: PropTypes.bool,
-    onAction: PropTypes.func,
-    secondary: PropTypes.node,
 };

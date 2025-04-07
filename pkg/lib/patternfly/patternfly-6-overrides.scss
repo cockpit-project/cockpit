@@ -11,53 +11,6 @@ $phone: 767px;
   inline-size: auto;
 }
 
-/* WORKAROUND: Navigation problems with Tertiary Nav widget on mobile */
-/* See: https://github.com/patternfly/patternfly-design/issues/840 */
-/* Helper mod to wrap pf-v6-c-nav__tertiary */
-// REVIEW @Venefilyn: Seems fixed, double-check
-// .ct-m-nav__tertiary-wrap {
-//   .pf-v6-c-nav__list {
-//     flex-wrap: wrap;
-//   }
-
-//   .pf-v6-c-nav__scroll-button {
-//     display: none;
-//   }
-// }
-
-// /* Helper mod to center pf-v6-c-nav__tertiary when it wraps */
-// .ct-m-nav__tertiary-center {
-//   .pf-v6-c-nav__list {
-//     justify-content: center;
-//   }
-// }
-
-/* Fix overflow issue with tabs, especially seen in small sizes, like mobile
-seen in:
-- https://github.com/cockpit-project/cockpit-podman/pull/897#issuecomment-1127637202
-- https://github.com/patternfly/patternfly/issues/1625
-- https://github.com/patternfly/patternfly/pull/2757
-- https://github.com/patternfly/patternfly/issues/4800
-- https://github.com/patternfly/patternfly-design/issues/840
-- https://github.com/patternfly/patternfly-design/issues/1034
-- https://github.com/cockpit-project/cockpit-podman/issues/845
-
-This disables the large and halfway useless overflow buttons and causes the tabs
-to wrap around when there isn't enough space.
-*/
-// REVIEW @Venefilyn: Seems fixed as they use grid now
-// .pf-v6-c-tabs__list {
-//   flex-wrap: wrap;
-// }
-
-/* Fix select menu rendering */
-// .pf-v6-c-select__menu {
-//   /* Don't get too tall */
-//   max-block-size: min(20rem, 50vh);
-//   /* Don't have a horizontal scrollbar */
-//   overflow-y: auto;
-// }
-
 /* New issue based on the regression based on workaround causing this issue: https://github.com/cockpit-project/cockpit/issues/21671
 */
 /* Old upstream: https://github.com/patternfly/patternfly/issues/4387 */
@@ -294,52 +247,8 @@ to wrap around when there isn't enough space.
   cursor: pointer;
 }
 
-//Page headers are inconsistent with shadows and borders
-// https://github.com/patternfly/patternfly/issues/5184
-// .pf-v6-c-page__main-group,
-// .pf-v6-c-page__main-nav,
-// .pf-v6-c-page__main-section.pf-m-light:not(:last-child) {
-//   z-index: var(--pf-v6-c-page--section--m-shadow-bottom--ZIndex);
-//   box-shadow: var(--pf-v6-c-page--section--m-shadow-bottom--BoxShadow);
-// }
-
 // Dark mode fixes for several PF components
 .pf-v6-theme-dark {
-  // Change background color behind cards
-  // (matches PF surge website; PF doesn't specify otherwise)
-  // .pf-v6-c-page__main-section {
-  //   --pf-v6-c-page__main-section--BackgroundColor: var(--pf-v6-global--BackgroundColor--dark-300);
-  // }
-
-  // // Adapt breadcrumb bar to be similar color as PF website
-  // // (We use header bars in slightly different ways from PF)
-  // // https://github.com/patternfly/patternfly/issues/5301
-  // .pf-v6-c-page__main-breadcrumb {
-  //   --pf-v6-c-page__main-breadcrumb--BackgroundColor: var(--pf-v6-global--BackgroundColor--dark-100);
-  //   background-color: var(--pf-v6-global--BackgroundColor--dark-100);
-  // }
-
-  // Fix input group background and borders
-  // (Looks fixed in PF5, but not in PF4)
-  // .pf-v6-c-text-input-group {
-  //   background-color: var(--pf-v6-global--BackgroundColor--400);
-
-  //   .pf-v6-c-text-input-group__text {
-  //     &::before {
-  //       border-block-start-color: transparent;
-  //       border-inline-end-color: transparent;
-  //       border-inline-start-color: transparent;
-  //     }
-
-  //     &:is(:focus, :hover)::after {
-  //       border-block-end-color: var(--pf-v6-global--active-color--100);
-  //     }
-
-  //     &:not(:focus):not(:hover)::after {
-  //       border-block-end-color: var(--pf-v6-global--BorderColor--400);
-  //     }
-  //   }
-  // }
 
   // FIXME: https://github.com/patternfly/patternfly/issues/5278
   .pf-v6-c-modal-box .pf-v6-c-table {
@@ -415,14 +324,6 @@ to wrap around when there isn't enough space.
 .pf-v6-c-card.pf-m-clickable {
   isolation: auto;
 }
-
-/* Style secondary button in dark mode as secondary */
-// .pf-v6-c-menu-toggle.pf-m-secondary.pf-m-split-button {
-//   .pf-v6-theme-dark & {
-//     background-color: var(--pf-v6-global--BackgroundColor--400);
-//   }
-// }
-
 
 // Override as PF Page doesn't allow empty masthead and sidebar
 @media (min-width: 75rem) {

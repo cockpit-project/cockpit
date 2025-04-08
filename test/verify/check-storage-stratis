@@ -644,9 +644,6 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.dialog_wait_close()
         b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_3), "cache")
 
-        # HACK - https://github.com/stratis-storage/stratisd/issues/3810
-        time.sleep(60)
-
         self.reboot()
         m.start_cockpit()
         b.relogin()

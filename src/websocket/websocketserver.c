@@ -196,7 +196,7 @@ respond_handshake_rfc6455 (WebSocketServer *self,
         }
       for (i = 0; self->allowed_origins[i] != NULL; i++)
         {
-          if (fnmatch (origin, self->allowed_origins[i], 0) == 0)
+          if (fnmatch (self->allowed_origins[i], origin, 0) == 0)
             break;
         }
       if (self->allowed_origins[i] == NULL)

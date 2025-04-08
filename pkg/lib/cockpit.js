@@ -1783,7 +1783,8 @@ function factory() {
                 options = { };
 
             // Clean up all subscribers when closing
-            for (const id in subscribers) {
+            const subscriberKeys = Object.keys(subscribers);
+            for (const id of subscriberKeys) {
                 const subscription = subscribers[id];
                 if (subscription.callback) {
                     send(JSON.stringify({ "remove-match": subscription.match }));

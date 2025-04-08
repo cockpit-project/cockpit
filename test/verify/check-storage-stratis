@@ -320,16 +320,22 @@ class TestStorageStratis(storagelib.StorageCase):
         b.wait_visible(self.card_row("Storage", name=dev_1))
         b.wait_visible(self.card_row("Storage", name=dev_2))
 
-        # Create an encrypted pool with two block devices
-        self.click_devices_dropdown("Create Stratis pool")
-        self.dialog_wait_open()
-        self.dialog_set_val("encrypt_pass.on", val=True)
-        self.dialog_set_val("passphrase", "foodeeboodeebar")
-        self.dialog_set_val("passphrase2", "foodeeboodeebar")
-        self.dialog_set_val("disks", {dev_1: True})
-        self.dialog_set_val("disks", {dev_2: True})
-        self.dialog_apply()
-        self.dialog_wait_close()
+        # Create an encrypted V1 pool with two block devices
+
+        if m.image not in V1_POOL_IMAGES:
+            create_pool_key(m, "pool0", "foodeeboodeebar")
+            m.execute(f"yes | stratisd-tools stratis-legacy-pool --key-desc pool0 pool0 {dev_1} {dev_2}")
+            m.execute("stratis key unset pool0")
+        else:
+            self.click_devices_dropdown("Create Stratis pool")
+            self.dialog_wait_open()
+            self.dialog_set_val("encrypt_pass.on", val=True)
+            self.dialog_set_val("passphrase", "foodeeboodeebar")
+            self.dialog_set_val("passphrase2", "foodeeboodeebar")
+            self.dialog_set_val("disks", {dev_1: True})
+            self.dialog_set_val("disks", {dev_2: True})
+            self.dialog_apply()
+            self.dialog_wait_close()
 
         b.wait_visible(self.card_row("Storage", name="pool0"))
         b.wait_not_present(self.card_row("Storage", name="pool0") + " .ct-icon-exclamation-triangle")

@@ -26,12 +26,13 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
-import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
+import { Icon, Content, ContentVariants } from "@patternfly/react-core";
 
 import { Modifications } from "cockpit-components-modifications.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -254,6 +255,8 @@ class SELinuxStatus extends React.Component {
         else if (!configUnknown && this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
             note = _("Setting deviates from the configured state and will revert on the next boot.");
 
+        // note = _("Setting deviates from the configured state and will revert on the next boot.");
+
         return (
             <Stack hasGutter className="selinux-policy-ct">
                 <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
@@ -263,10 +266,11 @@ class SELinuxStatus extends React.Component {
                             onChange={this.props.changeSelinuxMode} />
                 </Flex>
                 { note !== null &&
-                    <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                        <InfoCircleIcon />
-                        <FlexItem>{ note }</FlexItem>
-                    </Flex>
+                    <Content component={ContentVariants.p}>
+                        <Icon isInline status="info"><InfoCircleIcon /></Icon>
+                        { "\n" }
+                        { note }
+                    </Content>
                 }
                 {errorMessage}
             </Stack>

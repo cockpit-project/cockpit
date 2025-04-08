@@ -30,9 +30,8 @@ import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
-import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
-import { Icon, Content, ContentVariants } from "@patternfly/react-core";
+import { Icon, Content, ContentVariants, CodeBlock, CodeBlockCode } from "@patternfly/react-core";
 
 import { Modifications } from "cockpit-components-modifications.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -117,14 +116,22 @@ class SELinuxEventDetails extends React.Component {
                 );
             }
 
+            function codeBlock(text, key) {
+                return (
+                    <CodeBlock key={key} aria-label={_("solution")}>
+                        <CodeBlockCode>{text}</CodeBlockCode>
+                    </CodeBlock>
+                );
+            }
+
             let doElement = "";
 
             // One line usually means one command
             if (itm.doText && itm.doText.indexOf("\n") < 0)
-                doElement = <TextArea aria-label={_("solution")} readOnlyVariant="default" defaultValue={itm.doText} />;
+                doElement = codeBlock(itm.doText);
 
             // There can be text with commands. Command always starts on a new line with '#'
-            // Group subsequent commands into one `<TextArea>` element.
+            // Group subsequent commands into one `<CodeBlock>` element.
             if (itm.doText && itm.doText.indexOf("\n") >= 0) {
                 const parts = [];
                 const lines = itm.doText.split("\n");
@@ -142,10 +149,7 @@ class SELinuxEventDetails extends React.Component {
                     }
                 });
                 doElement = parts.map((p, index) => p[0] == "#"
-                    ? <TextArea aria-label={_("solution")}
-                                readOnlyVariant="plain"
-                                key={p}
-                                defaultValue={p.substring(2)} />
+                    ? codeBlock(p.substring(2), index)
                     : <span key={p}>{p}</span>);
             }
 

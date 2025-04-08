@@ -29,6 +29,7 @@ import { Terminal as Term } from "@xterm/xterm";
 
 import { ContextMenu } from "cockpit-components-context-menu.jsx";
 import cockpit from "cockpit";
+import { StateObject, useStateObject } from "hooks";
 
 import "console.css";
 
@@ -103,6 +104,32 @@ const themes = {
  *
  * Also it is possible to set up theme by property 'theme'.
  */
+
+export class TerminalState extends StateObject {
+    terminal;
+    element;
+
+    constructor() {
+        super();
+        this.terminal = new Term({
+            cols: 1,
+            rows: 1,
+            screenKeys: true,
+            cursorBlink: true,
+            fontSize: 16,
+            fontFamily: 'Menlo, Monaco, Consolas, monospace',
+            screenReaderMode: true,
+            showPastingModal: false,
+        });
+        this.terminal.loadAddon(new CanvasAddon());
+        this.element = document.createElement("div");
+    }
+
+    close() {
+        this.terminal.dispose();
+    }
+}
+
 export class Terminal extends React.Component {
     constructor(props) {
         super(props);
@@ -120,16 +147,8 @@ export class Terminal extends React.Component {
         this.getText = this.getText.bind(this);
         this.setTerminalTheme = this.setTerminalTheme.bind(this);
 
-        const term = new Term({
-            cols: props.cols || 80,
-            rows: props.rows || 25,
-            screenKeys: true,
-            cursorBlink: true,
-            fontSize: props.fontSize || 16,
-            fontFamily: 'Menlo, Monaco, Consolas, monospace',
-            screenReaderMode: true,
-            showPastingModal: false,
-        });
+        this.terminal_state = this.props.state || new TerminalState();
+        const term = this.terminal_state.terminal;
 
         this.terminalRef = React.createRef();
 
@@ -155,20 +174,26 @@ export class Terminal extends React.Component {
         this.terminal = term;
         this.state = {
             showPastingModal: false,
-            cols: props.cols || 80,
-            rows: props.rows || 25
+            cols: term.cols,
+            rows: term.rows
         };
     }
 
     componentDidMount() {
-        this.terminal.open(this.terminalRef.current);
-        this.terminal.loadAddon(new CanvasAddon());
+        this.terminalRef.current.appendChild(this.terminal_state.element);
+        this.terminal.open(this.terminal_state.element);
         this.connectChannel();
+
+        if (this.props.fontSize)
+            this.terminal.options.fontSize = this.props.fontSize;
 
         if (!this.props.rows) {
             window.addEventListener('resize', this.onWindowResize);
             this.onWindowResize();
+        } else {
+            this.resizeTerminal(this.props.cols, this.props.rows);
         }
+
         this.setTerminalTheme(this.props.theme || 'black-theme');
         this.terminal.focus();
     }
@@ -260,9 +285,13 @@ export class Terminal extends React.Component {
 
     componentWillUnmount() {
         this.disconnectChannel();
-        this.terminal.dispose();
         window.removeEventListener('resize', this.onWindowResize);
         this.onFocusOut();
+        this.terminalRef.current.removeChild(this.terminal_state.element);
+        if (!this.props.rows)
+            this.resizeTerminal(1, 1);
+        if (!this.props.state)
+            this.terminal_state.close();
     }
 
     setText() {

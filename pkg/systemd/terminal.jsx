@@ -9,7 +9,7 @@ import { NumberInput } from "@patternfly/react-core/dist/esm/components/NumberIn
 import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import { Alert, AlertActionCloseButton, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { fsinfo } from "cockpit/fsinfo";
-import { Button } from '@patternfly/react-core';
+import { Button, Page, PageSection } from '@patternfly/react-core';
 
 import "./terminal.scss";
 
@@ -220,86 +220,90 @@ const _ = cockpit.gettext;
                             channel={this.state.channel}
                             theme={this.state.theme}
                             fontSize={this.state.size}
-                            parentId="the-terminal"
+                    parentId="cockpit-terminal"
                             onTitleChanged={this.onTitleChanged} />
                 : <span>Loading...</span>;
 
             return (
-                <div className="console-ct-container">
-                    <div className="terminal-group">
-                        <tt className="terminal-title">{this.state.title}</tt>
-                        <Toolbar id="toolbar">
-                            <ToolbarContent>
-                                <ToolbarGroup>
-                                    <ToolbarItem variant="label" id="size-select">
-                                        {_("Font size")}
-                                    </ToolbarItem>
+                <Page className="no-masthead-sidebar">
+                    <PageSection hasShadowBottom>
+                        <div className="terminal-group">
+                            <tt className="terminal-title">{this.state.title}</tt>
+                            <Toolbar id="toolbar">
+                                <ToolbarContent>
+                                    <ToolbarGroup>
+                                        <ToolbarItem variant="label" id="size-select">
+                                            {_("Font size")}
+                                        </ToolbarItem>
+                                        <ToolbarItem>
+                                            <NumberInput
+                                                className="font-size"
+                                                value={this.state.size}
+                                                min={this.minSize}
+                                                max={this.maxSize}
+                                                onMinus={this.onMinus}
+                                                onPlus={this.onPlus}
+                                                inputAriaLabel={_("Font size")}
+                                                minusBtnAriaLabel={_("Decrease by one")}
+                                                plusBtnAriaLabel={_("Increase by one")}
+                                                widthChars={2}
+                                            />
+                                        </ToolbarItem>
+                                    </ToolbarGroup>
+                                    <ToolbarGroup>
+                                        <ToolbarItem variant="label" id="theme-select">
+                                            {_("Appearance")}
+                                        </ToolbarItem>
+                                        <ToolbarItem>
+                                            <FormSelect onChange={this.onThemeChanged}
+                                                aria-labelledby="theme-select"
+                                                value={this.state.theme}>
+                                                <FormSelectOption value='black-theme' label={_("Black")} />
+                                                <FormSelectOption value='dark-theme' label={_("Dark")} />
+                                                <FormSelectOption value='light-theme' label={_("Light")} />
+                                                <FormSelectOption value='white-theme' label={_("White")} />
+                                            </FormSelect>
+                                        </ToolbarItem>
+                                    </ToolbarGroup>
                                     <ToolbarItem>
-                                        <NumberInput
-                                            className="font-size"
-                                            value={this.state.size}
-                                            min={this.minSize}
-                                            max={this.maxSize}
-                                            onMinus={this.onMinus}
-                                            onPlus={this.onPlus}
-                                            inputAriaLabel={_("Font size")}
-                                            minusBtnAriaLabel={_("Decrease by one")}
-                                            plusBtnAriaLabel={_("Increase by one")}
-                                            widthChars={2}
-                                        />
-                                    </ToolbarItem>
-                                </ToolbarGroup>
-                                <ToolbarGroup>
-                                    <ToolbarItem variant="label" id="theme-select">
-                                        {_("Appearance")}
-                                    </ToolbarItem>
-                                    <ToolbarItem>
-                                        <FormSelect onChange={this.onThemeChanged}
-                                                    aria-labelledby="theme-select"
-                                                    value={this.state.theme}>
-                                            <FormSelectOption value='black-theme' label={_("Black")} />
-                                            <FormSelectOption value='dark-theme' label={_("Dark")} />
-                                            <FormSelectOption value='light-theme' label={_("Light")} />
-                                            <FormSelectOption value='white-theme' label={_("White")} />
-                                        </FormSelect>
-                                    </ToolbarItem>
-                                </ToolbarGroup>
-                                <ToolbarItem>
-                                    <button ref={this.resetButtonRef}
+                                        <button ref={this.resetButtonRef}
                                             className="pf-v6-c-button pf-m-secondary terminal-reset"
                                             onClick={this.onResetClick}>{_("Reset")}</button>
-                                </ToolbarItem>
-                            </ToolbarContent>
-                        </Toolbar>
-                    </div>
-                    <div className="ct-terminal-dir-alert">
-                        {this.state.pathError && <Alert isInline
-                            title={_("Unable to open directory")}
-                            variant="warning"
-                            actionClose={<AlertActionCloseButton onClose={this.dismiss} />}>
-                            <p>{_(this.state.pathError)}</p>
-                        </Alert>
-                        }
+                                    </ToolbarItem>
+                                </ToolbarContent>
+                            </Toolbar>
+                        </div>
+                    </PageSection>
+                    <PageSection className="console-ct-container" isFilled hasBodyWrapper={false} padding={{ default: 'noPadding' }}>
+                        <div className="ct-terminal-dir-alert">
+                            {this.state.pathError && <Alert isInline
+                                title={_("Unable to open directory")}
+                                variant="warning"
+                                actionClose={<AlertActionCloseButton onClose={this.dismiss} />}>
+                                <p>{_(this.state.pathError)}</p>
+                            </Alert>
+                            }
 
-                        {this.state.changePathBusy && <Alert isInline
-                            title={_("Running process prevents directory change")}
-                            variant="danger"
-                            actionClose={<AlertActionCloseButton onClose={() =>
-                                this.setState({ changePathBusy: false })} />}
-                            actionLinks={
-                                <>
-                                    <Button variant="danger" size="sm" onClick={this.forceChangeDirectory}>{_("Change directory")}</Button>
-                                    <AlertActionLink onClick={this.dismiss}>{_("Cancel")}</AlertActionLink>
-                                </>
-                            }>
-                            {_("Changing the directory will forcefully stop the currently running process. The process can also be stopped manually in the terminal before continuing.")}
-                        </Alert>
-                        }
-                    </div>
-                    <div className={"terminal-body " + this.state.theme} id="the-terminal">
-                        {terminal}
-                    </div>
-                </div>
+                            {this.state.changePathBusy && <Alert isInline
+                                title={_("Running process prevents directory change")}
+                                variant="danger"
+                                actionClose={<AlertActionCloseButton onClose={() =>
+                                    this.setState({ changePathBusy: false })} />}
+                                actionLinks={
+                                    <>
+                                        <Button variant="danger" size="sm" onClick={this.forceChangeDirectory}>{_("Change directory")}</Button>
+                                        <AlertActionLink onClick={this.dismiss}>{_("Cancel")}</AlertActionLink>
+                                    </>
+                                }>
+                                {_("Changing the directory will forcefully stop the currently running process. The process can also be stopped manually in the terminal before continuing.")}
+                            </Alert>
+                            }
+                        </div>
+                        <div className={"terminal-body " + this.state.theme} id="cockpit-terminal">
+                            {terminal}
+                        </div>
+                    </PageSection>
+                </Page>
             );
         }
     }

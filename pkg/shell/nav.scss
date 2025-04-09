@@ -669,16 +669,6 @@ $desktop: $phone + 1px;
   }
 }
 
-// HACK: Don't span the navigation as wide or tall as possible
-.nav-hosts-menu {
-  block-size: auto;
-
-  .pf-v6-c-page__sidebar {
-    inline-size: unset;
-  }
-}
-
-.view-hosts .sidebar-hosts,
 .nav-system-menu {
   /* FIXME: We need to change the widgets to PF6 ones; instead of CSS to fake it */
   padding-inline-start: var(--pf-t--global--spacer--inset--page-chrome);

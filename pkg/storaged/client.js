@@ -857,6 +857,8 @@ function update_indices() {
         const bfs = client.blocks_fsys_btrfs[p];
         const uuid = bfs.data.uuid;
         const block_fsys = client.blocks_fsys[p];
+        if (!uuid)
+            continue;
         if ((block_fsys && block_fsys.MountPoints.length > 0) || !client.uuids_btrfs_volume[uuid]) {
             client.uuids_btrfs_volume[uuid] = bfs;
             if (!old_uuids || !old_uuids[uuid])

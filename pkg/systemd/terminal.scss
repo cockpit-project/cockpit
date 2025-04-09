@@ -2,20 +2,9 @@
 @use "page";
 @use "global-variables" as *;
 
-.console-ct-container {
-  block-size: 100%;
-  display: grid;
-  grid-template-rows: auto auto 1fr;
-  overflow: hidden;
-}
-
 .console-ct-container .terminal-body,
 .console-ct-container .console-ct {
   inset: 0;
-}
-
-.console-ct-container .terminal-group {
-  border-block-end: 1px solid var(--ct-color-border);
 }
 
 .xterm-accessibility {
@@ -27,6 +16,7 @@
 .console-ct-container .terminal-body {
   padding: 0;
   position: relative;
+  block-size: 100%;
 }
 
 .console-ct-container .console-ct {
@@ -56,9 +46,6 @@
   align-content: center;
   align-items: baseline;
   flex-wrap: wrap;
-
-  /* Move the padding handling to the container element outside of the toolbar */
-  padding: var(--pf-t--global--spacer--md);
 
   > .pf-v6-c-toolbar {
     padding: 0;

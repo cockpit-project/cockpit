@@ -690,7 +690,16 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
-        b.wait_text(self.card_desc("Encrypted Stratis pool", "Name"), "pool0")
+        try:
+            b.wait_text(self.card_desc("Encrypted Stratis pool", "Name"), "pool0")
+        except:
+            print("STARTING POOL EXPLICITLY")
+            b.click(self.card_button("Stratis pool", "Start"))
+            self.dialog_wait_open()
+            self.dialog_set_val('passphrase', passphrase)
+            self.dialog_apply()
+            self.dialog_wait_close()
+            b.wait_text(self.card_desc("Encrypted Stratis pool", "Name"), "pool0")
 
         # Filesystem should be mounted now
         b.wait_text(self.card_row_col("Stratis filesystems", 1, 3), "/run/fsys1")

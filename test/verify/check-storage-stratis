@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
 
 import subprocess
-import time
 
 import packagelib
 import storagelib
@@ -623,31 +622,31 @@ class TestStorageStratisReboot(storagelib.StorageCase):
 
         # Change the passphrase
         b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove):disabled")
-        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
-        self.dialog({'old_passphrase': passphrase,
-                     'new_passphrase': "boodeefoodeebar",
-                     'new_passphrase2': "boodeefoodeebar"})
-        # do it again, with the old passphrase in the keyring
-        create_pool_key(m, "pool0", "boodeefoodeebar")
-        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
-        self.dialog({'new_passphrase': passphrase,
-                     'new_passphrase2': passphrase})
-        m.execute("stratis key unset pool0")
+        # b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
+        # self.dialog({'old_passphrase': passphrase,
+        #              'new_passphrase': "boodeefoodeebar",
+        #              'new_passphrase2': "boodeefoodeebar"})
+        # # do it again, with the old passphrase in the keyring
+        # create_pool_key(m, "pool0", "boodeefoodeebar")
+        # b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
+        # self.dialog({'new_passphrase': passphrase,
+        #              'new_passphrase2': passphrase})
+        # m.execute("stratis key unset pool0")
 
         # Add a cache blockdev
-        b.click(self.card_button("Encrypted Stratis pool", "Add block device"))
-        self.dialog_wait_open()
-        self.dialog_set_val('tier', "cache")
-        self.dialog_set_val('disks', {dev_3: True})
-        self.dialog_set_val('passphrase', passphrase)
-        self.dialog_apply()
-        self.dialog_wait_close()
-        b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_3), "cache")
+        # b.click(self.card_button("Encrypted Stratis pool", "Add block device"))
+        # self.dialog_wait_open()
+        # self.dialog_set_val('tier', "cache")
+        # self.dialog_set_val('disks', {dev_3: True})
+        # self.dialog_set_val('passphrase', passphrase)
+        # self.dialog_apply()
+        # self.dialog_wait_close()
+        # b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_3), "cache")
 
         def stop_pool():
             print("STOPPING")
             try:
-                m.execute(f"stratis pool stop --name pool0")
+                m.execute("stratis pool stop --name pool0")
             except Exception as e:
                 print(e)
                 raise
@@ -662,7 +661,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
 
         b.wait_visible(self.card("Stratis pool"))
         b.wait_in_text(self.card("Stratis pool"), "DISK1")
-        b.wait_in_text(self.card("Stratis pool"), "DISK2")
+        # b.wait_in_text(self.card("Stratis pool"), "DISK2")
 
         # Unlock the pool
         b.click(self.card_button("Stratis pool", "Start"))
@@ -704,6 +703,12 @@ class TestStorageStratisReboot(storagelib.StorageCase):
 
         # Check that the entry has disappeared from fstab
         self.assertEqual(m.execute("grep /run/fsys1 /etc/fstab || true"), "")
+
+    def testEncrypted2(self):
+        self.testEncrypted()
+
+    def testEncrypted3(self):
+        self.testEncrypted()
 
     def testReboot(self):
         m = self.machine

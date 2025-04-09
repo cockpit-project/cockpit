@@ -114,6 +114,11 @@ $desktop: $phone + 1px;
     }
   }
 
+  .nav-system-menu {
+    /* FIXME: We need to change the widgets to PF6 ones; instead of CSS to fake it */
+    padding-inline-start: var(--pf-t--global--spacer--inset--page-chrome);
+  }
+
   .mobile_v {
     display: none !important;
   }
@@ -259,10 +264,16 @@ $desktop: $phone + 1px;
   .nav-hosts-menu {
     position: absolute;
     inset-block-end: var(--nav-icon-size);
-    inset-inline-end: var(--pf-t--global--spacer--md);
+    inset-inline-end: var(--pf-t--global--spacer--xs);
     max-inline-size: 100vw;
-    align-self: normal;
-    background: transparent;
+  }
+
+  .nav-system-menu,
+  .view-hosts {
+    background: var(--pf-t--global--background--color--primary--default);
+    padding: var(--pf-t--global--spacer--gutter--default);
+    border-radius: var(--pf-t--global--border--radius--small);
+    box-shadow: var(--pf-t--global--box-shadow--md);
   }
 
   .pf-m-dark.pf-v6-c-select {
@@ -362,8 +373,9 @@ $desktop: $phone + 1px;
 }
 
 .nav-action {
-  margin-block: 0 !important;
-  margin-inline: auto 0 !important;
+  border-radius: var(--pf-t--global--border--radius--small);
+  padding: var(--pf-t--global--spacer--control--vertical--compact) var(--pf-t--global--spacer--control--horizontal--compact);
+  align-items: center;
 }
 
 .host-apps {
@@ -468,24 +480,24 @@ $desktop: $phone + 1px;
   .nav-item {
     display: grid;
     grid-template-columns: 1fr auto;
+    border-radius: var(--pf-t--global--border--radius--small);
+
+    &:has(:hover, .pf-m-current) {
+      background-color: var(--pf-t--global--background--color--action--plain--hover);
+    }
+
+    &:has(.pf-m-current) {
+      /* Add a selected color */
+      border-inline-start: var(--pf-t--global--border--width--extra-strong) solid var(--ct-color-host-accent);
+      /* Compensate for border */
+      padding-inline-start: calc(var(--pf-v6-c-nav__link--PaddingInlineStart) - var(--pf-t--global--border--width--extra-strong));
+    }
 
     > .pf-v6-c-nav__link {
       flex-direction: column;
       justify-content: center;
       word-break: break-word;
-
-      &:hover,
-      &.pf-m-current {
-        /* Adjust for being on a white background */
-        background-color: var(--pf-t--global--background--color--action--plain--hover)
-      }
-
-      &.pf-m-current {
-        /* Add a selected color */
-        border-inline-start: var(--pf-t--global--border--width--extra-strong) solid var(--ct-color-host-accent);
-        /* Compensate for border */
-        padding-inline-start: calc(var(--pf-v6-c-nav__link--PaddingInlineStart) - var(--pf-t--global--border--width--extra-strong));
-      }
+      background-color: transparent;
     }
   }
 
@@ -495,23 +507,11 @@ $desktop: $phone + 1px;
     padding-block: var(--pf-t--global--spacer--xs);
     padding-inline: var(--pf-t--global--spacer--sm);
 
-    // Pull the background color over
-
     @media (min-width: $desktop) {
       // Desktop has limited horizontal space, so stack these
       // Ironically, mobile has more space here (due to being a popup)
       flex-direction: column;
     }
-  }
-
-  // Use the "current" background for actions color when item is selected
-  .pf-m-current + .nav-item-actions {
-    background-color: var(--pf-v6-c-nav__link--m-current--BackgroundColor);
-  }
-
-  // Use hover background for the whole nav item correctly
-  .nav-item:hover {
-    background-color: var(--pf-v6-c-nav__link--hover--BackgroundColor);
   }
 }
 
@@ -610,6 +610,12 @@ $desktop: $phone + 1px;
 
 // Mobile sizes
 @media (max-width: $phone) {
+  /* Mobile uses a light background, so use the darker variants for selected and hover */
+  .pf-v6-c-nav__link {
+    --pf-v6-c-nav__link--m-current--BackgroundColor: var(--pf-t--global--background--color--action--plain--clicked);
+    --pf-v6-c-nav__link--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+  }
+
   #host-toggle,
   button.ct-nav-toggle,
   #nav-system-item > .pf-v6-c-button__text {
@@ -667,11 +673,6 @@ $desktop: $phone + 1px;
   .ct-topnav-content {
     --pf-v6-c-toolbar__content-section--ColumnGap: 0;
   }
-}
-
-.nav-system-menu {
-  /* FIXME: We need to change the widgets to PF6 ones; instead of CSS to fake it */
-  padding-inline-start: var(--pf-t--global--spacer--inset--page-chrome);
 }
 
 /* Navigation animation */

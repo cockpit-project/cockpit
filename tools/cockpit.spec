@@ -324,11 +324,10 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.50.0
-Requires: (selinux-policy >= %{_selinux_policy_version} if selinux-policy-%{selinuxtype})
-Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
 Recommends: sscg >= 2.3
 Recommends: system-logos
 Suggests: sssd-dbus >= 2.6.2
+Requires:  (%{name}-selinux-policies if selinux-policy-base)
 # for cockpit-desktop
 Suggests: python3
 Obsoletes: cockpit-tests < 331
@@ -385,22 +384,8 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-certificate-helper
 %{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
-%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
-%{_mandir}/man8/%{name}_session_selinux.8cockpit.*
-%{_mandir}/man8/%{name}_ws_selinux.8cockpit.*
-%ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
-
-%pre ws
-if %{_sbindir}/selinuxenabled 2>/dev/null; then
-    %selinux_relabel_pre -s %{selinuxtype}
-fi
 
 %post ws
-if [ -x %{_sbindir}/selinuxenabled ]; then
-    %selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
-    %selinux_relabel_post -s %{selinuxtype}
-fi
-
 # set up dynamic motd/issue symlinks on first-time install; don't bring them back on upgrades if admin removed them
 # disable root login on first-time install; so existing installations aren't changed
 if [ "$1" = 1 ]; then
@@ -444,11 +429,37 @@ fi
 %systemd_preun cockpit.socket cockpit.service
 
 %postun ws
-if [ -x %{_sbindir}/selinuxenabled ]; then
-    %selinux_modules_uninstall -s %{selinuxtype} %{name}
-    %selinux_relabel_post -s %{selinuxtype}
-fi
 %systemd_postun_with_restart cockpit.socket cockpit.service
+
+%package selinux-policies
+Summary: selinux policies required by cockpit
+Requires(post): selinux-policy-%{selinuxtype} >= %{selinux_policyver}
+%if 0%{?suse_version}
+Requires(post): selinux-tools
+%else
+Requires(post): libselinux-utils
+%endif
+Requires(post): policycoreutils
+
+%description selinux-policies
+package that contains selinux rules/policies needed by cockpit when selinux is enabled
+
+%files selinux-policies
+%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
+%{_mandir}/man8/%{name}_session_selinux.8cockpit.*
+%{_mandir}/man8/%{name}_ws_selinux.8cockpit.*
+%ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+
+%pre selinux-policies
+%selinux_relabel_pre -s %{selinuxtype}
+
+%post selinux-policies
+%selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
+%selinux_relabel_post -s %{selinuxtype}
+
+%postun selinux-policies
+%selinux_modules_uninstall -s %{selinuxtype} %{name}
+%selinux_relabel_post -s %{selinuxtype}
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora

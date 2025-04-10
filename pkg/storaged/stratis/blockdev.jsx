@@ -36,10 +36,12 @@ export function make_stratis_blockdev_card(next, backing_block, content_block) {
     const blockdev = client.blocks_stratis_blockdev[content_block.path];
     const pool = blockdev && client.stratis_pools[blockdev.Pool];
     const uuid = client.blocks_stratis_stopped_pool[content_block.path];
+    const location = pool ? pool.Name : client.stratis_manager.StoppedPools[uuid]?.name?.v || uuid;
 
     const blockdev_card = new_card({
         title: _("Stratis block device"),
-        location: pool ? pool.Name : client.stratis_manager.StoppedPools[uuid]?.name?.v || uuid,
+        location,
+        location_goto: ["pool", location],
         next,
         component: StratisBlockdevCard,
         props: { backing_block, content_block, pool, stopped_pool: uuid },

@@ -40,6 +40,7 @@ export function make_mdraid_disk_card(next, backing_block, content_block) {
         title: _("MDRAID disk"),
         next,
         location: mdraid_block ? block_short_name(mdraid_block) : (mdraid ? mdraid_name(mdraid) : null),
+        location_goto: mdraid ? ["mdraid", mdraid.UUID] : null,
         component: MDRaidDiskCard,
         props: { backing_block, content_block, mdraid },
         actions: [

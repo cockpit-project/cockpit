@@ -335,6 +335,30 @@ class TestStorageAnaconda(storagelib.StorageCase):
                                       }
                                   })
 
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    def testDegradedBtrfs(self):
+        b = self.browser
+        m = self.machine
+
+        disk1 = self.add_ram_disk(size=140)
+        disk2 = self.add_loopback_disk(size=140)
+
+        anaconda_config = {
+            "mount_point_prefix": "/sysroot",
+            "available_devices": [disk1, disk2],
+        }
+
+        # Create a two-device btrfs and then degrade it by wiping the second device.
+        # Cockpit used to crash when such a filesystem is present in Anaconda mode.
+
+        m.execute(f"mkfs.btrfs -L butter {disk1} {disk2}")
+        m.execute(f"wipefs -a {disk2}")
+
+        self.login_and_go("/storage")
+        self.enterAnacondaMode(anaconda_config)
+
+        b.wait_visible(self.card_row("Storage", name="butter"))
+
     def testBiosboot(self):
         b = self.browser
 

@@ -62,13 +62,24 @@ def get_tmp_mountpoint_path(uuid):
     return os.path.join(TMP_MP_DIR, uuid)
 
 
+mount_errors = {}
+
+
 def add_tmp_mountpoint(fs):
+    global mount_errors
     uuid = fs['uuid']
+    if uuid in mount_errors:
+        return None
     path = get_tmp_mountpoint_path(uuid)
-    debug(f"MOUNTING {path}")
-    os.makedirs(path, exist_ok=True)
-    subprocess.check_call(["mount", fs['devices'][0], path])
-    return path
+    try:
+        debug(f"MOUNTING {path}")
+        os.makedirs(path, exist_ok=True)
+        subprocess.check_call(["mount", fs['devices'][0], path])
+        return path
+    except Exception as err:
+        sys.stderr.write(f"Failed to mount {path}: {err}\n")
+        mount_errors[uuid] = str(err)
+        return None
 
 
 def remove_tmp_mountpoint(uuid):
@@ -134,26 +145,20 @@ def get_usages(uuid):
 
 
 def poll(opt_mount):
+    global mount_errors
     debug(f"POLL mount {opt_mount}")
     filesystems = list_filesystems()
     info = {}
     for fs in filesystems.values():
         mp = get_mount_point(fs, opt_mount)
         try:
-            usages = get_usages(fs['uuid'])
-
+            data = {'usages': get_usages(fs['uuid'])}
             if mp:
-                subvolumes = get_subvolume_info(mp)
-                default_subvolume = get_default_subvolume(mp)
-            else:
-                subvolumes = None
-                default_subvolume = None
-
-            info[fs['uuid']] = {
-                'subvolumes': subvolumes,
-                'default_subvolume': default_subvolume,
-                'usages': usages,
-            }
+                data['subvolumes'] = get_subvolume_info(mp)
+                data['default_subvolume'] = get_default_subvolume(mp)
+            elif fs['uuid'] in mount_errors:
+                data['error'] = {'error': mount_errors[fs['uuid']]}
+            info[fs['uuid']] = data
         except Exception as err:
             info[fs['uuid']] = {'error': str(err)}
 

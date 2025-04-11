@@ -37,7 +37,7 @@ import { HealthCard } from './overview-cards/healthCard.jsx';
 import { MotdCard } from './overview-cards/motdCard.jsx';
 import { UsageCard } from './overview-cards/usageCard.jsx';
 import { SuperuserAlert } from './superuser-alert.jsx';
-import { SuperuserIndicator } from "../shell/superuser.jsx";
+import { superuser_proxy, SuperuserIndicator } from "../shell/superuser.jsx";
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
@@ -58,7 +58,7 @@ class OverviewPage extends React.Component {
         this.hostnameMonitor = this.hostnameMonitor.bind(this);
         this.onPermissionChanged = this.onPermissionChanged.bind(this);
 
-        this.superuser = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser");
+        this.superuser = superuser_proxy();
     }
 
     componentDidMount() {

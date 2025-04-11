@@ -34,7 +34,7 @@ import { ManifestDocs, ManifestParentSection } from "./manifests";
 import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { CredentialsModal } from './credentials.jsx';
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
-import { SuperuserIndicator } from "./superuser.jsx";
+import { superuser_proxy, SuperuserProxy, SuperuserIndicator } from "./superuser.jsx";
 import { read_os_release } from "os-release.js";
 import { DialogsContext } from "dialogs.jsx";
 import { Icon } from "@patternfly/react-core";
@@ -61,7 +61,7 @@ export class TopNav extends React.Component {
     state: TopNavState;
 
     superuser_connection: cockpit.DBusClient | null = null;
-    superuser: cockpit.DBusProxy | null = null;
+    superuser: SuperuserProxy | null = null;
 
     handleClickOutside: () => void;
 
@@ -131,7 +131,7 @@ export class TopNav extends React.Component {
 
             if (connected) {
                 this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: current_machine.connection_string });
-                this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
+                this.superuser = superuser_proxy(this.superuser_connection);
             }
         }
 

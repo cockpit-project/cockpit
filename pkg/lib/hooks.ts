@@ -192,6 +192,9 @@ export function useFileWithError(path: string, options: cockpit.JsonObject, hook
     const memo_hook_options = useDeepEqualMemo(hook_options);
 
     useEffect(() => {
+        if (path === "/etc/passwd") {
+            console.log("file with error", path, memo_options, memo_hook_options);
+        }
         const handle = cockpit.file(path, memo_options);
         handle.watch((data, _tag, error) => {
             setContentAndError([data || false, error || false]);
@@ -200,7 +203,9 @@ export function useFileWithError(path: string, options: cockpit.JsonObject, hook
         });
         return handle.close;
     }, [path, memo_options, memo_hook_options]);
-
+    if (path === "/etc/passwd") {
+        console.log("content_and_error /etc/passwd", content_and_error);
+    }
     return content_and_error;
 }
 

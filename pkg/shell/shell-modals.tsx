@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @cockpit-ts-relaxed
-
 import cockpit from "cockpit";
 import React, { useState } from "react";
 import { AboutModal } from "@patternfly/react-core/dist/esm/components/AboutModal/index.js";
@@ -34,6 +32,7 @@ import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/compon
 import { SearchIcon } from '@patternfly/react-icons';
 
 import { useInit } from "hooks";
+import { DialogResult } from "dialogs";
 
 import { ShellState } from "./state";
 
@@ -41,11 +40,16 @@ import "menu-select-widget.scss";
 
 const _ = cockpit.gettext;
 
-export const AboutCockpitModal = ({ dialogResult }) => {
-    const [packages, setPackages] = useState<{ name: string, version: string }[]>([]);
+interface Package {
+    name: string;
+    version: string;
+}
+
+export const AboutCockpitModal = ({ dialogResult } : { dialogResult: DialogResult<void> }) => {
+    const [packages, setPackages] = useState<Package[]>([]);
 
     useInit(() => {
-        const packages = [];
+        const packages: Package[] = [];
         const cmd = "(set +e; rpm -qa --qf '%{NAME} %{VERSION}\\n'; dpkg-query -f '${Package} ${Version}\n' --show; pacman -Q) 2> /dev/null | grep cockpit | sort";
         cockpit.spawn(["bash", "-c", cmd], { err: "message" })
                 .then(pkgs =>
@@ -91,7 +95,13 @@ export const AboutCockpitModal = ({ dialogResult }) => {
     );
 };
 
-export const LangModal = ({ dialogResult, state } : { dialogResult, state: ShellState }) => {
+export const LangModal = ({
+    dialogResult,
+    state
+} : {
+    dialogResult: DialogResult<void>;
+    state: ShellState;
+}) => {
     const language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1") || "en-us";
 
     const [selected, setSelected] = useState(language);
@@ -171,7 +181,7 @@ export const LangModal = ({ dialogResult, state } : { dialogResult, state: Shell
     );
 };
 
-export function OopsModal({ dialogResult }) {
+export function OopsModal({ dialogResult } : { dialogResult: DialogResult<void> }) {
     return (
         <Modal isOpen position="top" variant="medium"
                onClose={() => dialogResult.resolve()}

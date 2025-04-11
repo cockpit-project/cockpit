@@ -80,8 +80,6 @@ export function connection_settings(c) {
         // object that doesn't have it's settings yet, and we expect
         // each Connection object to have "connection" settings.
         console.warn("Incomplete 'Connection' object accessed", c);
-        // HACK - phantomjs console.trace() prints nothing
-        try { throw new Error() } catch (e) { console.log(e.stack) }
         return { };
     }
 }
@@ -129,8 +127,8 @@ export function connection_settings(c) {
 
 /* HACK
  *
- * NetworkManager doesn't implement the standard o.fd.DBus.Properties
- * interface.
+ * NetworkManager used to not implement the standard o.fd.DBus.Properties
+ * interface and our code still operates under the assumptions stated below.
  *
  * 1) NM does not emit the PropertiesChanged signal on the
  *    o.fd.DBus.Properties interface but rather on its own interfaces
@@ -148,6 +146,7 @@ export function connection_settings(c) {
  * for a given object path.  This is appropriate and nice for
  * NetworkManager, and we should probably keep it that way even if
  * NetworkManager would use a standard o.fd.DBus.Properties API.
+ * In the future this could be rewritten to use DBusProxies.
  */
 
 export function NetworkManagerModel() {

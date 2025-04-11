@@ -309,11 +309,11 @@ declare module 'cockpit' {
 
     function file(
         path: string,
-        options?: FileOpenOptions & { binary?: false; syntax?: undefined; }
+        options?: FileOpenOptions & { binary?: false; syntax?: never; }
     ): FileHandle<string>;
     function file(
         path: string,
-        options: FileOpenOptions & { binary: true; syntax?: undefined; }
+        options: FileOpenOptions & { binary: true; syntax?: never; }
     ): FileHandle<Uint8Array>;
     function file<T>(
         path: string,

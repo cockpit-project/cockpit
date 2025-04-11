@@ -154,6 +154,8 @@ $desktop: $phone + 1px;
         var(--ct-color-host-accent) 3px,
         transparent 3px
       );
+      /* Toolbar needs visual separation between it and the content */
+      border-block-start: var(--pf-t--global--border--width--regular) solid var(--pf-t--global--border--color--default);
     }
 
     // Remove excess padding from masthead in mobile

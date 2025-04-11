@@ -122,6 +122,13 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_not_in_text("div[data-test-card-title='Storage']", "containername")
         b.wait_not_in_text("div[data-test-card-title='Storage']", "grafana")
 
+        m.execute(f"""
+        btrfs subvolume create {mount_point}/candy
+        echo '{dev_1} /run/fstab auto nofail,subvol=/candy 0 0' >> /etc/fstab
+        """)
+
+        b.wait_visible(self.card_row("Storage", location="/run/fstab (not mounted)"))
+
         # mount outside of fstab, should be cleaned up when re-formatting
         m.execute(f"""
             btrfs subvolume create {mount_point}/nonfstab

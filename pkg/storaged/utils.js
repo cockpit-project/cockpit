@@ -825,7 +825,7 @@ export function get_fstab_config_with_client(client, block, also_child_config, s
             const opts = decode_filename(c[1].opts.v).split(",");
             if (opts.indexOf("subvolid=" + subvol.id) >= 0)
                 return true;
-            if (opts.indexOf("subvol=" + subvol.pathname) >= 0)
+            if (opts.indexOf("subvol=" + subvol.pathname) >= 0 || opts.indexOf("subvol=/" + subvol.pathname) >= 0)
                 return true;
 
             // btrfs mounted without subvol argument.

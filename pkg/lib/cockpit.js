@@ -1781,6 +1781,17 @@ function factory() {
                 options = { problem: options };
             if (!options)
                 options = { };
+
+            // Clean up all subscribers when closing
+            const subscriberKeys = Object.keys(subscribers);
+            for (const id of subscriberKeys) {
+                const subscription = subscribers[id];
+                if (subscription.callback) {
+                    send(JSON.stringify({ "remove-match": subscription.match }));
+                    delete subscribers[id];
+                }
+            }
+            
             if (channel)
                 channel.close(options);
             else

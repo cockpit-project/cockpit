@@ -72,7 +72,7 @@ class TestStorageResize(storagelib.StorageCase):
         b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 3), "/run/foo")
 
         if can_grow:
-            b.click(self.card_row_col("LVM2 logical volumes", 1, 1))
+            self.click_card_row("LVM2 logical volumes", 1)
             b.click(self.card_button("LVM2 logical volume", "Grow"))
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
@@ -176,7 +176,7 @@ class TestStorageResize(storagelib.StorageCase):
         b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 3), mountpoint)
 
         # Click on the card to check the label
-        b.click(self.card_row_col("LVM2 logical volumes", 1, 1))
+        self.click_card_row("LVM2 logical volumes", 1)
         b.wait_text(self.card_desc("ext4 filesystem", "Name"), "FSYS")
 
         # Grow the logical volume and let Cockpit grow the filesystem
@@ -247,7 +247,7 @@ class TestStorageResize(storagelib.StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-        b.click(self.card_row_col("LVM2 logical volumes", 1, 1))
+        self.click_card_row("LVM2 logical volumes", 1)
         b.click(self.card_button("LVM2 logical volume", "Grow content"))
         confirm_with_passphrase()
         b.wait_not_present(self.card_button("LVM2 logical volume", "Grow content"))
@@ -330,14 +330,14 @@ class TestStorageResize(storagelib.StorageCase):
 
         fake_fstype("udf")  # UDF is a real filesystem type that UDisks knows about. It can definitely not be resized.
         b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "udf filesystem")
-        b.click(self.card_row_col("LVM2 logical volumes", 1, 1))
+        self.click_card_row("LVM2 logical volumes", 1)
         check_btn("Shrink", "udf can not be resized")
         check_btn("Grow", "udf can not be resized")
         b.click(".pf-v6-c-breadcrumb__link:contains('TEST')")
 
         fake_fstype("fake")  # This is not a real filesystem and UDisks2 knows nothing about it.
         b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 2), "fake filesystem")
-        b.click(self.card_row_col("LVM2 logical volumes", 1, 1))
+        self.click_card_row("LVM2 logical volumes", 1)
         check_btn("Shrink", "fake can not be resized here")
         check_btn("Grow", "fake can not be resized here")
         b.click(".pf-v6-c-breadcrumb__link:contains('TEST')")

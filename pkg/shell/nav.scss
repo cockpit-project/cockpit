@@ -130,14 +130,12 @@ $desktop: $phone + 1px;
   .view-hosts .sidebar-hosts {
     animation: navHostsSlide 300ms ease-out;
     transform-origin: top;
-    position: absolute;
     inset: 0;
     background: var(--pf-t--global--background--color--primary--default);
-    z-index: 399; // Modals have 400 and modals should be in front of host switcher
-
-    height: auto;
+    /* Modals have 400 and modals should be in front of host switcher */
+    z-index: 399;
     box-shadow: var(--pf-t--global--box-shadow--md);
-    height: fit-content;
+    block-size: fit-content;
     padding: var(--pf-t--global--spacer--gutter--default);
     position: relative;
     translate: 1rem 0;
@@ -311,7 +309,6 @@ $desktop: $phone + 1px;
     border-radius: 0 !important;
   }
 
-  // Override some PF4isms to make sure the host switcher is 100% tall
   .navbar-pf {
     .ct-switcher {
       display: flex;
@@ -374,7 +371,8 @@ $desktop: $phone + 1px;
 
 .nav-action {
   border-radius: var(--pf-t--global--border--radius--small);
-  padding: var(--pf-t--global--spacer--control--vertical--compact) var(--pf-t--global--spacer--control--horizontal--compact);
+  padding-block: var(--pf-t--global--spacer--control--vertical--compact);
+  padding-inline: var(--pf-t--global--spacer--control--horizontal--compact);
   align-items: center;
 }
 
@@ -440,7 +438,6 @@ $desktop: $phone + 1px;
       > svg {
         // Set position for the icon sandwiching
         position: relative;
-        // Add a shadow around the icon
         // Move the icon up the stack
         z-index: 1;
       }
@@ -629,7 +626,6 @@ $desktop: $phone + 1px;
     grid-template-rows: 28px 1fr;
     justify-content: center;
     justify-items: center;
-    // padding-block: var(--pf-t--global--spacer--sm);
     padding-inline: var(--pf-t--global--spacer--xs);
     align-items: center;
 

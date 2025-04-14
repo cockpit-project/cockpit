@@ -489,8 +489,6 @@ $desktop: $phone + 1px;
     &:has(.pf-m-current) {
       /* Add a selected color */
       border-inline-start: var(--pf-t--global--border--width--extra-strong) solid var(--ct-color-host-accent);
-      /* Compensate for border */
-      padding-inline-start: calc(var(--pf-v6-c-nav__link--PaddingInlineStart) - var(--pf-t--global--border--width--extra-strong));
     }
 
     > .pf-v6-c-nav__link {

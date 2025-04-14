@@ -308,3 +308,10 @@ td.job-action {
     // 1rem: margin between text and progress bar
     padding-inline-end: calc(var(--pf-v6-c-table--cell--PaddingInlineEnd) + 3.5rem + 1rem) !important;
 }
+
+// HACK - https://github.com/patternfly/patternfly/issues/7255
+//        Bug - Truncate - removes underline from link
+
+.pf-v6-c-button .pf-v6-c-truncate span {
+    text-decoration: var(--pf-v6-c-button--TextDecorationLine) var(--pf-v6-c-button--TextDecorationStyle);
+}

@@ -42,6 +42,8 @@ fi
 if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "storage-basic" ]; then
     # required by TestStorageBtrfs*
     dnf install -y udisks2-btrfs
+    # required by TestStorageStratis
+    dnf install -y stratisd-tools
 fi
 
 # dnf installs "missing" weak dependencies, but we don't want them for plans other than "main"

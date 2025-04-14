@@ -149,7 +149,7 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to={"#" + cockpit.location.href.replace(/\/[^?]*/, '')}>{_("Services")}</BreadcrumbItem>
-                    <BreadcrumbItem isActive>
+                    <BreadcrumbItem isActive className="cur-unit">
                         {cur_unit_id}
                     </BreadcrumbItem>
                 </Breadcrumb>

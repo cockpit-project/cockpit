@@ -6,10 +6,16 @@
   @extend .ct-card;
 }
 
+#service-details .cur-unit {
+  white-space: normal;
+  word-break: break-word;
+}
+
 .comma-list {
   display: inline;
   list-style: none;
   padding-inline-start: 0;
+  word-break: break-word;
 }
 
 .comma-list li {
@@ -19,6 +25,12 @@
 .comma-list li:not(:last-child)::after {
   content: ",";
   margin-inline-end: 0.5em;
+}
+
+.service-top-panel {
+  .service-name {
+    word-break: break-word;
+  }
 }
 
 /* Rely on flex for spacing only */

@@ -1309,7 +1309,7 @@ async def test_fsinfo_watch_identity_changes(
 
 @pytest.mark.asyncio
 async def test_fsinfo_self_owner(transport: MockTransport, tmp_path: Path) -> None:
-    client = await FsInfoClient.open(transport, tmp_path, ['user', 'uid', 'group', 'gid'])
+    client = await FsInfoClient.open(transport, tmp_path, ['user', 'uid', 'group', 'gid'], fnmatch='')
     state = await client.wait()
     info = get_dict(state, 'info')
 
@@ -1317,6 +1317,8 @@ async def test_fsinfo_self_owner(transport: MockTransport, tmp_path: Path) -> No
     assert get_int(info, 'gid') == os.getgid()
     assert info.get('user') == getpass.getuser()
     assert info.get('group') == grp.getgrgid(os.getgid()).gr_name  # hopefully true...
+    # user, uid, group, gid
+    assert len(info.keys()) == 4
 
 
 @pytest.mark.asyncio
@@ -1425,3 +1427,26 @@ async def test_fsinfo_targets(transport: MockTransport, tmp_path: Path) -> None:
     # double-check with the non-watch variant
     client = await FsInfoClient.open(transport, tmp_path, ['type', 'target', 'targets'], fnmatch='l*')
     assert await client.wait() == state
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_access_attrs(transport: MockTransport, fsinfo_test_cases: 'dict[Path, JsonObject]') -> None:
+    for path, expected_state in fsinfo_test_cases.items():
+        read_ok = True
+        write_ok = True
+
+        # these are errors
+        if path.name == 'dangling' or path.name == 'loopy':
+            continue
+
+        if path.name == 'no-r-dir':
+            read_ok = False
+        elif path.name == 'no-r-file':
+            read_ok = False
+            write_ok = False
+
+        expected_state = {'info': {'r-ok': read_ok, 'w-ok': write_ok}}
+
+        # fnmatch='' to not include entries
+        client = await FsInfoClient.open(transport, path, attrs=['w-ok', 'r-ok'], fnmatch='')
+        assert await client.wait() == expected_state, f'for path={path.name}'

@@ -138,7 +138,6 @@ $desktop: $phone + 1px;
     block-size: fit-content;
     padding: var(--pf-t--global--spacer--gutter--default);
     position: relative;
-    translate: 1rem 0;
     border-radius: var(--pf-t--global--border--radius--medium);
 
     &.edit-hosts {
@@ -180,10 +179,14 @@ $desktop: $phone + 1px;
   }
 
   .nav-hosts-menu {
-    display: none;
+    grid-area: switcher;
+    position: absolute;
+    /* Inset for the top */
+    inset-block: var(--pf-t--global--spacer--3xl) auto;
+    inset-inline: var(--pf-t--global--spacer--sm) auto;
 
-    &.interact {
-      display: block;
+    &:not(.interact) {
+      display: none;
     }
   }
 
@@ -371,8 +374,7 @@ $desktop: $phone + 1px;
 
 .nav-action {
   border-radius: var(--pf-t--global--border--radius--small);
-  padding-block: var(--pf-t--global--spacer--control--vertical--compact);
-  padding-inline: var(--pf-t--global--spacer--control--horizontal--compact);
+  padding-inline: var(--pf-t--global--spacer--control--horizontal--default);
   align-items: center;
 }
 
@@ -499,14 +501,8 @@ $desktop: $phone + 1px;
   .nav-item-actions {
     display: flex;
     gap: var(--pf-t--global--spacer--xs);
-    padding-block: var(--pf-t--global--spacer--xs);
     padding-inline: var(--pf-t--global--spacer--sm);
-
-    @media (min-width: $desktop) {
-      // Desktop has limited horizontal space, so stack these
-      // Ironically, mobile has more space here (due to being a popup)
-      flex-direction: column;
-    }
+    align-self: center;
   }
 }
 

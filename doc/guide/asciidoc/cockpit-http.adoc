@@ -1,0 +1,273 @@
+cockpit.js: HTTP Client
+
+HTTP and REST API communication
+
+Cockpit allows access to local HTTP and REST services via this API.
+
+[[cockpit-http-constructor]]
+== cockpit.http()
+
+....
+http = cockpit.http(endpoint, [options])
+http = cockpit.http(options)
+....
+
+Create a new HTTP client. The `endpoint` can be a file path starting
+with `/` to connect to a unix socket, or it can be a port number to
+connect to. The optional `options` argument is a javascript plain
+object, and may include:
+
+`"address"`::
+  Connect to an address other than localhost. Must be a valid host name
+  or IP address. To use this option you also must provide a port number.
+`"port"`::
+  Port number to use with "address" option, when not given in
+  `endpoint`.
+`"tls"`::
+  Object properties for an https connection. See
+  `http-stream2 TLS options`.
+`"connection"`::
+  A connection identifier. Subsequent channel requests with the same
+  identifier will try to use the same connection if it is still open.
+`"headers"`::
+  Additional HTTP headers to include with the HTTP request. This is a
+  plain javascript object with each key as a header name, and each value
+  as the header value.
+`"superuser"`::
+  Set to `"require"` to open this channel as root. If the currently
+  logged in user is not permitted to become root (eg: via `pkexec`) then
+  the `channel` will immediately be
+  link:#cockpit-channels-close-ev[closed] with a `"access-denied"`
+  problem code.
+  +
+  Set to `"try"` to try to make the request as root, but if that fails,
+  fall back to perform an unprivileged request.
+`"tls"`::
+  If set to a plain javascript object, then the connection will be an
+  HTTPS connection and include TLS encryption. The fields of the `tls`
+  object declare various TLS configuration and data. All fields are
+  optional:
+  +
+  * `"authority"`: Certificate authority(s) to expect as signers of the
+  server's TLS certificate, represented as a plain javascript object. It
+  should have either a `"file"` field containing a readable PEM file on
+  the system containing authorities, or a `"data"` with PEM encoded
+  certificate data.
+  * `"certificate"`: A client certificate to use, represented as a plain
+  javascript object. It should have either a `"file"` field containing a
+  readable PEM file on the system to use as a certificate, or a `"data"`
+  with PEM encoded certificate data.
+  * `"key"`: A client key to use, represented as a plain javascript
+  object. It should have either a `"file"` field containing a readable
+  PEM file on the system to use as a key, or a `"data"` with PEM encoded
+  key data.
+  * `"validate"`: A boolean that describes whether to validate the
+  server's TLS certificate or not. By default local connections are not
+  validated, and remote connections are validated.
+
+Here is a somewhat complex example of using most of the above `options`
+when when calling `cockpit.http()`:
+
+....
+http = cockpit.http({
+    "address": "localhost",
+    "headers": {
+        "Authorization": "Basic dXNlcjpwYXNzd29yZA=="
+    },
+    "port": 443,
+    "tls": {
+        "validate": true,
+        "authority": {
+            "file": "/etc/pki/tls/certs/ca-bundle.crt",
+        },
+        "certificate": {
+            "data": "-----BEGIN CERTIFICATE-----\nMIIDsDCCA..."
+        },
+        "key": {
+            "data": "-----BEGIN RSA PRIVATE KEY-----\nMIIEogIBA..."
+        }
+    }
+});
+....
+
+[[cockpit-http-get]]
+== http.get()
+
+....
+request = http.get(path, [params, [headers]])
+....
+
+Perform an HTTP GET request for the given `path`. If the `params` is
+specified it should be a plain javascript object, which will be turned
+into a query string.
+
+Optionally a plain javascript object containing headers can be included
+in the `headers` argument.
+
+The return value is a
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise]
+that will complete if the request happens successfully, or fail if
+there's a problem.
+
+[[cockpit-http-post]]
+== http.post()
+
+....
+request = http.post(path, body, [headers])
+....
+
+Perform an HTTP POST request for the given `path`. The `body` can be a
+string, or a javascript plain object, which will be encoded as JSON
+data. If `body` is `undefined` or `null` then an empty HTTP body will be
+sent.
+
+Optionally a plain javascript object containing headers can be included
+in the `headers` argument.
+
+The return value is a
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise]
+that will complete if the request happens successfully, or fail if
+there's a problem.
+
+[[cockpit-http-request]]
+== http.request()
+
+....
+request = http.request(options)
+....
+
+Perform an HTTP request. The `options` can contain the following:
+
+`"body"`::
+  The HTTP request body. If you do not specify a body, then you must
+  call link:#cockpit-http-input[request.input()] to complete the body
+  and allow the request to start.
+`"headers"`::
+  A javascript plain object containing HTTP headers.
+`"method"`::
+  The HTTP method. Defaults to `"GET"`.
+`"params"`::
+  A javascript plain object containing query string parameters.
+`"path"`::
+  The HTTP path. Defaults to `/`.
+
+The return value is a
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise]
+that will complete if the request happens successfully, or fail if
+there's a problem.
+
+[[cockpit-http-then]]
+== request.then()
+
+....
+request.then(data => { ... })
+....
+
+This is a standard
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise]
+method. It sets up a handler to be called when the request finishes
+successfully.
+
+The `data` argument contains the body result of the request. If it a
+string, unless the process was opened in binary mode, in which case the
+`data` is an array of bytes. If a `request.stream()` handler is set up,
+then any standard output data consumed by the handler will not be
+included in the `data` argument.
+
+[[cockpit-http-catch]]
+== request.catch()
+
+....
+request.catch((exception[, data]) => { ... })
+....
+
+This is a standard
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promise]
+method. It sets up a handler to be called when the request fails, or
+returns an error code.
+
+The `exception` object passed to the handler can have the following
+fields:
+
+`problem`::
+  A link:#cockpit-problems[problem code] string when a problem occurred
+  starting or communicating with the server. This is `null` if the
+  process exited or was terminated.
+`status`::
+  The numeric status of the response. This is `null` if no response was
+  received.
+`reason`::
+  A string reason returned in the response. This is `null` if no
+  response was received.
+`message`::
+  A string message returned in the response. This is `null` if no
+  response was received.
+
+If the request returned a response body, it will be available in the
+`data` argument. Otherwise this argument will be `undefined`.
+
+[[cockpit-http-response]]
+== request.response()
+
+....
+request.response((status, headers) => { ... })
+....
+
+This sets up a handler to be called when the HTTP request gets the
+initial response from the server. The `status` argument is the HTTP
+status integer, and the `headers` is a plain javascript object
+containing the headers of the response.
+
+[[cockpit-http-stream]]
+== request.stream()
+
+....
+request.stream(data => { ... })
+....
+
+This sets up a handler to be called when the request returns output
+data. The handler will be called multiple times.
+
+Only one handler may be registered at a time. Registering an additional
+handler replaces the previous one. The handler receives either string
+`data` or an array of binary bytes as its argument. A stream handler may
+return a number, which indicates the number of characters or bytes
+consumed from `data`. Any data not consumed will be included again the
+next time the handler is called.
+
+If a `request.stream()` handler is set up, then the `request.then()`
+handlers will only get any remaining data not consumed by the stream
+handler.
+
+[[cockpit-http-input]]
+== request.input()
+
+....
+request.input(data, [stream])
+....
+
+This method writes `data` to the HTTP request body. It is only valid if
+no `"body"` has been specified in
+link:#cockpit-http-request[http.request()] options. If `stream` is
+`true` then this function can be called again to provide further data.
+
+[[cockpit-http-close]]
+== request.close()
+
+....
+request.close([problem])
+....
+
+Cancel the request. If `problem` is specified it should be a standard
+link:#cockpit-problems[problem code] string.
+
+[[cockpit-http-close-all]]
+== http.close()
+
+....
+http.close([problem])
+    
+....
+
+Cancel all outstanding requests with the given problem code. This is
+useful when you know that the server is going down soon.

@@ -20,7 +20,7 @@ $desktop: $phone + 1px;
 
   // Overrides for dark theme (as PF's dark theme is currently odd with nav)
   .pf-v6-theme-dark & {
-    .nav-item-hint {
+    .pf-m-link {
       color: var(--pf-t--global--text--color--link--default);
     }
   }
@@ -32,28 +32,22 @@ $desktop: $phone + 1px;
   }
 
   .nav-item-hint {
-    color: var(--pf-t--global--text--color--regular);
     display: inline-block;
     font-size: var(--pf-t--global--font--size--body--sm);
     font-weight: var(--pf-t--global--font--weight--100);
     inline-size: 100%;
   }
 
-  .pf-m-current .nav-item-hint {
-    color: var(--pf-t--global--text--color--regular);
-  }
-
-  .non-menu-item .nav-item-hint {
-    color: var(--pf-t--global--text--color--subtle);
-  }
-
   // Add hover effect for clear search link
-  .non-menu-item:hover .nav-item-hint {
+  .non-menu-item .pf-m-link {
+    color: var(--pf-t--global--text--color--link--default);
+  }
+
+  .non-menu-item:hover .pf-m-link {
     text-decoration: underline;
   }
 
   .non-menu-item {
-    color: var(--pf-t--global--icon--color--brand--default);
     display: flex;
     justify-content: center;
   }

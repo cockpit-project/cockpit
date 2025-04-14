@@ -199,6 +199,7 @@ export function new_page(parent, card, options) {
         card.location,
         size_from_card(card),
     ];
+    page.column_1_goto = card.location_goto;
     if (parent)
         parent.children.push(page);
     while (card) {
@@ -218,7 +219,7 @@ export function new_page(parent, card, options) {
 }
 
 export function new_card({
-    title, location, next,
+    title, location, location_goto, next,
     type_extra, id_extra,
     page_name, page_icon, page_category, page_key, page_location, page_size,
     page_block,
@@ -236,6 +237,7 @@ export function new_card({
     return {
         title,
         location,
+        location_goto,
         next,
         type_extra,
         page_name,
@@ -518,6 +520,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
         const name = crossref ? page.name : page_display_name(page);
         const type = crossref ? page_block_summary(page) : page_type(page);
         const location = crossref ? crossref.extra : page.columns[1];
+        const location_goto = crossref ? null : page.column_1_goto;
         let size = crossref ? crossref.size : page.columns[2];
         const actions = crossref ? make_actions_kebab(crossref.actions) : make_page_kebab(page);
 
@@ -528,62 +531,15 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 size = <StorageSize size={size} />;
         }
 
-        function onClick(event) {
-            if (!event || event.button !== 0)
-                return;
+        function location_link(loc, children) {
+            if (!loc)
+                return children;
 
-            if (page.location)
-                cockpit.location.go(page.location);
-        }
-
-        function is_clickable(element) {
-            return element.classList.contains("pf-m-clickable");
-        }
-
-        function next_clickable_sibling(element) {
-            do {
-                const next = element.nextElementSibling;
-                if (next && is_clickable(next))
-                    return next;
-                element = next;
-            } while (element);
-
-            return null;
-        }
-
-        function previous_clickable_sibling(element) {
-            do {
-                const prev = element.previousElementSibling;
-                if (prev && is_clickable(prev))
-                    return prev;
-                element = prev;
-            } while (element);
-
-            return null;
-        }
-
-        function onRowKeyDown(event) {
-            const { code, target } = event;
-
-            if (target.nodeName == "TR") {
-                if (code == "Space" || code == "Enter") {
-                    if (page.location)
-                        cockpit.location.go(page.location);
-                    event.preventDefault();
-                }
-                if (code == "ArrowDown") {
-                    const next = next_clickable_sibling(target);
-                    if (next)
-                        next.focus();
-                    event.preventDefault();
-                }
-                if (code == "ArrowUp") {
-                    const prev = previous_clickable_sibling(target);
-                    if (prev)
-                        prev.focus();
-                    event.preventDefault();
-                }
-            }
+            return (
+                <Button isInline variant="link" onClick={() => cockpit.location.go(loc)}>
+                    <Truncate content={children} />
+                </Button>
+            );
         }
 
         const is_new = firstKeys.current != false && !firstKeys.current.has(key);
@@ -593,48 +549,46 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
             rows.push(
                 <Card isPlain key={key}
                       className={"ct-small-table-card" +
-                                 (page.location ? " ct-clickable-card" : null) +
                                  (is_new ? " ct-new-item" : "")}
                       data-test-row-name={page.name}
                       data-test-row-location={page.columns[1]}>
                     <CardBody>
                         <Split hasGutter>
-                            { icon && <SplitItem onClick={onClick}>{icon}</SplitItem> }
-                            <SplitItem isFilled onClick={onClick}>
-                                <strong><Truncate content={name} /></strong>{info}
+                            { icon && <SplitItem>{icon}</SplitItem> }
+                            <SplitItem isFilled>
+                                {location_link(page.location, <strong>{name}</strong>)}
+                                {info}
                             </SplitItem>
                             <SplitItem>{actions}</SplitItem>
                         </Split>
-                        <Split hasGutter isWrappable onClick={onClick}>
+                        <Split hasGutter isWrappable>
                             <SplitItem>{type}</SplitItem>
-                            <SplitItem isFilled>{location}</SplitItem>
+                            <SplitItem isFilled>{location_link(location, location_goto)}</SplitItem>
                             <SplitItem isFilled className="pf-v6-u-text-align-end">{size}</SplitItem>
                         </Split>
                     </CardBody>
                 </Card>);
         } else {
             const cols = [
-                <Td key="1" onClick={onClick}>
+                <Td key="1">
                     <div className="indent" style={ { "--level": level } }>
-                        <Truncate content={name} />
+                        {location_link(page.location, name)}
                         {info}
                     </div>
                 </Td>,
-                <Td key="2" onClick={onClick} modifier="nowrap">{type}</Td>,
-                <Td key="3" onClick={onClick} modifier="nowrap">{location}</Td>,
-                <Td key="4" onClick={onClick} className="storage-size-column">{size}</Td>,
+                <Td key="2" modifier="nowrap">{type}</Td>,
+                <Td key="3" modifier="nowrap">{location_link(location_goto, location)}</Td>,
+                <Td key="4" className="storage-size-column">{size}</Td>,
                 <Td key="5" className="pf-v6-c-table__action">{actions || <div /> }</Td>,
             ];
             if (show_icons)
-                cols.unshift(<Td key="0" onClick={onClick} className="storage-device-icon">{icon}</Td>);
+                cols.unshift(<Td key="0" className="storage-device-icon">{icon}</Td>);
 
             rows.push(
                 <Tr key={key}
                     className={(border ? "" : " remove-border") +
                                (is_new ? " ct-new-item" : "")}
-                    data-test-row-name={page.name} data-test-row-location={page.columns[1]}
-                    isClickable={!!page.location}
-                    onKeyDown={onRowKeyDown}>
+                    data-test-row-name={page.name} data-test-row-location={page.columns[1]}>
                     {cols}
                 </Tr>);
         }

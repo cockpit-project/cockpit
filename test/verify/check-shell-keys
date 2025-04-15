@@ -274,7 +274,7 @@ session    optional     pam_ssh_add.so
         b.set_input_text("#id_ed25519-old-password", "locked")
         b.set_input_text("#id_ed25519-new-password", "foobar")
         b.set_input_text("#id_ed25519-confirm-password", "foobar")
-        b.assert_pixels("#credentials-modal", "ssh-keys-dialog")
+        b.assert_pixels("#credentials-modal", "ssh-keys-dialog", chrome_hack_double_shots=True)
 
         b.click("#id_ed25519-change-password")
         b.wait_visible('#credentials-modal .pf-v6-c-helper-text__item.pf-m-success')

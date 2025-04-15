@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-06 03:06+0000\n"
-"PO-Revision-Date: 2025-03-25 21:51+0000\n"
+"POT-Creation-Date: 2025-04-10 03:05+0000\n"
+"PO-Revision-Date: 2025-04-10 18:23+0000\n"
 "Last-Translator: Léane GRASSER <leane.grasser@proton.me>\n"
 "Language-Team: French <https://translate.fedoraproject.org/projects/cockpit/"
 "main/fr/>\n"
@@ -59,7 +59,7 @@ msgstr "$0 disponible"
 
 #: pkg/storaged/block/resize.jsx:269
 msgid "$0 can not be made larger"
-msgstr "$0 ne peuvent pas être agrandis."
+msgstr "$0 ne peuvent pas être agrandis"
 
 #: pkg/storaged/block/resize.jsx:266
 msgid "$0 can not be made smaller"
@@ -73,7 +73,7 @@ msgstr "$0 ne peut pas être redimensionné"
 msgid "$0 can not be resized here"
 msgstr "$0 ne peut pas être redimensionné ici"
 
-#: pkg/storaged/mdraid/mdraid.jsx:262
+#: pkg/storaged/mdraid/mdraid.jsx:269
 msgid "$0 chunk size"
 msgstr "blocs de taille $0"
 
@@ -94,7 +94,7 @@ msgstr[0] "$0 jour"
 msgstr[1] "$0 jours"
 
 #: pkg/playground/translate.js:26 pkg/playground/translate.js:29
-#: pkg/storaged/mdraid/mdraid.jsx:267
+#: pkg/storaged/mdraid/mdraid.jsx:274
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 disque est manquant"
@@ -107,7 +107,7 @@ msgid_plural "$0 disks are missing"
 msgstr[0] "$0 disque est manquant"
 msgstr[1] "$0 disques sont manquants"
 
-#: pkg/storaged/mdraid/mdraid.jsx:260
+#: pkg/storaged/mdraid/mdraid.jsx:267
 msgid "$0 disks"
 msgstr "$0 disques"
 
@@ -180,7 +180,7 @@ msgstr "$0 est un fichier existant"
 #: pkg/storaged/lvm2/block-logical-volume.jsx:151
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:50
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:84 pkg/storaged/mdraid/mdraid.jsx:63
-#: pkg/storaged/mdraid/mdraid.jsx:116 pkg/storaged/btrfs/volume.jsx:70
+#: pkg/storaged/mdraid/mdraid.jsx:123 pkg/storaged/btrfs/volume.jsx:70
 msgid "$0 is in use"
 msgstr "$0 est en cours d’utilisation"
 
@@ -767,7 +767,7 @@ msgstr "Répartition adaptative de la charge d’émission"
 #: pkg/storaged/stratis/pool.jsx:244 pkg/storaged/iscsi/create-dialog.jsx:120
 #: pkg/storaged/iscsi/create-dialog.jsx:144
 #: pkg/storaged/lvm2/volume-group.jsx:207 pkg/storaged/nfs/nfs.jsx:188
-#: pkg/storaged/mdraid/mdraid.jsx:167 pkg/systemd/timer-dialog.jsx:369
+#: pkg/storaged/mdraid/mdraid.jsx:174 pkg/systemd/timer-dialog.jsx:369
 msgid "Add"
 msgstr "Ajouter"
 
@@ -801,7 +801,7 @@ msgstr "Ajouter un VPN"
 msgid "Add WireGuard VPN"
 msgstr "Ajouter un VPN WireGuard"
 
-#: pkg/storaged/mdraid/mdraid.jsx:286
+#: pkg/storaged/mdraid/mdraid.jsx:293
 msgid "Add a bitmap"
 msgstr "Ajouter une bitmap"
 
@@ -826,11 +826,11 @@ msgstr "Ajouter un lien"
 msgid "Add bridge"
 msgstr "Ajouter un pont"
 
-#: pkg/storaged/mdraid/mdraid.jsx:226
+#: pkg/storaged/mdraid/mdraid.jsx:233
 msgid "Add disk"
 msgstr "Ajouter un disque"
 
-#: pkg/storaged/lvm2/volume-group.jsx:194 pkg/storaged/mdraid/mdraid.jsx:154
+#: pkg/storaged/lvm2/volume-group.jsx:194 pkg/storaged/mdraid/mdraid.jsx:161
 msgid "Add disks"
 msgstr "Ajouter des disques"
 
@@ -1205,7 +1205,7 @@ msgid "At least one block device is needed."
 msgstr "Au moins un périphérique block est nécessaire."
 
 #: pkg/storaged/stratis/pool.jsx:238 pkg/storaged/lvm2/create-dialog.jsx:57
-#: pkg/storaged/lvm2/volume-group.jsx:201 pkg/storaged/mdraid/mdraid.jsx:161
+#: pkg/storaged/lvm2/volume-group.jsx:201 pkg/storaged/mdraid/mdraid.jsx:168
 msgid "At least one disk is needed."
 msgstr "Au moins un disque est nécessaire."
 
@@ -1568,7 +1568,7 @@ msgid "Cannot schedule event in the past"
 msgstr "Impossible de planifier un événement dans le passé"
 
 #: pkg/storaged/drive/drive.jsx:127 pkg/storaged/lvm2/volume-group.jsx:365
-#: pkg/storaged/mdraid/mdraid.jsx:303 pkg/storaged/btrfs/volume.jsx:206
+#: pkg/storaged/mdraid/mdraid.jsx:310 pkg/storaged/btrfs/volume.jsx:206
 msgid "Capacity"
 msgstr "Capacité"
 
@@ -2587,7 +2587,7 @@ msgstr "Le retard doit correspondre à un nombre"
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:42
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:122
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:152
-#: pkg/storaged/mdraid/mdraid.jsx:126 pkg/storaged/mdraid/mdraid.jsx:233
+#: pkg/storaged/mdraid/mdraid.jsx:133 pkg/storaged/mdraid/mdraid.jsx:240
 #: pkg/storaged/btrfs/volume.jsx:81 pkg/storaged/btrfs/subvolume.jsx:253
 #: pkg/storaged/btrfs/subvolume.jsx:400 pkg/sosreport/sosreport.jsx:375
 #: pkg/sosreport/sosreport.jsx:474 pkg/systemd/service-details.jsx:154
@@ -2663,7 +2663,7 @@ msgstr ""
 "La suppression d’une partition supprimera toutes les données qui s’y "
 "trouvent."
 
-#: pkg/storaged/mdraid/mdraid.jsx:127
+#: pkg/storaged/mdraid/mdraid.jsx:134
 msgid "Deleting erases all data on a MDRAID device."
 msgstr "La suppression efface toutes les données d’un périphérique MDRAID."
 
@@ -2712,7 +2712,7 @@ msgid "Development"
 msgstr "Développement"
 
 #: pkg/metrics/metrics.jsx:749 pkg/storaged/dialog.jsx:1190
-#: pkg/storaged/dialog.jsx:1309 pkg/storaged/mdraid/mdraid.jsx:302
+#: pkg/storaged/dialog.jsx:1309 pkg/storaged/mdraid/mdraid.jsx:309
 msgid "Device"
 msgstr "Périphérique"
 
@@ -2735,7 +2735,7 @@ msgstr "Périphérique en lecture seule"
 
 #: pkg/storaged/block/other.jsx:60
 msgid "Device number"
-msgstr "Numéro du _périphérique :"
+msgstr "Numéro du périphérique"
 
 #: pkg/sosreport/index.html:22 pkg/sosreport/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_sosreport.metainfo.xml.in:5
@@ -2817,8 +2817,8 @@ msgstr "Phrase secrète du disque"
 
 #: pkg/metrics/metrics.jsx:882 pkg/storaged/lvm2/create-dialog.jsx:52
 #: pkg/storaged/lvm2/volume-group.jsx:196
-#: pkg/storaged/mdraid/create-dialog.jsx:99 pkg/storaged/mdraid/mdraid.jsx:156
-#: pkg/storaged/mdraid/mdraid.jsx:306
+#: pkg/storaged/mdraid/create-dialog.jsx:99 pkg/storaged/mdraid/mdraid.jsx:163
+#: pkg/storaged/mdraid/mdraid.jsx:313
 msgid "Disks"
 msgstr "Disques"
 
@@ -3091,7 +3091,7 @@ msgstr "Chiffré $0"
 
 #: pkg/storaged/stratis/pool.jsx:294
 msgid "Encrypted Stratis pool"
-msgstr "Pool Stratis chiffré $0"
+msgstr "Pool Stratis chiffré"
 
 #: pkg/storaged/utils.js:360
 msgid "Encrypted logical volume of $0"
@@ -3645,7 +3645,7 @@ msgstr "Masquer le mot de passe de confirmation"
 
 #: pkg/lib/cockpit-components-password.jsx:137
 msgid "Hide password"
-msgstr "Masquer le mot de passe."
+msgstr "Masquer le mot de passe"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:137
 msgid "Higher interoperability at the cost of an increased attack surface."
@@ -4609,7 +4609,7 @@ msgstr "Lunch Box"
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/storaged/mdraid/mdraid.jsx:203 pkg/storaged/mdraid/mdraid.jsx:211
+#: pkg/storaged/mdraid/mdraid.jsx:210 pkg/storaged/mdraid/mdraid.jsx:218
 #: pkg/storaged/mdraid/mdraid-disk.jsx:122
 msgid "MDRAID device"
 msgstr "Périphérique MDRAID"
@@ -4622,7 +4622,7 @@ msgstr "Périphérique MDRAID $0"
 msgid "MDRAID device is recovering"
 msgstr "Le périphérique MDRAID est en cours de récupération"
 
-#: pkg/storaged/mdraid/mdraid.jsx:200
+#: pkg/storaged/mdraid/mdraid.jsx:207
 msgid "MDRAID device must be running"
 msgstr "Le périphérique MDRAID doit être en cours d'exécution"
 
@@ -4630,7 +4630,7 @@ msgstr "Le périphérique MDRAID doit être en cours d'exécution"
 msgid "MDRAID disk"
 msgstr "Disque MDRAID"
 
-#: pkg/storaged/mdraid/mdraid.jsx:309
+#: pkg/storaged/mdraid/mdraid.jsx:316
 msgid "MDRAID disks"
 msgstr "Disques MDRAID"
 
@@ -5046,7 +5046,7 @@ msgstr "Serveur NTP"
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:166
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:137
-#: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:295
+#: pkg/storaged/mdraid/create-dialog.jsx:47 pkg/storaged/mdraid/mdraid.jsx:302
 #: pkg/storaged/btrfs/volume.jsx:145 pkg/storaged/btrfs/subvolume.jsx:157
 #: pkg/storaged/btrfs/subvolume.jsx:470 pkg/systemd/timer-dialog.jsx:159
 #: pkg/systemd/hwinfo.jsx:88
@@ -5256,11 +5256,11 @@ msgstr "Aucun périphérique trouvé"
 
 #: pkg/storaged/stratis/pool.jsx:235 pkg/storaged/lvm2/create-dialog.jsx:54
 #: pkg/storaged/lvm2/volume-group.jsx:198
-#: pkg/storaged/mdraid/create-dialog.jsx:101 pkg/storaged/mdraid/mdraid.jsx:158
+#: pkg/storaged/mdraid/create-dialog.jsx:101 pkg/storaged/mdraid/mdraid.jsx:165
 msgid "No disks are available."
 msgstr "Aucun disque disponible."
 
-#: pkg/storaged/mdraid/mdraid.jsx:308
+#: pkg/storaged/mdraid/mdraid.jsx:315
 msgid "No disks found"
 msgstr "Aucun disque trouvé"
 
@@ -5446,11 +5446,11 @@ msgstr "Non connecté à l’hôte"
 #: pkg/storaged/stratis/pool.jsx:329 pkg/storaged/stratis/filesystem.jsx:166
 #: pkg/storaged/lvm2/physical-volume.jsx:78
 msgid "Not enough free space"
-msgstr "Espace libre insuffisant."
+msgstr "Pas assez d’espace libre"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:95
 msgid "Not enough space"
-msgstr "Espace insuffisant."
+msgstr "Espace insuffisant"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:183
 msgid "Not enough space to grow"
@@ -5485,7 +5485,7 @@ msgstr "Pas prêt"
 msgid "Not registered"
 msgstr "Non inscrit"
 
-#: pkg/storaged/mdraid/mdraid.jsx:297 pkg/systemd/services.jsx:234
+#: pkg/storaged/mdraid/mdraid.jsx:304 pkg/systemd/services.jsx:234
 #: pkg/systemd/services.jsx:237 pkg/systemd/services.jsx:697
 #: pkg/systemd/service-details.jsx:473
 msgid "Not running"
@@ -5877,7 +5877,7 @@ msgstr "Suspendre"
 #: pkg/networkmanager/wireguard.jsx:161
 msgid "Peer #$0 has invalid endpoint port. Port must be a number."
 msgstr ""
-"Le port de point de terminaison du pair n°$1 est invalide. Le port doit être "
+"Le port de point de terminaison du pair n°$0 est invalide. Le port doit être "
 "un nombre."
 
 #: pkg/networkmanager/wireguard.jsx:157
@@ -5885,7 +5885,7 @@ msgid ""
 "Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. "
 "1.2.3.4:51820 or example.com:51820"
 msgstr ""
-"Le point de terminaison du pair n°$1 est invalide. Il doit être spécifié au "
+"Le point de terminaison du pair n°$0 est invalide. Il doit être spécifié au "
 "format hôte:port, ex. 1.2.3.4:51820 ou exemple.fr:51820"
 
 #: pkg/networkmanager/wireguard.jsx:269
@@ -5927,7 +5927,7 @@ msgstr "Supprimer définitivement le groupe $0 ?"
 #: pkg/storaged/stratis/pool.jsx:173 pkg/storaged/partitions/partition.jsx:54
 #: pkg/storaged/lvm2/volume-group.jsx:91
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:119
-#: pkg/storaged/mdraid/mdraid.jsx:123 pkg/storaged/btrfs/volume.jsx:77
+#: pkg/storaged/mdraid/mdraid.jsx:130 pkg/storaged/btrfs/volume.jsx:77
 msgid "Permanently delete $0?"
 msgstr "Supprimer définitivement $0 ?"
 
@@ -6163,11 +6163,11 @@ msgstr ""
 msgid "Purpose"
 msgstr "Objectif"
 
-#: pkg/storaged/mdraid/mdraid.jsx:255
+#: pkg/storaged/mdraid/mdraid.jsx:262
 msgid "RAID ($0)"
 msgstr "RAID ( $0 )"
 
-#: pkg/storaged/mdraid/mdraid.jsx:249
+#: pkg/storaged/mdraid/mdraid.jsx:256
 msgid "RAID 0"
 msgstr "RAID 0"
 
@@ -6175,7 +6175,7 @@ msgstr "RAID 0"
 msgid "RAID 0 (stripe)"
 msgstr "RAID 0 (Bande)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:250
+#: pkg/storaged/mdraid/mdraid.jsx:257
 msgid "RAID 1"
 msgstr "RAID 1"
 
@@ -6183,7 +6183,7 @@ msgstr "RAID 1"
 msgid "RAID 1 (mirror)"
 msgstr "RAID 1 (Miroir)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:254
+#: pkg/storaged/mdraid/mdraid.jsx:261
 msgid "RAID 10"
 msgstr "RAID 10"
 
@@ -6191,7 +6191,7 @@ msgstr "RAID 10"
 msgid "RAID 10 (stripe of mirrors)"
 msgstr "RAID 10 (Bande de miroirs)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:251
+#: pkg/storaged/mdraid/mdraid.jsx:258
 msgid "RAID 4"
 msgstr "RAID 4"
 
@@ -6199,7 +6199,7 @@ msgstr "RAID 4"
 msgid "RAID 4 (dedicated parity)"
 msgstr "RAID 4 (Parité dédiée)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:252
+#: pkg/storaged/mdraid/mdraid.jsx:259
 msgid "RAID 5"
 msgstr "RAID 5"
 
@@ -6207,7 +6207,7 @@ msgstr "RAID 5"
 msgid "RAID 5 (distributed parity)"
 msgstr "RAID 5 (Parité répartie)"
 
-#: pkg/storaged/mdraid/mdraid.jsx:253
+#: pkg/storaged/mdraid/mdraid.jsx:260
 msgid "RAID 6"
 msgstr "RAID 6"
 
@@ -6219,7 +6219,7 @@ msgstr "RAID 6 (Double parité répartie)"
 msgid "RAID chassis"
 msgstr "Châssis RAID"
 
-#: pkg/storaged/mdraid/create-dialog.jsx:51 pkg/storaged/mdraid/mdraid.jsx:296
+#: pkg/storaged/mdraid/create-dialog.jsx:51 pkg/storaged/mdraid/mdraid.jsx:303
 msgid "RAID level"
 msgstr "Niveau RAID"
 
@@ -6810,7 +6810,7 @@ msgstr ""
 msgid "Runner"
 msgstr "Exécuteur"
 
-#: pkg/storaged/mdraid/mdraid.jsx:297 pkg/systemd/services.jsx:232
+#: pkg/storaged/mdraid/mdraid.jsx:304 pkg/systemd/services.jsx:232
 #: pkg/systemd/services.jsx:236 pkg/systemd/services.jsx:696
 #: pkg/systemd/service-details.jsx:463
 msgid "Running"
@@ -7421,7 +7421,7 @@ msgstr "Stable"
 
 #: pkg/storaged/swap/swap.jsx:98 pkg/storaged/stratis/stopped-pool.jsx:161
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:150
-#: pkg/storaged/mdraid/mdraid.jsx:220 pkg/systemd/service-details.jsx:147
+#: pkg/storaged/mdraid/mdraid.jsx:227 pkg/systemd/service-details.jsx:147
 msgid "Start"
 msgstr "Démarrer"
 
@@ -7460,7 +7460,7 @@ msgstr "Démarrage du périphérique MDRAID $target"
 msgid "Starting swapspace $target"
 msgstr "Démarrage de swapspace $target"
 
-#: pkg/storaged/mdraid/mdraid.jsx:297 pkg/systemd/services-list.jsx:40
+#: pkg/storaged/mdraid/mdraid.jsx:304 pkg/systemd/services-list.jsx:40
 #: pkg/systemd/services-list.jsx:46 pkg/systemd/hwinfo.jsx:295
 msgid "State"
 msgstr "État"
@@ -7485,7 +7485,7 @@ msgstr "Persistant"
 
 #: pkg/storaged/swap/swap.jsx:95 pkg/storaged/legacy-vdo/legacy-vdo.jsx:62
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:149
-#: pkg/storaged/mdraid/mdraid.jsx:299 pkg/systemd/service-details.jsx:143
+#: pkg/storaged/mdraid/mdraid.jsx:306 pkg/systemd/service-details.jsx:143
 msgid "Stop"
 msgstr "Arrêter"
 
@@ -7822,7 +7822,7 @@ msgstr "Le paquet $0 sera installé pour créer des périphériques VDO."
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "L’adresse IP ou le nom d’hôte ne peut pas contenir d’espace."
 
-#: pkg/storaged/mdraid/mdraid.jsx:272
+#: pkg/storaged/mdraid/mdraid.jsx:279
 msgid "The MDRAID device is in a degraded state"
 msgstr "Le périphérique MDRAID est dans un état dégradé"
 
@@ -8203,7 +8203,7 @@ msgstr "Volume logique à allocation fine"
 msgid "Thinly provisioned LVM2 logical volumes"
 msgstr "Volumes logiques LVM2 à allocation fine et dynamique"
 
-#: pkg/storaged/mdraid/mdraid.jsx:284
+#: pkg/storaged/mdraid/mdraid.jsx:291
 msgid ""
 "This MDRAID device has no write-intent bitmap. Such a bitmap can reduce "
 "synchronization times significantly."
@@ -8664,7 +8664,7 @@ msgstr "UDP"
 #: pkg/storaged/stratis/stopped-pool.jsx:180 pkg/storaged/stratis/pool.jsx:540
 #: pkg/storaged/partitions/partition.jsx:228
 #: pkg/storaged/lvm2/volume-group.jsx:364
-#: pkg/storaged/lvm2/physical-volume.jsx:117 pkg/storaged/mdraid/mdraid.jsx:301
+#: pkg/storaged/lvm2/physical-volume.jsx:117 pkg/storaged/mdraid/mdraid.jsx:308
 #: pkg/storaged/btrfs/volume.jsx:205 pkg/storaged/btrfs/device.jsx:78
 #: pkg/storaged/btrfs/filesystem.jsx:62
 msgid "UUID"
@@ -9630,7 +9630,7 @@ msgstr "déboguer"
 #: pkg/storaged/block/format-dialog.jsx:208
 #: pkg/storaged/lvm2/volume-group.jsx:79 pkg/storaged/lvm2/volume-group.jsx:307
 #: pkg/storaged/lvm2/block-logical-volume.jsx:64
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80 pkg/storaged/mdraid/mdraid.jsx:112
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:80 pkg/storaged/mdraid/mdraid.jsx:119
 #: pkg/storaged/btrfs/volume.jsx:66 pkg/storaged/btrfs/subvolume.jsx:235
 msgid "delete"
 msgstr "supprimer"
@@ -10214,7 +10214,7 @@ msgstr "arrêter"
 msgid "stop boot on failure"
 msgstr "arrêter le démarrage en cas d'échec"
 
-#: pkg/storaged/stratis/stopped-pool.jsx:152 pkg/storaged/mdraid/mdraid.jsx:210
+#: pkg/storaged/stratis/stopped-pool.jsx:152 pkg/storaged/mdraid/mdraid.jsx:217
 msgid "stopped"
 msgstr "arrêté"
 

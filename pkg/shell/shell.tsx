@@ -41,21 +41,9 @@ import 'cockpit-dark-theme'; // once per page
 
 import '../lib/patternfly/patternfly-6-cockpit.scss';
 import "./shell.scss";
+import { SkipToContent } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
-
-const SkipLink = ({ focus_id, children }) => {
-    return (
-        <a className="screenreader-text skiplink desktop_v"
-           href={"#" + focus_id}
-           onClick={ev => {
-               document.getElementById(focus_id)?.focus();
-               ev.preventDefault();
-           }}>
-            {children}
-        </a>
-    );
-};
 
 const Shell = () => {
     const current_user = useLoggedInUser()?.name || "";
@@ -119,8 +107,8 @@ const Shell = () => {
                  } as React.CSSProperties
              }>
 
-            <SkipLink focus_id="content">{_("Skip to content")}</SkipLink>
-            <SkipLink focus_id="hosts-sel">{_("Skip main navigation")}</SkipLink>
+            <SkipToContent href="#content">{_("Skip to content")}</SkipToContent>
+            <SkipToContent href="#hosts-sel">{_("Skip main navigation")}</SkipToContent>
 
             <div id="sidebar-toggle" className="pf-v6-c-select pf-m-dark sidebar-toggle">
                 <SidebarToggle />

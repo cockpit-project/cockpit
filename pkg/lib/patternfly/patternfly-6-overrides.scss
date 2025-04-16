@@ -385,3 +385,16 @@ $phone: 767px;
 .pf-v6-c-skip-to-content {
   position: fixed;
 }
+
+// FIXME @Venefilyn: Due to a Patternfly bug when it comes to showing the
+// scrollbars of subnavs, we have to workaround it by just making it wrap
+// instead of scroll. (ugly but functional).
+// Issue found in PF 6.2.0
+// https://github.com/patternfly/patternfly-react/issues/11751
+.services-header .pf-m-subnav {
+  --pf-v6-c-nav--m-horizontal--m-subnav--BorderRadius: var(--pf-t--global--border--radius--200);
+
+  .pf-v6-c-nav__list {
+    flex-wrap: wrap;
+  }
+}

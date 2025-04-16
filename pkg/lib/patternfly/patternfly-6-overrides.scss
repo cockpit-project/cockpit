@@ -372,3 +372,29 @@ $phone: 767px;
   // the correct sizing (becomes 10px on compact table, 18px on normal table)
   padding-block-start: calc(var(--pf-v6-c-table--cell--PaddingBlockStart) + 0.125rem)
 }
+
+// NOTE @Venefilyn: Patternfly has a weird issue with modals and skip to content
+// button not being hidden as it should on rtl mode. Instead, it will make the
+// page extremely wide and cause modals to be very offset. Changing from
+// `absolute` to `fixed` makes sure that it all works as it should.
+//
+// Only applicable to Firefox, works fine in Chrome. Might also be fine outside
+// of Firefox Responsive Design Mode. Verified to be an issue in PF v6.2.0
+//
+// https://github.com/patternfly/patternfly/issues/7463
+.pf-v6-c-skip-to-content {
+  position: fixed;
+}
+
+// FIXME @Venefilyn: Due to a Patternfly bug when it comes to showing the
+// scrollbars of subnavs, we have to workaround it by just making it wrap
+// instead of scroll. (ugly but functional).
+// Issue found in PF 6.2.0
+// https://github.com/patternfly/patternfly-react/issues/11751
+.services-header .pf-m-subnav {
+  --pf-v6-c-nav--m-horizontal--m-subnav--BorderRadius: var(--pf-t--global--border--radius--200);
+
+  .pf-v6-c-nav__list {
+    flex-wrap: wrap;
+  }
+}

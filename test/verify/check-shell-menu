@@ -163,11 +163,11 @@ class TestMenu(testlib.MachineCase):
         b.wait_visible("#hosts-sel")
         self.assertEqual(b.eval_js("document.activeElement.tagName"), "BODY")
         # conceptually we want that, but we use CSS hacks (-999 offset and 1x1 size) to hide it
-        # b.wait_not_visible(".skiplink")
+        # b.wait_not_visible(".pf-v6-c-skip-to-content")
 
-        # press Tab once → "Skip to content" skiplink
+        # press Tab once → "Skip to content" pf-v6-c-skip-to-content
         b.key("Tab")
-        b.wait_js_cond("document.activeElement.classList.contains('skiplink')")
+        b.wait_js_cond("document.activeElement.classList.contains('pf-v6-c-button')")
         self.assertEqual(b.eval_js("document.activeElement.textContent"), "Skip to content")
         self.assertEqual(b.eval_js("document.activeElement.getAttribute('href')"), "#content")
         b.key("Enter")
@@ -180,7 +180,7 @@ class TestMenu(testlib.MachineCase):
         b.wait_visible("#hosts-sel")
         b.wait_text("#super-user-indicator", "Administrative access")
 
-        # press Tab twice → "Skip main navigation" skiplink
+        # press Tab twice → "Skip main navigation" pf-v6-c-skip-to-content
         b.key("Tab")
         self.assertEqual(b.eval_js("document.activeElement.textContent"), "Skip to content")
         b.key("Tab")

@@ -1107,6 +1107,7 @@ function factory() {
                             home: user.Home.v,
                             shell: user.Shell.v
                         };
+                        Object.freeze(the_user);
                         return the_user;
                     })
                     .finally(() => dbus.close());

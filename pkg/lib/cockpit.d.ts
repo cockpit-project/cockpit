@@ -335,7 +335,7 @@ declare module 'cockpit' {
         home: string;
         shell: string;
     };
-    export function user(): Promise<Readonly<UserInfo>>;
+    /** @deprecated */ export function user(): Promise<Readonly<UserInfo>>;
 
     /* === String helpers ======================== */
 

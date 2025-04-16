@@ -58,6 +58,14 @@ promise.then(user => { ... });
     </variablelist>
 
     <para>Returns a promise that completes once the user information is available.</para>
+    <warning>
+      <para>
+	<code>cockpit.user()</code> is soft-deprecated since Cockpit 336, if
+	your page does not need to maintain compatibility with older Cockpit
+	versions you can use<link linkend="cockpit-info">cockpit.info</link> to
+	obtain the user information.
+      </para>
+    </warning>
   </refsection>
 
   <refsection id="cockpit-permission">

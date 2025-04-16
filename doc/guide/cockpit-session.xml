@@ -58,6 +58,32 @@ promise.then(user => { ... });
     </variablelist>
 
     <para>Returns a promise that completes once the user information is available.</para>
+    <warning>
+	    <para>
+		    <code>cockpit.user()</code> is soft-deprecated since Cockpit 336, <link
+		    linkend="cockpit-init">cockpit.init()</link> can be used
+		    instead to obtain the user on initial page load.
+
+		    If your page needs to maintain compatibility with
+		    older Cockpit versions you can fallback to
+		    <code>cockpit.user()</code> like the example below:
+<programlisting>
+try {
+  await cockpit.init();
+} catch (exp) {
+  if (exp.problem === 'not-supported') {
+    const user = await cockpit.user();
+    cockpit.info.user = {
+      fullname: user.full_name,
+      group: user.groups[0],
+      uid: user.id,
+      ...user,
+    };
+  }
+}
+</programlisting>
+	    </para>
+    </warning>
   </refsection>
 
   <refsection id="cockpit-permission">

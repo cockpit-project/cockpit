@@ -45,6 +45,25 @@ import { SkipToContent } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
+interface SkipLinkProps {
+    focus_id: string;
+    children?: React.ReactNode | React.ReactNode[]
+}
+const SkipLink = ({ focus_id, children }: SkipLinkProps) => {
+    return (
+        <SkipToContent
+            href={`#${focus_id}`}
+            onClick={ev => {
+                const el = document.getElementById(focus_id);
+                el?.focus();
+                el?.scrollIntoView();
+                ev.preventDefault();
+            }}>
+            {children}
+        </SkipToContent>
+    );
+};
+
 const Shell = () => {
     const current_user = useLoggedInUser()?.name || "";
     const state = useInit(() => new ShellState());
@@ -107,8 +126,8 @@ const Shell = () => {
                  } as React.CSSProperties
              }>
 
-            <SkipToContent href="#content">{_("Skip to content")}</SkipToContent>
-            <SkipToContent href="#hosts-sel">{_("Skip main navigation")}</SkipToContent>
+            <SkipLink focus_id="content">{_("Skip to content")}</SkipLink>
+            <SkipLink focus_id="hosts-sel">{_("Skip main navigation")}</SkipLink>
 
             <div id="sidebar-toggle" className="pf-v6-c-select pf-m-dark sidebar-toggle">
                 <SidebarToggle />

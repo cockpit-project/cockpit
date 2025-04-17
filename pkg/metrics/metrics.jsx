@@ -31,7 +31,7 @@ import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import {
     Modal
 } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
-import { Page, PageGroup, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageGroup, PageSection, PageBreadcrumb } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Progress, ProgressVariant } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
@@ -1994,10 +1994,12 @@ export const Application = () => {
 
     return (
         <WithDialogs>
-            <Page
-            className='no-masthead-sidebar'
-            additionalGroupedContent={
-                <PageSection hasBodyWrapper={false} id="metrics-header-section" type='breadcrumb'>
+            <Page className='no-masthead-sidebar'>
+                <PageBreadcrumb
+                    id='metrics-header-section'
+                    hasBodyWrapper={false}
+                    stickyOnBreakpoint={{ default: "top" }}
+                >
                     <Flex>
                         <FlexItem>
                             <Breadcrumb>
@@ -2010,8 +2012,7 @@ export const Application = () => {
                                              firewalldRequest={setFirewalldRequest} />
                         </FlexItem>
                     </Flex>
-                </PageSection>
-            }>
+                </PageBreadcrumb>
                 { firewalldRequest &&
                 <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
                 <PageSection hasBodyWrapper={false}>

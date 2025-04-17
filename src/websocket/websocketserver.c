@@ -23,6 +23,7 @@
 #include "websocketprivate.h"
 
 #include <string.h>
+#include <fnmatch.h>
 
 enum {
   PROP_0,
@@ -195,7 +196,7 @@ respond_handshake_rfc6455 (WebSocketServer *self,
         }
       for (i = 0; self->allowed_origins[i] != NULL; i++)
         {
-          if (g_ascii_strcasecmp (origin, self->allowed_origins[i]) == 0)
+          if (fnmatch (self->allowed_origins[i], origin, FNM_CASEFOLD) == 0)
             break;
         }
       if (self->allowed_origins[i] == NULL)

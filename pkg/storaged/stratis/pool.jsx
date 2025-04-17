@@ -25,7 +25,8 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { CardHeader, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 
 import { VolumeIcon } from "../icons/gnome-icons.jsx";
 import { fmt_to_fragments } from "utils.jsx";
@@ -43,7 +44,7 @@ import {
 } from "../utils.js";
 
 import {
-    dialog_open, SelectSpaces, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes, Group,
+    dialog_open, SelectSpaces, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes, Group, Message,
     BlockingMessage, TeardownMessage,
     init_teardown_usage
 } from "../dialog.jsx";
@@ -53,8 +54,8 @@ import { is_valid_mount_point } from "../filesystem/utils.jsx";
 import { at_boot_input, update_at_boot_input, mount_options } from "../filesystem/mounting-dialog.jsx";
 
 import {
-    validate_pool_name, std_reply, with_keydesc, with_stored_passphrase,
-    confirm_tang_trust, get_unused_keydesc,
+    validate_pool_name, std_reply, with_stored_passphrase,
+    confirm_tang_trust,
     validate_fs_name, set_mount_options, destroy_filesystem
 } from "./utils.jsx";
 import { make_stratis_filesystem_page } from "./filesystem.jsx";
@@ -62,6 +63,167 @@ import { make_stratis_filesystem_page } from "./filesystem.jsx";
 const _ = cockpit.gettext;
 
 const fsys_min_size = 512 * 1024 * 1024;
+
+/* Abstractions over the r6 and r8 API revisions.
+ */
+
+function get_key_descriptions(pool) {
+    const result = [];
+
+    if (!pool.Encrypted)
+        return result;
+
+    if (client.stratis_interface_revision < 8) {
+        const val = pool.KeyDescription;
+        if (val[0] && val[1][0])
+            result.push({ slot: null, keydesc: val[1][1] });
+    } else {
+        let val = pool.KeyDescriptions;
+        if ("t" in val)
+            val = val.v; // XXX - change notifications drop the variant wrapping for some reason.
+        if (pool.MetadataVersion == 1) {
+            if (val[0] && val[1][0])
+                result.push({ slot: null, keydesc: val[1][1] });
+        } else if (pool.MetadataVersion == 2) {
+            for (const kd of val)
+                result.push({ slot: kd[0], keydesc: kd[1] });
+        }
+    }
+
+    return result;
+}
+
+function get_tang_urls(pool) {
+    const result = [];
+
+    if (!pool.Encrypted)
+        return result;
+
+    if (client.stratis_interface_revision < 8) {
+        const val = pool.ClevisInfo;
+        if (val[0] && val[1][0] && val[1][1][0] == "tang") {
+            const config = JSON.parse(val[1][1][1]);
+            result.push({ slot: null, url: config.url });
+        }
+    } else {
+        let val = pool.ClevisInfos;
+        if ("t" in val)
+            val = val.v; // XXX - change notifications drop the variant wrapping for some reason.
+        console.log("r8", val);
+        if (pool.MetadataVersion == 1) {
+            if (val[0] && val[1][0] && val[1][1][0] == "tang") {
+                const config = JSON.parse(val[1][1][1]);
+                result.push({ slot: null, url: config.url });
+            }
+        } else if (pool.MetadataVersion == 2) {
+            for (const ci of val) {
+                if (ci[1][0] == "tang") {
+                    const config = JSON.parse(ci[1][1]);
+                    result.push({ slot: ci[0], url: config.url });
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+function bind_keyring(pool, keydesc) {
+    if (client.stratis_interface_revision < 8)
+        return pool.BindKeyring(keydesc);
+    else
+        return pool.BindKeyring(keydesc, [false, 0]);
+}
+
+function rebind_keyring(pool, keydesc, slot) {
+    if (client.stratis_interface_revision < 8)
+        return pool.RebindKeyring(keydesc);
+    else
+        return pool.RebindKeyring(keydesc, [slot !== null, slot || 0]);
+}
+
+function unbind_keyring(pool, slot) {
+    if (client.stratis_interface_revision < 8)
+        return pool.UnbindKeyring();
+    else
+        return pool.UnbindKeyring([slot !== null, slot || 0]);
+}
+
+function bind_clevis(pool, pin, config) {
+    if (client.stratis_interface_revision < 8)
+        return pool.BindClevis(pin, config);
+    else
+        return pool.BindClevis(pin, config, [false, 0]);
+}
+
+function unbind_clevis(pool, slot) {
+    if (client.stratis_interface_revision < 8)
+        return pool.UnbindClevis();
+    else
+        return pool.UnbindClevis([slot !== null, slot || 0]);
+}
+
+/* Utilities for key descriptions and passphrases
+ */
+
+function get_new_keydesc(pool) {
+    const key_descs = get_key_descriptions(pool);
+
+    let desc;
+    for (let i = 0; i < 1000; i++) {
+        desc = pool.Name + (i > 0 ? "." + i.toFixed() : "");
+        if (!key_descs.find(kd => kd.keydesc == desc))
+            break;
+    }
+    return desc;
+}
+
+function PoolPassphrase(tag, pool, main) {
+    const key_descs = get_key_descriptions(pool);
+    const tang_urls = get_tang_urls(pool);
+
+    const can_use_pool_passphrase = key_descs.length > 0;
+    const need_pool_passphrase = tang_urls.length == 0;
+
+    if (can_use_pool_passphrase) {
+        return PassInput(tag, _("Pool passphrase"), {
+            validate: val => need_pool_passphrase && !val.length && _("Passphrase cannot be empty"),
+            explanation: (
+                need_pool_passphrase
+                    ? main + " " + _("Please provide an existing pool passphrase")
+                    : main + " " + (
+                        tang_urls.length == 1
+                            ? cockpit.format(_("If the keyserver at $0 is not reachable, you can provide an existing passphrase."), tang_urls[0].url)
+                            : _("If none of the keyservers is reachable, you can provide an existing passphrase."))),
+        });
+    } else if (tang_urls.length == 1) {
+        return Message(main + " " + cockpit.format(_("The keyserver at $0 must be reachable."), tang_urls[0].url));
+    } else {
+        return Message(main + " " + _("At least one keyserver must be reachable."));
+    }
+}
+
+async function with_pool_passphrase(pool, passphrase, func) {
+    const key_descs = get_key_descriptions(pool);
+
+    if (!passphrase || key_descs.length == 0)
+        return func();
+
+    let err;
+
+    for (const kd of key_descs) {
+        try {
+            return await with_stored_passphrase(client, kd.keydesc, passphrase, func);
+        } catch (e) {
+            err = e;
+        }
+    }
+
+    throw err;
+}
+
+/* Operations
+ */
 
 function destroy_pool(pool) {
     return for_each_async(client.stratis_pool_filesystems[pool.path], fsys => destroy_filesystem(fsys))
@@ -208,63 +370,53 @@ function rename_pool(pool) {
 
 function add_disks(pool) {
     const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
+    const is_v1_pool = client.stratis_interface_revision < 8 || pool.MetadataVersion == 1;
 
-    with_keydesc(client, pool, (keydesc, keydesc_set) => {
-        const ask_passphrase = keydesc && !keydesc_set;
+    dialog_open({
+        Title: _("Add block devices"),
+        Fields: [
+            SelectOne("tier", _("Tier"), {
+                choices: [
+                    { value: "data", title: _("Data") },
+                    {
+                        value: "cache",
+                        title: _("Cache"),
+                    }
+                ]
+            }),
+            SelectSpaces("disks", _("Block devices"), {
+                empty_warning: _("No disks are available."),
+                validate: function(disks) {
+                    if (disks.length === 0)
+                        return _("At least one disk is needed.");
+                },
+                spaces: get_available_spaces(client)
+            }),
+            ...(is_v1_pool
+                ? [PoolPassphrase("pool_passphrase", pool, _("Adding blockdevices requires unlocking the pool."))]
+                : []),
+        ],
+        Action: {
+            Title: _("Add"),
+            action: function(vals) {
+                return prepare_available_spaces(client, vals.disks)
+                        .then(paths => {
+                            const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
 
-        dialog_open({
-            Title: _("Add block devices"),
-            Fields: [
-                SelectOne("tier", _("Tier"),
-                          {
-                              choices: [
-                                  { value: "data", title: _("Data") },
-                                  {
-                                      value: "cache",
-                                      title: _("Cache"),
-                                  }
-                              ]
-                          }),
-                PassInput("passphrase", _("Passphrase"),
-                          {
-                              visible: () => ask_passphrase,
-                              validate: val => !val.length && _("Passphrase cannot be empty"),
-                          }),
-                SelectSpaces("disks", _("Block devices"),
-                             {
-                                 empty_warning: _("No disks are available."),
-                                 validate: function(disks) {
-                                     if (disks.length === 0)
-                                         return _("At least one disk is needed.");
-                                 },
-                                 spaces: get_available_spaces(client)
-                             })
-            ],
-            Action: {
-                Title: _("Add"),
-                action: function(vals) {
-                    return prepare_available_spaces(client, vals.disks)
-                            .then(paths => {
-                                const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
-
-                                function add() {
-                                    if (vals.tier == "data") {
-                                        return pool.AddDataDevs(devs).then(std_reply);
-                                    } else if (vals.tier == "cache") {
-                                        const has_cache = blockdevs.some(bd => bd.Tier == 1);
-                                        const method = has_cache ? "AddCacheDevs" : "InitCache";
-                                        return pool[method](devs).then(std_reply);
-                                    }
+                            function add() {
+                                if (vals.tier == "data") {
+                                    return pool.AddDataDevs(devs).then(std_reply);
+                                } else if (vals.tier == "cache") {
+                                    const has_cache = blockdevs.some(bd => bd.Tier == 1);
+                                    const method = has_cache ? "AddCacheDevs" : "InitCache";
+                                    return pool[method](devs).then(std_reply);
                                 }
+                            }
 
-                                if (ask_passphrase) {
-                                    return with_stored_passphrase(client, keydesc, vals.passphrase, add);
-                                } else
-                                    return add();
-                            });
-                }
+                            return with_pool_passphrase(pool, vals.pool_passphrase, add);
+                        });
             }
-        });
+        }
     });
 }
 
@@ -384,13 +536,9 @@ const StratisFilesystemsCard = ({ card, pool, degraded_ops, can_grow, stats }) =
 };
 
 const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, stats }) => {
-    const key_desc = (pool.Encrypted &&
-                      pool.KeyDescription[0] &&
-                      pool.KeyDescription[1][1]);
-    const can_tang = (pool.Encrypted &&
-                      pool.ClevisInfo[0] && // pool has consistent clevis config
-                      (!pool.ClevisInfo[1][0] || pool.ClevisInfo[1][1][0] == "tang")); // not bound or bound to "tang"
-    const tang_url = can_tang && pool.ClevisInfo[1][0] ? JSON.parse(pool.ClevisInfo[1][1][1]).url : null;
+    const key_descs = get_key_descriptions(pool);
+    const tang_urls = get_tang_urls(pool);
+    const is_v1_pool = client.stratis_interface_revision < 8 || pool.MetadataVersion == 1;
 
     function add_passphrase() {
         dialog_open({
@@ -399,61 +547,47 @@ const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, stats }) => {
                 PassInput("passphrase", _("Passphrase"),
                           { validate: val => !val.length && _("Passphrase cannot be empty") }),
                 PassInput("passphrase2", _("Confirm"),
-                          { validate: (val, vals) => vals.passphrase.length && vals.passphrase != val && _("Passphrases do not match") })
+                          { validate: (val, vals) => vals.passphrase.length && vals.passphrase != val && _("Passphrases do not match") }),
+                PoolPassphrase("pool_passphrase", pool, _("Adding a passphrase requires unlocking the pool.")),
             ],
             Action: {
                 Title: _("Save"),
                 action: vals => {
-                    return get_unused_keydesc(client, pool.Name)
-                            .then(keydesc => {
-                                return with_stored_passphrase(client, keydesc, vals.passphrase,
-                                                              () => pool.BindKeyring(keydesc))
-                                        .then(std_reply);
-                            });
+                    const kd = get_new_keydesc(pool);
+                    return with_pool_passphrase(pool, vals.pool_passphrase,
+                                                () => with_stored_passphrase(client, kd, vals.passphrase,
+                                                                             () => bind_keyring(pool, kd).then(std_reply)));
                 }
             }
         });
     }
 
-    function change_passphrase() {
-        with_keydesc(client, pool, (keydesc, keydesc_set) => {
-            dialog_open({
-                Title: _("Change passphrase"),
-                Fields: [
-                    PassInput("old_passphrase", _("Old passphrase"),
-                              {
-                                  visible: vals => !keydesc_set,
-                                  validate: val => !val.length && _("Passphrase cannot be empty")
-                              }),
-                    PassInput("new_passphrase", _("New passphrase"),
-                              { validate: val => !val.length && _("Passphrase cannot be empty") }),
-                    PassInput("new_passphrase2", _("Confirm"),
-                              { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match") })
-                ],
-                Action: {
-                    Title: _("Save"),
-                    action: vals => {
-                        function rebind() {
-                            return get_unused_keydesc(client, pool.Name)
-                                    .then(new_keydesc => {
-                                        return with_stored_passphrase(client, new_keydesc, vals.new_passphrase,
-                                                                      () => pool.RebindKeyring(new_keydesc))
-                                                .then(std_reply);
-                                    });
-                        }
-
-                        if (vals.old_passphrase) {
-                            return with_stored_passphrase(client, keydesc, vals.old_passphrase, rebind);
-                        } else {
-                            return rebind();
-                        }
-                    }
+    function change_passphrase(info) {
+        dialog_open({
+            Title: _("Change passphrase"),
+            Fields: [
+                PassInput("old_passphrase", _("Old passphrase"),
+                          {
+                              validate: val => !val.length && _("Passphrase cannot be empty")
+                          }),
+                PassInput("new_passphrase", _("New passphrase"),
+                          { validate: val => !val.length && _("Passphrase cannot be empty") }),
+                PassInput("new_passphrase2", _("Confirm"),
+                          { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match") })
+            ],
+            Action: {
+                Title: _("Save"),
+                action: vals => {
+                    const new_keydesc = get_new_keydesc(pool);
+                    return with_stored_passphrase(client, info.keydesc, vals.old_passphrase,
+                                                  () => with_stored_passphrase(client, new_keydesc, vals.new_passphrase,
+                                                                               () => rebind_keyring(pool, new_keydesc, info.slot).then(std_reply)));
                 }
-            });
+            }
         });
     }
 
-    function remove_passphrase() {
+    function remove_passphrase(info) {
         dialog_open({
             Title: _("Remove passphrase?"),
             Body: <div>
@@ -463,70 +597,127 @@ const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, stats }) => {
                 DangerButton: true,
                 Title: _("Remove"),
                 action: function (vals) {
-                    return pool.UnbindKeyring().then(std_reply);
+                    return unbind_keyring(pool, info.slot).then(std_reply);
                 }
             }
         });
     }
 
     function add_tang() {
-        return with_keydesc(client, pool, (keydesc, keydesc_set) => {
-            dialog_open({
-                Title: _("Add Tang keyserver"),
-                Fields: [
-                    TextInput("tang_url", _("Keyserver address"),
-                              {
-                                  validate: validate_url
-                              }),
-                    PassInput("passphrase", _("Pool passphrase"),
-                              {
-                                  visible: () => !keydesc_set,
-                                  validate: val => !val.length && _("Passphrase cannot be empty"),
-                                  explanation: _("Adding a keyserver requires unlocking the pool. Please provide the existing pool passphrase.")
-                              })
-                ],
-                Action: {
-                    Title: _("Save"),
-                    action: function (vals, progress) {
-                        return get_tang_adv(vals.tang_url)
-                                .then(adv => {
-                                    function bind() {
-                                        return pool.BindClevis("tang", JSON.stringify({ url: vals.tang_url, adv }))
-                                                .then(std_reply);
-                                    }
-                                    confirm_tang_trust(vals.tang_url, adv,
-                                                       () => {
-                                                           if (vals.passphrase)
-                                                               return with_stored_passphrase(client, keydesc,
-                                                                                             vals.passphrase, bind);
-                                                           else
-                                                               return bind();
-                                                       });
-                                });
-                    }
+        dialog_open({
+            Title: _("Add Tang keyserver"),
+            Fields: [
+                TextInput("tang_url", _("Keyserver address"),
+                          {
+                              validate: validate_url,
+                              value: "http://192.168.124.1:80",
+                          }),
+                PoolPassphrase("pool_passphrase", pool, _("Adding a keyserver requires unlocking the pool."))
+            ],
+            Action: {
+                Title: _("Save"),
+                action: function (vals, progress) {
+                    return get_tang_adv(vals.tang_url)
+                            .then(adv => {
+                                function bind() {
+                                    console.log("BIND");
+                                    return bind_clevis(pool, "tang", JSON.stringify({ url: vals.tang_url, adv }))
+                                            .then(std_reply);
+                                }
+                                confirm_tang_trust(vals.tang_url, adv,
+                                                   () => with_pool_passphrase(pool, vals.pool_passphrase, bind));
+                            });
                 }
-            });
+            }
         });
     }
 
-    function remove_tang() {
+    function remove_tang(info) {
         dialog_open({
             Title: _("Remove Tang keyserver?"),
             Body: <div>
-                <p>{ fmt_to_fragments(_("Remove $0?"), <b>{tang_url}</b>) }</p>
+                <p>{ fmt_to_fragments(_("Remove $0?"), <b>{info.url}</b>) }</p>
                 <p className="slot-warning">{ fmt_to_fragments(_("Keyserver removal may prevent unlocking $0."), <b>{pool.Name}</b>) }</p>
             </div>,
             Action: {
                 DangerButton: true,
                 Title: _("Remove"),
                 action: function (vals) {
-                    return pool.UnbindClevis().then(std_reply);
+                    return unbind_clevis(pool, info.slot).then(std_reply);
                 }
             }
         });
     }
 
     const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
+
+    let remove_passphrase_excuse;
+    let remove_tang_excuse;
+    let add_passphrase_excuse;
+    let add_tang_excuse;
+
+    if (pool.Encrypted) {
+        if (key_descs.length + tang_urls.length <= 1) {
+            remove_passphrase_excuse = _("This passphrase is the only way to unlock the pool and can not be removed.");
+            remove_tang_excuse = _("This keyserver is the only way to unlock the pool and can not be removed.");
+        }
+
+        if (is_v1_pool) {
+            if (key_descs.length >= 1) {
+                add_passphrase_excuse = _("This pool uses the V1 metadata format and can only have a single passphrase.");
+            }
+            if (tang_urls.length >= 1) {
+                add_tang_excuse = _("This pool uses the V1 metadata format and can only have a single keyserver.");
+            }
+        } else {
+            if (key_descs.length + tang_urls.length >= 15) {
+                add_passphrase_excuse = add_tang_excuse = _("No more space for passphrases or keyservers.");
+            }
+        }
+    }
+
+    function info_cmp(a, b) {
+        return a.slot - b.slot;
+    }
+
+    const KeyDescSlot = ({ info }) => (
+        <Split hasGutter>
+            { info.slot !== null &&
+                <SplitItem>
+                    {cockpit.format(_("Passphrase in slot $0"), info.slot)}
+                </SplitItem>
+            }
+            <SplitItem>
+                <StorageLink onClick={() => change_passphrase(info)}>
+                    {_("Change")}
+                </StorageLink>
+            </SplitItem>
+            <SplitItem>
+                <StorageLink
+                    onClick={() => remove_passphrase(info)}
+                    excuse={remove_passphrase_excuse}
+                >
+                    {_("Remove")}
+                </StorageLink>
+            </SplitItem>
+        </Split>
+    );
+
+    const TangUrlSlot = ({ info }) => (
+        <Split hasGutter>
+            <SplitItem>
+                {info.url}
+            </SplitItem>
+            <SplitItem>
+                <StorageLink
+                    onClick={() => remove_tang(info)}
+                    excuse={remove_tang_excuse}
+                >
+                    {_("Remove")}
+                </StorageLink>
+            </SplitItem>
+        </Split>
+    );
 
     return (
         <StorageCard card={card}>
@@ -559,40 +750,38 @@ const StratisPoolCard = ({ card, pool, degraded_ops, can_grow, stats }) => {
                     </StorageDescription>
                     }
                     { pool.Encrypted &&
-                    <StorageDescription title={_("Passphrase")}>
-                        <Flex>
-                            { !key_desc
-                                ? <FlexItem><StorageLink onClick={add_passphrase}>{_("Add passphrase")}</StorageLink></FlexItem>
-                                : <>
-                                    <FlexItem><StorageLink onClick={change_passphrase}>{_("Change")}</StorageLink></FlexItem>
-                                    <FlexItem>
-                                        <StorageLink onClick={remove_passphrase}
-                                                       excuse={!tang_url ? _("This passphrase is the only way to unlock the pool and can not be removed.") : null}>
-                                            {_("Remove")}
+                        <>
+                            <StorageDescription title={_("Passphrases")}>
+                                <Stack>
+                                    {key_descs.sort(info_cmp).map(kd => <StackItem key={kd.slot}>
+                                        <KeyDescSlot info={kd} />
+                                    </StackItem>)}
+                                    <StackItem>
+                                        <StorageLink
+                                            onClick={add_passphrase}
+                                            excuse={add_passphrase_excuse}
+                                        >
+                                            {_("Add passphrase")}
                                         </StorageLink>
-                                    </FlexItem>
-                                </>
-                            }
-                        </Flex>
-                    </StorageDescription>
-                    }
-                    { can_tang &&
-                    <StorageDescription title={_("Keyserver")}>
-                        <Flex>
-                            { tang_url == null
-                                ? <FlexItem><StorageLink onClick={add_tang}>{_("Add keyserver")}</StorageLink></FlexItem>
-                                : <>
-                                    <FlexItem>{ tang_url }</FlexItem>
-                                    <FlexItem>
-                                        <StorageLink onClick={remove_tang}
-                                                       excuse={!key_desc ? _("This keyserver is the only way to unlock the pool and can not be removed.") : null}>
-                                            {_("Remove")}
+                                    </StackItem>
+                                </Stack>
+                            </StorageDescription>
+                            <StorageDescription title={_("Keyservers")}>
+                                <Stack>
+                                    {tang_urls.sort(info_cmp).map(tu => <StackItem key={tu.slot}>
+                                        <TangUrlSlot info={tu} />
+                                    </StackItem>)}
+                                    <StackItem>
+                                        <StorageLink
+                                            onClick={add_tang}
+                                            excuse={add_tang_excuse}
+                                        >
+                                            {_("Add keyserver")}
                                         </StorageLink>
-                                    </FlexItem>
-                                </>
-                            }
-                        </Flex>
-                    </StorageDescription>
+                                    </StackItem>
+                                </Stack>
+                            </StorageDescription>
+                        </>
                     }
                 </DescriptionList>
             </CardBody>

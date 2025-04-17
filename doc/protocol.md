@@ -1070,6 +1070,14 @@ The following options can be specified in the "open" control message:
    you don't set this field, the actual tag will not be checked.  To
    express that you expect the file to not exist, use "-" as the tag.
 
+* "attrs": a JSON object containing optional file attributes to set:
+  - `user`: a string, or an integer, the uid of the file owner (`st_uid`).
+    If set `group` also has to be set.
+  - `group`: a string, or an integer, the gid of the file group (`st_gid`)
+    If set `user` also has to be set.
+  - `mode`:  an integer, usually expressed in octal, but in json it is the
+    equivalent value in decimal.
+
 You should write the new content to the channel as one or more
 messages.  To indicate the end of the content, send a "done" message.
 
@@ -1091,9 +1099,9 @@ content will be replaced with a "rename" syscall when the channel is
 closed without problem code.  If the channel is closed with a problem
 code (by either client or server), the file will be left untouched.
 
-If `tag` is given, file owner and mode are preserved (copied from the
-original file). Other attributes (like ACLs or locally modified SELinux
-context) are never copied.
+If `tag` is given and no equivalent `attrs`, file owner, mode and SELinux
+context are preserved (copied from the original file). Other attributes (like
+ACLs) are never copied.
 
 In addition to the usual "problem" field, the "close" control message
 sent by the server might have the following additional fields:

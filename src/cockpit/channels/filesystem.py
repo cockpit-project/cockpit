@@ -58,11 +58,11 @@ def my_umask() -> int:
     return (match and int(match.group(1), 8)) or 0o077
 
 
-def tag_from_stat(buf) -> str:
+def tag_from_stat(buf: os.stat_result) -> str:
     return f'1:{buf.st_ino}-{buf.st_mtime}-{buf.st_mode:o}-{buf.st_uid}-{buf.st_gid}'
 
 
-def tag_from_path(path) -> 'str | None':
+def tag_from_path(path: 'int | str | Path') -> 'str | None':
     try:
         return tag_from_stat(os.stat(path))
     except FileNotFoundError:
@@ -71,7 +71,7 @@ def tag_from_path(path) -> 'str | None':
         return None
 
 
-def tag_from_fd(fd) -> 'str | None':
+def tag_from_fd(fd: int) -> 'str | None':
     try:
         return tag_from_stat(os.fstat(fd))
     except OSError:
@@ -83,7 +83,7 @@ def tag_from_fd(fd) -> 'str | None':
 class FsListChannel(Channel):
     payload = 'fslist1'
 
-    def send_entry(self, event, entry):
+    def send_entry(self, event: str, entry: 'os.DirEntry[str]') -> None:
         if entry.is_symlink():
             mode = 'link'
         elif entry.is_file():
@@ -95,8 +95,8 @@ class FsListChannel(Channel):
 
         self.send_json(event=event, path=entry.name, type=mode)
 
-    def do_open(self, options):
-        path = options.get('path')
+    def do_open(self, options: 'JsonObject') -> None:
+        path = get_str(options, 'path')
         watch = options.get('watch', True)
 
         if watch:

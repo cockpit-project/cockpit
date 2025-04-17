@@ -1,10 +1,43 @@
 /* Login page is standalone, all related CSS is here */
 
 @font-face {
+  font-family: "Red Hat Text";
+  font-style: normal;
+  font-weight: 400 500;
+  src: url("fonts/RedHatText/RedHatTextVF.woff2") format("woff2-variations");
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "Red Hat Text";
+  font-style: italic;
+  font-weight: 400 500;
+  src: url("fonts/RedHatText/RedHatTextVF-Italic.woff2") format("woff2-variations");
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "Red Hat Display";
+  font-style: normal;
+  font-weight: 400 700;
+  src: url("fonts/RedHatDisplay/RedHatDisplayVF.woff2") format("woff2-variations");
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "Red Hat Display";
+  font-style: italic;
+  font-weight: 400 700;
+  src: url("fonts/RedHatDisplay/RedHatDisplayVF-Italic.woff2") format("woff2-variations");
+  font-display: fallback;
+}
+
+@font-face {
   font-family: RedHatText;
   font-style: normal;
   font-weight: 400;
   src: url(fonts/RedHatText-Regular.woff2) format("woff2");
+  font-display: fallback;
 }
 
 @font-face {
@@ -12,12 +45,12 @@
   font-style: normal;
   font-weight: 700;
   src: url(fonts/RedHatText-Medium.woff2) format("woff2");
+  font-display: fallback;
 }
 
 :root {
-  --color-background: #fff;
-  --color-body-background: #eee;
-  --color-details-background: #ededed;
+  --color-background: #fff; // pf-t--global--background--color--100
+  --color-body-background: #f2f2f2; // pf-t--global--background--color--200
 
   --color-text: #151515;
   --color-text-light: #999;
@@ -86,9 +119,8 @@
 }
 
 .pf-v6-theme-dark {
-  --color-background: #26292d;
-  --color-body-background: #26292d;
-  --color-details-background: #151515;
+  --color-background: #292929; // pf-t--global--dark--background--color--200
+  --color-body-background: #151515; // pf-t--global--dark--background--color--100
 
   --color-text: #f0f0f0;
   --color-text-light: #999;
@@ -130,12 +162,11 @@
 
 html {
   block-size: 100vh;
-  font-size: 87.5%;
 }
 
 body {
   margin: 0;
-  font-family: RedHatText, Helvetica, Arial, sans-serif;
+  font-family: "Red Hat Text", RedHatText, Helvetica, Arial, sans-serif;
   background-color: var(--color-body-background);
   color: var(--color-text);
   line-height: 1.5;
@@ -168,7 +199,7 @@ pre {
 
 .pf-v6-c-button,
 label {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .pf-v6-c-button,
@@ -428,7 +459,7 @@ label.checkbox {
   .pf-v6-c-alert__icon {
     grid-column: icon;
   }
-  
+
   .pf-v6-c-alert__title,
   .pf-v6-c-alert__description {
     grid-column: content;
@@ -447,11 +478,18 @@ label.checkbox {
   }
 
   .pf-v6-c-alert__title {
-    font-weight: 700;
+    font-weight: 500;
   }
 
   p {
     margin: 0;
+  }
+
+  &.pf-m-plain {
+    border: none;
+    background: transparent;
+    padding-block: 0;
+    padding-inline: 0;
   }
 
   &.pf-m-inline {
@@ -517,7 +555,7 @@ html body.login-pf {
 }
 
 .login-pf .container .control-label {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .login-pf .container .help-block {
@@ -618,12 +656,12 @@ html:not(.pf-v6-theme-dark) #login-wait-validating .spinner {
   vertical-align: middle;
   margin-inline-end: var(--pf-t--global--spacer--xs);
   transition: all 300ms;
-  
+
   [data-state="true"] &,
   details[open] > summary > & {
     transform: rotate(90deg);
   }
-  
+
   path {
     fill: var(--color-text);
   }
@@ -642,7 +680,7 @@ html:not(.pf-v6-theme-dark) #login-wait-validating .spinner {
     block-size: 1rem;
     inline-size: auto;
   }
-  
+
   /* Only show clear icon when the field has text */
   .form-control:placeholder-shown + & {
     display: none;
@@ -747,7 +785,7 @@ details > summary:hover {
 
 #brand strong,
 #brand b {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .login-pf #brand.text-brand {

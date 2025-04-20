@@ -576,17 +576,22 @@ class TestConnection(testlib.MachineCase):
     @testlib.nondestructive
     def testConfigOrigins(self):
         m = self.machine
-        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090")
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nOrigins = http://origin-one:9090 http://localhost:9090 http://*.origin-two:9090")
         m.start_cockpit()
         headers = {
             'Connection': 'Upgrade',
             'Upgrade': 'websocket',
             'Host': 'localhost:9090',
-            'Origin': 'http://other-origin:9090',
+            'Origin': 'http://origin-one:9090',
             'Sec-Websocket-Key': '3sc2c9IzwRUc3BlSIYwtSA==',
             'Sec-Websocket-Version': 13
         }
         output = m.curl('-f', '-N', 'http://localhost:9090/cockpit/socket', headers=headers)
+        self.assertIn('"no-session"', output)
+
+        # Test wildcard functionaity of Origin Matching
+        headers['Origin'] = "http://wildcard.origin-two:9090"
+        output = m.curl('-f', '-N', 'http://localhost:9090/socket', headers=headers)
         self.assertIn('"no-session"', output)
 
         # The socket should also answer at /socket

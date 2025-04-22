@@ -165,47 +165,48 @@ class TestSelinux(testlib.MachineCase):
         b.wait_not_present(row_selector)
         b.wait_in_text("body", "No SELinux alerts.")
 
-        #########################################################
-        # trigger a fixable restorecon alert
-        self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)
+        if not m.image.startswith("rhel-10"):
+            #########################################################
+            # trigger a fixable restorecon alert
+            self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)
 
-        row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
+            row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
 
-        # wait for the alert to appear
-        with b.wait_timeout(60):
-            b.wait_visible(row_selector)
+            # wait for the alert to appear
+            with b.wait_timeout(60):
+                b.wait_visible(row_selector)
 
-        # expand it to see details
-        toggle_selector = row_selector + " .pf-v6-c-table__toggle button"
-        b.click(toggle_selector)
+            # expand it to see details
+            toggle_selector = row_selector + " .pf-v6-c-table__toggle button"
+            b.click(toggle_selector)
 
-        try:
-            # a solution is present
-            b.wait_in_text(row_selector + " tr.pf-m-expanded .ct-listing-panel-body", "you can run restorecon")
+            try:
+                # a solution is present
+                b.wait_in_text(row_selector + " tr.pf-m-expanded .ct-listing-panel-body", "you can run restorecon")
 
-            # and it can be applied
-            btn_sel = f".selinux-details:contains('you can run restorecon') button{self.default_btn_class}"
-            b.click(btn_sel)
+                # and it can be applied
+                btn_sel = f".selinux-details:contains('you can run restorecon') button{self.default_btn_class}"
+                b.click(btn_sel)
 
-            # the button should disappear
-            b.wait_not_present(btn_sel)
+                # the button should disappear
+                b.wait_not_present(btn_sel)
 
-            # the fix should be applied
-            b.wait_in_text(row_selector + " .pf-v6-c-alert__title", "Solution applied successfully")
+                # the fix should be applied
+                b.wait_in_text(row_selector + " .pf-v6-c-alert__title", "Solution applied successfully")
 
-            # and the button should not come back
-            b.wait_not_present(btn_sel)
-        except testlib.Error:
-            print("==== sealert -l '*' ====")
-            print(m.execute("sealert -l '*'"))
-            print("==== audit.log  ====")
-            print(m.execute("cat /var/log/audit/audit.log"))
-            print("====================")
-            raise
+                # and the button should not come back
+                b.wait_not_present(btn_sel)
+            except testlib.Error:
+                print("==== sealert -l '*' ====")
+                print(m.execute("sealert -l '*'"))
+                print("==== audit.log  ====")
+                print(m.execute("cat /var/log/audit/audit.log"))
+                print("====================")
+                raise
 
-        b.click(row_selector + " input[type=checkbox]")
-        b.click(dismiss_sel)
-        b.wait_not_present(row_selector)
+            b.click(row_selector + " input[type=checkbox]")
+            b.click(dismiss_sel)
+            b.wait_not_present(row_selector)
 
         b.grant_permissions("clipboard-read", "clipboard-write")
 

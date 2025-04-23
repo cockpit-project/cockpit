@@ -123,3 +123,21 @@
 output {
   direction: ltr;
 }
+
+/* Adjust the vertical alignment in the expandable card */
+.card-groups {
+  .ct-card-expandable-header {
+    /* Align everything center vertically */
+    align-items: center;
+  }
+
+  .pf-v6-c-card__header-toggle {
+    /* Use the default alignment, so it'd be center-aligned (set above) */
+    align-self: unset;
+  }
+
+  .pf-v6-c-content--h2 {
+    /* Heading inside of the card brings in extra margin, which causes an offset, so we should remove it */
+    margin: 0;
+  }
+}

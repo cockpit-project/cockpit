@@ -236,9 +236,11 @@ load_conf_d_files (void)
       if (!g_str_has_suffix (entry->d_name, ".conf"))
         continue;
 
-      snprintf (filepath, sizeof (filepath), "%s/%s", conf_d_dir, entry->d_name);
-      if (stat (filepath, &st) == 0 && S_ISREG (st.st_mode))
-        load_key_file (filepath);
+      int len = snprintf(filepath, sizeof(filepath), "%s/%s", conf_d_dir, entry->d_name);
+      if (len < 0 || (size_t)len >= sizeof(filepath))
+        continue;
+      if (stat(filepath, &st) == 0 && S_ISREG (st.st_mode))
+        load_key_file(filepath);
     }
 
   closedir (dir);

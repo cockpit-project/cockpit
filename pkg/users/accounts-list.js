@@ -304,7 +304,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
     );
 
     return (
-        <Card className="ct-card" isExpanded={isExpanded}>
+        <Card className="ct-card card-groups" isExpanded={isExpanded}>
             <CardHeader actions={{ actions: tableToolbar, hasNoOffset: true }}
                 className="ct-card-expandable-header"
                 onExpand={() => setIsExpanded(!isExpanded)}

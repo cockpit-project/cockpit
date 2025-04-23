@@ -31,6 +31,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 /* #define DEBUG 1 */
 #if DEBUG
@@ -210,6 +212,36 @@ load_key_file (const char *file_path)
     cockpit_conf_cleanup ();
 
   return ret;
+}
+
+/* Logic to load all additional .conf files from cockpit.conf.d directory */
+static void
+load_conf_d_files (void)
+{
+  const char *conf_d_dir = "/etc/cockpit/cockpit.conf.d";
+  DIR *dir;
+  struct dirent *entry;
+  struct stat st;
+  char filepath[PATH_MAX];
+
+  dir = opendir (conf_d_dir);
+  if (!dir)
+    return;
+
+  while ((entry = readdir (dir)) != NULL)
+    {
+      if (entry->d_type != DT_REG && entry->d_type != DT_UNKNOWN)
+        continue;
+
+      if (!g_str_has_suffix (entry->d_name, ".conf"))
+        continue;
+
+      snprintf (filepath, sizeof (filepath), "%s/%s", conf_d_dir, entry->d_name);
+      if (stat (filepath, &st) == 0 && S_ISREG (st.st_mode))
+        load_key_file (filepath);
+    }
+
+  closedir (dir);
 }
 
 static Entry*

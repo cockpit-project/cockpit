@@ -309,13 +309,13 @@ class TestStorageLvm2(storagelib.StorageCase):
         # Create a volume group out of disk1
         self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown('Create LVM2 volume group'),
                                expect=lambda: self.dialog_is_present('disks', disk1) and
-                               self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
+                               self.dialog_is_present('disks', "unpartitioned space on Linux"),
                                values={"disks": {disk1: True}})
 
         self.click_card_row("Storage", name="vgroup0")
 
         # Check the we are really using a partition on disk1 now
-        b.wait_in_text(self.card_row_col("LVM2 volume group", 1, 2), "Partition - Linux scsi_debug")
+        b.wait_in_text(self.card_row_col("LVM2 volume group", 1, 2), "Partition - Linux")
 
         # Add the unused space of disk2
         self.dialog_with_retry(trigger=lambda: b.click(self.card_button("LVM2 volume group",

@@ -46,7 +46,7 @@ class TestStorageBasic(storagelib.StorageCase):
         self.click_card_row("Storage", name=disk)
         b.wait_visible(self.card("Solid State Drive"))
 
-        b.wait_text(self.card_desc("Solid State Drive", "Model"), "scsi_debug")
+        b.wait_text(self.card_desc("Solid State Drive", "Vendor"), "Linux")
         b.wait_in_text(self.card_desc("Solid State Drive", "Capacity"), "50 MiB")
 
         self.assertEqual(self.inode(b.text(self.card_desc("Solid State Drive", "Device file"))), self.inode(disk))

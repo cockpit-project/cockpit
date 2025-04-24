@@ -129,6 +129,9 @@ class TestApps(packagelib.PackageCase):
         b.wait_visible("#list-page")
         b.wait_not_present("#app-page")
 
+        if urlroot == "":
+            b.assert_pixels("#list-page", "list-page")
+
         b.click(".app-list .pf-v6-c-data-list__item-row:contains('app-1') button:contains('Install')")
         b.wait_visible(".app-list .pf-v6-c-data-list__item-row:contains('app-1') button:contains('Remove')")
         b.wait_visible(f".app-list .pf-v6-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")

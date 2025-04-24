@@ -165,7 +165,7 @@ class TestSelinux(testlib.MachineCase):
         b.wait_not_present(row_selector)
         b.wait_in_text("body", "No SELinux alerts.")
 
-        if not m.image.startswith("rhel-10"):
+        if not m.image.startswith(("rhel-10", "centos-10")):
             #########################################################
             # trigger a fixable restorecon alert
             self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)

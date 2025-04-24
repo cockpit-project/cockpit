@@ -21,7 +21,6 @@ import cockpit from "cockpit";
 import React, { useState } from "react";
 import { Alert, AlertActionCloseButton, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Card } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DataList, DataListAction, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
@@ -199,11 +198,9 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                             </StackItem>
                         }
                         <StackItem>
-                            <Card isPlain>
-                                <DataList aria-label={_("Applications list")}>
-                                    { tbody }
-                                </DataList>
-                            </Card>
+                            <DataList aria-label={_("Applications list")}>
+                                { tbody }
+                            </DataList>
                         </StackItem>
                     </Stack>
                 </PageSection>

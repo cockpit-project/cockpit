@@ -550,6 +550,24 @@ class TestIPA(TestRealms, CommonTests):
         m = self.machine
         b = self.browser
 
+        def cockpit_sessions():
+            """Return list of users who have a running Cockpit session"""
+            # unfortunately the session type isn't part of the list view/query
+            # --json=short is very recent, not yet available in Fedora 40 and older; so parse lines
+            users = []
+            for line in m.execute("loginctl --no-legend list-sessions").strip().splitlines():
+                fields = line.split()
+                info = m.execute(f"loginctl show-session {fields[0]}")
+                if "Type=web" in info and "State=closing" not in info:
+                    users.append(fields[2])
+            return users
+
+        def wait_cockpit_sessions(expected):
+            # "assertEqual" returns None when successful, but
+            # testlib.wait wants to see something truthy, that's why
+            # we add the "or True".
+            testlib.wait(lambda: self.assertEqual(cockpit_sessions(), expected) or True)
+
         # should have added SPN to ws keytab
         output = m.execute(['klist', '-k', '/etc/cockpit/krb5.keytab'])
         self.assertIn('HTTP/x0.cockpit.lan@COCKPIT.LAN', output)
@@ -598,11 +616,11 @@ class TestIPA(TestRealms, CommonTests):
         # unknown host prompts
         b.login_and_go(user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
         # starts proper session
-        m.execute("until loginctl --no-legend list-sessions | grep -qi 'admin@COCKPIT.LAN.*web console'; do sleep 1; done", timeout=10)
+        wait_cockpit_sessions(["admin@cockpit.lan"])
         b.logout()
 
         # does not leak any processes or the session itself
-        m.execute("while loginctl --no-legend list-sessions | grep -qi 'admin@COCKPIT.LAN.*web console'; do sleep 1; done", timeout=10)
+        wait_cockpit_sessions([])
 
         # FIXME: Something above triggers this error message
         self.allow_journal_messages("Received unexpected TLS connection and no certificate was configured")

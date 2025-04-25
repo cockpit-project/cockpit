@@ -555,6 +555,13 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.addCleanupVG("vgroup0")
         self.click_card_row("Storage", name="vgroup0")
 
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk1))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk2))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk3))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk4))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk5))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk6))
+
         def mb(size):
             if size < 100e6:
                 return str(round(size / 1e6, 1)) + " MB"
@@ -640,6 +647,13 @@ class TestStorageLvm2(storagelib.StorageCase):
                                                      disk6: True}})
         self.addCleanupVG("vgroup0")
         self.click_card_row("Storage", name="vgroup0")
+
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk1))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk2))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk3))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk4))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk5))
+        b.wait_visible(self.card_row("LVM2 volume group", name=disk6))
 
         def mb(size):
             if size < 100e6:

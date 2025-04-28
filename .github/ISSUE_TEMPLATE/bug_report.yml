@@ -13,9 +13,9 @@ body:
       description: |
         Include steps on how to reproduce. Including screenshots is very helpful.
       value: |
-        1. 
-        2. 
-        3. 
+        1.
+        2.
+        3.
 
 
     validations:
@@ -24,7 +24,13 @@ body:
     attributes:
       value: |
         :left_speech_bubble: Want to discuss something? [Post a new discussion](https://github.com/cockpit-project/cockpit/discussions/new) in our [discussion forum](https://github.com/cockpit-project/cockpit/discussions).
-        :jigsaw: Have a problem with a component? Some issues are filed elsewhere: [Machines](https://github.com/cockpit-project/cockpit-machines/issues/new), [Podman](https://github.com/cockpit-project/cockpit-podman/issues/new/choose), [OStree](https://github.com/cockpit-project/cockpit-ostree/issues/new), or the [starter kit](https://github.com/cockpit-project/starter-kit/issues/new). 
+        :jigsaw: Have a problem with a component? Some issues are filed elsewhere:
+
+        - [Files](https://github.com/cockpit-project/cockpit-files/issues/new)
+        - [Machines](https://github.com/cockpit-project/cockpit-machines/issues/new)
+        - [OStree](https://github.com/cockpit-project/cockpit-ostree/issues/new)
+        - [Podman](https://github.com/cockpit-project/cockpit-podman/issues/new/choose)
+        - [starter kit](https://github.com/cockpit-project/starter-kit/issues/new)
   - type: markdown
     attributes:
       value: |
@@ -61,23 +67,23 @@ body:
     attributes:
       label: Where is the problem in Cockpit?
       options:
-        - Overview
-        - Metrics
-        - Logs
-        - Storage
-        - Networking
-        - Firewall
         - Accounts
-        - Services
         - Applications
-        - Software updates
         - Diagnostic Reports
-        - SELinux
-        - Terminal
-        - "Navigation & Shell"
         - Documentation
+        - Firewall
         - Kdump
-        - Unknown or not applicable
+        - Logs
+        - Metrics
+        - "Navigation & Shell"
+        - Networking
+        - Overview
+        - SELinux
+        - Services
+        - Software updates
+        - Storage
+        - Terminal
+        - Unknown/None
   - type: markdown
     attributes:
       value: |
@@ -93,9 +99,9 @@ body:
         - Clear Linux
         - Debian
         - Fedora
+        - openSUSE
         - Red Hat Enterprise Linux
         - Ubuntu
-        - openSUSE
         - other
     validations:
       required: false

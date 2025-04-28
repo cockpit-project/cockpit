@@ -1,0 +1,54 @@
+name: Enhancement request
+description: Request a new feature, improvement suggestions, or new ideas
+labels: ["enhancement"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this request!
+  - type: textarea
+    id: describe
+    attributes:
+      label: Describe the enhancement
+      description: You can add screenshots here too
+      placeholder: Tell us what you need
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        :left_speech_bubble: Want to discuss something? [Post a new discussion](https://github.com/cockpit-project/cockpit/discussions/new) in our [discussion forum](https://github.com/cockpit-project/cockpit/discussions).
+        :jigsaw: Is this about a specific component? Some issues are filed elsewhere:
+
+        - [Files](https://github.com/cockpit-project/cockpit-files/issues/new)
+        - [Machines](https://github.com/cockpit-project/cockpit-machines/issues/new)
+        - [OStree](https://github.com/cockpit-project/cockpit-ostree/issues/new)
+        - [Podman](https://github.com/cockpit-project/cockpit-podman/issues/new/choose)
+        - [starter kit](https://github.com/cockpit-project/starter-kit/issues/new)
+  - type: markdown
+    attributes:
+      value: |
+        <!-- add a bit of space -->
+  - type: dropdown
+    id: page
+    attributes:
+      label: Which page, if applicable, is this related to?
+      options:
+        - Accounts
+        - Applications
+        - Diagnostic Reports
+        - Documentation
+        - Firewall
+        - Kdump
+        - Logs
+        - Metrics
+        - "Navigation & Shell"
+        - Networking
+        - Overview
+        - SELinux
+        - Services
+        - Software updates
+        - Storage
+        - Terminal
+        - Unknown/None

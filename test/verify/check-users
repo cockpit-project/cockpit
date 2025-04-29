@@ -704,10 +704,18 @@ class TestAccounts(testlib.MachineCase):
             b2.login_and_go("/users")
             b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", "Never logged in")
 
-        # with container this happens over ssh
+        # With the ws container this happens over ssh and we need
+        # ChallengeResponseAuthentication (or
+        # KbdInteractiveAuthentication, it's new name) to be allowed.
+        # Without that, OpenSSH will do the required password change
+        # without PAM and by running "/bin/passwd" instead.
+        #
         if m.ws_container:
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
-            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null) || true")
+            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' "
+                      "/etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
+            m.execute("sed -i 's/.*KbdInteractiveAuthentication.*/KbdInteractiveAuthentication yes/' "
+                      "/etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
             m.execute(self.restart_sshd)
 
         b.wait_visible("#login")

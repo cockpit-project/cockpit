@@ -1066,6 +1066,7 @@ function factory() {
 
     /* Not public API ... yet? */
     cockpit.drop_privileges = function drop_privileges() {
+        console.warn("cockpit.drop_privileges() is deprecated");
         ensure_transport(function(transport) {
             transport.send_control({ command: "logout", disconnect: false });
         });

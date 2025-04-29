@@ -1971,6 +1971,7 @@ function factory() {
     };
 
     cockpit.byte_array = function byte_array(string) {
+        console.warn("cockpit.byte_array() is deprecated, use window.btoa");
         return window.btoa(string);
     };
 

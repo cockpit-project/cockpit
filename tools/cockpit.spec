@@ -245,6 +245,7 @@ It offers network configuration, log inspection, diagnostic reports, SELinux
 troubleshooting, interactive command-line sessions, and more.
 
 %files
+%license COPYING
 %{_docdir}/cockpit/AUTHORS
 %{_docdir}/cockpit/COPYING
 %{_docdir}/cockpit/README.md
@@ -262,6 +263,7 @@ The Cockpit bridge component installed server side and runs commands on the
 system on behalf of the web based user interface.
 
 %files bridge -f base.list
+%license COPYING
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %{_libexecdir}/cockpit-askpass
@@ -277,6 +279,7 @@ deploy Cockpit on their machines as well as helps developers who want to
 embed or extend Cockpit.
 
 %files doc
+%license COPYING
 %exclude %{_docdir}/cockpit/AUTHORS
 %exclude %{_docdir}/cockpit/COPYING
 %exclude %{_docdir}/cockpit/README.md
@@ -317,6 +320,7 @@ Provides: cockpit-sosreport = %{version}-%{release}
 This package contains the Cockpit shell and system configuration interfaces.
 
 %files system -f system.list
+%license COPYING
 %dir %{_datadir}/cockpit/shell/images
 
 %package ws
@@ -342,6 +346,7 @@ If sssd-dbus is installed, you can enable client certificate/smart card
 authentication via sssd/FreeIPA.
 
 %files ws -f static.list
+%license COPYING
 %doc %{_mandir}/man1/cockpit-desktop.1.gz
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
@@ -443,6 +448,7 @@ Requires(post): policycoreutils
 SELinux policy module for the cockpit-ws package.
 
 %files ws-selinux
+%license COPYING
 %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 %{_mandir}/man8/%{name}_session_selinux.8cockpit.*
 %{_mandir}/man8/%{name}_ws_selinux.8cockpit.*
@@ -475,6 +481,7 @@ BuildArch: noarch
 The Cockpit component for configuring kernel crash dumping.
 
 %files kdump -f kdump.list
+%license COPYING
 %{_datadir}/metainfo/org.cockpit_project.cockpit_kdump.metainfo.xml
 
 %package sosreport
@@ -489,6 +496,7 @@ The Cockpit component for creating diagnostic reports with the
 sosreport tool.
 
 %files sosreport -f sosreport.list
+%license COPYING
 %{_datadir}/metainfo/org.cockpit_project.cockpit_sosreport.metainfo.xml
 %{_datadir}/icons/hicolor/64x64/apps/cockpit-sosreport.png
 
@@ -505,6 +513,7 @@ BuildArch: noarch
 The Cockpit component for managing networking.  This package uses NetworkManager.
 
 %files networkmanager -f networkmanager.list
+%license COPYING
 %{_datadir}/metainfo/org.cockpit_project.cockpit_networkmanager.metainfo.xml
 
 %endif
@@ -523,6 +532,7 @@ This package contains the Cockpit user interface integration with the
 utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %files selinux -f selinux.list
+%license COPYING
 %{_datadir}/metainfo/org.cockpit_project.cockpit_selinux.metainfo.xml
 
 %endif
@@ -550,6 +560,7 @@ BuildArch: noarch
 The Cockpit component for managing storage.  This package uses udisks.
 
 %files -n cockpit-storaged -f storaged.list
+%license COPYING
 %{_datadir}/metainfo/org.cockpit_project.cockpit_storaged.metainfo.xml
 
 %post storaged
@@ -573,6 +584,7 @@ The Cockpit components for installing OS updates and Cockpit add-ons,
 via PackageKit.
 
 %files -n cockpit-packagekit -f packagekit.list
+%license COPYING
 
 # The changelog is automatically generated and merged
 %changelog

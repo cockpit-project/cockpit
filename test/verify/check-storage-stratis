@@ -161,10 +161,7 @@ class TestStorageStratis(storagelib.StorageCase):
         b.wait_text(self.card_row_col("Stratis filesystems", 2, 1), "fsys2")
         b.wait_text(self.card_row_col("Stratis filesystems", 2, 3), "/run/fsys2")
         if not legacy:
-            # different stratis versions report different usage numbers.
-            b.assert_pixels(self.card("Stratis filesystems"), "fsys-rows",
-                            mock={".usage-text": "0.57 / 7.4 GB"},
-                            ignore=[".usage-bar"])
+            b.assert_pixels(self.card("Stratis filesystems"), "fsys-rows")
         self.assertEqual(self.inode(m.execute("findmnt -n -o SOURCE /run/fsys2").strip()),
                          self.inode("/dev/stratis/pool0/fsys2"))
         m.write("/run/fsys2/FILE", "Hello Stratis!")
@@ -1004,11 +1001,9 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase"))
         b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
 
-        # different stratis versions report different usage numbers.
         if not legacy:
             b.assert_pixels(self.card("Encrypted Stratis pool"), "header",
-                            mock={".usage-text": "0.55 / 4.3 GB"},
-                            ignore=['.usage-bar', '.pf-v6-c-description-list__group:contains(UUID)'])
+                            ignore=['.pf-v6-c-description-list__group:contains(UUID)'])
 
         # Remove passphrase
         b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove)")

@@ -131,7 +131,7 @@ message_handler (int level,
                  const char *format, ...)
 {
   va_list va;
-  char *data;
+  char *data = NULL;
   int res;
 
   if (!pam_ssh_add_log_handler)
@@ -151,7 +151,8 @@ message_handler (int level,
   if (res > 0)
     pam_ssh_add_log_handler (level, data);
 
-  free (data);
+  if (res >= 0)
+    free (data);
 }
 #endif
 

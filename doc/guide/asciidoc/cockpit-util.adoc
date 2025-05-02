@@ -1,0 +1,112 @@
+cockpit.js: Utilities
+
+Various utility functions
+
+[[cockpit-format]]
+== cockpit.format()
+
+....
+string = cockpit.format(template, args)
+string = cockpit.format(template, [arg, ...])
+....
+
+Format a string interpolating `args` into `template` using shell like
+syntax. The `args` may be either an array or javascript object. The
+`template` can contain fields that look like `$name` or `${name}` or
+`$0`. Numeric fields are used with array `args` and start at zero.
+
+In the second form, multiple `arg` arguments may be passed directly, and
+interpolated as as numeric fields in the `template`.
+
+All falsy arguments except the numbers `0` and `0.0`are replaced by an
+empty string.
+
+[[cockpit-format-number]]
+== cockpit.format_number()
+
+....
+string = cockpit.format_number(number, [precision])
+....
+
+Formats `number` into a displayable `string`. If the number is not an
+integer, it is rounded to the given number of decimal places, defaulting
+to 3. If the number is near zero, but not quite zero it is rounded to
+the smallest non-zero value of the given precision; i.e. ±0.001 for
+default precision 3.
+
+If `number` is `null` or `undefined` an empty string will be returned.
+
+[[cockpit-format-bytes]]
+== cockpit.format_bytes()
+
+....
+string = cockpit.format_bytes(number, [options])
+....
+
+Formats `number` into a displayable `string` with a suffix, such as _kB_
+or _MB_.
+
+By default, SI units are used. IEC units (1024-based) can be requested
+by including `base2: true` in `options`.
+
+By default, non-integer numbers will be formatted with 3 digits of
+precision. This can be changed with `options.precision`.
+
+If `number` is `null` or `undefined` an empty string will be returned.
+
+[[cockpit-format-bytes-per-sec]]
+== cockpit.format_bytes_per_sec()
+
+....
+string = cockpit.format_bytes_per_sec(number, [options])
+....
+
+Format `number` of bytes into a displayable speed `string`.
+
+This function is mostly equivalent to `cockpit.format_bytes()` but the
+returned value contains a unit like _kB/s_ or _MB/s_.
+
+[[cockpit-format-bits-per-sec]]
+== cockpit.format_bits_per_sec()
+
+....
+string = cockpit.format_bits_per_sec(number, [options])
+....
+
+Format `number` of bits into a displayable speed `string`.
+
+This function is mostly equivalent to `cockpit.format_bytes()` but the
+returned value contains a unit like _kbps_ or _Mbps_.
+
+This function does not support IEC units. `base2` may not be passed as
+part of `options`.
+
+[[cockpit-info]]
+== cockpit.info
+
+....
+cockpit.info["version"]
+cockpit.info["build"]
+....
+
+This object contains information about cockpit itself. Note that when
+cockpit is running on multiple servers, this only reflects the server
+that was connected to. The following fields are defined:
+
+`"build"`::
+  A string containing build details.
+`"version"`::
+  A string containing the cockpit version number. It is almost always
+  incorrect to use this to make a decision in code.
+
+[[cockpit-event-target]]
+== cockpit.event_target
+
+....
+cockpit.event_target(object, [handlers])
+....
+
+Adds an
+https://developer.mozilla.org/en-US/docs/Web/API/EventTarget[EventTarget]
+implementation to the `object`. Optionally store the handlers in
+`handlers` if its specified.

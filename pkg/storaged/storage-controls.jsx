@@ -224,10 +224,10 @@ export const StorageSize = ({ size }) => {
         </div>);
 };
 
-export const StorageMenuItem = ({ onClick, danger, excuse, children }) => (
+export const StorageMenuItem = ({ onClick, danger, excuse, children, isDisabled }) => (
     <DropdownItem className={danger && !excuse ? " delete-resource-dangerous" : ""}
                   description={excuse}
-                  isDisabled={!!excuse}
+                  isDisabled={isDisabled || !!excuse}
                   onClick={checked(onClick, null, excuse)}>
         {children}
     </DropdownItem>

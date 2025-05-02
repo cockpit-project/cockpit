@@ -18,19 +18,18 @@
  */
 
 import cockpit from "cockpit";
-import React, { useState } from "react";
+import React from "react";
 
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { Dropdown, DropdownItem, MenuToggle } from "@patternfly/react-core";
-import { EllipsisVIcon, ExclamationCircleIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { DropdownList } from "@patternfly/react-core";
+import { ExclamationCircleIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
 import { format_temperature } from "../utils.js";
-import { superuser } from "superuser.js";
 import { StorageCard, StorageDescription } from "../pages.jsx";
-import { useEvent } from "hooks.js";
+import { StorageBarMenu, StorageMenuItem } from "../storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -71,7 +70,6 @@ const nvmeCriticalWarning = {
 };
 
 const SmartActions = ({ smart_info }) => {
-    const [isKebabOpen, setKebabOpen] = useState(false);
     const smartSelftestStatus = smart_info.SmartSelftestStatus;
 
     const runSelfTest = (type) => {
@@ -82,31 +80,30 @@ const SmartActions = ({ smart_info }) => {
         smart_info.SmartSelftestAbort({});
     };
 
-    const testDisabled = !superuser.allowed || smartSelftestStatus === "inprogress";
+    const testDisabled = smartSelftestStatus === "inprogress";
+
+    const actionItems = (
+        <DropdownList>
+            <StorageMenuItem isDisabled={testDisabled}
+                onClick={() => { runSelfTest('short') }}
+            >
+                {_("Run short test")}
+            </StorageMenuItem>
+            <StorageMenuItem isDisabled={testDisabled}
+                onClick={() => { runSelfTest('extended') }}
+            >
+                {_("Run extended test")}
+            </StorageMenuItem>
+            <StorageMenuItem isDisabled={!testDisabled}
+                onClick={() => { abortSelfTest() }}
+            >
+                {_("Abort test")}
+            </StorageMenuItem>
+        </DropdownList>
+    );
 
     return (
-        <Dropdown
-                toggle={toggleRef => <MenuToggle ref={toggleRef} icon={<EllipsisVIcon />} variant="plain" aria-label={_("SMART actions")} onClick={() => setKebabOpen(!isKebabOpen)} isExpanded={isKebabOpen} />}
-                isPlain
-                isOpen={isKebabOpen}
-                id="smart-actions"
-        >
-            <DropdownItem key="smart-short-test"
-                        isDisabled={testDisabled}
-                        onClick={() => { setKebabOpen(false); runSelfTest('short') }}>
-                {_("Run short test")}
-            </DropdownItem>,
-            <DropdownItem key="smart-extended-test"
-                        isDisabled={testDisabled}
-                        onClick={() => { setKebabOpen(false); runSelfTest('extended') }}>
-                {_("Run extended test")}
-            </DropdownItem>,
-            <DropdownItem key="abort-smart-test"
-                        isDisabled={testDisabled}
-                        onClick={() => { setKebabOpen(false); abortSelfTest() }}>
-                {_("Abort test")}
-            </DropdownItem>,
-        </Dropdown>
+        <StorageBarMenu isKebab label={_("Actions")} menuItems={actionItems} />
     );
 };
 
@@ -116,8 +113,6 @@ export const isSmartOK = (drive_type, smart_info) => {
 };
 
 export const SmartCard = ({ card, smart_info, drive_type }) => {
-    useEvent(superuser, "changed");
-
     const powerOnHours = (drive_type === "ata")
         ? Math.floor(smart_info.SmartPowerOnSeconds / 3600)
         : smart_info.SmartPowerOnHours;

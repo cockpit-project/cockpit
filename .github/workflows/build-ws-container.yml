@@ -8,14 +8,31 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     environment: quay.io
     permissions: {}
     timeout-minutes: 20
     env:
       RUNC: docker
+      PLATFORMS: linux/amd64,linux/arm64
 
     steps:
+      - name: Set up Docker to use containerd image store to support multi-arch images
+        uses: docker/setup-docker-action@v4
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+
+      - name: Set up QEMU to support multi-arch images
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx to support multi-arch images
+        uses: docker/setup-buildx-action@v3
+
       - name: Clone repository
         uses: actions/checkout@v4
         with:

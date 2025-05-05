@@ -841,7 +841,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(r"cockpit-session: user account access failed.*root.*")
 
     @testlib.skipWsContainer("sssd/cockpit-session not available with ws container")
-    @testlib.skipImage("sssd not currently in testing", "debian-testing")
     def testClientCertAuthentication(self):
         m = self.machine
 

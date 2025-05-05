@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @cockpit-ts-relaxed
-
 import cockpit from "cockpit";
 import React from "react";
 
@@ -31,6 +29,7 @@ import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import { EmptyStatePanel } from "cockpit-components-empty-state";
 
 import { codes } from "./hosts_dialog.jsx";
+import { Machine } from "./machines/machines";
 
 const _ = cockpit.gettext;
 
@@ -103,7 +102,11 @@ const EarlyFailureReady = ({
     );
 };
 
-export const Disconnected = ({ problem }) => {
+export const Disconnected = ({
+    problem
+} : {
+    problem: string
+}) => {
     return (
         <EarlyFailureReady title={_("Disconnected")}
                                reconnect
@@ -115,7 +118,13 @@ export const Disconnected = ({ problem }) => {
     );
 };
 
-export const MachineTroubleshoot = ({ machine, onClick }) => {
+export const MachineTroubleshoot = ({
+    machine,
+    onClick
+} : {
+    machine: Machine,
+    onClick: () => void
+}) => {
     const connecting = (machine.state == "connecting");
     let title;
     let message;
@@ -140,7 +149,7 @@ export const MachineTroubleshoot = ({ machine, onClick }) => {
 
     let troubleshooting = false;
 
-    if (!machine.restarting && (machine.problem === "no-host" || !!codes[machine.problem])) {
+    if (!machine.restarting && (machine.problem === "no-host" || (machine.problem && machine.problem in codes))) {
         troubleshooting = true;
     }
 

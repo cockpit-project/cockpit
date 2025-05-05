@@ -20,6 +20,7 @@ export interface Machine {
     checksum?: string;
     visible?: boolean;
     problem: string | null;
+    restarting?: boolean;
 }
 
 interface MachinesEvents extends EventMap {
@@ -33,7 +34,7 @@ export interface Machines extends EventSource<MachinesEvents> {
     ready: boolean;
 
     lookup: (conection_string: string) => Machine;
-    list: Machines[];
+    list: Machine[];
     change: (key: string, props: Partial<Machine>) => void;
 }
 

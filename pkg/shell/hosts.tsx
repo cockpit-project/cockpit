@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @cockpit-ts-relaxed
-
 import cockpit from "cockpit";
 
 import React from 'react';
@@ -36,19 +34,23 @@ import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
 import 'polyfills';
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { encode_location } from "./util.jsx";
-import { split_connection_string } from "./machines/machines";
-import { add_host, edit_host, connect_host } from "./hosts_dialog.jsx";
+import { split_connection_string, Machine } from "./machines/machines";
+import { add_host, edit_host, connect_host, HostModalState } from "./hosts_dialog.jsx";
 
 import { ShellState } from "./state";
 import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
+interface HostsSelectorProps {
+    children: React.ReactNode;
+}
+
 class HostsSelector extends React.Component {
     el: HTMLDivElement;
-    props: { children };
+    props: HostsSelectorProps;
 
-    constructor(props) {
+    constructor(props: HostsSelectorProps) {
         super(props);
         this.props = props;
 
@@ -72,7 +74,13 @@ class HostsSelector extends React.Component {
     }
 }
 
-function HostLine({ host, user }) {
+const HostLine = ({
+    host,
+    user
+} : {
+    host: React.ReactNode,
+    user: React.ReactNode
+}) => {
     return (
         <>
             <span id="current-username" className="username">{user}</span>
@@ -80,10 +88,16 @@ function HostLine({ host, user }) {
             <span className="hostname">{host}</span>
         </>
     );
-}
+};
 
 // top left navigation element when host switching is disabled
-export const CockpitCurrentHost = ({ current_user, machine }) => {
+export const CockpitCurrentHost = ({
+    current_user,
+    machine
+} : {
+    current_user: string,
+    machine: Machine
+}) => {
     return (
         <div className="ct-switcher ct-switcher-localonly pf-m-dark">
             <HostLine user={machine.user || current_user || ""} host={machine.label || ""} />
@@ -91,14 +105,29 @@ export const CockpitCurrentHost = ({ current_user, machine }) => {
     );
 };
 
-interface CockpitHostsState { opened, editing, current_user, current_key }
+interface CockpitHostsProps {
+    selector: string;
+    host_modal_state: ReturnType<typeof HostModalState>;
+    state: ShellState;
+}
+
+interface CockpitHostsState {
+    opened: boolean;
+    editing: boolean;
+    current_user: string;
+    current_key: string | undefined;
+}
+
+interface HostItem extends Machine {
+    keyword?: string;
+}
 
 // full host switcher
 export class CockpitHosts extends React.Component {
-    props: { selector, host_modal_state, state: ShellState };
+    props: CockpitHostsProps;
     state: CockpitHostsState;
 
-    constructor(props) {
+    constructor(props : CockpitHostsProps) {
         super(props);
         this.props = props;
 
@@ -106,7 +135,7 @@ export class CockpitHosts extends React.Component {
             opened: false,
             editing: false,
             current_user: "",
-            current_key: props.state.current_machine.key,
+            current_key: props.state.current_machine?.key,
         };
 
         this.toggleMenu = this.toggleMenu.bind(this);
@@ -123,11 +152,11 @@ export class CockpitHosts extends React.Component {
         }).catch(exc => console.log(exc));
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (nextProps.state.current_machine.key !== prevState.current_key) {
+    static getDerivedStateFromProps(nextProps: CockpitHostsProps, prevState: CockpitHostsState) {
+        if (nextProps.state.current_machine?.key !== prevState.current_key) {
             document.getElementById(nextProps.selector)?.classList.toggle("interact", false);
             return {
-                current_key: nextProps.state.current_machine.key,
+                current_key: nextProps.state.current_machine?.key,
                 opened: false,
                 editing: false,
             };
@@ -152,11 +181,11 @@ export class CockpitHosts extends React.Component {
         await add_host(this.props.host_modal_state, this.props.state);
     }
 
-    async onHostEdit(_event, machine) {
+    async onHostEdit(machine: Machine) {
         await edit_host(this.props.host_modal_state, this.props.state, machine);
     }
 
-    async onHostSwitch(machine) {
+    async onHostSwitch(machine: Machine) {
         const { state, host_modal_state } = this.props;
 
         const connection_string = await connect_host(host_modal_state, state, machine);
@@ -170,7 +199,7 @@ export class CockpitHosts extends React.Component {
         this.setState((s: CockpitHostsState) => { return { editing: !s.editing } });
     }
 
-    onRemove(event, machine) {
+    onRemove(event: React.MouseEvent, machine: Machine) {
         const { state } = this.props;
         const { current_machine } = state;
 
@@ -186,10 +215,10 @@ export class CockpitHosts extends React.Component {
         state.machines.change(machine.key, { visible: false });
     }
 
-    filterHosts(host, term) {
+    filterHosts(host: Machine, term: string): HostItem | null {
         if (!term)
             return host;
-        const new_host = Object.assign({}, host);
+        const new_host: HostItem = Object.assign({}, host);
         term = term.toLowerCase();
 
         if (host.label.toLowerCase().indexOf(term) > -1)
@@ -216,20 +245,20 @@ export class CockpitHosts extends React.Component {
             name: _("Hosts"),
             items: state.machines.list,
         }];
-        const render = (m, term) => <CockpitNavItem
+        const render = (m: HostItem, term: string) => <CockpitNavItem
                 term={term}
-                keyword={m.keyword}
+                keyword={m.keyword || ""}
                 href={encode_location({ host: m.address })}
                 active={m === current_machine}
                 key={m.key}
                 name={m.label}
                 header={(m.user ? m.user : this.state.current_user) + " @"}
                 status={m.state === "failed" ? { type: "error", title: _("Connection error") } : null}
-                className={m.state}
+                className={m.state || ""}
                 onClick={() => this.onHostSwitch(m)}
                 actions={<>
                     <Tooltip content={_("Edit")} position="right">
-                        <Button isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={e => this.onHostEdit(e, m)} key={m.label + "edit"} variant="secondary"><EditIcon /></Button>
+                        <Button isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={_e => this.onHostEdit(m)} key={m.label + "edit"} variant="secondary"><EditIcon /></Button>
                     </Tooltip>
                     <Tooltip content={_("Remove")} position="right">
                         <Button isDisabled={m.address === "localhost"} onClick={e => this.onRemove(e, m)} className="nav-action" hidden={!editing} key={m.label + "remove"} variant="danger"><MinusIcon /></Button>

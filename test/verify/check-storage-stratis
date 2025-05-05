@@ -998,18 +998,18 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
             m.execute("stratis key unset pool0")
 
         self.click_card_row("Storage", name="pool0")
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase"))
-        b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
+        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrases"))
+        b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyservers"), "10.111.112.5")
 
         if not legacy:
             b.assert_pixels(self.card("Encrypted Stratis pool"), "header",
                             ignore=['.pf-v6-c-description-list__group:contains(UUID)'])
 
         # Remove passphrase
-        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove)")
+        b.click(self.card_desc("Encrypted Stratis pool", "Passphrases") + " button:contains(Remove)")
         self.confirm()
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Add passphrase)")
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Remove):disabled")
+        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrases") + " button:contains(Add passphrase)")
+        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Keyservers") + " button:contains(Remove):disabled")
 
         # Stop the pool and start it again.  This should not ask
         # for the passphrase (since there isn't any)
@@ -1039,10 +1039,10 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         # without tangd running.  This should try clevis but then fall
         # back to asking for a passphrase.
 
-        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Add passphrase)")
+        b.click(self.card_desc("Encrypted Stratis pool", "Passphrases") + " button:contains(Add passphrase)")
         self.dialog({'passphrase': "foodeeboodeebar",
                      'passphrase2': "foodeeboodeebar"})
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove):not(:disabled)")
+        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrases") + " button:contains(Remove):not(:disabled)")
         m.execute(f"stratis pool stop {self.stop_type_opt} pool0")
         tang_m.execute("systemctl stop tangd.socket")
         b.click(self.card_button("Stratis pool", "Start"))
@@ -1063,10 +1063,10 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
 
         # Remove the keyserver and add it back
 
-        b.click(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Remove)")
+        b.click(self.card_desc("Encrypted Stratis pool", "Keyservers") + " button:contains(Remove)")
         self.confirm()
 
-        b.click(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Add keyserver)")
+        b.click(self.card_desc("Encrypted Stratis pool", "Keyservers") + " button:contains(Add keyserver)")
         self.dialog_wait_open()
         self.dialog_set_val("tang_url", "10.111.112.5")
         self.dialog_set_val("passphrase", "foodeeboodeebar")
@@ -1076,16 +1076,16 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         self.dialog_apply()
         with b.wait_timeout(60):
             self.dialog_wait_close()
-            b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
+            b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyservers"), "10.111.112.5")
 
         # Remove the keyserver and add it back a second time, but try
         # first with the wrong passphrase already in the keyring
 
-        b.click(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Remove)")
+        b.click(self.card_desc("Encrypted Stratis pool", "Keyservers") + " button:contains(Remove)")
         self.confirm()
 
         create_pool_key(m, "pool0", "foobar")
-        b.click(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Add keyserver)")
+        b.click(self.card_desc("Encrypted Stratis pool", "Keyservers") + " button:contains(Add keyserver)")
         self.dialog_wait_open()
         self.dialog_set_val("tang_url", "10.111.112.5")
         self.dialog_apply()
@@ -1099,7 +1099,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         self.dialog_apply()
         with b.wait_timeout(60):
             self.dialog_wait_close()
-            b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
+            b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyservers"), "10.111.112.5")
         m.execute("stratis key unset pool0")
 
         # Create a mounted filesystem and reboot.

@@ -70,7 +70,7 @@ function find_blocks_for_mount_point(client, mount_point, self_block, self_subvo
     }
 
     function is_self(b, subvol) {
-        if (self_subvol)
+        if (client.blocks_fsys_btrfs[self_block.path])
             return same_btrfs_volume(b, self_block) && same_btrfs_subvol(subvol, self_subvol);
         else
             return self_block && (b == self_block || client.blocks[b.CryptoBackingDevice] == self_block);
@@ -79,7 +79,7 @@ function find_blocks_for_mount_point(client, mount_point, self_block, self_subvo
     function fmt_block_and_subvol(block, subvol) {
         if (subvol)
             return cockpit.format(_("btrfs subvolume $0 of $1"),
-                                  subvol.pathname || subvol.id,
+                                  (subvol.pathname == "/" || subvol.id == 5) ? "top-level" : subvol.pathname || subvol.id,
                                   block.IdLabel || block.IdUUID);
         else
             return nice_block_name(block);

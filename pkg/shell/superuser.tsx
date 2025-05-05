@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @cockpit-ts-relaxed
-
 import cockpit from "cockpit";
 import React, { useState } from "react";
 import { useObject, useInit, useEvent } from "hooks";
@@ -38,7 +36,9 @@ import { LockIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
 
-function sudo_polish(msg) {
+function sudo_polish(msg: string): string;
+function sudo_polish(msg: null): null;
+function sudo_polish(msg: string | null): string | null {
     if (!msg)
         return msg;
 
@@ -48,7 +48,33 @@ function sudo_polish(msg) {
     return msg;
 }
 
-const UnlockDialog = ({ proxy, host }) => {
+interface Method {
+    v: { label: { v: string; } };
+}
+
+export interface SuperuserProxy extends cockpit.DBusProxy {
+    Current: string;
+    Bridges: unknown[];
+    Methods: Record<string, Method>;
+
+    Start(method: string): Promise<void>;
+    Stop(): Promise<void>;
+    Answer(val: string): Promise<void>;
+}
+
+export function superuser_proxy(bus?: cockpit.DBusClient) {
+    if (!bus)
+        bus = cockpit.dbus(null, { bus: "internal" });
+    return bus.proxy("cockpit.Superuser", "/superuser") as SuperuserProxy;
+}
+
+const UnlockDialog = ({
+    proxy,
+    host
+} : {
+    proxy: SuperuserProxy,
+    host: string | undefined
+}) => {
     const D = useDialogs();
     useInit(init, [proxy, host]);
 
@@ -58,11 +84,11 @@ const UnlockDialog = ({ proxy, host }) => {
     const [cancel, setCancel] = useState(() => D.close);
     const [prompt, setPrompt] = useState<{ message: string, prompt: string, echo: boolean } | null>(null);
     const [message, setMessage] = useState<string | null>(null);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [errorVariant, setErrorVariant] = useState<"danger" | "warning" | null>(null);
     const [value, setValue] = useState("");
 
-    function start(method) {
+    function start(method: string) {
         setBusy(true);
         setCancel(() => () => {
             proxy.Stop();
@@ -71,7 +97,7 @@ const UnlockDialog = ({ proxy, host }) => {
 
         let did_prompt = false;
 
-        const onprompt = (_event, message, prompt, def, echo, error) => {
+        const onprompt = (_event: Event, message: string, prompt: string, def: string, echo: boolean, error: string) => {
             setBusy(false);
             setPrompt({
                 message: sudo_polish(message),
@@ -105,7 +131,7 @@ const UnlockDialog = ({ proxy, host }) => {
                         setCancel(() => D.close);
                     }
                 })
-                .catch(err => {
+                .catch((err: cockpit.BasicError) => {
                     console.warn(err);
                     proxy.removeEventListener("Prompt", onprompt);
                     if (err && err.message != "cancelled") {
@@ -200,7 +226,7 @@ const UnlockDialog = ({ proxy, host }) => {
             <Button variant="secondary" className='btn-cancel' onClick={cancel}>
                 {_("Close")}
             </Button>);
-    } else if (methods) {
+    } else if (methods && method) {
         title = _("Switch to administrative access");
         body = (
             <Form isHorizontal>
@@ -240,9 +266,15 @@ const UnlockDialog = ({ proxy, host }) => {
     );
 };
 
-const LockDialog = ({ proxy, host }) => {
+const LockDialog = ({
+    proxy,
+    host
+} : {
+    proxy: SuperuserProxy,
+    host: string | undefined
+}) => {
     const D = useDialogs();
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     const apply = () => {
         setError(null);
@@ -286,7 +318,15 @@ const LockDialog = ({ proxy, host }) => {
     );
 };
 
-const SuperuserDialogs = ({ superuser_proxy, host = undefined, create_trigger }) => {
+const SuperuserDialogs = ({
+    superuser_proxy,
+    host = undefined,
+    create_trigger
+} : {
+    superuser_proxy: SuperuserProxy;
+    host: string | undefined,
+    create_trigger: (unlocked: boolean, onclick: () => void) => React.ReactNode;
+}) => {
     const D = useDialogs();
     useEvent(superuser_proxy, "changed",
              () => {
@@ -301,9 +341,6 @@ const SuperuserDialogs = ({ superuser_proxy, host = undefined, create_trigger })
                          window.localStorage.setItem(key, superuser_proxy.Current);
                  }
              });
-
-    if (!superuser_proxy || !superuser_proxy.valid)
-        return;
 
     const show = (superuser_proxy.Current != "root" && superuser_proxy.Current != "init" &&
                   (superuser_proxy.Bridges?.length ?? 0) > 0);
@@ -323,8 +360,17 @@ const SuperuserDialogs = ({ superuser_proxy, host = undefined, create_trigger })
     return create_trigger(unlocked, unlocked ? lock : unlock);
 };
 
-export const SuperuserIndicator = ({ proxy, host }) => {
-    function create_trigger(unlocked, onclick) {
+export const SuperuserIndicator = ({
+    proxy,
+    host
+} : {
+    proxy: SuperuserProxy | null,
+    host?: string
+}) => {
+    if (!proxy || !proxy.valid)
+        return null;
+
+    function create_trigger(unlocked: boolean, onclick: () => void) {
         return (
             <Button variant="link" onClick={onclick} className={unlocked ? "ct-unlocked" : "ct-locked"}>
                 <span className="ct-lock-wrapper">
@@ -342,14 +388,17 @@ export const SuperuserIndicator = ({ proxy, host }) => {
 
 export const SuperuserButton = () => {
     const proxy = useObject(
-        () => cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser"),
+        () => superuser_proxy(),
         null,
         []);
 
-    const create_trigger = (unlocked, onclick) =>
+    const create_trigger = (unlocked: boolean, onclick: () => void) =>
         <Button onClick={onclick}>
             {unlocked ? _("Switch to limited access") : _("Turn on administrative access")}
         </Button>;
 
-    return <SuperuserDialogs superuser_proxy={proxy} create_trigger={create_trigger} />;
+    return <SuperuserDialogs
+               superuser_proxy={proxy}
+               create_trigger={create_trigger}
+               host={undefined} />;
 };

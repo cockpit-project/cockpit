@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @cockpit-ts-relaxed
-
 import cockpit from "cockpit";
 
 import React, { useEffect } from 'react';
@@ -189,17 +187,17 @@ function init() {
         navbar_is_for_current_machine: true
     };
 
-    function follow(arg) {
+    function follow(arg: unknown) {
         /* A promise of some sort */
-        if (arguments.length == 1 && typeof arg.then == "function") {
-            arg.then(function(...args) { console.log(...args) },
-                     function(...args) { console.error(...args) });
-            if (typeof arg.stream == "function")
-                arg.stream(function(...args) { console.log(...args) });
+        if (arguments.length == 1 && arg && typeof arg == "object" && "then" in arg && typeof arg.then == "function") {
+            arg.then(function(...args: unknown[]) { console.log(...args) },
+                     function(...args: unknown[]) { console.error(...args) });
+            if ("stream" in arg && typeof arg.stream == "function")
+                arg.stream(function(...args: unknown[]) { console.log(...args) });
         }
     }
 
-    let zz_value;
+    let zz_value: unknown;
 
     /* For debugging in the browser console */
     Object.defineProperties(window, {

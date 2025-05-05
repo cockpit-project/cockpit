@@ -74,14 +74,6 @@ export const SidebarToggle = () => {
     );
 };
 
-interface NavKeyword {
-    keyword: string;
-    score: number;
-    goto: string | null;
-}
-
-type NavItem<T> = T & { keyword: NavKeyword }
-
 interface ItemGroup<T> {
     name: string;
     items: T[];
@@ -91,13 +83,13 @@ interface ItemGroup<T> {
     } | undefined;
 }
 
-interface CockpitNavProps<T> {
+interface CockpitNavProps<T, X extends T> {
     groups: ItemGroup<T>[];
     selector: string;
     current: string;
-    filtering: (item: T, term: string) => NavItem<T> | null;
-    sorting: (a: NavItem<T>, b: NavItem<T>) => number;
-    item_render: (item: NavItem<T>, term: string) => React.ReactNode;
+    filtering: (item: T, term: string) => X | null;
+    sorting: (a: X, b: X) => number;
+    item_render: (item: X, term: string) => React.ReactNode;
     jump: (loc: Partial<Location>) => void;
 }
 
@@ -106,11 +98,11 @@ interface CockpitNavState {
     current: string;
 }
 
-export class CockpitNav<T> extends React.Component {
-    props: CockpitNavProps<T>;
+export class CockpitNav<T, X extends T> extends React.Component {
+    props: CockpitNavProps<T, X>;
     state: CockpitNavState;
 
-    constructor(props : CockpitNavProps<T>) {
+    constructor(props : CockpitNavProps<T, X>) {
         super(props);
 
         this.state = {
@@ -173,7 +165,7 @@ export class CockpitNav<T> extends React.Component {
         document.getElementById(sel)?.addEventListener("keyup", navigate_apps);
     }
 
-    static getDerivedStateFromProps(nextProps: CockpitNavProps<void>, prevState: CockpitNavState) {
+    static getDerivedStateFromProps(nextProps: CockpitNavProps<void, void>, prevState: CockpitNavState) {
         if (nextProps.current !== prevState.current)
             return {
                 search: "",
@@ -187,10 +179,10 @@ export class CockpitNav<T> extends React.Component {
     }
 
     render() {
-        const groups: ItemGroup<NavItem<T>>[] = [];
+        const groups: ItemGroup<X>[] = [];
         const term = this.state.search.toLowerCase();
         this.props.groups.forEach(g => {
-            const new_items = g.items.map(i => this.props.filtering(i, term)).filter(i => !!i);
+            const new_items = g.items.map(i => this.props.filtering(i, term)).filter(i => i != null);
             new_items.sort(this.props.sorting);
             if (new_items.length > 0)
                 groups.push({ name: g.name, items: new_items, action: g.action });
@@ -310,6 +302,16 @@ export function CockpitNavItem(props : {
     );
 }
 
+interface PageKeyword {
+    keyword: string;
+    score: number;
+    goto: string | null;
+}
+
+interface PageItem extends ManifestItem {
+    keyword: PageKeyword;
+}
+
 export const PageNav = ({ state } : { state: ShellState }) => {
     const {
         current_machine,
@@ -324,13 +326,13 @@ export const PageNav = ({ state } : { state: ShellState }) => {
     cockpit.assert(current_machine_manifest_items && current_manifest_item);
 
     // Filtering of navigation by term
-    function keyword_filter(item: ManifestItem, term: string): NavItem<ManifestItem> | null {
-        function keyword_relevance(current_best: NavKeyword, item: ManifestKeyword) {
+    function keyword_filter(item: ManifestItem, term: string): PageItem | null {
+        function keyword_relevance(current_best: PageKeyword, item: ManifestKeyword) {
             const translate = item.translate || false;
             const weight = item.weight || 0;
             let score;
             let _m = "";
-            let best: NavKeyword = { keyword: "", score: -1, goto: null };
+            let best: PageKeyword = { keyword: "", score: -1, goto: null };
             item.matches.forEach(m => {
                 if (translate)
                     _m = _(m);
@@ -358,7 +360,7 @@ export const PageNav = ({ state } : { state: ShellState }) => {
             return current_best;
         }
 
-        const new_item: NavItem<ManifestItem> = Object.assign({ keyword: { keyword: "", score: -1, goto: null } }, item);
+        const new_item: PageItem = Object.assign({ keyword: { keyword: "", score: -1, goto: null } }, item);
         if (!term)
             return new_item;
         const best_keyword = new_item.keywords.reduce(keyword_relevance, { keyword: "", score: -1, goto: null });
@@ -370,7 +372,7 @@ export const PageNav = ({ state } : { state: ShellState }) => {
     }
 
     // Rendering of separate navigation menu items
-    function nav_item(item: NavItem<ManifestItem>, term: string) {
+    function nav_item(item: PageItem, term: string) {
         const active = current_manifest_item?.path === item.path;
 
         // Parse path

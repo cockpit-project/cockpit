@@ -17,6 +17,7 @@
 
 import asyncio
 import contextlib
+import ctypes
 import enum
 import errno
 import fnmatch
@@ -425,6 +426,14 @@ class FsInfoChannel(Channel, PathWatchListener):
 
     @staticmethod
     def make_getattrs(attrs: Iterable[str]) -> 'Callable[[int, str, Follow], JsonDocument | None]':
+        faccessat = ctypes.CDLL(None).faccessat
+
+        access_bits = {
+            'r-ok': os.R_OK,
+            'w-ok': os.W_OK,
+            'x-ok': os.X_OK,
+        }
+
         # Cached for the duration of the closure we're creating
         @functools.lru_cache()
         def get_user(uid: int) -> 'str | int':
@@ -439,6 +448,15 @@ class FsInfoChannel(Channel, PathWatchListener):
                 return grp.getgrgid(gid).gr_name
             except KeyError:
                 return gid
+
+        def get_access(fd: int, mode: int, *, follow_symlinks: bool = False) -> 'bool | None':
+            AT_EMPTY_PATH = 0x1000
+            AT_SYMLINK_NOFOLLOW = 0x100
+            flags = AT_EMPTY_PATH if follow_symlinks else AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW
+            try:
+                return faccessat(fd, "", mode, flags) == 0
+            except OSError:
+                return None
 
         stat_types = {stat.S_IFREG: 'reg', stat.S_IFDIR: 'dir', stat.S_IFLNK: 'lnk', stat.S_IFCHR: 'chr',
                       stat.S_IFBLK: 'blk', stat.S_IFIFO: 'fifo', stat.S_IFSOCK: 'sock'}
@@ -457,7 +475,15 @@ class FsInfoChannel(Channel, PathWatchListener):
 
         def get_attrs(fd: int, name: str, follow: Follow) -> 'JsonDict | None':
             try:
-                buf = os.stat(name, follow_symlinks=follow.value, dir_fd=fd) if name else os.fstat(fd)
+                file_fd = Handle.open(name, os.O_PATH | os.O_NOFOLLOW, os.O_RDONLY, dir_fd=fd) if name else fd
+            except FileNotFoundError:
+                return None
+            except OSError:
+                # Errp, this is for dirs without X, used to be handled below and now here.
+                return {name: None for name, func in stat_getters}
+
+            try:
+                buf = os.fstat(file_fd)
             except FileNotFoundError:
                 return None
             except OSError:
@@ -468,6 +494,10 @@ class FsInfoChannel(Channel, PathWatchListener):
             if 'target' in result and stat.S_IFMT(buf.st_mode) == stat.S_IFLNK:
                 with contextlib.suppress(OSError):
                     result['target'] = os.readlink(name, dir_fd=fd)
+
+            for attr, mask in access_bits.items():
+                if attr in result:
+                    result[attr] = get_access(file_fd, mask, follow_symlinks=follow.value)
 
             return result
 

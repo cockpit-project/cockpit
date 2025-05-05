@@ -1359,7 +1359,7 @@ async def test_fsinfo_onlydir(transport: MockTransport, fsinfo_test_cases: 'dict
 
         # with '/' appended, this should only open dirs
         client = await FsInfoClient.open(transport, str(path) + '/')
-        assert await client.wait() == expected_state
+        assert await client.wait() == expected_state, f'for {path}'
 
 
 @pytest.mark.asyncio
@@ -1471,7 +1471,7 @@ async def test_fsinfo_watch_identity_changes(
 
 @pytest.mark.asyncio
 async def test_fsinfo_self_owner(transport: MockTransport, tmp_path: Path) -> None:
-    client = await FsInfoClient.open(transport, tmp_path, ['user', 'uid', 'group', 'gid'])
+    client = await FsInfoClient.open(transport, tmp_path, ['user', 'uid', 'group', 'gid'], fnmatch='')
     state = await client.wait()
     info = get_dict(state, 'info')
 
@@ -1479,6 +1479,8 @@ async def test_fsinfo_self_owner(transport: MockTransport, tmp_path: Path) -> No
     assert get_int(info, 'gid') == os.getgid()
     assert info.get('user') == getpass.getuser()
     assert info.get('group') == grp.getgrgid(os.getgid()).gr_name  # hopefully true...
+    # user, uid, group, gid
+    assert len(info.keys()) == 4
 
 
 @pytest.mark.asyncio
@@ -1587,3 +1589,39 @@ async def test_fsinfo_targets(transport: MockTransport, tmp_path: Path) -> None:
     # double-check with the non-watch variant
     client = await FsInfoClient.open(transport, tmp_path, ['type', 'target', 'targets'], fnmatch='l*')
     assert await client.wait() == state
+
+
+@pytest.mark.asyncio
+async def test_fsinfo_access_attrs(transport: MockTransport, fsinfo_test_cases: 'dict[Path, JsonObject]') -> None:
+    for path, expected_state in fsinfo_test_cases.items():
+        # these are errors
+        if path.name == 'dangling' or path.name == 'loopy':
+            continue
+
+        read_ok = True
+        write_ok = True
+        exec_ok = path.is_dir()
+
+        if path.name == 'no-r-dir':
+            read_ok = False
+        elif path.name == 'no-x-dir':
+            exec_ok = False
+        elif path.name == 'no-r-file':
+            read_ok = False
+            write_ok = False
+            exec_ok = False
+
+        expected_state = {'info': {'r-ok': read_ok, 'w-ok': write_ok, 'x-ok': exec_ok}}
+
+        # fnmatch='' to not include entries
+        client = await FsInfoClient.open(transport, path, attrs=['w-ok', 'r-ok', 'x-ok'], fnmatch='')
+        assert await client.wait() == expected_state, f'for path={path.name}'
+
+    # Symlink access bits are always allowed
+    for path, expected_state in fsinfo_test_cases.items():
+        if path.name != 'dev':
+            continue
+
+        expected_state = {'info': {'r-ok': True, 'w-ok': True, 'x-ok': True}}
+        client = await FsInfoClient.open(transport, path, attrs=['w-ok', 'r-ok', 'x-ok'], follow=False)
+        assert await client.wait() == expected_state, f'for path={path.name}'

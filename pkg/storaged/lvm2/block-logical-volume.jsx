@@ -30,6 +30,7 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { StorageButton, StorageLink } from "../storage-controls.jsx";
 
 import { check_unused_space, get_resize_info, grow_dialog, shrink_dialog } from "../block/resize.jsx";
+import { block_actions } from "../block/actions.jsx";
 import { StorageCard, StorageDescription, new_card, navigate_to_new_card_location, navigate_away_from_card } from "../pages.jsx";
 import { block_name, fmt_size, get_active_usage, teardown_active_usage, reload_systemd } from "../utils.js";
 import {
@@ -218,6 +219,7 @@ export function make_block_logical_volume_card(next, vgroup, lvol, block) {
             },
             lvm2_create_snapshot_action(lvol),
             repair_action,
+            ...block_actions(block),
             {
                 title: _("Delete"),
                 action: () => lvol_delete(lvol, card),

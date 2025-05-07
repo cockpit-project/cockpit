@@ -43,7 +43,6 @@ import {
     init_teardown_usage
 } from "../dialog.jsx";
 import { make_btrfs_subvolume_pages } from "./subvolume.jsx";
-import { btrfs_device_actions } from "./device.jsx";
 
 const _ = cockpit.gettext;
 
@@ -222,7 +221,6 @@ export function make_btrfs_subvolumes_card(next, block, backing_block) {
     return new_card({
         title: _("btrfs subvolumes"),
         next,
-        actions: btrfs_device_actions(block, backing_block),
         component: BtrfsSubVolumesCard,
     });
 }

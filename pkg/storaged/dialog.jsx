@@ -513,13 +513,34 @@ export const dialog_open = (def) => {
                 return null;
         })).then(results => {
             const errors = { };
-            fields.forEach((f, i) => { if (results[i]) errors[f.tag] = results[i]; });
+            let scrolled = false;
+            fields.forEach((f, i) => {
+                if (results[i]) {
+                    if (!scrolled) {
+                        show_field(f.tag);
+                        scrolled = true;
+                    }
+                    errors[f.tag] = results[i];
+                }
+            });
             if (Object.keys(errors).length > 0)
                 return Promise.reject(errors);
         });
     };
 
     const dlg = show_modal_dialog(props(), footer_props(null, null));
+
+    function show_field(tag) {
+        function scroll() {
+            const field_element = document.querySelector('#dialog [data-field="' + tag + '"]');
+            if (field_element)
+                field_element.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+        // By the time show_field is called from the "update"
+        // callback, newly visible fields don't exist yet in the
+        // DOM, so delay the scrolling a bit.
+        window.setTimeout(scroll, 10);
+    }
 
     const self = {
         run: (title, promise) => {
@@ -592,6 +613,8 @@ export const dialog_open = (def) => {
             def.Action.DangerButton = true;
             update_footer();
         },
+
+        show_field,
 
         close: () => {
             dlg.footerProps.dialog_done();

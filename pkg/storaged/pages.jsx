@@ -569,7 +569,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 step("TD", "previousElementSibling");
         }
 
-        function location_link(location) {
+        function location_link(id, location) {
             if (!location)
                 return null;
             if (typeof location == "string")
@@ -578,7 +578,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 return location.label;
 
             return (
-                <Button isInline variant="link" onClick={() => cockpit.location.go(location.to)}>
+                <Button ouiaId={id} isInline variant="link" onClick={() => cockpit.location.go(location.to)}>
                     <Truncate content={location.label} />
                 </Button>
             );
@@ -598,14 +598,14 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                         <Split hasGutter>
                             { icon && <SplitItem>{icon}</SplitItem> }
                             <SplitItem isFilled>
-                                {location_link({ to: page.location, label: <strong>{name}</strong> })}
+                                {location_link("id-link", { to: page.location, label: <strong>{name}</strong> })}
                                 {info}
                             </SplitItem>
                             <SplitItem>{actions}</SplitItem>
                         </Split>
                         <Split hasGutter isWrappable>
                             <SplitItem>{type}</SplitItem>
-                            <SplitItem isFilled>{location_link(location)}</SplitItem>
+                            <SplitItem isFilled>{location_link("location-link", location)}</SplitItem>
                             <SplitItem isFilled className="pf-v6-u-text-align-end">{size}</SplitItem>
                         </Split>
                     </CardBody>
@@ -614,12 +614,12 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
             const cols = [
                 <Td key="1">
                     <div className="indent" style={ { "--level": level } }>
-                        {location_link({ to: page.location, label: name })}
+                        {location_link("id-link", { to: page.location, label: name })}
                         {info}
                     </div>
                 </Td>,
                 <Td key="2" modifier="nowrap">{type}</Td>,
-                <Td key="3" modifier="nowrap">{location_link(location)}</Td>,
+                <Td key="3" modifier="nowrap">{location_link("location-link", location)}</Td>,
                 <Td key="4" className="storage-size-column">{size}</Td>,
                 <Td key="5" className="pf-v6-c-table__action">{actions || <div /> }</Td>,
             ];

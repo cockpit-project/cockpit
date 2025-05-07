@@ -610,7 +610,7 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
             return pfx + f" tbody [data-test-row-location='{location}']"
 
     def click_card_row(self, title: str, index: int | None = None, name: str | None = None, location: str | None = None, table_index: int = 1) -> None:
-        self.browser.click(self.card_row(title, index, name, location, table_index) + " .indent button")
+        self.browser.click_button("id-link", self.card_row(title, index, name, location, table_index))
 
     def card_row_col(self, title: str, row_index: int | None = None, col_index: int | None = None,
                      row_name: str | None = None, row_location: str | None = None, table_index: int = 1) -> str:

@@ -735,6 +735,10 @@ class Browser:
         self.click(f"{menu_class} button:contains('{value}')")
         self.wait_not_present(menu_class)
 
+    def click_button(self, compid: str, prefix: str = "", component: str = "PF6/Button") -> None:
+        """Click on a button identified by its OUIA component id."""
+        self.click(f'{prefix} [data-ouia-component-type="{component}"][data-ouia-component-id="{compid}"]')
+
     def set_input_text(
         self, selector: str, val: str, append: bool = False, value_check: bool = True, blur: bool = True
     ) -> None:

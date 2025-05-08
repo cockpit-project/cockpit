@@ -38,7 +38,10 @@ export function make_lvm2_physical_volume_card(next, backing_block, content_bloc
 
     const pv_card = new_card({
         title: _("LVM2 physical volume"),
-        location: vgroup ? vgroup.Name : null,
+        location: {
+            label: vgroup ? vgroup.Name : null,
+            to: vgroup ? ["vg", vgroup.Name] : null,
+        },
         next,
         page_size: (block_pvol
             ? <StorageUsageBar stats={[block_pvol.Size - block_pvol.FreeSize, block_pvol.Size]} short />

@@ -528,62 +528,60 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 size = <StorageSize size={size} />;
         }
 
-        function onClick(event) {
-            if (!event || event.button !== 0)
-                return;
-
-            if (page.location)
-                cockpit.location.go(page.location);
-        }
-
-        function is_clickable(element) {
-            return element.classList.contains("pf-m-clickable");
-        }
-
-        function next_clickable_sibling(element) {
-            do {
-                const next = element.nextElementSibling;
-                if (next && is_clickable(next))
-                    return next;
-                element = next;
-            } while (element);
-
-            return null;
-        }
-
-        function previous_clickable_sibling(element) {
-            do {
-                const prev = element.previousElementSibling;
-                if (prev && is_clickable(prev))
-                    return prev;
-                element = prev;
-            } while (element);
-
+        function find_button(element, parent_node_name, field) {
+            let column = 0;
+            while (element && element.nodeName != parent_node_name) {
+                if (element.nodeName == "TD") {
+                    let td = element;
+                    while (td) {
+                        column++;
+                        td = td.previousElementSibling;
+                    }
+                }
+                element = element.parentElement;
+            }
+            if (!element)
+                return null;
+            const selector = column > 0 ? `td:nth-child(${column}) button` : "button";
+            while ((element = element[field])) {
+                const button = element.querySelector(selector);
+                if (button)
+                    return button;
+            }
             return null;
         }
 
         function onRowKeyDown(event) {
             const { code, target } = event;
 
-            if (target.nodeName == "TR") {
-                if (code == "Space" || code == "Enter") {
-                    if (page.location)
-                        cockpit.location.go(page.location);
-                    event.preventDefault();
-                }
-                if (code == "ArrowDown") {
-                    const next = next_clickable_sibling(target);
-                    if (next)
-                        next.focus();
-                    event.preventDefault();
-                }
-                if (code == "ArrowUp") {
-                    const prev = previous_clickable_sibling(target);
-                    if (prev)
-                        prev.focus();
-                    event.preventDefault();
-                }
+            function step(parent_node_name, field) {
+                find_button(target, parent_node_name, field)?.focus();
+                event.preventDefault();
             }
+
+            if (code == "ArrowDown")
+                step("TR", "nextElementSibling");
+            else if (code == "ArrowUp")
+                step("TR", "previousElementSibling");
+            else if (code == "ArrowRight")
+                step("TD", "nextElementSibling");
+            else if (code == "ArrowLeft")
+                step("TD", "previousElementSibling");
+        }
+
+        function location_link(location) {
+            if (!location)
+                return null;
+            if (typeof location == "string")
+                return location;
+            if (!location.to)
+                return location.label;
+
+            return (
+                <Button isInline variant="link" onClick={() => cockpit.location.go(location.to)}>
+                    <Truncate content={location.label} />
+                </Button>
+            );
         }
 
         const is_new = firstKeys.current != false && !firstKeys.current.has(key);
@@ -593,48 +591,48 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
             rows.push(
                 <Card isPlain key={key}
                       className={"ct-small-table-card" +
-                                 (page.location ? " ct-clickable-card" : null) +
                                  (is_new ? " ct-new-item" : "")}
                       data-test-row-name={page.name}
-                      data-test-row-location={page.columns[1]}>
+                      data-test-row-location={location?.label || location}>
                     <CardBody>
                         <Split hasGutter>
-                            { icon && <SplitItem onClick={onClick}>{icon}</SplitItem> }
-                            <SplitItem isFilled onClick={onClick}>
-                                <strong><Truncate content={name} /></strong>{info}
+                            { icon && <SplitItem>{icon}</SplitItem> }
+                            <SplitItem isFilled>
+                                {location_link({ to: page.location, label: <strong>{name}</strong> })}
+                                {info}
                             </SplitItem>
                             <SplitItem>{actions}</SplitItem>
                         </Split>
-                        <Split hasGutter isWrappable onClick={onClick}>
+                        <Split hasGutter isWrappable>
                             <SplitItem>{type}</SplitItem>
-                            <SplitItem isFilled>{location}</SplitItem>
+                            <SplitItem isFilled>{location_link(location)}</SplitItem>
                             <SplitItem isFilled className="pf-v6-u-text-align-end">{size}</SplitItem>
                         </Split>
                     </CardBody>
                 </Card>);
         } else {
             const cols = [
-                <Td key="1" onClick={onClick}>
+                <Td key="1">
                     <div className="indent" style={ { "--level": level } }>
-                        <Truncate content={name} />
+                        {location_link({ to: page.location, label: name })}
                         {info}
                     </div>
                 </Td>,
-                <Td key="2" onClick={onClick} modifier="nowrap">{type}</Td>,
-                <Td key="3" onClick={onClick} modifier="nowrap">{location}</Td>,
-                <Td key="4" onClick={onClick} className="storage-size-column">{size}</Td>,
+                <Td key="2" modifier="nowrap">{type}</Td>,
+                <Td key="3" modifier="nowrap">{location_link(location)}</Td>,
+                <Td key="4" className="storage-size-column">{size}</Td>,
                 <Td key="5" className="pf-v6-c-table__action">{actions || <div /> }</Td>,
             ];
             if (show_icons)
-                cols.unshift(<Td key="0" onClick={onClick} className="storage-device-icon">{icon}</Td>);
+                cols.unshift(<Td key="0" className="storage-device-icon">{icon}</Td>);
 
             rows.push(
                 <Tr key={key}
                     className={(border ? "" : " remove-border") +
                                (is_new ? " ct-new-item" : "")}
-                    data-test-row-name={page.name} data-test-row-location={page.columns[1]}
-                    isClickable={!!page.location}
-                    onKeyDown={onRowKeyDown}>
+                    onKeyDown={onRowKeyDown}
+                    data-test-row-name={page.name} data-test-row-location={location?.label || location}
+                >
                     {cols}
                 </Tr>);
         }

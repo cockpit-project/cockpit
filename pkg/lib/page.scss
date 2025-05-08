@@ -151,14 +151,12 @@ a.disabled:hover {
   --ct-color-list-active-text: var(--pf-v6-global--palette--blue-500);
   --ct-color-list-active-bg: var(--ct-color-bg);
   --ct-color-list-active-border: var(--ct-color-list-border);
-  --ct-color-list-critical-bg: var(--pf-t--global--color--nonstatus--red--100);
-  --ct-color-list-critical-border: color-mix(in srgb, var(--pf-t--global--color--nonstatus--red--default), white 50%);
+  --ct-color-list-critical-bg: color-mix(in oklch, var(--pf-t--global--border--color--status--danger--default) 10%, transparent);
+  --ct-color-list-critical-border: color-mix(in oklch, var(--pf-t--global--border--color--status--danger--default) 25%, transparent);
   --ct-color-list-critical-alert-text: var(--pf-v6-global--palette--red-200);
 }
 
 .pf-v6-theme-dark {
-  --ct-color-list-critical-bg: color-mix(in srgb, var(--pf-t--color--red--70), black 50%);
-  --ct-color-list-critical-border: color-mix(in srgb, var(--pf-t--color--red--70), white 50%);
   --ct-color-list-critical-alert-text: var(--pf-v6-global--palette--red-8888);
 }
 

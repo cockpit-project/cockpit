@@ -40,7 +40,10 @@ export function make_btrfs_device_card(next, backing_block, content_block, block
 
     const btrfs_card = new_card({
         title: _("btrfs device"),
-        location: label || uuid,
+        location: {
+            label: label || uuid,
+            to: ["btrfs-volume", uuid],
+        },
         next,
         component: BtrfsDeviceCard,
         props: { backing_block, content_block },

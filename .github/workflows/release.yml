@@ -133,6 +133,7 @@ jobs:
           git commit -m "Update to version ${{ github.ref_name }}"
           git show
           git push git@github.com:cockpit-project/org.cockpit_project.CockpitClient HEAD
+          gh pr create --fill-verbose
 
 
   node-cache:

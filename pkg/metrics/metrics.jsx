@@ -1570,6 +1570,7 @@ class MetricsHistory extends React.Component {
             loading: true, // show loading indicator
             metricsAvailable: true,
             pmLoggerState: null,
+            pcpContainerState: null,
             error: null,
             isDatepickerOpened: false,
             selectedDate: null,
@@ -1593,6 +1594,15 @@ class MetricsHistory extends React.Component {
                 if (!this.state.metricsAvailable && runningService(this.pmlogger_service))
                     this.initialLoadData();
                 this.setState({ pmLoggerState: this.pmlogger_service.state });
+            }
+        });
+        this.container_service = service.proxy("cockpit-pcp.service");
+        this.container_service.addEventListener("changed", () => {
+            if (!invalidService(this.container_service) && this.container_service.state !== this.state.pcpContainerState) {
+                // when it got enabled while the page is running (e.g. through Settings dialog), start data collection
+                if (!this.state.metricsAvailable && runningService(this.container_service))
+                    this.initialLoadData();
+                this.setState({ pcpContainerState: this.container_service.state });
             }
         });
 
@@ -1688,6 +1698,12 @@ class MetricsHistory extends React.Component {
         install_dialog(await get_pcp_packages())
                 .then(() => this.initialLoadData())
                 .catch(() => null); // ignore cancel
+    }
+
+    async handleContainerEnable() {
+        await cockpit.spawn(["mkdir", "-p", "/etc/containers/systemd/cockpit-pcp.container.d"], {superuser: 'require'});
+        await cockpit.file("/etc/containers/systemd/cockpit-pcp.container.d/10-enable.conf", {superuser: 'require'}).replace("[Install]\nWantedBy=default.target\n")
+        await cockpit.spawn(["systemctl", "start", "cockpit-pcp.service"], {superuser: 'require'});
     }
 
     load_data(load_timestamp, limit, show_spinner) {
@@ -1814,13 +1830,22 @@ class MetricsHistory extends React.Component {
     }
 
     render() {
+        const podman_installed = cockpit.manifests?.podman;
+
         // on a single machine, cockpit-pcp depends on pcp; but this may not be the case in the beiboot scenario,
         // so additionally check if pcp is available on the logged in target machine
-        if (this.state.isPythonPCPInstalled === false || this.pmlogger_service.exists === false)
+        if (this.state.isPythonPCPInstalled === false)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("PCP is missing for metrics history")}
                         action={this.state.packagekitExists && <Button onClick={this.handleInstall}>{_("Install PCP support")}</Button>}
+            />;
+
+        if (podman_installed && !this.state.metricsAvailable && (this.container_service.state !== 'running' && this.container_service.state !== 'starting'))
+            return <EmptyStatePanel
+                        icon={ExclamationCircleIcon}
+                        title={_("PCP container isn't running for metrics history")}
+                        action={podman_installed ? <Button onClick={this.handleContainerEnable}>{_("Enable and run PCP Container")}</Button> : ""}
             />;
 
         if (!this.state.metricsAvailable) {

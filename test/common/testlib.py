@@ -1929,7 +1929,7 @@ class MachineCase(unittest.TestCase):
                         "    while fuser --mount /dev/$dev --kill; do sleep 0.1; done; "
                         "    umount /dev/$dev || true; "
                         "    swapon --show=NAME --noheadings | grep $dev | xargs -r swapoff; "
-                        "done; until rmmod scsi_debug; do sleep 0.2; cat /proc/mdstat; fdisk -l; done", stdout=None)
+                        "done; until rmmod scsi_debug; do sleep 0.2; cat /proc/mdstat; ls -lh /dev/md || true; done", stdout=None)
 
     def _terminate_sessions(self) -> None:
         m = self.machine

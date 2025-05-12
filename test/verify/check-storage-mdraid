@@ -287,7 +287,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.addCleanup(m.execute, "mdadm --stop /dev/md/ARR; ls -lh /dev/md")
+        self.addCleanup(m.execute, "echo 'CLEANING'; mdadm --stop /dev/md/ARR; ls -lh /dev/md")
 
         self.click_card_row("Storage", name="/dev/md/ARR")
 

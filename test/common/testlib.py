@@ -1919,9 +1919,12 @@ class MachineCase(unittest.TestCase):
                         "for dev in $(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block); do "
                         "    for s in /sys/block/*/slaves/${dev}*; do [ -e $s ] || break; "
                         "        d=/dev/$(dirname $(dirname ${s#/sys/block/})); "
+                        '        echo "cleaning up $d"; '
                         "        while fuser --mount $d --kill; do sleep 0.1; done; "
                         "        umount $d || true; dmsetup remove --force $d || true; "
                         "    done; "
+                        "    cat /proc/mdstat; "
+                        "    ls -lh /dev/md || true; "
                         "    while fuser --mount /dev/$dev --kill; do sleep 0.1; done; "
                         "    umount /dev/$dev || true; "
                         "    swapon --show=NAME --noheadings | grep $dev | xargs -r swapoff; "

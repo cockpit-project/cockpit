@@ -90,13 +90,11 @@ function Superuser() {
         return (proxy.Bridges?.length ?? 0) > 0;
     };
 
-    const self = {
+    const self = cockpit.event_target({
         allowed: compute_allowed(),
         configured: null,
         reload_page_on_change
-    };
-
-    cockpit.event_target(self);
+    });
 
     function changed(allowed) {
         if (self.allowed != allowed) {

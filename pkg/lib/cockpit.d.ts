@@ -281,7 +281,7 @@ declare module 'cockpit' {
 
     interface FileSyntaxObject<T, B> {
         parse(content: B): T;
-        stringify(content: T): B;
+        stringify?(content: T): B;
     }
 
     type FileTag = string;

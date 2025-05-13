@@ -19,8 +19,8 @@
 
 import cockpit from "cockpit";
 
-function parse_simple_vars(text) {
-    const res = { };
+function parse_simple_vars(text: string): Record<string, string> {
+    const res: Record<string, string> = { };
     for (const l of text.split('\n')) {
         const pos = l.indexOf('=');
         if (pos > 0) {

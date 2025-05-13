@@ -263,6 +263,19 @@ declare module 'cockpit' {
         proxies(interface?: string, path_namespace?: string, options?: { watch?: boolean }): DBusProxies;
         call(path: string, iface: string, method: string, args?: unknown[] | null, options?: DBusCallOptions): Promise<unknown[]>;
         watch(path: string): DeferredPromise<void>,
+        subscribe: (
+            match: {
+                path?: string,
+                path_namespace?: string,
+                interface?: string,
+                member?: string,
+                arg?: string
+            },
+            callback: (path: string, iface: string, signal: string, args: unknown[]) => void,
+            rule?: boolean,
+        ) => {
+            remove: () => void;
+        },
         close(): void;
     }
 

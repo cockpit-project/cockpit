@@ -404,3 +404,9 @@ $phone: 767px;
     flex-wrap: wrap;
   }
 }
+
+// NOTE: PF6 workaround, when table is in the small screen layout PF sets too big font-weight
+// https://github.com/patternfly/patternfly/issues/7526
+.pf-v6-c-table .pf-v6-c-table__tbody :where(.pf-v6-c-table__th, .pf-v6-c-table__td)[data-label]::before {
+    font-weight: var(--pf-t--global--font--weight--body--bold);
+}

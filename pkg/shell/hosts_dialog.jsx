@@ -261,7 +261,7 @@ class Connect extends React.Component {
             <Modal id="hosts_connect_server_dialog" isOpen
                    position="top" variant="small"
                    onClose={this.props.onClose}
-                   title={fmt_to_fragments(_("Connect to $0?"), <b>{this.props.host}</b>)}
+                   title={fmt_to_fragments(_("Connect to $0?"), <b className="ct-heading-font-weight">{this.props.host}</b>)}
                    titleIconVariant="warning"
                    footer={<>
                        <HelperText>

@@ -1,0 +1,17 @@
+# This gets installed to /usr/share/containers/systemd/cockpit-pcp.container
+[Unit]
+Description=Cockpit PCP Container
+
+[Service]
+ExecStartPre=mkdir -p /var/log/pcp/pmlogger
+
+[Container]
+Image=registry.suse.com/suse/pcp
+Environment=HOST_MOUNT=/host
+Environment=PROC_STATSPATH=/host
+Environment=PCP_PODMAN_DATADIR=/host/var/lib/containers/storage/overlay-containers
+Environment=PCP_PODMAN_RUNDIR=/host/run/containers/storage/overlay-containers
+Volume=/:/host:ro,rslave
+Volume=/var/log/pcp/pmlogger:/var/log/pcp/pmlogger:Z
+Network=host
+PodmanArgs=--privileged

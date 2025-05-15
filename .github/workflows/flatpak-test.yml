@@ -28,6 +28,12 @@ jobs:
       - name: Build and install flatpak
         run: dbus-run-session sh -x containers/flatpak/install --user --install-deps-from=flathub
 
+      # Recent Ubuntu runners disable it by default in cloud-init config
+      - name: Enable SSH password authentication
+        run: |
+          echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/01-enable-password.conf
+          sudo systemctl restart ssh
+
       - name: Smoke-test the installed flatpak
         run: |
           export COCKPIT_TEST_SSH_PASS=foobar

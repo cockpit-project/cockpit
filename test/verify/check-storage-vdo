@@ -24,7 +24,6 @@ import testlib
 SIZE_10G = "10000000000"
 
 
-@testlib.skipImage("vdo not currently available in RHEL 10", "rhel-10*", "centos-10*")
 class TestStorageVDO(storagelib.StorageCase):
 
     provision = {"0": {"memory_mb": 1800}}
@@ -34,6 +33,8 @@ class TestStorageVDO(storagelib.StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
+        # an empty xfs filesystem created with 6.4.0 is smaller then newer xfs versions
+        old_xfs = m.image.startswith('rhel-9') or m.image.startswith('centos-9') or m.image.startswith('rhel-8')
 
         # Make a volume group in which to create the VDO LV
         dev = "/dev/" + m.add_disk(SIZE_10G, serial="DISK1")["dev"]
@@ -87,13 +88,13 @@ class TestStorageVDO(storagelib.StorageCase):
 
         # compressible data should affect logical usage
         m.execute("dd if=/dev/zero of=/run/data/empty bs=1M count=1000")
-        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "1.2 / ")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "1.2 / " if old_xfs else "1.3 / ")
         # but not physical usage
         b.wait_text(self.card_desc("LVM2 VDO pool", "Data used"), "3.86 GB (64%)")
 
         # incompressible data
         m.execute("dd if=/dev/urandom of=/run/data/gibberish bs=1M count=1000")
-        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "2.2 / ")
+        b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "2.2 / " if old_xfs else "2.3 / ")
         # equal amount of physical space (not completely predictable due to random data)
         b.wait_in_text(self.card_desc("LVM2 VDO pool", "Data used"), "4.")
 
@@ -390,7 +391,6 @@ config: !Configuration
 
 
 @testlib.onlyImage("VDO API only supported on RHEL", "rhel-*", "centos-*")
-@testlib.skipImage("vdo not currently available in RHEL 10", "rhel-10*", "centos-10*")
 class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
 
     provision = {"0": {"memory_mb": 1500}}

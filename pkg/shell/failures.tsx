@@ -40,21 +40,29 @@ export const EarlyFailure = () => {
 
     return (
         <div id="early-failure" className="early-failure">
-            <Page className='no-masthead-sidebar'>
+            <Page className="pf-m-no-sidebar">
                 <PageSection hasBodyWrapper={false}>
-                    <EmptyStatePanel icon={ExclamationCircleIcon}
-                                     title={ _("Connection failed") }
-                                     paragraph={
-                                         <Stack hasGutter>
-                                             <div>{_("There was an unexpected error while connecting to the machine.")}</div>
-                                             <div>{_("Messages related to the failure might be found in the journal:")}</div>
-                                             <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")}>journalctl -u cockpit</ClipboardCopy>
-                                             {ca_cert_url && <div id="safari-cert-help">
-                                                 <div>{_("Safari users need to import and trust the certificate of the self-signing CA:")}</div>
-                                                 <Button variant="link" component="a" id="safari-cert" href={ca_cert_url} download>ca.cer</Button>
-                                             </div>}
-                                         </Stack>
-                                     } />
+                    <EmptyStatePanel
+              icon={ExclamationCircleIcon}
+              title={_("Connection failed")}
+              paragraph={
+                  <Stack hasGutter>
+                      <div>{_("There was an unexpected error while connecting to the machine.")}</div>
+                      <div>{_("Messages related to the failure might be found in the journal:")}</div>
+                      <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")}>
+                          journalctl -u cockpit
+                      </ClipboardCopy>
+                      {ca_cert_url && (
+                          <div id="safari-cert-help">
+                              <div>{_("Safari users need to import and trust the certificate of the self-signing CA:")}</div>
+                              <Button variant="link" component="a" id="safari-cert" href={ca_cert_url} download>
+                                  ca.cer
+                              </Button>
+                          </div>
+                      )}
+                  </Stack>
+              }
+                    />
                 </PageSection>
             </Page>
         </div>
@@ -80,22 +88,28 @@ const EarlyFailureReady = ({
 }) => {
     return (
         <div id="early-failure-ready" className="curtains-ct">
-            <Page className="no-masthead-sidebar">
+            <Page className="pf-m-no-sidebar">
                 <PageSection hasBodyWrapper={false}>
-                    <EmptyStatePanel {... !loading ? { icon: ExclamationCircleIcon } : {} }
-                                     loading={loading}
-                                     title={title}
-                                     action={<>
-                                         {reconnect &&
-                                         <Button id="machine-reconnect" onClick={onReconnect}>
-                                             {_("Reconnect")}
-                                         </Button>}
-                                         {troubleshoot &&
-                                         <Button id="machine-troubleshoot" onClick={onTroubleshoot}>
-                                             {_("Log in")}
-                                         </Button>}
-                                     </>}
-                                     paragraph={paragraph} />
+                    <EmptyStatePanel
+                        {...(!loading ? { icon: ExclamationCircleIcon } : {})}
+              loading={loading}
+              title={title}
+              action={
+                  <>
+                      {reconnect && (
+                          <Button id="machine-reconnect" onClick={onReconnect}>
+                              {_("Reconnect")}
+                          </Button>
+                      )}
+                      {troubleshoot && (
+                          <Button id="machine-troubleshoot" onClick={onTroubleshoot}>
+                              {_("Log in")}
+                          </Button>
+                      )}
+                  </>
+              }
+              paragraph={paragraph}
+                    />
                 </PageSection>
             </Page>
         </div>

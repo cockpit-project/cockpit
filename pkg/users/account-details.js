@@ -96,40 +96,40 @@ function get_expire(name) {
             .then(parse_expire);
 }
 
-export function AccountDetails({ accounts, groups, current_user, user, shells }) {
+export function AccountDetails({ account, details, groups, isLoading, current_user, user, shells }) {
     const [expiration, setExpiration] = useState(null);
 
     useEffect(() => {
         get_expire(user).then(setExpiration);
-    }, [user, accounts]);
+    }, [user, account]);
 
-    const [edited_real_name, set_edited_real_name] = useState(null);
-    const [committing_real_name, set_committing_real_name] = useState(false);
+    const [editedRealName, setEditedRealName] = useState(null);
+    const [comittingRealName, setCommittingRealName] = useState(false);
 
-    const [edited_locked, set_edited_locked] = useState(null);
+    const [editedLocked, setEditedLocked] = useState(null);
 
     function change_real_name() {
-        if (!edited_real_name)
+        if (!editedRealName)
             return;
 
-        set_committing_real_name(true);
+        setCommittingRealName(true);
 
         // TODO: unwanted chars check
-        cockpit.spawn(["/usr/sbin/usermod", user, "--comment", edited_real_name],
+        cockpit.spawn(["/usr/sbin/usermod", user, "--comment", editedRealName],
                       { superuser: "try", err: "message" })
                 .then(() => {
-                    set_edited_real_name(null);
-                    set_committing_real_name(false);
+                    setEditedRealName(null);
+                    setCommittingRealName(false);
                 })
                 .catch(error => {
-                    set_edited_real_name(null);
-                    set_committing_real_name(false);
+                    setEditedRealName(null);
+                    setCommittingRealName(false);
                     show_unexpected_error(error);
                 });
     }
 
     function change_locked(value, dont_retry_if_stuck) {
-        set_edited_locked(value);
+        setEditedLocked(value);
 
         cockpit.spawn(["/usr/sbin/usermod", user, value ? "--lock" : "--unlock"],
                       { superuser: "require", err: "message" })
@@ -145,12 +145,11 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     console.log("Account locked state doesn't match desired value, trying again.");
                                     // only retry once to avoid uncontrolled recursion
                                     change_locked(value, true);
-                                } else
-                                    set_edited_locked(null);
+                                }
                             });
                 })
                 .catch(error => {
-                    set_edited_locked(null);
+                    setEditedLocked(null);
                     show_unexpected_error(error);
                 });
     }
@@ -164,15 +163,21 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                 .catch(show_unexpected_error);
     }
 
-    if (!accounts.length) {
+    useEffect(
+        () => {
+            setEditedLocked(null);
+            console.log("edited locked being changed to null");
+        },
+        [details],
+    );
+
+    if (isLoading) {
         return (
             <EmptyState headingLevel="h1" titleText={_("Loading...")} variant={EmptyStateVariant.sm}>
                 <EmptyStateFooter><Spinner size="xl" /></EmptyStateFooter>
             </EmptyState>
         );
     }
-
-    const account = accounts.find(acc => acc.name == user);
 
     if (!account) {
         return (
@@ -200,17 +205,17 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
         title_name = account.name;
 
     let last_login;
-    if (account.loggedIn)
+    if (details.loggedIn)
         last_login = _("Logged in");
-    else if (!account.lastLogin)
+    else if (!details.lastLogin)
         last_login = _("Never");
     else
-        last_login = timeformat.dateTime(new Date(account.lastLogin));
+        last_login = timeformat.dateTime(new Date(details.lastLogin));
 
     const actions = superuser.allowed && (
         <>
             <Button variant="secondary" onClick={() => logout_account()} id="account-logout"
-              isDisabled={!account.loggedIn || account.uid == 0 || user === current_user}>
+              isDisabled={!details.loggedIn || account.uid == 0 || user === current_user}>
                 {_("Terminate session")}
             </Button>
             { "\n" }
@@ -240,21 +245,21 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                 <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full name")}>
                                     { superuser.allowed
                                         ? <TextInput id="account-real-name"
-                                                     isDisabled={committing_real_name || account.uid == 0}
-                                                     value={edited_real_name !== null ? edited_real_name : account.gecos}
+                                                     isDisabled={comittingRealName || account.uid == 0}
+                                                     value={editedRealName !== null ? editedRealName : account.gecos}
                                                      onKeyDown={event => {
                                                          if (event.key == "Enter") {
                                                              event.target.blur();
                                                          }
                                                      }}
-                                                     onChange={(_event, value) => set_edited_real_name(value)}
+                                                     onChange={(_event, value) => setEditedRealName(value)}
                                                      onBlur={() => change_real_name()} />
                                         : <output id="account-real-name">{account.gecos}</output>}
                                 </FormGroup>
                                 <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>
                                     <output id="account-user-name">{account.name}</output>
                                 </FormGroup>
-                                <AccountGroupsSelect key={account.name} loggedIn={account.loggedIn} name={account.name} groups={groups} />
+                                <AccountGroupsSelect key={account.name} loggedIn={details.loggedIn} name={account.name} groups={groups} />
                                 <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
                                     <output id="account-last-login">{last_login}</output>
                                 </FormGroup>
@@ -262,8 +267,9 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                                         <FlexItem spacer={{ default: 'spacerNone' }}>
                                             <Checkbox id="account-locked"
-                                                        isDisabled={!superuser.allowed || edited_locked != null || user == current_user || account.isLocked == null}
-                                                        isChecked={edited_locked != null ? edited_locked : account.isLocked}
+                                                        ouiaSafe={editedLocked === null}
+                                                        isDisabled={!superuser.allowed || editedLocked != null || user == current_user || details.isLocked == null}
+                                                        isChecked={editedLocked != null ? editedLocked : details.isLocked}
                                                         onChange={(_event, checked) => change_locked(checked)}
                                                         label={_("Disallow interactive password")} />
                                         </FlexItem>

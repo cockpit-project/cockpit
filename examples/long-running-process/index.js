@@ -40,8 +40,8 @@ function update(process) {
         showJournal(process.serviceName, "--since=@" + Math.floor(process.startTimestamp / 1000000));
         break;
     case ProcessState.FAILED:
-        run_button.setAttribute("disabled", "");
-        run_button.textContent = "Start";
+        run_button.removeAttribute("disabled");
+        run_button.textContent = "Reset";
         // Show the whole journal of this boot
         showJournal(process.serviceName, "--boot");
         break;
@@ -74,6 +74,8 @@ cockpit.transport.wait(() => {
     run_button.addEventListener("click", () => {
         if (process.state === ProcessState.RUNNING)
             process.terminate();
+        else if (process.state === ProcessState.FAILED)
+            process.reset();
         else
             process.run(["/bin/sh", "-ec", command.value])
                     .catch(ex => {

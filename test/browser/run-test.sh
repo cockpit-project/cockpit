@@ -131,6 +131,7 @@ if [ "$PLAN" = "main" ]; then
               TestServices.testResetFailed
               TestServices.testTransientUnits
               TestServices.testUnprivileged
+              TestServices.testQuadlets
 
               TestUpdates.testUnprivileged
               TestUpdates.testPackageKitCrash

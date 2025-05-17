@@ -1396,6 +1396,65 @@ WantedBy=multi-user.target
         m.execute("systemctl stop test.service")
         self.check_service_details(["Read-only", "Disabled"], [], enabled=False, onoff=False, kebab=False)
 
+    @testlib.skipImage("no quadlet (pod) support", "debian-stable", "ubuntu-2204", "ubuntu-2404", "rhel-8-10")
+    @testlib.nondestructive
+    def testQuadlets(self):
+        m = self.machine
+        b = self.browser
+
+        busybox_image = m.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
+        container_service = f"""
+[Unit]
+Description=Podman - zigbee2mqtt
+After=local-fs.target
+
+[Container]
+Image={busybox_image}
+Exec=sleep infinity
+ContainerName=message-broker
+Pod=has.pod
+
+[Install]
+WantedBy=multi-user.target default.target
+"""
+
+        pod_service = """
+[Pod]
+PodName=has
+"""
+
+        self.addCleanup(m.execute, "systemctl daemon-reload")
+        self.write_file("/etc/containers/systemd/zigbee2mqtt.container", container_service)
+        self.write_file("/etc/containers/systemd/has.pod", pod_service)
+        self.addCleanup(m.execute, "systemctl stop has-pod")
+        m.execute("systemctl daemon-reload; systemctl start has-pod.service")
+        self.write_file("/usr/local/share/cockpit/podman/manifest.json", '{ "capabilities": ["service-filtering"] }')
+
+        self.login_and_go("/system/services")
+        self.wait_page_load()
+
+        self.wait_service_present("has-pod.service")
+        self.wait_service_state("has-pod.service", "active")
+        self.goto_service("has-pod.service")
+        b.wait_in_text(".pf-v6-c-breadcrumb", "has-pod.service")
+        b.wait_text("#container", "View Podman container")
+
+        self.login_and_go("/system/services")
+        self.wait_page_load()
+        self.wait_service_state("zigbee2mqtt.service", "active")
+        self.goto_service("zigbee2mqtt.service")
+        b.wait_in_text(".pf-v6-c-breadcrumb", "zigbee2mqtt.service")
+        b.wait_text("#container", "View Podman container")
+
+        m.write("/usr/local/share/cockpit/podman/manifest.json", '{ "capabilities": ["nothing"] }')
+        b.reload()
+        self.login_and_go("/system/services")
+        self.wait_page_load()
+        self.wait_service_state("zigbee2mqtt.service", "active")
+        self.goto_service("zigbee2mqtt.service")
+        b.wait_in_text(".pf-v6-c-breadcrumb", "zigbee2mqtt.service")
+        b.wait_not_in_text("#service-details-unit", "View Podman container")
+
 
 class TestTimers(testlib.MachineCase):
     def svc_sel(self, service):

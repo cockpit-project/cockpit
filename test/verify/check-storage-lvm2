@@ -280,6 +280,9 @@ class TestStorageLvm2(storagelib.StorageCase):
         # rename volume group
         b.click(self.card_desc_action("LVM2 volume group", "Name"))
         self.dialog_wait_open()
+        # No warning about the rootfs should be displayed
+        b.wait_visible("#dialog button.apply.pf-m-primary")
+        b.wait_not_in_text("#dialog", "This volume group contains the root filesystem.")
         self.dialog_set_val("name", "vgroup1")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -956,6 +959,25 @@ class TestStorageLvm2Destructive(storagelib.StorageCase):
         b.click(".pf-v6-c-alert button:contains(Dismiss)")
         self.dialog({})
         b.wait_not_present(".pf-v6-c-alert")
+
+    @testlib.skipImage("TODO: don't know how to move the rootfs", "debian-*", "ubuntu-*", "arch")
+    # this doesn't work in ostree either, but we don't run storage tests there
+    @testlib.skipWsContainer("newly built root doesn't contain ws container")
+    @testlib.timeout(1200)
+    def testRenameRoot(self):
+        b = self.browser
+
+        self.modify_rootfs(vgname="rootvg")
+
+        self.login_and_go("/storage")
+
+        self.click_card_row("Storage", name="rootvg")
+
+        # Attempt to rename volume group
+        b.click(self.card_desc_action("LVM2 volume group", "Name"))
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "This volume group contains the root filesystem.")
+        b.wait_visible("#dialog button.apply.pf-m-danger")
 
 
 if __name__ == '__main__':

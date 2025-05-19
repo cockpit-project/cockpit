@@ -22,7 +22,7 @@ import client from "../client";
 
 import {
     dialog_open,
-    SelectOne, CheckBoxes,
+    SelectOneRadio,
     BlockingMessage, TeardownMessage,
     init_teardown_usage
 } from "../dialog.jsx";
@@ -31,8 +31,8 @@ import { job_progress_wrapper } from "../jobs-panel.jsx";
 
 const _ = cockpit.gettext;
 
-export function format_disk(block) {
-    const usage = get_active_usage(client, block.path, _("initialize"), _("delete"));
+export function initialize_disk_dialog(block) {
+    const usage = get_active_usage(client, block.path, _("write partition table"), _("delete"));
 
     if (usage.Blocking) {
         dialog_open({
@@ -42,45 +42,34 @@ export function format_disk(block) {
         return;
     }
 
+    const offer_mbr = block.Size < 2 * 1024 * 1024 * 1024 * 1024; // 2 TiB
+
     dialog_open({
-        Title: cockpit.format(_("Initialize disk $0"), block_name(block)),
+        Title: cockpit.format(_("Initialize $0 for partitions"), block_name(block)),
         Teardown: TeardownMessage(usage),
         Fields: [
-            SelectOne("type", _("Partitioning"),
-                      {
-                          value: "gpt",
-                          choices: [
-                              { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                              {
-                                  value: "gpt",
-                                  title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                              },
-                              { value: "empty", title: _("No partitioning") }
-                          ]
-                      }),
-            CheckBoxes("erase", _("Overwrite"),
-                       {
-                           fields: [
-                               { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
-                           ],
-                       }),
+            SelectOneRadio("type", _("Type"),
+                           {
+                               value: "gpt",
+                               choices: [
+                                   { value: "gpt", title: _("Modern (GPT)") },
+                                   { value: "dos", title: _("Legacy (MBR)") },
+                               ],
+                               visible: () => offer_mbr,
+                           }),
         ],
         Action: {
-            Title: _("Initialize"),
-            Danger: _("Initializing erases all data on a disk."),
+            Title: _("Initialize for partitions"),
             wrapper: job_progress_wrapper(client, block.path),
             disable_on_error: usage.Teardown,
-            action: function (vals) {
+            action: async function (vals) {
                 const options = {
                     'tear-down': { t: 'b', v: true }
                 };
-                if (vals.erase.on)
-                    options.erase = { t: 's', v: "zero" };
-                return teardown_active_usage(client, usage)
-                        .then(function () {
-                            return block.Format(vals.type, options);
-                        })
-                        .then(reload_systemd);
+
+                await teardown_active_usage(client, usage);
+                await block.Format(offer_mbr ? vals.type : "gpt", options);
+                await reload_systemd();
             }
         },
         Inits: [

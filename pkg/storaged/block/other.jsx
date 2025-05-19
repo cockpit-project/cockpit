@@ -26,7 +26,7 @@ import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.
 
 import { StorageCard, StorageDescription, new_card } from "../pages.jsx";
 import { block_name, should_ignore } from "../utils.js";
-import { partitionable_block_actions } from "../partitions/actions.jsx";
+import { partitionable_block_actions } from "./actions.jsx";
 import { OtherIcon } from "../icons/gnome-icons.jsx";
 
 import { make_block_page } from "../block/create-pages.jsx";

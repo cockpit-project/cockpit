@@ -280,6 +280,9 @@ class TestStorageLvm2(storagelib.StorageCase):
         # rename volume group
         b.click(self.card_desc_action("LVM2 volume group", "Name"))
         self.dialog_wait_open()
+        # No warning about the rootfs should be displayed
+        b.wait_visible("#dialog button.apply.pf-m-primary")
+        b.wait_not_in_text("#dialog", "This volume group contains the root filesystem.")
         self.dialog_set_val("name", "vgroup1")
         self.dialog_apply()
         self.dialog_wait_close()

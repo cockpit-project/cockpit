@@ -37,6 +37,7 @@ import {
     validate_lvm2_name,
     get_available_spaces, prepare_available_spaces,
     reload_systemd, should_ignore,
+    contains_rootfs,
 } from "../utils.js";
 
 import {
@@ -67,6 +68,9 @@ function vgroup_rename(client, vgroup, card) {
         ],
         Action: {
             Title: _("Rename"),
+            Danger: contains_rootfs(client, vgroup.path)
+                ? _("This volume group contains the root filesystem. Renaming it might require further changes to the bootloader configuration or kernel command line.")
+                : null,
             action: async function (vals) {
                 await vgroup.Rename(vals.name, { });
                 navigate_to_new_card_location(card, ["vg", vals.name]);

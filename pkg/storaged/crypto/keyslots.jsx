@@ -42,8 +42,9 @@ import {
     SelectOneRadio, TextInput, PassInput, Skip
 } from "../dialog.jsx";
 import {
-    decode_filename, encode_filename, get_block_mntopts, block_name, for_each_async, get_children,
-    parse_options, extract_option, unparse_options, edit_crypto_config
+    decode_filename, encode_filename, get_block_mntopts, block_name, for_each_async,
+    parse_options, extract_option, unparse_options, edit_crypto_config,
+    contains_rootfs,
 } from "../utils.js";
 import { StorageButton } from "../storage-controls.jsx";
 
@@ -385,25 +386,6 @@ function ensure_non_root_nbde_support(steps, progress, client, block) {
             .then(() => ensure_systemd_unit_enabled(steps, progress, "clevis-luks-askpass.path", "clevis-systemd"))
             .then(() => ensure_fstab_option(steps, progress, client, block, "_netdev"))
             .then(() => ensure_crypto_option(steps, progress, client, block, "_netdev"));
-}
-
-/** @type (client: any, path: string) => boolean */
-function contains_rootfs(client, path) {
-    const block = client.blocks[path];
-    const crypto = client.blocks_crypto[path];
-    let fsys_config = null;
-
-    if (block)
-        fsys_config = block.Configuration.find(c => c[0] == "fstab");
-    if (!fsys_config && crypto)
-        fsys_config = crypto.ChildConfiguration.find(c => c[0] == "fstab");
-
-    if (fsys_config) {
-        const dir = decode_filename(fsys_config[1].dir.v);
-        return dir == "/";
-    }
-
-    return get_children(client, path).some(p => contains_rootfs(client, p));
 }
 
 function ensure_nbde_support(steps, progress, client, block) {

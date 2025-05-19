@@ -1183,3 +1183,22 @@ export function get_byte_units(guide_value) {
     units[Math.max(0, unit)].selected = true;
     return units;
 }
+
+/** @type (client: any, path: string) => boolean */
+export function contains_rootfs(client, path) {
+    const block = client.blocks[path];
+    const crypto = client.blocks_crypto[path];
+    let fsys_config = null;
+
+    if (block)
+        fsys_config = block.Configuration.find(c => c[0] == "fstab");
+    if (!fsys_config && crypto)
+        fsys_config = crypto.ChildConfiguration.find(c => c[0] == "fstab");
+
+    if (fsys_config) {
+        const dir = decode_filename(fsys_config[1].dir.v);
+        return dir == "/";
+    }
+
+    return get_children(client, path).some(p => contains_rootfs(client, p));
+}

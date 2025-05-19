@@ -732,7 +732,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         tang_m.execute("firewall-cmd --add-port 80/tcp")
 
         try:
-            self.encrypt_root("einszweidrei")
+            self.modify_rootfs(passphrase="einszweidrei")
         except Exception:
             console_screenshot(m, "failed-encrypt.ppm")
             raise
@@ -744,11 +744,24 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
         self.login_and_go("/storage")
 
+        # While we are here, let's quickly test that Cockpit warns
+        # about renaming the volume group that contains the root
+        # filesystem.
+
+        b.go("#/vg/root")
+        b.click(self.card_desc_action("LVM2 volume group", "Name"))
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "This volume group contains the root filesystem.")
+        b.wait_visible("#dialog button.apply.pf-m-danger")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+        b.go("#/")
+
         # Add a clevis key and then reboot.
         #
         # We also remove the original passphrase in order to be sure
         # that it was in fact clevis that has unlocked the rootfs, and
-        # not the magic provided by "encrypt_root"
+        # not the magic provided by "modify_rootfs"
 
         self.click_card_row("Storage", location="root")
 

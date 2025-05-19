@@ -488,7 +488,8 @@ MakeDirectory=yes
 """)
         self.machine.execute("ln -s ../test-password-agent.path /etc/systemd/system/sysinit.target.wants/")
 
-    def encrypt_root(self, passphrase: str) -> None:
+    def modify_rootfs(self, vgname: str = "root", lvname: str = "root",
+                      passphrase: str | None = None) -> None:
         m = self.machine
 
         # Set up a password agent in the old root and then arrange for
@@ -499,15 +500,16 @@ MakeDirectory=yes
         # copied to the new root, so it will stay in place also when
         # the initrd is regenerated again from within the new root.
 
-        self.setup_systemd_password_agent(passphrase)
-        install_items = [
-            '/etc/systemd/system/sysinit.target.wants/test-password-agent.path',
-            '/etc/systemd/system/test-password-agent.path',
-            '/etc/systemd/system/test-password-agent.service',
-            '/usr/local/bin/test-password-agent',
-        ]
-        m.write("/etc/dracut.conf.d/01-askpass.conf",
-                f'install_items+=" {" ".join(install_items)} "')
+        if passphrase:
+            self.setup_systemd_password_agent(passphrase)
+            install_items = [
+                '/etc/systemd/system/sysinit.target.wants/test-password-agent.path',
+                '/etc/systemd/system/test-password-agent.path',
+                '/etc/systemd/system/test-password-agent.service',
+                '/usr/local/bin/test-password-agent',
+            ]
+            m.write("/etc/dracut.conf.d/01-askpass.conf",
+                    f'install_items+=" {" ".join(install_items)} "')
 
         # The first step is to move /boot to a new unencrypted
         # partition on the new disk but keep it mounted at /boot.
@@ -515,7 +517,7 @@ MakeDirectory=yes
         # which will look at /boot and do the right thing.
         #
         # Then we copy (most of) the old root to the new disk, into a
-        # logical volume sitting on top of a LUKS container.
+        # logical volume, maybe sitting on top of a LUKS container.
         #
         # The kernel command line is changed to use the new root
         # filesystem, and grub is installed on the new disk. The boot
@@ -540,14 +542,19 @@ set -x
 parted -s {dev} mktable msdos
 parted -s {dev} mkpart primary ext4 1M 500M
 parted -s {dev} mkpart primary ext4 500M 100%
-echo {passphrase} | cryptsetup luksFormat --pbkdf-memory=300 {dev}2
-luks_uuid=$(blkid -p {dev}2 -s UUID -o value)
-echo {passphrase} | cryptsetup luksOpen --pbkdf-memory=300 {dev}2 luks-$luks_uuid
-vgcreate root /dev/mapper/luks-$luks_uuid
-lvcreate root -n root -l100%VG
-mkfs.ext4 /dev/root/root
+if [ "{passphrase}" != "None" ]; then
+  echo {passphrase} | cryptsetup luksFormat --pbkdf-memory=300 {dev}2
+  luks_uuid=$(blkid -p {dev}2 -s UUID -o value)
+  echo {passphrase} | cryptsetup luksOpen --pbkdf-memory=300 {dev}2 luks-$luks_uuid
+  vgcreate {vgname} /dev/mapper/luks-$luks_uuid
+  luks_karg=rd.luks.uuid=$luks_uuid
+else
+  vgcreate {vgname} {dev}2
+fi
+lvcreate {vgname} -n {lvname} -l100%VG
+mkfs.ext4 /dev/{vgname}/{lvname}
 mkdir /new-root
-mount /dev/root/root /new-root
+mount /dev/{vgname}/{lvname} /new-root
 mkfs.ext4 {dev}1
 # don't move the EFI partition
 if mountpoint /boot/efi; then umount /boot/efi; fi
@@ -567,11 +574,11 @@ umount /new-root/boot
 mount {dev}1 /boot
 echo "(hd0) {dev}" >/boot/grub2/device.map
 sed -i -e 's,/boot/,/,' /boot/loader/entries/*
-uuid=$(blkid -p /dev/root/root -s UUID -o value)
+uuid=$(blkid -p /dev/{vgname}/{lvname} -s UUID -o value)
 buuid=$(blkid -p {dev}1 -s UUID -o value)
 echo "UUID=$uuid / auto defaults 0 0" >/new-root/etc/fstab
 echo "UUID=$buuid /boot auto defaults 0 0" >>/new-root/etc/fstab
-dracut --regenerate-all --force
+if [ "{passphrase}" != "None" ]; then dracut --regenerate-all --force; fi
 grub2-install {dev}
 ( # HACK - grub2-mkconfig messes with /boot/loader/entries/ and /etc/kernel/cmdline
   mv /boot/loader/entries /boot/loader/entries.stowed
@@ -580,13 +587,13 @@ grub2-install {dev}
   mv /boot/loader/entries.stowed /boot/loader/entries
   ! test -f /etc/kernel/cmdline.stowed || mv /etc/kernel/cmdline.stowed /etc/kernel/cmdline
 )
-grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid rd.lvm.lv=root/root"
+grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults $luks_karg rd.lvm.lv={vgname}/{lvname}"
 ! test -f /etc/kernel/cmdline || cp /etc/kernel/cmdline /new-root/etc/kernel/cmdline
 """, timeout=300)
         # destroy bootability of the current root partition, just to make sure
         m.execute("rm -rf /etc/*")
         m.reboot()
-        self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), "/dev/mapper/root-root")
+        self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), f"/dev/mapper/{vgname}-{lvname}")
 
     # Cards and tables
 

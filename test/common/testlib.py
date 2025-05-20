@@ -2817,8 +2817,7 @@ def test_main(
         standalone = False
 
     # Sit should always imply verbose
-    if options.sit:
-        options.verbosity = 2
+    options.verbosity = 2
 
     # Have to copy into opts due to python globals across modules
     for (key, value) in vars(options).items():

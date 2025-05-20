@@ -287,7 +287,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.addCleanup(m.execute, "echo 'CLEANING'; mdadm --stop /dev/md/ARR; ls -lh /dev/md")
+        self.addCleanup(m.execute, "systemctl restart udisks2; mdadm --stop /dev/md/ARR; ls -lh /root")
 
         self.click_card_row("Storage", name="/dev/md/ARR")
 
@@ -304,6 +304,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         self.raid_default_action("Start")
         b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
+        # testlib.sit()
 
         # With a running array, we can add spares, but not remove "in-sync" disks
         b.wait_not_present(self.card_button("MDRAID device", "Add disk") + ":disabled")

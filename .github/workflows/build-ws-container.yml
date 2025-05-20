@@ -6,14 +6,25 @@ on:
   # can be run manually on https://github.com/cockpit-project/cockpit/actions
   workflow_dispatch:
 
+env:
+  registry_repo: ${{ vars.REGISTRY_REPO || 'quay.io/cockpit/ws' }}
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build:
+          - label: amd64
+            runner: ubuntu-24.04
+          - label: arm64
+            runner: ubuntu-24.04-arm
+
+    runs-on: ${{ matrix.build.runner }}
     environment: quay.io
     permissions: {}
     timeout-minutes: 20
-    env:
-      RUNC: docker
+    outputs:
+      VERSION: ${{ steps.build.outputs.VERSION }}
 
     steps:
       - name: Clone repository
@@ -27,8 +38,46 @@ jobs:
           git checkout $(git rev-list --tags --max-count=1)
           git describe
 
-      - name: Log into container registry
-        run: $RUNC login -u ${{ secrets.QUAY_BOTUSER }} -p ${{ secrets.QUAY_TOKEN }} quay.io
+      - name: Build ws container
+        id: build
+        env:
+          IMAGE_TAG: localhost/cockpit-ws:release-${{ matrix.build.label }}
+          RUNC: podman
+        run: |
+          containers/ws/release.sh
+          $RUNC save --format=oci-archive $IMAGE_TAG > cockpit-ws-${{ matrix.build.label }}.tar
 
-      - name: Build and push ws container
-        run: containers/ws/release.sh
+      - name: Save image to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cockpit-ws-${{ matrix.build.label }}
+          path: cockpit-ws-${{ matrix.build.label }}.tar
+
+  manifest:
+    needs: build
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Login in to container registry
+        run: podman login -u ${{ secrets.QUAY_BOTUSER }} -p ${{ secrets.QUAY_TOKEN }} $(echo ${{ env.registry_repo }} | cut -d/ -f1)
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Load images into Podman
+        run: |
+          for artifact in cockpit-ws-*; do
+            podman load < $artifact/$artifact.tar
+          done
+
+      - name: Create manifest
+        # containers-storage:localhost/ is a workaround for https://github.com/containers/common/issues/1896, will probably be fixed in Ubuntu 26.04
+        run: podman manifest create ws containers-storage:localhost/cockpit-ws:release-{amd64,arm64}
+
+      - name: Push with versioned tag
+        run: podman manifest push ws "${{ env.registry_repo }}:${{ needs.build.outputs.VERSION }}"
+
+      - name: Push :latest tag
+        run: podman manifest push ws "${{ env.registry_repo }}:latest"

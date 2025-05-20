@@ -20,7 +20,7 @@ import '../lib/patternfly/patternfly-6-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { debounce } from 'throttle-debounce';
@@ -123,13 +123,22 @@ function AccountsPage() {
     }, [], null, handles => handles.forEach(handle => handle.close()));
 
     const accountsInfo = useMemo(() => {
+        console.log("accounts && details", accounts, details);
         if (accounts && details)
             return accounts.map(account => {
                 return Object.assign({}, account, details[account.name]);
             });
         else
             return [];
-    }, [accounts, details]);
+    }, [accounts, details]); // FIXME: We want to update this when details is updated
+
+    useEffect(() => {
+        console.log("accounts updated");
+    }, [accounts]);
+
+    useEffect(() => {
+        console.log("details updated");
+    }, [details]);
 
     const groupsExtraInfo = useMemo(() => sortGroups(
         (groups || []).map(group => {
@@ -164,8 +173,10 @@ function AccountsPage() {
             />
         );
     } else if (path.length === 1) {
+        const account = accounts?.find(account => account.name === path[0]);
+        const accountDetails = details?.[path[0]];
         return (
-            <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo}
+            <AccountDetails account={account} details={accountDetails} isLoading={accountsInfo.length === 0} groups={groupsExtraInfo}
                 current_user={current_user_info?.name} user={path[0]} shells={shells} />
         );
     } else return null;

@@ -12,6 +12,7 @@ supported_oses: 'list[dict[str, str | None]]' = [
     {"PLATFORM_ID": "platform:el10"},
 
     {"ID": "debian", "VERSION_ID": "12"},
+    {"ID": "debian", "VERSION_ID": "13"},
     # rolling release
     {"ID": "debian", "VERSION_ID": None},
 

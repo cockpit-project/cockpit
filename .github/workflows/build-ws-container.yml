@@ -55,6 +55,7 @@ jobs:
 
   manifest:
     needs: build
+    environment: quay.io
 
     runs-on: ubuntu-latest
     timeout-minutes: 20

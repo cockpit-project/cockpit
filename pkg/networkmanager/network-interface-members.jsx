@@ -65,7 +65,7 @@ export const NetworkInterfaceMembers = ({
             const isActive = (dev && dev.State == 100 && dev.Carrier === true);
             const onoff = (
                 <Switch
-                    aria-label={cockpit.format(_("Switch of $0"), iface.Name)}
+                    aria-label={cockpit.format(_("Switch off $0"), iface.Name)}
                     isDisabled={!privileged}
                     isChecked={!!(dev && dev.ActiveConnection)}
                     onChange={(_event, val) => {

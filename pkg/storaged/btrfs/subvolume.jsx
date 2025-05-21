@@ -251,7 +251,7 @@ function subvolume_delete(volume, subvol, card) {
         Teardown: TeardownMessage(usage),
         Action: {
             Title: _("Delete"),
-            Danger: _("Deleting erases all data on this subvolume and all it's children."),
+            Danger: _("Deleting erases all data on this subvolume and all its children."),
             action: async function () {
                 await teardown_active_usage(client, usage);
                 for (const c of configs_to_remove)

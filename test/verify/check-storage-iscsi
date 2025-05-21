@@ -68,7 +68,7 @@ class TestStorageISCSI(storagelib.StorageCase):
 
         # Set initiator IQN
         orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-        self.click_dropdown(self.card_header("Storage"), "Change iSCSI initiater name")
+        self.click_dropdown(self.card_header("Storage"), "Change iSCSI initiator name")
         self.dialog(expect={"name": orig_iqn},
                     values={"name": initiator_iqn})
         new_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()

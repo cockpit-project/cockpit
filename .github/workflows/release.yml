@@ -93,6 +93,8 @@ jobs:
   flathub:
     needs: source
     environment: flathub
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions: {}
     runs-on: ubuntu-latest
     steps:

@@ -348,7 +348,7 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
         <>
             {_("Unit")}
             <Popover headerContent={_("Show messages for the specified systemd unit.")}
-                     bodyContent={_("This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to find all possible messages for the given unit. Can contain more units separated by comma. ")}>
+                     bodyContent={_("This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to find all possible messages for the given unit. Can contain more units separated by comma.")}>
                 <Button className="log-text-filter-popover-button" variant="plain">
                     <HelpIcon />
                 </Button>

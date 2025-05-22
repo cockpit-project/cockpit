@@ -247,7 +247,7 @@ export function make_mdraid_page(parent, mdraid) {
     if (!block) {
         new_page(parent, mdraid_card);
     } else
-        make_block_page(parent, block, mdraid_card);
+        make_block_page(parent, block, mdraid_card, { partitionable: true });
 }
 
 const MDRaidCard = ({ card, mdraid, block }) => {

@@ -20,7 +20,6 @@ jobs:
             runner: ubuntu-24.04-arm
 
     runs-on: ${{ matrix.build.runner }}
-    environment: quay.io
     permissions: {}
     timeout-minutes: 20
     outputs:

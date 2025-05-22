@@ -32,12 +32,14 @@ import { Bullseye } from "@patternfly/react-core/dist/esm/layouts/Bullseye/index
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
-import { ExclamationTriangleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
+import { ExclamationTriangleIcon, ExclamationCircleIcon, HelpIcon } from "@patternfly/react-icons";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover";
 
 import { decode_filename, block_short_name, fmt_size } from "./utils.js";
 import { StorageButton, StorageBarMenu, StorageMenuItem, StorageSize } from "./storage-controls.jsx";
@@ -358,15 +360,15 @@ function make_actions_kebab(actions) {
     return <StorageBarMenu menuItems={actions.map(make_menu_item)} isKebab />;
 }
 
-const ActionButtons = ({ card }) => {
+export const Actions = ({ actions, onlyMenu }) => {
     const narrow = useIsNarrow();
 
     function for_menu(action) {
         // Determine whether a action should get a button or be in the
         // menu
 
-        // In a narrow layout, everything goes to the menu
-        if (narrow)
+        // When requested or when in a narrow layout, put everything into the menu
+        if (onlyMenu || narrow)
             return true;
 
         // Everything that is dangerous goes to the menu
@@ -379,16 +381,17 @@ const ActionButtons = ({ card }) => {
     const buttons = [];
     const items = [];
 
-    if (!card.actions)
+    if (!actions)
         return null;
 
-    for (const a of card.actions) {
+    for (const a of actions) {
         if (for_menu(a))
             items.push(make_menu_item(a));
         else
             buttons.push(
                 <StorageButton key={a.title} onClick={() => a.action(false)}
-                               kind={a.danger ? "danger" : null} excuse={a.excuse}>
+                               kind={a.danger ? "danger" : null} excuse={a.excuse}
+                               spinner={a.spinner}>
                     {a.title}
                 </StorageButton>);
     }
@@ -806,7 +809,7 @@ export const StorageCard = ({ card, alert, alerts, actions, children }) => {
                 <StorageBreadcrumb page={card.page} />
             </CardBody>
             }
-            <CardHeader actions={{ actions: actions || <ActionButtons card={card} /> }}>
+            <CardHeader actions={{ actions: actions || <Actions actions={card.actions} /> }}>
                 <CardTitle>{card.title}</CardTitle>
             </CardHeader>
             {(alert || (alerts && alerts.length > 0)) && <CardBody><AlertGroup>{alert}{alerts}</AlertGroup></CardBody>}
@@ -815,7 +818,7 @@ export const StorageCard = ({ card, alert, alerts, actions, children }) => {
         </Card>);
 };
 
-export const StorageDescription = ({ title, value, action, children }) => {
+export const StorageDescription = ({ title, value, action, help, children }) => {
     if (!value && !action && !children)
         return null;
 
@@ -830,9 +833,22 @@ export const StorageDescription = ({ title, value, action, children }) => {
         content = value || action;
     }
 
+    let help_popover;
+    if (help) {
+        help_popover = (
+            <Popover headerContent={help}>
+                <Button component="span" isInline variant="link" aria-label={_("more info")}>
+                    <Icon status="info">
+                        <HelpIcon />
+                    </Icon>
+                </Button>
+            </Popover>
+        );
+    }
+
     return (
         <DescriptionListGroup data-test-desc-title={title}>
-            <DescriptionListTerm>{title}</DescriptionListTerm>
+            <DescriptionListTerm>{title} {help_popover}</DescriptionListTerm>
             <DescriptionListDescription data-test-value={!(action && value)}>
                 {content}{children}
             </DescriptionListDescription>

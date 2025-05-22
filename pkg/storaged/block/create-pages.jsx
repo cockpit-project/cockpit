@@ -42,7 +42,7 @@ import { new_page } from "../pages.jsx";
 /* CARD must have page_name, page_location, and page_size set.
  */
 
-export function make_block_page(parent, block, card) {
+export function make_block_page(parent, block, card, options) {
     let is_crypto = block.IdUsage == 'crypto';
     let content_block = is_crypto ? client.blocks_cleartext[block.path] : block;
     const fstab_config = get_fstab_config(content_block || block, true);
@@ -62,7 +62,7 @@ export function make_block_page(parent, block, card) {
     const single_device_volume = block_btrfs_blockdev && block_btrfs_blockdev.data.num_devices === 1;
 
     if (client.blocks_ptable[block.path]) {
-        make_partition_table_page(parent, block, card);
+        make_partition_table_page(parent, block, card, options && options.partitionable);
         return;
     }
 

@@ -21,6 +21,9 @@ import cockpit from "cockpit";
 import React from "react";
 import client from "../client";
 
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+
 import { get_partitions, register_available_free_space } from "../utils.js";
 import { StorageCard, ChildrenTable, new_page, new_card } from "../pages.jsx";
 import { format_dialog } from "../block/format-dialog.jsx";
@@ -84,7 +87,7 @@ function make_partition_pages(parent, block) {
                        block_ptable.Type == 'dos');
 }
 
-export function make_partition_table_page(parent, block, next_card) {
+export function make_partition_table_page(parent, block, next_card, partitionable) {
     const block_ptable = client.blocks_ptable[block.path];
 
     const parts_card = new_card({
@@ -92,12 +95,13 @@ export function make_partition_table_page(parent, block, next_card) {
             ? cockpit.format(_("$0 partitions"), block_ptable.Type.toLocaleUpperCase())
             : _("Partitions")),
         next: next_card,
-        component: PartitionsCard,
+        component: partitionable ? PartitionsCard : UnexpectedPartitionsCard,
         props: { },
     });
 
     const p = new_page(parent, parts_card, { sorted: false });
-    make_partition_pages(p, block);
+    if (partitionable)
+        make_partition_pages(p, block);
 }
 
 const PartitionsCard = ({ card }) => {
@@ -107,6 +111,18 @@ const PartitionsCard = ({ card }) => {
                 emptyCaption={_("No partitions found")}
                 aria-label={_("Partitions")}
                 page={card.page} />
+        </StorageCard>
+    );
+};
+
+const UnexpectedPartitionsCard = ({ card }) => {
+    return (
+        <StorageCard card={card}>
+            <CardBody>
+                <Alert isInline isPlain variant="info" title={_("Unexpected partitions")}>
+                    <p>{_("Partitions are not supported on this block device. If it is used as a disk for a virtual machine, the partitions must be managed by the operating system inside the virtual machine.")}</p>
+                </Alert>
+            </CardBody>
         </StorageCard>
     );
 };

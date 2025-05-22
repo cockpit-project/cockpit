@@ -1,10 +1,16 @@
 name: build-ws-container
 on:
-  # auto-refresh every Monday morning
+  # auto-refresh every day
   schedule:
-    - cron: '0 2 * * 1'
+    - cron: '0 2 * * *'
   # can be run manually on https://github.com/cockpit-project/cockpit/actions
   workflow_dispatch:
+    inputs:
+      FORCE_PUSH:
+        description: 'Push the image even if an image with the same version already exists in the registry'
+        type: boolean
+        required: false
+        default: false
 
 env:
   registry_repo: ${{ vars.REGISTRY_REPO || 'quay.io/cockpit/ws' }}
@@ -24,6 +30,7 @@ jobs:
     timeout-minutes: 20
     outputs:
       VERSION: ${{ steps.build.outputs.VERSION }}
+      SKIP_BUILD: ${{ steps.check_image.outputs.SKIP_BUILD }}
 
     steps:
       - name: Clone repository
@@ -46,6 +53,17 @@ jobs:
           containers/ws/release.sh
           $RUNC save --format=oci-archive $IMAGE_TAG > cockpit-ws-${{ matrix.build.label }}.tar
 
+      - name: Check for existing image
+        id: check_image
+        run: |
+          if skopeo inspect docker://${{ env.registry_repo }}:${{ steps.build.outputs.VERSION }}; then
+            echo "Image with version ${{ steps.build.outputs.VERSION }} already exists, skipping push unless forced."
+            echo "SKIP_BUILD=true" >> $GITHUB_OUTPUT
+          else
+            echo "Image with version ${{ steps.build.outputs.VERSION }} does not exist, proceeding to push image."
+            echo "SKIP_BUILD=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Save image to artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -55,7 +73,7 @@ jobs:
   manifest:
     needs: build
     environment: quay.io
-
+    if: ${{ needs.build.outputs.SKIP_BUILD != 'true' || inputs.FORCE_PUSH == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
 

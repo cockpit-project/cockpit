@@ -408,6 +408,10 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
 };
 
 function init() {
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.log('Global error caught:', message, source, lineno, colno, error);
+    // You can return true to prevent the default error handling
+    };
     const root = createRoot(document.getElementById('logs'));
     root.render(<LogsPage />);
 }

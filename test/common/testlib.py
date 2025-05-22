@@ -1590,6 +1590,9 @@ class Browser:
         if self.have_test_api():
             self.switch_to_top()
             if self.eval_js("!!document.getElementById('navbar-oops')"):
+                if self.is_visible("#navbar-oops"):
+                    self.snapshot("OOPS")
+                    self.copy_js_log("OOPS")
                 assert not self.is_visible("#navbar-oops"), "Cockpit shows an Oops"
 
 

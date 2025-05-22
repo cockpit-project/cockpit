@@ -105,7 +105,7 @@ export function make_drive_page(parent, drive) {
     }
 
     if (block.Size > 0) {
-        make_block_page(parent, block, card);
+        make_block_page(parent, block, card, { partitionable: true });
     } else {
         new_page(parent, card);
     }

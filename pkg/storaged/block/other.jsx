@@ -49,7 +49,7 @@ export function make_other_page(parent, block) {
         actions: partitionable_block_actions(block),
     });
 
-    make_block_page(parent, block, other_card);
+    make_block_page(parent, block, other_card, { partitionable: true });
 }
 
 const OtherCard = ({ card, block }) => {

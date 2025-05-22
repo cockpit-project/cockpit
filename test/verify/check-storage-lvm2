@@ -847,6 +847,31 @@ class TestStorageLvm2(storagelib.StorageCase):
             b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk))
             b.wait_in_text(self.card_desc("LVM2 logical volume", "Physical volumes"), bn(disk2))
 
+    def testUnsupportedPartitions(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/storage")
+
+        dev_1 = self.add_ram_disk(100)
+        m.execute(f"vgcreate vgroup0 {dev_1}")
+        self.addCleanupVG("vgroup0")
+        m.execute("lvcreate vgroup0 -n lvol0 -l100%FREE")
+        m.execute("parted /dev/vgroup0/lvol0 -s mktable gpt mkpart primary ext2 1M 50M")
+        self.addCleanup(m.execute, "parted /dev/vgroup0/lvol0 -s mktable gpt; wipefs -a /dev/vgroup0/lvol0")
+
+        b.wait_text(self.card_row_col("Storage", row_name="lvol0", col_index=3), "GPT partitions")
+        self.click_card_row("Storage", name="lvol0")
+        b.wait_in_text(self.card("GPT partitions"), "Partitions are not supported on this block device.")
+
+        # Neither the partition nor the free space should be offered
+        # for creating new things.
+
+        b.click(self.card_parent_link())
+        b.click(self.card_parent_link())
+        self.click_devices_dropdown("Create LVM2 volume group")
+        b.wait_in_text("#dialog", "No disks are available")
+
 
 class TestStorageLvm2Destructive(storagelib.StorageCase):
 

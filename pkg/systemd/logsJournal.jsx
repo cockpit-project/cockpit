@@ -168,7 +168,7 @@ export class JournalBox extends React.Component {
             const serviceTag = entries[i].SYSLOG_IDENTIFIER;
             this.renderer.prepend(entries[i]);
             // Only update if the service is not yet known
-            if (serviceTag && !this.props.currentIdentifiers.includes(serviceTag))
+            if (serviceTag && !this.props.currentIdentifiers?.includes(serviceTag))
                 // Due to asynchronous nature it needs to be checked whether this
                 // identifier is not yet defined. The previous check could be omitted
                 // and only this one used but let's try to trigger as few updates as possible

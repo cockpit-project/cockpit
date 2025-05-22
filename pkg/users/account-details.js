@@ -222,122 +222,156 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
     );
 
     return (
-        <Page id="account" className='no-masthead-sidebar'>
-            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
-                <Breadcrumb>
-                    <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>
-                    <BreadcrumbItem isActive>{title_name}</BreadcrumbItem>
-                </Breadcrumb>
-            </PageBreadcrumb>
-            <PageSection hasBodyWrapper={false}>
-                <Gallery hasGutter>
-                    <Card isPlain className="account-details" id="account-details">
-                        <CardHeader actions={{ actions }}>
-                            <CardTitle id="account-title" component="h2">{title_name}</CardTitle>
-                        </CardHeader>
-                        <CardBody>
-                            <Form isHorizontal onSubmit={apply_modal_dialog}>
-                                <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full name")}>
-                                    { superuser.allowed
-                                        ? <TextInput id="account-real-name"
-                                                     isDisabled={committing_real_name || account.uid == 0}
-                                                     value={edited_real_name !== null ? edited_real_name : account.gecos}
-                                                     onKeyDown={event => {
-                                                         if (event.key == "Enter") {
-                                                             event.target.blur();
-                                                         }
-                                                     }}
-                                                     onChange={(_event, value) => set_edited_real_name(value)}
-                                                     onBlur={() => change_real_name()} />
-                                        : <output id="account-real-name">{account.gecos}</output>}
-                                </FormGroup>
-                                <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>
-                                    <output id="account-user-name">{account.name}</output>
-                                </FormGroup>
-                                <AccountGroupsSelect key={account.name} loggedIn={account.loggedIn} name={account.name} groups={groups} />
-                                <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
-                                    <output id="account-last-login">{last_login}</output>
-                                </FormGroup>
-                                <FormGroup fieldId="account-locked" label={_("Options")} hasNoPaddingTop>
-                                    <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                                        <FlexItem spacer={{ default: 'spacerNone' }}>
-                                            <Checkbox id="account-locked"
-                                                        isDisabled={!superuser.allowed || edited_locked != null || user == current_user || account.isLocked == null}
-                                                        isChecked={edited_locked != null ? edited_locked : account.isLocked}
-                                                        onChange={(_event, checked) => change_locked(checked)}
-                                                        label={_("Disallow interactive password")} />
-                                        </FlexItem>
+      <Page id="account" className="pf-m-no-sidebar">
+        <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
+          <Breadcrumb>
+            <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>
+            <BreadcrumbItem isActive>{title_name}</BreadcrumbItem>
+          </Breadcrumb>
+        </PageBreadcrumb>
+        <PageSection hasBodyWrapper={false}>
+          <Gallery hasGutter>
+            <Card isPlain className="account-details" id="account-details">
+              <CardHeader actions={{ actions }}>
+                <CardTitle id="account-title" component="h2">
+                  {title_name}
+                </CardTitle>
+              </CardHeader>
+              <CardBody>
+                <Form isHorizontal onSubmit={apply_modal_dialog}>
+                  <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full name")}>
+                    {superuser.allowed ? (
+                      <TextInput
+                        id="account-real-name"
+                        isDisabled={committing_real_name || account.uid == 0}
+                        value={edited_real_name !== null ? edited_real_name : account.gecos}
+                        onKeyDown={(event) => {
+                          if (event.key == "Enter") {
+                            event.target.blur();
+                          }
+                        }}
+                        onChange={(_event, value) => set_edited_real_name(value)}
+                        onBlur={() => change_real_name()}
+                      />
+                    ) : (
+                      <output id="account-real-name">{account.gecos}</output>
+                    )}
+                  </FormGroup>
+                  <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>
+                    <output id="account-user-name">{account.name}</output>
+                  </FormGroup>
+                  <AccountGroupsSelect
+                    key={account.name}
+                    loggedIn={account.loggedIn}
+                    name={account.name}
+                    groups={groups}
+                  />
+                  <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
+                    <output id="account-last-login">{last_login}</output>
+                  </FormGroup>
+                  <FormGroup fieldId="account-locked" label={_("Options")} hasNoPaddingTop>
+                    <Flex spaceItems={{ default: "spaceItemsSm" }} alignItems={{ default: "alignItemsCenter" }}>
+                      <FlexItem spacer={{ default: "spacerNone" }}>
+                        <Checkbox
+                          id="account-locked"
+                          isDisabled={
+                            !superuser.allowed ||
+                            edited_locked != null ||
+                            user == current_user ||
+                            account.isLocked == null
+                          }
+                          isChecked={edited_locked != null ? edited_locked : account.isLocked}
+                          onChange={(_event, checked) => change_locked(checked)}
+                          label={_("Disallow interactive password")}
+                        />
+                      </FlexItem>
 
-                                        <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
-                                                    showClose={false}>
-                                            <HelpIcon />
-                                        </Popover>
-                                        <span id="account-expiration-text">
-                                            {expiration.account_text}
-                                        </span>
-                                        <Button onClick={() => account_expiration_dialog(account, expiration.account_date)}
-                                                isDisabled={!superuser.allowed}
-                                                variant="link"
-                                                isInline
-                                                id="account-expiration-button">
-                                            {_("edit")}
-                                        </Button>
-                                    </Flex>
-                                </FormGroup>
-                                { self_mod_allowed &&
-                                <FormGroup fieldId="account-set-password" label={_("Password")}>
-                                    <div className="account-column-one">
-                                        { self_mod_allowed &&
-                                        <Button variant="secondary" id="account-set-password"
-                                    onClick={() => set_password_dialog(account, current_user)}>
-                                            {_("Set password")}
-                                        </Button>
-                                        }
-                                        { "\n" }
-                                        { superuser.allowed &&
-                                        <Button variant="secondary" id="password-reset-button"
-                                            onClick={() => reset_password_dialog(account)}>
-                                            {_("Force change")}
-                                        </Button>
-                                        }
-                                    </div>
-                                    <Flex flex={{ default: 'inlineFlex' }}>
-                                        <span id="password-expiration-text">
-                                            {expiration.password_text}
-                                        </span>
-                                        <Button onClick={() => password_expiration_dialog(account, expiration.password_days)}
-                                                isDisabled={!superuser.allowed}
-                                                variant="link"
-                                                isInline
-                                                id="password-expiration-button">
-                                            {_("edit")}
-                                        </Button>
-                                    </Flex>
-                                </FormGroup>
-                                }
-                                { account.home && <FormGroup fieldId="account-home-dir" hasNoPaddingTop label={_("Home directory")}>
-                                    <output id="account-home-dir">{account.home}</output>
-                                </FormGroup> }
-                                { account.shell && <FormGroup fieldId="account-shell" hasNoPaddingTop label={_("Shell")}>
-                                    <Flex flex={{ default: 'inlineFlex' }}>
-                                        <output id="account-shell">{account.shell}</output>
-                                        <Button onClick={() => account_shell_dialog(account, shells)}
-                                                isDisabled={!superuser.allowed}
-                                                variant="link"
-                                                isInline
-                                                id="change-shell-button">
-                                            {_("change")}
-                                        </Button>
-                                    </Flex>
-                                </FormGroup> }
-                            </Form>
-                        </CardBody>
-                    </Card>
-                    <AuthorizedKeys name={account.name} home={account.home} allow_mods={self_mod_allowed} />
-                    <AccountLogs name={account.name} />
-                </Gallery>
-            </PageSection>
-        </Page>
+                      <Popover
+                        bodyContent={_(
+                          "Other authentication methods are still available even when interactive password authentication is not allowed."
+                        )}
+                        showClose={false}
+                      >
+                        <HelpIcon />
+                      </Popover>
+                      <span id="account-expiration-text">{expiration.account_text}</span>
+                      <Button
+                        onClick={() => account_expiration_dialog(account, expiration.account_date)}
+                        isDisabled={!superuser.allowed}
+                        variant="link"
+                        isInline
+                        id="account-expiration-button"
+                      >
+                        {_("edit")}
+                      </Button>
+                    </Flex>
+                  </FormGroup>
+                  {self_mod_allowed && (
+                    <FormGroup fieldId="account-set-password" label={_("Password")}>
+                      <div className="account-column-one">
+                        {self_mod_allowed && (
+                          <Button
+                            variant="secondary"
+                            id="account-set-password"
+                            onClick={() => set_password_dialog(account, current_user)}
+                          >
+                            {_("Set password")}
+                          </Button>
+                        )}
+                        {"\n"}
+                        {superuser.allowed && (
+                          <Button
+                            variant="secondary"
+                            id="password-reset-button"
+                            onClick={() => reset_password_dialog(account)}
+                          >
+                            {_("Force change")}
+                          </Button>
+                        )}
+                      </div>
+                      <Flex flex={{ default: "inlineFlex" }}>
+                        <span id="password-expiration-text">{expiration.password_text}</span>
+                        <Button
+                          onClick={() => password_expiration_dialog(account, expiration.password_days)}
+                          isDisabled={!superuser.allowed}
+                          variant="link"
+                          isInline
+                          id="password-expiration-button"
+                        >
+                          {_("edit")}
+                        </Button>
+                      </Flex>
+                    </FormGroup>
+                  )}
+                  {account.home && (
+                    <FormGroup fieldId="account-home-dir" hasNoPaddingTop label={_("Home directory")}>
+                      <output id="account-home-dir">{account.home}</output>
+                    </FormGroup>
+                  )}
+                  {account.shell && (
+                    <FormGroup fieldId="account-shell" hasNoPaddingTop label={_("Shell")}>
+                      <Flex flex={{ default: "inlineFlex" }}>
+                        <output id="account-shell">{account.shell}</output>
+                        <Button
+                          onClick={() => account_shell_dialog(account, shells)}
+                          isDisabled={!superuser.allowed}
+                          variant="link"
+                          isInline
+                          id="change-shell-button"
+                        >
+                          {_("change")}
+                        </Button>
+                      </Flex>
+                    </FormGroup>
+                  )}
+                </Form>
+              </CardBody>
+            </Card>
+            <AuthorizedKeys name={account.name} home={account.home} allow_mods={self_mod_allowed} />
+            <AccountLogs name={account.name} />
+          </Gallery>
+        </PageSection>
+      </Page>
     );
 }
 

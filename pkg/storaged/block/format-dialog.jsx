@@ -368,7 +368,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                                     return _("Passphrase cannot be empty");
                                             },
                                             visible: vals => vals.crypto == " keep" && vals.needs_explicit_passphrase,
-                                            explanation: _("The disk needs to be unlocked before formatting.  Please provide a existing passphrase.")
+                                            explanation: _("The disk needs to be unlocked before formatting. Please provide an existing passphrase.")
                                         }),
                               TextInput("crypto_options", _("Encryption options"),
                                         {

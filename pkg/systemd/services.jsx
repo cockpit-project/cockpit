@@ -182,6 +182,7 @@ class ServicesPageBody extends React.Component {
             /* State related to the toolbar components */
             isFullyLoaded: false,
             error: null,
+            pinnedUnits: [],
         };
 
         /* data storage

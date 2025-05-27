@@ -24,7 +24,7 @@ import client from "../client.js";
 import { CardHeader } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { Table, Tr, Td } from '@patternfly/react-table';
+import { Table, Tbody, Tr, Td } from '@patternfly/react-table';
 import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { TextInput as TextInputPF } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
@@ -789,8 +789,10 @@ export class CryptoKeyslots extends React.Component {
             });
 
             table = (
-                <Table id="encryption-keys" isCompact aria-label={_("Keys")}>
-                    {rows}
+                <Table id="encryption-keys" aria-label={_("Keys")}>
+                    <Tbody>
+                        {rows}
+                    </Tbody>
                 </Table>
             );
         }

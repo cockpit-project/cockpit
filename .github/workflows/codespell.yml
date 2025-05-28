@@ -1,0 +1,21 @@
+name: codespell
+on: [pull_request]
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+    permissions: {}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install codespell
+        run: |
+          python3 -m pip install --break-system-packages codespell
+
+      - name: Run codespell
+        timeout-minutes: 5
+        run: |
+          codespell .

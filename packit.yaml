@@ -58,6 +58,15 @@ jobs:
     targets:
       # big-endian
       - fedora-latest-stable-s390x
+      # needed for tests
+      - fedora-41
+      - fedora-42
+      - fedora-latest-stable-aarch64
+      - fedora-rawhide
+      - centos-stream-9-x86_64
+      - centos-stream-9-aarch64
+      - centos-stream-10
+      - fedora-latest-stable
 
   # for cross-project testing
   - job: copr_build

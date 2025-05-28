@@ -314,7 +314,7 @@ class TestStorageStratis(storagelib.StorageCase):
         m.execute("! findmnt /run/fsys3")
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=2183084
-        # Do this assersion in the end so that the previous checks still run.
+        # Do this assertion in the end so that the previous checks still run.
         # After the stratis pool is deleted we can't check this, so use the value from earlier.
         self.assertFalse(udisk_contains_stratis_private)
 

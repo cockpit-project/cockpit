@@ -909,7 +909,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # history on "up to date" page should show the recent update (expanded by default)
         self.assertHistory("table.updates-history tbody.pf-m-expanded ul", ["buggy", "norefs-bin", "norefs-doc"])
-        # and the previous one, not expaned
+        # and the previous one, not expanded
         b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")

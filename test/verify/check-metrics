@@ -1336,7 +1336,7 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
 
-        # Fake it enough for cockpit.channels.pcp to import succesfully
+        # Fake it enough for cockpit.channels.pcp to import successfully
         cpcp_content = {
             "/usr/local/lib/pcp.py": "pmapi = True",
             "/usr/local/lib/cpmapi.py": "",

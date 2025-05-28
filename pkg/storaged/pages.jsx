@@ -362,15 +362,15 @@ function make_actions_kebab(actions) {
     return <StorageBarMenu menuItems={actions.map(make_menu_item)} isKebab />;
 }
 
-const ActionButtons = ({ card }) => {
+export const Actions = ({ actions, onlyMenu }) => {
     const narrow = useIsNarrow();
 
     function for_menu(action) {
         // Determine whether a action should get a button or be in the
         // menu
 
-        // In a narrow layout, everything goes to the menu
-        if (narrow)
+        // When requested or when in a narrow layout, put everything into the menu
+        if (onlyMenu || narrow)
             return true;
 
         // Everything that is dangerous goes to the menu
@@ -383,17 +383,18 @@ const ActionButtons = ({ card }) => {
     const buttons = [];
     const items = [];
 
-    if (!card.actions)
+    if (!actions)
         return null;
 
-    for (const a of card.actions) {
-        if (for_menu(a))
-            items.push(make_menu_item(a));
+    for (const action of actions) {
+        if (for_menu(action))
+            items.push(make_menu_item(action));
         else
             buttons.push(
-                <StorageButton key={a.title} onClick={() => a.action(false)}
-                               kind={a.danger ? "danger" : null} excuse={a.excuse}>
-                    {a.title}
+                <StorageButton key={action.title} onClick={() => action.action(false)}
+                               kind={action.danger ? "danger" : null} excuse={action.excuse}
+                               spinner={action.spinner}>
+                    {action.title}
                 </StorageButton>);
     }
 
@@ -810,7 +811,7 @@ export const StorageCard = ({ card, alert, alerts, actions, children }) => {
                 <StorageBreadcrumb page={card.page} />
             </CardBody>
             }
-            <CardHeader actions={{ actions: actions || <ActionButtons card={card} /> }}>
+            <CardHeader actions={{ actions: actions || <Actions actions={card.actions} /> }}>
                 <CardTitle>{card.title}</CardTitle>
             </CardHeader>
             {(alert || (alerts && alerts.length > 0)) && <CardBody><AlertGroup>{alert}{alerts}</AlertGroup></CardBody>}

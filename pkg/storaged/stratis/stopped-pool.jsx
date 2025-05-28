@@ -158,7 +158,7 @@ export function make_stratis_stopped_pool_page(parent, uuid) {
         component: StoppedStratisPoolCard,
         props: { uuid },
         actions: [
-            { title: _("Start"), action: from_menu => start_pool(uuid, from_menu), },
+            { title: _("Start"), action: from_menu => start_pool(uuid, from_menu), spinner: true },
         ],
     });
 

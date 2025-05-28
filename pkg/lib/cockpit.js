@@ -1542,10 +1542,18 @@ function factory() {
         client.subscribe({ path, interface: iface }, signal, options.subscribe !== false);
 
         function waited(ex) {
+            // The client.watch call below will be successful for
+            // non-existing interfaces, but "valid" will be false in
+            // that case (as it should be). When that happens, our
+            // argument is not an Error object. So we create the
+            // "not-found" DBusError ourselves.
+
             if (valid)
                 waits.resolve();
-            else
+            else if (ex instanceof DBusError)
                 waits.reject(ex);
+            else
+                waits.reject(new DBusError("not-found"));
         }
 
         /* If watching then do a proper watch, otherwise object is done */

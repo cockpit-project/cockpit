@@ -28,7 +28,7 @@ jobs:
   - job: tests
     identifier: self
     trigger: pull_request
-    targets:
+    targets: &test_targets
       - fedora-41
       - fedora-42
       - fedora-latest-stable-aarch64
@@ -52,7 +52,12 @@ jobs:
             context:
               revdeps: "yes"
 
-  # run build/unit tests on some interesting architectures
+  # run build/unit tests on test targets
+  - job: copr_build
+    trigger: pull_request
+    targets: *test_targets
+
+  # run extra build/unit tests on some interesting architectures
   - job: copr_build
     trigger: pull_request
     targets:

@@ -98,7 +98,8 @@ class MockTransport(asyncio.Transport):
             assert event_loop is not None
             self.close_future = event_loop.create_future()
             try:
-                event_loop.run_until_complete(self.close_future)
+                if not event_loop.is_running():
+                    event_loop.run_until_complete(self.close_future)
             finally:
                 self.close_future = None
 

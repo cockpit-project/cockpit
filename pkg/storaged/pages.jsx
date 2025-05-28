@@ -32,12 +32,14 @@ import { Bullseye } from "@patternfly/react-core/dist/esm/layouts/Bullseye/index
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
-import { ExclamationTriangleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
+import { ExclamationTriangleIcon, ExclamationCircleIcon, HelpIcon } from "@patternfly/react-icons";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover";
 
 import {
     decode_filename, block_short_name, fmt_size,
@@ -820,7 +822,7 @@ export const StorageCard = ({ card, alert, alerts, actions, children }) => {
         </Card>);
 };
 
-export const StorageDescription = ({ title, value, action, children }) => {
+export const StorageDescription = ({ title, value, action, help, children }) => {
     if (!value && !action && !children)
         return null;
 
@@ -835,9 +837,22 @@ export const StorageDescription = ({ title, value, action, children }) => {
         content = value || action;
     }
 
+    let help_popover;
+    if (help) {
+        help_popover = (
+            <Popover headerContent={help}>
+                <Button component="span" isInline variant="link" aria-label={_("more info")}>
+                    <Icon status="info">
+                        <HelpIcon />
+                    </Icon>
+                </Button>
+            </Popover>
+        );
+    }
+
     return (
         <DescriptionListGroup data-test-desc-title={title}>
-            <DescriptionListTerm>{title}</DescriptionListTerm>
+            <DescriptionListTerm>{title} {help_popover}</DescriptionListTerm>
             <DescriptionListDescription data-test-value={!(action && value)}>
                 {content}{children}
             </DescriptionListDescription>

@@ -14,9 +14,10 @@ import sys
 import unittest.mock
 from collections import deque
 from pathlib import Path
-from typing import Dict, Iterable, Iterator, Sequence
+from typing import AsyncGenerator, Dict, Iterator, Sequence
 
 import pytest
+import pytest_asyncio
 
 from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
@@ -66,13 +67,13 @@ def add_pseudo(bridge: Bridge) -> None:
     ])
 
 
-@pytest.fixture
-def no_init_transport(event_loop: asyncio.AbstractEventLoop, bridge: Bridge) -> Iterable[MockTransport]:
+@pytest_asyncio.fixture()
+async def no_init_transport(bridge: Bridge) -> AsyncGenerator[MockTransport, None]:
     transport = MockTransport(bridge)
     try:
         yield transport
     finally:
-        transport.stop(event_loop)
+        await transport.stop()
 
 
 @pytest.fixture

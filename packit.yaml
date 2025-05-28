@@ -28,7 +28,7 @@ jobs:
   - job: tests
     identifier: self
     trigger: pull_request
-    targets:
+    targets: &test_targets
       - fedora-41
       - fedora-42
       - fedora-latest-stable-aarch64
@@ -56,6 +56,7 @@ jobs:
   - job: copr_build
     trigger: pull_request
     targets:
+      <<: *test_targets
       # big-endian
       - fedora-latest-stable-s390x
 

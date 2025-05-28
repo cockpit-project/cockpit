@@ -2,9 +2,10 @@ import asyncio
 import os
 import subprocess
 import sys
-from typing import Iterable
+from typing import Any, AsyncGenerator, Iterable
 
 import pytest
+import pytest_asyncio
 
 from cockpit import polyfills
 from cockpit._vendor.systemd_ctypes import EventLoopPolicy
@@ -17,6 +18,14 @@ try:
 except (ImportError, AttributeError):
     # old versions don't have __version_tuple__ or event_loop_policy
     have_event_loop_policy_fixture = False
+
+# pytest fixture polyfill
+# pytest_asyncio.fixture() was added in 0.22.0
+if not hasattr(pytest_asyncio, 'fixture'):
+    # mypy is strict here because of slightly different signatures.
+    # On old versions of pytest_asyncio this is fine to do as `pytest.fixture`
+    # was always used before `pytest_asyncio.fixture` existed.
+    pytest_asyncio.fixture = pytest.fixture  # type: ignore[assignment]
 
 
 def any_subprocesses() -> bool:
@@ -67,18 +76,32 @@ else:
         return EventLoopPolicy()
 
 
-@pytest.fixture(autouse=True)
-def _check_settled(event_loop) -> Iterable[None]:
+def filter_current_task(tasks: 'set[asyncio.Task[Any]]',
+                        current_task: 'asyncio.Task[Any]') -> 'set[asyncio.Task[Any]]':
+    return {task for task in tasks if task is not current_task}
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def _check_settled() -> AsyncGenerator[None, None]:
     yield
+
+    # python 3.6 asyncio does not have 'current_task' attribute
+    if hasattr(asyncio, 'current_task'):
+        current_task = asyncio.current_task()
+    else:
+        current_task = asyncio.Task.current_task()  # type: ignore[attr-defined]
+    assert current_task is not None
+    event_loop = asyncio.get_running_loop()
 
     # Let all tasks and subprocesses run to completion
     for _ in range(200):
-        if not (asyncio.all_tasks(event_loop) or any_subprocesses()):
+        all_tasks = filter_current_task(asyncio.all_tasks(loop=event_loop), current_task)
+        if not (all_tasks or any_subprocesses()):
             break
-        event_loop.run_until_complete(asyncio.sleep(0.005))
+        await asyncio.sleep(0.005)
 
     # No tasks left
-    assert asyncio.all_tasks(loop=event_loop) == set()
+    assert filter_current_task(asyncio.all_tasks(loop=event_loop), current_task) == set()
 
     # No subprocesses left
     if any_subprocesses():

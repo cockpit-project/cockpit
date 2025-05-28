@@ -92,13 +92,12 @@ class MockTransport(asyncio.Transport):
         _, channel, data = data.split(b'\n', 2)
         self.queue.put_nowait((channel.decode('ascii'), data))
 
-    def stop(self, event_loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
+    async def stop(self) -> None:
         keep_open = self.protocol.eof_received()
         if keep_open:
-            assert event_loop is not None
-            self.close_future = event_loop.create_future()
+            self.close_future = asyncio.get_running_loop().create_future()
             try:
-                event_loop.run_until_complete(self.close_future)
+                await self.close_future
             finally:
                 self.close_future = None
 

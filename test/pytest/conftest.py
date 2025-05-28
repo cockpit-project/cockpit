@@ -2,9 +2,10 @@ import asyncio
 import os
 import subprocess
 import sys
-from typing import Iterable
+from typing import AsyncGenerator, Iterable
 
 import pytest
+import pytest_asyncio
 
 from cockpit import polyfills
 from cockpit._vendor.systemd_ctypes import EventLoopPolicy
@@ -17,6 +18,14 @@ try:
 except (ImportError, AttributeError):
     # old versions don't have __version_tuple__ or event_loop_policy
     have_event_loop_policy_fixture = False
+
+# pytest fixture polyfill
+# pytest_asyncio.fixture() was added in 0.22.0
+if not hasattr(pytest_asyncio, 'fixture'):
+    # mypy is strict here because of slightly different signatures.
+    # On old versions of pytest_asyncio this is fine to do as `pytest.fixture`
+    # was always used before `pytest_asyncio.fixture` existed.
+    pytest_asyncio.fixture = pytest.fixture  # type: ignore[assignment]
 
 
 def any_subprocesses() -> bool:
@@ -67,10 +76,11 @@ else:
         return EventLoopPolicy()
 
 
-@pytest.fixture(autouse=True)
-def _check_settled(event_loop) -> Iterable[None]:
+@pytest_asyncio.fixture()
+async def _check_settled() -> AsyncGenerator[None, None]:  # noqa: RUF029
     yield
 
+    event_loop = asyncio.get_running_loop()
     # Let all tasks and subprocesses run to completion
     for _ in range(200):
         if not (asyncio.all_tasks(event_loop) or any_subprocesses()):

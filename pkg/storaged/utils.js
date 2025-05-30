@@ -511,44 +511,32 @@ export function is_available_block(client, block, honor_ignore_hint) {
             !should_ignore(client, block.path));
 }
 
-export function get_available_spaces(client) {
-    function make(path) {
-        const block = client.blocks[path];
-        const parts = get_block_link_parts(client, path);
-        const text = cockpit.format(parts.format, parts.link);
-        return { type: 'block', block, size: block.Size, desc: text };
-    }
+let available_spaces = [];
 
-    const spaces = Object.keys(client.blocks).filter(p => is_available_block(client, client.blocks[p], true))
-            .sort(make_block_path_cmp(client))
-            .map(make);
+export function get_available_spaces() {
+    return available_spaces.sort((a, b) => block_cmp(a.block, b.block));
+}
 
-    function add_free_spaces(block) {
-        const parts = get_partitions(client, block);
-        let i;
-        let p;
-        let link_parts;
-        let text;
-        for (i in parts) {
-            p = parts[i];
-            if (p.type == 'free') {
-                link_parts = get_block_link_parts(client, block.path);
-                text = cockpit.format(link_parts.format, link_parts.link);
-                spaces.push({
-                    type: 'free',
-                    block,
-                    start: p.start,
-                    size: p.size,
-                    desc: cockpit.format(_("unpartitioned space on $0"), text)
-                });
-            }
-        }
-    }
+export function reset_available_spaces() {
+    available_spaces = [];
+}
 
-    for (const p in client.blocks_ptable)
-        add_free_spaces(client.blocks[p]);
+export function register_available_block_space(client, block) {
+    const parts = get_block_link_parts(client, block.path);
+    const text = cockpit.format(parts.format, parts.link);
+    available_spaces.push({ type: 'block', block, size: block.Size, desc: text });
+}
 
-    return spaces;
+export function register_available_free_space(client, block, partition) {
+    const link_parts = get_block_link_parts(client, block.path);
+    const text = cockpit.format(link_parts.format, link_parts.link);
+    available_spaces.push({
+        type: 'free',
+        block,
+        start: partition.start,
+        size: partition.size,
+        desc: cockpit.format(_("unpartitioned space on $0"), text)
+    });
 }
 
 export function prepare_available_spaces(client, spcs) {

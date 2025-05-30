@@ -18,6 +18,8 @@
 import contextlib
 import socket
 
+import pytest_asyncio
+
 
 def install():
     """Add shims for older Python versions"""
@@ -62,3 +64,8 @@ def install():
                     cm.__exit__(exc_type, exc_value, traceback)
 
         contextlib.AsyncExitStack = AsyncExitStack
+
+    # pytest_asyncio.fixture() was added in 0.22.0
+    if not hasattr(pytest_asyncio, 'fixture'):
+        import pytest
+        pytest_asyncio.fixture = pytest.fixture

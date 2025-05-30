@@ -2,9 +2,10 @@ import asyncio
 import os
 import subprocess
 import sys
-from typing import Iterable
+from typing import AsyncGenerator, Iterable
 
 import pytest
+import pytest_asyncio
 
 from cockpit import polyfills
 from cockpit._vendor.systemd_ctypes import EventLoopPolicy
@@ -67,10 +68,11 @@ else:
         return EventLoopPolicy()
 
 
-@pytest.fixture(autouse=True)
-def _check_settled(event_loop) -> Iterable[None]:
+@pytest_asyncio.fixture()
+async def _check_settled() -> AsyncGenerator[None, None]:  # noqa: RUF029
     yield
 
+    event_loop = asyncio.get_running_loop()
     # Let all tasks and subprocesses run to completion
     for _ in range(200):
         if not (asyncio.all_tasks(event_loop) or any_subprocesses()):

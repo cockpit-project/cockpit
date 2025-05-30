@@ -33,7 +33,7 @@ const RemotePage = () => {
     };
 
     return (
-        <Page className="no-masthead-sidebar">
+        <Page className="pf-m-no-sidebar">
             <Form isHorizontal>
                 <FormGroup fieldId="host" label="Host" isRequired>
                     <TextInput id="host" value={host} onChange={(_ev, value) => setHost(value)} isRequired />
@@ -47,9 +47,13 @@ const RemotePage = () => {
                 <Button onClick={on_go}>Go</Button>
             </Form>
 
-            <label htmlFor="output" className="control-label">Output:</label>
+            <label htmlFor="output" className="control-label">
+                Output:
+            </label>
             <pre id="output">{output}</pre>
-            <label htmlFor="error" className="control-label">Error:</label>
+            <label htmlFor="error" className="control-label">
+                Error:
+            </label>
             <span id="error">{error}</span>
         </Page>
     );

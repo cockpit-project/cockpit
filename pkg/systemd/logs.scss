@@ -12,6 +12,12 @@
 .journal-filters {
   grid-template-rows: auto 1fr;
 
+  /* Rely on the margins from the log list */
+  &,
+  .pf-v6-c-toolbar {
+    padding-block-end: 0;
+  }
+
   .cockpit-log-panel {
     border: none;
   }
@@ -95,11 +101,10 @@
     color: var(--pf-t--global--text--color--regular);
     background-color: var(--pf-t--global--background--color--primary--default);
     border: none;
-    font-size: var(--pf-t--global--font--size--md);
-    font-family: var(--pf-t--global--font--family--heading);
-    font-weight: var(--pf-t--global--font--weight--heading--default);
+    font: var(--pf-t--global--font--weight--heading--default) var(--pf-t--global--font--size--heading--h2) var(--pf-t--global--font--family--heading);
     padding-block: var(--pf-t--global--spacer--lg) var(--pf-t--global--spacer--sm);
     padding-inline: var(--pf-t--global--spacer--lg);
+    font-variant: none; /* Don't use tabular styling */
   }
 }
 

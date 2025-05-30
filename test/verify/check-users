@@ -112,6 +112,10 @@ class TestAccounts(testlib.MachineCase):
         b = self.browser
         m = self.machine
 
+        # Clean out the relevant logfiles
+        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /run/utmp")
+        m.execute("rm -f /var/lib/lastlog/lastlog2.db /var/lib/wtmpdb/wtmp.db")
+
         self.login_and_go("/users")
 
         # Add a user externally

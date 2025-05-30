@@ -359,7 +359,7 @@ class PcpMetricsChannel(AsyncChannel):
             # We would like to use `context.pmGetInDom(indom=metric_desc.desc.indom)`
             # This returns an set of ([instids], [names])
             #
-            # But we can't use this as it has no guarrentee for the instance ids order which we need.
+            # But we can't use this as it has no guarantee for the instance ids order which we need.
             if metric_desc.instanced:
                 insts: List[str] = []
                 for i in range(results.contents.numpmid):

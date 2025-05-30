@@ -48,7 +48,7 @@
  * This does two things: It maintains the state of whether the dialog
  * is open, and it does it high up in the DOM, in a stable place.
  * Even if ExampleButton is no longer part of the DOM, the dialog will
- * stay open and remain useable.
+ * stay open and remain usable.
  *
  * The "WithDialogs" component enables all its children to show
  * dialogs.  Such a dialog will stay open as long as the WithDialogs

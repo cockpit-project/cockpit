@@ -36,7 +36,7 @@ export const SuperuserAlert = () => {
 
     // @Venefilyn: We have a PageSection here to get padding when rendered
     // and avoid that padding when Alert is not rendered. If we start using this
-    // in another place we need to make it work in the aformentioned scenarios.
+    // in another place we need to make it work in the aforementioned scenarios.
     return (
         <PageSection>
             <Alert className="ct-limited-access-alert"

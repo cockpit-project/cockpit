@@ -5,7 +5,7 @@
 # This program monitors all btrfs filesystems and reports their
 # subvolumes and other things.
 #
-# It can do that continously, or as a one shot operation.  The tool
+# It can do that continuously, or as a one shot operation.  The tool
 # mounts btrfs filesystems as necessary to retrieve the requested
 # information, but does it in a polite way: they are mounted once and
 # then left mounted until that is no longer needed. Typically, you

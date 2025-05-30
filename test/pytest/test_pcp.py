@@ -294,7 +294,7 @@ async def test_pcp_open_error(transport, multi_file_archive):
                                reply_keys={'message': 'no "source" option specified for metrics channel'})
     await transport.check_open('metrics1', source="bazinga", problem='not-supported',
                                reply_keys={'message': 'unsupported "source" option specified for metrics: bazinga'})
-    await transport.check_open('metrics1', source="/non-existant", problem='not-found')
+    await transport.check_open('metrics1', source="/non-existent", problem='not-found')
     await transport.check_open('metrics1', source=str(multi_file_archive),
                                metrics=[{"name": ""}],
                                problem='protocol-error',
@@ -474,7 +474,7 @@ async def test_pcp_timestamp(transport, timestamps_archive):
 
 @pytest.mark.asyncio
 async def test_pcp_negative_timestamp(transport, timestamps_archive):
-    """ Given a negative timestamp the current time is taken and substracted
+    """ Given a negative timestamp the current time is taken and subtracted
     with the given timestamp """
 
     timestamp = int(datetime.datetime.fromisoformat('2023-07-01').timestamp()) * 1000

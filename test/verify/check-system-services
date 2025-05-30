@@ -545,7 +545,7 @@ Unit=test.service
         self.write_file("/usr/local/lib/systemd/system/cockpit-system.timer",
                         """
 [Unit]
-Description=Not deleteable Timer
+Description=Not deletable Timer
 
 [Timer]
 OnCalendar=*:1/2

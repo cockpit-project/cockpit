@@ -63,7 +63,7 @@ class TestStorageRaid1(storagelib.StorageCase):
 
         self.addCleanup(m.execute, "if [ -e /dev/md/SOMERAID ]; then mdadm --stop /dev/md/SOMERAID; fi")
 
-        # Create a raid1 with metdata format version 1.0.  Such an
+        # Create a raid1 with metadata format version 1.0.  Such an
         # array needs double wiping.
 
         m.execute(f"mdadm --create SOMERAID --run --level=1 --metadata=1.0 --raid-devices=2 {disk1} {disk2}")

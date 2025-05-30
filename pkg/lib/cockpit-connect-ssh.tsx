@@ -243,9 +243,9 @@ class ChangeAuthDialog extends React.Component<ChangeAuthProps, ChangeAuthState>
     keys() {
         // @ts-expect-error: "property does not exist", yes TS, that's why we add it here..
         if (!this.__keys)
-            // @ts-expect-error: dito
+            // @ts-expect-error: ditto
             this.__keys = credentials.keys_instance();
-        // @ts-expect-error: dito
+        // @ts-expect-error: ditto
         return this.__keys;
     }
 
@@ -278,8 +278,8 @@ class ChangeAuthDialog extends React.Component<ChangeAuthProps, ChangeAuthState>
 
             return this.setState({ in_progress: false, default_ssh_key, user }, this.updateIdentity);
         } catch (ex) { // not-covered: OS error
-            const dialogError = (ex as cockpit.BasicError).toString(); // not-covered: dito
-            this.setState({ in_progress: false, dialogError }); // not-covered: dito
+            const dialogError = (ex as cockpit.BasicError).toString(); // not-covered: ditto
+            this.setState({ in_progress: false, dialogError }); // not-covered: ditto
         }
     }
 

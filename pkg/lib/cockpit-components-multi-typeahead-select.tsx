@@ -87,7 +87,7 @@ export interface MultiTypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 
   selected: (string | number)[];
   /** Callback triggered when an option is added. */
   onAdd: (value: (string | number)) => void;
-  /** Callback triggered wehn an option is removed. */
+  /** Callback triggered when an option is removed. */
   onRemove: (value: (string | number)) => void;
   /** Callback triggered when the select opens or closes. */
   onToggle?: (nextIsOpen: boolean) => void;

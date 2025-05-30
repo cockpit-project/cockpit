@@ -162,7 +162,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         m2.execute("hostnamectl set-hostname machine2")
         m3.execute("hostnamectl set-hostname machine3")
 
-        # Switch the switcher off for the begining of this test.
+        # Switch the switcher off for the beginning of this test.
         if self.multihost_enabled:
             m1.write("/etc/cockpit/cockpit.conf",
                      '[WebService]\nAllowMultiHost=no\n')
@@ -225,7 +225,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         # Give another wrong address
         b.set_input_text('#add-machine-address', "10.111.113.2:4321")
         b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
-        # Error happens immediatly now.
+        # Error happens immediately now.
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to contact the given host 10.111.113.2:4321. Make sure it has ssh running on port 4321, or specify another port in the address.")
         # Now do it right
         b.set_input_text('#add-machine-address', "10.111.113.2")

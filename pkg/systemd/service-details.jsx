@@ -52,9 +52,14 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import './service-details.scss';
 import { KebabDropdown } from "cockpit-components-dropdown";
 import { Icon } from "@patternfly/react-core";
+import { CreateTimerDialogBody } from "./timer-dialog.jsx";
+import { from_boot_usec, from_on_calendar, join_command_arguments } from "./timer-dialog-helpers.js";
 
 const _ = cockpit.gettext;
 const METRICS_POLL_DELAY = 30000; // 30s
+
+// This marker comment is inserted at the beginning of unit files created by Cockpit
+export const CockpitManagedMarker = "# Managed by Cockpit.\n";
 
 /*
  * React template for showing basic dialog for confirming action
@@ -119,7 +124,7 @@ const ServiceConfirmDialog = ({ id, title, message, confirmText, confirmAction }
  *  - disabled
  *      Button is disabled
  */
-const ServiceActions = ({ masked, active, failed, canReload, actionCallback, deleteActionCallback, fileActionCallback, disabled, isPinned, pinUnitCallback }) => {
+const ServiceActions = ({ masked, active, failed, canReload, actionCallback, editActionCallback, deleteActionCallback, fileActionCallback, disabled, isPinned, pinUnitCallback }) => {
     const Dialogs = useDialogs();
 
     const actions = [];
@@ -148,11 +153,21 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, del
             );
         }
 
-        if (deleteActionCallback) {
-            actions.push(<Divider key="delete-divider" />);
-            actions.push(
-                <DropdownItem key="delete" className="pf-m-danger" onClick={() => deleteActionCallback()}>{ _("Delete") }</DropdownItem>
-            );
+        if (editActionCallback || deleteActionCallback) {
+            actions.push(<Divider key="modify-unit-divider" />);
+
+            if (editActionCallback) {
+                actions.push(
+                    <DropdownItem key="edit" onClick={() => editActionCallback()}>{_("Edit")}</DropdownItem>
+                );
+            }
+
+            if (deleteActionCallback) {
+                actions.push(
+                    <DropdownItem key="delete" className="pf-m-danger"
+                                  onClick={() => deleteActionCallback()}>{_("Delete")}</DropdownItem>
+                );
+            }
         }
 
         if (actions.length > 0) {
@@ -222,12 +237,14 @@ export class ServiceDetails extends React.Component {
             unit_properties: {},
             showDeleteDialog: false,
             unitPaths: [],
+            cockpitManaged: false,
             isPinned: this.props.pinnedUnits.includes(this.props.unit.Id),
         };
 
         this.onOnOffSwitch = this.onOnOffSwitch.bind(this);
         this.unitAction = this.unitAction.bind(this);
         this.unitFileAction = this.unitFileAction.bind(this);
+        this.editTimerAction = this.editTimerAction.bind(this);
         this.deleteAction = this.deleteAction.bind(this);
         this.deleteTimer = this.deleteTimer.bind(this);
         this.pinUnit = this.pinUnit.bind(this);
@@ -241,6 +258,15 @@ export class ServiceDetails extends React.Component {
             this.doMemoryCurrentPolling();
             this.interval = setInterval(this.doMemoryCurrentPolling, METRICS_POLL_DELAY);
         }
+    }
+
+    componentDidMount() {
+        cockpit.file(this.props.unit.FragmentPath).read()
+                .then(content => {
+                    if (content.startsWith("# Managed by Cockpit.\n")) {
+                        this.setState({ cockpitManaged: true });
+                    }
+                });
     }
 
     componentDidUpdate(prevProps) {
@@ -361,6 +387,42 @@ export class ServiceDetails extends React.Component {
         } else {
             return promise;
         }
+    }
+
+    editTimerAction() {
+        async function getCommand(bus, serviceUnitName) {
+            const serviceDbusPath = await bus.call(s_bus.O_MANAGER, s_bus.I_MANAGER, "LoadUnit", [serviceUnitName]);
+            const serviceProperties = await bus.call(serviceDbusPath[0], s_bus.I_PROPS, "GetAll", [s_bus.I_SERVICE]);
+            const commands = serviceProperties[0].ExecStart.v;
+
+            if (commands.length === 1) {
+                return join_command_arguments(commands[0][0], commands[0][1]);
+            } else {
+                return null;
+            }
+        }
+
+        const Dialogs = this.context;
+
+        const timerName = this.props.unit.Id.slice(0, this.props.unit.Id.lastIndexOf("."));
+        const serviceUnitName = timerName + ".service"; // timers created with cockpit only trigger one service
+
+        const currentTimerSettings = {
+            name: timerName,
+            description: this.props.unit.Description
+        };
+
+        let conditions = null;
+        if (this.props.unit.TimersMonotonic.length > 0) {
+            conditions = from_boot_usec(this.props.unit.TimersMonotonic[0][1]);
+        } else if (this.props.unit.TimersCalendar.length > 0) {
+            conditions = from_on_calendar(this.props.unit.TimersCalendar.map(item => item[1]));
+        }
+
+        getCommand(systemd_client[this.props.owner], serviceUnitName).then(command => {
+            const current = { ...currentTimerSettings, ...conditions, command };
+            Dialogs.show(<CreateTimerDialogBody owner={this.props.owner} current={current} />);
+        });
     }
 
     deleteAction() {
@@ -638,6 +700,7 @@ export class ServiceDetails extends React.Component {
                                 }
                                 <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}
                                                 actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
+                                                editActionCallback={isCustom && isTimer && this.state.cockpitManaged ? this.editTimerAction : null}
                                                 deleteActionCallback={isCustom && isTimer ? this.deleteAction : null}
                                                 disabled={this.state.waitsAction || this.state.waitsFileAction}
                                                 isPinned={this.state.isPinned} pinUnitCallback={this.pinUnit} />

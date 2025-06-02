@@ -19,10 +19,11 @@
 
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Form, FormGroup, FormAlert } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
 import {
@@ -61,19 +62,19 @@ export const CreateTimerDialog = ({ owner, isLoading }) => {
     );
 };
 
-const CreateTimerDialogBody = ({ owner }) => {
+export const CreateTimerDialogBody = ({ owner, current }) => {
     const Dialogs = useDialogs();
-    const [command, setCommand] = useState('');
-    const [delay, setDelay] = useState('specific-time');
-    const [delayNumber, setDelayNumber] = useState(0);
-    const [delayUnit, setDelayUnit] = useState('sec');
-    const [description, setDescription] = useState('');
+    const [command, setCommand] = useState(current?.command || '');
+    const [delay, setDelay] = useState(current?.delay || 'specific-time');
+    const [delayNumber, setDelayNumber] = useState(current?.delayNumber || 0);
+    const [delayUnit, setDelayUnit] = useState(current?.delayUnit || 'sec');
+    const [description, setDescription] = useState(current?.description || '');
     const [dialogError, setDialogError] = useState(undefined);
     const [inProgress, setInProgress] = useState(false);
-    const [name, setName] = useState('');
-    const [repeat, setRepeat] = useState('no');
-    const [repeatPatterns, setRepeatPatterns] = useState([]);
-    const [specificTime, setSpecificTime] = useState("00:00");
+    const [name, setName] = useState(current?.name || '');
+    const [repeat, setRepeat] = useState(current?.repeat || 'no');
+    const [repeatPatterns, setRepeatPatterns] = useState(current?.repeatPatterns || []);
+    const [specificTime, setSpecificTime] = useState(current?.specificTime || "00:00");
     const [isSpecificTimeOpen, setSpecificTimeOpen] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [commandNotFound, setCommandNotFound] = useState(false);
@@ -141,16 +142,23 @@ const CreateTimerDialogBody = ({ owner }) => {
             className="timer-dialog" position="top"
             variant="medium" isOpen onClose={Dialogs.close}
         >
-            <ModalHeader title={cockpit.format(_("Create timer"), name)} />
+            <ModalHeader title={!current ? _("Create timer") : _("Edit timer")} />
             <ModalBody>
                 {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}
                 <Form isHorizontal onSubmit={onSubmit}>
+                    {current && !current.delay && <FormAlert>
+                        <Alert variant="danger" title={_("Failed to get the starting conditions for the current")} isInline />
+                    </FormAlert>}
+                    {current && !current.command && <FormAlert>
+                        <Alert variant="danger" title={_("Failed to get the current command")} isInline />
+                    </FormAlert>}
                     <FormGroup label={_("Name")}
                                fieldId="servicename">
                         <TextInput id='servicename'
                                    value={name}
                                    validated={submitted && validationFailed.name ? "error" : "default"}
-                                   onChange={(_event, value) => setName(value)} />
+                                   onChange={(_event, value) => setName(value)}
+                                   readOnlyVariant={!!current} />
                         <FormHelper fieldId="servicename"
                                     helperTextInvalid={submitted && validationFailed.name && (!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed"))} />
                     </FormGroup>
@@ -344,7 +352,8 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                                 arr[idx].date = str;
                                                                 return arr;
                                                             })}
-                                                            appendTo={() => document.body} />
+                                                            appendTo={() => document.body}
+                                                            value={repeatPatterns[idx].date || ""} />
                                                 {timePicker(idx)}
                                             </>}
                                             {repeat !== "no" && <FlexItem align={{ default: 'alignRight' }}>
@@ -392,7 +401,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                         onClick={onSubmit}>
                     {_("Save")}
                 </Button>
-                <Button variant='link' onClick={Dialogs.close}>
+                <Button id="timer-dialog-close-button" variant='link' onClick={Dialogs.close}>
                     {_("Cancel")}
                 </Button>
             </ModalFooter>

@@ -243,7 +243,7 @@ import { FormHelper } from "cockpit-components-form-helper";
 
 import {
     decode_filename, fmt_size, block_name, format_size_and_text, format_delay, for_each_async, get_byte_units,
-    is_available_block, BTRFS_TOOL_MOUNT_PATH
+    BTRFS_TOOL_MOUNT_PATH
 } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import client from "./client.js";
@@ -1391,8 +1391,7 @@ export function init_teardown_usage(client, usage, expect_single_unmount) {
                     } else if (u.block.IdUsage == "crypto" && !client.blocks_cleartext[u.block.path]) {
                         u.data_warning = _("Locked encrypted device might contain data");
                     } else if (!client.blocks_ptable[u.block.path] &&
-                               u.block.IdUsage != "raid" &&
-                               !is_available_block(client, u.block)) {
+                               u.block.IdUsage && u.block.IdUsage != "raid") {
                         u.data_warning = _("Device contains unrecognized data");
                     }
                     if (u.data_warning)

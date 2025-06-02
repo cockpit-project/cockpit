@@ -113,7 +113,9 @@ export function make_block_page(parent, block, card) {
         } else if (block_swap ||
                    (content_block.IdUsage == "other" && content_block.IdType == "swap")) {
             card = make_swap_card(card, block, content_block);
-        } else if (client.blocks_available[content_block.path]) {
+        } else if (!content_block.IdUsage) {
+            if (!block.HintIgnore)
+                register_available_block_space(client, content_block);
             card = make_unformatted_data_card(card, block, content_block);
         } else {
             card = make_unrecognized_data_card(card, block, content_block);

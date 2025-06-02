@@ -105,7 +105,7 @@ export function create_mdraid() {
                                      return cockpit.format(cockpit.ngettext("At least $0 disk is needed.", "At least $0 disks are needed.", disks_needed),
                                                            disks_needed);
                              },
-                             spaces: get_available_spaces(client)
+                             spaces: get_available_spaces()
                          })
         ],
         Action: {

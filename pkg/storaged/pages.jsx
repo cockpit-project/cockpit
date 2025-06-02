@@ -39,7 +39,10 @@ import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/inde
 import { DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
-import { decode_filename, block_short_name, fmt_size } from "./utils.js";
+import {
+    decode_filename, block_short_name, fmt_size,
+    reset_available_spaces
+} from "./utils.js";
 import { StorageButton, StorageBarMenu, StorageMenuItem, StorageSize } from "./storage-controls.jsx";
 import { MultipathAlert } from "./multipath.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
@@ -142,6 +145,7 @@ export const PAGE_CATEGORY_NETWORK = 3;
 export function reset_pages() {
     pages = new Map();
     crossrefs = new Map();
+    reset_available_spaces();
 }
 
 function name_from_card(card) {

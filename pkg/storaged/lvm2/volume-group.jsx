@@ -204,7 +204,7 @@ function add_disk(vgroup) {
                                  if (disks.length === 0)
                                      return _("At least one disk is needed.");
                              },
-                             spaces: get_available_spaces(client).filter(filter_inside_vgroup)
+                             spaces: get_available_spaces().filter(filter_inside_vgroup)
                          })
         ],
         Action: {

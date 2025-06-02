@@ -188,7 +188,7 @@ function lvol_or_part_and_fsys_resize(client, lvol_or_part, size, offline, passp
                 return Promise.reject(_("Stratis blockdevs can not be made smaller")); // not-covered: safety check
             else
                 return Promise.resolve();
-        } else if (client.blocks_available[block.path]) {
+        } else if (!block.IdUsage) {
             // Growing or shrinking unformatted data, nothing to do
             return Promise.resolve();
         } else if (size < orig_size) {
@@ -293,7 +293,7 @@ export function get_resize_info(client, block, to_fit) {
                 can_grow: false,
             };
             shrink_excuse = grow_excuse = _("Swap can not be resized here");
-        } else if (client.blocks_available[block.path]) {
+        } else if (!block.IdUsage) {
             info = {
                 can_shrink: true,
                 can_grow: true,

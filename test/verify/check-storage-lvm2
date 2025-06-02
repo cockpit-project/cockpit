@@ -86,15 +86,6 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_visible(self.dropdown_action("Remove") + "[disabled]")
         b.wait_text(self.dropdown_description("Remove"), "Last cannot be removed")
 
-        # Wipe the disk and make sure lvmetad forgets about it.  This
-        # might help with reusing it in the second half of this test.
-        #
-        # HACK - the pvscan is necessary because of
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1063813
-        #
-        m.execute(f"wipefs -a {dev_2}")
-        m.execute(f"pvscan --cache {dev_2}")
-
         # Thin volumes
         m.execute("lvcreate TEST1 --thinpool pool -L 20m")
         b.wait_visible(self.card_row("LVM2 logical volumes", name="pool"))
@@ -113,6 +104,15 @@ class TestStorageLvm2(storagelib.StorageCase):
         m.execute("vgremove -f TEST1")
         b.wait_visible(self.card("Storage"))
         b.wait_not_present(self.card_row("Storage", name="TEST1"))
+
+        # Wipe the disks and make sure lvmetad forgets about them.  This
+        # might help with reusing it in the second half of this test.
+        #
+        # HACK - the pvscan is necessary because of
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1063813
+        #
+        m.execute(f"wipefs -a {dev_1} {dev_2}")
+        m.execute(f"pvscan --cache {dev_1} {dev_2}")
 
         # create volume group in the UI
 
@@ -193,6 +193,9 @@ class TestStorageLvm2(storagelib.StorageCase):
         self.click_dropdown(self.card_row("LVM2 volume group", name=dev_2), "Remove")
         b.wait_not_present(self.card_row("LVM2 volume group", name=dev_2))
         b.wait_in_text(self.card_desc("LVM2 volume group", "Capacity"), "50.3 MB")
+
+        # loopback needs a explicit trigger...
+        m.execute("udevadm trigger")
 
         # create thin pool and volume
         # the pool will be maximum size, 50.3 MB

@@ -462,93 +462,32 @@ export function get_partitions(client, block) {
     return process_level(0, 0, block.Size);
 }
 
-export function is_available_block(client, block, honor_ignore_hint) {
-    const block_ptable = client.blocks_ptable[block.path];
-    const block_part = client.blocks_part[block.path];
-    const block_pvol = client.blocks_pvol[block.path];
+let available_spaces = [];
 
-    function has_fs_label() {
-        if (!block.IdUsage)
-            return false;
-        // Devices with a LVM2_member label need to actually be
-        // associated with a volume group.
-        if (block.IdType == 'LVM2_member' && (!block_pvol || !client.vgroups[block_pvol.VolumeGroup]))
-            return false;
-        return true;
-    }
-
-    function is_mpath_member() {
-        if (!client.drives[block.Drive])
-            return false;
-        if (!client.drives_block[block.Drive]) {
-            // Broken multipath drive
-            return true;
-        }
-        const members = client.drives_multipath_blocks[block.Drive];
-        for (let i = 0; i < members.length; i++) {
-            if (members[i] == block)
-                return true;
-        }
-        return false;
-    }
-
-    function is_vdo_backing_dev() {
-        return !!client.legacy_vdo_overlay.find_by_backing_block(block);
-    }
-
-    function is_swap() {
-        return !!block && client.blocks_swap[block.path];
-    }
-
-    return (!(block.HintIgnore && honor_ignore_hint) &&
-            block.Size > 0 &&
-            !has_fs_label() &&
-            !is_mpath_member() &&
-            !is_vdo_backing_dev() &&
-            !is_swap() &&
-            !block_ptable &&
-            !(block_part && block_part.IsContainer) &&
-            !should_ignore(client, block.path));
+export function get_available_spaces() {
+    return available_spaces.sort((a, b) => block_cmp(a.block, b.block));
 }
 
-export function get_available_spaces(client) {
-    function make(path) {
-        const block = client.blocks[path];
-        const parts = get_block_link_parts(client, path);
-        const text = cockpit.format(parts.format, parts.link);
-        return { type: 'block', block, size: block.Size, desc: text };
-    }
+export function reset_available_spaces() {
+    available_spaces = [];
+}
 
-    const spaces = Object.keys(client.blocks).filter(p => is_available_block(client, client.blocks[p], true))
-            .sort(make_block_path_cmp(client))
-            .map(make);
+export function register_available_block_space(client, block) {
+    const parts = get_block_link_parts(client, block.path);
+    const text = cockpit.format(parts.format, parts.link);
+    available_spaces.push({ type: 'block', block, size: block.Size, desc: text });
+}
 
-    function add_free_spaces(block) {
-        const parts = get_partitions(client, block);
-        let i;
-        let p;
-        let link_parts;
-        let text;
-        for (i in parts) {
-            p = parts[i];
-            if (p.type == 'free') {
-                link_parts = get_block_link_parts(client, block.path);
-                text = cockpit.format(link_parts.format, link_parts.link);
-                spaces.push({
-                    type: 'free',
-                    block,
-                    start: p.start,
-                    size: p.size,
-                    desc: cockpit.format(_("unpartitioned space on $0"), text)
-                });
-            }
-        }
-    }
-
-    for (const p in client.blocks_ptable)
-        add_free_spaces(client.blocks[p]);
-
-    return spaces;
+export function register_available_free_space(client, block, partition) {
+    const link_parts = get_block_link_parts(client, block.path);
+    const text = cockpit.format(link_parts.format, link_parts.link);
+    available_spaces.push({
+        type: 'free',
+        block,
+        start: partition.start,
+        size: partition.size,
+        desc: cockpit.format(_("unpartitioned space on $0"), text)
+    });
 }
 
 export function prepare_available_spaces(client, spcs) {

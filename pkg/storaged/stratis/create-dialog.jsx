@@ -59,7 +59,7 @@ export function create_stratis_pool() {
                                  if (disks.length === 0)
                                      return _("At least one block device is needed.");
                              },
-                             spaces: get_available_spaces(client)
+                             spaces: get_available_spaces()
                          }),
             CheckBoxes("encrypt_pass", _("Options"),
                        {

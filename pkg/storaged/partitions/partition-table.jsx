@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import client from "../client";
 
-import { get_partitions } from "../utils.js";
+import { get_partitions, register_available_free_space } from "../utils.js";
 import { StorageCard, ChildrenTable, new_page, new_card } from "../pages.jsx";
 import { format_dialog } from "../block/format-dialog.jsx";
 import { make_block_page } from "../block/create-pages.jsx";
@@ -68,9 +68,10 @@ function make_partition_pages(parent, block) {
         let p;
         for (i = 0; i < partitions.length; i++) {
             p = partitions[i];
-            if (p.type == 'free')
+            if (p.type == 'free') {
+                register_available_free_space(client, block, p);
                 make_free_space_page(parent, p.start, p.size, enable_dos_extended);
-            else if (p.type == 'container')
+            } else if (p.type == 'container')
                 make_extended_partition_page(parent, p);
             else {
                 const card = make_partition_card(null, p.block);

@@ -78,11 +78,11 @@ class TestStorageMultipath(storagelib.StorageCase):
         b.wait_in_text(self.card_desc("Hard Disk Drive", "Multipathed devices"), dev1)
         b.wait_in_text(self.card_desc("Hard Disk Drive", "Multipathed devices"), dev2)
 
-        # Check that neither is offered as a free block device
+        # Check that only one is offered as a free block device
         b.go("#/")
         self.click_dropdown(self.card_header("Storage"), "Create LVM2 volume group")
         self.dialog_wait_open()
-        check_free_block_devices([])
+        check_free_block_devices(["/dev/sda"])
         self.dialog_cancel()
         self.dialog_wait_close()
 

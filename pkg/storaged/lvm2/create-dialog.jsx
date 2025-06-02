@@ -56,7 +56,7 @@ export function create_vgroup() {
                                  if (disks.length === 0)
                                      return _("At least one disk is needed.");
                              },
-                             spaces: get_available_spaces(client)
+                             spaces: get_available_spaces()
                          })
         ],
         Action: {

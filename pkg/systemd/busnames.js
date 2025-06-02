@@ -6,6 +6,7 @@ const s_bus = {
     I_UNIT: "org.freedesktop.systemd1.Unit",
     I_TIMER: "org.freedesktop.systemd1.Timer",
     I_SOCKET: "org.freedesktop.systemd1.Socket",
+    I_SERVICE: "org.freedesktop.systemd1.Service",
 };
 
 export default s_bus;

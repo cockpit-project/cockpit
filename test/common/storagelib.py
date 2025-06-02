@@ -53,7 +53,7 @@ class StorageHelpers(MachineCase):
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
 
-        Optionally takes a delay in nanoseconds which delays IO respones, 100000000 equals ~ 40 kB/s.
+        Optionally takes a delay in nanoseconds which delays IO responses, 100000000 equals ~ 40 kB/s.
 
         Return the device name.
         """
@@ -89,7 +89,7 @@ class StorageHelpers(MachineCase):
         backf = self.machine.execute("mktemp /var/tmp/loop.XXXX").strip()
         dev = self.machine.execute(f"truncate --size={size}MB {backf}; "
                                    f"losetup -P --show {name if name else '--find'} {backf}").strip()
-        # If this device had partions in its last incarnation on this
+        # If this device had partitions in its last incarnation on this
         # machine, they might come back for unknown reasons, in a
         # non-functional state. Running partprobe will get rid of
         # them.
@@ -530,7 +530,7 @@ MakeDirectory=yes
         # password agent from above.
         #
         # Before the reboot, we destroy the original disk to make
-        # really sure that it wont be used anymore.
+        # really sure that it won't be used anymore.
 
         # Assert this is a destructive test which always is a VirtMachine.
         assert isinstance(m, VirtMachine)

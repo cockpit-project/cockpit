@@ -589,7 +589,7 @@ class TestConnection(testlib.MachineCase):
         output = m.curl('-f', '-N', 'http://localhost:9090/cockpit/socket', headers=headers)
         self.assertIn('"no-session"', output)
 
-        # Test wildcard functionaity of Origin Matching
+        # Test wildcard functionality of Origin Matching
         headers['Origin'] = "http://wildcard.origin-two:9090"
         output = m.curl('-f', '-N', 'http://localhost:9090/socket', headers=headers)
         self.assertIn('"no-session"', output)

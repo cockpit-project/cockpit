@@ -564,7 +564,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
      * not always straightforward. For example, both "network" and
      * "network/firewall" will have the same item, the one for
      * "Networking". But "system/logs" has its own item, "Logs",
-     * eventhough it comes from the same package as the "system" path.
+     * even though it comes from the same package as the "system" path.
      *
      * And then, the "metrics" path has the "Overview" item associated
      * with it, although the two come from different packages.
@@ -633,7 +633,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         }
 
         // Remember the most recent history for each host, and each
-        // host/path combinaton.  This is used by JUMP to complete
+        // host/path combination.  This is used by JUMP to complete
         // partial locations.
         //
         this.#remember_location(location.host, location.path, location.hash);

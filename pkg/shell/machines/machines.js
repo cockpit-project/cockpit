@@ -266,7 +266,7 @@ function Machines() {
             }
         }
 
-        // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
+        // FIXME: investigate reusing the proxy from Loader (runs in different frame/scope)
         const bridge = cockpit.dbus(null, { bus: "internal", superuser: "require" });
         const mod =
             bridge.call("/machines", "cockpit.Machines", "Update", ["99-webui.json", host, values_variant])

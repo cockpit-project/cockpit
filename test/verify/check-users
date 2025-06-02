@@ -756,7 +756,7 @@ class TestAccounts(testlib.MachineCase):
         )
         b.wait_visible("#accounts-list td[data-label='Username']:contains('bob') + td + td:contains('1500')")
 
-        # Test dialog predicts corrent next available UID
+        # Test dialog correctly predicts the next available UID
         createUser(
             browser=b,
             machine=m,

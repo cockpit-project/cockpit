@@ -83,7 +83,7 @@ class TestNetworkingSettings(netlib.NetworkCase):
         con_id = testlib.wait(lambda: self.iface_con_id(iface))
         assert_connection_setting(con_id, "ipv4.method", "auto")
 
-        # Change some more settins and check that the actual config
+        # Change some more settings and check that the actual config
         # and dialog reflects the change
 
         self.configure_iface_setting('IPv4')

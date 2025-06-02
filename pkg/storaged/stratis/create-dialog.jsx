@@ -28,6 +28,23 @@ import { validate_url, get_tang_adv } from "../crypto/tang.jsx";
 
 const _ = cockpit.gettext;
 
+function manager_create_pool(name, devs, key_desc, clevis_info) {
+    if (client.stratis_interface_revision < 8) {
+        return client.stratis_manager.CreatePool(name,
+                                                 devs,
+                                                 key_desc ? [true, key_desc] : [false, ""],
+                                                 clevis_info ? [true, clevis_info] : [false, ["", ""]]);
+    } else {
+        return client.stratis_manager.CreatePool(name,
+                                                 devs,
+                                                 key_desc ? [[[false, 0], key_desc]] : [],
+                                                 clevis_info ? [[[false, 0], clevis_info[0], clevis_info[1]]] : [],
+                                                 [false, 0], // journal_size
+                                                 [false, ""], // tag_spec
+                                                 [false, false]); // allocate_superblock
+    }
+}
+
 export function create_stratis_pool() {
     function find_pool(name) {
         for (const p in client.stratis_pools) {
@@ -124,10 +141,7 @@ export function create_stratis_pool() {
                         let clevis_info = null;
                         if (adv)
                             clevis_info = ["tang", JSON.stringify({ url: vals.tang_url, adv })];
-                        return client.stratis_manager.CreatePool(vals.name,
-                                                                 devs,
-                                                                 key_desc ? [true, key_desc] : [false, ""],
-                                                                 clevis_info ? [true, clevis_info] : [false, ["", ""]])
+                        return manager_create_pool(vals.name, devs, key_desc, clevis_info)
                                 .then(std_reply)
                                 .then(result => {
                                     if (vals.overprov && !vals.overprov.on && result[0]) {

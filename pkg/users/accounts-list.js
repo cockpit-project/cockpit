@@ -471,11 +471,25 @@ export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpan
     });
 
     return (
-        <Page id="accounts" className='no-masthead-sidebar'>
+        <Page id="accounts" className="pf-m-no-sidebar">
             <PageSection hasBodyWrapper={false}>
                 <Stack hasGutter>
-                    <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} min_gid={min_gid} max_gid={max_gid} />
-                    <AccountsList accounts={accounts} current_user={current_user} groups={groups} shells={shells} min_uid={min_uid} max_uid={max_uid} />
+                    <GroupsList
+              accounts={accounts}
+              groups={groups}
+              isExpanded={isGroupsExpanded}
+              setIsExpanded={setIsGroupsExpanded}
+              min_gid={min_gid}
+              max_gid={max_gid}
+                    />
+                    <AccountsList
+              accounts={accounts}
+              current_user={current_user}
+              groups={groups}
+              shells={shells}
+              min_uid={min_uid}
+              max_uid={max_uid}
+                    />
                 </Stack>
             </PageSection>
         </Page>

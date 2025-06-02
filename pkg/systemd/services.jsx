@@ -22,7 +22,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
 import { ServicesList } from "./services-list.jsx";
-import { CreateTimerDialog } from "./timer-dialog.jsx";
+import { CreateTimerDialogButton } from "./timer-dialog.jsx";
 import { page_status } from "notifications";
 import * as python from "python";
 import * as timeformat from "timeformat";
@@ -246,6 +246,7 @@ class ServicesPageBody extends React.Component {
         this.loadPinnedUnits = this.loadPinnedUnits.bind(this);
         this.onOptionsChanged = this.onOptionsChanged.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
+        this.addTimerPropertiesFull = this.addTimerPropertiesFull.bind(this);
     }
 
     onOptionsChanged(options) {
@@ -500,7 +501,7 @@ class ServicesPageBody extends React.Component {
                 promises.push(dbus.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_TIMER])
                         .then(([props]) => {
                             this.timers[path] = {};
-                            this.addTimerProperties(props, this.timers[path]);
+                            this.addTimerPropertiesFull(props, this.timers[path]);
                         })
                         .catch(ex => console.warn("Loading timer information for", path, "failed:", ex.toString()))); // not-covered: OS error
             }
@@ -548,6 +549,13 @@ class ServicesPageBody extends React.Component {
             next_run_time = next_monotonic + monotonic_timer_base;
 
         unit.NextRunTime = next_run_time ? timeformat.dateTime(next_run_time / 1000) : _("unknown");
+    }
+
+    addTimerPropertiesFull(timer_props, unit) {
+        this.addTimerProperties(timer_props, unit);
+
+        unit.TimersCalendar = timer_props.TimersCalendar.v;
+        unit.TimersMonotonic = timer_props.TimersMonotonic.v;
     }
 
     /* Add some computed properties into a unit object - does not call setState */
@@ -659,7 +667,7 @@ class ServicesPageBody extends React.Component {
                             key={unit_id}
                             unitId={unit_id}
                             dbusClient={systemd_client[this.props.owner]}
-                            addTimerProperties={this.addTimerProperties}
+                            addTimerProperties={this.addTimerPropertiesFull}
                             pinnedUnits={this.state.pinnedUnits}
             />;
         }
@@ -908,7 +916,7 @@ const ServicesPage = () => {
                                                                                           onChange={() => setOwner("user")} />
                             </ToggleGroup>}
                         </FlexItem>
-                        {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialog isLoading={isLoading} owner={owner} />}
+                        {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialogButton isLoading={isLoading} owner={owner} />}
                     </Flex>
                 </PageSection>}
                 <ServicesPageBody

@@ -262,6 +262,7 @@ class ServicesPageBody extends React.Component {
         this.loadPinnedUnits = this.loadPinnedUnits.bind(this);
         this.onOptionsChanged = this.onOptionsChanged.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
+        this.addTimerPropertiesFull = this.addTimerPropertiesFull.bind(this);
     }
 
     onOptionsChanged(options) {
@@ -516,7 +517,7 @@ class ServicesPageBody extends React.Component {
                 promises.push(dbus.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_TIMER])
                         .then(([props]) => {
                             this.timers[path] = {};
-                            this.addTimerProperties(props, this.timers[path]);
+                            this.addTimerPropertiesFull(props, this.timers[path]);
                         })
                         .catch(ex => console.warn("Loading timer information for", path, "failed:", ex.toString()))); // not-covered: OS error
             }
@@ -564,6 +565,13 @@ class ServicesPageBody extends React.Component {
             next_run_time = next_monotonic + monotonic_timer_base;
 
         unit.NextRunTime = next_run_time ? timeformat.dateTime(next_run_time / 1000) : _("unknown");
+    }
+
+    addTimerPropertiesFull(timer_props, unit) {
+        this.addTimerProperties(timer_props, unit);
+
+        unit.TimersCalendar = timer_props.TimersCalendar.v;
+        unit.TimersMonotonic = timer_props.TimersMonotonic.v;
     }
 
     /* Add some computed properties into a unit object - does not call setState */
@@ -675,7 +683,7 @@ class ServicesPageBody extends React.Component {
                             key={unit_id}
                             unitId={unit_id}
                             dbusClient={systemd_client[this.props.owner]}
-                            addTimerProperties={this.addTimerProperties}
+                            addTimerProperties={this.addTimerPropertiesFull}
                             pinnedUnits={this.state.pinnedUnits}
             />;
         }

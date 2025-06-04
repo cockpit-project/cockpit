@@ -1,11 +1,13 @@
 from js_coverage import BrowserCoverageRange
 from testlib import Browser, BrowserLayout
+from webdriver_bidi import WebdriverBidi
 
 # used in cockpit-machines, cockpit-podman, cockpit-certificates
 Browser.get_checked
 
 # kept as being potentially useful in the future
 Browser.wait_attr_not_contains
+WebdriverBidi.in_top_context
 
 # https://github.com/jendrikseipp/vulture/issues/249
 BrowserLayout.theme  # type: ignore[attr-defined]

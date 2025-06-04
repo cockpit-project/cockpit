@@ -62,6 +62,7 @@ import { make_stratis_filesystem_page } from "./filesystem.jsx";
 const _ = cockpit.gettext;
 
 const fsys_min_size = 512 * 1024 * 1024;
+const fsys_round_size = 1024 * 1024;
 
 function destroy_pool(pool) {
     return for_each_async(client.stratis_pool_filesystems[pool.path], fsys => destroy_filesystem(fsys))
@@ -108,7 +109,7 @@ function create_fs(pool) {
                                min: fsys_min_size,
                                max: pool.Overprovisioning ? stats.pool_total : stats.pool_free,
                                allow_infinite: pool.Overprovisioning,
-                               round: 512
+                               round: fsys_round_size,
                            }),
                 CheckBoxes("set_custom_limit", null,
                            {
@@ -125,7 +126,7 @@ function create_fs(pool) {
                                min: fsys_min_size,
                                max: pool.Overprovisioning ? stats.pool_total : stats.pool_free,
                                allow_infinite: true,
-                               round: 512
+                               round: fsys_round_size,
                            }),
             ]),
             TextInput("mount_point", _("Mount point"),

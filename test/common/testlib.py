@@ -526,10 +526,8 @@ class Browser:
         """
         self.wait_visible(selector)
 
-        # HACK: Chromium clicks don't work with iframes; use our old "synthesize MouseEvent" approach
-        # https://issues.chromium.org/issues/359616812
         # TODO: x and y are not currently implemented: webdriver (0, 0) is the element's center, not top left corner
-        if (self.browser == "chromium" and not self.driver.in_top_context()) or x != 0 or y != 0:
+        if x != 0 or y != 0:
             self.call_js_func('ph_mouse', selector, event, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
             return
 

@@ -151,6 +151,7 @@ pythonpath = ["src", "test/common", "bots"]
 testpaths = ["test/pytest"]
 log_cli = true
 required_plugins = ["pytest-asyncio"]
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.pyright]
 strict = ["**"]
@@ -220,7 +221,7 @@ deps =
   lint: ruff
   lint: vulture
   pytest
-  pytest-asyncio < 1.0
+  pytest-asyncio
   pytest: pytest-cov
   pytest: pytest-timeout
   pytest: pytest-xdist

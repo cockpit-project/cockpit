@@ -4,9 +4,10 @@ import datetime
 import json
 import sys
 import time
-from typing import Iterable
+from typing import AsyncGenerator
 
 import pytest
+import pytest_asyncio
 
 # Skip import when PCP is not available (for example in our tox env without system packages)
 try:
@@ -31,14 +32,15 @@ from cockpit.bridge import Bridge
 from .mocktransport import MockTransport
 
 
-@pytest.fixture
-def no_init_transport(event_loop: asyncio.AbstractEventLoop) -> Iterable[MockTransport]:
+# requires an event loop for queue in MockTransport
+@pytest_asyncio.fixture()
+async def no_init_transport() -> AsyncGenerator[MockTransport, None]:  # noqa: RUF029
     bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
     transport = MockTransport(bridge)
     try:
         yield transport
     finally:
-        transport.stop(event_loop)
+        transport.stop(asyncio.get_running_loop())
 
 
 @pytest.fixture

@@ -1470,6 +1470,9 @@ class TestGrafanaClient(testlib.MachineCase):
         mg = self.machines['services']
         pcp_dialog_selector = "#pcp-settings-modal"
 
+        # Disable pre-loading packagekit, dnf needs-restarting (dnf 4) consumes tons of cpu/memory on RHEL-10-1
+        self.disable_preload("packagekit")
+
         # avoid dynamic host name changes during PCP data collection, and start from clean slate
         m.execute("""systemctl stop pmlogger || true
                      systemctl reset-failed pmlogger || true

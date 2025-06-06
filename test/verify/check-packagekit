@@ -18,11 +18,11 @@
 # along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
 
 import fnmatch
-import os
 import time
 from collections.abc import Collection
 
 import packagelib
+import submanlib
 import testlib
 
 OSesWithoutTracer = ["debian-*", "ubuntu-*", "fedora-coreos", "centos-10", "rhel-10*"]
@@ -1293,55 +1293,19 @@ class TestKpatchInstall(NoSubManCase):
 
 @testlib.onlyImage("No subscriptions", "rhel-*")
 @testlib.skipBeiboot("sub-man-cockpit not contained in cockpit/ws")
-class TestUpdatesSubscriptions(packagelib.PackageCase):
+class TestUpdatesSubscriptions(packagelib.PackageCase, submanlib.SubscriptionCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 1024},
         "services": {"image": "services", "memory_mb": 1024}
     }
 
-    def register(self):
-        self.machine.execute(
-            "LC_ALL=C.UTF-8 subscription-manager register --org=donaldduck --activationkey=awesome_os_pool")
-
     def setUp(self):
         super().setUp()
-        self.candlepin = self.machines['services']
-        m = self.machine
+        self.setup_candlepin_service(self.machines['services'])
 
-        # wait for candlepin to be active and verify
-        self.candlepin.execute("/root/run-candlepin")
-
-        # remove all existing products (RHEL server), as we can't control them
-        m.execute("rm -f /etc/pki/product-default/*.pem /etc/pki/product/*.pem")
-
-        # download product info from the candlepin machine and install it
-        product_file = os.path.join(self.tmpdir, "88888.pem")
-        self.candlepin.download("/home/admin/candlepin/generated_certs/88888.pem", product_file)
-
-        # # upload product info to the test machine
-        m.execute("mkdir -p /etc/pki/product-default")
-        m.upload([product_file], "/etc/pki/product-default")
-
-        # set up CA
-        ca = self.candlepin.execute("cat /home/admin/candlepin/certs/candlepin-ca.crt")
-        m.write("/etc/pki/ca-trust/source/anchors/candlepin-ca.crt", ca)
-        m.write("/etc/hosts", "10.111.112.100 services.cockpit.lan\n", append=True)
-        m.execute("cp /etc/pki/ca-trust/source/anchors/candlepin-ca.crt /etc/rhsm/ca/candlepin-ca.pem")
-        m.execute("update-ca-trust")
-
-        # Wait for the web service to be accessible
-        m.execute("until curl --fail --silent --show-error https://services.cockpit.lan:8443/candlepin/status; do sleep 1; done")
         self.update_icon = "#page_status_notification_updates"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
-
-        # setup the repositories properly using the candlepin RPM GPG key
-        m.execute("curl -o /etc/pki/rpm-gpg/RPM-GPG-KEY-candlepin http://services.cockpit.lan:8080/RPM-GPG-KEY-candlepin")
-        m.execute("subscription-manager config --rhsm.baseurl http://services.cockpit.lan:8080")
-
-        # perform the additional configuration of subscription-manager
-        m.execute(
-            "subscription-manager config --server.hostname services.cockpit.lan --server.port 8443 --server.prefix /candlepin")
 
     def testNoUpdates(self):
         b = self.browser
@@ -1366,7 +1330,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         b.wait_js_cond('window.location.pathname === "/subscriptions"')
 
         # after registration it should show the usual "system is up to date", through the "status changed" signal
-        self.register()
+        self.register_with_candlepin()
         b.go("/updates")
         b.enter_page("/updates")
         # check updates
@@ -1405,7 +1369,7 @@ class TestUpdatesSubscriptions(packagelib.PackageCase):
         b.wait_in_text(".pf-v6-c-empty-state", "This system is not registered")
 
         # after registration it should show available updates
-        self.register()
+        self.register_with_candlepin()
         b.go("/updates")
         b.enter_page("/updates")
         b.wait_not_present(".pf-v6-c-empty-state")

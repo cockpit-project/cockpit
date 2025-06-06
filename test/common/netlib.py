@@ -93,6 +93,9 @@ class NetworkCase(NetworkHelpers):
             self.restore_dir("/etc/netplan")
             self.restore_dir("/run/NetworkManager/system-connections")
             self.addCleanup(cleanupDevs)
+        else:
+            # Disable pre-loading packagekit, dnf needs-restarting (dnf 4) consumes tons of cpu/memory on RHEL-10-1
+            self.disable_preload("packagekit")
 
         m.execute("systemctl start NetworkManager")
 

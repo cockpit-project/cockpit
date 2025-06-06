@@ -21,6 +21,7 @@ import re
 import time
 
 import packagelib
+import submanlib
 import testlib
 
 os_release = """
@@ -638,67 +639,6 @@ fi
                                     '.*warning: setlocale: LC_ALL: cannot change locale.*',
                                     'done')
 
-    @testlib.onlyImage("insights-client is only on RHEL", "rhel*")
-    @testlib.skipBeiboot("no local overrides/config in beiboot mode")
-    @testlib.nondestructive
-    def testInsightsStatus(self):
-        m = self.machine
-        b = self.browser
-
-        # insights-client might get started during boot and might then
-        # run concurrently with our explicit "insights-client
-        # --register" below.  insights-client is not designed to be
-        # run concurrently and there is no protection against it,
-        # apparently.  So let's prevent that.
-        m.execute("systemctl disable --now insights-client")
-
-        self.restore_dir("/etc/insights-client")
-        self.restore_dir("/etc/yum")
-        self.restore_dir("/var/lib/insights")
-
-        # Pretend that the Subscriptions page can do Insights stuff
-        self.write_file("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
-
-        # Run a mock version of the Insights API locally and configure
-        # insights-client to access it. That requires a good enough
-        # TLS mock insights server certificate
-        m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], self.vm_tmpdir)
-        pid = m.spawn(f"{self.vm_tmpdir}/mock-insights", "mock-insights")
-        self.addCleanup(m.execute, f"kill {pid}")
-        m.execute("while ! ss -tulpn | grep 8443; do sleep 1; done")
-
-        hostname = m.execute("hostname").rstrip()
-        self.write_file("/etc/insights-client/insights-client.conf", f"""
-[insights-client]
-auto_config=False
-auto_update=False
-base_url={hostname}:8443/r/insights
-cert_verify=/var/lib/insights/mock-certs/ca.crt
-username=admin
-password=foobar
-""")
-
-        # Initially we are not registered
-        self.login_and_go('/system')
-        b.wait_text(".system-health-insights a", "Not connected to Insights")
-
-        # Enable insights, results should appear automatically
-        m.execute("insights-client --register", timeout=180)
-        self.addCleanup(m.execute, "insights-client --unregister")
-        with b.wait_timeout(60):
-            b.wait_in_text(".system-health-insights a", "3 hits, including important")
-        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
-
-        # Switch to limited access, insights status will disappear completely
-        b.drop_superuser()
-        b.wait_not_present(".system-health-insights")
-
-        # Switch to admin access, insights status will re-appear
-        b.become_superuser()
-        b.wait_in_text(".system-health-insights a", "3 hits, including important")
-        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
-        b.logout()
-
     @testlib.nondestructive
     def testOverview(self):
         m = self.machine
@@ -1159,6 +1099,73 @@ class TestSystemInfoTime(packagelib.PackageCase):
         b.wait_visible("#change_systime button:contains('Automatically using NTP')")
         b.wait_not_present("#change_systime button:contains('Automatically using specific NTP servers')")
         b.wait_not_present("#change_systime button:contains('Automatically using additional NTP servers')")
+
+
+class TestSystemInfoSubscribed(submanlib.SubscriptionCase):
+    provision = {
+        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 1024},
+        "services": {"image": "services", "memory_mb": 1024}
+    }
+
+    @testlib.onlyImage("insights-client is only on RHEL", "rhel*")
+    @testlib.skipBeiboot("no local overrides/config in beiboot mode")
+    def testInsightsStatus(self):
+        m = self.machine
+        b = self.browser
+
+        # insights-client requires a valid subscription
+        self.setup_candlepin_service(self.machines['services'])
+        self.register_with_candlepin()
+
+        # insights-client might get started during boot and might then
+        # run concurrently with our explicit "insights-client
+        # --register" below.  insights-client is not designed to be
+        # run concurrently and there is no protection against it,
+        # apparently.  So let's prevent that.
+        m.execute("systemctl disable --now insights-client")
+
+        # Pretend that the Subscriptions page can do Insights stuff
+        self.write_file("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
+
+        # Run a mock version of the Insights API locally and configure
+        # insights-client to access it. That requires a good enough
+        # TLS mock insights server certificate
+        m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], self.vm_tmpdir)
+        pid = m.spawn(f"{self.vm_tmpdir}/mock-insights", "mock-insights")
+        self.addCleanup(m.execute, f"kill {pid}")
+        m.execute("while ! ss -tulpn | grep 8443; do sleep 1; done")
+
+        hostname = m.execute("hostname").rstrip()
+        self.write_file("/etc/insights-client/insights-client.conf", f"""
+[insights-client]
+auto_config=False
+auto_update=False
+base_url={hostname}:8443/r/insights
+cert_verify=/var/lib/insights/mock-certs/ca.crt
+username=admin
+password=foobar
+""")
+
+        # Initially we are not registered
+        self.login_and_go('/system')
+        b.wait_text(".system-health-insights a", "Not connected to Insights")
+
+        # Enable insights, results should appear automatically
+        m.execute("insights-client --register", timeout=180)
+        self.addCleanup(m.execute, "insights-client --unregister")
+        with b.wait_timeout(60):
+            b.wait_in_text(".system-health-insights a", "3 hits, including important")
+        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
+
+        # Switch to limited access, insights status will disappear completely
+        b.drop_superuser()
+        b.wait_not_present(".system-health-insights")
+
+        # Switch to admin access, insights status will re-appear
+        b.become_superuser()
+        b.wait_in_text(".system-health-insights a", "3 hits, including important")
+        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
+        b.logout()
 
 
 if __name__ == '__main__':

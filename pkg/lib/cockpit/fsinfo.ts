@@ -57,6 +57,9 @@ export interface FileInfo {
     group?: string | number;
     mtime?: number;
     target?: string;
+    ['r-ok']?: boolean,
+    ['w-ok']?: boolean,
+    ['x-ok']?: boolean,
     entries?: Record<string, FileInfo>;
     targets?: Record<string, FileInfo>;
 }

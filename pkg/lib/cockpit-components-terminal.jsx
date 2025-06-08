@@ -103,13 +103,89 @@ const themes = {
  *
  * Also it is possible to set up theme by property 'theme'.
  */
+
+export class TerminalState {
+    terminal;
+    element;
+    channel;
+
+    #default_channel_creator;
+
+    constructor(default_channel_creator) {
+        this.terminal = new Term({
+            cols: 1,
+            rows: 1,
+            screenKeys: true,
+            cursorBlink: true,
+            fontSize: 16,
+            fontFamily: 'Menlo, Monaco, Consolas, monospace',
+            screenReaderMode: true,
+            showPastingModal: false,
+        });
+        this.terminal.loadAddon(new CanvasAddon());
+        this.element = document.createElement("div");
+        this.channel = null;
+        this.#default_channel_creator = default_channel_creator;
+    }
+
+    connectChannel(channel) {
+        if (!channel && !this.channel && this.#default_channel_creator)
+            channel = this.#default_channel_creator();
+        if (channel && channel != this.channel) {
+            this.disconnectChannel();
+            this.channel = channel;
+
+            channel.addEventListener('message', (_event, data) => {
+                this.terminal.write(data);
+            });
+
+            this.terminal.onData(function(data) {
+                if (channel.valid) {
+                    /* HACK: Ctrl+Space (and possibly other
+                     * characters) is a disaster: While it is U+00A0
+                     * in unicode, with an UTF-8 representation of
+                     * 0xC2A0, the "visible" string in JS is 0x00
+                     * (with TextEncoder, btoa(), and string
+                     * comparison). The internal representation
+                     * retains half of it, and trying to send it to
+                     * the websocket would result in a single 0xA0,
+                     * which is invalid UTF-8 (and causes the session
+                     * to crash). So intercept and ignore such broken
+                     * chars.  See
+                     * https://github.com/cockpit-project/cockpit/issues/21213 */
+                    if (data === '\x00') {
+                        console.log("terminal: ignoring invalid input", data);
+                        return;
+                    }
+                    channel.send(data);
+                }
+            });
+
+            channel.addEventListener('close', (_event, options) => {
+                const term = this.terminal;
+                term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
+                term.cursorHidden = true;
+                term.refresh(term.rows, term.rows);
+            });
+        }
+    }
+
+    disconnectChannel() {
+        if (this.channel) {
+            this.channel.close();
+            this.channel = null;
+        }
+    }
+
+    close() {
+        this.disconnectChannel();
+        this.terminal.dispose();
+    }
+}
+
 export class Terminal extends React.Component {
     constructor(props) {
         super(props);
-        this.onChannelMessage = this.onChannelMessage.bind(this);
-        this.onChannelClose = this.onChannelClose.bind(this);
-        this.connectChannel = this.connectChannel.bind(this);
-        this.disconnectChannel = this.disconnectChannel.bind(this);
         this.reset = this.reset.bind(this);
         this.focus = this.focus.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
@@ -120,34 +196,10 @@ export class Terminal extends React.Component {
         this.getText = this.getText.bind(this);
         this.setTerminalTheme = this.setTerminalTheme.bind(this);
 
-        const term = new Term({
-            cols: props.cols || 80,
-            rows: props.rows || 25,
-            screenKeys: true,
-            cursorBlink: true,
-            fontSize: props.fontSize || 16,
-            fontFamily: 'Menlo, Monaco, Consolas, monospace',
-            screenReaderMode: true,
-            showPastingModal: false,
-        });
+        this.terminal_state = this.props.state || new TerminalState();
+        const term = this.terminal_state.terminal;
 
         this.terminalRef = React.createRef();
-
-        term.onData(function(data) {
-            if (this.props.channel.valid) {
-                /* HACK: Ctrl+Space (and possibly other characters) is a disaster: While it is U+00A0 in unicode, with
-                 * an UTF-8 representation of 0xC2A0, the "visible" string in JS is 0x00 (with TextEncoder,
-                 * btoa(), and string comparison). The internal representation retains half of it, and trying to send
-                 * it to the websocket would result in a single 0xA0, which is invalid UTF-8 (and causes the session
-                 * to crash). So intercept and ignore such broken chars.
-                 * See https://github.com/cockpit-project/cockpit/issues/21213 */
-                if (data === '\x00') {
-                    console.log("terminal: ignoring invalid input", data);
-                    return;
-                }
-                this.props.channel.send(data);
-            }
-        }.bind(this));
 
         if (props.onTitleChanged)
             term.onTitleChange(props.onTitleChanged);
@@ -155,35 +207,63 @@ export class Terminal extends React.Component {
         this.terminal = term;
         this.state = {
             showPastingModal: false,
-            cols: props.cols || 80,
-            rows: props.rows || 25
+            cols: term.cols,
+            rows: term.rows
         };
     }
 
-    componentDidMount() {
-        this.terminal.open(this.terminalRef.current);
-        this.terminal.loadAddon(new CanvasAddon());
-        this.connectChannel();
+    mountTerminal(state) {
+        this.terminal = state.terminal;
+        this.terminalRef.current.appendChild(state.element);
+        this.terminal.open(state.element);
+        state.connectChannel(this.props.channel);
 
-        if (!this.props.rows) {
-            window.addEventListener('resize', this.onWindowResize);
-            this.onWindowResize();
+        if (this.props.fontSize)
+            this.terminal.options.fontSize = this.props.fontSize;
+
+        if (this.props.rows) {
+            this.resizeTerminal(this.props.cols, this.props.rows);
         }
+
         this.setTerminalTheme(this.props.theme || 'black-theme');
         this.terminal.focus();
     }
 
+    unmountTerminal(state) {
+        this.terminalRef.current.removeChild(state.element);
+        if (!this.props.rows)
+            this.resizeTerminal(80, 1);
+    }
+
+    componentDidMount() {
+        this.mountTerminal(this.terminal_state);
+        if (!this.props.rows) {
+            window.addEventListener('resize', this.onWindowResize);
+            this.onWindowResize();
+        }
+    }
+
     resizeTerminal(cols, rows) {
         this.terminal.resize(cols, rows);
-        this.props.channel.control({
-            window: {
-                rows,
-                cols
-            }
-        });
+        if (this.terminal_state.channel) {
+            this.terminal_state.channel.control({
+                window: {
+                    rows,
+                    cols
+                }
+            });
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
+        if (prevProps.state !== this.props.state) {
+            this.unmountTerminal(prevProps.state);
+            this.mountTerminal(this.props.state);
+            this.terminal_state = this.props.state;
+            if (!this.props.rows)
+                this.resizeTerminal(this.state.cols, this.state.rows);
+        }
+
         if (prevProps.fontSize !== this.props.fontSize) {
             this.terminal.options.fontSize = this.props.fontSize;
 
@@ -205,8 +285,7 @@ export class Terminal extends React.Component {
 
         if (prevProps.channel !== this.props.channel) {
             this.terminal.reset();
-            this.disconnectChannel(prevProps.channel);
-            this.connectChannel();
+            this.terminal_state.connectChannel(this.props.channel);
             this.props.channel.control({
                 window: {
                     rows: this.state.rows,
@@ -259,16 +338,17 @@ export class Terminal extends React.Component {
     }
 
     componentWillUnmount() {
-        this.disconnectChannel();
-        this.terminal.dispose();
         window.removeEventListener('resize', this.onWindowResize);
         this.onFocusOut();
+        this.unmountTerminal(this.terminal_state);
+        if (!this.props.state)
+            this.terminal_state.close();
     }
 
     setText() {
         try {
             navigator.clipboard.readText()
-                    .then(text => this.props.channel.send(text))
+                    .then(text => this.terminal_state.channel.send(text))
                     .catch(e => this.setState({ showPastingModal: true }))
                     .finally(() => this.terminal.focus());
         } catch (error) {
@@ -286,38 +366,9 @@ export class Terminal extends React.Component {
         }
     }
 
-    onChannelMessage(event, data) {
-        this.terminal.write(data);
-    }
-
-    onChannelClose(event, options) {
-        const term = this.terminal;
-        term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
-        term.cursorHidden = true;
-        term.refresh(term.rows, term.rows);
-    }
-
-    connectChannel() {
-        const channel = this.props.channel;
-        if (channel?.valid) {
-            channel.addEventListener('message', this.onChannelMessage.bind(this));
-            channel.addEventListener('close', this.onChannelClose.bind(this));
-        }
-    }
-
-    disconnectChannel(channel) {
-        if (channel === undefined)
-            channel = this.props.channel;
-        if (channel) {
-            channel.removeEventListener('message', this.onChannelMessage);
-            channel.removeEventListener('close', this.onChannelClose);
-        }
-        channel.close();
-    }
-
     reset() {
         this.terminal.reset();
-        this.props.channel.send(String.fromCharCode(12)); // Send SIGWINCH to show prompt on attaching
+        this.terminal_state.channel.send(String.fromCharCode(12)); // Send SIGWINCH to show prompt on attaching
     }
 
     focus() {
@@ -371,7 +422,7 @@ export class Terminal extends React.Component {
 Terminal.propTypes = {
     cols: PropTypes.number,
     rows: PropTypes.number,
-    channel: PropTypes.object.isRequired,
+    channel: PropTypes.object,
     onTitleChanged: PropTypes.func,
     theme: PropTypes.string,
     parentId: PropTypes.string.isRequired

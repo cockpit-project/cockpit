@@ -234,7 +234,8 @@ class TestStorageMdRaid(storagelib.StorageCase):
         m.execute(f"wipefs -a {disk2}")
         b.wait_not_present(self.card_row("MDRAID device", name=disk2))
         self.raid_default_action("Start")
-        b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
+        with b.wait_timeout(30):
+            b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
         wait_degraded_state(is_degraded=True)
 
         # Add disk.  The array recovers.
@@ -303,7 +304,8 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.check_dropdown_action_disabled(self.card_row("MDRAID device", name=disk1), "Remove", "The MDRAID device must be running")
 
         self.raid_default_action("Start")
-        b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
+        with b.wait_timeout(30):
+            b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
         b.wait_not_present(self.card_button("MDRAID device", "Add disk") + ":disabled")

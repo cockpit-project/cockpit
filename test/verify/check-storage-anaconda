@@ -537,7 +537,8 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
         # Create a partition with a filesystem on it
         self.click_dropdown(self.card_row("Storage", name="md/raid0"), "Create partition table")
-        self.confirm()
+        with b.wait_timeout(60):
+            self.confirm()
         b.wait_text(self.card_row_col("Storage", 4, 2), "Free space")
         self.click_dropdown(self.card_row("Storage", 4), "Create partition")
         self.dialog({})

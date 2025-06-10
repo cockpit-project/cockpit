@@ -505,8 +505,8 @@ class Browser:
         self,
         selector: str,
         event: str,
-        x: int = 0,
-        y: int = 0,
+        x: int | None = None,
+        y: int | None = None,
         btn: int = 0,
         *,
         ctrlKey: bool = False,
@@ -519,8 +519,7 @@ class Browser:
 
         :param selector: the element to interact with
         :param type: the mouse event to simulate, for example mouseenter, mouseleave, mousemove, click
-        :param x: the x coordinate
-        :param y: the y coordinate
+        :param x, y: coordinates; when not given, default to center of element
         :param btn: mouse button to click https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
         :param crtlKey: press the ctrl key
         :param shiftKey: press the shift key
@@ -533,8 +532,8 @@ class Browser:
         # HACK: Chromium clicks don't work with iframes; use our old "synthesize MouseEvent" approach
         # https://issues.chromium.org/issues/359616812
         # TODO: x and y are not currently implemented: webdriver (0, 0) is the element's center, not top left corner
-        if (self.browser == "chromium" and not self.driver.in_top_context()) or x != 0 or y != 0:
-            self.call_js_func('ph_mouse', selector, event, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
+        if (self.browser == "chromium" and not self.driver.in_top_context()) or x is not None or y is not None:
+            self.call_js_func('ph_mouse', selector, event, x or 0, y or 0, btn, ctrlKey, shiftKey, altKey, metaKey)
             return
 
         # For Firefox and top frame with Chromium, use the BiDi API, which is more realistic -- it doesn't

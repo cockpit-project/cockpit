@@ -25,8 +25,8 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
@@ -257,11 +257,16 @@ const UnlockDialog = ({
         <Modal isOpen
                position="top"
                variant="medium"
-               onClose={cancel}
-               title={title}
-               titleIconVariant={title_icon || undefined}
-               footer={footer}>
-            {body}
+               onClose={cancel}>
+            <ModalHeader title={title}
+                {...title_icon && { titleIconVariant: title_icon }}
+            />
+            <ModalBody>
+                {body}
+            </ModalBody>
+            <ModalFooter>
+                {footer}
+            </ModalFooter>
         </Modal>
     );
 };
@@ -291,29 +296,31 @@ const LockDialog = ({
     };
 
     const footer = (
-        <>
+        <ModalFooter>
             <Button variant='primary' onClick={apply}>
                 {_("Limit access")}
             </Button>
             <Button variant='link' className='btn-cancel' onClick={D.close}>
                 {_("Cancel")}
             </Button>
-        </>
+        </ModalFooter>
     );
 
     return (
         <Modal isOpen
                position="top" variant="medium"
-               onClose={D.close}
-               footer={footer}
-               title={_("Switch to limited access")}>
-            <Stack hasGutter>
-                {error && <ModalError dialogError={error} />}
-                <StackItem>
-                    <p>{_("Limited access mode restricts administrative privileges. Some parts of the web console will have reduced functionality.")}</p>
-                    <p>{_("Your browser will remember your access level across sessions.")}</p>
-                </StackItem>
-            </Stack>
+               onClose={D.close}>
+            <ModalHeader title={_("Switch to limited access")} />
+            <ModalBody>
+                <Stack hasGutter>
+                    {error && <ModalError dialogError={error} />}
+                    <StackItem>
+                        <p>{_("Limited access mode restricts administrative privileges. Some parts of the web console will have reduced functionality.")}</p>
+                        <p>{_("Your browser will remember your access level across sessions.")}</p>
+                    </StackItem>
+                </Stack>
+            </ModalBody>
+            {footer}
         </Modal>
     );
 };

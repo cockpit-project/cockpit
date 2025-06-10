@@ -20,8 +20,8 @@ import React, { useState } from 'react';
 import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Form, FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { HelperText, HelperTextItem, } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
@@ -193,10 +193,14 @@ const SystemInformationSshKeys = () => {
         <Modal isOpen position="top" variant="medium"
                onClose={Dialogs.close}
                id="system_information_ssh_keys"
-               title={_("Machine SSH key fingerprints")}
-               footer={<Button variant='secondary' onClick={Dialogs.close}>{_("Close")}</Button>}
         >
-            {body}
+            <ModalHeader title={_("Machine SSH key fingerprints")} />
+            <ModalBody>
+                {body}
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='secondary' onClick={Dialogs.close}>{_("Close")}</Button>
+            </ModalFooter>
         </Modal>
     );
 };
@@ -276,29 +280,31 @@ const PageSystemInformationChangeHostname = () => {
         <Modal isOpen position="top" variant="medium"
                onClose={Dialogs.close}
                id="system_information_change_hostname"
-               title={_("Change host name")}
-               footer={<>
-                   <Button variant='primary' isDisabled={disabled} onClick={onSubmit}>{_("Change")}</Button>
-                   <Button variant='link' onClick={Dialogs.close}>{_("Cancel")}</Button>
-               </>}
         >
-            <Form isHorizontal onSubmit={onSubmit}>
-                <FormGroup fieldId="sich-pretty-hostname" label={_("Pretty host name")}>
-                    <TextInput id="sich-pretty-hostname" value={pretty} onChange={(_event, value) => onPrettyChanged(value)} />
-                </FormGroup>
-                <FormGroup fieldId="sich-hostname" label={_("Real host name")}>
-                    <TextInput id="sich-hostname" value={hostname} onChange={(_event, value) => onHostnameChanged(value)} validated={error.length ? "error" : "default"} />
-                    {error.length > 0 && <FormHelperText>
-                        <HelperText>
-                            {error.map((err, i) =>
-                                <HelperTextItem key={i} variant="error">
-                                    {err}
-                                </HelperTextItem>
-                            )}
-                        </HelperText>
-                    </FormHelperText>}
-                </FormGroup>
-            </Form>
+            <ModalHeader title={_("Change host name")} />
+            <ModalBody>
+                <Form isHorizontal onSubmit={onSubmit}>
+                    <FormGroup fieldId="sich-pretty-hostname" label={_("Pretty host name")}>
+                        <TextInput id="sich-pretty-hostname" value={pretty} onChange={(_event, value) => onPrettyChanged(value)} />
+                    </FormGroup>
+                    <FormGroup fieldId="sich-hostname" label={_("Real host name")}>
+                        <TextInput id="sich-hostname" value={hostname} onChange={(_event, value) => onHostnameChanged(value)} validated={error.length ? "error" : "default"} />
+                        {error.length > 0 && <FormHelperText>
+                            <HelperText>
+                                {error.map((err, i) =>
+                                    <HelperTextItem key={i} variant="error">
+                                        {err}
+                                    </HelperTextItem>
+                                )}
+                            </HelperText>
+                        </FormHelperText>}
+                    </FormGroup>
+                </Form>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary' isDisabled={disabled} onClick={onSubmit}>{_("Change")}</Button>
+                <Button variant='link' onClick={Dialogs.close}>{_("Cancel")}</Button>
+            </ModalFooter>
         </Modal>
     );
 };

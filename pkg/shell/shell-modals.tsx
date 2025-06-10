@@ -25,8 +25,8 @@ import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/inde
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Menu, MenuContent, MenuSearch, MenuSearchInput, MenuItem, MenuList } from "@patternfly/react-core/dist/esm/components/Menu/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { SearchIcon } from '@patternfly/react-icons';
@@ -128,61 +128,63 @@ export const LangModal = ({
                id="display-language-modal"
                className="display-language-modal"
                onClose={() => dialogResult.resolve()}
-               title={_("Display language")}
-               footer={<>
-                   <Button variant='primary' onClick={onSelect}>{_("Select")}</Button>
-                   <Button variant='link' onClick={() => dialogResult.resolve()}>{_("Cancel")}</Button>
-               </>}
         >
-            <Flex direction={{ default: 'column' }}>
-                <p>{_("Choose the language to be used in the application")}</p>
-                <Menu id="display-language-list"
-                      isPlain
-                      isScrollable
-                      className="ct-menu-select-widget"
-                      onSelect={(_, selected) => setSelected(selected as string)}
-                      activeItemId={selected}
-                      selected={selected}>
-                    <MenuSearch>
-                        <MenuSearchInput>
-                            <TextInput
-                                value={searchInput}
-                                aria-label={_("Filter menu items")}
-                                customIcon={<SearchIcon />}
-                                type="search"
-                                onChange={(_event, value) => setSearchInput(value)}
-                            />
-                        </MenuSearchInput>
-                    </MenuSearch>
-                    <Divider />
-                    <MenuContent>
-                        <MenuList>
-                            {
-                                (() => {
-                                    const locales = state.config.manifest.locales || {};
-                                    const filteredLocales = Object.keys(locales)
-                                            .filter(key => !searchInput || locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()));
+            <ModalHeader title={_("Display language")} />
+            <ModalBody>
+                <Flex direction={{ default: 'column' }}>
+                    <p>{_("Choose the language to be used in the application")}</p>
+                    <Menu id="display-language-list"
+                          isPlain
+                          isScrollable
+                          className="ct-menu-select-widget"
+                          onSelect={(_, selected) => setSelected(selected as string)}
+                          activeItemId={selected}
+                          selected={selected}>
+                        <MenuSearch>
+                            <MenuSearchInput>
+                                <TextInput
+                                    value={searchInput}
+                                    aria-label={_("Filter menu items")}
+                                    customIcon={<SearchIcon />}
+                                    type="search"
+                                    onChange={(_event, value) => setSearchInput(value)}
+                                />
+                            </MenuSearchInput>
+                        </MenuSearch>
+                        <Divider />
+                        <MenuContent>
+                            <MenuList>
+                                {
+                                    (() => {
+                                        const locales = state.config.manifest.locales || {};
+                                        const filteredLocales = Object.keys(locales)
+                                                .filter(key => !searchInput || locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()));
 
-                                    if (filteredLocales.length === 0) {
-                                        return (
-                                            <MenuItem isDisabled>
-                                                {_("No languages match")}
-                                            </MenuItem>
-                                        );
-                                    }
-                                    return filteredLocales.map(key => {
-                                        return (
-                                            <MenuItem itemId={key} key={key} data-value={key}>
-                                                {locales[key]}
-                                            </MenuItem>
-                                        );
-                                    });
-                                })()
-                            }
-                        </MenuList>
-                    </MenuContent>
-                </Menu>
-            </Flex>
+                                        if (filteredLocales.length === 0) {
+                                            return (
+                                                <MenuItem isDisabled>
+                                                    {_("No languages match")}
+                                                </MenuItem>
+                                            );
+                                        }
+                                        return filteredLocales.map(key => {
+                                            return (
+                                                <MenuItem itemId={key} key={key} data-value={key}>
+                                                    {locales[key]}
+                                                </MenuItem>
+                                            );
+                                        });
+                                    })()
+                                }
+                            </MenuList>
+                        </MenuContent>
+                    </Menu>
+                </Flex>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary' onClick={onSelect}>{_("Select")}</Button>
+                <Button variant='link' onClick={() => dialogResult.resolve()}>{_("Cancel")}</Button>
+            </ModalFooter>
         </Modal>
     );
 };
@@ -195,16 +197,20 @@ export function OopsModal({ dialogResult }: OopsModalProps) {
     return (
         <Modal isOpen position="top" variant="medium"
                onClose={() => dialogResult.resolve()}
-               title={_("Unexpected error")}
-               footer={<Button variant='secondary' onClick={() => dialogResult.resolve()}>{_("Close")}</Button>}
         >
-            {_("Cockpit had an unexpected internal error.")}
-            <br />
-            <br />
-            <span>{("You can try restarting Cockpit by pressing refresh in your browser. The javascript console contains details about this error") + " ("}
-                <b>{_("Ctrl-Shift-I")}</b>
-                {" " + _("in most browsers") + ")."}
-            </span>
+            <ModalHeader title={_("Unexpected error")} />
+            <ModalBody>
+                {_("Cockpit had an unexpected internal error.")}
+                <br />
+                <br />
+                <span>{("You can try restarting Cockpit by pressing refresh in your browser. The javascript console contains details about this error") + " ("}
+                    <b>{_("Ctrl-Shift-I")}</b>
+                    {" " + _("in most browsers") + ")."}
+                </span>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='secondary' onClick={() => dialogResult.resolve()}>{_("Close")}</Button>
+            </ModalFooter>
         </Modal>
     );
 }

@@ -22,8 +22,8 @@ import React, { useState } from 'react';
 import { Alert, AlertActionCloseButton } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { EditIcon } from '@patternfly/react-icons';
@@ -48,35 +48,35 @@ const MotdEditDialog = ({ text, expectedTag }) => {
         <Modal position="top"
                variant="medium" isOpen
                id="motd-box-edit-modal"
-               onClose={Dialogs.close}
-               title={_("Edit /etc/motd")}
-               footer={
-                   <>
-                       <Button variant='primary'
-                               onClick={() => cockpit.file("/etc/motd", { superuser: "try", err: "message" })
-                                       .replace(value, expectedTag)
-                                       .then(Dialogs.close)
-                                       .catch(exc => {
-                                           setError(_("Failed to save changes in /etc/motd"));
-                                           setErrorDetail(exc.message);
-                                       })}>
-                           {_("Save changes")}
-                       </Button>
-                       <Button variant='link'
-                               onClick={Dialogs.close}>
-                           {_("Cancel")}
-                       </Button>
-                   </>
-               }>
+               onClose={Dialogs.close}>
 
-            <Stack hasGutter>
-                {error &&
-                <ModalError dialogError={error}
-                             dialogErrorDetail={errorDetail} />}
-                <TextArea resizeOrientation="vertical"
-                          value={value}
-                          onChange={(_event, value) => setValue(value)} />
-            </Stack>
+            <ModalHeader title={_("Edit /etc/motd")} />
+            <ModalBody>
+                <Stack hasGutter>
+                    {error &&
+                    <ModalError dialogError={error}
+                                 dialogErrorDetail={errorDetail} />}
+                    <TextArea resizeOrientation="vertical"
+                              value={value}
+                              onChange={(_event, value) => setValue(value)} />
+                </Stack>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary'
+                        onClick={() => cockpit.file("/etc/motd", { superuser: "try", err: "message" })
+                                .replace(value, expectedTag)
+                                .then(Dialogs.close)
+                                .catch(exc => {
+                                    setError(_("Failed to save changes in /etc/motd"));
+                                    setErrorDetail(exc.message);
+                                })}>
+                    {_("Save changes")}
+                </Button>
+                <Button variant='link'
+                        onClick={Dialogs.close}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
         </Modal>);
 };
 

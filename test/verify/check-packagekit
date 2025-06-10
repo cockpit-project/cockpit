@@ -1006,14 +1006,12 @@ ExecStart=/usr/local/bin/{packageName}
         b.set_layout("mobile")
         b.wait_not_visible("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
         # but complete in the details
-        self.check_nth_update(3, "verbose", "1-2",
-                              desc_matches=["Things change #00", "Things change #29"])
+        self.check_nth_update(1, ["coarse00", "coarse01", "coarse02", "coarse03"], "1-2",
+                              desc_matches=["make it greener"])
 
         # also on desktop
         b.set_layout("desktop")
         b.wait_visible("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
-        # collapse it so that check_nth_update is happy
-        b.click("#available-updates table[aria-label='Available updates'] > tbody:nth-of-type(3) td.pf-v6-c-table__toggle button")
         self.check_nth_update(3, "verbose", "1-2",
                               desc_matches=["Things change #00", "Things change #29"])
 

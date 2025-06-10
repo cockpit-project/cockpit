@@ -270,8 +270,8 @@ class TestSelinux(testlib.MachineCase):
         b.enter_page("/system/terminal")
         b.focus('.terminal')
         b.input_text('"\n')
-        # Right click and paste
-        b.mouse(".terminal", "contextmenu", btn=2)
+        # Right click to open context menu and paste
+        b.mouse(".terminal", "click", btn=2)
         b.click('.contextMenu li:nth-child(2) button')
         b.wait_in_text(".xterm-accessibility-tree", "semanage import <<EOF")
         b.wait_in_text(".xterm-accessibility-tree", "boolean -D")

@@ -543,7 +543,7 @@ class Browser:
 
         # btn=2 for context menus doesn't work with ph_mouse(); so translate the old ph_mouse() API
         if event == "contextmenu":
-            assert btn == 0, "contextmenu event can only be done with default 'btn' value"
+            assert btn in [0, 2], "contextmenu event can only be done with default 'btn' value or right button"
             btn = 2
             event = "click"
 

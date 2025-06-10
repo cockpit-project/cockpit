@@ -24,7 +24,7 @@ import { FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/compo
 import { InputGroup, InputGroupItem } from '@patternfly/react-core/dist/esm/components/InputGroup/index.js';
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
-import { Progress, ProgressMeasureLocation, ProgressSize } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
+import { Progress, ProgressMeasureLocation, ProgressSize, type ProgressProps } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { EyeIcon, EyeSlashIcon, HelpIcon } from '@patternfly/react-icons';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
@@ -35,9 +35,14 @@ import './cockpit-components-password.scss';
 
 const _ = cockpit.gettext;
 
-export function password_quality(password, force) {
+interface PasswordQuality {
+    value: number;
+    message?: string | undefined;
+}
+
+export function password_quality(password: string, force?: boolean): Promise<PasswordQuality> {
     return new Promise((resolve, reject) => {
-        cockpit.spawn('/usr/bin/pwscore', { err: "message" })
+        cockpit.spawn(['/usr/bin/pwscore'], { err: "message" })
                 .input(password)
                 .done(function(content) {
                     const quality = parseInt(content, 10);
@@ -55,7 +60,7 @@ export function password_quality(password, force) {
     });
 }
 
-const debounced_password_quality = debounce(300, (value, callback) => {
+const debounced_password_quality = debounce(300, (value: string, callback: (quality: PasswordQuality) => void) => {
     password_quality(value).catch(() => ({ value: 0 })).then(callback);
 });
 
@@ -65,30 +70,39 @@ export const PasswordFormFields = ({
     initial_password,
     error_password, error_password_confirm,
     idPrefix, change
+}: {
+    password_label: string,
+    password_confirm_label?: string,
+    password_label_info?: string,
+    initial_password?: string,
+    error_password?: string | undefined,
+    error_password_confirm?: string | undefined,
+    idPrefix: string,
+    change: (field: "password" | "password_confirm", value: string) => void,
 }) => {
     const [password, setPassword] = useState(initial_password || "");
     const [passwordConfirm, setConfirmPassword] = useState("");
-    const [passwordStrength, setPasswordStrength] = useState();
-    const [passwordMessage, setPasswordMessage] = useState("");
+    const [passwordStrength, setPasswordStrength] = useState<number>(-1);
+    const [passwordMessage, setPasswordMessage] = useState<string | undefined>("");
     const [passwordHidden, setPasswordHidden] = useState(true);
     const [passwordConfirmHidden, setPasswordConfirmHidden] = useState(true);
 
-    function onPasswordChanged(value) {
+    function onPasswordChanged(value: string) {
         setPassword(value);
         change("password", value);
 
         if (value) {
-            debounced_password_quality(value, strength => {
+            debounced_password_quality(value, (strength: PasswordQuality) => {
                 setPasswordStrength(strength.value);
                 setPasswordMessage(strength.message);
             });
         } else {
-            setPasswordStrength();
+            setPasswordStrength(-1);
             setPasswordMessage("");
         }
     }
 
-    let variant;
+    let variant: ProgressProps['variant'];
     let message;
     let messageColor;
     if (passwordStrength > 66) {
@@ -108,20 +122,20 @@ export const PasswordFormFields = ({
     if (!passwordMessage && message)
         setPasswordMessage(message);
 
-    let passwordStrengthValue = Number.isInteger(passwordStrength) ? Number.parseInt(passwordStrength) : -1;
+    let passwordStrengthValue = passwordStrength;
     if (password !== "" && (passwordStrengthValue >= 0 && passwordStrengthValue < 25))
         passwordStrengthValue = 25;
 
     return (
         <>
             <FormGroup label={password_label}
-                       labelHelp={password_label_info &&
-                           <Popover bodyContent={password_label_info}>
-                               <Button id={`${password_label}-help-popup-button`} variant="plain" aria-label="Help">
-                                   <HelpIcon />
-                               </Button>
-                           </Popover>
-                       }
+                {...password_label_info && {
+                    labelHelp: <Popover bodyContent={password_label_info}>
+                        <Button id={`${password_label}-help-popup-button`} variant="plain" aria-label="Help">
+                            <HelpIcon />
+                        </Button>
+                    </Popover>
+                }}
                        id={idPrefix + "-pw1-group"}
                        fieldId={idPrefix + "-pw1"}>
                 <InputGroup>

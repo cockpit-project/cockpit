@@ -33,8 +33,8 @@ import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Pa
 import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
@@ -220,108 +220,108 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
 
     return (
         <Modal position="top" variant="small" id="kdump-settings-dialog" isOpen
-               title={_("Crash dump location")}
-               onClose={Dialogs.close}
-               footer={
-                   <>
-                       <Button variant="primary"
-                               isLoading={isSaving}
-                               isDisabled={isSaving || !isFormValid || Object.keys(validationErrors).length !== 0}
-                               onClick={saveSettings}>
-                           {_("Save changes")}
-                       </Button>
-                       <Button variant="link"
-                               isDisabled={isSaving}
-                               className="cancel"
-                               onClick={Dialogs.close}>
-                           {_("Cancel")}
-                       </Button>
-                   </>
-               }>
-            {error && <ModalError isExpandable
-                                  dialogError={error.message || error}
-                                  dialogErrorDetail={error.details} />}
-            <Form id="kdump-settings-form" isHorizontal>
-                <FormGroup fieldId="kdump-settings-location" label={_("Location")}>
-                    <FormSelect key="location" onChange={(_, val) => changeStorageLocation(val)}
-                                id="kdump-settings-location" value={storageLocation}>
-                        <FormSelectOption value='local'
-                                          label={_("Local filesystem")} />
-                        <FormSelectOption value='ssh'
-                                          label={_("Remote over SSH")} />
-                        <FormSelectOption value='nfs'
-                                          label={_("Remote over NFS")} />
-                    </FormSelect>
-                </FormGroup>
-
-                {storageLocation === "local" &&
-                    <FormGroup fieldId="kdump-settings-local-directory" label={_("Directory")} isRequired>
-                        <TextInput id="kdump-settings-local-directory" key="directory"
-                                   placeholder={DEFAULT_KDUMP_PATH} value={directory}
-                                   data-stored={directory}
-                                   onChange={(_event, value) => setDirectory(value)}
-                                   isRequired />
+               onClose={Dialogs.close}>
+            <ModalHeader title={_("Crash dump location")} />
+            <ModalBody>
+                {error && <ModalError isExpandable
+                                      dialogError={error.message || error}
+                                      dialogErrorDetail={error.details} />}
+                <Form id="kdump-settings-form" isHorizontal>
+                    <FormGroup fieldId="kdump-settings-location" label={_("Location")}>
+                        <FormSelect key="location" onChange={(_, val) => changeStorageLocation(val)}
+                                    id="kdump-settings-location" value={storageLocation}>
+                            <FormSelectOption value='local'
+                                              label={_("Local filesystem")} />
+                            <FormSelectOption value='ssh'
+                                              label={_("Remote over SSH")} />
+                            <FormSelectOption value='nfs'
+                                              label={_("Remote over NFS")} />
+                        </FormSelect>
                     </FormGroup>
-                }
 
-                {storageLocation === "nfs" &&
-                    <>
-                        <FormGroup fieldId="kdump-settings-nfs-server" label={_("Server")} isRequired>
-                            <TextInput id="kdump-settings-nfs-server" key="server"
-                                    placeholder="penguin.example.com" value={server}
-                                    onChange={(_event, value) => setServer(value)} isRequired />
-                        </FormGroup>
-                        <FormGroup fieldId="kdump-settings-nfs-export" label={_("Export")} isRequired>
-                            <TextInput id="kdump-settings-nfs-export" key="export"
-                                    placeholder="/export/cores" value={exportPath}
-                                    onChange={(_event, value) => setExportPath(value)} isRequired />
-                        </FormGroup>
-                        <FormGroup fieldId="kdump-settings-nfs-directory" label={_("Directory")} isRequired>
-                            <TextInput id="kdump-settings-nfs-directory" key="directory"
-                                    placeholder={DEFAULT_KDUMP_PATH} value={directory}
-                                    data-stored={directory}
-                                    onChange={(_event, value) => setDirectory(value)}
-                                    isRequired />
-                        </FormGroup>
-                    </>
-                }
-
-                {storageLocation === "ssh" &&
-                    <>
-                        <FormGroup fieldId="kdump-settings-ssh-server" label={_("Server")} isRequired>
-                            <TextInput id="kdump-settings-ssh-server" key="server"
-                                       placeholder="user@server.com" value={server}
-                                       onChange={(_event, value) => setServer(value)} isRequired />
-                        </FormGroup>
-
-                        <FormGroup fieldId="kdump-settings-ssh-key" label={_("SSH key")}>
-                            <TextInput id="kdump-settings-ssh-key" key="ssh"
-                                       placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
-                                       onChange={(_event, value) => changeSSHKey(value)}
-                                       validated={validationErrors.sshkey ? "error" : "default"} />
-                            <FormHelper helperTextInvalid={validationErrors.sshkey} />
-                        </FormGroup>
-
-                        <FormGroup fieldId="kdump-settings-ssh-directory" label={_("Directory")} isRequired>
-                            <TextInput id="kdump-settings-ssh-directory" key="directory"
+                    {storageLocation === "local" &&
+                        <FormGroup fieldId="kdump-settings-local-directory" label={_("Directory")} isRequired>
+                            <TextInput id="kdump-settings-local-directory" key="directory"
                                        placeholder={DEFAULT_KDUMP_PATH} value={directory}
                                        data-stored={directory}
                                        onChange={(_event, value) => setDirectory(value)}
                                        isRequired />
                         </FormGroup>
-                    </>
-                }
+                    }
 
-                <FormSection>
-                    <FormGroup fieldId="kdump-settings-compression" label={_("Compression")} hasNoPaddingTop>
-                        <Checkbox id="kdump-settings-compression"
-                                  isChecked={compressionEnabled}
-                                  onChange={(_, c) => setCompressionEnabled(c)}
-                                  isDisabled={!compressionAllowed}
-                                  label={_("Compress crash dumps to save space")} />
-                    </FormGroup>
-                </FormSection>
-            </Form>
+                    {storageLocation === "nfs" &&
+                        <>
+                            <FormGroup fieldId="kdump-settings-nfs-server" label={_("Server")} isRequired>
+                                <TextInput id="kdump-settings-nfs-server" key="server"
+                                        placeholder="penguin.example.com" value={server}
+                                        onChange={(_event, value) => setServer(value)} isRequired />
+                            </FormGroup>
+                            <FormGroup fieldId="kdump-settings-nfs-export" label={_("Export")} isRequired>
+                                <TextInput id="kdump-settings-nfs-export" key="export"
+                                        placeholder="/export/cores" value={exportPath}
+                                        onChange={(_event, value) => setExportPath(value)} isRequired />
+                            </FormGroup>
+                            <FormGroup fieldId="kdump-settings-nfs-directory" label={_("Directory")} isRequired>
+                                <TextInput id="kdump-settings-nfs-directory" key="directory"
+                                        placeholder={DEFAULT_KDUMP_PATH} value={directory}
+                                        data-stored={directory}
+                                        onChange={(_event, value) => setDirectory(value)}
+                                        isRequired />
+                            </FormGroup>
+                        </>
+                    }
+
+                    {storageLocation === "ssh" &&
+                        <>
+                            <FormGroup fieldId="kdump-settings-ssh-server" label={_("Server")} isRequired>
+                                <TextInput id="kdump-settings-ssh-server" key="server"
+                                           placeholder="user@server.com" value={server}
+                                           onChange={(_event, value) => setServer(value)} isRequired />
+                            </FormGroup>
+
+                            <FormGroup fieldId="kdump-settings-ssh-key" label={_("SSH key")}>
+                                <TextInput id="kdump-settings-ssh-key" key="ssh"
+                                           placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
+                                           onChange={(_event, value) => changeSSHKey(value)}
+                                           validated={validationErrors.sshkey ? "error" : "default"} />
+                                <FormHelper helperTextInvalid={validationErrors.sshkey} />
+                            </FormGroup>
+
+                            <FormGroup fieldId="kdump-settings-ssh-directory" label={_("Directory")} isRequired>
+                                <TextInput id="kdump-settings-ssh-directory" key="directory"
+                                           placeholder={DEFAULT_KDUMP_PATH} value={directory}
+                                           data-stored={directory}
+                                           onChange={(_event, value) => setDirectory(value)}
+                                           isRequired />
+                            </FormGroup>
+                        </>
+                    }
+
+                    <FormSection>
+                        <FormGroup fieldId="kdump-settings-compression" label={_("Compression")} hasNoPaddingTop>
+                            <Checkbox id="kdump-settings-compression"
+                                      isChecked={compressionEnabled}
+                                      onChange={(_, c) => setCompressionEnabled(c)}
+                                      isDisabled={!compressionAllowed}
+                                      label={_("Compress crash dumps to save space")} />
+                        </FormGroup>
+                    </FormSection>
+                </Form>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant="primary"
+                        isLoading={isSaving}
+                        isDisabled={isSaving || !isFormValid || Object.keys(validationErrors).length !== 0}
+                        onClick={saveSettings}>
+                    {_("Save changes")}
+                </Button>
+                <Button variant="link"
+                        isDisabled={isSaving}
+                        className="cancel"
+                        onClick={Dialogs.close}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
         </Modal>);
 };
 

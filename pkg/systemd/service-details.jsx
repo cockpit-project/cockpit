@@ -29,8 +29,8 @@ import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/compon
 import { Card, CardHeader, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
@@ -76,21 +76,21 @@ const ServiceConfirmDialog = ({ id, title, message, confirmText, confirmAction }
     return (
         <Modal id={id} isOpen
                position="top" variant="medium"
-               onClose={Dialogs.close}
-               title={title}
-               footer={
-                   <>
-                       { confirmText && confirmAction &&
-                       <Button variant='danger' onClick={confirmAction}>
-                           {confirmText}
-                       </Button>
-                       }
-                       <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>
-                           { _("Cancel") }
-                       </Button>
-                   </>
-               }>
-            {message}
+               onClose={Dialogs.close}>
+            <ModalHeader title={title} />
+            <ModalBody>
+                {message}
+            </ModalBody>
+            <ModalFooter>
+                { confirmText && confirmAction &&
+                <Button variant='danger' onClick={confirmAction}>
+                    {confirmText}
+                </Button>
+                }
+                <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>
+                    { _("Cancel") }
+                </Button>
+            </ModalFooter>
         </Modal>
     );
 };
@@ -704,24 +704,26 @@ const DeleteModal = ({ reason, name, handleCancel, handleDelete }) => {
     const [dialogError, setDialogError] = useState(undefined);
     return (
         <Modal isOpen
-               showClose={false}
                position="top" variant="medium"
                onClose={handleCancel}
-               title={cockpit.format(_("Confirm deletion of $0"), name)}
-               titleIconVariant="warning"
-               footer={<>
-                   <Button id="delete-timer-modal-btn" variant="danger" isDisabled={inProgress} isLoading={inProgress}
-                           onClick={() => { setInProgress(true); handleDelete().catch(exc => { setDialogError(exc.message); setInProgress(false) }) }}
-                   >
-                       {_("Delete")}
-                   </Button>
-                   <Button variant="link" isDisabled={inProgress} onClick={handleCancel}>{_("Cancel")}</Button>
-               </>}
         >
-            <Stack hasGutter>
-                {dialogError && <ModalError dialogError={_("Timer deletion failed")} dialogErrorDetail={dialogError} />}
-                {reason}
-            </Stack>
+            <ModalHeader title={cockpit.format(_("Confirm deletion of $0"), name)}
+                titleIconVariant="warning"
+            />
+            <ModalBody>
+                <Stack hasGutter>
+                    {dialogError && <ModalError dialogError={_("Timer deletion failed")} dialogErrorDetail={dialogError} />}
+                    {reason}
+                </Stack>
+            </ModalBody>
+            <ModalFooter>
+                <Button id="delete-timer-modal-btn" variant="danger" isDisabled={inProgress} isLoading={inProgress}
+                        onClick={() => { setInProgress(true); handleDelete().catch(exc => { setDialogError(exc.message); setInProgress(false) }) }}
+                >
+                    {_("Delete")}
+                </Button>
+                <Button variant="link" isDisabled={inProgress} onClick={handleCancel}>{_("Cancel")}</Button>
+            </ModalFooter>
         </Modal>
     );
 };

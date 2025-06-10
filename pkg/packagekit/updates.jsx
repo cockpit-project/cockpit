@@ -30,8 +30,8 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { CodeBlock, CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
@@ -523,32 +523,32 @@ class RestartServices extends React.Component {
             <Modal id="restart-services-modal" isOpen
                    position="top"
                    variant="medium"
-                   onClose={this.props.close}
-                   title={_("Restart services")}
-                   footer={
-                       <>
-                           {this.props.restartPackages.daemons.includes("cockpit") &&
-                               <Alert variant="warning"
-                                   title={_("Web Console will restart")}
-                                   isInline>
-                                   <p>
-                                       {_("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")}
-                                   </p>
-                               </Alert>}
-                           <Button variant='primary'
-                               isDisabled={ this.state.restartInProgress }
-                               onClick={ this.restart }>
-                               {_("Restart services")}
-                           </Button>
-                           <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                               {_("Cancel")}
-                           </Button>
-                       </>
-                   }>
-                <Stack hasGutter>
-                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <StackItem>{body}</StackItem>
-                </Stack>
+                   onClose={this.props.close}>
+                <ModalHeader title={_("Restart services")} />
+                <ModalBody>
+                    <Stack hasGutter>
+                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                        <StackItem>{body}</StackItem>
+                    </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    {this.props.restartPackages.daemons.includes("cockpit") &&
+                        <Alert variant="warning"
+                            title={_("Web Console will restart")}
+                            isInline>
+                            <p>
+                                {_("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")}
+                            </p>
+                        </Alert>}
+                    <Button variant='primary'
+                        isDisabled={ this.state.restartInProgress }
+                        onClick={ this.restart }>
+                        {_("Restart services")}
+                    </Button>
+                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                        {_("Cancel")}
+                    </Button>
+                </ModalFooter>
             </Modal>
         );
     }

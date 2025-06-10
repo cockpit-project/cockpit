@@ -627,6 +627,7 @@ OnCalendar=daily
         m.execute(f"touch {stuff}/file1.txt")
         b.focus("#demo-file-ac input[type=text]")
         time.sleep(1)
+        b.key("End")
         b.key("Backspace", 5)
         # input is now $stuff/file
         b.wait_in_text(".pf-v6-c-menu li:nth-of-type(1) button", "file1.txt")

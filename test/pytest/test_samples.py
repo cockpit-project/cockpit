@@ -102,8 +102,9 @@ def get_checked_samples(sampler: cockpit.samples.Sampler) -> cockpit.samples.Sam
 
 def test_descriptions():
     for cls in cockpit.samples.SAMPLERS:
-        # currently broken in containers with no cgroups or temperatures present
-        if cls in [cockpit.samples.CGroupSampler, cockpit.samples.CPUTemperatureSampler]:
+        # currently broken in containers with no cgroups or temperatures or mounts present
+        if cls in [cockpit.samples.CGroupSampler, cockpit.samples.CPUTemperatureSampler,
+                   cockpit.samples.MountSampler]:
             continue
 
         get_checked_samples(cls())

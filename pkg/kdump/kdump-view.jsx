@@ -379,7 +379,6 @@ export class KdumpPage extends React.Component {
                     {verifyMessage}
                 </Content>}
             </Content>),
-            showClose: true,
             titleIconVariant: "warning",
         };
         // also test modifying properties in subsequent render calls

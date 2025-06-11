@@ -29,8 +29,8 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Page, PageGroup, PageSection, PageBreadcrumb } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Progress, ProgressVariant } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
@@ -1445,64 +1445,65 @@ const PCPConfigDialog = ({
 
     return (
         <Modal position="top" variant="small" isOpen
-          id="pcp-settings-modal"
-          onClose={Dialogs.close}
-          title={ _("Metrics settings") }
-          description={
-              <div className="pcp-settings-modal-text">
-                  { _("Performance Co-Pilot collects and analyzes performance metrics from your system.") }
+            id="pcp-settings-modal"
+            onClose={Dialogs.close}
+        >
+            <ModalHeader title={ _("Metrics settings") }
+                description={
+                    <div className="pcp-settings-modal-text">
+                        { _("Performance Co-Pilot collects and analyzes performance metrics from your system.") }
 
-                  <Button component="a" variant="link" href="https://cockpit-project.org/guide/latest/feature-pcp.html"
-                                isInline
-                                target="_blank" rel="noopener noreferrer"
-                                icon={<ExternalLinkAltIcon />}>
-                      { _("Read more...") }
-                  </Button>
-              </div>
-          }
-                   footer={<>
-                       <Button variant='primary' onClick={handleSave} isDisabled={pending} isLoading={pending}>
-                           { _("Save") }
-                       </Button>
-                       <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>
-                           {_("Cancel")}
-                       </Button>
-                   </>
-                   }>
+                        <Button component="a" variant="link" href="https://cockpit-project.org/guide/latest/feature-pcp.html"
+                                      isInline
+                                      target="_blank" rel="noopener noreferrer"
+                                      icon={<ExternalLinkAltIcon />}>
+                            { _("Read more...") }
+                        </Button>
+                    </div>}
+            />
+            <ModalBody>
+                <Stack hasGutter>
+                    { dialogError && <ModalError dialogError={ _("Failed to configure PCP") } dialogErrorDetail={dialogError} /> }
+                    <StackItem>
+                        <Switch id="switch-pmlogger"
+                                    isChecked={dialogLoggerValue}
+                                    isDisabled={!s_pmlogger.exists && !packagekitExists}
+                                    label={
+                                        <Flex>
+                                            <FlexItem>{ _("Collect metrics") }</FlexItem>
+                                            <Content>
+                                                <Content component={ContentVariants.small}>(pmlogger.service)</Content>
+                                            </Content>
+                                        </Flex>
+                                    }
+                                    onChange={(_event, enable) => {
+                                        // pmproxy needs pmlogger, auto-disable it
+                                        setDialogLoggerValue(enable);
+                                        if (!enable)
+                                            setDialogProxyValue(false);
+                                    }} />
 
-            <Stack hasGutter>
-                { dialogError && <ModalError dialogError={ _("Failed to configure PCP") } dialogErrorDetail={dialogError} /> }
-                <StackItem>
-                    <Switch id="switch-pmlogger"
-                                isChecked={dialogLoggerValue}
-                                isDisabled={!s_pmlogger.exists && !packagekitExists}
-                                label={
-                                    <Flex>
-                                        <FlexItem>{ _("Collect metrics") }</FlexItem>
-                                        <Content>
-                                            <Content component={ContentVariants.small}>(pmlogger.service)</Content>
-                                        </Content>
-                                    </Flex>
-                                }
-                                onChange={(_event, enable) => {
-                                    // pmproxy needs pmlogger, auto-disable it
-                                    setDialogLoggerValue(enable);
-                                    if (!enable)
-                                        setDialogProxyValue(false);
-                                }} />
-
-                    <Switch id="switch-pmproxy"
-                                isChecked={dialogProxyValue}
-                                label={
-                                    <Flex>
-                                        <FlexItem>{ _("Export to network") }</FlexItem>
-                                        <Content component={ContentVariants.small}>(pmproxy.service)</Content>
-                                    </Flex>
-                                }
-                                isDisabled={ !dialogLoggerValue }
-                            onChange={(_event, enable) => setDialogProxyValue(enable)} />
-                </StackItem>
-            </Stack>
+                        <Switch id="switch-pmproxy"
+                                    isChecked={dialogProxyValue}
+                                    label={
+                                        <Flex>
+                                            <FlexItem>{ _("Export to network") }</FlexItem>
+                                            <Content component={ContentVariants.small}>(pmproxy.service)</Content>
+                                        </Flex>
+                                    }
+                                    isDisabled={ !dialogLoggerValue }
+                                onChange={(_event, enable) => setDialogProxyValue(enable)} />
+                    </StackItem>
+                </Stack>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary' onClick={handleSave} isDisabled={pending} isLoading={pending}>
+                    { _("Save") }
+                </Button>
+                <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
         </Modal>);
 };
 

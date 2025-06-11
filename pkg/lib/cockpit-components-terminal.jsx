@@ -20,8 +20,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { MenuList, MenuItem } from "@patternfly/react-core/dist/esm/components/Menu";
 import { CanvasAddon } from '@xterm/addon-canvas';
@@ -233,17 +233,19 @@ export class Terminal extends React.Component {
 
         return (
             <>
-                <Modal title={_("Paste error")}
-                       position="top"
+                <Modal position="top"
                        variant="small"
                        isOpen={this.state.showPastingModal}
-                       onClose={() => this.setState({ showPastingModal: false })}
-                       actions={[
-                           <Button key="cancel" variant="secondary" onClick={() => this.setState({ showPastingModal: false })}>
-                               {_("Close")}
-                           </Button>
-                       ]}>
-                    {_("Your browser does not allow paste from the context menu. You can use Shift+Insert.")}
+                       onClose={() => this.setState({ showPastingModal: false })}>
+                    <ModalHeader title={_("Paste error")} />
+                    <ModalBody>
+                        {_("Your browser does not allow paste from the context menu. You can use Shift+Insert.")}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button key="cancel" variant="secondary" onClick={() => this.setState({ showPastingModal: false })}>
+                            {_("Close")}
+                        </Button>
+                    </ModalFooter>
                 </Modal>
                 <div ref={this.terminalRef}
                      key={this.terminal}

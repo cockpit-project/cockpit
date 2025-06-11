@@ -25,8 +25,11 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { useInit } from "hooks";
 import { DialogResult } from "dialogs";
 
@@ -104,22 +107,24 @@ export const ActivePagesDialog = ({
         <Modal isOpen position="top" variant="small"
                id="active-pages-dialog"
                onClose={() => dialogResult.resolve()}
-               title={_("Active pages")}
-               footer={<>
-                   <Button variant='primary' onClick={onRemove}>{_("Close selected pages")}</Button>
-                   <Button variant='link' onClick={() => dialogResult.resolve()}>{_("Cancel")}</Button>
-               </>}
         >
-            <ListingTable showHeader={false}
-                          columns={[{ title: _("Page name") }]}
-                          aria-label={_("Active pages")}
-                          emptyCaption={ _("There are currently no active pages") }
-                              onSelect={(_event, isSelected, rowIndex) => {
-                                  const new_pages = [...pages];
-                                  new_pages[rowIndex].selected = isSelected;
-                                  setPages(new_pages);
-                              }}
-                          rows={rows} />
+            <ModalHeader title={_("Active pages")} />
+            <ModalBody>
+                <ListingTable showHeader={false}
+                              columns={[{ title: _("Page name") }]}
+                              aria-label={_("Active pages")}
+                              emptyCaption={ _("There are currently no active pages") }
+                                  onSelect={(_event, isSelected, rowIndex) => {
+                                      const new_pages = [...pages];
+                                      new_pages[rowIndex].selected = isSelected;
+                                      setPages(new_pages);
+                                  }}
+                              rows={rows} />
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary' onClick={onRemove}>{_("Close selected pages")}</Button>
+                <Button variant='link' onClick={() => dialogResult.resolve()}>{_("Cancel")}</Button>
+            </ModalFooter>
         </Modal>
     );
 };

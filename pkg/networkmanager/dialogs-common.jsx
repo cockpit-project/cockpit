@@ -25,8 +25,8 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
@@ -142,24 +142,23 @@ export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, chi
     return (
         <Modal id={idPrefix + "-dialog"} position="top" variant="medium"
             isOpen
-            help={help}
             onClose={Dialogs.close}
-            title={title}
-            footer={
-                <>
-                    <Button variant='primary' id={idPrefix + "-save"} onClick={onSubmit} isDisabled={submitDisabled}>
-                        {isCreateDialog ? _("Add") : _("Save")}
-                    </Button>
-                    <Button variant='link' id={idPrefix + "-cancel"} onClick={Dialogs.close}>
-                        {_("Cancel")}
-                    </Button>
-                </>
-            }
         >
-            <Form id={idPrefix + "-body"} onSubmit={onSubmit} isHorizontal={isFormHorizontal !== false}>
-                {dialogError && <ModalError id={idPrefix + "-error"} dialogError={_("Failed to save settings")} dialogErrorDetail={dialogError} />}
-                {children}
-            </Form>
+            <ModalHeader title={title} help={help} />
+            <ModalBody>
+                <Form id={idPrefix + "-body"} onSubmit={onSubmit} isHorizontal={isFormHorizontal !== false}>
+                    {dialogError && <ModalError id={idPrefix + "-error"} dialogError={_("Failed to save settings")} dialogErrorDetail={dialogError} />}
+                    {children}
+                </Form>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary' id={idPrefix + "-save"} onClick={onSubmit} isDisabled={submitDisabled}>
+                    {isCreateDialog ? _("Add") : _("Save")}
+                </Button>
+                <Button variant='link' id={idPrefix + "-cancel"} onClick={Dialogs.close}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
         </Modal>
     );
 };

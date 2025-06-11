@@ -25,8 +25,8 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 
@@ -383,76 +383,76 @@ const AutoUpdatesDialog = ({ backend }) => {
 
     return (
         <Modal position="top" variant="small" id="automatic-updates-dialog" isOpen
-               title={_("Automatic updates")}
-               onClose={Dialogs.close}
-               footer={
-                   <>
-                       <Button variant="primary"
-                               isLoading={pending}
+               onClose={Dialogs.close}>
+            <ModalHeader title={_("Automatic updates")} />
+            <ModalBody>
+                <Form isHorizontal onSubmit={save}>
+                    <FormGroup fieldId="type" label={_("Type")} hasNoPaddingTop>
+                        <Radio isChecked={!enabled}
+                               onChange={() => { setEnabled(false); setType(null) }}
                                isDisabled={pending}
-                               onClick={save}>
-                           {_("Save changes")}
-                       </Button>
-                       <Button variant="link"
+                               label={_("No updates")}
+                               id="no-updates"
+                               name="type" />
+                        <Radio isChecked={enabled && type === "security"}
+                               onChange={() => { setEnabled(true); setType("security") }}
                                isDisabled={pending}
-                               onClick={Dialogs.close}>
-                           {_("Cancel")}
-                       </Button>
-                   </>
-               }>
-            <Form isHorizontal onSubmit={save}>
-                <FormGroup fieldId="type" label={_("Type")} hasNoPaddingTop>
-                    <Radio isChecked={!enabled}
-                           onChange={() => { setEnabled(false); setType(null) }}
-                           isDisabled={pending}
-                           label={_("No updates")}
-                           id="no-updates"
-                           name="type" />
-                    <Radio isChecked={enabled && type === "security"}
-                           onChange={() => { setEnabled(true); setType("security") }}
-                           isDisabled={pending}
-                           label={_("Security updates only")}
-                           id="security-updates"
-                           name="type" />
-                    <Radio isChecked={enabled && type === "all"}
-                           onChange={() => { setEnabled(true); setType("all") }}
-                           isDisabled={pending}
-                           label={_("All updates")}
-                           id="all-updates"
-                           name="type" />
-                </FormGroup>
-
-                {enabled &&
-                <>
-                    <FormGroup fieldId="when" label={_("When")}>
-                        <Flex className="auto-update-group">
-                            <FormSelect id="auto-update-day"
-                                         isDisabled={pending}
-                                         value={day == "" ? "everyday" : day}
-                                         onChange={(_, d) => setDay(d == "everyday" ? "" : d) }>
-                                <FormSelectOption value="everyday" label={_("every day")} />
-                                <FormSelectOption value="mon" label={_("Mondays")} />
-                                <FormSelectOption value="tue" label={_("Tuesdays")} />
-                                <FormSelectOption value="wed" label={_("Wednesdays")} />
-                                <FormSelectOption value="thu" label={_("Thursdays")} />
-                                <FormSelectOption value="fri" label={_("Fridays")} />
-                                <FormSelectOption value="sat" label={_("Saturdays")} />
-                                <FormSelectOption value="sun" label={_("Sundays")} />
-                            </FormSelect>
-
-                            <span className="auto-conf-text">{_("at")}</span>
-
-                            <TimePicker time={time} is24Hour
-                                         menuAppendTo={() => document.body}
-                                         id="auto-update-time" isDisabled={pending}
-                                         invalidFormatErrorMessage={_("Invalid time format")}
-                                         onChange={(_, time) => setTime(time)} />
-                        </Flex>
+                               label={_("Security updates only")}
+                               id="security-updates"
+                               name="type" />
+                        <Radio isChecked={enabled && type === "all"}
+                               onChange={() => { setEnabled(true); setType("all") }}
+                               isDisabled={pending}
+                               label={_("All updates")}
+                               id="all-updates"
+                               name="type" />
                     </FormGroup>
 
-                    <Alert variant="info" title={_("This host will reboot after updates are installed.")} isInline />
-                </>}
-            </Form>
+                    {enabled &&
+                    <>
+                        <FormGroup fieldId="when" label={_("When")}>
+                            <Flex className="auto-update-group">
+                                <FormSelect id="auto-update-day"
+                                             isDisabled={pending}
+                                             value={day == "" ? "everyday" : day}
+                                             onChange={(_, d) => setDay(d == "everyday" ? "" : d) }>
+                                    <FormSelectOption value="everyday" label={_("every day")} />
+                                    <FormSelectOption value="mon" label={_("Mondays")} />
+                                    <FormSelectOption value="tue" label={_("Tuesdays")} />
+                                    <FormSelectOption value="wed" label={_("Wednesdays")} />
+                                    <FormSelectOption value="thu" label={_("Thursdays")} />
+                                    <FormSelectOption value="fri" label={_("Fridays")} />
+                                    <FormSelectOption value="sat" label={_("Saturdays")} />
+                                    <FormSelectOption value="sun" label={_("Sundays")} />
+                                </FormSelect>
+
+                                <span className="auto-conf-text">{_("at")}</span>
+
+                                <TimePicker time={time} is24Hour
+                                             menuAppendTo={() => document.body}
+                                             id="auto-update-time" isDisabled={pending}
+                                             invalidFormatErrorMessage={_("Invalid time format")}
+                                             onChange={(_, time) => setTime(time)} />
+                            </Flex>
+                        </FormGroup>
+
+                        <Alert variant="info" title={_("This host will reboot after updates are installed.")} isInline />
+                    </>}
+                </Form>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant="primary"
+                        isLoading={pending}
+                        isDisabled={pending}
+                        onClick={save}>
+                    {_("Save changes")}
+                </Button>
+                <Button variant="link"
+                        isDisabled={pending}
+                        onClick={Dialogs.close}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
         </Modal>);
 };
 

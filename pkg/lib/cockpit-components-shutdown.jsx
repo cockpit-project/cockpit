@@ -21,8 +21,8 @@ import cockpit from "cockpit";
 import React from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -189,13 +189,9 @@ export class ShutdownModal extends React.Component {
             <Modal isOpen position="top" variant="medium"
                    onClose={this.props.onClose || Dialogs.close}
                    id="shutdown-dialog"
-                   title={this.props.shutdown ? _("Shut down") : _("Reboot")}
-                   footer={<>
-                       <Button variant='danger' isDisabled={this.state.error || this.state.dateError} onClick={this.onSubmit}>{this.props.shutdown ? _("Shut down") : _("Reboot")}</Button>
-                       <Button variant='link' onClick={this.props.onClose || Dialogs.close}>{_("Cancel")}</Button>
-                   </>}
             >
-                <>
+                <ModalHeader title={this.props.shutdown ? _("Shut down") : _("Reboot")} />
+                <ModalBody>
                     <Form isHorizontal onSubmit={this.onSubmit}>
                         <FormGroup fieldId="message" label={_("Message to logged in users")}>
                             <TextArea id="message" resizeOrientation="vertical" value={this.state.message} onChange={(_, v) => this.setState({ message: v })} />
@@ -235,7 +231,11 @@ export class ShutdownModal extends React.Component {
                         </FormGroup>
                     </Form>
                     {this.state.error && <Alert isInline variant='danger' title={this.state.error} />}
-                </>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant='danger' isDisabled={this.state.error || this.state.dateError} onClick={this.onSubmit}>{this.props.shutdown ? _("Shut down") : _("Reboot")}</Button>
+                    <Button variant='link' onClick={this.props.onClose || Dialogs.close}>{_("Cancel")}</Button>
+                </ModalFooter>
             </Modal>
         );
     }

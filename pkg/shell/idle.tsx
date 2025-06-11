@@ -23,8 +23,8 @@ import cockpit from "cockpit";
 
 import React from 'react';
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
 import { EventEmitter } from "cockpit/event";
@@ -119,14 +119,18 @@ export const FinalCountdownModal = ({ state } : { state: IdleTimeoutState }) => 
 
     return (
         <Modal isOpen position="top" variant="medium"
-               showClose={false}
-               title={_("Session is about to expire")}
-               id="session-timeout-modal"
-               footer={<Button variant='primary'
-                               onClick={() => state.cancel_final_countdown()}>
-                   {_("Continue session")}
-               </Button>}>
-            { cockpit.format(_("You will be logged out in $0 seconds."), state.final_countdown) }
+               id="session-timeout-modal">
+            <ModalHeader title={_("Session is about to expire")} />
+            <ModalBody>
+                { cockpit.format(_("You will be logged out in $0 seconds."), state.final_countdown) }
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary'
+                    onClick={() => state.cancel_final_countdown()}
+                >
+                    {_("Continue session")}
+                </Button>
+            </ModalFooter>
         </Modal>
     );
 };

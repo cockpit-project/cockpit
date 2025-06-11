@@ -27,8 +27,8 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
@@ -300,46 +300,46 @@ const SOSDialog = () => {
                   position="top"
                   variant="medium"
                   isOpen
-                  onClose={Dialogs.close}
-                  footer={
-                      <>
-                          {actions}
-                          {progress ? <span>{cockpit.format(_("Progress: $0"), progress.toFixed() + "%")}</span> : null}
-                      </>
-                  }
-                  title={ _("Run new report") }>
-        { error
-            ? <>
-                <Alert variant="warning" isInline title={error}>
-                    <CodeBlockCode>{errorDetail}</CodeBlockCode>
-                </Alert>
-                <br />
-            </>
-            : null }
-        <p>{ _("SOS reporting collects system information to help with diagnosing problems.") }</p>
-        <p>{ _("This information is stored only on the system.") }</p>
-        <br />
-        <Form isHorizontal>
-            <FormGroup label={_("Report label")}>
-                <TextInput id="sos-dialog-ti-1" value={label} onChange={(_event, value) => setLabel(value)} />
-            </FormGroup>
-            <FormGroup label={_("Encryption passphrase")}>
-                <InputGroup>
-                    <TextInput type={showPassphrase ? "text" : "password"} value={passphrase} onChange={(_event, value) => setPassphrase(value)}
-                               id="sos-dialog-ti-2" autoComplete="new-password" />
-                    <Button variant="control" onClick={() => setShowPassphrase(!showPassphrase)}>
-                        { showPassphrase ? <EyeSlashIcon /> : <EyeIcon /> }
-                    </Button>
-                </InputGroup>
-                <FormHelper helperText={_("Leave empty to skip encryption")} />
-            </FormGroup>
-            <FormGroup label={_("Options")} hasNoPaddingTop>
-                <Checkbox label={_("Obfuscate network addresses, hostnames, and usernames")}
-                          id="sos-dialog-cb-1" isChecked={obfuscate} onChange={(_, o) => setObfuscate(o)} />
-                <Checkbox label={_("Use verbose logging")}
-                          id="sos-dialog-cb-2" isChecked={verbose} onChange={(_, v) => setVerbose(v)} />
-            </FormGroup>
-        </Form>
+                  onClose={Dialogs.close}>
+        <ModalHeader title={ _("Run new report") } />
+        <ModalBody>
+            { error
+                ? <>
+                    <Alert variant="warning" isInline title={error}>
+                        <CodeBlockCode>{errorDetail}</CodeBlockCode>
+                    </Alert>
+                    <br />
+                </>
+                : null }
+            <p>{ _("SOS reporting collects system information to help with diagnosing problems.") }</p>
+            <p>{ _("This information is stored only on the system.") }</p>
+            <br />
+            <Form isHorizontal>
+                <FormGroup label={_("Report label")}>
+                    <TextInput id="sos-dialog-ti-1" value={label} onChange={(_event, value) => setLabel(value)} />
+                </FormGroup>
+                <FormGroup label={_("Encryption passphrase")}>
+                    <InputGroup>
+                        <TextInput type={showPassphrase ? "text" : "password"} value={passphrase} onChange={(_event, value) => setPassphrase(value)}
+                                   id="sos-dialog-ti-2" autoComplete="new-password" />
+                        <Button variant="control" onClick={() => setShowPassphrase(!showPassphrase)}>
+                            { showPassphrase ? <EyeSlashIcon /> : <EyeIcon /> }
+                        </Button>
+                    </InputGroup>
+                    <FormHelper helperText={_("Leave empty to skip encryption")} />
+                </FormGroup>
+                <FormGroup label={_("Options")} hasNoPaddingTop>
+                    <Checkbox label={_("Obfuscate network addresses, hostnames, and usernames")}
+                              id="sos-dialog-cb-1" isChecked={obfuscate} onChange={(_, o) => setObfuscate(o)} />
+                    <Checkbox label={_("Use verbose logging")}
+                              id="sos-dialog-cb-2" isChecked={verbose} onChange={(_, v) => setVerbose(v)} />
+                </FormGroup>
+            </Form>
+        </ModalBody>
+        <ModalFooter>
+            {actions}
+            {progress ? <span>{cockpit.format(_("Progress: $0"), progress.toFixed() + "%")}</span> : null}
+        </ModalFooter>
     </Modal>;
 };
 
@@ -363,26 +363,27 @@ const SOSRemoveDialog = ({ path }) => {
                position="top"
                variant="medium"
                isOpen
-               onClose={Dialogs.close}
-               title={_("Delete report permanently?")}
-               titleIconVariant="warning"
-               actions={[
-                   <Button key="apply"
-                           variant="danger"
-                           onClick={remove}
-                           isLoading={!!task}
-                           isDisabled={!!task}>
-                       {_("Delete")}
-                   </Button>,
-                   <Button key="cancel"
-                           onClick={Dialogs.close}
-                           isDisabled={!!task}
-                           variant="link">
-                       {_("Cancel")}
-                   </Button>
-               ]}>
-            { error && <><Alert variant="warning" isInline title={error} /><br /></> }
-            <p>{fmt_to_fragments(_("The file $0 will be deleted."), <b>{path}</b>)}</p>
+               onClose={Dialogs.close}>
+            <ModalHeader title={_("Delete report permanently?")} titleIconVariant="warning" />
+            <ModalBody>
+                { error && <><Alert variant="warning" isInline title={error} /><br /></> }
+                <p>{fmt_to_fragments(_("The file $0 will be deleted."), <b>{path}</b>)}</p>
+            </ModalBody>
+            <ModalFooter>
+                <Button key="apply"
+                        variant="danger"
+                        onClick={remove}
+                        isLoading={!!task}
+                        isDisabled={!!task}>
+                    {_("Delete")}
+                </Button>
+                <Button key="cancel"
+                        onClick={Dialogs.close}
+                        isDisabled={!!task}
+                        variant="link">
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
         </Modal>);
 };
 
@@ -394,9 +395,11 @@ const SOSErrorDialog = ({ error }) => {
                position="top"
                variant="medium"
                isOpen
-               onClose={Dialogs.close}
-               title={ _("Error") }>
-            <p>{error}</p>
+               onClose={Dialogs.close}>
+            <ModalHeader title={ _("Error") } />
+            <ModalBody>
+                <p>{error}</p>
+            </ModalBody>
         </Modal>);
 };
 

@@ -25,8 +25,8 @@ import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/in
 import { Form } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
@@ -304,27 +304,26 @@ export class KpatchSettings extends React.Component {
                 </Flex>
             </div>
             <Modal position="top" variant="small" id="kpatch-setup" isOpen={this.state.showModal}
-                title={_("Kernel live patch settings")}
                 onClose={ this.onClose }
-                footer={
-                    <>
-                        <Button variant="primary"
-                                isLoading={ this.state.updating }
-                                isDisabled={ this.state.updating }
-                                onClick={ this.handleChange }>
-                            {_("Save")}
-                        </Button>
-                        <Button variant="link"
-                                isDisabled={ this.state.updating }
-                                onClick={ this.onClose }>
-                            {_("Cancel")}
-                        </Button>
-                    </>
-                }>
-                <>
+            >
+                <ModalHeader title={_("Kernel live patch settings")} />
+                <ModalBody>
                     {error}
                     {body}
-                </>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="primary"
+                            isLoading={ this.state.updating }
+                            isDisabled={ this.state.updating }
+                            onClick={ this.handleChange }>
+                        {_("Save")}
+                    </Button>
+                    <Button variant="link"
+                            isDisabled={ this.state.updating }
+                            onClick={ this.onClose }>
+                        {_("Cancel")}
+                    </Button>
+                </ModalFooter>
             </Modal>
         </>);
     }

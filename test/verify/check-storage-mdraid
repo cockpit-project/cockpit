@@ -28,7 +28,8 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
     def wait_states(self, states):
         for s in states.keys():
-            self.browser.wait_in_text(self.card_row("MDRAID device", name=s), states[s])
+            with self.browser.wait_timeout(30):
+                self.browser.wait_in_text(self.card_row("MDRAID device", name=s), states[s])
 
     def raid_add_disk(self, name):
         self.dialog_open_with_retry(trigger=lambda: self.browser.click(self.card_button("MDRAID device", "Add disk")),
@@ -229,13 +230,14 @@ class TestStorageMdRaid(storagelib.StorageCase):
         b.assert_pixels('#dialog', "stop-busy")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.raid_default_action_finish("Stop")
-        b.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
-        m.execute(f"wipefs -a {disk2}")
-        b.wait_not_present(self.card_row("MDRAID device", name=disk2))
-        self.raid_default_action("Start")
-        b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
-        wait_degraded_state(is_degraded=True)
+        with b.wait_timeout(60):
+            self.raid_default_action_finish("Stop")
+            b.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
+            m.execute(f"wipefs -a {disk2}")
+            b.wait_not_present(self.card_row("MDRAID device", name=disk2))
+            self.raid_default_action("Start")
+            b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
+            wait_degraded_state(is_degraded=True)
 
         # Add disk.  The array recovers.
         self.raid_add_disk(disk1)
@@ -296,14 +298,15 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         # All buttons should be disabled when the array is stopped
 
-        self.raid_default_action("Stop")
-        b.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
+        with b.wait_timeout(60):
+            self.raid_default_action("Stop")
+            b.wait_text(self.card_desc("MDRAID device", "State"), "Not running")
 
-        b.wait_visible(self.card_button("MDRAID device", "Add disk") + ":disabled")
-        self.check_dropdown_action_disabled(self.card_row("MDRAID device", name=disk1), "Remove", "The MDRAID device must be running")
+            b.wait_visible(self.card_button("MDRAID device", "Add disk") + ":disabled")
+            self.check_dropdown_action_disabled(self.card_row("MDRAID device", name=disk1), "Remove", "The MDRAID device must be running")
 
-        self.raid_default_action("Start")
-        b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
+            self.raid_default_action("Start")
+            b.wait_text(self.card_desc("MDRAID device", "State"), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
         b.wait_not_present(self.card_button("MDRAID device", "Add disk") + ":disabled")

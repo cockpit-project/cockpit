@@ -95,6 +95,7 @@ export class ConfigFile {
             _internal: {},
             targets: {},
             compression: { enabled: false, allowed: false, },
+            nfs_supports_directory: true,
         };
         this._lines.forEach((line, index) => {
             const trimmed = line.trim();

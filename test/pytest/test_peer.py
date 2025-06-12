@@ -4,6 +4,7 @@ import sys
 import time
 
 import pytest
+import pytest_asyncio
 
 from cockpit.channel import ChannelError
 from cockpit.packages import BridgeConfig
@@ -38,8 +39,9 @@ def bridge():
     return Bridge()
 
 
-@pytest.fixture
-def transport(bridge):
+# requires an event loop for queue in MockTransport
+@pytest_asyncio.fixture()
+async def transport(bridge):  # noqa: RUF029
     return MockTransport(bridge)
 
 

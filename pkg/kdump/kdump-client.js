@@ -48,6 +48,7 @@ export class KdumpClient {
             state: undefined,
             config: undefined,
             target: undefined,
+            sysconfig: undefined,
         };
         cockpit.event_target(this);
 
@@ -62,6 +63,7 @@ export class KdumpClient {
 
         // watch the config file
         this.configClient = new ConfigFile("/etc/kdump.conf", true);
+        this.state.sysconfig = false;
         this._watchConfigChanges();
 
         this.configClient.wait().then(() => {
@@ -69,6 +71,8 @@ export class KdumpClient {
             if (this.configClient.settings === null) {
                 this.configClient.close();
                 this.configClient = new ConfigFileSUSE("/etc/sysconfig/kdump", true);
+                this.state.sysconfig = true;
+                this.dispatchEvent("kdumpSysconfigChanged", true);
                 this._watchConfigChanges();
             }
         });

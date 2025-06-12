@@ -41,6 +41,7 @@ const initStore = function(rootElement) {
     dataStore.domRootElement = rootElement;
 
     dataStore.kdumpClient = new kdumpClient.KdumpClient();
+    dataStore.sysconfig = dataStore.kdumpClient.state.sysconfig;
 
     dataStore.saveSettings = settings =>
         dataStore.kdumpClient.validateSettings(settings)
@@ -74,6 +75,7 @@ const initStore = function(rootElement) {
             reservedMemory: dataStore.kdumpMemory,
             kdumpStatus: dataStore.kdumpStatus,
             kdumpCmdlineEnabled: dataStore.crashkernel || false,
+            sysconfig: dataStore.sysconfig,
             onSaveSettings: dataStore.saveSettings,
             onCrashKernel: dataStore.kdumpClient.crashKernel,
             exportConfig: dataStore.exportConfig,
@@ -115,6 +117,10 @@ const initStore = function(rootElement) {
     // catch kdump config and service changes
     dataStore.kdumpClient.addEventListener('kdumpStatusChanged', function(event, status) {
         dataStore.kdumpStatus = status;
+        render();
+    });
+    dataStore.kdumpClient.addEventListener('kdumpSysconfigChanged', function(event, sysconfig) {
+        dataStore.sysconfig = sysconfig;
         render();
     });
 

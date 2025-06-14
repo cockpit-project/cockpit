@@ -228,6 +228,6 @@ allowlist_externals = test/common/static-code
 setenv =
   NO_QUNIT=1
 commands =
-  pytest: python3 -m pytest -opythonpath= {posargs}
+  pytest: python3 -m pytest -opythonpath= -vv {posargs}
   lint: test/common/static-code --tap
 """

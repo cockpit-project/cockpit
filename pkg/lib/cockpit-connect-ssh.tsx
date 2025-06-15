@@ -30,8 +30,8 @@ import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/Clipbo
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
@@ -173,20 +173,22 @@ const UnknownHostDialog = ({ host, error, dialogResult }: {
         <Modal id="ssh-unknown-host-dialog" isOpen
                 position="top" variant="medium"
                 onClose={() => dialogResult.reject("cancel")}
-                title={title}
-                footer={<>
-                    <Button variant="primary" onClick={onAddKey} isLoading={inProgress} isDisabled={inProgress}>
-                        { submitText }
-                    </Button>
-                    <Button variant="link" className="btn-cancel" onClick={() => dialogResult.reject("cancel")}>
-                        { _("Cancel") }
-                    </Button>
-                </>}
         >
-            <Stack hasGutter>
-                { dialogError && <ModalError dialogError={dialogError} />}
-                {body}
-            </Stack>
+            <ModalHeader title={title} />
+            <ModalBody>
+                <Stack hasGutter>
+                    { dialogError && <ModalError dialogError={dialogError} />}
+                    {body}
+                </Stack>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant="primary" onClick={onAddKey} isLoading={inProgress} isDisabled={inProgress}>
+                    { submitText }
+                </Button>
+                <Button variant="link" className="btn-cancel" onClick={() => dialogResult.reject("cancel")}>
+                    { _("Cancel") }
+                </Button>
+            </ModalFooter>
         </Modal>
     );
 };
@@ -483,21 +485,23 @@ class ChangeAuthDialog extends React.Component<ChangeAuthProps, ChangeAuthState>
             <Modal id="ssh-change-auth-dialog" isOpen
                    position="top" variant="medium"
                    onClose={onCancel}
-                   title={title}
-                   footer={<>
-                       <Button variant="primary" onClick={this.login} isLoading={this.state.in_progress}
-                               isDisabled={this.state.in_progress || (!offer_login_password && !offer_key_password) || !this.state.default_ssh_key || !this.props.error}>
-                           { submitText }
-                       </Button>
-                       <Button variant="link" className="btn-cancel" onClick={onCancel}>
-                           { _("Cancel") }
-                       </Button>
-                   </>}
             >
-                <Stack hasGutter>
-                    { this.state.dialogError && <ModalError dialogError={this.state.dialogError} /> }
-                    {body}
-                </Stack>
+                <ModalHeader title={title} />
+                <ModalBody>
+                    <Stack hasGutter>
+                        { this.state.dialogError && <ModalError dialogError={this.state.dialogError} /> }
+                        {body}
+                    </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="primary" onClick={this.login} isLoading={this.state.in_progress}
+                            isDisabled={this.state.in_progress || (!offer_login_password && !offer_key_password) || !this.state.default_ssh_key || !this.props.error}>
+                        { submitText }
+                    </Button>
+                    <Button variant="link" className="btn-cancel" onClick={onCancel}>
+                        { _("Cancel") }
+                    </Button>
+                </ModalFooter>
             </Modal>
         );
     }
@@ -511,16 +515,18 @@ const NotSupportedDialog = ({ host, error, dialogResult }: {
     <Modal id="ssh-not-supported-dialog" isOpen
             position="top" variant="medium"
             onClose={() => dialogResult.reject(error)}
-            title={_("Cockpit is not installed")}
-            footer={
-                <Button variant="secondary" className="btn-cancel" onClick={() => dialogResult.reject(error)}>
-                    { _("Close") }
-                </Button>
-            }
     >
-        <Stack hasGutter>
-            <p>{cockpit.format(_("A compatible version of Cockpit is not installed on $0."), host)}</p>
-        </Stack>
+        <ModalHeader title={_("Cockpit is not installed")} />
+        <ModalBody>
+            <Stack hasGutter>
+                <p>{cockpit.format(_("A compatible version of Cockpit is not installed on $0."), host)}</p>
+            </Stack>
+        </ModalBody>
+        <ModalFooter>
+            <Button variant="secondary" className="btn-cancel" onClick={() => dialogResult.reject(error)}>
+                { _("Close") }
+            </Button>
+        </ModalFooter>
     </Modal>
 );
 

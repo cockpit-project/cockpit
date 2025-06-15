@@ -22,8 +22,8 @@ import React, { useState } from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { ExclamationTriangleIcon, ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 
@@ -205,33 +205,34 @@ const CryptoPolicyDialog = ({
         <Modal position="top" variant="medium"
                className="ct-m-stretch-body"
                isOpen
-               help={help}
                onClose={Dialogs.close}
                id="crypto-policy-dialog"
-               title={_("Change cryptographic policy")}
-               footer={
-                   <>
-                       {inProgress &&
-                       <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                           {_("Applying new policy... This may take a few minutes.")}
-                       </Flex>}
-                       <Button id="crypto-policy-save-reboot" variant='primary'
-                               onClick={() => setPolicy(selected, setError, setInProgress, fipsConfigurable)}
-                               isDisabled={inProgress} isLoading={inProgress}
-                       >
-                           {reApply ? _("Reapply and reboot") : _("Apply and reboot")}
-                       </Button>
-                       <Button variant='link' onClick={Dialogs.close} isDisabled={inProgress}>
-                           {_("Cancel")}
-                       </Button>
-                   </>
-               }
         >
-            {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
-            {currentCryptoPolicy && <ProfilesMenuDialogBody active_profile={currentCryptoPolicy}
-                                                     change_selected={setSelected}
-                                                     isDisabled={inProgress}
-                                                     profiles={policies} />}
+            <ModalHeader title={_("Change cryptographic policy")}
+                help={help}
+            />
+            <ModalBody>
+                {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
+                {currentCryptoPolicy && <ProfilesMenuDialogBody active_profile={currentCryptoPolicy}
+                                                         change_selected={setSelected}
+                                                         isDisabled={inProgress}
+                                                         profiles={policies} />}
+            </ModalBody>
+            <ModalFooter>
+                {inProgress &&
+                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    {_("Applying new policy... This may take a few minutes.")}
+                </Flex>}
+                <Button id="crypto-policy-save-reboot" variant='primary'
+                        onClick={() => setPolicy(selected, setError, setInProgress, fipsConfigurable)}
+                        isDisabled={inProgress} isLoading={inProgress}
+                >
+                    {reApply ? _("Reapply and reboot") : _("Apply and reboot")}
+                </Button>
+                <Button variant='link' onClick={Dialogs.close} isDisabled={inProgress}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
         </Modal>
     );
 };

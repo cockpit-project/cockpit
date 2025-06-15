@@ -27,8 +27,8 @@ import { ActionGroup, Form, FormGroup } from "@patternfly/react-core/dist/esm/co
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
@@ -228,20 +228,20 @@ const UnlockKey = ({
 
     return (
         <Modal isOpen position="top" variant="small"
-               onClose={onClose}
-               title={cockpit.format(_("Unlock key $0"), keyName)}
-               footer={
-                   <>
-                       <Button variant="primary" id={keyName + "-unlock"} isDisabled={!keyName} onClick={load_key}>{_("Unlock")}</Button>
-                       <Button variant='link' onClick={onClose}>{_("Cancel")}</Button>
-                   </>
-               }>
-            <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
-                {dialogError && <ModalError dialogError={dialogError} />}
-                <FormGroup label={_("Password")} fieldId={keyName + "-password"} type="password">
-                    <TextInput type="password" id={keyName + "-password"} value={password} onChange={(_event, value) => setPassword(value)} />
-                </FormGroup>
-            </Form>
+               onClose={onClose}>
+            <ModalHeader title={cockpit.format(_("Unlock key $0"), keyName)} />
+            <ModalBody>
+                <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
+                    {dialogError && <ModalError dialogError={dialogError} />}
+                    <FormGroup label={_("Password")} fieldId={keyName + "-password"} type="password">
+                        <TextInput type="password" id={keyName + "-password"} value={password} onChange={(_event, value) => setPassword(value)} />
+                    </FormGroup>
+                </Form>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant="primary" id={keyName + "-unlock"} isDisabled={!keyName} onClick={load_key}>{_("Unlock")}</Button>
+                <Button variant='link' onClick={onClose}>{_("Cancel")}</Button>
+            </ModalFooter>
         </Modal>
     );
 };
@@ -280,71 +280,75 @@ export const CredentialsModal = ({
         <>
             <Modal isOpen position="top" variant="medium"
                    onClose={() => dialogResult.resolve()}
-                   title={_("SSH keys")}
                    id="credentials-modal"
-                   footer={<Button variant='secondary' onClick={() => dialogResult.resolve()}>{_("Close")}</Button>}
             >
-                <Stack hasGutter>
-                    {dialogError && <ModalError dialogError={dialogError} />}
-                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-                        <FlexItem>{_("Use the following keys to authenticate against other systems")}</FlexItem>
-                        <Button variant='secondary'
-                                id="ssh-file-add-custom"
-                                onClick={() => setAddNewKey(true)}>
-                            {_("Add key")}
-                        </Button>
-                    </Flex>
-                    {addNewKey && <AddNewKey keys={keys} unlockKey={setUnlockKey} onClose={() => setAddNewKey(false)} />}
-                    <ListingTable
-                        aria-label={ _("SSH keys") }
-                        gridBreakPoint=''
-                        id="credential-keys"
-                        showHeader={false}
-                        variant="compact"
-                        columns={ [
-                            { title: _("Name"), header: true },
-                            { title: _("Toggle") },
-                        ] }
-                        rows={ Object.keys(keys.items).map((currentKeyId, index) => {
-                            const currentKey = keys.items[currentKeyId] || { name: 'test' };
-                            const tabRenderers = [
-                                {
-                                    data: { currentKey },
-                                    name: _("Details"),
-                                    renderer: KeyDetails,
-                                },
-                                {
-                                    data: { currentKey },
-                                    name: _("Public key"),
-                                    renderer: PublicKey,
-                                },
-                                {
-                                    data: { currentKey, keys, setDialogError },
-                                    name: _("Password"),
-                                    renderer: KeyPassword,
-                                },
-                            ];
-                            const expandedContent = (
-                                <ListingPanel tabRenderers={tabRenderers} />
-                            );
-
-                            return ({
-                                columns: [
+                <ModalHeader title={_("SSH keys")} />
+                <ModalBody>
+                    <Stack hasGutter>
+                        {dialogError && <ModalError dialogError={dialogError} />}
+                        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                            <FlexItem>{_("Use the following keys to authenticate against other systems")}</FlexItem>
+                            <Button variant='secondary'
+                                    id="ssh-file-add-custom"
+                                    onClick={() => setAddNewKey(true)}>
+                                {_("Add key")}
+                            </Button>
+                        </Flex>
+                        {addNewKey && <AddNewKey keys={keys} unlockKey={setUnlockKey} onClose={() => setAddNewKey(false)} />}
+                        <ListingTable
+                            aria-label={ _("SSH keys") }
+                            gridBreakPoint=''
+                            id="credential-keys"
+                            showHeader={false}
+                            variant="compact"
+                            columns={ [
+                                { title: _("Name"), header: true },
+                                { title: _("Toggle") },
+                            ] }
+                            rows={ Object.keys(keys.items).map((currentKeyId, index) => {
+                                const currentKey = keys.items[currentKeyId] || { name: 'test' };
+                                const tabRenderers = [
                                     {
-                                        title: currentKey.name || currentKey.comment,
+                                        data: { currentKey },
+                                        name: _("Details"),
+                                        renderer: KeyDetails,
                                     },
                                     {
-                                        title: <Switch aria-label={_("Use key")}
-                                                       isChecked={!!currentKey.loaded}
-                                                       key={"switch-" + index}
-                                                       onChange={(_event, value) => onToggleKey(currentKeyId, value)} />,
-                                    }
-                                ],
-                                expandedContent,
-                                props: { key: currentKey.fingerprint, 'data-name': currentKey.name || currentKey.comment, 'data-loaded': !!currentKey.loaded },
-                            });
-                        })} />
-                </Stack>
+                                        data: { currentKey },
+                                        name: _("Public key"),
+                                        renderer: PublicKey,
+                                    },
+                                    {
+                                        data: { currentKey, keys, setDialogError },
+                                        name: _("Password"),
+                                        renderer: KeyPassword,
+                                    },
+                                ];
+                                const expandedContent = (
+                                    <ListingPanel tabRenderers={tabRenderers} />
+                                );
+
+                                return ({
+                                    columns: [
+                                        {
+                                            title: currentKey.name || currentKey.comment,
+                                        },
+                                        {
+                                            title: <Switch aria-label={_("Use key")}
+                                                           isChecked={!!currentKey.loaded}
+                                                           key={"switch-" + index}
+                                                           onChange={(_event, value) => onToggleKey(currentKeyId, value)} />,
+                                        }
+                                    ],
+                                    expandedContent,
+                                    props: { key: currentKey.fingerprint, 'data-name': currentKey.name || currentKey.comment, 'data-loaded': !!currentKey.loaded },
+                                });
+                            })} />
+                    </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant='secondary' onClick={() => dialogResult.resolve()}>{_("Close")}</Button>
+                </ModalFooter>
             </Modal>
             {unlockKey && <UnlockKey keyName={unlockKey} keys={keys} onClose={() => { setUnlockKey(undefined); setAddNewKey(false) }} />}
         </>

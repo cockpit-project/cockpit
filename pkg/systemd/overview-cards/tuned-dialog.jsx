@@ -22,8 +22,8 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
@@ -307,25 +307,26 @@ const TunedDialog = ({
         <Modal position="top" variant="medium"
                className="ct-m-stretch-body"
                isOpen
-               help={help}
                onClose={() => dialogResult.resolve()}
-               title={_("Change performance profile")}
-               footer={
-                   <>
-                       <Button variant='primary' isDisabled={!selected} onClick={setProfile}>
-                           {_("Change profile")}
-                       </Button>
-                       <Button variant='link' onClick={() => dialogResult.resolve()}>
-                           {_("Cancel")}
-                       </Button>
-                   </>
-               }
         >
-            {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
-            {loading && <EmptyStatePanel loading />}
-            {activeProfile && <ProfilesMenuDialogBody active_profile={activeProfile}
-                                               change_selected={setSelected}
-                                               profiles={profiles} />}
+            <ModalHeader title={_("Change performance profile")}
+                help={help}
+            />
+            <ModalBody>
+                {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
+                {loading && <EmptyStatePanel loading />}
+                {activeProfile && <ProfilesMenuDialogBody active_profile={activeProfile}
+                                                   change_selected={setSelected}
+                                                   profiles={profiles} />}
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary' isDisabled={!selected} onClick={setProfile}>
+                    {_("Change profile")}
+                </Button>
+                <Button variant='link' onClick={() => dialogResult.resolve()}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
         </Modal>
     );
 };

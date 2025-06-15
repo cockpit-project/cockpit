@@ -36,8 +36,8 @@ import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/Clipbo
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
@@ -207,17 +207,19 @@ class NotSupported extends React.Component {
             <Modal id="hosts_setup_server_dialog" isOpen
                    position="top" variant="medium"
                    onClose={this.props.onClose}
-                   title={_("Cockpit is not installed")}
-                   footer={
-                       <Button variant="secondary" className="btn-cancel" onClick={this.props.onClose}>
-                           { _("Close") }
-                       </Button>
-                   }
             >
-                <Stack hasGutter>
-                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
-                    <p>{cockpit.format(_("A compatible version of Cockpit is not installed on $0."), this.props.full_address)}</p>
-                </Stack>
+                <ModalHeader title={_("Cockpit is not installed")} />
+                <ModalBody>
+                    <Stack hasGutter>
+                        { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                        <p>{cockpit.format(_("A compatible version of Cockpit is not installed on $0."), this.props.full_address)}</p>
+                    </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="secondary" className="btn-cancel" onClick={this.props.onClose}>
+                        { _("Close") }
+                    </Button>
+                </ModalFooter>
             </Modal>
         );
     }
@@ -261,29 +263,32 @@ class Connect extends React.Component {
             <Modal id="hosts_connect_server_dialog" isOpen
                    position="top" variant="small"
                    onClose={this.props.onClose}
-                   title={fmt_to_fragments(_("Connect to $0?"), <b className="ct-heading-font-weight">{this.props.host}</b>)}
-                   titleIconVariant="warning"
-                   footer={<>
-                       <HelperText>
-                           <HelperTextItem>{_("You will be reminded once per session.")}</HelperTextItem>
-                       </HelperText>
-                       <Button variant="warning" isLoading={this.state.inProgress}
-                                       onClick={() => this.onConnect()}>
-                           {_("Connect")}
-                       </Button>
-                       <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
-                           { _("Cancel") }
-                       </Button>
-                   </>}
             >
-                <Content component={ContentVariants.p}>
-                    {_("Connected hosts can fully control each other. This includes running programs that could harm your system or steal data. Only connect to trusted machines.")}
-                </Content>
-                <Content component={ContentVariants.p}>
-                    <a href="https://cockpit-project.org/guide/latest/multi-host.html" target="blank" rel="noopener noreferrer">
-                        <ExternalLinkAltIcon /> {_("Read more")}
-                    </a>
-                </Content>
+                <ModalHeader title={fmt_to_fragments(_("Connect to $0?"), <b className="ct-heading-font-weight">{this.props.host}</b>)}
+                    titleIconVariant="warning"
+                />
+                <ModalBody>
+                    <Content component={ContentVariants.p}>
+                        {_("Connected hosts can fully control each other. This includes running programs that could harm your system or steal data. Only connect to trusted machines.")}
+                    </Content>
+                    <Content component={ContentVariants.p}>
+                        <a href="https://cockpit-project.org/guide/latest/multi-host.html" target="blank" rel="noopener noreferrer">
+                            <ExternalLinkAltIcon /> {_("Read more")}
+                        </a>
+                    </Content>
+                </ModalBody>
+                <ModalFooter>
+                    <HelperText>
+                        <HelperTextItem>{_("You will be reminded once per session.")}</HelperTextItem>
+                    </HelperText>
+                    <Button variant="warning" isLoading={this.state.inProgress}
+                                    onClick={() => this.onConnect()}>
+                        {_("Connect")}
+                    </Button>
+                    <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
+                        { _("Cancel") }
+                    </Button>
+                </ModalFooter>
             </Modal>
         );
     }
@@ -469,21 +474,23 @@ class AddMachine extends React.Component {
             <Modal id="hosts_setup_server_dialog" isOpen
                    position="top" variant="medium"
                    onClose={this.props.onClose}
-                   title={title}
-                   footer={<>
-                       <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
-                               isDisabled={this.state.address === "" || this.state.addressError !== "" || this.state.inProgress}>
-                           { submitText }
-                       </Button>
-                       <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
-                           { _("Cancel") }
-                       </Button>
-                   </>}
             >
-                <Stack hasGutter>
-                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
-                    {body}
-                </Stack>
+                <ModalHeader title={title} />
+                <ModalBody>
+                    <Stack hasGutter>
+                        { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                        {body}
+                    </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
+                            isDisabled={this.state.address === "" || this.state.addressError !== "" || this.state.inProgress}>
+                        { submitText }
+                    </Button>
+                    <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
+                        { _("Cancel") }
+                    </Button>
+                </ModalFooter>
             </Modal>
         );
     }
@@ -564,21 +571,23 @@ class MachinePort extends React.Component {
             <Modal id="hosts_setup_server_dialog" isOpen
                    position="top" variant="medium"
                    onClose={this.props.onClose}
-                   title={title}
-                   footer={<>
-                       <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
-                               isDisabled={this.state.inProgress}>
-                           { submitText }
-                       </Button>
-                       <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
-                           { _("Cancel") }
-                       </Button>
-                   </>}
             >
-                <Stack hasGutter>
-                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
-                    {body}
-                </Stack>
+                <ModalHeader title={title} />
+                <ModalBody>
+                    <Stack hasGutter>
+                        { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                        {body}
+                    </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
+                            isDisabled={this.state.inProgress}>
+                        { submitText }
+                    </Button>
+                    <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
+                        { _("Cancel") }
+                    </Button>
+                </ModalFooter>
             </Modal>
         );
     }
@@ -696,23 +705,25 @@ class HostKey extends React.Component {
             <Modal id="hosts_setup_server_dialog" isOpen
                    position="top" variant="medium"
                    onClose={this.props.onClose}
-                   title={title}
-                   footer={<>
-                       { unknown ||
-                           <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
-                                   isDisabled={this.state.inProgress}>
-                               { submitText }
-                           </Button>
-                       }
-                       <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
-                           { _("Cancel") }
-                       </Button>
-                   </>}
             >
-                <Stack hasGutter>
-                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
-                    {body}
-                </Stack>
+                <ModalHeader title={title} />
+                <ModalBody>
+                    <Stack hasGutter>
+                        { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                        {body}
+                    </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    { unknown ||
+                        <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
+                                isDisabled={this.state.inProgress}>
+                            { submitText }
+                        </Button>
+                    }
+                    <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
+                        { _("Cancel") }
+                    </Button>
+                </ModalFooter>
             </Modal>
         );
     }
@@ -1075,21 +1086,23 @@ class ChangeAuth extends React.Component {
             <Modal id="hosts_setup_server_dialog" isOpen
                    position="top" variant="medium"
                    onClose={this.props.onClose}
-                   title={title}
-                   footer={<>
-                       <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
-                               isDisabled={this.state.inProgress || (!offer_login_password && !offer_key_password) || !this.state.default_ssh_key || !this.props.error_options}>
-                           { submitText }
-                       </Button>
-                       <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
-                           { _("Cancel") }
-                       </Button>
-                   </>}
             >
-                <Stack hasGutter>
-                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
-                    {body}
-                </Stack>
+                <ModalHeader title={title} />
+                <ModalBody>
+                    <Stack hasGutter>
+                        { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                        {body}
+                    </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
+                            isDisabled={this.state.inProgress || (!offer_login_password && !offer_key_password) || !this.state.default_ssh_key || !this.props.error_options}>
+                        { submitText }
+                    </Button>
+                    <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
+                        { _("Cancel") }
+                    </Button>
+                </ModalFooter>
             </Modal>
         );
     }

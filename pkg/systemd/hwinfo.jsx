@@ -39,8 +39,8 @@ import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/e
 import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import {
-    Modal
-} from '@patternfly/react-core/dist/esm/deprecated/components/Modal/index.js';
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { SortByDirection } from "@patternfly/react-table";
@@ -227,23 +227,22 @@ const CPUSecurityMitigationsDialog = () => {
     }
 
     const footer = (
-        <>
+        <ModalFooter>
             <Button variant='danger' isDisabled={rebooting || nosmt === undefined} onClick={saveAndReboot}>
                 { _("Save and reboot") }
             </Button>
             <Button variant='link' className='btn-cancel' isDisabled={rebooting} onClick={Dialogs.close}>
                 { _("Cancel") }
             </Button>
-        </>
+        </ModalFooter>
     );
 
     return (
         <Modal isOpen id="cpu-mitigations-dialog"
                position="top" variant="medium"
-               footer={footer}
-               onClose={Dialogs.close}
-               title={ _("CPU security toggles") }>
-            <>
+               onClose={Dialogs.close}>
+            <ModalHeader title={ _("CPU security toggles") } />
+            <ModalBody>
                 <Content className='cpu-mitigations-dialog-info' component={ContentVariants.p}>
                     { _("Software-based workarounds help prevent CPU security issues. These mitigations have the side effect of reducing performance. Change these settings at your own risk.") }
                 </Content>
@@ -254,7 +253,8 @@ const CPUSecurityMitigationsDialog = () => {
                 <Alert variant="danger"
                     actionClose={<AlertActionCloseButton onClose={() => setAlert(undefined)} />}
                     title={alert} />}
-            </>
+            </ModalBody>
+            {footer}
         </Modal>
     );
 };

@@ -20,14 +20,16 @@
 import React from "react";
 
 import { FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText";
+import {
+    HelperText, HelperTextItem, type HelperTextItemProps
+} from "@patternfly/react-core/dist/esm/components/HelperText";
 
 export const FormHelper = ({ helperText, helperTextInvalid, variant, icon, fieldId } :
   {
-      helperText?: string | null | undefined,
-      helperTextInvalid?: string | null | undefined,
-      variant?: "error" | "default" | "indeterminate" | "warning" | "success",
-      icon?: string,
+      helperText?: React.ReactNode,
+      helperTextInvalid?: React.ReactNode,
+      variant?: HelperTextItemProps["variant"],
+      icon?: HelperTextItemProps["icon"],
       fieldId?: string,
   }
 ) => {

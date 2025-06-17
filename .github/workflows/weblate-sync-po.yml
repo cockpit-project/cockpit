@@ -17,6 +17,10 @@ jobs:
     steps:
       - name: Set up dependencies
         run: |
+          # disable man-db to speed up package install
+          echo "set man-db/auto-update false" | sudo debconf-communicate
+          sudo dpkg-reconfigure man-db
+
           sudo apt update
           sudo apt install -y --no-install-recommends gettext
 

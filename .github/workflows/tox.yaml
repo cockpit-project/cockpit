@@ -6,11 +6,26 @@ jobs:
     permissions: {}
 
     runs-on: ubuntu-latest
-    container: ghcr.io/allisonkarlitskaya/toxbox
+    container: registry.fedoraproject.org/fedora:latest
 
     timeout-minutes: 20
 
+    env:
+      TOX_WORK_DIR: /tmp/.tox
+      COVERAGE_FILE: /tmp/.coverage
+      RUFF_CACHE_DIR: /tmp/.ruff_cache
+      MYPY_CACHE_DIR: /tmp/.mypy_cache
+
     steps:
+      - name: Install tox dependencies
+        run: |
+          dnf install -y git-core tox util-linux
+          useradd tox
+
+      # https://github.blog/2022-04-12-git-security-vulnerability-announced/
+      - name: Pacify git's permission check
+        run: git config --global --add safe.directory /__w/cockpit/cockpit
+
       - name: Clone repository
         uses: actions/checkout@v4
 

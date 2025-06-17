@@ -10,6 +10,10 @@ jobs:
     steps:
       - name: Install required build and test dependencies
         run: |
+          # disable man-db to speed up package install
+          echo "set man-db/auto-update false" | sudo debconf-communicate
+          sudo dpkg-reconfigure man-db
+
           sudo apt update
           sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto gettext flatpak xvfb cockpit-system appstream
 

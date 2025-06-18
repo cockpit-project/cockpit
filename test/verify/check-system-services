@@ -264,6 +264,8 @@ WantedBy=default.target
         b.go(f'/system/services#/nonexistent.service{suffix}')
         b.wait_in_text(".pf-v6-c-empty-state", "Unit nonexistent.service not found")
         b.click("button:contains('View all services')")
+        self.wait_page_load()
+        self.wait_service_present("test.service")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')
         if user:

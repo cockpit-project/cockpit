@@ -1401,6 +1401,9 @@ class TestTimers(testlib.MachineCase):
     def svc_sel(self, service):
         return f'tr[data-goto-unit="{service}"]'
 
+    def goto_service(self, service):
+        return self.browser.click(self.svc_sel(service) + ' a')
+
     def wait_page_load(self):
         self.browser.wait_not_present(".pf-v6-c-empty-state .pf-v6-c-spinner[aria-valuetext='Loading...']")
 
@@ -1676,6 +1679,243 @@ class TestTimers(testlib.MachineCase):
         with testvm.Timeout(seconds=15, machine=m, error_message="Timeout while waiting for boot timer to run"):
             m.execute("while [ ! -f /tmp/hello ] ; do sleep 0.5; done")
         self.assertIn("hello", m.execute("cat /tmp/hello"))
+
+    def testEdit(self):
+        m = self.machine
+        b = self.browser
+
+        # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
+        # so disable them for this test, we don't test PCP here
+        m.execute("systemctl disable --now pmie pmlogger || true")
+
+        # set an initial baseline date/time, to ensure that we never jump backwards in subsequent tests
+        m.execute("timedatectl set-timezone UTC")
+        m.execute("""ntp=`timedatectl show --property NTP --value`
+                     if [ $ntp == "yes" ]; then
+                         timedatectl set-ntp off
+                     fi""")
+        testlib.wait(lambda: "false" in m.execute(
+            "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
+        m.execute("timedatectl set-time '2036-01-01 12:00:00'")
+        # this sometimes confuses PAM session tracking
+        self.allow_journal_messages("cockpit-session: admin: couldn't close session: System error: Unknown error -7")
+        self.reboot()
+
+        m.execute("timedatectl set-time '2036-01-01 15:30:00'")
+        self.login_and_go("/system/services")
+        self.wait_page_load()
+        # Select "Timers" tab
+        self.browser.click('#services-filter li:nth-child(4) a')
+
+        # creates a new yearly timer at 2036-01-01 16:00 and at 2037-01-01 01:22
+        b.click('#create-timer')
+        b.wait_visible("#timer-dialog")
+        b.set_input_text("#servicename", "yearly_timer")
+        b.set_input_text("#description", "Yearly timer")
+        b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
+        b.select_from_dropdown("#drop-repeat", "yearly")
+        b.click("[data-index='0'] [aria-label='Add']")
+        b.set_input_text("[data-index='0'] .pf-v6-c-date-picker:nth-child(1) input", "2036-01-01")
+        b.set_input_text("[data-index='0'] .pf-v6-c-date-picker:nth-child(2) input", "16:00")
+        b.set_input_text("[data-index='1'] .pf-v6-c-date-picker:nth-child(1) input", "2037-01-01")
+        b.set_input_text("[data-index='1'] .pf-v6-c-date-picker:nth-child(2) input", "01:22")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+        b.wait_visible(self.svc_sel('yearly_timer.timer'))
+        self.goto_service("yearly_timer.timer")
+
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page .pf-v6-c-menu__list-item:contains('Edit') button")
+        self.assertEqual(b.val("#servicename"), "yearly_timer")
+        self.assertEqual(b.val("#description"), "Yearly timer")
+        self.assertEqual(b.val("#command"), "/bin/sh -c \"/bin/date >> /tmp/date\"")
+        for index in range(2):
+            date = b.val(f"[data-index='{index}'] .pf-v6-c-date-picker:nth-child(1) input")
+            time_ = b.val(f"[data-index='{index}'] .pf-v6-c-date-picker:nth-child(2) input")
+            self.assertEqual(date, "2036-01-01")  # the specific year is irrelevant
+            self.assertIn(time_, ("01:22", "16:00"))
+
+        # edit values, then save and check again
+        b.set_input_text("[data-index='0'] .pf-v6-c-date-picker:nth-child(1) input", "2036-08-01")
+        b.set_input_text("[data-index='0'] .pf-v6-c-date-picker:nth-child(2) input", "18:00")
+        b.set_input_text("[data-index='1'] .pf-v6-c-date-picker:nth-child(1) input", "2037-10-01")
+        b.set_input_text("[data-index='1'] .pf-v6-c-date-picker:nth-child(2) input", "01:22")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page .pf-v6-c-menu__list-item:contains('Edit') button")
+        for index in range(2):
+            date = b.val(f"[data-index='{index}'] .pf-v6-c-date-picker:nth-child(1) input")
+            time_ = b.val(f"[data-index='{index}'] .pf-v6-c-date-picker:nth-child(2) input")
+            self.assertIn((date, time_), (("2036-10-01", "01:22"), ("2036-08-01", "18:00")))
+
+        b.click("#timer-dialog-close-button")
+        b.go("/system/services#/?type=timer&owner=system")
+
+        # creates a new monthly timer that runs on 6th at 14:12 and 8th at 21:12 of every month
+        b.wait_visible("#create-timer")
+        b.click('#create-timer')
+        b.wait_visible("#timer-dialog")
+        b.set_input_text("#servicename", "monthly_timer")
+        b.set_input_text("#description", "Monthly timer")
+        b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
+        b.click("input[value=specific-time]")
+        b.select_from_dropdown("#drop-repeat", "monthly")
+        b.select_from_dropdown("[data-index='0'] .month-days select", "6")
+        b.set_input_text("[data-index='0'] .create-timer-time-picker input", "14:12")
+        b.click("[data-index='0'] [aria-label='Add']")
+        b.select_from_dropdown("[data-index='1'] .month-days select", "8")
+        b.set_input_text("[data-index='1'] .create-timer-time-picker input", "21:12")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+        b.wait_visible(self.svc_sel('monthly_timer.timer'))
+
+        self.goto_service("monthly_timer.timer")
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page .pf-v6-c-menu__list-item:contains('Edit') button")
+        for index in range(2):
+            day = b.val(f"[data-index='{index}'] .month-days select")
+            time_ = b.val(f"[data-index='{index}'] .create-timer-time-picker input")
+            self.assertIn((day, time_), (("6", "14:12"), ("8", "21:12")))
+        b.click("#timer-dialog-close-button")
+        b.go("/system/services#/?type=timer&owner=system")
+
+        # creates a new weekly timer that runs on Fri at 12:30 and Sun at 20:12 every week
+        b.wait_visible("#create-timer")
+        b.click('#create-timer')
+        b.wait_visible("#timer-dialog")
+        b.set_input_text("#servicename", "weekly_timer")
+        b.set_input_text("#description", "Weekly timer")
+        b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
+        b.click("input[value=specific-time]")
+        b.select_from_dropdown("#drop-repeat", "weekly")
+        b.wait_visible("[data-index='0'] .week-days")
+        b.click("[data-index='0'] [aria-label='Add']")
+        b.select_from_dropdown("[data-index='0'] .week-days select", "fri")
+        # select time in TimePicker with mouse
+        b.select_PF("#timer-dialog [data-index='0'] .create-timer-time-picker input", "12:30")
+        # type time with keyboard
+        b.select_from_dropdown("[data-index='1'] .week-days select", "sun")
+        b.set_input_text("[data-index='1'] .create-timer-time-picker input", "20:12")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+        b.wait_visible(self.svc_sel('weekly_timer.timer'))
+
+        # creates a new daily timer that runs at 2:40 and at 21:15 every day
+        b.wait_visible("#create-timer")
+        b.click('#create-timer')
+        b.wait_visible("#timer-dialog")
+        b.set_input_text("#servicename", "daily_timer")
+        b.set_input_text("#description", "Daily timer")
+        b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
+        b.click("input[value=specific-time]")
+        b.select_from_dropdown("#drop-repeat", "daily")
+        b.click("[data-index='0'] [aria-label='Add']")
+        b.set_input_text("[data-index='0'] .create-timer-time-picker input", "2:40")
+        b.set_input_text("[data-index='1'] .create-timer-time-picker input", "21:15")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+        b.wait_visible(self.svc_sel('daily_timer.timer'))
+
+        self.goto_service("daily_timer.timer")
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page .pf-v6-c-menu__list-item:contains('Edit') button")
+        for index in range(2):
+            time_ = b.val(f"[data-index='{index}'] .create-timer-time-picker input")
+            self.assertIn(time_, ("02:40", "21:15"))
+        b.click("#timer-dialog-close-button")
+        b.go("/system/services#/?type=timer&owner=system")
+
+        # creates a new hourly timer that runs at *:05 and at *:26
+        b.wait_visible("#create-timer")
+        b.click('#create-timer')
+        b.wait_visible("#timer-dialog")
+        b.set_input_text("#servicename", "hourly_timer")
+        b.set_input_text("#description", "Hourly timer")
+        b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
+        b.click("input[value=specific-time]")
+        b.select_from_dropdown("#drop-repeat", "hourly")
+        b.click("[data-index='0'] [aria-label='Add']")
+        b.set_input_text("[data-index='0'] input", "05")
+        b.set_input_text("[data-index='1'] input", "26")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+        b.wait_visible(self.svc_sel('hourly_timer.timer'))
+
+        self.goto_service("hourly_timer.timer")
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page .pf-v6-c-menu__list-item:contains('Edit') button")
+        for index in range(2):
+            time_ = b.val(f"[data-index='{index}'] input")
+            self.assertIn(time_, ("05", "26"))
+        b.click("#timer-dialog-close-button")
+        b.go("/system/services#/?type=timer&owner=system")
+
+        # creates a new minutely timer that runs at *:*:05 and at *:*:20
+        b.wait_visible("#create-timer")
+        b.click('#create-timer')
+        b.wait_visible("#timer-dialog")
+        b.set_input_text("#servicename", "minutely_timer")
+        b.set_input_text("#description", "Minutely timer")
+        b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
+        b.select_from_dropdown("#drop-repeat", "minutely")
+        b.click("[data-index='0'] [aria-label='Add']")
+        b.set_input_text("[data-index='0'] input", "05")
+        b.set_input_text("[data-index='1'] input", "20")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+        b.wait_visible(self.svc_sel('minutely_timer.timer'))
+
+        self.goto_service("minutely_timer.timer")
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page .pf-v6-c-menu__list-item:contains('Edit') button")
+        for index in range(2):
+            time_ = b.val(f"[data-index='{index}'] input")
+            self.assertIn(time_, ("05", "20"))
+        b.click("#timer-dialog-close-button")
+        b.go("/system/services#/?type=timer&owner=system")
+
+        # creates a new timer that runs at today at 23:59
+        b.wait_visible("#create-timer")
+        b.click('#create-timer')
+        b.wait_visible("#timer-dialog")
+        b.set_input_text("#servicename", "no_repeat_timer")
+        b.set_input_text("#description", "No repeat timer")
+        b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
+        b.click("input[value=specific-time]")
+        b.set_input_text(".create-timer-time-picker input", "23:59")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+        b.wait_visible(self.svc_sel('no_repeat_timer.timer'))
+        b.wait_in_text(self.svc_sel('no_repeat_timer.timer'), "No repeat timer")
+
+        self.goto_service("no_repeat_timer.timer")
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page .pf-v6-c-menu__list-item:contains('Edit') button")
+        self.assertEqual(b.val(".create-timer-time-picker input"), "23:59")
+        b.click("#timer-dialog-close-button")
+        b.go("/system/services#/?type=timer&owner=system")
+
+        # creates a boot timer that runs after 10 sec from boot
+        b.wait_visible("#create-timer")
+        b.click('#create-timer')
+        b.wait_visible("#timer-dialog")
+        b.set_input_text("#servicename", "boot_timer")
+        b.set_input_text("#description", "Boot timer")
+        b.set_input_text("#command", "/bin/sh -c 'echo hello >> /tmp/hello'")
+        b.click("input[value=system-boot]")
+        b.set_input_text(".delay-group input", "2")
+        b.click("#timer-save-button")
+        b.wait_not_present("#timer-dialog")
+        b.wait_visible(self.svc_sel('boot_timer.timer'))
+
+        self.goto_service("boot_timer.timer")
+        b.click(".service-top-panel button.pf-v6-c-menu-toggle")
+        b.click("#services-page .pf-v6-c-menu__list-item:contains('Edit') button")
+        self.assertEqual(b.val(".delay-group input"), "2")
+        b.click("#timer-dialog-close-button")
+        b.go("/system/services#/?type=timer&owner=system")
 
 
 if __name__ == '__main__':

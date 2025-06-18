@@ -521,10 +521,12 @@ class Browser:
         metaKey: bool = False,
         scrollVisible: bool = True,
     ) -> None:
-        """Simulate a browser mouse event
+        """Do a mouse event in the browser.
 
         :param selector: the element to interact with
-        :param type: the mouse event to simulate, for example mouseenter, mouseleave, mousemove, click
+        :param type: click, dblclick, mousemove; you can also use "mouseenter" (alias for mousemove) or "mouseleave"
+               (but this is just a heuristic by moving the mouse 500x500 pixels away; prefer moving to an explicit
+               target)
         :param x, y: coordinates; when not given, default to center of element
         :param btn: mouse button to click https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
         :param crtlKey: press the ctrl key
@@ -551,10 +553,11 @@ class Browser:
             actions.extend([down, up])
         elif event == "dblclick":
             actions.extend([down, up, down, up])
-        elif event == "mouseenter":
-            actions.insert(0, {"type": "pointerMove", "x": 0, "y": 0, "origin": "viewport"})
+        elif event in ["mousemove", "mouseenter"]:
+            pass
         elif event == "mouseleave":
-            actions.append({"type": "pointerMove", "x": 0, "y": 0, "origin": "viewport"})
+            # move the mouse someplace else
+            actions = [{"type": "pointerMove", "x": 500, "y": 500, "origin": "pointer"}]
         else:
             raise NotImplementedError(f"unknown event {event}")
 

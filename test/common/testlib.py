@@ -1508,7 +1508,8 @@ class Browser:
         scroll_into_view: str | None = None,
         wait_animations: bool = True,
         wait_after_layout_change: bool = False,
-            wait_delay: float = 0.5,
+        wait_delay: float = 0.5,
+        layout_change_hook: Callable[[], None] | None = None,
         chrome_hack_double_shots: bool = False
     ) -> None:
         """Compare the given element with its reference in all layouts"""
@@ -1540,6 +1541,8 @@ class Browser:
                     self.set_layout(layout["name"])
                     if wait_after_layout_change:
                         time.sleep(wait_delay)
+                    if layout_change_hook:
+                        layout_change_hook()
                     self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
                                                          mock=mock, sit_after_mock=sit_after_mock,
                                                          scroll_into_view=scroll_into_view,

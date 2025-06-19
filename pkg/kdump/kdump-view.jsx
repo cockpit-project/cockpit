@@ -115,12 +115,15 @@ const exportAnsibleTask = (settings, os_release) => {
     return ansible;
 };
 
-function getLocation(target) {
+function getLocation(target, sysconfig) {
     let path = target.path || DEFAULT_KDUMP_PATH;
 
     if (target.type === "ssh") {
         path = `${target.server}:${path}`;
     } else if (target.type == "nfs") {
+        if (sysconfig) {
+            path = '';
+        }
         path = path[0] !== '/' ? '/' + path : path;
         path = `${target.server}:${target.export + path}`;
     }
@@ -128,7 +131,7 @@ function getLocation(target) {
     return path;
 }
 
-const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
+const KdumpSettingsModal = ({ settings, initialTarget, handleSave, sysconfig }) => {
     const Dialogs = useDialogs();
     const compressionAllowed = settings.compression?.allowed;
     const [isSaving, setIsSaving] = useState(false);
@@ -276,13 +279,15 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                                     placeholder="/export/cores" value={exportPath}
                                     onChange={(_event, value) => setExportPath(value)} isRequired />
                         </FormGroup>
+                        {sysconfig === false &&
                         <FormGroup fieldId="kdump-settings-nfs-directory" label={_("Directory")} isRequired>
                             <TextInput id="kdump-settings-nfs-directory" key="directory"
-                                    placeholder={DEFAULT_KDUMP_PATH} value={directory}
-                                    data-stored={directory}
-                                    onChange={(_event, value) => setDirectory(value)}
-                                    isRequired />
+                                          placeholder={DEFAULT_KDUMP_PATH} value={directory}
+                                          data-stored={directory}
+                                          onChange={(_event, value) => setDirectory(value)}
+                                          isRequired />
                         </FormGroup>
+                        }
                     </>
                 }
 
@@ -353,7 +358,7 @@ export class KdumpPage extends React.Component {
         const target = this.props.kdumpStatus.target;
         let verifyMessage;
         if (!target.multipleTargets) {
-            const path = getLocation(target);
+            const path = getLocation(target, this.props.sysconfig);
             if (target.type === "local") {
                 verifyMessage = fmt_to_fragments(
                     ' ' + _("Results of the crash will be stored in $0 as $1, if kdump is properly configured."),
@@ -403,7 +408,8 @@ export class KdumpPage extends React.Component {
         const Dialogs = this.context;
         Dialogs.show(<KdumpSettingsModal settings={this.props.kdumpStatus.config}
                                          initialTarget={this.props.kdumpStatus.target}
-                                         handleSave={this.props.onSaveSettings} />);
+                                         handleSave={this.props.onSaveSettings}
+                                         sysconfig={this.props.sysconfig} />);
     }
 
     handleAutomationClick() {
@@ -459,7 +465,7 @@ ${enableCrashKernel}
             if (target.multipleTargets) {
                 kdumpLocation = _("invalid: multiple targets defined");
             } else {
-                const locationPath = getLocation(target);
+                const locationPath = getLocation(target, this.props.sysconfig);
                 if (target.type == "local") {
                     kdumpLocation = cockpit.format(_("Local, $0"), locationPath);
                     targetCanChange = true;

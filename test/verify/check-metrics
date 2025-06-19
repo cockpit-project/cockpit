@@ -1047,6 +1047,7 @@ BEGIN {{
         b.wait_visible("table[aria-label='Top 5 memory services']")
 
         if have_swap:
+            testlib.sit()
             usage_hog1 = b.get_pf_progress_value("#current-memory-usage")
 
             # use even more memory (700M) to trigger swap
@@ -1056,7 +1057,9 @@ BEGIN {{
                       """'BEGIN { x = sprintf("%700000000s",""); system("touch /tmp/hogged2; sleep infinity") }'""")
             print(m.execute("free -m"))
             m.execute("while [ ! -e /tmp/hogged2 ]; do sleep 1; done")
-            b.wait(lambda: b.get_pf_progress_value("#current-swap-usage") > 0)
+            print(m.execute("free -m"))
+            with b.wait_timeout(30):
+                b.wait(lambda: b.get_pf_progress_value("#current-swap-usage") > 0)
 
             m.execute("systemctl stop mem-hog mem-hog2")
             m.execute("rm /tmp/hogged2")

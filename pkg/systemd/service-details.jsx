@@ -419,6 +419,7 @@ export class ServiceDetails extends React.Component {
         const showAction = this.props.permitted || this.props.owner == "user";
         const isCustom = this.props.unit.FragmentPath.startsWith("/etc/systemd/system") && !masked;
         const isTimer = (this.unitType === "timer");
+        const isQuadlet = this.props.unit.SourcePath.includes("/containers/systemd/");
 
         let status = [];
 
@@ -667,6 +668,15 @@ export class ServiceDetails extends React.Component {
                                 <DescriptionListTerm>{ _("Listen") }</DescriptionListTerm>
                                 <DescriptionListDescription id="listen">
                                     {cockpit.format("$0 ($1)", this.props.unit.Listen[0][1], this.props.unit.Listen[0][0])}
+                                </DescriptionListDescription>
+                            </DescriptionListGroup>}
+                            {isQuadlet && cockpit.manifests?.podman?.capabilities?.includes("service-filtering") && <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("Container") }</DescriptionListTerm>
+                                <DescriptionListDescription id="container">
+                                    <Button variant="link" isInline onClick={
+                                        () => cockpit.jump(`/podman#/?service=${this.props.unit.Id}`)}>
+                                        {_("View Podman container")}
+                                    </Button>
                                 </DescriptionListDescription>
                             </DescriptionListGroup>}
                             { notMetConditions.length > 0 &&

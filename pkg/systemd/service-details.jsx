@@ -155,19 +155,19 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, edi
 
         if (editActionCallback || deleteActionCallback) {
             actions.push(<Divider key="modify-unit-divider" />);
+        }
 
-            if (editActionCallback) {
-                actions.push(
-                    <DropdownItem key="edit" onClick={() => editActionCallback()}>{_("Edit")}</DropdownItem>
-                );
-            }
+        if (editActionCallback) {
+            actions.push(
+                <DropdownItem key="edit" onClick={() => editActionCallback()}>{_("Edit")}</DropdownItem>
+            );
+        }
 
-            if (deleteActionCallback) {
-                actions.push(
-                    <DropdownItem key="delete" className="pf-m-danger"
-                                  onClick={() => deleteActionCallback()}>{_("Delete")}</DropdownItem>
-                );
-            }
+        if (deleteActionCallback) {
+            actions.push(
+                <DropdownItem key="delete" className="pf-m-danger"
+                              onClick={() => deleteActionCallback()}>{_("Delete")}</DropdownItem>
+            );
         }
 
         if (actions.length > 0) {

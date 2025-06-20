@@ -36,7 +36,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
 import { ServicesList } from "./services-list.jsx";
-import { CreateTimerDialog } from "./timer-dialog.jsx";
+import { CreateTimerDialogButton } from "./timer-dialog.jsx";
 import { page_status } from "notifications";
 import * as python from "python";
 import * as timeformat from "timeformat";
@@ -937,7 +937,7 @@ const ServicesPage = () => {
                                                                                           onChange={() => setOwner("user")} />
                             </ToggleGroup>}
                         </FlexItem>
-                        {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialog isLoading={isLoading} owner={owner} />}
+                        {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialogButton isLoading={isLoading} owner={owner} />}
                     </Flex>
                 </PageSection>}
                 <ServicesPageBody

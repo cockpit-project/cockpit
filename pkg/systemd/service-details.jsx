@@ -52,7 +52,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import './service-details.scss';
 import { KebabDropdown } from "cockpit-components-dropdown";
 import { Icon } from "@patternfly/react-core";
-import { CreateTimerDialogBody } from "./timer-dialog.jsx";
+import { TimerDialog } from "./timer-dialog.jsx";
 import { from_boot_usec, from_on_calendar, join_command_arguments } from "./timer-dialog-helpers.js";
 
 const _ = cockpit.gettext;
@@ -407,7 +407,7 @@ export class ServiceDetails extends React.Component {
         const timerName = this.props.unit.Id.slice(0, this.props.unit.Id.lastIndexOf("."));
         const serviceUnitName = timerName + ".service"; // timers created with cockpit only trigger one service
 
-        const currentTimerSettings = {
+        const timerSettings = {
             name: timerName,
             description: this.props.unit.Description
         };
@@ -420,8 +420,8 @@ export class ServiceDetails extends React.Component {
         }
 
         getCommand(systemd_client[this.props.owner], serviceUnitName).then(command => {
-            const current = { ...currentTimerSettings, ...conditions, command };
-            Dialogs.show(<CreateTimerDialogBody owner={this.props.owner} current={current} />);
+            const timer = { ...timerSettings, ...conditions, command };
+            Dialogs.show(<TimerDialog owner={this.props.owner} timer={timer} />);
         });
     }
 

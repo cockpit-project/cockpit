@@ -46,7 +46,7 @@ import "./timers.scss";
 
 const _ = cockpit.gettext;
 
-export const CreateTimerDialog = ({ owner, isLoading }) => {
+export const CreateTimerDialogButton = ({ owner, isLoading }) => {
     const Dialogs = useDialogs();
     return (
         <Button key='create-timer-action'
@@ -55,26 +55,26 @@ export const CreateTimerDialog = ({ owner, isLoading }) => {
                 isDisabled={isLoading}
                 onClick={() => {
                     updateTime();
-                    Dialogs.show(<CreateTimerDialogBody owner={owner} />);
+                    Dialogs.show(<TimerDialog owner={owner} />);
                 }}>
             {_("Create timer")}
         </Button>
     );
 };
 
-export const CreateTimerDialogBody = ({ owner, current }) => {
+export const TimerDialog = ({ owner, timer }) => {
     const Dialogs = useDialogs();
-    const [command, setCommand] = useState(current?.command || '');
-    const [delay, setDelay] = useState(current?.delay || 'specific-time');
-    const [delayNumber, setDelayNumber] = useState(current?.delayNumber || 0);
-    const [delayUnit, setDelayUnit] = useState(current?.delayUnit || 'sec');
-    const [description, setDescription] = useState(current?.description || '');
+    const [command, setCommand] = useState(timer?.command || '');
+    const [delay, setDelay] = useState(timer?.delay || 'specific-time');
+    const [delayNumber, setDelayNumber] = useState(timer?.delayNumber || 0);
+    const [delayUnit, setDelayUnit] = useState(timer?.delayUnit || 'sec');
+    const [description, setDescription] = useState(timer?.description || '');
     const [dialogError, setDialogError] = useState(undefined);
     const [inProgress, setInProgress] = useState(false);
-    const [name, setName] = useState(current?.name || '');
-    const [repeat, setRepeat] = useState(current?.repeat || 'no');
-    const [repeatPatterns, setRepeatPatterns] = useState(current?.repeatPatterns || []);
-    const [specificTime, setSpecificTime] = useState(current?.specificTime || "00:00");
+    const [name, setName] = useState(timer?.name || '');
+    const [repeat, setRepeat] = useState(timer?.repeat || 'no');
+    const [repeatPatterns, setRepeatPatterns] = useState(timer?.repeatPatterns || []);
+    const [specificTime, setSpecificTime] = useState(timer?.specificTime || "00:00");
     const [isSpecificTimeOpen, setSpecificTimeOpen] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [commandNotFound, setCommandNotFound] = useState(false);
@@ -142,15 +142,15 @@ export const CreateTimerDialogBody = ({ owner, current }) => {
             className="timer-dialog" position="top"
             variant="medium" isOpen onClose={Dialogs.close}
         >
-            <ModalHeader title={!current ? _("Create timer") : _("Edit timer")} />
+            <ModalHeader title={!timer ? _("Create timer") : _("Edit timer")} />
             <ModalBody>
                 {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}
                 <Form isHorizontal onSubmit={onSubmit}>
-                    {current && !current.delay && <FormAlert>
-                        <Alert variant="danger" title={_("Failed to get the starting conditions for the current")} isInline />
+                    {timer && !timer.delay && <FormAlert>
+                        <Alert variant="danger" title={_("Failed to get the starting conditions for the timer")} isInline />
                     </FormAlert>}
-                    {current && !current.command && <FormAlert>
-                        <Alert variant="danger" title={_("Failed to get the current command")} isInline />
+                    {timer && !timer.command && <FormAlert>
+                        <Alert variant="danger" title={_("Failed to get the timer command")} isInline />
                     </FormAlert>}
                     <FormGroup label={_("Name")}
                                fieldId="servicename">
@@ -158,7 +158,7 @@ export const CreateTimerDialogBody = ({ owner, current }) => {
                                    value={name}
                                    validated={submitted && validationFailed.name ? "error" : "default"}
                                    onChange={(_event, value) => setName(value)}
-                                   readOnlyVariant={!!current} />
+                                   readOnlyVariant={!!timer} />
                         <FormHelper fieldId="servicename"
                                     helperTextInvalid={submitted && validationFailed.name && (!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed"))} />
                     </FormGroup>

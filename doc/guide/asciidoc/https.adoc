@@ -1,0 +1,72 @@
+[[https]]
+== SSL/TLS Usage
+
+Cockpit usually requires that web browsers communicate with it using
+HTTPS, for security reasons.
+
+[[https-required]]
+=== HTTPS Requirement
+
+Cockpit listens for both HTTP and HTTPS connections on the same port, by
+default 9090. If an HTTP connection is made, Cockpit will redirect that
+connection to HTTPS. There are some exceptions:
+
+* If an HTTP connection comes from `localhost` (`127.0.0.1` or `::1`,
+then Cockpit will allow communication without redirecting to HTTPS.
+* Certain URLs, like `/ping` are not required to use HTTPS.
+
+This behavior can be overridden by setting the `AllowUnencrypted` option
+in `cockpit.conf`.
+
+[[https-certificates]]
+=== Certificates
+
+Cockpit will load a certificate from the `/etc/cockpit/ws-certs.d`,
+directory, or below `$XDG_CONFIG_DIRS` if set (see
+link:./cockpit.conf.5.html[cockpit.conf]). It will use the last file
+with a `.cert` or `.crt` extension in alphabetical order. The file
+should contain one or more OpenSSL style `BEGIN CERTIFICATE` blocks for
+the server certificate and the intermediate certificate authorities.
+
+The private key must be contained in a separate file with the same name
+as the certificate, but with a `.key` suffix instead. The key must not
+be encrypted.
+
+If no certificate is found, a self-signed certificate is created and
+stored in the `0-self-signed.cert` file. On some platforms, Cockpit will
+also generate a ca.crt in that directory, which may be safely imported
+into client browsers.
+
+Cockpit will read the files as root, so they can have tight permissions.
+
+To check which certificate `cockpit-ws` will use run the following
+command.
+
+....
+$ sudo /usr/libexec/cockpit-certificate-ensure --check
+....
+
+Or, on Debian-based systems:
+
+....
+$ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check
+....
+
+If using `certmonger` to manage certificates, following command can be
+used to automatically prepare a certificate/key file pair:
+
+....
+getcert request -f /etc/cockpit/ws-certs.d/50-certmonger.cert \
+                -k /etc/cockpit/ws-certs.d/50-certmonger.key \
+                -D myhostname.example.com \
+                [--ca=...]
+....
+
+This will not work on Red Hat Enterprise Linux 8 by default. Adjust the
+SELinux type of the certificate directory to `cert_t` to allow
+certmonger to write its certificates there:
+
+....
+semanage fcontext -a -t cert_t '/etc/cockpit/ws-certs\.d(/.*)?'
+restorecon -v /etc/cockpit/ws-certs.d
+....

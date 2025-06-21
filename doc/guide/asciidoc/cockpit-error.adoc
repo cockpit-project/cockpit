@@ -1,0 +1,48 @@
+cockpit.js: Errors
+
+Problem codes and messages
+
+[[cockpit-problems]]
+== Problem Codes
+
+Cockpit represents problems with standardized problem string codes.
+
+`"access-denied"`::
+  The user is not permitted to perform the action in question.
+`"authentication-failed"`::
+  User authentication failed.
+`"internal-error"`::
+  An unexpected internal error without further info. This should not
+  happen during the normal course of operations.
+`"no-cockpit"`::
+  The system does not have a compatible version of Cockpit installed or
+  installed properly.
+`"no-session"`::
+  Cockpit is not logged in.
+`"not-found"`::
+  Something specifically requested was not found, such as a file,
+  executable etc.
+`"terminated"`::
+  Something was terminated forcibly, such as a connection, process
+  session, etc.
+`"timeout"`::
+  Something timed out.
+`"unknown-hostkey"`::
+  The remote host had an unexpected or unknown key.
+`"no-forwarding"`::
+  Could not forward authentication credentials to the remote host.
+
+[[cockpit-messages]]
+== cockpit.message()
+
+....
+message = cockpit.message(problem)
+message = cockpit.message(exception)
+....
+
+Return a message for the `exception` or `problem` code passed as an
+argument. If the argument is an object with a `"message"` property, as
+is the case with most exceptions, that will be returned directly. If the
+argument is an object with a `"problem"` property, then it will be used
+as the problem code. An appropriate message will be returned for problem
+codes.

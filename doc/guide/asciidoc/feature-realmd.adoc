@@ -1,0 +1,33 @@
+[[feature-realmd]]
+== realmd
+
+If available on the system, Cockpit uses
+https://www.freedesktop.org/software/realmd/[realmd] and the DBus APIs
+it provides to configure the system's Active Directory or IPA domain
+membership.
+
+Not all systems can join all kinds of domains. This depends on the
+availability of the necessary client software.
+
+For non root users, realmd controls access to its APIs via
+link:#privileges[Policy Kit] and a user logged into Cockpit will have
+the same permissions as they do from the command line.
+
+To perform similar tasks from the command line, use the
+https://www.freedesktop.org/software/realmd/docs/realm.html[realm]
+command:
+
+....
+$ realm join example.com
+Password for Administrator:
+....
+
+http://www.freedesktop.org/software/realmd/[realmd] sets up
+domain-qualified user names by default, i. e. login user names look like
+"`user@example.com`". For using unqualified names (just "`user`"), set
+the `fully-qualified-names` option in
+https://www.freedesktop.org/software/realmd/docs/realmd-conf.html[/etc/realmd.conf]
+before joining a domain.
+
+Cockpit requests an SSL certificate from the IPA server for `cockpit-ws`
+with the https://www.freeipa.org/page/Certmonger[ipa-getcert] command.

@@ -1051,7 +1051,7 @@ BEGIN {{
 
             # use even more memory to trigger swap
             m.execute("systemd-run --collect --slice cockpittest --unit mem-hog2 awk "
-                      """'BEGIN { x = sprintf("%700000000s",""); system("touch /tmp/hogged2; sleep infinity") }'""")
+                      """'BEGIN { x = sprintf("%750000000s",""); system("touch /tmp/hogged2; sleep infinity") }'""")
             m.execute("while [ ! -e /tmp/hogged2 ]; do sleep 1; done")
             b.wait(lambda: b.get_pf_progress_value("#current-swap-usage") > 0)
 

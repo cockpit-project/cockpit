@@ -137,9 +137,10 @@ class TestAccounts(testlib.MachineCase):
         # Set a real name
         b.go("#/anton")
         b.wait_visible("#account-locked:not([disabled])")
-        b.assert_pixels("#users-page", "user-detail-page")
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")
+        b.wait_text("#account-last-login", "Never")
+        b.assert_pixels("#users-page", "user-detail-page")
         b.wait_not_attr("#account-delete", "disabled", "disabled")
         b.set_input_text('#account-real-name', "")  # Check that we can delete the name before setting it up
         b.set_input_text('#account-real-name', "Anton Arbitrary")

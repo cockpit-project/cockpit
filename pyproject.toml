@@ -197,8 +197,9 @@ legacy_tox_ini = """
 [tox]
 envlist = lint,pytest
 isolated_build = True
+requires = virtualenv<20.22.0
 labels =
-  venv = py3{6,8,9,10,11,12,13}-pytest
+  venv = py3{6,9,10,11,12,13}-pytest
 
 # The default test environments use system packages and never PyPI.
 [testenv:{lint,pytest}]

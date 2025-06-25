@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Install tox dependencies
         run: |
-          dnf install -y git-core tox util-linux
+          dnf install -y git-core tox util-linux python3.6
           useradd tox
 
       # https://github.blog/2022-04-12-git-security-vulnerability-announced/

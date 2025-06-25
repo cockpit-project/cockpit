@@ -1405,7 +1405,7 @@ WantedBy=multi-user.target
         busybox_image = m.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
         container_service = f"""
 [Unit]
-Description=Podman - zigbee2mqtt
+Description=Podman container message-broker part of pod "has"
 After=local-fs.target
 
 [Container]
@@ -1446,7 +1446,7 @@ PodName=has
         b.wait_in_text(".pf-v6-c-breadcrumb", "zigbee2mqtt.service")
         b.wait_text("#container", "View Podman container")
 
-        m.write("/usr/local/share/cockpit/podman/manifest.json", '{ "capabilities": ["nothing"] }')
+        m.write("/usr/local/share/cockpit/podman/manifest.json", '{}')
         b.reload()
         self.login_and_go("/system/services")
         self.wait_page_load()

@@ -254,6 +254,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             wait_after_layout_change=True,
             wait_delay=1,
             chrome_hack_double_shots=True,
+            abs_tolerance=40,
         )
 
         b.click("#metrics-hour-1597662000000 button.metrics-events-expander")

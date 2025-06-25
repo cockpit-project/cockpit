@@ -1308,7 +1308,8 @@ class Browser:
         scroll_into_view: str | None = None,
         wait_animations: bool = True,
         wait_delay: float = 0.5,
-        chrome_hack_double_shots: bool = False
+        chrome_hack_double_shots: bool = False,
+        abs_tolerance: float = 20
     ) -> None:
         """Compare the given element with its reference in the current layout"""
 
@@ -1476,7 +1477,7 @@ class Browser:
                                 else:
                                     data_delta[x, y] = (255, 0, 0, 255)
                                     count += 1
-                                    if count > 20:
+                                    if count > abs_tolerance:
                                         result = False
                             else:
                                 data_delta[x, y] = ref_pixel
@@ -1513,7 +1514,8 @@ class Browser:
         wait_after_layout_change: bool = False,
         wait_delay: float = 0.5,
         layout_change_hook: Callable[[], None] | None = None,
-        chrome_hack_double_shots: bool = False
+        chrome_hack_double_shots: bool = False,
+        abs_tolerance: float = 20
     ) -> None:
         """Compare the given element with its reference in all layouts"""
 
@@ -1551,7 +1553,8 @@ class Browser:
                                                          scroll_into_view=scroll_into_view,
                                                          wait_animations=wait_animations,
                                                          wait_delay=wait_delay,
-                                                         chrome_hack_double_shots=chrome_hack_double_shots)
+                                                         chrome_hack_double_shots=chrome_hack_double_shots,
+                                                         abs_tolerance=abs_tolerance)
 
             self.set_layout(previous_layout)
 

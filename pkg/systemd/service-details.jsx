@@ -419,7 +419,7 @@ export class ServiceDetails extends React.Component {
         const showAction = this.props.permitted || this.props.owner == "user";
         const isCustom = this.props.unit.FragmentPath.startsWith("/etc/systemd/system") && !masked;
         const isTimer = (this.unitType === "timer");
-        const isQuadlet = this.props.unit.SourcePath.includes("/containers/systemd/");
+        const isQuadlet = this.props.unit.SourcePath?.includes("/containers/systemd/");
 
         let status = [];
 

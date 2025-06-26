@@ -95,7 +95,8 @@ jobs:
     environment: flathub
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    permissions: {}
+    permissions:
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source repository

@@ -656,9 +656,10 @@ fi
         # CPU
         # first wait until system settles down
         testlib.wait(lambda: progressValue(1) < 20)
-        m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done", "cpu_hog.log")
+        m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done; touch /tmp/cpu-hogged", "cpu_hog.log")
+        m.execute("while [ ! -e /tmp/cpu-hogged ]; do sleep 1; done")
         testlib.wait(lambda: progressValue(1) > 75)
-        m.execute("pkill -e -f [c]at.*urandom")
+        m.execute("pkill -e -f [c]at.*urandom; rm /tmp/cpu-hogged")
         # should go back to idle usage
         # HACK: work around pmie CPU usage https://bugzilla.redhat.com/show_bug.cgi?id=2140572
         testlib.wait(lambda: progressValue(1) < 20, tries=200)

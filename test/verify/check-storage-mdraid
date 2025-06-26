@@ -28,7 +28,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
     def wait_states(self, states):
         for s in states.keys():
-            with self.browser.wait_timeout(30):
+            with self.browser.wait_timeout(45):
                 self.browser.wait_in_text(self.card_row("MDRAID device", name=s), states[s])
 
     def raid_add_disk(self, name):

@@ -73,7 +73,7 @@ def kill_user_admin(machine):
     machine.execute("loginctl terminate-user admin")
 
 
-def change_ssh_port(machine, address, sshd_socket, sshd_service, port=None, timeout_sec=120):
+def change_ssh_port(machine, address, sshd_socket, sshd_service, sshd_path, port=None, timeout_sec=120):
     try:
         port = int(port)
     except (ValueError, TypeError):
@@ -92,8 +92,8 @@ def change_ssh_port(machine, address, sshd_socket, sshd_service, port=None, time
         machine.execute("systemctl daemon-reload")
         machine.execute("systemctl restart ssh.socket")
     else:
-        machine.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
-        machine.write("/etc/ssh/sshd_config",
+        machine.execute(f"sed -i 's/.*Port .*/#\\0/' {sshd_path}")
+        machine.write(sshd_path,
                       f"ListenAddress 127.27.0.15:22\nListenAddress {address}:{port}\n",
                       append=True)
         # We stop the sshd.socket unit and just go with a regular
@@ -143,7 +143,7 @@ class TestMultiMachineAdd(testlib.MachineCase):
         m2 = self.machine2
         m3 = self.machine3
         m3_host = "10.111.113.3:2222"
-        change_ssh_port(m3, "10.111.113.3", self.sshd_socket, self.sshd_service, port=2222)
+        change_ssh_port(m3, "10.111.113.3", self.sshd_socket, self.sshd_service, self.sshd_config_path, port=2222)
 
         hostname_selector = "#system_information_hostname_text"
 
@@ -220,7 +220,7 @@ class TestMultiMachineAdd(testlib.MachineCase):
         m = self.machine
         m3 = self.machine3
 
-        change_ssh_port(m3, "10.111.113.3", self.sshd_socket, self.sshd_service, port=2222)
+        change_ssh_port(m3, "10.111.113.3", self.sshd_socket, self.sshd_service, self.sshd_config_path, port=2222)
         m.write("/etc/ssh/ssh_config", "Host m2\n\tHostName 10.111.113.2\n", append=True)
         m.write("/etc/ssh/ssh_config", "Host m3\n\tHostName 10.111.113.3\n\tPort 2222\n", append=True)
 
@@ -675,7 +675,8 @@ class TestMultiMachine(testlib.MachineCase):
         m2 = self.machine2
 
         # Logging in as root is no longer allowed by default by sshd
-        m2.execute("sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
+        sshd_path = self.sshd_config_path
+        m2.execute(f"sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' {sshd_path}")
         m2.execute(self.restart_sshd)
 
         machine_path = "/@10.111.113.2"
@@ -779,7 +780,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.logout()
         b.wait_visible("#login")
 
-        change_ssh_port(m2, "10.111.113.2", self.sshd_socket, self.sshd_service, port=2222)
+        change_ssh_port(m2, "10.111.113.2", self.sshd_socket, self.sshd_service, self.sshd_config_path, port=2222)
         m2.disconnect()
         del self.machines["machine2"]  # No more access to m2
 

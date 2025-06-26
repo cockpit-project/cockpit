@@ -1827,6 +1827,11 @@ class MachineCase(unittest.TestCase):
         else:
             self.libexecdir = '/usr/libexec'
 
+        if 'suse' in image:
+            self.sshd_config_path = '/usr/etc/ssh/sshd_config'
+        else:
+            self.sshd_config_path = '/etc/ssh/sshd_config'
+
         if image.startswith(('debian', 'ubuntu')):
             self.sshd_service = 'ssh.service'
             self.sshd_socket = 'ssh.socket'

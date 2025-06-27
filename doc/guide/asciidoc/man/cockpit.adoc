@@ -1,0 +1,43 @@
+= cockpit(1)
+:doctype: manpage
+
+== NAME
+
+cockpit - VERSION
+
+== DESCRIPTION
+
+Cockpit is a web accessible interactive admin interface for Linux
+machines. Cockpit can usually be accessed on port `9090` of the machine
+it's installed on. Cockpit starts on demand. Use your system credentials
+to log in.
+
+== COMPONENTS
+
+The `cockpit-ws` web service listens on port `9090` and is started on
+demand by `systemd`. The Cockpit web service authenticates the user,
+loads Cockpit into the browser, and starts `cockpit-bridge` in a Linux
+user session.
+
+The `cockpit-bridge` provides Cockpit in the web browser with access to
+the system APIs. It does this over its standard in and standard out. The
+bridge is started like a shell once per Linux user session.
+
+== BUGS
+
+Please send bug reports to either the distribution bug tracker or the
+https://github.com/cockpit-project/cockpit/issues/new[upstream bug
+tracker].
+
+== AUTHOR
+
+Cockpit has been written by many
+https://github.com/cockpit-project/cockpit/[contributors].
+
+== SEE ALSO
+
+* Cockpit Guide https://cockpit-project.org/guide/latest/
+* `cockpit-ws(8)`
+* `cockpit-bridge(1)`
+* xref:man/cockpit.conf.adoc#cockpit-conf[*cockpit.conf*(5)]
+* `systemd(1)`

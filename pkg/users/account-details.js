@@ -222,7 +222,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
     );
 
     return (
-        <Page id="account" className='no-masthead-sidebar'>
+        <Page id="account" className="pf-m-no-sidebar">
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>

@@ -502,6 +502,8 @@ function update_indices() {
     for (path in client.mdraids_members) {
         client.mdraids_members[path].sort(utils.block_cmp);
     }
+    console.log("mdraids_members", JSON.stringify(client.mdraids_members));
+    console.log("mdraids", JSON.stringify(client.mdraids));
 
     client.slashdevs_block = { };
     function enter_slashdev(block, enc) {

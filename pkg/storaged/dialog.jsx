@@ -420,11 +420,11 @@ export const dialog_open = (def) => {
     function run_action(progress_callback, variant) {
         const func = () => {
             return validate(variant)
-                    .then(() => {
+                    .then(validated_values => {
                         const visible_values = { variant };
                         fields.forEach(f => {
                             if (is_visible(f, values))
-                                visible_values[f.tag] = values[f.tag];
+                                visible_values[f.tag] = validated_values[f.tag];
                         });
                         if (def.Action.wrapper)
                             return def.Action.wrapper(visible_values, progress_callback,
@@ -506,9 +506,24 @@ export const dialog_open = (def) => {
     };
 
     const validate = (variant) => {
+        // The validation functions sometimes change the dialog values
+        // for the benefit of the action functions. For example, a
+        // SizeSlider will convert from "text plus unit" to a numeric
+        // value during validation.
+        //
+        // However, if the action fails, we don't want the values in
+        // the dialog to change.  The SizeSlider would convert back
+        // from a numeric value to "text plus unit", for example, and
+        // that conversion might change what the user had type.
+        //
+        // So we make a copy of the dialog state and let the validate
+        // and action functions work with that.
+        //
+        const validated_values = { ...values };
+
         return Promise.all(fields.map(f => {
             if (is_visible(f, values) && f.options && f.options.validate)
-                return f.options.validate(values[f.tag], values, variant);
+                return f.options.validate(validated_values[f.tag], validated_values, variant);
             else
                 return null;
         })).then(results => {
@@ -516,6 +531,7 @@ export const dialog_open = (def) => {
             fields.forEach((f, i) => { if (results[i]) errors[f.tag] = results[i]; });
             if (Object.keys(errors).length > 0)
                 return Promise.reject(errors);
+            return validated_values;
         });
     };
 

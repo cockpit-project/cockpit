@@ -246,6 +246,12 @@ class Browser:
         self.coverage_label = coverage_label
         self.machine = machine
 
+        # HACK: Tests which don't yet get along with real mouse clicks in Chromium
+        # can opt into falling back to the old MouseEvent emulation; this is cheating, but fixing
+        # all the tests at once is too much work. Remove this once all tests in all our projects
+        # got fixed.
+        self.chromium_fake_mouse = False
+
         headless = os.environ.get("TEST_SHOW_BROWSER", '0') == '0'
         self.browser = os.environ.get("TEST_BROWSER", "chromium")
         if self.browser == "chromium":
@@ -530,7 +536,7 @@ class Browser:
         self.wait_visible(selector)
 
         # TODO: x and y are not currently implemented: webdriver (0, 0) is the element's center, not top left corner
-        if x is not None or y is not None:
+        if x is not None or y is not None or (self.browser == "chromium" and self.chromium_fake_mouse):
             self.call_js_func('ph_mouse', selector, event, x or 0, y or 0, btn, ctrlKey, shiftKey, altKey, metaKey)
             return
 

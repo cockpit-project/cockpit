@@ -61,6 +61,7 @@ export class ConfigFileSUSE extends ConfigFile {
             _internal: {},
             targets: {},
             compression: { enabled: false, allowed: true },
+            nfs_supports_directory: false,
         };
 
         this._lines = rawContent.split(/\r?\n/);

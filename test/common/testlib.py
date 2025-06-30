@@ -1656,7 +1656,7 @@ class MachineCase(unittest.TestCase):
                 self.network = network
             networking = self.network.host(restrict=restrict, forward=forward or {})
             machine = machine_class(verbose=opts.trace, networking=networking, image=image, **kwargs)
-            image_file = machine.image_file  # type: ignore[attr-defined]
+            image_file = machine.image_file
             if opts.fetch and not os.path.exists(image_file):
                 machine.pull(image_file)
             if cleanup:

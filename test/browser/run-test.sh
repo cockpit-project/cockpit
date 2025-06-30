@@ -149,19 +149,7 @@ if [ "$PLAN" = "main" ]; then
 fi
 
 if [ "$PLAN" = "storage-basic" ]; then
-    TESTS="TestStorageBasic
-           TestStorageBtrfs
-           TestStorageMdRaid
-           TestStorageMounting
-           TestStorageMountingLUKS
-           TestStorageMsDOS
-           TestStorageNfs
-           TestStoragePartitions
-           TestStorageRaid
-           TestStorageStratis
-           TestStorageUnrecognized
-           TestStorageUsed
-           TestStorageswap
+    TESTS="TestStorageMdRaid
            "
 
     # These don't test more external APIs

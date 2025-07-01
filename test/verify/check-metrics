@@ -242,6 +242,9 @@ class TestHistoryMetrics(testlib.MachineCase):
         # wait until the toolbar is fully rendered
         b.wait_visible("#date-picker-select-toggle")
 
+        # move the mouse away from the pixel test region, to avoid spurious focus highlights
+        b.mouse("#metrics-header-section", "mousemove")
+
         # FIXME: mobile layout is racy in tests (only, not in reality), scrollIntoView() misplaces the menu bar
         b.assert_pixels(
             ".metrics",
@@ -260,6 +263,9 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # HACK: the bottom panel has some unpredictable extra white line at the bottom, but is also uninteresting
         b.eval_js("document.querySelector('.bottom-panel').style.display = 'none'")
+
+        # move the mouse away from the pixel test region, to avoid spurious focus highlights
+        b.mouse("#metrics-header-section", "mousemove")
 
         b.assert_pixels(".metrics", "metrics-history-compressed-hour", ignore=[".nodata"],
                         skip_layouts=["mobile"], wait_after_layout_change=True)

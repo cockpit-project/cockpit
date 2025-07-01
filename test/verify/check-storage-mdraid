@@ -123,7 +123,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         self.click_card_row("Storage", name="/dev/md/raid0")
         print(m.execute("cat /proc/mdstat"))
-        m.execute("until grep 'recovery' /proc/mdstat; do sleep 1; done")
+        m.execute("until grep -v 'recovery' /proc/mdstat; do sleep 1; done")
         print(m.execute("cat /proc/mdstat"))
         print(m.execute("udisksctl dump"))
         self.wait_states({disk1: "In sync",

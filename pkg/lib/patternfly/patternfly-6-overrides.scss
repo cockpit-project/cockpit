@@ -260,6 +260,13 @@ $phone: 767px;
   .pf-v6-c-modal-box .pf-v6-c-table {
     background-color: inherit;
   }
+
+  // FIXME: Force FormSelect's to get a readable background.
+  // https://github.com/patternfly/patternfly/issues/7593
+  // https://issues.redhat.com/browse/RHEL-97180
+  select {
+      background-color: var(--pf-t--global--background--color--floating--default);
+  }
 }
 
 // Fix icons in buttons

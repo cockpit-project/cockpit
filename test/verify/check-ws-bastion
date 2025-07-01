@@ -270,11 +270,15 @@ class TestWsBastionContainer(testlib.MachineCase):
         self.addCleanup(m.execute, "ip route del default")
 
         self.restore_dir("/home/admin")
+
+        # podman needs logind session (https://bugzilla.redhat.com/show_bug.cgi?id=2375715)
+        m.execute("loginctl enable-linger admin")
+        self.addCleanup(m.execute, "loginctl disable-linger admin")
+
         m.execute("runuser -u admin -- sh -ex", input=f"""
         # we don't start a real login session here, fake it
         cd $HOME
-        export XDG_RUNTIME_DIR=$HOME/run
-        mkdir -p "$XDG_RUNTIME_DIR"
+        export XDG_RUNTIME_DIR=/run/user/$(id -u)
 
         # create new key, set it up for logging into host
         ssh-keygen -q -f ~/.ssh/id_bastion -N {KEY_PASSWORD}

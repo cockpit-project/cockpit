@@ -199,7 +199,7 @@ done
 
         print(m.execute("journalctl --list-boots"))
         print(m.execute("journalctl --user -u systemd-exit"))
-        print(m.execute("journalctl -b -1 | grep 'Exit the session'"))
+        print(m.execute("journalctl -b -1 | grep 'Exit the session' || true"))
         path = "/etc/systemd/user" if user else "/etc/systemd/system"
 
         self.write_file(f"{path}/test-fail.service",

@@ -305,7 +305,7 @@ const HardwareInfo = ({ info }) => {
     }
 
     return (
-        <Page className='no-masthead-sidebar'>
+        <Page className='pf-m-no-sidebar'>
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-v6-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>

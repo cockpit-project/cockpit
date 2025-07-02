@@ -96,7 +96,7 @@ class KdumpHelpers(testlib.MachineCase):
 @testlib.timeout(900)
 class TestKdump(KdumpHelpers):
     provision = {
-        "0": {"memory_mb": 1152},
+        "0": {"memory_mb": 2048},
     }
 
     def testBasic(self):
@@ -174,8 +174,12 @@ class TestKdump(KdumpHelpers):
             b.wait_not_present(pathInput)
         self.crashKernel("copied through SSH to root@localhost:/var/crash as vmcore", cancel=True)
 
-        # we should have the amount of memory reserved that crashkernel=auto defaults to for our VM RAM size
-        b.wait_in_text("#app", "192 MiB")
+        # we should have the amount of memory reserved that crashkernel=auto defaults to for our VM RAM size on RHEL-8-10.
+        # On RHEL-9 and upper there are fixed memory limits based fixed limits from crashkernel, ie. 2G-64G:256M
+        if m.image == "rhel-8-10":
+            b.wait_in_text("#app", "192 MiB")
+        else:
+            b.wait_in_text("#app", "256 MiB")
         # service should start up properly and the button should be on
         self.assertActive(active=True)
         b.wait_text("#kdump-target-info", "Remote over SSH, root@localhost:/var/crash")
@@ -474,7 +478,7 @@ class TestKdumpConfiguration(KdumpHelpers):
 @testlib.timeout(900)
 class TestKdumpNFS(KdumpHelpers):
     provision = {
-        "0": {"address": "10.111.113.1/24", "memory_mb": 1024, "capture_console": True},
+        "0": {"address": "10.111.113.1/24", "memory_mb": 2048, "capture_console": True},
         "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512}
     }
 
@@ -598,7 +602,7 @@ class TestKdumpNFSAnsible(KdumpHelpers):
         kdump_machine.execute("until systemctl is-active kdump; do sleep 1; done")
         kdump_browser.login_and_go("/kdump")
         kdump_browser.wait_visible(".pf-v6-c-switch__input:checked")
-        kdump_browser.wait_in_text("#app", "192 MiB")
+        kdump_browser.wait_in_text("#app", "256 MiB")
         self.assertActive(active=True, browser=kdump_browser)
 
         try:
@@ -656,7 +660,7 @@ class TestKdumpAnsible(KdumpHelpers):
         kdump_browser.login_and_go("/kdump")
 
         # Verify that kdump runs and crashkernel is configured
-        kdump_browser.wait_in_text("#app", "192 MiB")
+        kdump_browser.wait_in_text("#app", "256 MiB")
         self.assertActive(active=True, browser=kdump_browser)
 
         # Second run should be succeed as crashkernel is now set in the kernel cmdline

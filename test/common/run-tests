@@ -7,6 +7,7 @@ import glob
 import importlib.machinery
 import importlib.util
 import logging
+import math
 import os
 import socket
 import string
@@ -19,6 +20,7 @@ from typing import List, Optional, Tuple
 
 import testlib
 from lcov import create_coverage_report, prepare_for_code_coverage
+from lib.constants import DEFAULT_MACHINE_MEMORY_MB
 from machine import testvm
 
 os.environ['PYTHONUNBUFFERED'] = '1'
@@ -356,8 +358,9 @@ def detect_tests(test_files, image, opts):
                 rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
                 todo = testlib.get_decorator(test_method, test, "todo")
                 if getattr(test.__class__, "provision", None):
-                    # each additionally provisioned VM costs destructive test capacity
-                    cost = len(test.__class__.provision)
+                    # each additionally provisioned VM memory costs destructive test capacity
+                    total_memory = sum(config.get('memory_mb', DEFAULT_MACHINE_MEMORY_MB) for _, config in test.__class__.provision.items())
+                    cost = math.ceil(total_memory / DEFAULT_MACHINE_MEMORY_MB)
                 else:
                     cost = 1
                 test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, todo, cost=cost)

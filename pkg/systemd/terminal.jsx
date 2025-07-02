@@ -226,7 +226,7 @@ const _ = cockpit.gettext;
                 : <span>Loading...</span>;
 
             return (
-                <Page className="no-masthead-sidebar">
+                <Page className="pf-m-no-sidebar">
                     <PageSection hasShadowBottom>
                         <div className="terminal-group">
                             <tt className="terminal-title">{this.state.title}</tt>

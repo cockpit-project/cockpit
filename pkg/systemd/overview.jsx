@@ -152,7 +152,7 @@ class OverviewPage extends React.Component {
               window.parent.features.navbar_is_for_current_machine));
 
         return (
-            <Page className='no-masthead-sidebar'>
+            <Page className='pf-m-no-sidebar'>
                 <SuperuserAlert />
                 <PageSection hasBodyWrapper={false} className='ct-overview-header' padding={{ default: 'padding' }}>
                     <div className='ct-overview-header-hostname'>

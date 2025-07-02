@@ -293,6 +293,7 @@ $phone: 767px;
 
 // Override as PF Page doesn't allow empty masthead and sidebar
 @media (min-width: 75rem) {
+  // Please use .pf-m-no-sidebar instead as it is the new class name in PF for this
   .pf-v6-c-page.no-masthead-sidebar { /* custom class to scope this style to a specific page component instance */
     --pf-v6-c-page__main-container--GridArea: var(--pf-v6-c-page--masthead--main-container--GridArea);
   }

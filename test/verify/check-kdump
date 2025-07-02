@@ -94,6 +94,9 @@ class KdumpHelpers(testlib.MachineCase):
 @testlib.skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
 @testlib.timeout(900)
 class TestKdump(KdumpHelpers):
+    provision = {
+        "0": {"memory_mb": 1152},
+    }
 
     def testBasic(self):
         b = self.browser
@@ -244,8 +247,12 @@ class TestKdump(KdumpHelpers):
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === "#/kdump.service"')
 
-    @testlib.nondestructive
-    def testConfiguration(self):
+
+@testlib.skipOstree("kexec-tools not installed")
+@testlib.skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
+@testlib.nondestructive
+class TestKdumpConfiguration(KdumpHelpers):
+    def testBasic(self):
         b = self.browser
         m = self.machine
 
@@ -331,7 +338,6 @@ class TestKdump(KdumpHelpers):
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn(current + " -c", conf)
 
-    @testlib.nondestructive
     def testConfigurationSUSE(self):
         b = self.browser
         m = self.machine

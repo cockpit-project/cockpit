@@ -147,7 +147,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
     );
 
     return (
-        <Page data-test-wait={operationInProgress} id="networking" className='no-masthead-sidebar'>
+        <Page data-test-wait={operationInProgress} id="networking" className="pf-m-no-sidebar">
             <PageSection hasBodyWrapper={false} id="networking-graphs" className="networking-graphs">
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>

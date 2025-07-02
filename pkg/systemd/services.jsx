@@ -908,7 +908,7 @@ const ServicesPage = () => {
 
     return (
         <WithDialogs>
-            <Page className='no-masthead-sidebar'>
+            <Page className='pf-m-no-sidebar'>
                 {cockpit.location.path.length == 0 &&
                 <PageSection hasBodyWrapper={false} className="services-header">
                     <Flex>

@@ -1995,7 +1995,7 @@ export const Application = () => {
 
     return (
         <WithDialogs>
-            <Page className='no-masthead-sidebar'>
+            <Page className="pf-m-no-sidebar">
                 <PageBreadcrumb
                     id='metrics-header-section'
                     hasBodyWrapper={false}

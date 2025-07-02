@@ -181,7 +181,7 @@ export const LogsPage = () => {
     };
 
     return (
-        <Page className='no-masthead-sidebar'>
+        <Page className='pf-m-no-sidebar'>
             <PageSection hasBodyWrapper={false} id="journal" className="journal-filters">
                 <Toolbar hasNoPadding>
                     <ToolbarContent>

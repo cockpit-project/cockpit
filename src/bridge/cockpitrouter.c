@@ -81,6 +81,7 @@ struct _CockpitRouter {
   GDBusMethodInvocation *superuser_stop_invocation;
 
   gboolean superuser_init_in_progress;
+  gboolean superuser_init_authorize_attempted;
   gboolean superuser_legacy_init;
 
   CockpitRouterPromptAnswerFunction *superuser_answer_function;
@@ -1702,6 +1703,13 @@ cockpit_router_prompt (CockpitRouter *self,
     }
   else if (self->superuser_init_in_progress)
     {
+      if (self->superuser_init_authorize_attempted)
+        {
+          g_info ("noninteractive authorize during init already attempted, rejecting");
+          answer (NULL, data);
+          return;
+        }
+      self->superuser_init_authorize_attempted = TRUE;
       self->superuser_answer_function = answer;
       self->superuser_answer_data = data;
 

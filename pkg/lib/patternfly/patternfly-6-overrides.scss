@@ -264,7 +264,7 @@ $phone: 767px;
   // FIXME: Force FormSelect's to get a readable background.
   // https://github.com/patternfly/patternfly/issues/7593
   // https://issues.redhat.com/browse/RHEL-97180
-  select {
+  .pf-v6-c-form-control select:not(:disabled) {
       background-color: var(--pf-t--global--background--color--floating--default);
   }
 }

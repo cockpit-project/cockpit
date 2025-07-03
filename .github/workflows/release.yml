@@ -10,7 +10,10 @@ jobs:
   source:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cockpit-project/tasks:latest
+      # we must use the same old container for releasing as for testing
+      # to avoid breaking on newer build chain or changing build dependencies
+      # keep in sync with .cockpit-ci/container
+      image: ghcr.io/cockpit-project/tasks:2024-03-18
       options: --user root
     permissions:
       # create GitHub release

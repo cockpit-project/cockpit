@@ -414,6 +414,10 @@ label.checkbox {
     --button-color-text: var(--color-input);
     --button-color-hover-border: var(--color-input);
     --button-color-hover-text: var(--color-input-hover);
+
+    &:hover {
+      text-decoration: underline
+    }
   }
 
   &.pf-m-danger {
@@ -528,12 +532,21 @@ html body.login-pf {
   overflow: auto;
 }
 
+// Makes the borders and border-radius of the login cards look as it should
 .login-pf .container {
   background: var(--color-background);
   color: var(--color-text);
-  padding: var(--pf-t--global--spacer--2xl);
   inline-size: 100%;
-  border-radius: var(--pf-t--global--border--radius--large) var(--pf-t--global--border--radius--large) 0 0;
+  border-radius: var(--pf-t--global--border--radius--large) var(--pf-t--global--border--radius--large);
+
+  .container-body {
+    padding: var(--pf-t--global--spacer--2xl);
+  }
+
+  .container-footer {
+    padding-block: var(--pf-t--global--spacer--xl);
+    padding-inline: var(--pf-t--global--spacer--2xl);
+  }
 }
 
 #main {
@@ -740,8 +753,6 @@ html:not(.pf-v6-theme-dark) #login-wait-validating .spinner {
 
 .login-pf .details {
   grid-area: details;
-  padding-block: var(--pf-t--global--spacer--xl);
-  padding-inline: var(--pf-t--global--spacer--2xl);
   inline-size: 100%;
   background: var(--color-background);
   border-radius: 0 0 var(--pf-t--global--border--radius--large) var(--pf-t--global--border--radius--large);
@@ -796,7 +807,7 @@ details > summary:hover {
 .host-line {
   display: grid;
   grid: 1fr / 1fr auto;
-  border: 1px solid var(--color-disabled-text);
+  border: 1px solid var(--color-border);
   border-width: 1px 0;
 }
 
@@ -807,7 +818,7 @@ details > summary:hover {
 .host-name {
   flex: auto;
   text-align: start;
-  color: var(--color-primary);
+  color: var(--color-link);
   border: none;
   /* As we're making the list flush to the card, we should indent the contents to align */
   padding-block: 0.5rem;
@@ -815,7 +826,7 @@ details > summary:hover {
 }
 
 .host-name:hover {
-  color: var(--color-primary-active);
+  color: var(--color-link-active);
   text-decoration: underline;
 }
 

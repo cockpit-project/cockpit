@@ -60,7 +60,7 @@ const exportAnsibleTask = (settings, os_release) => {
     const kdump_core_collector = settings.core_collector;
 
     let role_name = "linux-system-roles";
-    if (os_release.NAME === "RHEL" || os_release.ID_LIKE?.includes('rhel')) {
+    if (os_release?.PLATFORM_ID?.startsWith('platform:el') || os_release.ID_LIKE?.includes('rhel')) {
         role_name = "rhel-system-roles";
     }
 

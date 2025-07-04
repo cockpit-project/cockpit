@@ -103,33 +103,33 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
         get_expire(user).then(setExpiration);
     }, [user, accounts]);
 
-    const [edited_real_name, set_edited_real_name] = useState(null);
-    const [committing_real_name, set_committing_real_name] = useState(false);
+    const [editedRealName, setEditedRealName] = useState(null);
+    const [comittingRealName, setCommittingRealName] = useState(false);
 
-    const [edited_locked, set_edited_locked] = useState(null);
+    const [editedLocked, setEditedLocked] = useState(null);
 
-    function change_real_name() {
-        if (edited_real_name === null || edited_real_name === undefined)
+    function changeRealName() {
+        if (editedRealName === null || editedRealName === undefined)
             return;
 
-        set_committing_real_name(true);
+        setCommittingRealName(true);
 
         // TODO: unwanted chars check
-        cockpit.spawn(["/usr/sbin/usermod", user, "--comment", edited_real_name],
+        cockpit.spawn(["/usr/sbin/usermod", user, "--comment", editedRealName],
                       { superuser: "try", err: "message" })
                 .then(() => {
-                    set_edited_real_name(null);
-                    set_committing_real_name(false);
+                    setEditedRealName(null);
+                    setCommittingRealName(false);
                 })
                 .catch(error => {
-                    set_edited_real_name(null);
-                    set_committing_real_name(false);
+                    setEditedRealName(null);
+                    setCommittingRealName(false);
                     show_unexpected_error(error);
                 });
     }
 
     function change_locked(value, dont_retry_if_stuck) {
-        set_edited_locked(value);
+        setEditedLocked(value);
 
         cockpit.spawn(["/usr/sbin/usermod", user, value ? "--lock" : "--unlock"],
                       { superuser: "require", err: "message" })
@@ -146,11 +146,11 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     // only retry once to avoid uncontrolled recursion
                                     change_locked(value, true);
                                 } else
-                                    set_edited_locked(null);
+                                    setEditedLocked(null)
                             });
                 })
                 .catch(error => {
-                    set_edited_locked(null);
+                    setEditedLocked(null);
                     show_unexpected_error(error);
                 });
     }
@@ -240,15 +240,15 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                 <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full name")}>
                                     { superuser.allowed
                                         ? <TextInput id="account-real-name"
-                                                     isDisabled={committing_real_name || account.uid == 0}
-                                                     value={edited_real_name !== null ? edited_real_name : account.gecos}
+                                                     isDisabled={comittingRealName || account.uid == 0}
+                                                     value={editedRealName !== null ? editedRealName : account.gecos}
                                                      onKeyDown={event => {
                                                          if (event.key == "Enter") {
                                                              event.target.blur();
                                                          }
                                                      }}
-                                                     onChange={(_event, value) => set_edited_real_name(value)}
-                                                     onBlur={() => change_real_name()} />
+                                                     onChange={(_event, value) => setEditedRealName(value)}
+                                                     onBlur={() => changeRealName()} />
                                         : <output id="account-real-name">{account.gecos}</output>}
                                 </FormGroup>
                                 <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>

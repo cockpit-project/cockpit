@@ -37,6 +37,14 @@
 
 %define __lib lib
 
+%if 0%{?suse_version} > 1500
+%define pamconfdir %{_pam_vendordir}
+%define pamconfig tools/cockpit.suse.pam
+%else
+%define pamconfdir %{_sysconfdir}/pam.d
+%define pamconfig tools/cockpit.pam
+%endif
+
 %if %{defined _pamdir}
 %define pamdir %{_pamdir}
 %else
@@ -155,15 +163,18 @@ BuildRequires:  python3-pytest-timeout
 %check
 make -j$(nproc) check
 
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 && 0%{?suse_version} == 0
 export NO_QUNIT=1
 %pytest
 %endif
 
 %install
+export NO_BRP_STALE_LINK_ERROR="yes"
 %make_install
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
-install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
+
+mkdir -p $RPM_BUILD_ROOT%{pamconfdir}
+install -p -m 644 %{pamconfig} $RPM_BUILD_ROOT%{pamconfdir}/cockpit
+
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
@@ -214,7 +225,17 @@ find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
 
 sed -i "s|%{buildroot}||" *.list
 
-%if ! 0%{?suse_version}
+%if 0%{?suse_version}
+# need this in SUSE as post build checks dislike stale symlinks
+install -m 644 -D /dev/null %{buildroot}/run/cockpit/issue
+test -e %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg
+test -e %{buildroot}/usr/share/cockpit/branding/sle-micro/apple-touch-icon.png  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/sle-micro/apple-touch-icon.png
+test -e %{buildroot}/usr/share/cockpit/branding/sle-micro/default-1920x1200.png || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/sle-micro/default-1920x1200.png
+# remove files of not installable packages
+rm -r %{buildroot}%{_datadir}/cockpit/sosreport
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit_project.cockpit_sosreport.metainfo.xml
+rm -f %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/cockpit-sosreport.png
+%else
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
 
@@ -335,6 +356,12 @@ Suggests: sssd-dbus >= 2.6.2
 # for cockpit-desktop
 Suggests: python3
 Obsoletes: cockpit-tests < 331
+%if 0%{?suse_version}
+Provides: group(cockpit-ws)
+Provides: group(cockpit-wsinstance)
+Provides: user(cockpit-ws)
+Provides: user(cockpit-wsinstance)
+%endif
 
 # prevent hard python3 dependency for cockpit-desktop, it falls back to other browsers
 %global __requires_exclude_from ^%{_libexecdir}/cockpit-client$
@@ -354,11 +381,15 @@ authentication via sssd/FreeIPA.
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
-%config(noreplace) %{_sysconfdir}/pam.d/cockpit
+%config(noreplace) %{pamconfdir}/cockpit
+
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue
 %ghost %{_sysconfdir}/motd.d/cockpit
 %ghost %attr(0644, root, root) %{_sysconfdir}/cockpit/disallowed-users
+%if 0%{?suse_version}
+%ghost /run/cockpit/issue
+%endif
 %dir %{_datadir}/cockpit/issue
 %{_datadir}/cockpit/issue/update-issue
 %{_datadir}/cockpit/issue/inactive.issue
@@ -474,7 +505,11 @@ SELinux policy module for the cockpit-ws package.
 Summary: Cockpit user interface for kernel crash dumping
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
+%if 0%{?suse_version}
+Requires: kexec-tools
+%else
 Requires: /usr/bin/kdumpctl
+%endif
 BuildArch: noarch
 
 %description kdump
@@ -484,6 +519,8 @@ The Cockpit component for configuring kernel crash dumping.
 %license COPYING
 %{_datadir}/metainfo/org.cockpit_project.cockpit_kdump.metainfo.xml
 
+# sosreport is not supported on opensuse yet
+%if !0%{?suse_version}
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
 Requires: cockpit-bridge >= %{required_base}
@@ -499,6 +536,7 @@ sosreport tool.
 %license COPYING
 %{_datadir}/metainfo/org.cockpit_project.cockpit_sosreport.metainfo.xml
 %{_datadir}/icons/hicolor/64x64/apps/cockpit-sosreport.png
+%endif
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
@@ -524,7 +562,10 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 Summary: Cockpit SELinux package
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-Requires: setroubleshoot-server >= 3.3.3
+# setroubleshoot is available on SLE Micro starting with 5.5
+%if !0%{?is_smo}  || ( 0%{?is_smo} && 0%{?sle_version} >= 150500 )
+Requires:       setroubleshoot-server >= 3.3.3
+%endif
 BuildArch: noarch
 
 %description selinux

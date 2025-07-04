@@ -717,10 +717,11 @@ class TestAccounts(testlib.MachineCase):
         #
         if m.ws_container:
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)
+            sshd_path = self.sshd_config_path
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' "
-                      "/etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
+                      f"{sshd_path} $(ls {sshd_path}.d/* 2>/dev/null || true)")
             m.execute("sed -i 's/.*KbdInteractiveAuthentication.*/KbdInteractiveAuthentication yes/' "
-                      "/etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
+                      f"{sshd_path} $(ls {sshd_path}.d/* 2>/dev/null || true)")
             m.execute(self.restart_sshd)
 
         b.wait_visible("#login")

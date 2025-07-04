@@ -356,13 +356,10 @@ $phone: 767px;
   }
 }
 
-/* FIXME: Temporary rework plain cards to make it look like how PF6 is designed, adding borders between sections */
-.pf-v6-c-card.pf-m-plain + .pf-v6-c-card.pf-m-plain,
-.pf-v6-l-stack__item + .pf-v6-l-stack__item > .pf-v6-c-card.pf-m-plain {
+// FIXME: Temporary rework table cards in mobile/small view to have row dividers between each row.
+.pf-v6-c-card.ct-small-table-card {
   border-block-start: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
   border-radius: var(--pf-t--global--border--radius--0);
-  margin-block: var(--pf-t--global--spacer--md);
-  padding-block-start: var(--pf-t--global--spacer--md);
 }
 
 

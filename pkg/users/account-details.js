@@ -96,12 +96,12 @@ function get_expire(name) {
             .then(parse_expire);
 }
 
-export function AccountDetails({ accounts, groups, current_user, user, shells }) {
+export function AccountDetails({ account, details, groups, isLoading, current_user, user, shells }) {
     const [expiration, setExpiration] = useState(null);
 
     useEffect(() => {
         get_expire(user).then(setExpiration);
-    }, [user, accounts]);
+    }, [user, account]);
 
     const [editedRealName, setEditedRealName] = useState(null);
     const [comittingRealName, setCommittingRealName] = useState(false);
@@ -145,8 +145,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     console.log("Account locked state doesn't match desired value, trying again.");
                                     // only retry once to avoid uncontrolled recursion
                                     change_locked(value, true);
-                                } else
-                                    setEditedLocked(null)
+                                }
                             });
                 })
                 .catch(error => {
@@ -164,15 +163,21 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                 .catch(show_unexpected_error);
     }
 
-    if (!accounts.length) {
+    // Whenever details change we can clear the locked flag
+    useEffect(
+        () => {
+            setEditedLocked(null);
+        },
+        [details],
+    );
+
+    if (isLoading) {
         return (
             <EmptyState headingLevel="h1" titleText={_("Loading...")} variant={EmptyStateVariant.sm}>
                 <EmptyStateFooter><Spinner size="xl" /></EmptyStateFooter>
             </EmptyState>
         );
     }
-
-    const account = accounts.find(acc => acc.name == user);
 
     if (!account) {
         return (
@@ -200,17 +205,17 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
         title_name = account.name;
 
     let last_login;
-    if (account.loggedIn)
+    if (details.loggedIn)
         last_login = _("Logged in");
-    else if (!account.lastLogin)
+    else if (!details.lastLogin)
         last_login = _("Never");
     else
-        last_login = timeformat.dateTime(new Date(account.lastLogin));
+        last_login = timeformat.dateTime(new Date(details.lastLogin));
 
     const actions = superuser.allowed && (
         <>
             <Button variant="secondary" onClick={() => logout_account()} id="account-logout"
-              isDisabled={!account.loggedIn || account.uid == 0 || user === current_user}>
+              isDisabled={!details.loggedIn || account.uid == 0 || user === current_user}>
                 {_("Terminate session")}
             </Button>
             { "\n" }
@@ -254,7 +259,7 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                 <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>
                                     <output id="account-user-name">{account.name}</output>
                                 </FormGroup>
-                                <AccountGroupsSelect key={account.name} loggedIn={account.loggedIn} name={account.name} groups={groups} />
+                                <AccountGroupsSelect key={account.name} loggedIn={details.loggedIn} name={account.name} groups={groups} />
                                 <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
                                     <output id="account-last-login">{last_login}</output>
                                 </FormGroup>
@@ -262,8 +267,9 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                                         <FlexItem spacer={{ default: 'spacerNone' }}>
                                             <Checkbox id="account-locked"
-                                                        isDisabled={!superuser.allowed || edited_locked != null || user == current_user || account.isLocked == null}
-                                                        isChecked={edited_locked != null ? edited_locked : account.isLocked}
+                                                        ouiaSafe={editedLocked === null}
+                                                        isDisabled={!superuser.allowed || editedLocked != null || user == current_user || details.isLocked == null}
+                                                        isChecked={editedLocked != null ? editedLocked : details.isLocked}
                                                         onChange={(_event, checked) => change_locked(checked)}
                                                         label={_("Disallow interactive password")} />
                                         </FlexItem>

@@ -129,7 +129,7 @@ function AccountsPage() {
             });
         else
             return [];
-    }, [accounts, details]);
+    }, [accounts, details]); // FIXME: We only want to update this when details is updated, not accounts
 
     const groupsExtraInfo = useMemo(() => sortGroups(
         (groups || []).map(group => {
@@ -164,8 +164,10 @@ function AccountsPage() {
             />
         );
     } else if (path.length === 1) {
+        const account = accounts?.find(account => account.name === path[0]);
+        const accountDetails = details?.[path[0]];
         return (
-            <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo}
+            <AccountDetails account={account} details={accountDetails} isLoading={accountsInfo.length === 0} groups={groupsExtraInfo}
                 current_user={current_user_info?.name} user={path[0]} shells={shells} />
         );
     } else return null;

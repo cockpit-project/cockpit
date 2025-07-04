@@ -1110,6 +1110,7 @@ class OsUpdates extends React.Component {
         const restartPackages = { reboot: [], daemons: [], manual: [] };
 
         // needs-restarting has no machine-readable API: https://issues.redhat.com/browse/RHEL-56139
+        // dnf5 needs-restarting also has no machine-readable API: https://github.com/rpm-software-management/dnf5/issues/2341
         // --exclude-services was added much later, so check that first
         return cockpit.spawn(["dnf", "needs-restarting", "--exclude-services"], { err: "message", superuser: "require" })
                 .then(outManual => {

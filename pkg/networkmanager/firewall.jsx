@@ -149,6 +149,10 @@ function serviceRow(props) {
 }
 
 function portRow(props) {
+    function onRemovePort(event) {
+        props.zone.ports.forEach(port => props.onRemovePort(port));
+        event.stopPropagation();
+    }
     const columns = [
         {
             title: <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>
@@ -165,6 +169,8 @@ function portRow(props) {
                     .map(p => p.port)
                     .join(", ")
         },
+
+        { title: <DeleteDropdown items={[{ text: _("Delete"), danger: true, ariaLabel: "Remove additional ports", handleClick: onRemovePort }]} /> }
     ];
     return ({
         props: { key: props.zone.id + "-ports", 'data-row-id': props.zone.id + "-ports" },
@@ -259,6 +265,7 @@ function ZoneSection(props) {
                                       ? portRow({
                                           key: props.zone.id + "-ports",
                                           zone: props.zone,
+                                          onRemovePort: port => props.onRemovePort(props.zone.id, port.port, port.protocol),
                                           readonly: firewall.readonly
                                       })
                                       : [])
@@ -1022,6 +1029,10 @@ export class Firewall extends React.Component {
         }
     }
 
+    onRemovePort(zone, port, protocol) {
+        firewall.removePort(zone, port, protocol);
+    }
+
     onEditService(zone, service) {
         const tcp_ports = [];
         const udp_ports = [];
@@ -1114,7 +1125,8 @@ export class Firewall extends React.Component {
                                                         readonly={this.state.firewall.readonly}
                                                         onRemoveZone={this.onRemoveZone}
                                                         onEditService={this.onEditService}
-                                                        onRemoveService={this.onRemoveService} />
+                                                        onRemoveService={this.onRemoveService}
+                                                        onRemovePort={this.onRemovePort} />
                             )
                         }
                     </Stack> }

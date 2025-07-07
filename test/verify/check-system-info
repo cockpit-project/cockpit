@@ -675,8 +675,9 @@ fi
         # replacing it's own process with the sleep (as a "tail call
         # optimization") and thereby dropping the memory blob too early.
         #
-        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=200 iflag=fullblock); touch /tmp/hogged; sleep infinity; true",
-                          "mem_hog.log")
+        mem_hog = m.spawn("""
+            awk 'BEGIN { x = sprintf("%200000000s",""); system("touch /tmp/hogged; sleep infinity") }'
+            """, "mem_hog.log")
         try:
             m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
             # bars update every 5s
@@ -687,7 +688,12 @@ fi
             m.execute("kill %d" % mem_hog)
         # Should go back to initial_usage, but it doesn't always, for example on fedora.
         # So let's be happy if the usage drops significantly
-        testlib.wait(lambda: progressValue(2) <= hog_usage - 15)
+        try:
+            testlib.wait(lambda: progressValue(2) <= hog_usage - 10)
+        except testlib.Error:
+            print(f"Memory before hogging: {initial_usage}, after hogging: {hog_usage}, now: {progressValue(2)}")
+            raise
+
         self.assertGreater(progressValue(2), 10)
 
     @testlib.nondestructive

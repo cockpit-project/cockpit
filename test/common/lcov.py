@@ -475,6 +475,23 @@ def prepare_for_code_coverage():
         subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", branch], stdout=f)
 
 
+def limit_comments(comments: list[dict[str, str]]) -> tuple[list[dict[str, str]], str]:
+    """Limit the number of code coverage comments to 10, if there are more add a link to the full report"""
+
+    if len(comments) <= 10:
+        return comments, ""
+
+    log_url = os.environ.get("COCKPIT_CI_LOG_URL", None)
+    if log_url is not None:
+        base_url = os.path.dirname(log_url)
+        coverage_report = f"{base_url}/Coverage/lcov/github-pr.diff.gcov.html"
+        report_link_comment = f"There are more than 10 code coverage comments, see [the full report here]({coverage_report})."
+    else:
+        report_link_comment = ""
+
+    return comments[:10], report_link_comment
+
+
 def create_coverage_report() -> None:
     output = os.environ.get("TEST_ATTACHMENTS", BASE_DIR)
     lcov_files = glob.glob(f"{BASE_DIR}/lcov/*.info.gz")
@@ -503,7 +520,7 @@ def create_coverage_report() -> None:
         if match:
             print("Overall line coverage:", match.group(1))
 
-        comments = get_review_comments(diff_file)
+        comments, review_body = limit_comments(get_review_comments(diff_file))
         rev = os.environ.get("TEST_REVISION", None)
         pull = os.environ.get("TEST_PULL", None)
         if rev and pull:
@@ -516,6 +533,6 @@ def create_coverage_report() -> None:
             if len(comments) > 0:
                 api.post(f"pulls/{pull}/reviews",
                          {"commit_id": rev, "event": "COMMENT",
-                          "comments": comments})
+                          "comments": comments, "body": review_body})
     else:
         sys.stderr.write("Error: no code coverage files generated\n")

@@ -173,9 +173,7 @@ export function install_dialog(pkg, options) {
                 });
     }
 
-    function install_missing() {
-        // We need to return a Cockpit flavoured promise since we want
-        // to use progress notifications.
+    function install_missing(progress_cb) {
         const dfd = cockpit.defer();
 
         PK.install_missing_packages(data,
@@ -193,7 +191,7 @@ export function install_dialog(pkg, options) {
                                                 fmt = _("Installing $0");
                                             text = format_to_fragments(fmt, <strong>{p.package}</strong>);
                                         }
-                                        dfd.notify(text, p.cancel);
+                                        progress_cb(text, p.cancel);
                                     })
                 .then(() => {
                     dfd.resolve();

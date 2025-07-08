@@ -141,6 +141,11 @@ class TestSelinux(testlib.MachineCase):
         b.wait_not_present(row_selector)
         # unbreak sebool, and trigger the error again
         m.execute(f"chmod a+x {sebool_path}; rm -r ~admin/public_html")
+        if m.image.startswith("rhel-8"):
+            # HACK: RHEL 8's setroubleshootd sometimes misses the second alert
+            m.execute("systemctl restart setroubleshootd")
+            b.reload()
+            b.enter_page("/selinux")
         self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
         with b.wait_timeout(60):
             b.wait_visible(row_selector)

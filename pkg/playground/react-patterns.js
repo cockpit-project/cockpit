@@ -40,33 +40,41 @@ import { showMultiTypeaheadDemo } from "./react-demo-multi-typeahead.jsx";
 
 let lastAction = "";
 
-const onDialogStandardClicked = function(mode) {
+const onDialogStandardClicked = function(mode, progress_cb) {
     lastAction = mode;
-    const dfd = cockpit.defer();
-    dfd.notify("Starting something long");
+    let myResolve, myReject;
+    const promise = new Promise((resolve, reject) => {
+        myResolve = resolve;
+        myReject = reject;
+    });
+
+    cockpit.assert(myResolve !== undefined);
+    cockpit.assert(myReject !== undefined);
+
+    progress_cb("Starting something long");
     if (mode == 'steps') {
+        const cancel = function() {
+            window.clearTimeout(interval);
+            progress_cb("Canceling");
+            window.setTimeout(function() {
+                myReject("Action canceled");
+            }, 1000);
+        };
         let count = 0;
         const interval = window.setInterval(function() {
             count += 1;
-            dfd.notify("Step " + count);
+            progress_cb("Step " + count, cancel);
         }, 500);
         window.setTimeout(function() {
             window.clearTimeout(interval);
-            dfd.resolve();
+            myResolve();
         }, 5000);
-        dfd.promise.cancel = function() {
-            window.clearTimeout(interval);
-            dfd.notify("Canceling");
-            window.setTimeout(function() {
-                dfd.reject("Action canceled");
-            }, 1000);
-        };
     } else if (mode == 'reject') {
-        dfd.reject("Some error occurred");
+        myReject("Some error occurred");
     } else {
-        dfd.resolve();
+        myResolve();
     }
-    return dfd.promise;
+    return promise;
 };
 
 const onDialogDone = function(success) {

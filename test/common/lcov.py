@@ -421,7 +421,6 @@ def get_review_comments(diff_info_file):
     def flush_cur_comment():
         nonlocal comments
         if cur_src:
-            ta_url = os.environ.get("TEST_ATTACHMENTS_URL", None)
             comment = {"path": cur_src,
                        "line": cur_line}
             if start_line != cur_line:
@@ -429,8 +428,9 @@ def get_review_comments(diff_info_file):
                 body = f"These {cur_line - start_line + 1} added lines are not executed by any test."
             else:
                 body = "This added line is not executed by any test."
-            if ta_url:
-                body += f"  [Details]({ta_url}/Coverage/lcov/github-pr.diff.gcov.html)"
+            log_url = os.environ.get("COCKPIT_CI_LOG_URL", None)
+            if log_url is not None:
+                body += f"  [Details]({os.path.dirname(log_url)}/Coverage/lcov/github-pr.diff.gcov.html)"
             comment["body"] = body
             comments.append(comment)
 

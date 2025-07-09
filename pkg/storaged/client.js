@@ -1066,7 +1066,10 @@ function init_model(callback) {
                 query_fsys_info().then((fsys_info) => {
                     client.fsys_info = fsys_info;
 
-                    client.storaged_client.addEventListener('notify', () => client.update());
+                    client.storaged_client.addEventListener('notify', data => {
+                        console.log("XXX udisks client notify", JSON.stringify(data));
+                        client.update();
+                    });
 
                     update_indices();
                     cockpit.addEventListener("visibilitychange", () => update_lvm2_polling(true));

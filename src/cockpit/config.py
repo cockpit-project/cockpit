@@ -51,14 +51,14 @@ class Config(bus.Object, interface='cockpit.Config'):
         self.reload()
 
     @bus.Interface.Method(out_types='s', in_types='ss')
-    def get_string(self, section, key):
+    def get_string(self, section: str, key: str) -> str:
         try:
             return self.config[section][key]
         except KeyError as exc:
             raise bus.BusError('cockpit.Config.KeyError', f'key {key} in section {section} does not exist') from exc
 
     @bus.Interface.Method(out_types='u', in_types='ssuuu')
-    def get_u_int(self, section, key, default, maximum, minimum):
+    def get_u_int(self, section: str, key: str, default: int, maximum: int, minimum: int) -> int:
         try:
             value = self.config[section][key]
         except KeyError:
@@ -90,5 +90,5 @@ class Environment(bus.Object, interface='cockpit.Environment'):
     variables = bus.Interface.Property('a{ss}')
 
     @variables.getter
-    def get_variables(self):
+    def get_variables(self) -> 'dict[str, str]':
         return os.environ.copy()

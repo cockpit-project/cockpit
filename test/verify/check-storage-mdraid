@@ -26,27 +26,27 @@ import testlib
 @testlib.nondestructive
 class TestStorageMdRaid(storagelib.StorageCase):
 
-    def wait_states(self, states):
+    def wait_states(self, states: dict[str, str]):
         for s in states.keys():
             with self.browser.wait_timeout(30):
                 self.browser.wait_in_text(self.card_row("MDRAID device", name=s), states[s])
 
-    def raid_add_disk(self, name):
+    def raid_add_disk(self, name: str):
         self.dialog_open_with_retry(trigger=lambda: self.browser.click(self.card_button("MDRAID device", "Add disk")),
                                     expect=lambda: self.dialog_is_present('disks', name))
         self.dialog_set_val("disks", {name: True})
         self.dialog_apply_with_retry()
 
-    def raid_remove_disk(self, name):
+    def raid_remove_disk(self, name: str):
         self.click_dropdown(self.card_row("MDRAID device", name=name), "Remove")
 
-    def raid_action(self, action):
+    def raid_action(self, action: str):
         self.browser.click(self.card_button("MDRAID device", action))
 
-    def raid_default_action_start(self, action):
+    def raid_default_action_start(self, action: str):
         self.raid_action(action)
 
-    def raid_default_action_finish(self, action):
+    def raid_default_action_finish(self, action: str):
         if action == "Stop":
             # Right after assembling an array the device might be busy
             # from udev rules probing or the mdadm monitor; retry a
@@ -70,7 +70,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
             else:
                 self.fail("Timed out waiting for array to get stopped")
 
-    def raid_default_action(self, action):
+    def raid_default_action(self, action: str):
         self.raid_default_action_start(action)
         self.raid_default_action_finish(action)
 
@@ -127,7 +127,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
                           disk2: "In sync",
                           disk3: "In sync"})
 
-        def wait_degraded_state(is_degraded):
+        def wait_degraded_state(is_degraded: bool):
             degraded_selector = ".pf-v6-c-alert h4"
             if is_degraded:
                 b.wait_in_text(degraded_selector, 'The MDRAID device is in a degraded state')

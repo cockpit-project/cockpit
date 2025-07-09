@@ -47,7 +47,7 @@ def lookup_config(filename: str) -> Path:
 
 
 class Config(bus.Object, interface='cockpit.Config'):
-    def __init__(self):
+    def __init__(self) -> None:
         self.reload()
 
     @bus.Interface.Method(out_types='s', in_types='ss')
@@ -73,7 +73,7 @@ class Config(bus.Object, interface='cockpit.Config'):
         return min(max(int_val, minimum), maximum)
 
     @bus.Interface.Method()
-    def reload(self):
+    def reload(self) -> None:
         self.config = configparser.ConfigParser(interpolation=None)
         cockpit_conf = lookup_config('cockpit.conf')
         logger.debug("cockpit.Config: loading %s", cockpit_conf)

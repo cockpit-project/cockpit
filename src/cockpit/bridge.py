@@ -199,7 +199,7 @@ async def run(args) -> None:
         pass
 
 
-def try_to_receive_stderr():
+def try_to_receive_stderr() -> None:
     try:
         ours, theirs = socket.socketpair()
         with ours:

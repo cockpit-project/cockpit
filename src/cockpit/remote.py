@@ -228,6 +228,6 @@ class HostRoutingRule(RoutingRule):
 
         return self.remotes[key]
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         for peer in set(self.remotes.values()):
             peer.close()

@@ -92,7 +92,7 @@ class ChannelRoutingRule(RoutingRule):
         else:
             return None
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         pass  # we don't hold any state
 
 

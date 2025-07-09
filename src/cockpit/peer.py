@@ -279,10 +279,10 @@ class PeerRoutingRule(RoutingRule):
 
         return self.peer
 
-    def peer_closed(self):
+    def peer_closed(self) -> None:
         self.peer = None
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         if self.peer is not None:
             self.peer.close()
 
@@ -325,6 +325,6 @@ class PeersRoutingRule(RoutingRule):
         for rule in old_rules:
             rule.shutdown()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         for rule in self.rules:
             rule.shutdown()

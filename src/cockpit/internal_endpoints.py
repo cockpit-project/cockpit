@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 class cockpit_LoginMessages(bus.Object):
     messages: Optional[str] = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         fdstr = os.environ.pop('COCKPIT_LOGIN_MESSAGES_MEMFD', None)
         if fdstr is None:
             logger.debug("COCKPIT_LOGIN_MESSAGES_MEMFD wasn't set.  No login messages today.")
@@ -60,7 +60,7 @@ class cockpit_LoginMessages(bus.Object):
         return self.messages or '{}'
 
     @bus.Interface.Method(out_types=[])
-    def dismiss(self):
+    def dismiss(self) -> None:
         self.messages = None
 
 
@@ -107,8 +107,8 @@ class cockpit_Machines(bus.Object):
         with open(self.path.joinpath(filename), 'w') as fp:
             json.dump(contents, fp, indent=2)
 
-    def notify(self):
-        def _notify_now():
+    def notify(self) -> None:
+        def _notify_now() -> None:
             self.properties_changed('cockpit.Machines', {}, ['Machines'])
             self.pending_notify = None
 
@@ -141,7 +141,7 @@ class cockpit_User(bus.Object):
     shell = bus.Interface.Property('s', value='')
     groups = bus.Interface.Property('as', value=[])
 
-    def __init__(self):
+    def __init__(self) -> None:
         user = pwd.getpwuid(os.getuid())
         self.name = user.pw_name
         self.full = user.pw_gecos

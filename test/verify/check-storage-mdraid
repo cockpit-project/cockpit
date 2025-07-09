@@ -122,9 +122,13 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.dialog_wait_close()
 
         self.click_card_row("Storage", name="/dev/md/raid0")
+        print("XXXX mdstat")
         print(m.execute("cat /proc/mdstat"))
-        m.execute("until grep -v 'recovery' /proc/mdstat; do sleep 1; done")
+        print("XXXX waiting for recovery")
+        m.execute("set -ex; while grep 'recovery' /proc/mdstat; do sleep 1; done")
+        print("XXXX mdstat")
         print(m.execute("cat /proc/mdstat"))
+        print("XXXX udisks")
         print(m.execute("udisksctl dump"))
         self.wait_states({disk1: "In sync",
                           disk2: "In sync",

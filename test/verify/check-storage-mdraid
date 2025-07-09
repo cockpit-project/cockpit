@@ -81,7 +81,12 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add four disks and make a RAID out of three of them
-        disk1 = self.add_ram_disk()
+        # HACK: on CentOS 9 aarch64 (only!), scsi_debug doesn't like being part of a RAID
+        # see https://github.com/cockpit-project/cockpit/pull/22143
+        if m.image.startswith('centos-9') and m.execute("uname -m").strip() == "aarch64":
+            disk1 = self.add_loopback_disk(name="loop4")
+        else:
+            disk1 = self.add_ram_disk()
         b.wait_visible(self.card_row("Storage", name=disk1))
         disk2 = self.add_loopback_disk(name="loop5")
         b.wait_visible(self.card_row("Storage", name=disk2))
@@ -274,7 +279,12 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk1 = self.add_ram_disk()
+        # HACK: on CentOS 9 aarch64 (only!), scsi_debug doesn't like being part of a RAID
+        # see https://github.com/cockpit-project/cockpit/pull/22143
+        if m.image.startswith('centos-9') and m.execute("uname -m").strip() == "aarch64":
+            disk1 = self.add_loopback_disk()
+        else:
+            disk1 = self.add_ram_disk()
         b.wait_visible(self.card_row("Storage", name=disk1))
         disk2 = self.add_loopback_disk()
         b.wait_visible(self.card_row("Storage", name=disk2))

@@ -191,8 +191,7 @@ def build_install_container(dist_tar, image, verbose, quick):
     any installed cockpit packages.
     """
     # this needs to be the image that corresponds to the actual cockpit/ws container
-    # parse from containers/ws/Dockerfile
-    with open(os.path.join(BASE_DIR, "containers/ws/Dockerfile")) as f:
+    with open(os.path.join(BASE_DIR, "containers/ws/Containerfile")) as f:
         for line in f:
             if line.startswith("FROM"):
                 fedora_version = line.split('fedora:')[1].split()[0]

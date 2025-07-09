@@ -130,6 +130,10 @@ class TestStorageMdRaid(storagelib.StorageCase):
         print(m.execute("cat /proc/mdstat"))
         print("XXXX udisks")
         print(m.execute("udisksctl dump"))
+
+        b.reload()
+        b.enter_page("/storage")
+
         self.wait_states({disk1: "In sync",
                           disk2: "In sync",
                           disk3: "In sync"})

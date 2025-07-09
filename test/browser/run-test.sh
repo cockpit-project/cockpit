@@ -207,6 +207,7 @@ done
 GATEWAY="$(python3 -c 'import socket; print(socket.gethostbyname("_gateway"))')"
 RC=0
 ./test/common/run-tests \
+    -vt \
     --test-dir test/verify \
     --nondestructive \
     --machine "${GATEWAY}":22 \

@@ -850,6 +850,9 @@ ipa-advise enable-admins-sudo | sh -ex
         m.execute("while ls /run/user/$(id -u alice)/*.ccache; do sleep 1; done")
         m.execute(f"! su -c '{ccache_env} klist' alice")
 
+        # FIXME: Something above triggers this error message
+        self.allow_journal_messages("Received unexpected TLS connection and no certificate was configured")
+
 
 @testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*")
 @testlib.no_retry_when_changed

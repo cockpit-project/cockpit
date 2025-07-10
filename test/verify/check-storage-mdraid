@@ -81,7 +81,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add four disks and make a RAID out of three of them
-        disk1 = self.add_loopback_disk(name="loop4")
+        disk1 = self.add_ram_disk()
         b.wait_visible(self.card_row("Storage", name=disk1))
         disk2 = self.add_loopback_disk(name="loop5")
         b.wait_visible(self.card_row("Storage", name=disk2))

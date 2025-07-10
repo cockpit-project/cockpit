@@ -31,6 +31,8 @@ jobs:
     targets: &test_targets
       - centos-stream-9-x86_64
       - centos-stream-9-aarch64
+      - fedora-latest-aarch64
+      - fedora-42
 
   # current Fedora runs reverse dependency testing against https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/
   - job: tests

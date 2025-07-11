@@ -40,7 +40,7 @@ class InternalMetricsChannel(AsyncChannel):
     restrictions = [('source', 'internal')]
 
     metrics: List[MetricInfo]
-    samplers: Set
+    samplers: Set[Sampler]
     samplers_cache: Optional[Dict[str, Tuple[Type[Sampler], SampleDescription]]] = None
 
     interval: int = 1000
@@ -89,7 +89,7 @@ class InternalMetricsChannel(AsyncChannel):
 
         self.samplers = {cls() for cls in sampler_classes}
 
-    def send_meta(self, samples: Samples, timestamp: float):
+    def send_meta(self, samples: Samples, timestamp: float) -> None:
         metrics: JsonList = []
         for metricinfo in self.metrics:
             if metricinfo.desc.instanced:
@@ -102,7 +102,7 @@ class InternalMetricsChannel(AsyncChannel):
             else:
                 metrics.append({
                     'name': metricinfo.desc.name,
-                    'derive': metricinfo.derive,  # type: ignore[dict-item]
+                    'derive': metricinfo.derive,
                     'units': metricinfo.desc.units,
                     'semantics': metricinfo.desc.semantics
                 })
@@ -124,7 +124,7 @@ class InternalMetricsChannel(AsyncChannel):
         else:
             return False
 
-    def send_updates(self, samples: Samples, last_samples: Samples):
+    def send_updates(self, samples: Samples, last_samples: Samples) -> None:
         data: List[Union[float, List[Optional[Union[float, bool]]]]] = []
         timestamp = time.time()
         self.next_timestamp = timestamp

@@ -149,7 +149,7 @@ class PcpMetricsChannel(AsyncChannel):
     last_results: 'pmapi.pmResult | None' = None
     metric_descriptions: List[MetricInfo]
 
-    def parse_options(self, options: JsonObject):
+    def parse_options(self, options: JsonObject) -> None:
         self.archive_batch = 60
         self.last_timestamp = 0
         self.next_timestamp = 0
@@ -209,7 +209,7 @@ class PcpMetricsChannel(AsyncChannel):
 
         return (name, context_type)
 
-    def get_archives(self, name: str) -> Iterable[ArchiveInfo]:
+    def get_archives(self, name: str) -> Sequence[ArchiveInfo]:
         archives = sorted(self.prepare_archives(name), key=ArchiveInfo.sort_key)
 
         if len(archives) == 0:
@@ -304,7 +304,7 @@ class PcpMetricsChannel(AsyncChannel):
                           instanced=instanced)
 
     @staticmethod
-    def try_convert_unit(context, pm_desc, pm_units) -> None:
+    def try_convert_unit(context: 'pmapi.pmContext', pm_desc: 'pmapi.pmDesc', pm_units: 'pmapi.pmUnits') -> None:
         """Try to convert a dummy value to validate that the metric is convertible"""
         dummy = pmapi.pmAtomValue()
         dummy.d = 0.0
@@ -495,7 +495,8 @@ class PcpMetricsChannel(AsyncChannel):
 
         return samples
 
-    def build_sample(self, context, results, metric_desc: MetricInfo, metric: int, instance: int) -> Optional[float]:
+    def build_sample(self, context: 'pmapi.pmContext', results: Any, metric_desc: MetricInfo,
+                     metric: int, instance: int) -> 'float | None':
         pmid = results.contents.get_pmid(metric)
         logger.debug("build_sample pmid=%d, metric=%d, instance=%d", pmid, metric, instance)
 
@@ -609,7 +610,7 @@ class PcpMetricsChannel(AsyncChannel):
 
         self.send_data(json.dumps(data).encode())
 
-    def sample_archives(self, archives):
+    def sample_archives(self, archives: 'Sequence[ArchiveInfo]') -> None:
         total_fetched = 0
         for i, archive in enumerate(archives):
             # Set metric_descriptions to the current archive

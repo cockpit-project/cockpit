@@ -37,7 +37,7 @@ const DnfPage = ({ exists }) => {
     const cancelRefreshDatabase = () => {
         setRefreshing(false);
     };
-    console.log(events);
+    console.log("events", events);
 
     return (
         <Page id="accounts" className='no-masthead-sidebar'>

@@ -113,9 +113,8 @@ export async function check_missing_packages(names, progress_cb) {
 
     // TODO: decorator / helper for opening a session?
     let session;
-    dbus_client().addEventListener("notify", (event, data) => console.log("notify", event, data));
-    const subscription = _dbus_client.subscribe({ }, signal_emitted);
-    console.log(subscription);
+    const client = dbus_client();
+    const subscription = client.subscribe({}, signal_emitted);
 
     try {
         [session] = await open_session();
@@ -132,6 +131,9 @@ export async function check_missing_packages(names, progress_cb) {
             await close_session(session);
         console.warn(err);
     }
+
+    console.log(subscription);
+    subscription.remove();
 
     return data;
 }

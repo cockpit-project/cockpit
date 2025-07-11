@@ -123,3 +123,16 @@
 output {
   direction: ltr;
 }
+
+/* Adjust the vertical alignment in the expandable card */
+.card-groups {
+  .pf-v6-c-card__header-toggle {
+    /* Remove the margin completely so it aligns the toggle with the h2 */
+    margin-block: 0;
+  }
+
+  .pf-v6-c-content--h2 {
+    /* Heading inside of the card brings in extra margin, which causes an offset, so we should remove it */
+    margin: 0;
+  }
+}

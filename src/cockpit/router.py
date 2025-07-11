@@ -48,7 +48,7 @@ class ExecutionQueue:
         # and therefore doesn't receive a self parameter
         setattr(method.__self__, method.__func__.__name__, lambda *args: self.queue.append((method, args)))
 
-    def run(self):
+    def run(self) -> None:
         logger.debug('ExecutionQueue: Running %d queued method calls', len(self.queue))
         for method, args in self.queue:
             method(*args)
@@ -65,19 +65,19 @@ class Endpoint:
         router.add_endpoint(self)
         self.router = router
 
-    def freeze_endpoint(self):
+    def freeze_endpoint(self) -> None:
         assert self.__endpoint_frozen_queue is None
         logger.debug('Freezing endpoint %s', self)
         self.__endpoint_frozen_queue = ExecutionQueue({self.do_channel_control, self.do_channel_data, self.do_kill})
 
-    def thaw_endpoint(self):
+    def thaw_endpoint(self) -> None:
         assert self.__endpoint_frozen_queue is not None
         logger.debug('Thawing endpoint %s', self)
         self.__endpoint_frozen_queue.run()
         self.__endpoint_frozen_queue = None
 
     # interface for receiving messages
-    def do_close(self):
+    def do_close(self) -> None:
         raise NotImplementedError
 
     def do_channel_control(self, channel: str, command: str, message: JsonObject) -> None:
@@ -126,7 +126,7 @@ class RoutingRule:
         """
         raise NotImplementedError
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         raise NotImplementedError
 
 

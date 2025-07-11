@@ -173,36 +173,24 @@ export function install_dialog(pkg, options) {
                 });
     }
 
-    function install_missing() {
-        // We need to return a Cockpit flavoured promise since we want
-        // to use progress notifications.
-        const dfd = cockpit.defer();
-
-        PK.install_missing_packages(data,
-                                    p => {
-                                        let text = null;
-                                        if (p.waiting) {
-                                            text = _("Waiting for other software management operations to finish");
-                                        } else if (p.package) {
-                                            let fmt;
-                                            if (p.info == PK.Enum.INFO_DOWNLOADING)
-                                                fmt = _("Downloading $0");
-                                            else if (p.info == PK.Enum.INFO_REMOVING)
-                                                fmt = _("Removing $0");
-                                            else
-                                                fmt = _("Installing $0");
-                                            text = format_to_fragments(fmt, <strong>{p.package}</strong>);
-                                        }
-                                        dfd.notify(text, p.cancel);
-                                    })
-                .then(() => {
-                    dfd.resolve();
-                })
-                .catch(error => {
-                    dfd.reject(error);
-                });
-
-        return dfd.promise;
+    function install_missing(progress_cb) {
+        return PK.install_missing_packages(data,
+                                           p => {
+                                               let text = null;
+                                               if (p.waiting) {
+                                                   text = _("Waiting for other software management operations to finish");
+                                               } else if (p.package) {
+                                                   let fmt;
+                                                   if (p.info == PK.Enum.INFO_DOWNLOADING)
+                                                       fmt = _("Downloading $0");
+                                                   else if (p.info == PK.Enum.INFO_REMOVING)
+                                                       fmt = _("Removing $0");
+                                                   else
+                                                       fmt = _("Installing $0");
+                                                   text = format_to_fragments(fmt, <strong>{p.package}</strong>);
+                                               }
+                                               progress_cb(text, p.cancel);
+                                           });
     }
 
     update();

@@ -431,7 +431,7 @@ class SshBridge(Router):
         self.ssh_peer = SshPeer(self, args.destination, args)
         rule.peer = self.ssh_peer
 
-    def do_send_init(self):
+    def do_send_init(self) -> None:
         pass  # wait for the peer to do it first
 
     def do_init(self, message):

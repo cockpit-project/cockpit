@@ -47,18 +47,18 @@ def lookup_config(filename: str) -> Path:
 
 
 class Config(bus.Object, interface='cockpit.Config'):
-    def __init__(self):
+    def __init__(self) -> None:
         self.reload()
 
     @bus.Interface.Method(out_types='s', in_types='ss')
-    def get_string(self, section, key):
+    def get_string(self, section: str, key: str) -> str:
         try:
             return self.config[section][key]
         except KeyError as exc:
             raise bus.BusError('cockpit.Config.KeyError', f'key {key} in section {section} does not exist') from exc
 
     @bus.Interface.Method(out_types='u', in_types='ssuuu')
-    def get_u_int(self, section, key, default, maximum, minimum):
+    def get_u_int(self, section: str, key: str, default: int, maximum: int, minimum: int) -> int:
         try:
             value = self.config[section][key]
         except KeyError:
@@ -73,7 +73,7 @@ class Config(bus.Object, interface='cockpit.Config'):
         return min(max(int_val, minimum), maximum)
 
     @bus.Interface.Method()
-    def reload(self):
+    def reload(self) -> None:
         self.config = configparser.ConfigParser(interpolation=None)
         cockpit_conf = lookup_config('cockpit.conf')
         logger.debug("cockpit.Config: loading %s", cockpit_conf)
@@ -90,5 +90,5 @@ class Environment(bus.Object, interface='cockpit.Environment'):
     variables = bus.Interface.Property('a{ss}')
 
     @variables.getter
-    def get_variables(self):
+    def get_variables(self) -> 'dict[str, str]':
         return os.environ.copy()

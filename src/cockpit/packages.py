@@ -484,7 +484,7 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         self.manifests = json.dumps({name: dict(package.manifest) for name, package in self.packages.items()})
         logger.debug('Packages loaded: %s', list(self.packages))
 
-    def show(self):
+    def show(self) -> None:
         for name in sorted(self.packages):
             package = self.packages[name]
             menuitems = []
@@ -505,13 +505,13 @@ class Packages(bus.Object, interface='cockpit.Packages'):
     manifests = bus.Interface.Property('s', value="{}")
 
     @bus.Interface.Method()
-    def reload(self):
+    def reload(self) -> None:
         self.load()
         if self.listener is not None:
             self.listener.packages_loaded()
 
     @bus.Interface.Method()
-    def reload_hint(self):
+    def reload_hint(self) -> None:
         if self.saw_first_reload_hint:
             self.reload()
         self.saw_first_reload_hint = True

@@ -183,7 +183,7 @@ export const LogsPage = () => {
     return (
         <Page className='no-masthead-sidebar'>
             <PageSection hasBodyWrapper={false} id="journal" className="journal-filters">
-                <Toolbar>
+                <Toolbar hasNoPadding>
                     <ToolbarContent>
                         <ToolbarToggleGroup className="pf-v6-u-flex-wrap pf-v6-u-flex-grow-1 pf-v6-u-align-items-flex-start" toggleIcon={<><span className="pf-v6-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="lg">
                             <ToolbarGroup>

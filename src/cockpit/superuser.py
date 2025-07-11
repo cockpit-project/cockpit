@@ -164,7 +164,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         if privileged or os.getuid() == 0:
             self.current = 'root'
 
-    def peer_done(self):
+    def peer_done(self) -> None:
         self.current = 'none'
         self.peer = None
 
@@ -209,12 +209,12 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
                 logger.debug("  stopping superuser bridge '%s': it disappeared from configs", self.peer.config.name)
                 self.stop()
 
-    def cancel_prompt(self):
+    def cancel_prompt(self) -> None:
         if self.pending_prompt is not None:
             self.pending_prompt.cancel()
             self.pending_prompt = None
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.cancel_prompt()
 
         if self.peer is not None:

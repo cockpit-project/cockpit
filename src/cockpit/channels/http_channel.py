@@ -69,8 +69,7 @@ class HttpChannel(AsyncChannel):
                 context.check_hostname = False
                 context.verify_mode = ssl.VerifyMode.CERT_NONE
 
-            # See https://github.com/python/typeshed/issues/11057
-            return http.client.HTTPSConnection(opt_address, port=opt_port, context=context)  # type: ignore[arg-type]
+            return http.client.HTTPSConnection(opt_address, port=opt_port, context=context)
 
         else:
             return http.client.HTTPConnection(opt_address, port=opt_port)

@@ -49,7 +49,7 @@ class InternalMetricsChannel(AsyncChannel):
     next_timestamp: float = 0
 
     @classmethod
-    def ensure_samplers(cls):
+    def ensure_samplers(cls) -> None:
         if cls.samplers_cache is None:
             cls.samplers_cache = {desc.name: (sampler, desc) for sampler in SAMPLERS for desc in sampler.descriptions}
 

@@ -10,7 +10,7 @@ class Bootloader:
     checksum = None
     source = None
 
-    def start(self, name, version, checksum, size):
+    def start(self, name: str, version: str, checksum: str, size: int) -> None:
         self.version = version
         self.checksum = checksum
 

@@ -117,7 +117,7 @@ class InterfaceCache:
         self.cache = {}
         self.old = set()  # Interfaces already returned by get_interface_if_new
 
-    def inject(self, interfaces):
+    def inject(self, interfaces) -> None:
         self.cache.update(interfaces)
 
     async def introspect_path(self, bus, destination, object_path):
@@ -255,7 +255,7 @@ class DBusChannel(Channel):
         self.watch_processing_lock = asyncio.Lock()
 
         if self.name is not None:
-            async def get_ready():
+            async def get_ready() -> None:
                 async with self.watch_processing_lock:
                     await self.setup_name_owner_tracking()
                     if self.owner:

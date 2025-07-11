@@ -17,7 +17,7 @@
 
 import logging
 import lzma
-from typing import List, Sequence, Tuple
+from typing import Sequence, Tuple
 
 from cockpit._vendor import ferny
 from cockpit._vendor.bei import beipack
@@ -58,7 +58,7 @@ class BridgeBeibootHelper(ferny.InteractionHandler):
         self.payload = payload
         self.steps = (('boot_xz', (filename, len(payload), tuple(args))),)
 
-    async def run_command(self, command: str, args: Tuple, fds: List[int], stderr: str) -> None:
+    async def run_command(self, command: str, args: 'tuple[object, ...]', fds: 'list[int]', stderr: str) -> None:
         logger.debug('Got ferny request %s %s %s %s', command, args, fds, stderr)
         if command == 'beiboot.provide':
             try:

@@ -141,6 +141,11 @@ class TestSelinux(testlib.MachineCase):
         b.wait_not_present(row_selector)
         # unbreak sebool, and trigger the error again
         m.execute(f"chmod a+x {sebool_path}; rm -r ~admin/public_html")
+        if m.image.startswith("rhel-8"):
+            # HACK: RHEL 8's setroubleshootd sometimes misses the second alert
+            m.execute("systemctl restart setroubleshootd")
+            b.reload()
+            b.enter_page("/selinux")
         self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
         with b.wait_timeout(60):
             b.wait_visible(row_selector)
@@ -222,7 +227,7 @@ class TestSelinux(testlib.MachineCase):
         b.wait_in_text(shell_script_sel, "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
 
         # Check ansible
-        def normalize(script):
+        def normalize(script: str) -> str:
             # HACK: `permissive` type is exported only since policycoreutils 3.0
             # See https://github.com/SELinuxProject/selinux/commit/3a9b4505b
             # Combining of versions < 3.0 with versions >= 3.0 provides a bit
@@ -307,7 +312,7 @@ class TestSelinuxEnforcing(testlib.MachineCase):
         # wait for the page to be present
         b.wait_in_text("body", "SELinux policy")
 
-        def assertEnforce(active):
+        def assertEnforce(active: bool) -> None:
             # polled every 10s
             with b.wait_timeout(20):
                 b.wait_visible(".pf-v6-c-switch__input" + (":checked" if active else ":not(:checked)"))

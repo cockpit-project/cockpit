@@ -19,7 +19,7 @@ import errno
 import logging
 import os
 import re
-from typing import Any, DefaultDict, Iterable, List, NamedTuple, Optional, Tuple
+from typing import Any, Callable, DefaultDict, Iterable, List, NamedTuple, Optional, Tuple
 
 from cockpit._vendor.systemd_ctypes import Handle
 
@@ -149,7 +149,7 @@ class CPUTemperatureSampler(Sampler):
 
         if name == 'atk0110':
             # only sample 'CPU Temperature' in atk0110
-            predicate = (lambda label: label == 'CPU Temperature')
+            predicate: 'Callable[[str], bool] | None' = (lambda label: label == 'CPU Temperature')
         elif name == 'cpu_thermal':
             # labels are not used on ARM
             predicate = None
@@ -344,7 +344,7 @@ class CGroupDiskIO(Sampler):
 
             return 0, 0
 
-    def sample(self, samples: Samples):
+    def sample(self, samples: Samples) -> None:
         with Handle.open('/proc', os.O_RDONLY | os.O_DIRECTORY) as proc_fd:
             reads = samples['disk.cgroup.read']
             writes = samples['disk.cgroup.written']

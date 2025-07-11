@@ -210,6 +210,16 @@ ExecStart=/usr/bin/false
 [Install]
 WantedBy=default.target
 """)
+
+        # this can't be in /etc, as we want to test masking
+        self.write_file(f"{path.replace('/etc', '/usr/local/lib')}/test-static.service",
+                        """
+[Unit]
+Description=Static Test Service
+[Service]
+ExecStart=/usr/bin/true
+""")
+
         self.write_file(f"{path}/special@:-characters.service",
                         """
 [Unit]
@@ -314,7 +324,7 @@ WantedBy=default.target
         self.wait_service_state("test-fail.service", "failed")
 
         # Check static service
-        self.goto_service("systemd-exit.service")
+        self.goto_service("test-static.service")
         self.check_service_details(["Static", "Not running"],
                                    ["Start", "Disallow running (mask)", "Pin unit"],
                                    enabled=True, onoff=False)

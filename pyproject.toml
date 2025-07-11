@@ -41,6 +41,7 @@ module = [
     # these are used from various scripts meant to run on the host
     "dbus",
     "tracer.query",
+    "sos.*",
     "vdo.*",
 ]
 
@@ -63,10 +64,14 @@ module = [
     # src
     'cockpit',
     'cockpit._version',
+    'cockpit.channels.http_channel',
     'cockpit.channels.trivial',
     'cockpit.jsonutil',
     'cockpit.protocol',
     'cockpit.transports',
+    'cockpit.beipack',
+    'cockpit.samples',
+    'cockpit.misc.bootloader',
 
     # test/common
     'testlib',

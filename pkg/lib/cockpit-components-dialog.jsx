@@ -58,7 +58,6 @@ class DialogFooter extends React.Component {
         super(props);
         this.state = {
             action_in_progress: false,
-            action_in_progress_promise: null,
             action_progress_message: '',
             action_progress_cancel: null,
             action_canceled: false,
@@ -102,7 +101,6 @@ class DialogFooter extends React.Component {
         if (p.progress)
             p.progress(this.update_progress);
 
-        this.setState({ action_in_progress_promise: p });
         if (e)
             e.stopPropagation();
     }
@@ -116,10 +114,6 @@ class DialogFooter extends React.Component {
         // an action might be in progress, let that handler decide what to do if they added a cancel function
         if (this.state.action_in_progress && this.state.action_progress_cancel) {
             this.state.action_progress_cancel();
-            return;
-        }
-        if (this.state.action_in_progress && 'cancel' in this.state.action_in_progress_promise) {
-            this.state.action_in_progress_promise.cancel();
             return;
         }
 
@@ -142,8 +136,6 @@ class DialogFooter extends React.Component {
         let cancel_disabled;
         if (this.state.action_in_progress) {
             actions_disabled = true;
-            if (!(this.state.action_in_progress_promise && this.state.action_in_progress_promise.cancel) && !this.state.action_progress_cancel)
-                cancel_disabled = true;
             wait_element = <div className="dialog-wait-ct">
                 <span>{ this.state.action_progress_message }</span>
             </div>;

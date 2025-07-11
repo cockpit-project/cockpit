@@ -27,12 +27,12 @@ import testlib
 @testlib.nondestructive
 class TestApps(packagelib.PackageCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
-        self.appstream_collection = set()
+        self.appstream_collection: 'set[str]' = set()
         self.machine.upload(["verify/files/test.png"], "/var/tmp/")
 
-    def createAppStreamPackage(self, name, version, revision, install=False):
+    def createAppStreamPackage(self, name: str, version: str, revision: str, install: bool = False) -> None:
         self.createPackage(name, version, revision, content={
             f"/usr/share/metainfo/org.cockpit_project.{name}.metainfo.xml": f"""
 <component type="addon">
@@ -47,7 +47,7 @@ class TestApps(packagelib.PackageCase):
             f"/usr/share/icons/hicolor/64x64/apps/{name}.png": {"path": "/var/tmp/test.png"}}, install=install)
         self.appstream_collection.add(name)
 
-    def createAppStreamRepoPackage(self, subdir=None):
+    def createAppStreamRepoPackage(self, subdir: str | None = None) -> None:
         if subdir is None:
             subdir = "swcatalog/xml"
         body = ""
@@ -80,7 +80,7 @@ class TestApps(packagelib.PackageCase):
         # ignore the corresponding journal entry
         self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
 
-    def testBasic(self, urlroot=""):
+    def testBasic(self, urlroot: str = ""):
         b = self.browser
         m = self.machine
 
@@ -243,7 +243,7 @@ class TestApps(packagelib.PackageCase):
 
         b.wait_visible(".app-description:contains('DESCRIPTION:none')")
 
-        def set_lang(lang):
+        def set_lang(lang: str) -> None:
             b.switch_to_top()
             b.open_session_menu()
             b.click("button.display-language-menu")

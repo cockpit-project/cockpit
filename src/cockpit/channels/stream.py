@@ -81,9 +81,10 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             args['message'] = stderr
         return args
 
-    def do_options(self, options):
+    def do_options(self, options: JsonObject) -> None:
         window = get_object(options, 'window', WindowSize, None)
         if window is not None:
+            assert isinstance(self._transport, SubprocessTransport)
             self._transport.set_window_size(window)
 
     async def create_transport(self, loop: asyncio.AbstractEventLoop, options: JsonObject) -> SubprocessTransport:

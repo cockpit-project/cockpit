@@ -21,6 +21,7 @@ import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 const DnfPage = ({ exists }) => {
     const [isRefreshing, setRefreshing] = React.useState(false);
     const [events, setEvents] = React.useState([]);
+    const [refreshData, setRefreshData] = React.useState({});
 
     const progressCallback = (signal_text) => {
         setEvents(prevState => [...prevState, signal_text]);
@@ -28,8 +29,11 @@ const DnfPage = ({ exists }) => {
 
     const refreshDatabase = async () => {
         setEvents([]);
+        setRefreshData({});
         setRefreshing(true);
         const data = await PK.check_missing_packages("bash", progressCallback);
+        console.log(data);
+        setRefreshData(data);
         console.log(data);
         setRefreshing(false);
     };
@@ -52,6 +56,17 @@ const DnfPage = ({ exists }) => {
                             {isRefreshing && <Button variant="secondary" isDanger onClick={() => cancelRefreshDatabase()}>Cancel refresh</Button>}
 
                         </CardBody>
+                        {refreshData.missing_names && refreshData.missing_names.length !== 0 &&
+                            <CardBody>
+                                <h4>Missing packages</h4>
+                                <List isBordered>
+                                    {refreshData.missing_names.map((name, idx) => {
+                                        return <ListItem key={idx} icon={<CheckIcon />}>{name}</ListItem>;
+                                    })}
+                                </List>
+                            </CardBody>
+
+                        }
                         {events.length !== 0 &&
                             <CardBody>
                                 <h4>Events</h4>

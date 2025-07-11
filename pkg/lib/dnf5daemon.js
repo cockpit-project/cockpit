@@ -96,19 +96,31 @@ export async function check_missing_packages(names, progress_cb) {
                     "close_session", [session]);
     }
 
-    function refresh() {
+    async function refresh(session) {
         // refresh dnf5daemon state
+        await call(session, "org.rpm.dnf.v0.Base", "read_all_repos", []);
+        const resolve_results = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]);
+        console.log(resolve_results);
+        const transaction_results = await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+        console.log(transaction_results);
     }
 
-    function list() {
-        // const package_attrs = ["name", "version", "release", "arch"];
-        // await call(session, "org.rpm.dnf.v0.rpm.Rpm", "list", [{ package_attrs, scope: "installed", patterns: ["bash"] }]);
+    async function list(session) {
+        const package_attrs = ["name", "version", "release", "arch"];
+
+        const result = await call(session, "org.rpm.dnf.v0.rpm.Rpm", "list", [{ package_attrs: { t: 'as', v: package_attrs }, scope: { t: 's', v: "installed" }, patterns: { t: 'as', v: ['bash'] } }]);
+        console.log("list result", result);
+        for (const [pkg] of result) {
+            console.log("pkg", pkg);
+            data.missing_ids.push(pkg.id.v);
+            data.missing_names.push(pkg.name.v);
+        }
     }
 
     function signal_emitted(path, iface, signal, args) {
+        console.log("signal_emitted", path, iface, signal, args);
         if (progress_cb)
             progress_cb(signal);
-        console.log("signal_emitted", path, iface, signal, args);
     }
 
     // TODO: decorator / helper for opening a session?
@@ -119,21 +131,20 @@ export async function check_missing_packages(names, progress_cb) {
     try {
         [session] = await open_session();
         console.log(session);
+        await refresh(session);
+        await list(session);
 
-        await call(session, "org.rpm.dnf.v0.Base", "read_all_repos", []);
-        const resolve_results = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]);
-        console.log(resolve_results);
-        const transaction_results = await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
-        console.log(transaction_results);
         await close_session(session);
     } catch (err) {
+        console.warn(err);
         if (session)
             await close_session(session);
-        console.warn(err);
     }
 
-    console.log(subscription);
     subscription.remove();
+    console.log(subscription);
+    // HACK: close the client so subscribe matches are actually dropped.
+    client.close();
 
     return data;
 }

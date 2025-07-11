@@ -220,14 +220,14 @@ class FsReplaceChannel(AsyncChannel):
         tmpname: str | None
         fd, tmpname = tempfile.mkstemp(dir=dirname, prefix=f'.{basename}-')
 
-        def chown_if_required(fd: 'int', buf: 'os.stat_result | None' = None):
+        def chown_if_required(fd: 'int', buf: 'os.stat_result | None' = None) -> None:
             # Provided attrs are preferred over the existing file permissions
             if attrs is not None and attrs.uid is not None and attrs.gid is not None:
                 os.fchown(fd, attrs.uid, attrs.gid)
             elif buf is not None:
                 os.fchown(fd, buf.st_uid, buf.st_gid)
 
-        def apply_file_mode(fd: 'int', mode: 'int | None' = None):
+        def apply_file_mode(fd: 'int', mode: 'int | None' = None) -> None:
             if attrs is not None and attrs.mode is not None:
                 mode = attrs.mode
             elif mode is None:

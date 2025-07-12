@@ -150,30 +150,22 @@ function serviceRow(props) {
 
 function portRow(props) {
     function onRemovePort(event) {
-        props.zone.ports.forEach(port => props.onRemovePort(port));
+        props.onRemovePort(props.port);
         event.stopPropagation();
     }
+
     const columns = [
         {
-            title: <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>
-        },
-        {
-            title: props.zone.ports
-                    .filter(p => p.protocol === "tcp")
-                    .map(p => p.port)
-                    .join(", ")
-        },
-        {
-            title: props.zone.ports
-                    .filter(p => p.protocol === "udp")
-                    .map(p => p.port)
-                    .join(", ")
+            title: <i key={props.key + "-additional-port"}>{ _("Additional port") }</i>
         },
 
-        { title: <DeleteDropdown items={[{ text: _("Delete"), danger: true, ariaLabel: "Remove additional ports", handleClick: onRemovePort }]} /> }
+        { title: props.port.protocol === "tcp" ? props.port.port : "" },
+        { title: props.port.protocol === "udp" ? props.port.port : "" },
+
+        { title: <DeleteDropdown items={[{ text: _("Delete"), danger: true, ariaLabel: "Remove additional port", handleClick: onRemovePort }]} /> }
     ];
     return ({
-        props: { key: props.zone.id + "-ports", 'data-row-id': props.zone.id + "-ports" },
+        props: { key: props.key + "-port", 'data-row-id': props.key + "-port" },
         columns
     });
 }
@@ -262,11 +254,14 @@ function ZoneSection(props) {
                                   }
                               }).concat(
                                   props.zone.ports.length > 0
-                                      ? portRow({
-                                          key: props.zone.id + "-ports",
-                                          zone: props.zone,
-                                          onRemovePort: port => props.onRemovePort(props.zone.id, port.port, port.protocol),
-                                          readonly: firewall.readonly
+                                      ? props.zone.ports.map(p => {
+                                          return portRow({
+                                              key: `${props.zone.id}-${p.port}-${p.protocol}`,
+                                              zone: props.zone,
+                                              port: p,
+                                              onRemovePort: port => props.onRemovePort(props.zone.id, port.port, port.protocol),
+                                              readonly: firewall.readonly
+                                          });
                                       })
                                       : [])
                                       .filter(Boolean)}

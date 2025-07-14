@@ -38,7 +38,6 @@ set -eu
 
 # exec_prefix= is set because the default @libexecdir@ contains "${exec_prefix}"
 exec_prefix="@prefix@"
-libexecdir="@libexecdir@"
 
 # start browser in a temporary home dir, so that it does not interfere with your real one
 BROWSER_HOME=$(mktemp --directory --tmpdir cockpit.desktop.XXXXXX)

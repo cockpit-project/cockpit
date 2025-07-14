@@ -2,7 +2,7 @@
 
 set -eu
 
-# prefix= is set because the default @sysconfdir@ contains "${prefix}"
+# shellcheck disable=SC2034 # prefix= is set because the default @sysconfdir@ contains "${prefix}"
 prefix="@prefix@"
 COCKPIT_CONFIG="@sysconfdir@/cockpit"
 COCKPIT_WS_CERTS_D="${COCKPIT_CONFIG}/ws-certs.d"

@@ -239,11 +239,14 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded .spikes_count", "3 spikes")
         b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded .spikes_info", "1 Memory, 1 Disk I/O, 1 Network I/O")
 
-        # wait until the toolbar is fully rendered
-        b.wait_visible("#date-picker-select-toggle")
-
         # move the mouse away from the pixel test region, to avoid spurious focus highlights
         b.mouse("#metrics-header-section", "mousemove")
+
+        def on_layout_change():
+            # wait until the toolbar is fully rendered
+            b.wait_visible("#date-picker-select-toggle")
+            # wait until the metrics data is fully rendered
+            b.wait_visible("#metrics-hour-1597662000000")
 
         # FIXME: mobile layout is racy in tests (only, not in reality), scrollIntoView() misplaces the menu bar
         b.assert_pixels(
@@ -255,6 +258,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             wait_delay=1,
             chrome_hack_double_shots=True,
             abs_tolerance=40,
+            layout_change_hook=on_layout_change,
         )
 
         b.click("#metrics-hour-1597662000000 button.metrics-events-expander")

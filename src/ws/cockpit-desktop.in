@@ -36,7 +36,7 @@
 #   cockpit-desktop / username@svr1
 set -eu
 
-# exec_prefix= is set because the default @libexecdir@ contains "${exec_prefix}"
+# shellcheck disable=SC2034 # exec_prefix= is set because the default @libexecdir@ contains "${exec_prefix}"
 exec_prefix="@prefix@"
 
 # start browser in a temporary home dir, so that it does not interfere with your real one

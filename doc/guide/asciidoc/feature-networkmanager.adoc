@@ -1,0 +1,23 @@
+[[feature-networkmanager]]
+== NetworkManager
+
+If available on the system, Cockpit uses
+https://wiki.gnome.org/Projects/NetworkManager[NetworkManager] and the
+DBus APIs it provides to interact with the system's network
+configuration.
+
+For non root users, NetworkManager controls access to its APIs via
+link:#privileges[Policy Kit] and a user logged into Cockpit will have
+the same permissions as they do from the command line.
+
+To perform similar tasks from the command line, use the
+https://fedoraproject.org/wiki/Networking/CLI[nmcli] command:
+
+....
+$ nmcli general status
+STATE      CONNECTIVITY  WIFI-HW  WIFI     WWAN-HW  WWAN
+connected  full          enabled  enabled  enabled  enabled
+....
+
+Devices marked as "not managed" with the `NM_CONTROLLED=no` setting will
+not be displayed in the interface.

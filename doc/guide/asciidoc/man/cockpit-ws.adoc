@@ -1,0 +1,135 @@
+cockpit
+
+cockpit-ws
+
+8
+
+cockpit-ws
+
+Cockpit web service
+
+cockpit-ws
+
+--help
+
+--port
+
+PORT
+
+--address
+
+ADDRESS
+
+--no-tls
+
+--for-tls-proxy
+
+--local-ssh
+
+--local-session
+
+BRIDGE
+
+[[cockpit-ws-description]]
+== DESCRIPTION
+
+The `cockpit-ws` program is the web service component used for
+communication between the browser application and various configuration
+tools and services like `cockpit-bridge(1)`.
+
+Users or administrators should never need to start this program as it
+automatically started by `systemd(1)` on bootup, through
+`cockpit-tls(8)`.
+
+[[cockpit-ws-transport]]
+== TRANSPORT SECURITY
+
+`cockpit-ws` is normally run behind the `cockpit-tls` TLS terminating
+proxy, and only deals with unencrypted HTTP by itself. But for backwards
+compatibility it can also handle TLS connections by itself when being
+run directly. For details how to configure certificates, please refer to
+the `cockpit-tls(8)` documentation.
+
+[[cockpit-ws-timeout]]
+== TIMEOUT
+
+When started via `systemd(1)` then `cockpit-ws` will exit after 90
+seconds if nobody logs in, or after the last user is disconnected.
+
+[[cockpit-ws-options]]
+== OPTIONS
+
+`--help`::
+  Show help options.
+`--port` <PORT>::
+  Serve HTTP requests <PORT> instead of port 9090. Usually Cockpit is
+  started on demand by `systemd` socket activation, and this option has
+  no effect. Update the `ListenStream` directive `cockpit.socket` file
+  in the usual `systemd` manner.
+`--address` <ADDRESS>::
+  Bind to address <ADDRESS> instead of binding to all available
+  addresses. Usually Cockpit is started on demand by `systemd` socket
+  activation, and this option has no effect. In that case, update the
+  `ListenStream` directive in the `cockpit.socket` file in the usual
+  `systemd` manner.
+`--no-tls`::
+  Don't use TLS.
+`--for-tls-proxy`::
+  Tell `cockpit-ws` that it is running behind a local reverse proxy that
+  does the TLS termination. Then Cockpit puts https:// URLs into the
+  default `Content-Security-Policy`, and accepts only https:// origins,
+  instead of http: ones by default. However, if `Origins` is set in the
+  `cockpit.conf(5)` configuration file, it will override this default.
+`--local-ssh`::
+  Normally `cockpit-ws` uses `cockpit-session` and PAM to authenticate
+  the user and start a user session. With this option enabled, it will
+  instead authenticate via SSH at `127.0.0.1` port `22`.
+`--local-session` <BRIDGE>::
+  Skip all authentication and `cockpit-session`, and launch the
+  `cockpit-bridge` specified in <BRIDGE> in the local session. If the
+  <BRIDGE> is specified as `-` then expect an already running bridge
+  that is connected to stdin and stdout of this `cockpit-ws` process.
+  This allows the web server to run as any unprivileged user in an
+  already running session.
+  +
+  This mode implies `--no-tls`, thus you need to use http:// URLs with
+  this.
+  +
+  [WARNING]
+  ====
+  If you use this, you _have to isolate the opened TCP port_ somehow
+  (for example in a network namespace), otherwise all other users (or
+  even remote machines if the port is not just listening on localhost)
+  can access the session!
+  ====
+
+[[cockpit-ws-environment]]
+== ENVIRONMENT
+
+The `cockpit-ws` process will use the `XDG_CONFIG_DIRS` environment
+variable from the
+https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html[XDG
+basedir spec] to find its `cockpit.conf(5)` configuration file.
+
+In addition the `XDG_DATA_DIRS` environment variable from the
+https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html[XDG
+basedir spec] can be used to override the location to serve static files
+from. These are the files that are served to a non-logged in user.
+
+[[cockpit-ws-bugs]]
+== BUGS
+
+Please send bug reports to either the distribution bug tracker or the
+https://github.com/cockpit-project/cockpit/issues/new[upstream bug
+tracker].
+
+[[cockpit-ws-author]]
+== AUTHOR
+
+Cockpit has been written by many
+https://github.com/cockpit-project/cockpit/[contributors].
+
+[[cockpit-ws-also]]
+== SEE ALSO
+
+`cockpit-tls(8)` , `cockpit.conf(5)` , `systemd(1)`

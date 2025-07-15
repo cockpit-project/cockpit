@@ -616,6 +616,7 @@ export function NetworkManagerModel() {
             set(first, "method", 's', settings[first].method);
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
+            set(first, "addr-gen-mode", 'i', settings[first].addr_gen_mode);
 
             const addresses = settings[first].addresses;
             if (addresses)

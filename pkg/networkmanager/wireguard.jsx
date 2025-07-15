@@ -42,23 +42,43 @@ import { useInit } from 'hooks';
 
 const _ = cockpit.gettext;
 
-function addressesToString(addresses) {
+// Matches IPv6 address with optional netmask
+const IPv6_REGEX = /^[0-9a-fA-F:]+$/;
+
+// Matches IPv6 addres with optional port
+const IPv6_PORT_REGEX = /^\[?([0-9a-fA-F:]+)(\]:)?(\d{0,5})$/;
+
+function addressesToString(settings) {
+    const addresses = settings.ipv4.addresses.concat(settings.ipv6.addresses);
     return addresses.map(address => address[0] + "/" + address[1]).join(", ");
 }
 
 function stringToAddresses(str) {
-    return str.split(/[\s,]+/).map(strAddress => {
+    const ipv4 = [];
+    const ipv6 = [];
+
+    str.split(/[\s,]+/).forEach(strAddress => {
         const parts = strAddress.split("/");
         if (parts.length > 2) {
             throw new Error(_("Addresses are not formatted correctly"));
         }
-        const [ip, prefix] = parts;
-        const defaultPrefix = "32";
-        // Gateway usually conflicts with routing that NetworkManager configures for WireGuard interfaces
-        // So it should not be set in that case or more accurately set to 0 i.e. "0.0.0.0" in string format
-        const gateway = "0.0.0.0";
-        return [ip, prefix ?? defaultPrefix, gateway];
+
+        const [address, prefix] = parts;
+
+        if (IPv6_REGEX.test(address)) {
+            const defaultPrefix = "128";
+            const gateway = "::0";
+            ipv6.push([address, prefix ?? defaultPrefix, gateway]);
+        } else {
+            const defaultPrefix = "32";
+            // Gateway usually conflicts with routing that NetworkManager configures for WireGuard interfaces
+            // So it should not be set in that case or more accurately set to 0 i.e. "0.0.0.0" in string format
+            const gateway = "0.0.0.0";
+            ipv4.push([address, prefix ?? defaultPrefix, gateway]);
+        }
     });
+
+    return [ipv4, ipv6];
 }
 
 export function WireGuardDialog({ settings, connection, dev }) {
@@ -72,7 +92,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
     const [pastedPrivateKey, setPastedPrivatedKey] = useState("");
     const [publicKey, setPublicKey] = useState("");
     const [listenPort, setListenPort] = useState(settings.wireguard.listen_port);
-    const [addresses, setAddresses] = useState(addressesToString(settings.ipv4.addresses));
+    const [addresses, setAddresses] = useState(addressesToString(settings));
     const [dialogError, setDialogError] = useState("");
     const [peers, setPeers] = useState(settings.wireguard.peers.map(peer => ({ ...peer, allowedIps: peer.allowedIps?.join(",") ?? '' })));
 
@@ -123,38 +143,83 @@ export function WireGuardDialog({ settings, connection, dev }) {
         }
     }
 
+    function validatePeer(peer, index) {
+        const endpoint = peer.endpoint?.trim();
+        if (endpoint) {
+            let port = "";
+            const match = endpoint.match(IPv6_PORT_REGEX);
+
+            if (match) {
+                port = match[3];
+            } else {
+                const parts = endpoint.split(":");
+                if (parts.length !== 2) {
+                    throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820"), index + 1);
+                }
+                port = parts[1];
+            }
+
+            if (port == '' || isNaN(Number(port))) {
+                throw cockpit.format(_("Peer #$0 has invalid endpoint port. Port must be a number."), index + 1);
+            }
+        }
+
+        return ({ ...peer, allowedIps: peer.allowedIps.trim().split(',') });
+    }
+
     function onSubmit() {
         const private_key = isPrivKeyGenerated ? generatedPrivateKey : pastedPrivateKey;
 
         // Validate Addresses before submit
         // Also validate listenPort as PF TextInput[type=number] accepts normal text as well on firefox
         // See - https://github.com/patternfly/patternfly-react/issues/9391
-        let addr;
+        let ipv4_addr;
+        let ipv6_addr;
         let peersArr;
         const listen_port = Number(listenPort);
         try {
-            addr = stringToAddresses(addresses);
+            [ipv4_addr, ipv6_addr] = stringToAddresses(addresses);
 
             if (isNaN(listen_port)) {
                 throw new Error(_("Listen port must be a number"));
             }
 
             peersArr = peers.map((peer, index) => {
-                if (peer.endpoint?.trim()) {
-                    const parts = peer.endpoint.split(":");
-                    if (parts.length !== 2) {
-                        throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820 or example.com:51820"), index + 1);
-                    }
-                    const [, port] = parts;
-                    if (port == '' || isNaN(Number(port))) {
-                        throw cockpit.format(_("Peer #$0 has invalid endpoint port. Port must be a number."), index + 1);
-                    }
-                }
-                return ({ ...peer, allowedIps: peer.allowedIps.trim().split(',') });
+                return validatePeer(peer, index);
             });
         } catch (e) {
             setDialogError(typeof e === 'string' ? e : e.message);
             return;
+        }
+
+        function createAddressesObj(ipv4, ipv6) {
+            const addresses = {};
+
+            if (ipv4.length > 0) {
+                addresses.ipv4 = {
+                    addresses: ipv4,
+                    method: "manual",
+                    dns: [],
+                    dns_search: [],
+                };
+            } else {
+                addresses.ipv4 = { method: "disabled" };
+            }
+
+            if (ipv6.length > 0) {
+                addresses.ipv6 = {
+                    addresses: ipv6,
+                    // "stable-privacy" use hashing method for IPv6 autoconfiguration
+                    addr_gen_mode: 1,
+                    method: "manual",
+                    dns: [],
+                    dns_search: [],
+                };
+            } else {
+                addresses.ipv6 = { method: "disabled" };
+            }
+
+            return addresses;
         }
 
         function createSettingsObj() {
@@ -171,12 +236,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
                     listen_port,
                     peers: peersArr,
                 },
-                ipv4: {
-                    addresses: addr,
-                    method: 'manual',
-                    dns: [],
-                    dns_search: []
-                }
+                ...createAddressesObj(ipv4_addr, ipv6_addr),
             };
         }
 
@@ -239,8 +299,8 @@ export function WireGuardDialog({ settings, connection, dev }) {
                     </FormHelperText>}
                 </Flex>
             </FormGroup>
-            <FormGroup label={_("IPv4 addresses")} fieldId={idPrefix + '-addresses-input'}>
-                <TextInput id={idPrefix + '-addresses-input'} value={addresses} onChange={(_, val) => { setAddresses(val) }} placeholder="Example, 10.0.0.1/24, 1.2.3.4/24" />
+            <FormGroup label={_("IP addresses")} fieldId={idPrefix + '-addresses-input'}>
+                <TextInput id={idPrefix + '-addresses-input'} value={addresses} onChange={(_, val) => { setAddresses(val) }} placeholder="Example, 10.0.0.1/24, 2001:db8:cafe::1/64" />
                 <FormHelperText>
                     <HelperText>
                         <HelperTextItem>{_("Multiple addresses can be specified using commas or spaces as delimiters.")}</HelperTextItem>
@@ -350,6 +410,9 @@ export function getWireGuardGhostSettings({ newIfaceName }) {
         },
         ipv4: {
             addresses: []
-        }
+        },
+        ipv6: {
+            addresses: []
+        },
     };
 }

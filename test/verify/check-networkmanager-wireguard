@@ -10,8 +10,8 @@ import testlib
 
 class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
     provision = {
-        "machine1": {"address": "192.168.100.11/24", "memory_mb": 768},
-        "machine2": {"address": "192.168.100.12/24", "memory_mb": 512}
+        "machine1": {"address": "192.168.100.11/24", "address6": "2001:db8:face::1/64", "memory_mb": 768},
+        "machine2": {"address": "192.168.100.12/24", "address6": "2001:db8:face::2/64", "memory_mb": 512}
     }
 
     def testVPN(self):
@@ -111,7 +111,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "   192.168.100.12  ")  # test that the extra spaces are trimmed
         b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"  {m2_ip4}  ")  # test that the extra spaces are trimmed
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Peer #1 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820 or example.com:51820')")
+        b.wait_visible(".pf-v6-c-alert:contains('Peer #1 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820')")
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "192.168.100.12:somestring")
         b.click("#network-wireguard-settings-save")
         b.wait_visible(".pf-v6-c-alert:contains('Peer #1 has invalid endpoint port. Port must be a number.')")
@@ -179,46 +179,191 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
 
         b2.click("#networking-edit-wg")
         b2.wait_visible("#network-wireguard-settings-dialog")
+        b2.set_input_text("#network-wireguard-settings-addresses-input", f"{m2_ip4}/24, {m2_ip6}/64")
         b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_ip4}/32,{m1_ip6}")
         b2.click("#network-wireguard-settings-save")
         b2.wait_not_present("#network-wireguard-settings-dialog")
 
         m2.execute(f"until wg show wg0 | grep -q 'allowed ips.*{m1_ip6}/128'; do sleep 1; done")
-
-        b2.click("#networking-edit-ipv6")
-        b2.wait_visible("#network-ip-settings-dialog")
-        b2.select_from_dropdown("#network-ip-settings-select-method", "manual")
-        b2.set_input_text("#network-ip-settings-address-0", m2_ip6)
-        b2.set_input_text("#network-ip-settings-netmask-0", "64")
-        b2.set_input_text("#network-ip-settings-gateway-0", "::")
-        b2.click("#network-ip-settings-save")
-        b2.wait_not_present("#network-ip-settings-dialog")
-        b2.wait_in_text("dt:contains('IPv6') + dd", "Address 2001::2/64")
-
         m2.execute(f"until ip a show dev {m2_iface_name} | grep -q 'inet6 {m2_ip6}/64 scope global'; do sleep 0.3; done", timeout=10)
 
         b.click("#networking-edit-wg")
         b.wait_visible("#network-wireguard-settings-dialog")
         b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m2_ip4}/32,{m2_ip6}")
+
+        # add IPv6 to m1 wg iface using the WireGuard modal
+        # test IPv6 validation
+        b.set_input_text("#network-wireguard-settings-addresses-input", "2001::1/128/64")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v6-c-alert:contains('Addresses are not formatted correctly')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "2001:1/64")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v6-c-alert:contains('Invalid address 2001:1')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "cafe:face:nope::1/64")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v6-c-alert:contains('Invalid address cafe:face:nope::1')")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "2001:db8:cafe::1/64/64")
+        b.click("#network-wireguard-settings-save")
+        b.wait_visible(".pf-v6-c-alert:contains('Addresses are not formatted correctly')")
+
+        # valid IPv6 now
+        b.set_input_text("#network-wireguard-settings-addresses-input", f"{m1_ip4}/24, 1.2.3.4/32, {m1_ip6}/64")
         b.click("#network-wireguard-settings-save")
         b.wait_not_present("#network-wireguard-settings-dialog")
+        self.wait_for_iface_setting("IPv6", f"Address {m1_ip6}/64")
 
         m1.execute(f"until wg show wg0 | grep -q 'allowed ips.*{m2_ip6}/128'; do sleep 1; done")
-
-        b.click("#networking-edit-ipv6")
-        b.wait_visible("#network-ip-settings-dialog")
-        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
-        b.set_input_text("#network-ip-settings-address-0", m1_ip6)
-        b.set_input_text("#network-ip-settings-netmask-0", "64")
-        b.set_input_text("#network-ip-settings-gateway-0", "::")
-        b.click("#network-ip-settings-save")
-        b.wait_not_present("#network-ip-settings-dialog")
-        self.wait_for_iface_setting("IPv6", "Address 2001::1/64")
-
         m1.execute(f"until ip a show dev {iface_name} | grep -q 'inet6 {m1_ip6}/64 scope global'; do sleep 0.3; done", timeout=10)
+
+        # IPv6 is prefilled when opening the WG modal again
+        b.click("#networking-edit-wg")
+        b.wait_visible("#network-wireguard-settings-dialog")
+        b.wait_visible(f"#network-wireguard-settings-addresses-input[value='{m1_ip4}/24, 1.2.3.4/32, {m1_ip6}/64']")
+        b.click("#network-wireguard-settings-cancel")
+        b.wait_not_present("#network-wireguard-settings-dialog")
 
         try:
             m1.execute(f"ping -6 -c 5 {m2_ip6}")
+        except (subprocess.CalledProcessError, testlib.Error):
+            print("-------- status on m1 ----------", file=sys.stderr)
+            m1.execute("set -x; ip a >&2; ip -6 route >&2; nmcli c >&2; wg >&2")
+            print("-------- status on m2 ----------", file=sys.stderr)
+            m2.execute("set -x; ip a >&2; ip -6 route >&2; nmcli c >&2; wg >&2")
+            raise
+
+        # IPv6 over IPv6
+        b.go("/network")
+        b.wait_visible("#networking")
+        b2.go("/network")
+        b2.wait_visible("#networking")
+
+        b.click("button:contains('Add VPN')")
+        b.wait_visible("#network-wireguard-settings-dialog")
+        b2.click("button:contains('Add VPN')")
+        b2.wait_visible("#network-wireguard-settings-dialog")
+
+        # get public keys
+        b.wait_not_val("#network-wireguard-settings-public-key input", "")
+        m1_wg1_pubkey = b.val("#network-wireguard-settings-public-key input")
+        b2.wait_not_val("#network-wireguard-settings-public-key input", "")
+        m2_wg1_pubkey = b2.val("#network-wireguard-settings-public-key input")
+
+        wg1_iface = b.val("#network-wireguard-settings-interface-name-input")
+        m1_wg1_port = "51821"
+        m1_wg1_ipv6 = "2001:db8:cafe::1"
+        m1_endpoint_ipv6 = "2001:db8:face::1"
+        m2_wg1_port = "51821"
+        m2_wg1_ipv6 = "2001:db8:cafe::2"
+        if not m2.ostree_image:
+            m2.execute(f"firewall-cmd --add-port={m2_wg1_port}/udp")
+        m2_endpoint_ipv6 = "2001:db8:face::2"
+
+        b.set_input_text("#network-wireguard-settings-addresses-input", f"{m1_wg1_ipv6}/64")
+        b.set_input_text("#network-wireguard-settings-listen-port-input", m1_wg1_port)
+        b.click("button:contains('Add peer')")
+        b.wait_visible("#network-wireguard-settings-peer-0")
+        b.set_input_text("#network-wireguard-settings-publickey-peer-0", m2_wg1_pubkey)
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", "2001:db8::1/128")
+
+        # Not a valid IPv6 endpoint
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "[2001:db8:nope::1]:55852")
+        b.click("#network-wireguard-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint")
+
+        # No port specified
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "2001:db8::1")
+        b.click("#network-wireguard-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint port")
+
+        # Not a valid port number (string)
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "[2001:db8::1]:portnum")
+        b.click("#network-wireguard-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint")
+
+        # Not a valid port number (high value)
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "[2001:db8::1]:80000")
+        b.click("#network-wireguard-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "peer #1 has invalid endpoint")
+
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "[2001:db8::1]:50000")
+
+        # Not a valid IPv6
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", "2001:db8:nope::1/128")
+        b.click("#network-wireguard-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "peer #1 has invalid allowed-ips setting")
+
+        # Not a valid netmask
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", "2001:db8::1/129")
+        b.click("#network-wireguard-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "peer #1 has invalid allowed-ips setting")
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", "2001:db8::1/mask")
+        b.click("#network-wireguard-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "peer #1 has invalid allowed-ips setting")
+
+        # Set valid configuration
+        b.set_input_text("#network-wireguard-settings-endpoint-peer-0", f"[{m2_endpoint_ipv6}]:{m2_wg1_port}")
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m2_wg1_ipv6}/128")
+        b.click("#network-wireguard-settings-save")
+        b.wait_not_present("#network-wireguard-settings-dialog")
+        b.wait_in_text(f"#networking-interfaces th:contains('{wg1_iface}') + td", f"{m1_wg1_ipv6}/64")
+
+        m1.execute(f"until wg show wg1 | grep -q 'allowed ips.*{m2_wg1_ipv6}/128'; do sleep 1; done")
+        m1.execute(f"until ip a show dev {wg1_iface} | grep -q 'inet6 {m1_wg1_ipv6}/64 scope global'; do sleep 0.3; done", timeout=10)
+
+        # Configuration on the second machine
+        b2.set_input_text("#network-wireguard-settings-addresses-input", f"{m2_wg1_ipv6}/64")
+        b2.set_input_text("#network-wireguard-settings-listen-port-input", m2_wg1_port)
+        b2.click("button:contains('Add peer')")
+        b2.wait_visible("#network-wireguard-settings-peer-0")
+        b2.set_input_text("#network-wireguard-settings-publickey-peer-0", m1_wg1_pubkey)
+        b2.set_input_text("#network-wireguard-settings-endpoint-peer-0", f"[{m1_endpoint_ipv6}]:{m1_wg1_port}")
+        b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_wg1_ipv6}/128")
+        b2.click("#network-wireguard-settings-save")
+        b2.wait_not_present("#network-wireguard-settings-dialog")
+        b2.wait_in_text(f"#networking-interfaces th:contains('{wg1_iface}') + td", f"{m2_wg1_ipv6}/64")
+
+        m2.execute(f"until wg show wg1 | grep -q 'allowed ips.*{m1_wg1_ipv6}/128'; do sleep 1; done")
+        m2.execute(f"until ip a show dev {wg1_iface} | grep -q 'inet6 {m2_wg1_ipv6}/64 scope global'; do sleep 0.3; done", timeout=10)
+
+        try:
+            m1.execute(f"ping -6 -c 5 {m2_wg1_ipv6}")
+        except (subprocess.CalledProcessError, testlib.Error):
+            print("-------- status on m1 ----------", file=sys.stderr)
+            m1.execute("set -x; ip a >&2; ip -6 route >&2; nmcli c >&2; wg >&2")
+            print("-------- status on m2 ----------", file=sys.stderr)
+            m2.execute("set -x; ip a >&2; ip -6 route >&2; nmcli c >&2; wg >&2")
+            raise
+
+        # IPv4 over IPv6
+        m1_wg1_ipv4 = "10.0.1.1"
+        m2_wg1_ipv4 = "10.0.1.2"
+
+        b.click(f"#networking-interfaces button:contains('{wg1_iface}')")
+        b.click("#networking-edit-wg")
+        b.wait_visible("#network-wireguard-settings-dialog")
+        b.set_input_text("#network-wireguard-settings-addresses-input", f"{m1_wg1_ipv6}/64, {m1_wg1_ipv4}/24")
+        b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m2_wg1_ipv6}/128,{m2_wg1_ipv4}/32")
+        b.click("#network-wireguard-settings-save")
+        b.wait_not_present("#network-wireguard-settings-dialog")
+        self.wait_for_iface_setting("IPv4", "Address 10.0.1.1/24")
+
+        m1.execute(f"until wg show wg1 | grep -q 'allowed ips.*{m2_wg1_ipv4}/32'; do sleep 1; done")
+        m1.execute(f"until ip a show dev {wg1_iface} | grep -q 'inet {m1_wg1_ipv4}/24'; do sleep 0.3; done", timeout=10)
+
+        b2.click(f"#networking-interfaces button:contains('{wg1_iface}')")
+        b2.click("#networking-edit-wg")
+        b2.wait_visible("#network-wireguard-settings-dialog")
+        b2.set_input_text("#network-wireguard-settings-addresses-input", f"{m2_wg1_ipv6}/64, {m2_wg1_ipv4}/24")
+        b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_wg1_ipv6}/128,{m1_wg1_ipv4}/32")
+        b2.click("#network-wireguard-settings-save")
+        b2.wait_not_present("#network-wireguard-settings-dialog")
+        b2.wait_in_text("#network-interface-settings div:nth-child(4) .network-interface-settings-text", "Address 10.0.1.2/24")
+
+        m2.execute(f"until wg show wg1 | grep -q 'allowed ips.*{m1_wg1_ipv4}/32'; do sleep 1; done")
+        m2.execute(f"until ip a show dev {wg1_iface} | grep -q 'inet {m2_wg1_ipv4}/24'; do sleep 0.3; done", timeout=10)
+
+        try:
+            m1.execute(f"ping -4 -c 5 {m2_wg1_ipv4}")
         except (subprocess.CalledProcessError, testlib.Error):
             print("-------- status on m1 ----------", file=sys.stderr)
             m1.execute("set -x; ip a >&2; ip -6 route >&2; nmcli c >&2; wg >&2")

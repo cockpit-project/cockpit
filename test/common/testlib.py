@@ -1812,6 +1812,7 @@ class MachineCase(unittest.TestCase):
             for key in sorted(provision.keys()):
                 options = dict(provision[key])
                 options.pop('address', None)
+                options.pop('address6', None)
                 options.pop('dns', None)
                 options.pop('dhcp', None)
                 machine = self.new_machine(**options)
@@ -1831,9 +1832,10 @@ class MachineCase(unittest.TestCase):
         for key in self.machines.keys():
             machine = self.machines[key]
             machine.wait_boot()
-            address = provision[key].get("address")
-            if address is not None:
-                machine.set_address(address)
+            address = provision[key].get("address", None)
+            address6 = provision[key].get("address6", None)
+            if address is not None or address6 is not None:
+                machine.set_address(address, address6)
             dns = provision[key].get("dns")
             if address or dns:
                 machine.set_dns(dns)

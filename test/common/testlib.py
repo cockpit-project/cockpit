@@ -546,7 +546,9 @@ class Browser:
         # sidestep the browser
         element = self.call_js_func('ph_find_scroll_into_view' if scrollVisible else 'ph_find', selector)
 
-        actions = [{"type": "pointerMove", "x": 0, "y": 0, "origin": {"type": "element", "element": element}}]
+        actions: list[JsonObject] = [
+            {"type": "pointerMove", "x": 0, "y": 0, "origin": {"type": "element", "element": element}}
+        ]
         down = {"type": "pointerDown", "button": btn}
         up = {"type": "pointerUp", "button": btn}
         if event == "click":
@@ -563,8 +565,8 @@ class Browser:
 
         # modifier keys
         ev_id = f"pointer-{self.driver.last_id}"
-        keys_pre = []
-        keys_post = []
+        keys_pre: list[JsonObject] = []
+        keys_post: list[JsonObject] = []
 
         def key(type_: str, name: str) -> JsonObject:
             return {"type": "key", "id": ev_id + type_, "actions": [{"type": type_, "value": WEBDRIVER_KEYS[name]}]}
@@ -682,7 +684,7 @@ class Browser:
         self.call_js_func('ph_blur', selector)
 
     def input_text(self, text: str) -> None:
-        actions = []
+        actions: list[JsonObject] = []
         for c in text:
             # quality-of-life special case
             if c == '\n':
@@ -701,9 +703,9 @@ class Browser:
         :param repeat: number of times to repeat this key (default 1)
         :param modifiers: "Shift", "Control", "Alt"
         """
-        actions = []
-        actions_pre = []
-        actions_post = []
+        actions: list[JsonObject] = []
+        actions_pre: list[JsonObject] = []
+        actions_post: list[JsonObject] = []
         keycode = WEBDRIVER_KEYS.get(name, name)
 
         for m in (modifiers or []):
@@ -2481,7 +2483,8 @@ class MachineCase(unittest.TestCase):
     def enable_root_login(self) -> None:
         """Enable root login
 
-        By default root login is disabled in cockpit, removing the root entry of /etc/cockpit/disallowed-users allows root to login.
+        By default root login is disabled in cockpit, removing the root entry of
+        /etc/cockpit/disallowed-users allows root to login.
         """
 
         disallowed_conf = '/etc/cockpit/disallowed-users'

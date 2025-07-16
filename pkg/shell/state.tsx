@@ -589,6 +589,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
     current_manifest: Manifest | null = null;
 
     current_frame: ShellFrame | null = null;
+    current_fullscreen: boolean | null = null;
 
     update() {
         if (!this.ready || this.problem) {
@@ -645,6 +646,21 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         this.current_machine_manifest_items = compiled;
         this.current_manifest_item = item;
         this.current_manifest = compiled.find_path_manifest(location.path);
+
+        this.current_fullscreen = false;
+        if (this.current_manifest._fullscreen) {
+            const fs = this.current_manifest._fullscreen;
+            const path_prefix = location.path.split("/", 1)[0];
+            for (const path_suffix in fs) {
+                if ((path_suffix == "" && path_prefix == location.path) ||
+                    (path_prefix + "/" + path_suffix == location.path)) {
+                    for (const hash_prefix of fs[path_suffix]) {
+                        if (this.current_location.hash.startsWith(hash_prefix))
+                            this.current_fullscreen = true;
+                    }
+                }
+            }
+        }
 
         let frame = null;
         if (location.path && (machine.state == "connected" || machine.state == "connecting"))

@@ -79,9 +79,15 @@ QUnit.test("simple request", assert => {
                         },
                         test: {
                             label: "Playground"
+                        },
+                        fullscreen: {
+                            label: "Fullscreen Shell"
                         }
                     },
                     preload: ["preloaded"],
+                    fullscreen: {
+                        fullscreen: ["/fullscreen"]
+                    },
                     "content-security-policy": "img-src 'self' data:"
                 }, "returned right data");
             })

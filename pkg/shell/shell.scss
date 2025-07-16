@@ -135,6 +135,10 @@ $desktop: $phone + 1px;
     grid-template-columns: 1fr auto auto;
     overflow: hidden;
 
+    &.ct-fullscreen .area-ct-content {
+        grid-area: main / main / header / header;
+    }
+
     .area-ct-subnav {
       grid-area: main;
     }
@@ -179,6 +183,10 @@ $desktop: $phone + 1px;
     grid-template-areas: "switcher switcher header" "sidebar main main";
     grid-template-rows: max-content 1fr;
     grid-template-columns: minmax(min-content, var(--nav-width)) auto 1fr;
+
+    &.ct-fullscreen .area-ct-content {
+        grid-area: switcher / switcher / main / main;
+    }
 
     > .navbar {
       grid-area: switcher;

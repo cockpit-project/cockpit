@@ -102,6 +102,7 @@ export interface Manifest {
     tools: ManifestSection | undefined;
 
     preload: string[] | undefined;
+    _fullscreen: Record<string, string[]> | undefined;
     parent: ManifestParentSection | undefined;
     ".checksum": string | undefined;
 }
@@ -113,6 +114,7 @@ function import_Manifest(val: JsonValue): Manifest {
         menu: get_optional(obj, "menu", import_ManifestSection),
         tools: get_optional(obj, "tools", import_ManifestSection),
         preload: get_optional(obj, "preload", v => import_array(v, import_string)),
+        _fullscreen: get_optional(obj, "_fullscreen", v => import_record(v, x => import_array(x, import_string))),
         parent: get_optional(obj, "parent", import_ManifestParentSection),
         ".checksum": get_optional(obj, ".checksum", import_string),
     };

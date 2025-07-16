@@ -41,7 +41,11 @@ import './wireguard.scss';
 
 const _ = cockpit.gettext;
 
+// Matches IPv6 address with optional netmask
 const IPv6_REGEX = /^[0-9a-fA-F:]+$/;
+
+// Matches IPv6 addres with optional port
+const IPv6_PORT_REGEX = /^\[?([0-9a-fA-F:]+)(\]:)?(\d{0,5})$/;
 
 function addressesToString(settings) {
     const addresses = settings.ipv4.addresses.concat(settings.ipv6.addresses);
@@ -150,6 +154,30 @@ export function WireGuardDialog({ settings, connection, dev }) {
         }
     }
 
+    function validatePeer(peer, index) {
+        const endpoint = peer.endpoint?.trim();
+        if (endpoint) {
+            let port = "";
+            const match = endpoint.match(IPv6_PORT_REGEX);
+
+            if (match) {
+                port = match[3];
+            } else {
+                const parts = endpoint.split(":");
+                if (parts.length !== 2) {
+                    throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820"), index + 1);
+                }
+                port = parts[1];
+            }
+
+            if (port == '' || isNaN(Number(port))) {
+                throw cockpit.format(_("Peer #$0 has invalid endpoint port. Port must be a number."), index + 1);
+            }
+        }
+
+        return ({ ...peer, allowedIps: peer.allowedIps.trim().split(',') });
+    }
+
     function onSubmit() {
         const private_key = isPrivKeyGenerated ? generatedPrivateKey : pastedPrivateKey;
 
@@ -168,17 +196,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
             }
 
             peersArr = peers.map((peer, index) => {
-                if (peer.endpoint?.trim()) {
-                    const parts = peer.endpoint.split(":");
-                    if (parts.length !== 2) {
-                        throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820 or example.com:51820"), index + 1);
-                    }
-                    const [, port] = parts;
-                    if (port == '' || isNaN(Number(port))) {
-                        throw cockpit.format(_("Peer #$0 has invalid endpoint port. Port must be a number."), index + 1);
-                    }
-                }
-                return ({ ...peer, allowedIps: peer.allowedIps.trim().split(',') });
+                return validatePeer(peer, index);
             });
         } catch (e) {
             setDialogError(typeof e === 'string' ? e : e.message);

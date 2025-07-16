@@ -1130,6 +1130,37 @@ OnCalendar=daily
         assert_mode(filename, "600")
         assert_content(filename, content)
 
+    def testFullscreen(self):
+        b = self.browser
+
+        self.login_and_go("/playground/fullscreen")
+
+        def get_size(sel):
+            clip = b.call_js_func('ph_element_clip', sel)
+            return (clip["width"], clip["height"])
+
+        def wait_size(sel, size):
+            b.wait(lambda: get_size(sel) == size)
+
+        b.switch_to_top()
+        shell_size = get_size('body')
+        content_size = get_size('#content')
+        b.enter_page("/playground/fullscreen")
+
+        self.assertEqual(get_size("#app"), content_size)
+
+        b.click('#app button:contains("Go fullscreen")')
+        wait_size("#app", shell_size)
+
+        b.click('#app button:contains("Go back")')
+        wait_size("#app", content_size)
+
+        b.click('#app button:contains("Go fullscreen")')
+        wait_size("#app", shell_size)
+
+        b.eval_js("window.history.back()")
+        wait_size("#app", content_size)
+
 
 if __name__ == '__main__':
     testlib.test_main()

@@ -538,61 +538,75 @@ class Browser:
         self.wait_visible(selector)
 
         # TODO: x and y are not currently implemented: webdriver (0, 0) is the element's center, not top left corner
+        # in these cases, use the old MouseEvent emulation
         if x is not None or y is not None or (self.browser == "chromium" and self.chromium_fake_mouse):
             self.call_js_func('ph_mouse', selector, event, x or 0, y or 0, btn, ctrlKey, shiftKey, altKey, metaKey)
             return
 
-        # For Firefox and top frame with Chromium, use the BiDi API, which is more realistic -- it doesn't
-        # sidestep the browser
-        element = self.call_js_func('ph_find_scroll_into_view' if scrollVisible else 'ph_find', selector)
-
-        actions: list[JsonObject] = [
-            {"type": "pointerMove", "x": 0, "y": 0, "origin": {"type": "element", "element": element}}
-        ]
-        down = {"type": "pointerDown", "button": btn}
-        up = {"type": "pointerUp", "button": btn}
-        if event == "click":
-            actions.extend([down, up])
-        elif event == "dblclick":
-            actions.extend([down, up, down, up])
-        elif event in ["mousemove", "mouseenter"]:
-            pass
-        elif event == "mouseleave":
-            # move the mouse someplace else
-            actions = [{"type": "pointerMove", "x": 500, "y": 500, "origin": "pointer"}]
-        else:
-            raise NotImplementedError(f"unknown event {event}")
-
-        # modifier keys
+        # in the general case, use the BiDi API, which is more realistic -- it doesn't sidestep the browser
         ev_id = f"pointer-{self.driver.last_id}"
-        keys_pre: list[JsonObject] = []
-        keys_post: list[JsonObject] = []
 
         def key(type_: str, name: str) -> JsonObject:
             return {"type": "key", "id": ev_id + type_, "actions": [{"type": type_, "value": WEBDRIVER_KEYS[name]}]}
 
-        if altKey:
-            keys_pre.append(key("keyDown", "Alt"))
-            keys_post.append(key("keyUp", "Alt"))
-        if ctrlKey:
-            keys_pre.append(key("keyDown", "Control"))
-            keys_post.append(key("keyUp", "Control"))
-        if shiftKey:
-            keys_pre.append(key("keyDown", "Shift"))
-            keys_post.append(key("keyUp", "Shift"))
-        if metaKey:
-            keys_pre.append(key("keyDown", "Meta"))
-            keys_post.append(key("keyUp", "Meta"))
+        for _retry in range(3):
+            element = self.call_js_func('ph_find_scroll_into_view' if scrollVisible else 'ph_find', selector)
 
-        # the actual mouse event
-        actions = [{
-            "id": ev_id,
-            "type": "pointer",
-            "parameters": {"pointerType": "mouse"},
-            "actions": actions,
-        }]
+            actions: list[JsonObject] = [
+                {"type": "pointerMove", "x": 0, "y": 0, "origin": {"type": "element", "element": element}}
+            ]
+            down = {"type": "pointerDown", "button": btn}
+            up = {"type": "pointerUp", "button": btn}
+            if event == "click":
+                actions.extend([down, up])
+            elif event == "dblclick":
+                actions.extend([down, up, down, up])
+            elif event in ["mousemove", "mouseenter"]:
+                pass
+            elif event == "mouseleave":
+                # move the mouse someplace else
+                actions = [{"type": "pointerMove", "x": 500, "y": 500, "origin": "pointer"}]
+            else:
+                raise NotImplementedError(f"unknown event {event}")
 
-        self.bidi("input.performActions", context=self.driver.context, actions=keys_pre + actions + keys_post)
+            # modifier keys
+            keys_pre: list[JsonObject] = []
+            keys_post: list[JsonObject] = []
+
+            if altKey:
+                keys_pre.append(key("keyDown", "Alt"))
+                keys_post.append(key("keyUp", "Alt"))
+            if ctrlKey:
+                keys_pre.append(key("keyDown", "Control"))
+                keys_post.append(key("keyUp", "Control"))
+            if shiftKey:
+                keys_pre.append(key("keyDown", "Shift"))
+                keys_post.append(key("keyUp", "Shift"))
+            if metaKey:
+                keys_pre.append(key("keyDown", "Meta"))
+                keys_post.append(key("keyUp", "Meta"))
+
+            # the actual mouse event
+            actions = [{
+                "id": ev_id,
+                "type": "pointer",
+                "parameters": {"pointerType": "mouse"},
+                "actions": actions,
+            }]
+
+            try:
+                self.bidi("input.performActions", context=self.driver.context, actions=keys_pre + actions + keys_post)
+                break
+            except Error as e:
+                # race condition: if the page re-renders after the wait_visible() but before the mouse event,
+                # the element might not be present anymore; retry then
+                if "no such element" in str(e):
+                    webdriver_bidi.log_command.warning(
+                        "Browser.mouse(%r, %r): retrying after %s", selector, event, e.msg)
+                    # retry, but don't scroll again
+                    scrollVisible = False
+                else:
+                    raise
 
     def click(self, selector: str) -> None:
         """Click on a ui element

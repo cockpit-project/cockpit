@@ -21,6 +21,7 @@ import time
 
 import testlib
 from lib.constants import TEST_OS_DEFAULT
+from machine import testvm
 
 
 class KdumpHelpers(testlib.MachineCase):
@@ -28,14 +29,14 @@ class KdumpHelpers(testlib.MachineCase):
         super().setUp()
         self.allow_restart_journal_messages()
 
-    def enableLocalSsh(self, machine=None):
+    def enableLocalSsh(self, machine: testvm.Machine | None = None) -> None:
         machine = machine or self.machine
         machine.execute("[ -f /root/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa")
         machine.execute("cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys")
         machine.execute("ssh-keyscan -H localhost >> /root/.ssh/known_hosts")
         machine.execute("cat /root/.ssh/id_rsa.pub >> /home/admin/.ssh/authorized_keys; chown admin: /home/admin/.ssh/authorized_keys")
 
-    def assertActive(self, active, browser=None):
+    def assertActive(self, active: bool, browser: testlib.Browser | None = None) -> None:
         browser = browser or self.browser
         browser.wait_visible(".pf-v6-c-switch__input" + (":checked" if active else ":not(:checked)"))
 
@@ -44,7 +45,8 @@ class KdumpHelpers(testlib.MachineCase):
             self.machine.execute("systemctl enable kdump; kdumpctl reset-crashkernel")
             self.machine.reboot()
 
-    def crashKernel(self, message, cancel=False, machine=None, browser=None):
+    def crashKernel(self, message: str, cancel: bool = False, machine: testvm.Machine | None = None,
+                    browser: testlib.Browser | None = None) -> None:
         browser = browser or self.browser
         machine = machine or self.machine
 
@@ -65,7 +67,7 @@ class KdumpHelpers(testlib.MachineCase):
             machine.disconnect()
             machine.wait_boot(timeout_sec=300)
 
-    def enableNFSServer(self, machine=None):
+    def enableNFSServer(self, machine: testvm.Machine | None = None) -> None:
         machine = machine or self.machine
         # set up NFS server
         self.machines["nfs"].write("/etc/exports", "/srv/kdump 10.111.113.0/24(rw,no_root_squash)\n")
@@ -74,7 +76,8 @@ class KdumpHelpers(testlib.MachineCase):
         # there shouldn't be any crash reports in the target directory
         self.assertEqual(machine.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
 
-    def run_ansible_playbook(self, browser, machine, allow_failure=False):
+    def run_ansible_playbook(self, browser: testlib.Browser, machine: testvm.Machine,
+                             allow_failure: bool = False) -> None:
         browser.click("#kdump-automation-script")
         ansible_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(2) textarea"
         machine.execute("mkdir -p roles/kdump/tasks")

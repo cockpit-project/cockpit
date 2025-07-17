@@ -18,11 +18,12 @@
 import os
 
 import testlib
+from machine import testvm
 
 
 class SubscriptionCase(testlib.MachineCase):
 
-    def setup_candlepin_service(self, candlepin_machine):
+    def setup_candlepin_service(self, candlepin_machine: testvm.Machine) -> None:
         m = self.machine
 
         # wait for candlepin to be active and verify
@@ -57,6 +58,6 @@ class SubscriptionCase(testlib.MachineCase):
         m.execute(
             "subscription-manager config --server.hostname services.cockpit.lan --server.port 8443 --server.prefix /candlepin")
 
-    def register_with_candlepin(self):
+    def register_with_candlepin(self) -> None:
         self.machine.execute(
             "LC_ALL=C.UTF-8 subscription-manager register --org=donaldduck --activationkey=awesome_os_pool")

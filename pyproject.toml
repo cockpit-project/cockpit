@@ -132,7 +132,7 @@ select = [
     "RSE",     # flake8-raise
     "RUF",     # ruff rules
     "T10",     # flake8-debugger
-    "TCH",     # flake8-type-checking
+    "TC",     # flake8-type-checking
     "UP032",   # f-string
     "W",       # warnings (mostly whitespace)
     "YTT",     # flake8-2020
@@ -143,8 +143,8 @@ ignore = [
     "E731",  # Do not assign a `lambda` expression, use a `def`
     "PT011", # `pytest.raises(OSError)` is too broad
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
-    "TCH001", # Move application import into a type-checking block
-    "TCH002", # Move third-party import `..packages.Packages` into a type-checking block
+    "TC001", # Move application import into a type-checking block
+    "TC002", # Move third-party import `..packages.Packages` into a type-checking block
 ]
 
 [tool.ruff.lint.flake8-pytest-style]

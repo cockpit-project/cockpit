@@ -65,14 +65,14 @@ class TestUpdates(NoSubManCase):
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
 
-    def assertHistory(self, path, updates):
+    def assertHistory(self, path: str, updates: list[str]) -> None:
         selector = path + " li:nth-child({0})"
         for index, pkg in enumerate(updates, start=1):
             self.browser.wait_in_text(selector.format(index), pkg)
         # make sure we don't have any extra ones
         self.assertFalse(self.browser.is_present(selector.format(len(updates) + 1)))
 
-    def check_nth_update(self, index: int, pkgname: str, version: str, severity: str = "bug",
+    def check_nth_update(self, index: int, pkgname: list[str] | str, version: str, severity: str = "bug",
                          num_issues: 'int | None' = None, desc_matches: Collection[str] = (),
                          cves: Collection[str] = (), bugs: Collection[str] = (), arch: 'str | None' = None) -> str:
         """Check the contents of the package update table row at index
@@ -86,7 +86,8 @@ class TestUpdates(NoSubManCase):
 
         if isinstance(pkgname, list):
             for idx, pkg in enumerate(pkgname, 1):
-                self.assertEqual(b.text(row + "tr:first-child [data-label=Name] > div:nth-of-type(%i) span" % idx).split(', ', 1)[0], pkg)
+                sel = row + "tr:first-child [data-label=Name] > div:nth-of-type(%i) span" % idx
+                self.assertEqual(b.text(sel).split(', ', 1)[0], pkg)
         else:
             self.assertEqual(b.text(row + " tr:first-child [data-label=Name]"), pkgname)
             b.mouse(row + "tr:first-child [data-label=Name] span", "mouseenter")
@@ -143,8 +144,8 @@ class TestUpdates(NoSubManCase):
         kpp_kernel_release = "_".join(release)
 
         sanitized_kernel_ver = "_".join(kernel_ver_arch.split(".")[:-2])
-        self.createPackage("-".join(["kpatch-patch", kpp_kernel_version, kpp_kernel_release]), "0", "0", arch=self.secondary_arch,
-                           provides=f"kpatch-patch = {kernel_ver_arch}")
+        self.createPackage("-".join(["kpatch-patch", kpp_kernel_version, kpp_kernel_release]), "0", "0",
+                           arch=self.secondary_arch, provides=f"kpatch-patch = {kernel_ver_arch}")
         self.enableRepo()
 
         self.restore_file("/etc/dnf/plugins/kpatch.conf")
@@ -457,7 +458,11 @@ ExecStart=/usr/local/bin/{package} infinity
         m = self.machine
 
         class Tracer(object):
-            def __init__(self, testObj, rebootRequired=False, testStatusCard=False, packageName="vanilla"):
+            def __init__(self,
+                         testObj: TestUpdates,
+                         rebootRequired: bool = False,
+                         testStatusCard: bool = False,
+                         packageName: str = "vanilla"):
                 self.testObj = testObj
                 self.rebootRequired = rebootRequired
                 self.testStatusCard = testStatusCard
@@ -569,7 +574,8 @@ ExecStart=/usr/local/bin/{package} infinity
             def verify_backend(self):
                 if not self.rebootRequired:
                     # Check the service was actually restarted
-                    newServiceStartTime = m.execute(f"systemctl show {self.packageName}.service --property=ExecMainStartTimestamp")
+                    newServiceStartTime = m.execute(
+                        f"systemctl show {self.packageName}.service --property=ExecMainStartTimestamp")
                     self.testObj.assertGreater(newServiceStartTime, self.serviceStartTime)
 
                 # check no services/processes need reboot or service restart
@@ -696,7 +702,8 @@ Type=simple
 ExecStart=/usr/local/bin/{packageName}
 """
         self.createPackage(packageName, "1", "1", install=True, changes="initial package with service and run script",
-                           content={f"/usr/local/bin/{packageName}": scriptContent, f"/etc/systemd/system/{packageName}.service": unitContent},
+                           content={f"/usr/local/bin/{packageName}": scriptContent,
+                                    f"/etc/systemd/system/{packageName}.service": unitContent},
                            postinst=f"chmod a+x /usr/local/bin/{packageName}; systemctl daemon-reload; systemctl start {packageName}.service")
 
         scriptContent = "#!/bin/sh\nfalse"
@@ -707,7 +714,8 @@ RemainAfterExit=yes
 ExecStart=/usr/local/bin/{packageName}
 """
         self.createPackage(packageName, "1", "2",
-                           content={f"/usr/local/bin/{packageName}": scriptContent, f"/etc/systemd/system/{packageName}.service": unitContent})
+                           content={f"/usr/local/bin/{packageName}": scriptContent,
+                                    f"/etc/systemd/system/{packageName}.service": unitContent})
 
         self.enableRepo()
 
@@ -758,7 +766,7 @@ ExecStart=/usr/local/bin/{packageName}
                            changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
         # bug fixes
         self.createPackage("buggy", "2", "1", install=True)
-        self.createPackage("buggy", "2", "2", changes="* Fixit", bugs=[123, 456])
+        self.createPackage("buggy", "2", "2", changes="* Fixit", bugs=["123", "456"])
         # security fix with proper CVE list and severity
         self.createPackage("secdeclare", "3", "4.a1", install=True)
         self.createPackage("secdeclare", "3", "4.b1", severity="security",
@@ -1420,7 +1428,7 @@ class TestAutoUpdates(NoSubManCase):
             self.timer_unit = "dnf-automatic-install"
             self.config = "/etc/dnf/automatic.conf"
 
-    def closeSettings(self, browser):
+    def closeSettings(self, browser: testlib.Browser) -> None:
         browser.click("#automatic-updates-dialog button:contains('Save changes')")
         with browser.wait_timeout(30):
             browser.wait_not_present("#automatic-updates-dialog")
@@ -1438,7 +1446,7 @@ class TestAutoUpdates(NoSubManCase):
             self.assertFalse(b.is_present("#auto-update-type"))
             return
 
-        def assertTimerDnf(hour, dow):
+        def assertTimerDnf(hour: str | None, dow: str | None) -> None:
             out = m.execute(f"systemctl --no-legend list-timers {self.timer_unit}.timer")
             if hour:
                 # don't test the minutes, due to RandomizedDelaySec=60m
@@ -1469,13 +1477,13 @@ class TestAutoUpdates(NoSubManCase):
             else:
                 self.assertNotIn("ExecStartPost", out)
 
-        def assertTimer(hour, dow=None):
+        def assertTimer(hour: str | None, dow: str | None = None) -> None:
             if "dnf" in self.backend:
                 assertTimerDnf(hour, dow)
             else:
                 raise NotImplementedError(self.backend)
 
-        def assertTypeDnf(type_):
+        def assertTypeDnf(type_: str) -> None:
             if type_ == "all":
                 match = '= default'
             elif type_ == "security":
@@ -1485,7 +1493,7 @@ class TestAutoUpdates(NoSubManCase):
 
             self.assertIn(match, m.execute(f"grep upgrade_type {self.config}"))
 
-        def assertType(type_):
+        def assertType(type_: str) -> None:
             if "dnf" in self.backend:
                 assertTypeDnf(type_)
             else:

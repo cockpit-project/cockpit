@@ -76,7 +76,7 @@ import * as PK from "packagekit.js";
 import * as python from "python.js";
 import * as timeformat from "timeformat";
 
-import { debug } from './utils';
+import { debug, watchRedHatSubscription } from './utils';
 import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
@@ -1319,7 +1319,7 @@ class OsUpdates extends React.Component {
     }
 
     initialLoadOrRefresh() {
-        PK.watchRedHatSubscription(registered => this.setState({ unregistered: !registered }));
+        watchRedHatSubscription(registered => this.setState({ unregistered: !registered }));
 
         cockpit.addEventListener("visibilitychange", () => {
             if (!cockpit.hidden)

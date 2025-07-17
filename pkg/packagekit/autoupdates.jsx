@@ -221,7 +221,7 @@ class Dnf4Impl extends ImplBase {
 class Dnf5Impl extends ImplBase {
     async getConfig() {
         this.packageName = "dnf5-plugin-automatic";
-        this.configFile = "/etc/dnf/dnf5-plugins/automatic.conf";
+        this.configFile = "/etc/dnf/automatic.conf";
 
         try {
             await cockpit.spawn(["rpm", "-q", this.packageName], { err: "ignore" });
@@ -234,6 +234,8 @@ class Dnf5Impl extends ImplBase {
 
         // - dnf 5 only has a single timer dnf5-automatic.timer and a config file with
         //   "apply_updates" (yes/no) and "upgrade_type" (default/security)
+        //   defaults are in /usr/share/dnf5/dnf5-plugins/automatic.conf and admin overrides are in /etc
+        //   (this.configFile)
         // - by default this runs every day (OnCalendar)
         try {
             const output = await cockpit.script(

@@ -43,7 +43,7 @@ class PackageCase(MachineCase):
             self.backend = "dnf4"
             self.primary_arch = "noarch"
             self.secondary_arch = "x86_64"
-        elif self.machine.image.startswith("fedora") or self.machine.image.startswith("rhel-") or self.machine.image.startswith("centos-"):
+        elif self.machine.image.startswith(("fedora", "rhel-", "centos-")):
             self.backend = "dnf5"
             self.primary_arch = "noarch"
             self.secondary_arch = "x86_64"
@@ -72,7 +72,8 @@ class PackageCase(MachineCase):
             self.restore_dir("/var/lib/apt", reboot_safe=True)
             self.restore_dir("/var/cache/apt", reboot_safe=True)
             self.restore_dir("/etc/apt", reboot_safe=True)
-            self.machine.execute("echo > /etc/apt/sources.list; rm -f /etc/apt/sources.list.d/*; apt-get clean; apt-get update")
+            self.machine.execute(
+                "echo > /etc/apt/sources.list; rm -f /etc/apt/sources.list.d/*; apt-get clean; apt-get update")
         elif self.backend == "alpm":
             self.restore_dir("/var/lib/pacman", reboot_safe=True)
             self.restore_dir("/var/cache/pacman", reboot_safe=True)
@@ -82,8 +83,10 @@ class PackageCase(MachineCase):
             self.restore_file("/etc/pacman.d/mirrorlist")
             self.restore_file("/usr/share/libalpm/hooks/90-packagekit-refresh.hook")
 
-            self.machine.execute("rm /etc/pacman.conf /etc/pacman.d/mirrorlist /var/lib/pacman/sync/* /usr/share/libalpm/hooks/90-packagekit-refresh.hook")
-            self.machine.execute("test -d /var/lib/PackageKit/alpm && rm -r /var/lib/PackageKit/alpm || true")  # Drop alpm state directory as it interferes with running offline
+            self.machine.execute("rm /etc/pacman.conf /etc/pacman.d/mirrorlist /var/lib/pacman/sync/* "
+                                 "/usr/share/libalpm/hooks/90-packagekit-refresh.hook")
+            # Drop alpm state directory as it interferes with running offline
+            self.machine.execute("test -d /var/lib/PackageKit/alpm && rm -r /var/lib/PackageKit/alpm || true")
             # Clean up possible leftover lockfile
             self.machine.execute("""
                 if [ -f /var/lib/pacman/db.lck ]; then
@@ -118,7 +121,8 @@ class PackageCase(MachineCase):
         self.restore_file("/var/lib/PackageKit/transactions.db")
 
         if self.image in ["debian-stable", "debian-testing"]:
-            # PackageKit tries to resolve some DNS names, but our test VM is offline; temporarily disable the name server to fail quickly
+            # PackageKit tries to resolve some DNS names, but our test VM is offline;
+            # temporarily disable the name server to fail quickly
             self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
 
@@ -132,9 +136,10 @@ class PackageCase(MachineCase):
         if self.backend == 'dnf5':
             self.restore_file("/etc/dnf/dnf5-plugins/automatic.conf")
             self.addCleanup(self.machine.execute, "systemctl disable --now dnf5-automatic.timer 2>/dev/null || true")
-            self.addCleanup(self.machine.execute, "rm -r /etc/systemd/system/dnf5-automatic*.d && systemctl daemon-reload || true")
+            self.addCleanup(self.machine.execute,
+                            "rm -r /etc/systemd/system/dnf5-automatic*.d && systemctl daemon-reload || true")
 
-        self.updateInfo: dict[tuple[str, str, str], Mapping[str, str]] = {}
+        self.updateInfo: dict[tuple[str, str, str], Mapping[str, str | list[str]]] = {}
 
         # HACK: kpatch check sometimes complains that we don't set up a full repo in unrelated tests
         self.allow_browser_errors("Could not determine kpatch packages:.*repodata updates was not complete")
@@ -144,8 +149,9 @@ class PackageCase(MachineCase):
     #
 
     def createPackage(self, name: str, version: str, release: str, *, install: bool = False,
-                      postinst: str | None = None, depends: str = "", content: Mapping[str, Mapping[str, str] | str] | None = None,
-                      arch: str | None = None, provides: str | None = None, **updateinfo: str) -> None:
+                      postinst: str | None = None, depends: str = "",
+                      content: Mapping[str, Mapping[str, str] | str] | None = None,
+                      arch: str | None = None, provides: str | None = None, **updateinfo: str | list[str]) -> None:
         """Create a dummy package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -157,16 +163,20 @@ class PackageCase(MachineCase):
             provides = ""
 
         if self.backend == "apt":
-            self.createDeb(name, version + '-' + release, depends, postinst, install=install, content=content, arch=arch, provides=provides)
+            self.createDeb(name, version + '-' + release, depends, postinst, install=install, content=content,
+                           arch=arch, provides=provides)
         elif self.backend == "alpm":
-            self.createPacmanPkg(name, version, release, depends, postinst, install=install, content=content, arch=arch, provides=provides)
+            self.createPacmanPkg(name, version, release, depends, postinst, install=install, content=content,
+                                 arch=arch, provides=provides)
         else:
-            self.createRpm(name, version, release, depends, postinst, install=install, content=content, arch=arch, provides=provides)
+            self.createRpm(name, version, release, depends, postinst, install=install, content=content,
+                           arch=arch, provides=provides)
         if updateinfo:
             self.updateInfo[name, version, release] = updateinfo
 
     def createDeb(self, name: str, version: str, depends: str, postinst: str | None = None, *, install: bool,
-                  content: Mapping[str, Mapping[str, str] | str] | None = None, arch: str | None = None, provides: str | None = None) -> None:
+                  content: Mapping[str, Mapping[str, str] | str] | None = None,
+                  arch: str | None = None, provides: str | None = None) -> None:
         """Create a dummy deb in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -213,8 +223,11 @@ class PackageCase(MachineCase):
         m.execute(cmd)
         self.addCleanup(m.execute, f"dpkg -P --force-depends --force-remove-reinstreq {name} 2>/dev/null || true")
 
-    def createRpm(self, name: str, version: str, release: str, requires: str, post: str | None = None, *, install: bool,
-                  content: Mapping[str, Mapping[str, str] | str] | None = None, arch: str | None = None, provides: str | None = None) -> None:
+    def createRpm(self, name: str, version: str, release: str, requires: str, post: str | None = None, *,
+                  install: bool,
+                  content: Mapping[str, Mapping[str, str] | str] | None = None,
+                  arch: str | None = None,
+                  provides: str | None = None) -> None:
         """Create a dummy rpm in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -277,8 +290,11 @@ rm -rf ~/rpmbuild
         self.machine.execute(cmd.format(self.repo_dir, name, version, release, arch))
         self.addCleanup(self.machine.execute, f"rpm -e --nodeps {name} 2>/dev/null || true")
 
-    def createPacmanPkg(self, name: str, version: str, release: str, requires: str, postinst: str | None = None, *, install: bool,
-                        content: Mapping[str, Mapping[str, str] | str] | None = None, arch: str | None = None, provides: str | None = None) -> None:
+    def createPacmanPkg(self, name: str, version: str, release: str, requires: str, postinst: str | None = None, *,
+                        install: bool,
+                        content: Mapping[str, Mapping[str, str] | str] | None = None,
+                        arch: str | None = None,
+                        provides: str | None = None) -> None:
         """Create a dummy pacman package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -363,9 +379,12 @@ post_upgrade() {{
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog
         for ((pkg, ver, rel), info) in self.updateInfo.items():
             changes = info.get("changes", "some changes")
+            assert isinstance(changes, str)
             if info.get("bugs"):
+                assert isinstance(info["bugs"], list)
                 changes += f" (Closes: {', '.join([('#' + str(b)) for b in info['bugs']])})"
             if info.get("cves"):
+                assert isinstance(info["cves"], list)
                 changes += "\n  * " + ", ".join(info["cves"])
 
             path = f"{self.repo_dir}/changelogs/{pkg[0]}/{pkg}/{pkg}_{ver}-{rel}"

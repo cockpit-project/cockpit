@@ -99,7 +99,7 @@ export const TunedPerformanceProfile = () => {
     useEvent(tunedService, "changed", () => {
         // We get a flood of "changed" events sometimes without the
         // state actually changing. So let's protect against that.
-        if (oldServiceState.current != tunedService.state) {
+        if (oldServiceState.current !== tunedService.state) {
             oldServiceState.current = tunedService.state;
             update();
         }

@@ -1060,9 +1060,9 @@ class OsUpdates extends React.Component {
                     debug("tracer succeeded, output:", output);
                     const restartPackages = JSON.parse(output);
                     // Filter out duplicates
-                    restartPackages.reboot = [...new Set(shortenCockpitWsInstance(restartPackages.reboot))];
-                    restartPackages.daemons = [...new Set(shortenCockpitWsInstance(restartPackages.daemons))];
-                    restartPackages.manual = [...new Set(shortenCockpitWsInstance(restartPackages.manual))];
+                    restartPackages.reboot = deduplicate(shortenCockpitWsInstance(restartPackages.reboot));
+                    restartPackages.daemons = deduplicate(shortenCockpitWsInstance(restartPackages.daemons));
+                    restartPackages.manual = deduplicate(shortenCockpitWsInstance(restartPackages.manual));
                     debug("tracer parsed restartPackages:", JSON.stringify(restartPackages));
                     this.setState({ checkRestartAvailable: true, checkRestartRunning: false, restartPackages });
                 })

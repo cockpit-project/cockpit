@@ -1423,7 +1423,7 @@ class TestAutoUpdates(NoSubManCase):
         self.supported_backend = "dnf" in self.backend
         if self.backend == "dnf5":
             self.timer_unit = "dnf5-automatic"
-            self.config = "/etc/dnf/dnf5-plugins/automatic.conf"
+            self.config = "/etc/dnf/automatic.conf"
         elif self.backend == "dnf4":
             self.timer_unit = "dnf-automatic-install"
             self.config = "/etc/dnf/automatic.conf"

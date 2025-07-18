@@ -129,11 +129,7 @@ function parseCVEs(text) {
 }
 
 function deduplicate(list) {
-    const d = { };
-    list.forEach(i => { if (i) d[i] = true; });
-    const result = Object.keys(d);
-    result.sort();
-    return result;
+    return [...new Set(list)].sort();
 }
 
 // Insert comma strings in between elements of the list. Unlike list.join(",")

@@ -685,7 +685,6 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
             <EmptyStatePanel icon={RebootingIcon}
                              title={ _("Update was successful") }
                              headingLevel="h5"
-                             titleSize="4xl"
                              paragraph={paragraph}
                              secondary={actions} />
             <div className="flow-list-blank-slate">
@@ -750,7 +749,6 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
     return (<>
         <EmptyStatePanel title={ _("Update was successful") }
             headingLevel="h5"
-            titleSize="4xl"
             secondary={
                 <>
                     { entries.length > 0 && <ListingTable aria-label={_("Update Success Table")}
@@ -1443,7 +1441,6 @@ class OsUpdates extends React.Component {
             return <EmptyStatePanel
                 title={_("This system is not registered")}
                 headingLevel="h5"
-                titleSize="4xl"
                 paragraph={ _("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.") }
                 icon={ExclamationCircleIcon}
                 action={ _("Register…") }
@@ -1469,7 +1466,6 @@ class OsUpdates extends React.Component {
             else
                 return <EmptyStatePanel loading title={ _("Checking software status")}
                                         headingLevel="h5"
-                                        titleSize="4xl"
                                         paragraph={STATE_HEADINGS[this.state.state]}
                 />;
 
@@ -1642,7 +1638,6 @@ class OsUpdates extends React.Component {
             page_status.set_own(null);
             return <EmptyStatePanel loading title={ _("Restarting") }
                                     headingLevel="h5"
-                                    titleSize="4xl"
                                     paragraph={ _("Your server will close the connection soon. You can reconnect after it has restarted.") }
             />;
 

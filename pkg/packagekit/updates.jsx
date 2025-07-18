@@ -157,14 +157,7 @@ function cleanupChangelogLine(text) {
 
 // Replace cockpit-wsinstance-https@[long_id] with a shorter string
 function shortenCockpitWsInstance(list) {
-    list = [...list];
-
-    list.forEach((item, idx) => {
-        if (item.startsWith("cockpit-wsinstance-https"))
-            list[idx] = "cockpit-wsinstance-https@.";
-    });
-
-    return list;
+    return list.map(item => item.startsWith('cockpit-wsinstance-https') ? 'cockpit-wsinstance-https@.' : item);
 }
 
 function count_security_updates(updates) {

@@ -84,6 +84,13 @@ fi
 . /usr/lib/os-release
 export TEST_OS="${ID}-${VERSION_ID/./-}"
 
+if [ -e /sysroot/ostree ]; then
+    TEST_OS="${TEST_OS}-bootc"
+
+    # bootc deployments have a r/o /usr/local; make it writable
+    mount -t tmpfs tmpfs /usr/local
+fi
+
 # Run tests in the cockpit tasks container, as unprivileged user
 CONTAINER="$(cat .cockpit-ci/container)"
 exec podman \

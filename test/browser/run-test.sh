@@ -60,6 +60,11 @@ if [ "$PLAN" = "main" ]; then
         EXCLUDES="$EXCLUDES TestLogin.testClientCertAuthentication"
     fi
 
+    # TODO: our /usr/local/ bind mount isn't "visible" to systemd
+    if [ "${TEST_OS%bootc}" != "$TEST_OS" ]; then
+        EXCLUDES="$EXCLUDES TestServices.testTimer"
+    fi
+
     # These don't test more external APIs
     EXCLUDES="$EXCLUDES
               TestAccounts.testAccountLogs

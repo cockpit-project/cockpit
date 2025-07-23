@@ -17,23 +17,25 @@ mkdir -p /root/.ssh
 curl https://raw.githubusercontent.com/cockpit-project/bots/main/machine/identity.pub >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 
-# HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
-# and is hard to disable as it does not use systemd
-if rpm -q setroubleshoot-server; then
-    dnf remove -y --setopt=clean_requirements_on_remove=False setroubleshoot-server
-fi
+if [ ! -e /sysroot/ostree ]; then
+    # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
+    # and is hard to disable as it does not use systemd
+    if rpm -q setroubleshoot-server; then
+        dnf remove -y --setopt=clean_requirements_on_remove=False setroubleshoot-server
+    fi
 
-# HACK: this package creates bogus/broken sda → nvme symlinks; it's new in rawhide TF default instances, not required for
-# our tests, and only causes trouble; https://github.com/amazonlinux/amazon-ec2-utils/issues/37
-if rpm -q amazon-ec2-utils; then
-    rpm -e --verbose amazon-ec2-utils
-    # clean up the symlinks, if they exist
-    udevadm trigger /dev/nvme* || true
-fi
+    # HACK: this package creates bogus/broken sda → nvme symlinks; it's new in rawhide TF default instances, not required for
+    # our tests, and only causes trouble; https://github.com/amazonlinux/amazon-ec2-utils/issues/37
+    if rpm -q amazon-ec2-utils; then
+        rpm -e --verbose amazon-ec2-utils
+        # clean up the symlinks, if they exist
+        udevadm trigger /dev/nvme* || true
+    fi
 
-# dnf installs "missing" weak dependencies, but we don't want them for plans other than "main"
-if [ "$PLAN" != "main" ] && rpm -q cockpit-packagekit; then
-    dnf remove -y cockpit-packagekit
+    # dnf installs "missing" weak dependencies, but we don't want them for plans other than "main"
+    if [ "$PLAN" != "main" ] && rpm -q cockpit-packagekit; then
+        dnf remove -y cockpit-packagekit
+    fi
 fi
 
 # if we run during cross-project testing against our main-builds COPR, then let that win

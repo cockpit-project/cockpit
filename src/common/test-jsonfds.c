@@ -273,7 +273,7 @@ test_print_string_memory_safety (TestFixture   *fixture,
         {
           guint residual = seq;
           gint length = 0;
-          int reps;
+          int reps = 0;
 
           fixture->expected_end = stpcpy (fixture->expected_buffer, ", \"key\": \"");
 

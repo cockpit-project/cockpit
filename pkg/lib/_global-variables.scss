@@ -1,4 +1,7 @@
-@forward "@patternfly/patternfly/sass-utilities";
+@forward "@patternfly/patternfly/sass-utilities" with (
+  // Tell Patternfly to use a different font directory
+  $pf-v6-global--font-path: "../../static/fonts" !default,
+);
 
 /*
  * PatternFly 4 adapting the lists too early.

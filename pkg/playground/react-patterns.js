@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import 'cockpit-dark-theme'; // once per page
 
-import '../lib/patternfly/patternfly-6-cockpit.scss';
+import '../lib/page.scss';
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";

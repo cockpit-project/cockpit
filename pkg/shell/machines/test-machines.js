@@ -15,12 +15,14 @@ QUnit.module("machines.d parsing tests", {
  * Tests for parsing on-disk JSON configuration
  */
 
-async function machinesParseTest(assert, machines_defs, expectedProperty) {
+async function machinesParseTest(assert, machines_defs, expectedProperty, mode = null) {
     for (const fname in machines_defs) {
         let path = fname;
         if (fname.indexOf('/') < 0)
             path = configDir + "/cockpit/machines.d/" + fname;
         await cockpit.file(path).replace(machines_defs[fname]);
+        if (mode !== null)
+            await cockpit.script(`chmod ${mode} ${path}`);
     }
 
     const reply = await dbus.call("/machines", "org.freedesktop.DBus.Properties", "Get",
@@ -53,6 +55,8 @@ QUnit.test("two definitions", async assert => machinesParseTest(
 );
 
 QUnit.test("invalid json", async assert => machinesParseTest(assert, { "01.json": '{"green":' }, {}));
+
+QUnit.test("no read permissions", async assert => machinesParseTest(assert, { "02.json": '{"green": {} }' }, {}, 0));
 
 skipWithPybridge("invalid data types", async assert => machinesParseTest(assert, { "01.json": '{"green": []}' }, {}));
 

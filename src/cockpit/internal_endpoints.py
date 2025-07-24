@@ -77,15 +77,18 @@ class cockpit_Machines(bus.Object):
         results: Dict[str, Dict[str, Variant]] = {}
 
         for filename in glob.glob(f'{self.path}/*.json'):
-            with open(filename) as fp:
-                try:
-                    contents = json.load(fp)
-                except json.JSONDecodeError:
-                    logger.warning('Invalid JSON in file %s.  Ignoring.', filename)
-                    continue
-                # merge
-                for hostname, attrs in contents.items():
-                    results[hostname] = {key: Variant(value) for key, value in attrs.items()}
+            try:
+                with open(filename) as fp:
+                    try:
+                        contents = json.load(fp)
+                    except json.JSONDecodeError:
+                        logger.warning('Invalid JSON in file %s.  Ignoring.', filename)
+                        continue
+                    # merge
+                    for hostname, attrs in contents.items():
+                        results[hostname] = {key: Variant(value) for key, value in attrs.items()}
+            except OSError as exc:
+                logger.error('Unreadable machines.d file %s: %s.  Ignoring.', filename, exc)
 
         return results
 

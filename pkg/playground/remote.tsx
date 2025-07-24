@@ -10,7 +10,7 @@ import cockpit from "cockpit";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 import { connect_host } from "cockpit-connect-ssh";
 
-import '../lib/patternfly/patternfly-6-cockpit.scss';
+import 'page.scss';
 
 const RemotePage = () => {
     const dialogs = useDialogs();

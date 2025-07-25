@@ -96,19 +96,21 @@ class PackageCase(MachineCase):
             """)
 
             # Initial config for installation
+            empty_repo_dir = '/var/lib/cockpittest/empty'
+            config = f"""
+[options]
+Architecture = auto
+HoldPkg     = pacman glibc
 
-            # HACK: pacman does not like no repositories, and also
-            # doesn't like empty repositories. So we enable our test
-            # repo already here, with one bogus package in it.
-
-            self.createPackage("you-are-not-alone-pacman", "1.0", "1")
-            self.enableRepo()
-
-            # Let's also remove the package archive so that subsequent
-            # runs of repo-add don't complain that they have already
-            # seen it.
-            self.machine.execute(f"rm {self.repo_dir}/you-are-not-alone-pacman*")
-
+[empty]
+SigLevel = Never
+Server = file://{empty_repo_dir}
+"""
+            # HACK: Setup empty repo for packagekit
+            self.machine.execute(f"mkdir -p {empty_repo_dir} || true")
+            self.machine.execute(f"repo-add {empty_repo_dir}/empty.db.tar.gz")
+            self.machine.write("/etc/pacman.conf", config)
+            self.machine.execute("pacman -Sy")
         else:
             self.restore_dir("/etc/yum.repos.d", reboot_safe=True)
             self.restore_dir("/var/cache/dnf", reboot_safe=True)
@@ -454,16 +456,12 @@ post_upgrade() {{
                     """)
 
             config = f"""
-[options]
-Architecture = auto
-HoldPkg     = pacman glibc
-
 [testrepo]
 SigLevel = Never
 Server = file://{self.repo_dir}
             """
-            self.machine.write("/etc/pacman.conf", config)
-            self.machine.execute("pacman -Sy")
+            if 'testrepo' not in self.machine.execute('grep testrepo /etc/pacman.conf || true'):
+                self.machine.write("/etc/pacman.conf", config, append=True)
 
         else:
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=2306114

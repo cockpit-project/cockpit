@@ -1355,6 +1355,7 @@ doubt use `internal-error`.
 
  * `internal-error`
  * `no-cockpit`
+ * `unsupported-shell`
  * `no-session`
  * `access-denied`
  * `authentication-failed`

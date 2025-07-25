@@ -41,9 +41,10 @@ class TestServices(testlib.MachineCase):
         self.restore_dir("/etc/xdg/systemd/user")
         self.restore_dir("/home/admin/.config")
 
-    def run_systemctl(self, user, cmd):
+    def run_systemctl(self, cmd: str, *, user: bool = False):
         if user:
-            self.machine.execute(f"su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); systemctl --user {cmd}'")
+            self.machine.execute(
+                f"su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); systemctl --user {cmd}'")
         else:
             self.machine.execute(f"systemctl {cmd}")
 
@@ -174,8 +175,8 @@ while true; do
 done
 """, perm="755")
         # After writing files out tell systemd about them
-        self.run_systemctl(user=False, cmd="daemon-reload")
-        self.run_systemctl(user=True, cmd="daemon-reload || true")
+        self.run_systemctl("daemon-reload", user=False)
+        self.run_systemctl("daemon-reload || true", user=True)
 
         # When the test fails while `test.service` is active, the process keeps running and
         # `systemctl status test.service` still shows it as active until this process dies
@@ -242,19 +243,19 @@ WantedBy=default.target
         self.wait_service_in_panel("test.service", "Disabled")
         self.wait_service_state("test.service", "inactive")
 
-        self.run_systemctl(user, "start test.service")
+        self.run_systemctl("start test.service", user=user)
         self.wait_service_state("test.service", "active")
         self.wait_service_in_panel("test.service", "Disabled")
 
-        self.run_systemctl(user, "stop test.service")
+        self.run_systemctl("stop test.service", user=user)
         self.wait_service_state("test.service", "inactive")
         self.wait_service_in_panel("test.service", "Disabled")
 
-        self.run_systemctl(user, "enable test.service")
+        self.run_systemctl("enable test.service", user=user)
         self.wait_service_state("test.service", "inactive")
         self.wait_service_in_panel("test.service", "Enabled")
 
-        self.run_systemctl(user, "start test.service")
+        self.run_systemctl("start test.service", user=user)
 
         b.wait_attr("#services-toolbar", "data-loading", "false")
 
@@ -590,8 +591,8 @@ WantedBy=default.target
 
         # ensure we have one running timer; in user mode we do not have
         # a running logind session at this point yet, so enable instead
-        self.run_systemctl(user=False, cmd=("enable --global --runtime" if user else "start") + " deleteme.timer")
-        self.addCleanup(self.run_systemctl, user, "stop deleteme.timer || true")
+        self.run_systemctl(("enable --global --runtime" if user else "start") + " deleteme.timer")
+        self.addCleanup(self.run_systemctl, "stop deleteme.timer || true", user=user)
 
         # Select Timer tab
         self.login_and_go(f'/system/services#/{"?owner=user" if user else ""}')
@@ -605,7 +606,7 @@ WantedBy=default.target
         # timer from initial page/units load
         b.wait_in_text(self.svc_sel('deleteme.timer') + ' .service-unit-next-trigger', today)
         # timer gets updated on PropertiesChanged event
-        self.run_systemctl(user, "start test.timer")
+        self.run_systemctl("start test.timer", user=user)
         b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-next-trigger', today)  # next run
         b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
 
@@ -615,11 +616,11 @@ WantedBy=default.target
         b.wait_in_text('.service-unit-last-trigger', "unknown")  # last trigger
         b.click(".pf-v6-c-breadcrumb a:contains('Services')")
 
-        self.run_systemctl(user, "stop test.timer")
+        self.run_systemctl("stop test.timer", user=user)
 
         b.wait_visible(self.svc_sel('test-onboot.timer'))
         b.wait_text(self.svc_sel('test-onboot.timer') + ' .service-unit-triggers', '')
-        self.run_systemctl(user, "start test-onboot.timer")
+        self.run_systemctl("start test-onboot.timer", user=user)
         # Check the next run. Since it triggers 200mins after the boot, it might be today or tomorrow
         # this is too racy to predict accurately
         today = m.execute("date '+%b %-d, %Y'").strip()
@@ -628,7 +629,7 @@ WantedBy=default.target
         b.wait_in_text(sel_next, ", ")
         self.assertRegex(b.text(sel_next), f"{today}|{tomorrow}")
         b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
-        self.run_systemctl(user, "stop test-onboot.timer")
+        self.run_systemctl("stop test-onboot.timer", user=user)
 
         if not user:
             self.goto_service("deleteme.timer")
@@ -689,16 +690,16 @@ Description=Mem Hog Service
 ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
 """)
 
-        self.run_systemctl(user, "daemon-reload")
+        self.run_systemctl("daemon-reload", user=user)
 
         # Check that MemoryCurrent is shown
         self.goto_service("mem-hog.service")
         b.wait_not_present("#memory")
         # In some distros systemctl is showing memory current as [Not Set] for user units
         if not user or not m.image.startswith("rhel-8-"):
-            self.run_systemctl(user, "start mem-hog.service")
+            self.run_systemctl("start mem-hog.service", user=user)
             # If the test fails before we stop mem-hog, the next test run will not get the correct memory usage here
-            self.addCleanup(self.run_systemctl, user, "stop mem-hog.service || true")
+            self.addCleanup(self.run_systemctl, "stop mem-hog.service || true", user=user)
             # initial memory detection takes very long especially on RHEL 8
             with b.wait_timeout(60):
                 b.wait_visible("#memory")
@@ -709,7 +710,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
             # MemoryCurrent auto-updates every 30s - when it updates the memory used should be ~50MiB
             with b.wait_timeout(60):
                 b.wait(lambda: float(b.text("#memory").split(" ")[0]) > 40)
-            self.run_systemctl(user, "stop mem-hog.service")
+            self.run_systemctl("stop mem-hog.service", user=user)
             b.wait_not_present("#memory")
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
@@ -941,7 +942,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
 """)
 
         # After writing files out tell systemd about them
-        self.run_systemctl(user, "daemon-reload || true")
+        self.run_systemctl("daemon-reload || true", user=user)
 
         def rel_sel(reltype, service):
             return f"#{''.join(reltype.split(' '))} a:contains('{service}')"
@@ -1300,7 +1301,7 @@ Where=/fail
 
         # ensure that there is at least one running service
         self.make_test_service("/etc/systemd/user")
-        self.run_systemctl(user=True, cmd="enable --now test.service")
+        self.run_systemctl("enable --now test.service", user=True)
         b.click("#user")
         self.wait_service_state("test.service", "active")
         self.wait_service_state("test.service", "Enabled")

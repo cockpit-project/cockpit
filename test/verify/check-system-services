@@ -48,11 +48,12 @@ class TestServices(testlib.MachineCase):
         else:
             self.machine.execute(f"systemctl {cmd}")
 
-    def pick_tab(self, n):
+    def pick_tab(self, n: int):
         self.browser.click(f'#services-filter li:nth-child({n}) a')
 
-    def wait_onoff(self, val):
-        self.browser.wait_visible(".service-top-panel .pf-v6-c-switch__input" + (":checked" if val else ":not(:checked)"))
+    def wait_onoff(self, val: bool):
+        self.browser.wait_visible(".service-top-panel .pf-v6-c-switch__input" +
+                                  (":checked" if val else ":not(:checked)"))
 
     def toggle_onoff(self):
         self.browser.click(".service-top-panel .pf-v6-c-switch__input")
@@ -60,11 +61,12 @@ class TestServices(testlib.MachineCase):
         self.browser.mouse(".service-top-panel .pf-v6-c-switch__input", "mouseleave")
         self.browser.wait_not_present("[role='tooltip']")
 
-    def do_action(self, action):
+    def do_action(self, action: str):
         self.browser.click(".service-top-panel button.pf-v6-c-menu-toggle")
         self.browser.click(f"#services-page .pf-v6-c-menu__list-item:contains('{action}') button")
 
-    def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
+    def check_service_details(self, statuses: list[str], actions: list[str],
+                              enabled: bool, onoff: bool = True, kebab: bool = True):
         with self.browser.wait_timeout(60):
             self.browser.wait_collected_text("#statuses .status", "".join(statuses))
         if onoff:
@@ -80,7 +82,7 @@ class TestServices(testlib.MachineCase):
         else:
             self.browser.wait_not_present("#services-page .pf-v6-c-menu__list")
 
-    def check_service_on(self, expect_reload=True):
+    def check_service_on(self, expect_reload: bool = True):
         self.check_service_details(
             ["Running", "Automatically starts"],
             ["Reload" if expect_reload else "", "Restart", "Stop", "Disallow running (mask)", "Pin unit"],
@@ -91,13 +93,13 @@ class TestServices(testlib.MachineCase):
                                    ["Start", "Disallow running (mask)", "Pin unit"],
                                    enabled=False)
 
-    def svc_sel(self, service):
+    def svc_sel(self, service: str):
         return f'tr[data-goto-unit="{service}"]'
 
-    def goto_service(self, service):
+    def goto_service(self, service: str):
         return self.browser.click(self.svc_sel(service) + ' a')
 
-    def wait_service_state(self, service, state):
+    def wait_service_state(self, service: str, state: str):
         state_new = state
         if 'inactive' in state:
             state_new = 'Not running'
@@ -108,7 +110,7 @@ class TestServices(testlib.MachineCase):
 
         self.browser.wait_in_text(self.svc_sel(service), state_new)
 
-    def select_file_state(self, states):
+    def select_file_state(self, states: list[str] | str):
         if not isinstance(states, list):
             states = [states]
 
@@ -119,7 +121,7 @@ class TestServices(testlib.MachineCase):
         for state in states:
             self.browser.wait_in_text(".pf-v6-c-label-group:contains('File state')", state)
 
-    def select_active_state(self, states):
+    def select_active_state(self, states: list[str] | str):
         if not isinstance(states, list):
             states = [states]
 
@@ -133,17 +135,17 @@ class TestServices(testlib.MachineCase):
     def wait_page_load(self):
         self.browser.wait_not_present(".pf-v6-c-empty-state .pf-v6-c-spinner[aria-valuetext='Loading...']")
 
-    def wait_service_in_panel(self, service, title):
+    def wait_service_in_panel(self, service: str, title: str):
         self.wait_service_state(service, title)
 
-    def wait_service_present(self, service):
+    def wait_service_present(self, service: str):
         service_name = service[:-8] if service.endswith(".service") else service
         self.browser.wait_text(f'tr[data-goto-unit="{service}"] .service-unit-id', service_name)
 
-    def wait_service_not_present(self, service):
+    def wait_service_not_present(self, service: str):
         self.browser.wait_not_present(self.svc_sel(service))
 
-    def make_test_service(self, path="/etc/systemd/system/"):
+    def make_test_service(self, path: str = "/etc/systemd/system/"):
         self.write_file(f"{path}/test.service",
                         """
 [Unit]
@@ -194,7 +196,8 @@ done
     def testBasicSession(self):
         self._testBasic(user=True)
 
-    def _testBasic(self, user=False):
+    def _testBasic(self, user: bool = False):
+
         m = self.machine
         b = self.browser
 
@@ -534,7 +537,7 @@ WantedBy=default.target
     def testTimerSession(self):
         self._testTimer(user=True)
 
-    def _testTimer(self, user):
+    def _testTimer(self, user: bool):
         m = self.machine
         b = self.browser
 
@@ -671,7 +674,7 @@ WantedBy=default.target
     def testServiceMetricsSession(self):
         self._testServiceMetrics(user=True)
 
-    def _testServiceMetrics(self, user):
+    def _testServiceMetrics(self, user: bool):
         m = self.machine
         b = self.browser
 
@@ -774,11 +777,11 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
     def testLogsUser(self):
         self._testLogs(user=True)
 
-    def _testLogs(self, user=False):
+    def _testLogs(self, user: bool = False):
         b = self.browser
         service_type = "user-service" if user else "service"
 
-        def append_user(url):
+        def append_user(url: str) -> str:
             if user:
                 return url + ("" if "#/" in url else "#/") + "?owner=user"
             return url
@@ -904,7 +907,7 @@ WantedBy=multi-user.target
     def testRelationshipsUser(self):
         self._testRelationships(user=True)
 
-    def _testRelationships(self, user=False):
+    def _testRelationships(self, user: bool = False):
         b = self.browser
 
         systemd_path = "/etc/systemd/user" if user else "/etc/systemd/system"
@@ -944,7 +947,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # After writing files out tell systemd about them
         self.run_systemctl("daemon-reload || true", user=user)
 
-        def rel_sel(reltype, service):
+        def rel_sel(reltype: str, service: str) -> str:
             return f"#{''.join(reltype.split(' '))} a:contains('{service}')"
 
         # services page
@@ -1056,7 +1059,8 @@ WantedBy=default.target
         self.toggle_onoff()
 
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], enabled=True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"],
+                                   enabled=True)
 
         # Disabling should reset the "Failed to start" status
         self.wait_onoff(val=True)
@@ -1067,7 +1071,8 @@ WantedBy=default.target
         self.toggle_onoff()
 
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], enabled=True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"],
+                                   enabled=True)
 
         # Just reset the failed status, but leave it enabled
         self.do_action("Clear")
@@ -1077,7 +1082,8 @@ WantedBy=default.target
 
         self.do_action("Start")
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], enabled=True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"],
+                                   enabled=True)
 
         # Masking should also clear the failed status
         self.do_action("Disallow running (mask)")
@@ -1087,7 +1093,7 @@ WantedBy=default.target
     def count_failures(self):
         return int(self.machine.execute("systemctl --failed --plain --no-legend | wc -l"))
 
-    def check_system_menu_services_error(self, expected, pixel_label=None):
+    def check_system_menu_services_error(self, expected: bool, pixel_label: str | None = None):
         b = self.browser
         b.switch_to_top()
         if expected:
@@ -1236,7 +1242,8 @@ Where=/fail
         self.addCleanup(m.execute, "systemctl stop test-transient.service || true")
         self.wait_service_present("test-transient.service")
         self.goto_service("test-transient.service")
-        self.check_service_details(["Static", "Running"], ["Restart", "Stop", "Disallow running (mask)", "Pin unit"], enabled=False, onoff=False)
+        self.check_service_details(["Static", "Running"], ["Restart", "Stop", "Disallow running (mask)", "Pin unit"],
+                                   enabled=False, onoff=False)
 
         self.do_action("Stop")
 
@@ -1468,7 +1475,7 @@ PodName=has
 
 
 class TestTimers(testlib.MachineCase):
-    def svc_sel(self, service):
+    def svc_sel(self, service: str) -> str:
         return f'tr[data-goto-unit="{service}"]'
 
     def wait_page_load(self):
@@ -1478,11 +1485,13 @@ class TestTimers(testlib.MachineCase):
         m = self.machine
         b = self.browser
 
-        def wait_systemctl_timer(time):
-            with testvm.Timeout(seconds=20, machine=m, error_message="Timeout while waiting for systemctl list-timers"):
+        def wait_systemctl_timer(time: str):
+            with testvm.Timeout(seconds=20, machine=m,
+                                error_message="Timeout while waiting for systemctl list-timers"):
                 m.execute(f"cmd='systemctl list-timers'; until $cmd | grep -m 1 '{time}'; do sleep 1; done")
 
-        # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
+        # HACK: pmie and pmlogger take a looooong time to shutdown
+        # (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
         # so disable them for this test, we don't test PCP here
         m.execute("systemctl disable --now pmie pmlogger || true")
 

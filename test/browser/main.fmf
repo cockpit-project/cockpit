@@ -28,6 +28,26 @@
   test: ./browser.sh main
   duration: 1h
 
+  adjust:
+    # Fedora-only packages which are not available in CentOS/RHEL
+    - require+:
+        # required by TestLogin.testBasic
+        - tcsh
+        # required by TestTeam
+        - NetworkManager-team
+        # HACK: RHEL has these bundled in cockpit-system, but Fedora doesn't; Provides: break in CentOS/RHEL 10
+        - cockpit-kdump
+        - cockpit-networkmanager
+        - cockpit-sosreport
+      when: distro ~ fedora
+
+    # RHEL only packages
+    - require+:
+        # required by TestUpdates.testKpatch
+        - kpatch
+        - kpatch-dnf
+      when: distro ~ rhel
+
 /storage-basic:
   summary: Basic storage tests
   require:
@@ -54,6 +74,13 @@
     - udisks2-iscsi
   test: ./browser.sh storage-basic
   duration: 1h
+
+  adjust:
+    # Fedora-only packages which are not available in CentOS/RHEL
+    - require+:
+        # required by TestStorageBtrfs
+        - udisks2-btrfs
+      when: distro ~ fedora
 
 /storage-extra:
   summary: More expensive storage tests (LVM, LUKS, Anaconda)

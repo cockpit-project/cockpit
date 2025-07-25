@@ -31,35 +31,9 @@ if rpm -q amazon-ec2-utils; then
     udevadm trigger /dev/nvme* || true
 fi
 
-if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "main" ]; then
-    # Fedora-only packages which are not available in CentOS/RHEL
-    # required by TestLogin.testBasic
-    dnf install -y tcsh
-    # required by TestTeam
-    dnf install -y NetworkManager-team
-fi
-
-if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "storage-basic" ]; then
-    # required by TestStorageBtrfs*
-    dnf install -y udisks2-btrfs
-fi
-
 # dnf installs "missing" weak dependencies, but we don't want them for plans other than "main"
 if [ "$PLAN" != "main" ] && rpm -q cockpit-packagekit; then
     dnf remove -y cockpit-packagekit
-fi
-
-if grep -q 'ID=.*rhel' /etc/os-release; then
-    # required by TestUpdates.testKpatch, but kpatch is only in RHEL
-    dnf install -y kpatch kpatch-dnf
-fi
-
-# HACK: RHEL has these bundled in cockpit-system, but Fedora doesn't; Provides: break in CentOS/RHEL 10
-# due to https://issues.redhat.com/browse/TFT-2564
-if ! grep -q platform:el /etc/os-release; then
-    if [ "$PLAN" = "main" ]; then
-        dnf install -y cockpit-kdump cockpit-networkmanager cockpit-sosreport
-    fi
 fi
 
 # if we run during cross-project testing against our main-builds COPR, then let that win

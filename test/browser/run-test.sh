@@ -14,9 +14,6 @@ if [ -d .git ]; then
     ./tools/node-modules checkout
 fi
 
-. /run/host/usr/lib/os-release
-export TEST_OS="${ID}-${VERSION_ID/./-}"
-
 TEST_ALLOW_JOURNAL_MESSAGES=""
 
 # HACK: CI hits this selinux denial. Unrelated to our tests.

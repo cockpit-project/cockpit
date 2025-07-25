@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -eux
 
@@ -105,6 +105,9 @@ if [ -e /etc/login.defs ]; then
     sed -i '/^SUB_.ID_COUNT/ s/\b0/65536/' /etc/login.defs
 fi
 
+. /usr/lib/os-release
+export TEST_OS="${ID}-${VERSION_ID/./-}"
+
 # Run tests in the cockpit tasks container, as unprivileged user
 CONTAINER="$(cat .cockpit-ci/container)"
 exec podman \
@@ -115,6 +118,5 @@ exec podman \
         --env='TEST_*' \
         --volume="${TMT_TEST_DATA}":/logs:rw,U --env=LOGS=/logs \
         --volume="$(pwd)":/source:rw,U --env=SOURCE=/source \
-        --volume=/usr/lib/os-release:/run/host/usr/lib/os-release:ro \
         "${CONTAINER}" \
             sh /source/test/browser/run-test.sh "$@"

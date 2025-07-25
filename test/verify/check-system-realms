@@ -1194,7 +1194,6 @@ class TestPackageInstall(packagelib.PackageCase):
         # case 3: provide an available realmd package
         self.createPackage("realmd", "1", "1", content={"/realmd-stub": ""})
         self.enableRepo()
-        m.execute("pkcon refresh")
 
         self.login_and_go("/system")
 

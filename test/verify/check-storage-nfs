@@ -333,13 +333,13 @@ class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase):
         # machinery and distribute the fluids evenly.
         #
         if "debian" in m.image or "ubuntu" in m.image:
-            m.execute("pkcon refresh; pkcon install -y dummy")
+            m.execute("pkcon install -y dummy")
 
         # HACK
         # Packagekit on Arch Linux does not deal well with detecting new repositories
         if m.image == "arch":
             m.execute("systemctl restart packagekit")
-            m.execute("pkcon refresh force; pkcon install -y dummy")
+            m.execute("pkcon install -y dummy")
 
         self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()

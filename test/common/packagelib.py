@@ -102,7 +102,7 @@ class PackageCase(MachineCase):
             # repo already here, with one bogus package in it.
 
             self.createPackage("you-are-not-alone-pacman", "1.0", "1")
-            self.enableRepo()
+            self.enableRepo(refresh=False)
 
             # Let's also remove the package archive so that subsequent
             # runs of repo-add don't complain that they have already
@@ -435,7 +435,7 @@ post_upgrade() {{
     def addPackageSet(self, name: str) -> None:
         self.machine.execute(f"mkdir -p {self.repo_dir}; cp /var/lib/package-sets/{name}/* {self.repo_dir}")
 
-    def enableRepo(self) -> None:
+    def enableRepo(self, *, refresh: bool = True) -> None:
         if self.backend == "apt":
             self.createAptChangelogs()
             self.machine.execute(f"""echo 'deb [trusted=yes] file://{self.repo_dir} /' > /etc/apt/sources.list.d/test.list
@@ -444,6 +444,8 @@ post_upgrade() {{
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
                                     """)
+            if refresh:
+                self.machine.execute("apt-get update")
             pid = self.machine.spawn(f"cd {self.repo_dir}; exec python3 -m http.server 12345", "changelog")
             # pid will not be present for rebooting tests
             self.addCleanup(self.machine.execute, "kill %i || true" % pid)
@@ -463,7 +465,8 @@ SigLevel = Never
 Server = file://{self.repo_dir}
             """
             self.machine.write("/etc/pacman.conf", config)
-            self.machine.execute("pacman -Sy")
+            if refresh:
+                self.machine.execute("pacman -Sy")
 
         else:
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=2306114
@@ -474,3 +477,6 @@ Server = file://{self.repo_dir}
                                      modifyrepo_c /tmp/updateinfo.xml {self.repo_dir}/repodata
                                      mkdir -p /var/cache/libdnf5
                                      dnf clean all""")
+            if refresh:
+                # For dnf/yum, pkcon refresh is typically used, but we can use dnf makecache
+                self.machine.execute("dnf makecache")

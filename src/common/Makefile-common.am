@@ -94,6 +94,7 @@ libcockpit_common_a_SOURCES = \
 # libcockpit-common.a static-links an HTML template to use on failures
 nodist_libcockpit_common_a_SOURCES = src/common/fail-html.c
 src/common/fail-html.c: src/common/fail.html
+	@mkdir -p '$(dir $@)'
 	$(AM_V_GEN) $(top_srcdir)/tools/escape-to-c cockpit_webresponse_fail_html_text < $< > $@.tmp && mv $@.tmp $@
 CLEANFILES += src/common/fail-html.c
 EXTRA_DIST += src/common/fail.html

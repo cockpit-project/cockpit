@@ -22,11 +22,6 @@ TEST_ALLOW_JOURNAL_MESSAGES=""
 # HACK: CI hits this selinux denial. Unrelated to our tests.
 TEST_ALLOW_JOURNAL_MESSAGES=".*Permission denied:.*/var/cache/app-info/xmls.*"
 
-# HACK: https://github.com/systemd/systemd/issues/24150
-if [ "$ID" = "fedora" ]; then
-       TEST_ALLOW_JOURNAL_MESSAGES="${TEST_ALLOW_JOURNAL_MESSAGES},Journal file /var/log/journal/*/user-1000@*.journal corrupted, ignoring file .*"
-fi
-
 export TEST_ALLOW_JOURNAL_MESSAGES
 
 # Chromium sometimes gets OOM killed on testing farm

@@ -119,13 +119,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # Try to login with disabled shell; this does not work on OSTree where
         # we log in through ssh
         if not m.ws_container:
-            m.execute("usermod --shell /bin/false admin; sync")
-            b.reload()
-            b.try_login("admin", "foobar")
-            b.wait_text_not("#login-error-title", "")
-            self.assertIn(b.text("#login-error-title"),
-                          ["Permission denied", "Authentication failed"])
-            m.execute("usermod --shell /bin/bash admin; sync")
+            try:
+                m.execute("usermod --shell /bin/false admin; sync")
+                b.reload()
+                b.try_login("admin", "foobar")
+                b.wait_text_not("#login-error-title", "")
+                self.assertIn(b.text("#login-error-title"),
+                              ["Permission denied", "Authentication failed"])
+            finally:
+                m.execute("usermod --shell /bin/bash admin; sync")
 
         # Login as admin
         b.open("/system")

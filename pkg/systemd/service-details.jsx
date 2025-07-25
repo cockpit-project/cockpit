@@ -423,105 +423,147 @@ export class ServiceDetails extends React.Component {
 
         let statuses = [];
 
-        if (masked) {
+        if (masked || true) {
             statuses.push(
-                <div key="masked" className="status-masked">
-                    <Icon>
-                        <BanIcon className="status-icon" />
-                    </Icon>
+                <ListItem
+                    key="masked"
+                    className="status-masked"
+                    icon={
+                        <Icon>
+                            <BanIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
                     <span className="status">{ _("Masked") }</span>
                     <span className="side-note font-xs">{ _("Forbidden from running") }</span>
-                </div>
+                </ListItem>
             );
         }
 
         if (!enabled && !active && !masked && !isStatic) {
             statuses.push(
-                <div key="disabled" className="status-disabled">
-                    <Icon>
-                        <OffIcon className="status-icon" />
-                    </Icon>
-                    <span className="status">{ _("Disabled") }</span>
-                </div>
+                <ListItem
+                    key="disabled"
+                    className="status-disabled"
+                    icon={
+                        <Icon>
+                            <OffIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
+                    <span className="status">{_("Disabled")}</span>
+                </ListItem>
             );
         }
 
         if (failed) {
             statuses.push(
-                <div key="failed" className="status-failed">
-                    <Icon status="danger">
-                        <ErrorCircleOIcon className="status-icon" />
-                    </Icon>
+                <ListItem
+                    key="failed"
+                    className="status-failed"
+                    icon={
+                        <Icon>
+                            <ErrorCircleOIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
                     <span className="status">{ _("Failed to start") }</span>
                     { showAction &&
-                    <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start service") }</Button>
+                        <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit")}>
+                            {_("Start service")}
+                        </Button>
                     }
-                </div>
+                </ListItem>
             );
         }
 
         if (!statuses.length) {
             if (active) {
                 statuses.push(
-                    <div key="running" className="status-running">
-                        <Icon status="success">
-                            <OnRunningIcon className="status-icon" />
-                        </Icon>
-                        <span className="status">{ _("Running") }</span>
-                        <span className="side-note font-xs">{ _("Active since ") + timeformat.dateTime(this.props.unit.ActiveEnterTimestamp / 1000) }</span>
-                    </div>
+                    <ListItem
+                        key="running"
+                        className="status-running"
+                        icon={
+                            <Icon>
+                                <OnRunningIcon className="status-icon" />
+                            </Icon>
+                        }
+                    >
+                        <span className="status">{_("Running")}</span>
+                        <span className="side-note font-xs">{_("Active since ") + timeformat.dateTime(this.props.unit.ActiveEnterTimestamp / 1000)}</span>
+                    </ListItem>
                 );
             } else {
                 statuses.push(
-                    <div key="stopped" className="status-stopped">
-                        <Icon>
-                            <OffIcon className="status-icon" />
-                        </Icon>
-                        <span className="status">{ _("Not running") }</span>
-                    </div>
+                    <ListItem
+                        key="stopped"
+                        className="status-stopped"
+                        icon={
+                            <Icon>
+                                <OffIcon className="status-icon" />
+                            </Icon>
+                        }
+                    >
+                        <span className="status">{_("Not running")}</span>
+                    </ListItem>
                 );
             }
         }
 
         if (isStatic && !masked) {
             statuses.unshift(
-                <div key="static" className="status-static">
-                    <Icon>
-                        <AsleepIcon className="status-icon" />
-                    </Icon>
-                    <span className="status">{ _("Static") }</span>
-                    { this.props.unit.WantedBy && this.props.unit.WantedBy.length > 0 &&
+                <ListItem
+                    key="static"
+                    className="status-static"
+                    icon={
+                        <Icon>
+                            <AsleepIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
+                    <span className="status">{_("Static")}</span>
+                    {this.props.unit.WantedBy && this.props.unit.WantedBy.length > 0 &&
                         <>
-                            <span className="side-note font-xs">{ _("Required by ") }</span>
+                        <span className="side-note font-xs">{_("Required by ")}</span>
                             <ul className="comma-list">
                                 {this.props.unit.WantedBy.map(unit => <li className="font-xs" key={unit}><a href={"#/" + unit}>{unit}</a></li>)}
                             </ul>
                         </>
                     }
-                </div>
+                </ListItem>
             );
         }
 
         if (!showAction && this.props.owner !== 'user') {
             statuses.unshift(
-                <div key="readonly" className="status-readonly">
-                    <Icon>
-                        <UserIcon className="status-icon" />
-                    </Icon>
-                    <span className="status">{ _("Read-only") }</span>
-                    <span className="side-note font-xs">{ _("Requires administration access to edit") }</span>
-                </div>
+                <ListItem
+                    key="readonly"
+                    className="status-readonly"
+                    icon={
+                        <Icon>
+                            <UserIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
+                    <span className="status">{_("Read-only")}</span>
+                    <span className="side-note font-xs">{_("Requires administration access to edit")}</span>
+                </ListItem>
             );
         }
 
         if (enabled) {
             statuses.push(
-                <div key="enabled" className="status-enabled">
-                    <Icon status="success">
-                        <OkIcon className="status-icon" />
-                    </Icon>
-                    <span className="status">{ _("Automatically starts") }</span>
-                </div>
+                <ListItem
+                    key="enabled"
+                    className="status-enabled"
+                    icon={
+                        <Icon>
+                            <OkIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
+                    <span className="status">{_("Automatically starts")}</span>
+                </ListItem>
             );
         }
 
@@ -665,7 +707,9 @@ export class ServiceDetails extends React.Component {
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
                                 <DescriptionListDescription id="statuses">
-                                    { statuses }
+                                    <List isPlain>
+                                        {statuses}
+                                    </List>
                                 </DescriptionListDescription>
                             </DescriptionListGroup>
                             <DescriptionListGroup>

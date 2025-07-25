@@ -871,7 +871,12 @@ user_has_valid_login_shell (const char **envp)
   wstatus = spawn_and_wait (argv, envp, remap_fds, 3, pwd->pw_uid, pwd->pw_gid);
   debug ("user_has_valid_login_shell: exited with status %x", wstatus);
   close (devnull);
-  return WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 71;
+  if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 71)
+      return true;
+
+  warnx ("User %s shell (%s) does not understand 'exit 71', unsupported with Cockpit",
+         pwd->pw_name, pwd->pw_shell);
+  return false;
 }
 
 static void
@@ -1030,7 +1035,13 @@ main (int argc,
         err (EX, "%s: can't init groups", pwd->pw_name);
 
       if (!user_has_valid_login_shell (env))
-        exit_pam_init_problem (PAM_PERM_DENIED);
+        {
+          const char *msg = "\n{\"command\":\"init\",\"version\":1,\"problem\":\"unsupported-shell\"}";
+          if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)msg, strlen (msg)) < 0)
+            err (EX, "couldn't write init message");
+
+          exit_pam_init_problem (PAM_PERM_DENIED);
+        }
 
       signal (SIGTERM, pass_to_child);
       signal (SIGINT, pass_to_child);

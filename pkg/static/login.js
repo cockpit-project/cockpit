@@ -1050,6 +1050,9 @@ function debug(...args) {
                     login_machine || "localhost");
 
                 login_failure(_("Packageless session unavailable"), message);
+            } else if (xhr.status == 500 && xhr.statusText.indexOf("unsupported-shell") > -1) {
+                login_failure(_("Authentication failed"),
+                              _("Unsupported shell. Check the journal for details."));
             } else if (xhr.statusText) {
                 fatal(decodeURIComponent(xhr.statusText));
             } else {

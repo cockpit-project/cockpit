@@ -121,11 +121,20 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if not m.ws_container:
             try:
                 m.execute("usermod --shell /bin/false admin; sync")
+                journal_cursor = self.machine.journal_cursor()
                 b.reload()
                 b.try_login("admin", "foobar")
-                b.wait_text_not("#login-error-title", "")
-                self.assertIn(b.text("#login-error-title"),
-                              ["Permission denied", "Authentication failed"])
+                b.wait_text("#login-error-title", "Authentication failed")
+                # arch enforces pam_shells, so it fails already in PAM auth
+                if m.image != "arch":
+                    b.wait_in_text("#login-error-message", "Unsupported shell")
+
+                    testlib.wait(
+                        lambda: re.search(
+                            r'User admin shell.*/bin/false.*exit 71.*unsupported',
+                            m.execute(f"journalctl -ocat --cursor '{journal_cursor}' SYSLOG_IDENTIFIER=cockpit-session")
+                        ),
+                        tries=10)
             finally:
                 m.execute("usermod --shell /bin/bash admin; sync")
 

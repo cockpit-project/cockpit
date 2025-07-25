@@ -229,10 +229,6 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
             m1.execute("pkcon remove -y wireguard-tools")
             self.createPackage("wireguard-tools", "1", "1")
             self.enableRepo()
-            # HACK: Packagekit on Arch Linux does not deal well with detecting new repositories
-            if m1.image == "arch":
-                m1.execute("systemctl restart packagekit")
-                m1.execute("pkcon refresh force")
             b.click("button:contains('Add VPN')")
             b.wait_visible("#dialog button:contains('Install'):enabled")
             b.click("#dialog button:contains('Install')")

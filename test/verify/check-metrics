@@ -9,7 +9,6 @@ import time
 import packagelib
 import testlib
 from lib.constants import TEST_OS_DEFAULT
-from machine.machine_core import ssh_connection
 
 
 def getMaximumSpike(test, g_type, saturation, hour, minute):
@@ -786,6 +785,15 @@ class TestCurrentMetrics(testlib.MachineCase):
         self.busybox_image = m.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
         self.login_and_go("/metrics")
 
+    def run_as_admin(self, cmd: str) -> str:
+        return self.machine.execute(f"systemd-run --machine=admin@ --quiet --user --collect --pipe --wait /bin/sh -ec '{cmd}'")
+
+    def run_as_admin_background(self, cmd: str, unit: str) -> None:
+        """Asynchronous alternative to `run_as_admin` which can "background" tasks."""
+        m = self.machine
+        m.execute(f"systemd-run --user --machine=admin@ --unit={unit} /bin/sh -ec '{cmd}'")
+        m.execute(f"until systemctl --user --machine=admin@ is-active {unit}; do sleep 1; done")
+
     def testCPU(self):
         b = self.browser
         m = self.machine
@@ -862,14 +870,14 @@ class TestCurrentMetrics(testlib.MachineCase):
             m.execute(f"podman save {self.busybox_image} | sudo -i -u admin podman load")
 
             # Test user containers
-            admin_s = ssh_connection.SSHConnection(user="admin",
-                                                   address=m.ssh_address,
-                                                   ssh_port=m.ssh_port,
-                                                   identity_file=m.identity_file)
             user_container_name = "user-cpu-hog"
-            admin_s.execute(f"podman run --rm -d --name {user_container_name} {self.busybox_image} /bin/dd if=/dev/urandom of=/dev/null")
+            self.run_as_admin_background(
+                    f"podman run --rm -i --name {user_container_name} {self.busybox_image} /bin/dd if=/dev/urandom of=/dev/null",
+                    unit=user_container_name)
 
-            container_sha = admin_s.execute(f"podman inspect --format '{{{{.Id}}}}' {user_container_name}").strip()
+            # Wait for container to be running as we can't infer this from the systemd unit state
+            self.run_as_admin(f'while [ "$(podman inspect --format {{{{.State.Status}}}} {user_container_name} 2>/dev/null)" != "running" ]; do sleep 1; done')
+            container_sha = self.run_as_admin(f"podman inspect --format '{{{{.Id}}}}' {user_container_name}").strip()
             shortid = container_sha[:12]
 
             # On some test images the container takes a while to show up
@@ -881,7 +889,7 @@ class TestCurrentMetrics(testlib.MachineCase):
             with b.wait_timeout(30):
                 b.wait_in_text("#current-metrics-card-cpu", f"pod {user_container_name}")
 
-            admin_s.execute(f"podman stop -t 0 {user_container_name}")
+            self.run_as_admin(f"podman stop -t 0 {user_container_name}")
 
         # this settles down slowly, don't wait for becoming really quiet
         with b.wait_timeout(300):
@@ -1102,21 +1110,15 @@ BEGIN {{
             m.execute(f"podman save {self.busybox_image} | sudo -i -u admin podman load")
 
             # Test user containers
-            admin_s = ssh_connection.SSHConnection(user="admin",
-                                                   address=m.ssh_address,
-                                                   ssh_port=m.ssh_port,
-                                                   identity_file=m.identity_file)
             user_container_name = "user-mem-hog"
-            admin_s.execute(f"""
-                podman run --rm -d --name {user_container_name} {self.busybox_image} /bin/sh -c '
-                head -c 300m /dev/zero | tail | sleep infinity'
-            """)
+            cmd = f'podman run --rm -i --name {user_container_name} {self.busybox_image} /bin/sh -c "head -c 300m /dev/zero | tail | sleep infinity"'
+            self.run_as_admin_background(cmd, user_container_name)
 
             # It takes one re-render for the name lookup
             with b.wait_timeout(30):
                 b.wait_text("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(2) td[data-label='Service']", f"pod {user_container_name}")
 
-            admin_s.execute(f"podman stop -t 0 {user_container_name}")
+            self.run_as_admin(f"podman stop -t 0 {user_container_name}")
 
         # Test link to user services
         # older releases don't have memory accounting enabled for user services

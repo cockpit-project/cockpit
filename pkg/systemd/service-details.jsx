@@ -426,7 +426,9 @@ export class ServiceDetails extends React.Component {
         if (masked) {
             status.push(
                 <div key="masked" className="status-masked">
-                    <BanIcon className="status-icon" />
+                    <Icon>
+                        <BanIcon className="status-icon" />
+                    </Icon>
                     <span className="status">{ _("Masked") }</span>
                     <span className="side-note font-xs">{ _("Forbidden from running") }</span>
                 </div>
@@ -436,7 +438,9 @@ export class ServiceDetails extends React.Component {
         if (!enabled && !active && !masked && !isStatic) {
             status.push(
                 <div key="disabled" className="status-disabled">
-                    <OffIcon className="status-icon" />
+                    <Icon>
+                        <OffIcon className="status-icon" />
+                    </Icon>
                     <span className="status">{ _("Disabled") }</span>
                 </div>
             );
@@ -445,7 +449,9 @@ export class ServiceDetails extends React.Component {
         if (failed) {
             status.push(
                 <div key="failed" className="status-failed">
-                    <ErrorCircleOIcon className="status-icon" />
+                    <Icon status="danger">
+                        <ErrorCircleOIcon className="status-icon" />
+                    </Icon>
                     <span className="status">{ _("Failed to start") }</span>
                     { showAction &&
                     <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start service") }</Button>
@@ -480,7 +486,9 @@ export class ServiceDetails extends React.Component {
         if (isStatic && !masked) {
             status.unshift(
                 <div key="static" className="status-static">
-                    <AsleepIcon className="status-icon" />
+                    <Icon>
+                        <AsleepIcon className="status-icon" />
+                    </Icon>
                     <span className="status">{ _("Static") }</span>
                     { this.props.unit.WantedBy && this.props.unit.WantedBy.length > 0 &&
                         <>
@@ -497,7 +505,9 @@ export class ServiceDetails extends React.Component {
         if (!showAction && this.props.owner !== 'user') {
             status.unshift(
                 <div key="readonly" className="status-readonly">
-                    <UserIcon className="status-icon" />
+                    <Icon>
+                        <UserIcon className="status-icon" />
+                    </Icon>
                     <span className="status">{ _("Read-only") }</span>
                     <span className="side-note font-xs">{ _("Requires administration access to edit") }</span>
                 </div>
@@ -507,7 +517,9 @@ export class ServiceDetails extends React.Component {
         if (enabled) {
             status.push(
                 <div key="enabled" className="status-enabled">
-                    <OkIcon className="status-icon" />
+                    <Icon status="success">
+                        <OkIcon className="status-icon" />
+                    </Icon>
                     <span className="status">{ _("Automatically starts") }</span>
                 </div>
             );
@@ -526,7 +538,9 @@ export class ServiceDetails extends React.Component {
         if (this.state.waitsAction || this.state.waitsFileAction) {
             status = [
                 <div key="updating" className="status-updating">
-                    <Spinner size="md" className="status-icon" />
+                    <Icon>
+                        <Spinner size="md" className="status-icon" />
+                    </Icon>
                     <span className="status">{ _("Updating status...") }</span>
                 </div>
             ];

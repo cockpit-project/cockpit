@@ -421,10 +421,10 @@ export class ServiceDetails extends React.Component {
         const isTimer = (this.unitType === "timer");
         const isQuadlet = this.props.unit.SourcePath?.includes("/containers/systemd/");
 
-        let status = [];
+        let statuses = [];
 
         if (masked) {
-            status.push(
+            statuses.push(
                 <div key="masked" className="status-masked">
                     <Icon>
                         <BanIcon className="status-icon" />
@@ -436,7 +436,7 @@ export class ServiceDetails extends React.Component {
         }
 
         if (!enabled && !active && !masked && !isStatic) {
-            status.push(
+            statuses.push(
                 <div key="disabled" className="status-disabled">
                     <Icon>
                         <OffIcon className="status-icon" />
@@ -447,7 +447,7 @@ export class ServiceDetails extends React.Component {
         }
 
         if (failed) {
-            status.push(
+            statuses.push(
                 <div key="failed" className="status-failed">
                     <Icon status="danger">
                         <ErrorCircleOIcon className="status-icon" />
@@ -460,9 +460,9 @@ export class ServiceDetails extends React.Component {
             );
         }
 
-        if (!status.length) {
+        if (!statuses.length) {
             if (active) {
-                status.push(
+                statuses.push(
                     <div key="running" className="status-running">
                         <Icon status="success">
                             <OnRunningIcon className="status-icon" />
@@ -472,7 +472,7 @@ export class ServiceDetails extends React.Component {
                     </div>
                 );
             } else {
-                status.push(
+                statuses.push(
                     <div key="stopped" className="status-stopped">
                         <Icon>
                             <OffIcon className="status-icon" />
@@ -484,7 +484,7 @@ export class ServiceDetails extends React.Component {
         }
 
         if (isStatic && !masked) {
-            status.unshift(
+            statuses.unshift(
                 <div key="static" className="status-static">
                     <Icon>
                         <AsleepIcon className="status-icon" />
@@ -503,7 +503,7 @@ export class ServiceDetails extends React.Component {
         }
 
         if (!showAction && this.props.owner !== 'user') {
-            status.unshift(
+            statuses.unshift(
                 <div key="readonly" className="status-readonly">
                     <Icon>
                         <UserIcon className="status-icon" />
@@ -515,7 +515,7 @@ export class ServiceDetails extends React.Component {
         }
 
         if (enabled) {
-            status.push(
+            statuses.push(
                 <div key="enabled" className="status-enabled">
                     <Icon status="success">
                         <OkIcon className="status-icon" />
@@ -526,7 +526,7 @@ export class ServiceDetails extends React.Component {
         }
 
         if (this.props.unit.NextRunTime || this.props.unit.LastTriggerTime) {
-            status.push(
+            statuses.push(
                 <div className="service-unit-triggers" key="triggers">
                     {this.props.unit.NextRunTime && <div className="service-unit-next-trigger">{cockpit.format("Next run: $0", this.props.unit.NextRunTime)}</div>}
                     {this.props.unit.LastTriggerTime && <div className="service-unit-last-trigger">{cockpit.format("Last trigger: $0", this.props.unit.LastTriggerTime)}</div>}
@@ -536,7 +536,7 @@ export class ServiceDetails extends React.Component {
 
         /* If there is some ongoing action just show spinner */
         if (this.state.waitsAction || this.state.waitsFileAction) {
-            status = [
+            statuses = [
                 <div key="updating" className="status-updating">
                     <Icon>
                         <Spinner size="md" className="status-icon" />
@@ -665,7 +665,7 @@ export class ServiceDetails extends React.Component {
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
                                 <DescriptionListDescription id="statuses">
-                                    { status }
+                                    { statuses }
                                 </DescriptionListDescription>
                             </DescriptionListGroup>
                             <DescriptionListGroup>

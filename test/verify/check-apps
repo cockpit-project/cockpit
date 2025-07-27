@@ -76,7 +76,7 @@ class TestApps(packagelib.PackageCase):
             """,
             f"/usr/share/{subdir.split('/')[0]}/icons/test/64x64/test.png": {"path": "/var/tmp/test.png"}})
         self.enableRepo()
-        self.machine.execute("systemctl stop packagekit; pkcon refresh force")
+        self.machine.execute("systemctl stop packagekit")
         # ignore the corresponding journal entry
         self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
 

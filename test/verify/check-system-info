@@ -953,7 +953,7 @@ class TestSystemInfoTime(packagelib.PackageCase):
                 # chronyd is default, install timesyncd
                 self.addPackageSet("timesyncd")
                 self.enableRepo()
-                m.execute("apt-get update; apt-get install -y systemd-timesyncd")
+                m.execute("apt-get install -y systemd-timesyncd")
                 m.execute("systemctl restart systemd-timedated; timedatectl set-ntp off; timedatectl set-ntp on")
             else:
                 # timesyncd is default
@@ -1030,7 +1030,7 @@ class TestSystemInfoTime(packagelib.PackageCase):
             # timesyncd is default, install chronyd
             self.addPackageSet("chronyd")
             self.enableRepo()
-            m.execute("apt-get update; apt-get install -y chrony")
+            m.execute("apt-get install -y chrony")
             m.execute("systemctl restart systemd-timedated; timedatectl set-ntp off; timedatectl set-ntp on")
         else:
             # chronyd is default

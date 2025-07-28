@@ -1,0 +1,174 @@
+'\" t
+.\"     Title: cockpit-ws
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.20
+.\"      Date: 2025-07-29
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "COCKPIT\-WS" "1" "2025-07-29" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.sp
+cockpit
+.sp
+cockpit\-ws
+.sp
+8
+.sp
+cockpit\-ws
+.sp
+Cockpit web service
+.sp
+cockpit\-ws
+.sp
+\-\-help
+.sp
+\-\-port
+.sp
+PORT
+.sp
+\-\-address
+.sp
+ADDRESS
+.sp
+\-\-no\-tls
+.sp
+\-\-for\-tls\-proxy
+.sp
+\-\-local\-ssh
+.sp
+\-\-local\-session
+.sp
+BRIDGE
+.SH "DESCRIPTION"
+.sp
+The \f(CRcockpit\-ws\fP program is the web service component used for
+communication between the browser application and various configuration
+tools and services like \f(CRcockpit\-bridge(1)\fP.
+.sp
+Users or administrators should never need to start this program as it
+automatically started by \f(CRsystemd(1)\fP on bootup, through
+\f(CRcockpit\-tls(8)\fP.
+.SH "TRANSPORT SECURITY"
+.sp
+\f(CRcockpit\-ws\fP is normally run behind the \f(CRcockpit\-tls\fP TLS
+terminating proxy, and only deals with unencrypted HTTP by itself. But
+for backwards compatibility it can also handle TLS connections by itself
+when being run directly. For details how to configure certificates,
+please refer to the \f(CRcockpit\-tls(8)\fP documentation.
+.SH "TIMEOUT"
+.sp
+When started via \f(CRsystemd(1)\fP then \f(CRcockpit\-ws\fP will exit after 90
+seconds if nobody logs in, or after the last user is disconnected.
+.SH "OPTIONS"
+.sp
+\f(CR\-\-help\fP
+.RS 4
+Show help options.
+.RE
+.sp
+\f(CR\-\-port\fP <PORT>
+.RS 4
+Serve HTTP requests <PORT> instead of port 9090. Usually Cockpit is
+started on demand by \f(CRsystemd\fP socket activation, and this option
+has no effect. Update the \f(CRListenStream\fP directive
+\f(CRcockpit.socket\fP file in the usual \f(CRsystemd\fP manner.
+.RE
+.sp
+\f(CR\-\-address\fP <ADDRESS>
+.RS 4
+Bind to address <ADDRESS> instead of binding to all available
+addresses. Usually Cockpit is started on demand by \f(CRsystemd\fP socket
+activation, and this option has no effect. In that case, update the
+\f(CRListenStream\fP directive in the \f(CRcockpit.socket\fP file in the usual
+\f(CRsystemd\fP manner.
+.RE
+.sp
+\f(CR\-\-no\-tls\fP
+.RS 4
+Don\(cqt use TLS.
+.RE
+.sp
+\f(CR\-\-for\-tls\-proxy\fP
+.RS 4
+Tell \f(CRcockpit\-ws\fP that it is running behind a local reverse proxy
+that does the TLS termination. Then Cockpit puts https:// URLs into
+the default \f(CRContent\-Security\-Policy\fP, and accepts only https://
+origins, instead of http: ones by default. However, if \f(CROrigins\fP is
+set in the \f(CRcockpit.conf(5)\fP configuration file, it will override
+this default.
+.RE
+.sp
+\f(CR\-\-local\-ssh\fP
+.RS 4
+Normally \f(CRcockpit\-ws\fP uses \f(CRcockpit\-session\fP and PAM to
+authenticate the user and start a user session. With this option
+enabled, it will instead authenticate via SSH at \f(CR127.0.0.1\fP port
+\f(CR22\fP.
+.RE
+.sp
+\f(CR\-\-local\-session\fP <BRIDGE>
+.RS 4
+Skip all authentication and \f(CRcockpit\-session\fP, and launch the
+\f(CRcockpit\-bridge\fP specified in <BRIDGE> in the local session. If the
+<BRIDGE> is specified as \f(CR\-\fP then expect an already running bridge
+that is connected to stdin and stdout of this \f(CRcockpit\-ws\fP process.
+This allows the web server to run as any unprivileged user in an
+already running session.
++
+This mode implies \f(CR\-\-no\-tls\fP, thus you need to use http:// URLs with
+this.
++
+[WARNING]
+====
+If you use this, you \fIhave to isolate the opened TCP port\fP somehow
+(for example in a network namespace), otherwise all other users (or
+even remote machines if the port is not just listening on localhost)
+can access the session!
+====
+.RE
+.SH "ENVIRONMENT"
+.sp
+The \f(CRcockpit\-ws\fP process will use the \f(CRXDG_CONFIG_DIRS\fP environment
+variable from the
+\c
+.URL "https://specifications.freedesktop.org/basedir\-spec/basedir\-spec\-latest.html" "XDG
+basedir spec"  to find its \f(CRcockpit.conf(5)\fP configuration file.
+.sp
+In addition the \f(CRXDG_DATA_DIRS\fP environment variable from the
+\c
+.URL "https://specifications.freedesktop.org/basedir\-spec/basedir\-spec\-latest.html" "XDG
+basedir spec"  can be used to override the location to serve static files
+from. These are the files that are served to a non\-logged in user.
+.SH "BUGS"
+.sp
+Please send bug reports to either the distribution bug tracker or the
+\c
+.URL "https://github.com/cockpit\-project/cockpit/issues/new" "upstream bug
+tracker" .
+.SH "AUTHOR"
+.sp
+Cockpit has been written by many
+.URL "https://github.com/cockpit\-project/cockpit/" "contributors" "."
+.SH "SEE ALSO"
+.sp
+\f(CRcockpit\-tls(8)\fP , \f(CRcockpit.conf(5)\fP , \f(CRsystemd(1)\fP

@@ -803,10 +803,10 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         def create(at_boot):
             b.click(self.card_button("Stratis filesystems", "Create new filesystem"))
             self.dialog({'name': 'fsys1',
-                         'mount_point': '/foo',
+                         'mount_point': f'{self.mnt_dir}/foo',
                          'at_boot': at_boot})
             b.wait_text(self.card_row_col("Stratis filesystems", 1, 1), "fsys1")
-            b.wait_text(self.card_row_col("Stratis filesystems", 1, 3), "/foo")
+            b.wait_text(self.card_row_col("Stratis filesystems", 1, 3), f"{self.mnt_dir}/foo")
 
         def destroy():
             self.click_card_row("Stratis filesystems", 1)
@@ -817,20 +817,20 @@ class TestStorageStratisReboot(storagelib.StorageCase):
             b.wait_not_present(self.card_row("Stratis filesystems", name="fsys1"))
 
         create("local")
-        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertNotIn("noauto", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         destroy()
 
         create("nofail")
-        self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("nofail", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         destroy()
 
         create("netdev")
-        self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("_netdev", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         destroy()
 
         create("never")
-        self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
-        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("x-cockpit-never-auto", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
+        self.assertIn("noauto", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         destroy()
 
     @testlib.skipImage("Stratis too old", "rhel-8-*")

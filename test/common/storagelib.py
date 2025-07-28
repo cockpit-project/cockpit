@@ -694,6 +694,10 @@ class StorageCase(StorageHelpers):
         else:
             self.default_crypto_type = "luks1"
 
+        # OSTree friendly, automatically unmounted and cleaned up
+        self.mnt_dir = os.path.join(self.vm_tmpdir, "mnt")
+        self.machine.execute(f"mkdir -p {self.mnt_dir}")
+
         if self.image.startswith("rhel-8"):
             # HACK: missing /etc/crypttab file upsets udisks: https://github.com/storaged-project/udisks/pull/835
             self.machine.write("/etc/crypttab", "")

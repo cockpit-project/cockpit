@@ -637,8 +637,8 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         disk = self.add_ram_disk(size=128)
 
-        m.execute(f"mkfs.btrfs -L butter {disk}; mount {disk} /mnt; btrfs subvolume create /mnt/home; btrfs subvolume create /mnt/home/backups")
-        m.execute("while mountpoint -q /mnt && ! umount /mnt; do sleep 0.2; done;")
+        m.execute(f"mkfs.btrfs -L butter {disk}; mount {disk} {self.mnt_dir}; btrfs subvolume create {self.mnt_dir}/home; btrfs subvolume create {self.mnt_dir}/home/backups")
+        m.execute(f"while mountpoint -q {self.mnt_dir} && ! umount {self.mnt_dir}; do sleep 0.2; done;")
 
         self.login_and_go("/storage")
 
@@ -649,11 +649,11 @@ class TestStorageBtrfs(storagelib.StorageCase):
         # Add some fstab entries. Cockpit should pick up the
         # subvolumes mentioned in them and show them.
 
-        m.execute(f"echo >>/etc/fstab '{disk} /mnt/home auto noauto,subvol=home 0 0'")
-        m.execute(f"echo >>/etc/fstab '{disk} /mnt/backups auto noauto,subvol=home/backups 0 0'")
+        m.execute(f"echo >>/etc/fstab '{disk} {self.mnt_dir}/home auto noauto,subvol=home 0 0'")
+        m.execute(f"echo >>/etc/fstab '{disk} {self.mnt_dir}/backups auto noauto,subvol=home/backups 0 0'")
 
-        b.wait_text(self.card_row_col("btrfs filesystem", row_name="home", col_index=3), "/mnt/home (not mounted)")
-        b.wait_text(self.card_row_col("btrfs filesystem", row_name="backups", col_index=3), "/mnt/backups (not mounted)")
+        b.wait_text(self.card_row_col("btrfs filesystem", row_name="home", col_index=3), f"{self.mnt_dir}/home (not mounted)")
+        b.wait_text(self.card_row_col("btrfs filesystem", row_name="backups", col_index=3), f"{self.mnt_dir}/backups (not mounted)")
 
     def testSnapshot(self):
         m = self.machine

@@ -98,6 +98,13 @@ if grep -q platform:el10 /etc/os-release; then
     export NETAVARK_FW=nftables
 fi
 
+# HACK: unbreak subuid assignment for new users; see
+# https://bugzilla.redhat.com/show_bug.cgi?id=2382662
+# https://issues.redhat.com/browse/RHEL-103765
+if [ -e /etc/login.defs ]; then
+    sed -i '/^SUB_.ID_COUNT/ s/\b0/65536/' /etc/login.defs
+fi
+
 # Run tests in the cockpit tasks container, as unprivileged user
 CONTAINER="$(cat .cockpit-ci/container)"
 exec podman \

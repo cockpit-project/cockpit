@@ -61,6 +61,17 @@ if [ "$PLATFORM_ID" = "platform:el10" ]; then
     printf  '[network]\nfirewall_driver = "nftables"\n' > /etc/containers/containers.conf
 fi
 
+# HACK: unbreak subuid assignment for current and new users; see
+# https://bugzilla.redhat.com/show_bug.cgi?id=2382662
+# https://issues.redhat.com/browse/RHEL-103765
+if [ -e /etc/login.defs ]; then
+    sed -i '/^SUB_.ID_COUNT/ s/\b0/65536/' /etc/login.defs
+fi
+if ! grep -q admin /etc/subuid; then
+    usermod --add-subuids 100000-165535 admin
+    usermod --add-subgids 100000-165535 admin
+fi
+
 # start cockpit once to ensure it works, and generate the certificate (to avoid re-doing that for each test)
 if [ -n "$HAVE_COCKPIT_SOCKET" ]; then
     systemctl start cockpit

@@ -45,7 +45,6 @@ class NoSubManCase(packagelib.PackageCase):
         self.allow_journal_messages("(Created symlink|Removed).*dnf-automatic-install.timer.*")
 
 
-@testlib.skipImage("TODO: Fails with 401 on our test runners", "arch")
 @testlib.skipOstree("Image uses OSTree")
 class TestUpdates(NoSubManCase):
 
@@ -267,6 +266,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
 
     @testlib.nondestructive
+    @testlib.skipImage("alpm PackageKit backend does not support cancelling", "arch")
     def testBasic(self):
         # no security updates, no changelogs
         b = self.browser
@@ -451,7 +451,6 @@ ExecStart=/usr/local/bin/{package} infinity
 
         return startTime
 
-    @testlib.skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
     @testlib.skipImage("tracer not available", *OSesWithoutTracer)
     def testTracer(self):
         b = self.browser

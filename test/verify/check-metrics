@@ -1377,7 +1377,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         b.logout()
 
         # install c-pcp from the Metrics Settings dialog
-        m.execute("pkcon remove -y python3-pcp pcp")
+        self.removePackages(["python3-pcp", "pcp"])
         self.login_and_go("/metrics")
         b.click("#metrics-header-section button.pf-m-secondary")
         b.wait_visible(self.pcp_dialog_selector)

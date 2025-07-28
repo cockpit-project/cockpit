@@ -338,7 +338,8 @@ class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase):
         # HACK
         # Packagekit on Arch Linux does not deal well with detecting new repositories
         if m.image == "arch":
-            m.execute("pkcon refresh force")
+            m.execute("systemctl restart packagekit")
+            m.execute("pkcon refresh force; pkcon install -y dummy")
 
         self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()

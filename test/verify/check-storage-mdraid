@@ -187,7 +187,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.click_dropdown(self.card_row("GPT partitions", 1), "Create partition")
         self.dialog({"size": 20,
                      "type": "ext4",
-                     "mount_point": "/foo1",
+                     "mount_point": f"{self.mnt_dir}/foo1",
                      "name": "One"},
                     secondary=True)
         b.wait_text(self.card_row_col("GPT partitions", 1, 2), "ext4 filesystem")
@@ -196,13 +196,13 @@ class TestStorageMdRaid(storagelib.StorageCase):
         # Create second partition
         self.click_dropdown(self.card_row("GPT partitions", 2), "Create partition")
         self.dialog({"type": "ext4",
-                     "mount_point": "/foo2",
+                     "mount_point": f"{self.mnt_dir}/foo2",
                      "name": "Two"})
         b.wait_text(self.card_row_col("GPT partitions", 2, 2), "ext4 filesystem")
         b.wait_text(self.card_row_col("GPT partitions", 2, 1), part_prefix + "2")
         b.wait_not_present(self.card_row("GPT partitions", name="Free space"))
 
-        b.wait_visible(self.card_row("GPT partitions", location="/foo2") + " .usage-bar[role=progressbar]")
+        b.wait_visible(self.card_row("GPT partitions", location=f"{self.mnt_dir}/foo2") + " .usage-bar[role=progressbar]")
         b.assert_pixels('body', "page",
                         ignore=[self.card_desc("MDRAID device", "UUID")])
 

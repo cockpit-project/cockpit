@@ -39,19 +39,19 @@ class TestStorageUsed(storagelib.StorageCase):
         m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk}1 dm-test")
         m.execute("udevadm settle")
         m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
-        m.execute("mount /dev/mapper/dm-test /mnt")
+        m.execute(f"mount /dev/mapper/dm-test {self.mnt_dir}")
 
         # Keep the mount point busy.  The extra "true" is here to
         # prevent bash from applying tail call optimization to the
         # "sleep" invocation.
-        sleep_pid = m.spawn("cd /mnt; sleep infinity; true", "sleep")
+        sleep_pid = m.spawn(f"cd {self.mnt_dir}; sleep infinity; true", "sleep")
         self.write_file("/etc/systemd/system/keep-mnt-busy.service",
-                        """
+                        f"""
 [Unit]
 Description=Test Service
 
 [Service]
-WorkingDirectory=/mnt
+WorkingDirectory={self.mnt_dir}
 ExecStart=/usr/bin/sleep infinity
 """)
         m.execute("systemctl start keep-mnt-busy")
@@ -158,10 +158,10 @@ ExecStart=/usr/bin/sleep infinity
         disk = self.add_ram_disk()
         b.wait_visible(self.card_row("Storage", name=disk))
         m.execute(f"mke2fs -q -L TEST {disk}")
-        m.execute(f"mount {disk} /mnt")
+        m.execute(f"mount {disk} {self.mnt_dir}")
 
         self.click_card_row("Storage", name=disk)
-        b.wait_in_text(self.card("ext2 filesystem"), "The filesystem is currently mounted on /mnt")
+        b.wait_in_text(self.card("ext2 filesystem"), f"The filesystem is currently mounted on {self.mnt_dir}")
 
         # Start formatting, and while the dialog is open, make the
         # filesystem unmountable.
@@ -171,15 +171,15 @@ ExecStart=/usr/bin/sleep infinity
         # is not. The first is only used to figure out when the dialog
         # is done initializing.
 
-        m.spawn("cd /mnt; sleep infinity; true", "sleep")
+        m.spawn(f"cd {self.mnt_dir}; sleep infinity; true", "sleep")
 
         self.click_card_dropdown("Solid State Drive", "Create partition table")
         self.dialog_wait_open()
         b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
         self.dialog_wait_apply_enabled()
-        m.spawn("cd /mnt; sleep infinity; true", "sleep")
+        m.spawn(f"cd {self.mnt_dir}; sleep infinity; true", "sleep")
         self.dialog_apply()
-        b.wait_in_text("#dialog", "umount: /mnt: target is busy")
+        b.wait_in_text("#dialog", f"umount: {self.mnt_dir}: target is busy")
         self.dialog_wait_apply_disabled()
         self.dialog_cancel()
         self.dialog_wait_close()

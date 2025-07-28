@@ -37,7 +37,7 @@ class TestStorageFormat(storagelib.StorageCase):
         self.click_card_dropdown("Unformatted data", "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "xfs")
-        self.dialog_set_val("mount_point", "/foo")
+        self.dialog_set_val("mount_point", f"{self.mnt_dir}/foo")
         self.dialog_apply_secondary()
 
         b.wait_in_text("#dialog", "Error creating")
@@ -56,7 +56,7 @@ class TestStorageFormat(storagelib.StorageCase):
             self.click_card_dropdown("Unformatted data", "Format")
             self.dialog_wait_open()
             self.dialog_set_val("type", fstype)
-            self.dialog_set_val("mount_point", "/foo")
+            self.dialog_set_val("mount_point", f"{self.mnt_dir}/foo")
             self.dialog_set_val("name", "X" * (label_limit + 1))
             self.dialog_apply_secondary()
             self.dialog_wait_error("name", "Name cannot be longer than %d characters" % label_limit)
@@ -119,7 +119,7 @@ class TestStorageFormat(storagelib.StorageCase):
         self.click_card_dropdown("Unformatted data", "Format")
         self.dialog_wait_open()
         self.dialog_set_val("erase.on", val=True)
-        self.dialog_set_val("mount_point", "/foo")
+        self.dialog_set_val("mount_point", f"{self.mnt_dir}/foo")
         self.dialog_apply()
         with b.wait_timeout(60):
             b.wait_in_text("footer", "Erasing /dev/mapper/superslow")
@@ -144,7 +144,7 @@ class TestStorageFormat(storagelib.StorageCase):
             self.dialog_wait_open()
             self.dialog_wait_val("at_boot", expected_at_boot)
             self.dialog_set_val("type", "ext4")
-            self.dialog_set_val("mount_point", "/foo")
+            self.dialog_set_val("mount_point", f"{self.mnt_dir}/foo")
             self.dialog_set_val("at_boot", at_boot)
             if keep:
                 self.dialog_set_val("crypto", " keep")
@@ -157,36 +157,36 @@ class TestStorageFormat(storagelib.StorageCase):
 
         format_partition("nofail", "local", keep=False, first=True)
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "stop boot on failure")
-        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertNotIn("noauto", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
 
         format_partition("local", "nofail", keep=True)
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "ignore failure")
-        self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("nofail", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "nofail")
 
         format_partition("nofail", "netdev", keep=True)
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "after network")
-        self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("_netdev", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "_netdev")
 
         format_partition("netdev", "never", keep=True)
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "never mount")
-        self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("x-cockpit-never-auto", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "noauto")
 
         format_partition("never", "nofail", keep=False)
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "ignore failure")
-        self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("nofail", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "nofail")
 
         format_partition("nofail", "netdev", keep=False)
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "after network")
-        self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("_netdev", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "_netdev")
 
         format_partition("netdev", "never", keep=False)
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "never mount")
-        self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("x-cockpit-never-auto", m.execute(f"findmnt --fstab -n -o OPTIONS {self.mnt_dir}/foo"))
         self.assert_in_configuration(disk, "crypttab", "options", "noauto")
 
 

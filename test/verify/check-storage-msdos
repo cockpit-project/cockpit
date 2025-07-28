@@ -42,7 +42,7 @@ class TestStorageMsDOS(storagelib.StorageCase):
         self.click_dropdown(self.card_row("DOS partitions", 1), "Create partition")
         self.dialog({"size": 10,
                      "type": "ext4",
-                     "mount_point": "/foo",
+                     "mount_point": f"{self.mnt_dir}/foo",
                      "name": "FIRST"},
                     secondary=True)
         b.wait_text(self.card_row_col("DOS partitions", 1, 2), "ext4 filesystem")

@@ -175,7 +175,7 @@ def build_install_bootc(dist_tar, image, verbose, quick):
         rpms = build_rpms(dist_tar, machine, verbose, quick)
     args = ["--run-command", "mkdir -p /var/tmp/rpms"]
     for rpm in rpms:
-        if not any(r in rpm for r in [".src", "debug", "packagekit", "storaged"]):
+        if not any(r in rpm for r in [".src", "debug", "packagekit"]):
             args += ["--upload", f"{rpm}:/var/tmp/rpms/"]
     args += [
         "--upload", os.path.join(BASE_DIR, "dist/playground") + ":/var/tmp/",

@@ -518,7 +518,8 @@ OnCalendar=daily
         b.wait_not_present("#host-apps li a:contains('Logs')")
         b.key("ArrowDown", 2)
         b.key("Enter")
-        if m.ostree_image:
+        # CoreOS images don't have cockpit-storaged; all others including bootc do
+        if "coreos" in m.image:
             b.enter_page("/users")
         else:
             b.enter_page("/storage")

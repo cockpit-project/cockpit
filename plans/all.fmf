@@ -18,10 +18,6 @@ environment:
 
 /storage-basic:
     summary: Basic storage tests
-    # FIXME: tests need a lot of work to pass in image mode
-    adjust+:
-        when: distro ~ .*image-mode
-        enabled: false
     discover+:
         test: /test/browser/storage-basic
 

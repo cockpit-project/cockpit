@@ -189,6 +189,14 @@ if [ "$PLAN" = "storage-basic" ]; then
             TestStorageNfs.testNfsMountWithoutDiscovery
             "
     fi
+
+    if [ "${TEST_OS%bootc}" != "$TEST_OS" ]; then
+        # no swap on TF bootc
+        EXCLUDES="$EXCLUDES
+                  TestStorageswap.testBasic
+                  TestStorageswap.testEncrypted
+                  "
+    fi
 fi
 
 if [ "$PLAN" = "storage-extra" ]; then

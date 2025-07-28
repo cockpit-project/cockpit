@@ -229,7 +229,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.go("/network")
         # install wireguard-tools from the install dialog
         if not m1.ostree_image:
-            m1.execute("pkcon remove -y wireguard-tools")
+            self.removePackages(["wireguard-tools"])
             self.createPackage("wireguard-tools", "1", "1")
             self.enableRepo()
             b.click("button:contains('Add VPN')")

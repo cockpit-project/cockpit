@@ -471,3 +471,12 @@ Server = file://{self.repo_dir}
                                      createrepo_c {self.repo_dir}
                                      modifyrepo_c /tmp/updateinfo.xml {self.repo_dir}/repodata
                                      dnf clean all""")
+
+    def removePackages(self, packages: list[str]) -> None:
+        packages_str = ' '.join(packages)
+        if self.backend == "alpm":
+            self.machine.execute(f"pacman -Rdd --noconfirm {packages_str}")
+        elif self.backend == "apt":
+            self.machine.execute(f"dpkg --purge {packages_str}")
+        elif self.backend.startswith('dnf') or self.backend == "zypper":
+            self.machine.execute(f"rpm --erase {packages_str}")

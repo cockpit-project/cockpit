@@ -360,7 +360,11 @@ window.ph_element_clip = function(sel) {
 };
 
 window.ph_count_animations = function(sel) {
-    return window.ph_find(sel).getAnimations({ subtree: true }).length;
+    let animations = window.ph_find(sel).getAnimations({ subtree: true });
+    // ignore animations that have already finished running
+    animations = animations.filter(a => a.playState !== "finished");
+
+    return animations.length;
 };
 
 window.ph_set_texts = function(new_texts) {

@@ -399,8 +399,7 @@ class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
         m = self.machine
         b = self.browser
 
-        m.execute("pkcon remove -y vdo")
-        m.execute("pkcon refresh")
+        m.execute("rpm --erase --verbose vdo")
 
         self.login_and_go("/storage")
         m.add_disk(SIZE_10G, serial="DISK1")

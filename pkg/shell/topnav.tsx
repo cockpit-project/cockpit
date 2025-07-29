@@ -35,6 +35,7 @@ import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { CredentialsModal } from './credentials.jsx';
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
 import { superuser_proxy, SuperuserProxy, SuperuserIndicator } from "./superuser.jsx";
+import { HostnameMismatchIndicator } from "./hostnameMismatchIndicator";
 import { read_os_release } from "os-release.js";
 import { DialogsContext } from "dialogs.jsx";
 import { Icon } from "@patternfly/react-core";
@@ -242,6 +243,7 @@ export class TopNav extends React.Component {
                             }
                             { connected &&
                                 <ToolbarItem id="super-user-indicator" className="super-user-indicator desktop_v">
+                                    <HostnameMismatchIndicator />
                                     <SuperuserIndicator proxy={this.superuser} host={current_machine.connection_string} />
                                 </ToolbarItem>
                             }

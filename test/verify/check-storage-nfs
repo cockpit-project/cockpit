@@ -31,8 +31,8 @@ class TestStorageNfs(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        m.execute(f"mkdir /home/foo /home/bar {self.mnt_dir}/test")
-        self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
+        m.execute(f"mkdir {self.mnt_dir}/foo {self.mnt_dir}/bar {self.mnt_dir}/test")
+        self.write_file("/etc/exports", f"{self.mnt_dir}/foo 127.0.0.0/24(rw)\n{self.mnt_dir}/bar 127.0.0.0/24(rw)\n",
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")
         # Removing the nfs mount removes the target dir, if the test fails it
@@ -43,22 +43,22 @@ class TestStorageNfs(storagelib.StorageCase):
 
         orig_fstab = m.execute("cat /etc/fstab")
 
-        # Add /home/foo
+        # Add /foo
         self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
-        self.dialog_set_val("remote", "/home/foo")
+        self.dialog_set_val("remote", f"{self.mnt_dir}/foo")
         self.dialog_set_val("dir", f"{self.mnt_dir}/test")
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
+        b.wait_visible(self.card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/foo"))
         b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}/test"))
         b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}/test") + " .usage-bar[role=progressbar]")
 
         # Should be saved to fstab
         self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
-                         f"127.0.0.1:/home/foo {self.mnt_dir}/test nfs defaults\n")
+                         f"127.0.0.1:{self.mnt_dir}/foo {self.mnt_dir}/test nfs defaults\n")
 
         # Try to add some non-exported directory
         self.click_dropdown(self.card_header("Storage"), "New NFS mount")
@@ -66,32 +66,32 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_set_val("server", "127.0.0.1")
         b.set_input_text(self.dialog_field("remote") + " input", "/usr/share")
         b.click(".pf-v6-c-menu ul > li > button")
-        self.dialog_set_val("dir", "/run/share")
+        self.dialog_set_val("dir", f"{self.mnt_dir}/share")
         self.dialog_apply()
         b.wait_visible("#dialog .pf-v6-c-alert.pf-m-danger")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        # Add /home/bar
+        # Add /bar
         self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
-        self.dialog_set_val("remote", "/home/bar")
+        self.dialog_set_val("remote", f"{self.mnt_dir}/bar")
         self.dialog_set_val("dir", f"{self.mnt_dir}s/bar")
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/bar"))
+        b.wait_visible(self.card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/bar"))
         b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}s/bar"))
         b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}s/bar") + " .usage-bar[role=progressbar]")
         m.execute(f"test -d {self.mnt_dir}s/bar")
 
-        # Go to details of /home/bar
-        self.click_card_row("Storage", name="127.0.0.1:/home/bar")
-        b.wait_text(self.card_desc("NFS mount", "Server"), "127.0.0.1:/home/bar")
+        # Go to details of /bar
+        self.click_card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/bar")
+        b.wait_text(self.card_desc("NFS mount", "Server"), f"127.0.0.1:{self.mnt_dir}/bar")
         b.wait_text(self.card_desc("NFS mount", "Mount point"), f"{self.mnt_dir}s/bar")
 
-        # Change mount point of /home/bar
+        # Change mount point of /bar
         b.click(self.card_button("NFS mount", "Edit"))
         self.dialog_wait_open()
         self.dialog_set_val("dir", f"{self.mnt_dir}s/barbar")
@@ -104,13 +104,13 @@ class TestStorageNfs(storagelib.StorageCase):
         m.execute(f"test -d {self.mnt_dir}s/barbar")
         self.assertEqual(m.execute(f"findmnt -s -n -o OPTIONS {self.mnt_dir}s/barbar").strip(), "defaults")
 
-        # Set options for /home/bar
+        # Set options for /barbar
         b.click(self.card_button("NFS mount", "Edit"))
 
-        def wait_checked(field):
+        def wait_checked(field: str) -> None:
             b.wait_visible(self.dialog_field(field) + ":checked")
 
-        def wait_not_checked(field):
+        def wait_not_checked(field: str) -> None:
             b.wait_visible(self.dialog_field(field) + ":not(:checked)")
 
         self.dialog_wait_open()
@@ -126,40 +126,40 @@ class TestStorageNfs(storagelib.StorageCase):
 
         # Should be saved to fstab
         self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
-                         f"127.0.0.1:/home/foo {self.mnt_dir}/test nfs defaults\n" +
-                         f"127.0.0.1:/home/bar {self.mnt_dir}s/barbar nfs noauto,ro,ac\n")
+                         f"127.0.0.1:{self.mnt_dir}/foo {self.mnt_dir}/test nfs defaults\n" +
+                         f"127.0.0.1:{self.mnt_dir}/bar {self.mnt_dir}s/barbar nfs noauto,ro,ac\n")
 
-        # Go to details of /home/foo
+        # Go to details of /foo
         b.go("#/")
-        self.click_card_row("Storage", name="127.0.0.1:/home/foo")
-        b.wait_text(self.card_desc("NFS mount", "Server"), "127.0.0.1:/home/foo")
+        self.click_card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/foo")
+        b.wait_text(self.card_desc("NFS mount", "Server"), f"127.0.0.1:{self.mnt_dir}/foo")
         b.wait_text(self.card_desc("NFS mount", "Mount point"), f"{self.mnt_dir}/test")
 
-        # Unmount and remount /home/foo
+        # Unmount and remount /foo
         b.click(self.card_button("NFS mount", "Unmount"))
         b.click(self.card_button("NFS mount", "Mount"))
         b.wait_visible(self.card_button("NFS mount", "Unmount"))
 
-        # Remove /home/foo
+        # Remove /foo
         self.click_card_dropdown("NFS mount", "Remove")
         b.wait_visible(self.card("Storage"))
-        b.wait_not_present(self.card_row("Storage", name="127.0.0.1:/home/foo"))
+        b.wait_not_present(self.card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/foo"))
         m.execute(f"! test -e {self.mnt_dir}/test")
         # Should be removed from fstab, too
         self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
-                         f"127.0.0.1:/home/bar {self.mnt_dir}s/barbar nfs noauto,ro,ac\n")
+                         f"127.0.0.1:{self.mnt_dir}/bar {self.mnt_dir}s/barbar nfs noauto,ro,ac\n")
 
         # Picks up mounts in fstab
-        m.execute("echo '1.2.3.4:/something /somewhere nfs defaults 0 0' >> /etc/fstab")
+        m.execute(f"echo '1.2.3.4:/something {self.mnt_dir}/somewhere nfs defaults 0 0' >> /etc/fstab")
         b.wait_visible(self.card_row("Storage", name="1.2.3.4:/something"))
-        b.wait_visible(self.card_row("Storage", location="/somewhere (not mounted)"))
+        b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}/somewhere (not mounted)"))
 
         # Ignores non-FS mounts which look similar
-        m.execute("echo '2.3.4.5:/marmalade /dunno rfs defaults 0 0' >> /etc/fstab")
+        m.execute(f"echo '2.3.4.5:/marmalade {self.mnt_dir}/dunno rfs defaults 0 0' >> /etc/fstab")
         # But recognizes variants like "nfs4"
-        m.execute("echo '5.6.7.8:/stuff /four nfs4 defaults 0 0' >> /etc/fstab")
+        m.execute(f"echo '5.6.7.8:/stuff {self.mnt_dir}/four nfs4 defaults 0 0' >> /etc/fstab")
         b.wait_visible(self.card_row("Storage", name="5.6.7.8:/stuff"))
-        b.wait_visible(self.card_row("Storage", location="/four (not mounted)"))
+        b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}/four (not mounted)"))
         b.wait_not_present(self.card_row("Storage", name="2.3.4.5:/marmalade"))
 
     def testNfsListExports(self):
@@ -168,8 +168,8 @@ class TestStorageNfs(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        m.execute("mkdir /home/foo /home/bar")
-        self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
+        m.execute(f"mkdir {self.mnt_dir}/foo {self.mnt_dir}/bar")
+        self.write_file("/etc/exports", f"{self.mnt_dir}/foo 127.0.0.0/24(rw)\n{self.mnt_dir}/bar 127.0.0.0/24(rw)\n",
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")
 
@@ -180,7 +180,7 @@ class TestStorageNfs(storagelib.StorageCase):
         def wait_for_exports():
             def check():
                 choices = self.dialog_combobox_choices("remote")
-                return len(choices) == 2 and "/home/foo" in choices and "/home/bar" in choices
+                return len(choices) == 2 and f"{self.mnt_dir}/foo" in choices and f"{self.mnt_dir}/bar" in choices
             self.retry(check)
 
         b.click('#dialog [data-field="remote"] button.pf-v6-c-menu-toggle__button')
@@ -192,9 +192,10 @@ class TestStorageNfs(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        m.execute("mkdir /home/foo /home/bar")
+        m.execute(f"mkdir {self.mnt_dir}/srv-foo {self.mnt_dir}/srv-bar")
         self.addCleanup(m.execute, "systemctl restart nfs-server")
-        self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
+        self.write_file("/etc/exports",
+                        f"{self.mnt_dir}/srv-foo 127.0.0.0/24(rw)\n{self.mnt_dir}/srv-bar 127.0.0.0/24(rw)\n",
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")
 
@@ -209,16 +210,16 @@ class TestStorageNfs(storagelib.StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
         # Manually add a remote location to the select
-        b.set_input_text("[data-field=remote] input", "/home/foo")
+        b.set_input_text("[data-field=remote] input", f"{self.mnt_dir}/srv-foo")
         b.click(".pf-v6-c-menu button.pf-v6-c-menu__item")
-        self.dialog_set_val("dir", self.mnt_dir)
+        self.dialog_set_val("dir", f"{self.mnt_dir}/foo")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.addCleanup(m.execute, f"umount {self.mnt_dir}")
+        self.addCleanup(m.execute, f"umount {self.mnt_dir}/foo")
 
-        b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
-        b.wait_visible(self.card_row("Storage", location=self.mnt_dir))
-        b.wait_visible(self.card_row("Storage", location=self.mnt_dir) + " .usage-bar[role=progressbar]")
+        b.wait_visible(self.card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/srv-foo"))
+        b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}/foo"))
+        b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}/foo") + " .usage-bar[role=progressbar]")
 
     def testNfsBusy(self):
         m = self.machine
@@ -226,28 +227,28 @@ class TestStorageNfs(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        m.execute("mkdir /home/foo /home/bar")
+        m.execute(f"mkdir {self.mnt_dir}/foo {self.mnt_dir}/bar")
         self.addCleanup(m.execute, "systemctl restart nfs-server")
-        self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
+        self.write_file("/etc/exports", f"{self.mnt_dir}/foo 127.0.0.0/24(rw)\n{self.mnt_dir}/bar 127.0.0.0/24(rw)\n",
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")
 
-        # Add /home/foo
+        # Add /foo
         self.click_dropdown(self.card_header("Storage"), "New NFS mount")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
-        self.dialog_set_val("remote", "/home/foo")
+        self.dialog_set_val("remote", f"{self.mnt_dir}/foo")
         self.dialog_set_val("dir", f"{self.mnt_dir}s/foo")
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_visible(self.card_row("Storage", name="127.0.0.1:/home/foo"))
+        b.wait_visible(self.card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/foo"))
         b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}s/foo"))
         b.wait_visible(self.card_row("Storage", location=f"{self.mnt_dir}s/foo") + " .usage-bar[role=progressbar]")
 
-        # Go to details of /home/foo
-        self.click_card_row("Storage", name="127.0.0.1:/home/foo")
-        b.wait_text(self.card_desc("NFS mount", "Server"), "127.0.0.1:/home/foo")
+        # Go to details of /foo
+        self.click_card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/foo")
+        b.wait_text(self.card_desc("NFS mount", "Server"), f"127.0.0.1:{self.mnt_dir}/foo")
         b.wait_text(self.card_desc("NFS mount", "Mount point"), f"{self.mnt_dir}s/foo")
 
         sleep_pid = m.spawn(f"cd {self.mnt_dir}s/foo; sleep infinity", "busy")
@@ -283,7 +284,7 @@ class TestStorageNfs(storagelib.StorageCase):
 
         # We are back on the Overview with nothing there
         b.wait_visible(self.card("Storage"))
-        b.wait_not_present(self.card_row("Storage", name="127.0.0.1:/home/foo"))
+        b.wait_not_present(self.card_row("Storage", name=f"127.0.0.1:{self.mnt_dir}/foo"))
         b.wait_not_present(self.card_row("Storage", location=f"{self.mnt_dir}s/foo"))
 
 

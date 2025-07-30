@@ -1221,7 +1221,8 @@ BEGIN {{
         b.wait(lambda: b.get_pf_progress_value(".pf-v6-c-progress[data-disk-usage-target='/var/cockpittest']") >= 90)
 
         # clicking on progress leads to the storage page
-        if not m.ostree_image:
+        # CoreOS images don't have cockpit-storaged; all others including bootc do
+        if "coreos" not in m.image:
             self.assertTrue(b.is_present("#current-disks-usage button"))
             b.click(progress_sel)
             b.enter_page("/storage")
@@ -1239,9 +1240,8 @@ BEGIN {{
                 return
 
             # without cockpit-storaged, mounts are not links
-            self.restore_file("/usr/share/cockpit/storaged/manifest.json")
-            m.write("/usr/share/cockpit/storaged/manifest.json", "")
-            self.allow_journal_messages(".*/storaged/manifest.json: Expecting value: line 1 column 1.*")
+            self.write_file("/etc/cockpit/storaged.override.json",
+                            '{"conditions": [{"path-exists": "/disable"}]}')
             self.login_and_go("/metrics")
         b.wait_visible(progress_sel)
         self.assertFalse(b.is_present("#current-disks-usage button"))

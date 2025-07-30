@@ -19,6 +19,9 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         m2 = self.machines["machine2"]
         b = self.browser
 
+        # Disable pre-loading packagekit, dnf needs-restarting (dnf 4) consumes tons of cpu/memory on RHEL-10-1
+        self.disable_preload("packagekit", machine=m2)
+
         self.login_and_go("/network")
 
         # Peer 1 (client)

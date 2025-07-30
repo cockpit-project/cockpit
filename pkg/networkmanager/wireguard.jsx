@@ -38,6 +38,7 @@ import { ModelContext } from './model-context';
 import { useDialogs } from 'dialogs.jsx';
 
 import './wireguard.scss';
+import { useInit } from 'hooks';
 
 const _ = cockpit.gettext;
 
@@ -76,34 +77,22 @@ export function WireGuardDialog({ settings, connection, dev }) {
     const [peers, setPeers] = useState(settings.wireguard.peers.map(peer => ({ ...peer, allowedIps: peer.allowedIps?.join(",") ?? '' })));
 
     // Additional check for `wg` after install_dialog for non-packagekit and el8 environments
-    useEffect(() => {
-        async function checkWireguardPackage() {
-            try {
-                await cockpit.script("command -v wg");
-            } catch (e) {
-                setDialogError(_("wireguard-tools package is not installed"));
-            }
-        }
-
-        checkWireguardPackage();
-    }, []);
-
-    useEffect(() => {
-        if (!connection)
-            generatePrivateKey();
-    }, [connection]);
-
-    useEffect(() => {
-        async function getPrivateKey() {
-            const objpath = connection[" priv"].path;
-            const [result] = await model.client.call(objpath, "org.freedesktop.NetworkManager.Settings.Connection", "GetSecrets", ["wireguard"]);
-            setGeneratedPrivateKey(result.wireguard["private-key"].v);
+    useInit(async () => {
+        try {
+            await cockpit.script("command -v wg");
+        } catch (e) {
+            setDialogError(_("wireguard-tools package is not installed"));
+            return;
         }
 
         if (connection?.[" priv"].path) {
-            getPrivateKey();
+            const objpath = connection[" priv"].path;
+            const [result] = await model.client.call(objpath, "org.freedesktop.NetworkManager.Settings.Connection", "GetSecrets", ["wireguard"]);
+            setGeneratedPrivateKey(result.wireguard["private-key"].v);
+        } else {
+            generatePrivateKey();
         }
-    }, [model, connection]);
+    });
 
     useEffect(() => {
         const privateKey = isPrivKeyGenerated ? generatedPrivateKey : pastedPrivateKey;

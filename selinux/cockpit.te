@@ -224,6 +224,14 @@ optional_policy(`
     gnome_exec_keyringd(cockpit_session_t)
 ')
 
+# pam_systemd requires this since systemd 258; RHEL 9 does not yet know about pidfs_t
+optional_policy(`
+    gen_require(`
+        type pidfs_t;
+    ')
+    allow cockpit_session_t pidfs_t:filesystem getattr;
+')
+
 #########################################################
 #
 #  Misc

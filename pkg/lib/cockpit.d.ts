@@ -29,6 +29,8 @@ declare module 'cockpit' {
         toString(): string;
     }
 
+    type SuperuserMode = "require" | "try" | null | undefined;
+
     function init(): Promise<void>;
 
     function assert(predicate: unknown, message?: string): asserts predicate;
@@ -133,7 +135,7 @@ declare module 'cockpit' {
 
     // these apply to all channels
     interface ChannelOptions {
-        superuser?: "try" | "require";
+        superuser?: SuperuserMode;
         [_: string]: JsonValue | undefined;
         binary?: boolean,
 
@@ -239,7 +241,7 @@ declare module 'cockpit' {
         bus?: string;
         address?: string;
         host?: string;
-        superuser?: "require" | "try";
+        superuser?: SuperuserMode;
         track?: boolean;
     }
 
@@ -317,7 +319,7 @@ declare module 'cockpit' {
 
     type FileOpenOptions = {
         max_read_size?: number;
-        superuser?: string;
+        superuser?: SuperuserMode;
     };
 
     function file(
@@ -367,7 +369,7 @@ declare module 'cockpit' {
             key?: TlsCert;
             validate?: boolean;
         };
-        superuser?: "require" | "try";
+        superuser?: SuperuserMode;
         binary?: boolean;
         // default HTTP headers to send with every request
         headers?: HttpHeaders;

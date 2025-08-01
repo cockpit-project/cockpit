@@ -1923,14 +1923,13 @@ class MachineCase(unittest.TestCase):
         # cockpit configuration
         self.restore_dir("/etc/cockpit")
 
-        if not m.ostree_image:
-            # for storage tests
-            self.restore_file("/etc/fstab")
-            self.restore_file("/etc/crypttab")
+        # for storage tests
+        self.restore_file("/etc/fstab")
+        self.restore_file("/etc/crypttab")
 
-            if not m.ws_container:
-                # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
-                self.addCleanup(m.execute, "systemctl stop --quiet cockpit")
+        if not m.ws_container:
+            # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
+            self.addCleanup(m.execute, "systemctl stop --quiet cockpit")
 
         # The sssd daemon seems to get confused when we restore
         # backups of /etc/group etc and stops following updates to it.

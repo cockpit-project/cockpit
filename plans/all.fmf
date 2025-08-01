@@ -23,9 +23,5 @@ environment:
 
 /storage-extra:
     summary: More expensive storage tests (LVM, LUKS, Anaconda)
-    # FIXME: tests need a lot of work to pass in image mode
-    adjust+:
-        when: distro ~ .*image-mode
-        enabled: false
     discover+:
         test: /test/browser/storage-extra

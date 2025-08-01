@@ -215,6 +215,13 @@ if [ "$PLAN" = "storage-extra" ]; then
               TestStorageMountingLUKS.testDuplicateMountPoints
               TestStorageMountingLUKS.testNeverAuto
               "
+
+    if [ "$TEST_OS" = "centos-10-bootc" ]; then
+        # FIXME: targetcli fails with code 255 and no error message; needs investigation
+        EXCLUDES="$EXCLUDES
+                  TestStorageLvm2.testDegradation
+                  "
+    fi
 fi
 
 exclude_options=""

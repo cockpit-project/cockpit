@@ -530,6 +530,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         self.wait_mounted("ext4 filesystem")
 
 
+@testlib.skipImage("clevis/tang not installed", "*-bootc")
 class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "memory_mb": 2048},

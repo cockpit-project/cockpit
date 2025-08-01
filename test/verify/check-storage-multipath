@@ -22,6 +22,7 @@ import testlib
 
 
 @testlib.skipImage("No support for multipath", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("multipath support not installed", "*-bootc")
 class TestStorageMultipath(storagelib.StorageCase):
 
     def testBasic(self):

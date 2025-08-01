@@ -22,6 +22,7 @@ import testlib
 
 
 @testlib.skipImage("UDisks doesn't have support for iSCSI", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("udisks2-iscsi not on image", "*-bootc")
 @testlib.nondestructive
 class TestStorageISCSI(storagelib.StorageCase):
 

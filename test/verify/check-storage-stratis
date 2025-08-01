@@ -59,6 +59,7 @@ def create_legacy_pool(machine, disks, name="pool0", keydesc=None, tang=None):
 
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("stratis not installed", "*-bootc")
 @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
 @testlib.nondestructive
 class TestStorageStratis(storagelib.StorageCase):
@@ -584,6 +585,7 @@ systemctl restart stratisd
 
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("stratis not installed", "*-bootc")
 @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
 class TestStorageStratisReboot(storagelib.StorageCase):
     # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
@@ -897,6 +899,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
 
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipOstree("no package installation on OSTree")
 class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase):
 
     def testStratisOndemandInstallation(self):
@@ -940,6 +943,7 @@ class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase)
 
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("stratis not installed", "*-bootc")
 @testlib.skipImage("Stratis too old", "rhel-8-*")
 class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
     provision = {

@@ -25,6 +25,7 @@ import testlib
 
 
 @testlib.nondestructive
+@testlib.skipOstree("No /sysroot and directory cannot be created on read-only filesystem")
 class TestStorageAnaconda(storagelib.StorageCase):
 
     def enterAnacondaMode(self, config):

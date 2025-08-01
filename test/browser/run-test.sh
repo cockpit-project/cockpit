@@ -190,8 +190,9 @@ if [ "$PLAN" = "storage-basic" ]; then
             "
     fi
 
-    if [ "${TEST_OS%bootc}" != "$TEST_OS" ]; then
-        # no swap on TF bootc
+    if [ "$TEST_OS" = "centos-9-bootc" ]; then
+        # FIXME: pcp is installed, but not working on CentOS 9 (10 is fine)
+        # warn: PM_ERR_NOPMNS PMNS not accessible <pcp.pmapi.c_uint_Array_1 object at 0x...>
         EXCLUDES="$EXCLUDES
                   TestStorageswap.testBasic
                   TestStorageswap.testEncrypted

@@ -395,6 +395,7 @@ declare module 'cockpit' {
              body?: string | Uint8Array | JsonObject | null,
              options?: Omit<HttpRequestOptions, "method" | "path" | "body">
         ): Promise<TResponse>;
+        close(): void;
     }
 
     function http(endpoint: string): HttpInstance<string>;

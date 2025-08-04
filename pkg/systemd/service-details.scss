@@ -41,13 +41,13 @@
 
 // REVIEW @Venefilyn: Green = good/success; Running or enabled is a status so
 // we should use something that is better suited for informational stuff -- like purple
-.status-running > .status-icon,
-.status-enabled > .status-icon {
+.status-running .status-icon,
+.status-enabled .status-icon {
   color: var(--pf-t--global--border--color--status--success--default);
 }
 
-.status-failed > .status-icon,
-.status-failed > .status {
+.status-failed .status-icon,
+.status-failed .status {
   color: var(--pf-t--global--icon--color--status--danger--default);
 }
 

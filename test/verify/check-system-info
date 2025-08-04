@@ -930,15 +930,15 @@ class TestSystemInfoTime(packagelib.PackageCase):
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
         self.set_change_time_dialog_mode("Manually")
-        b.set_input_text("#systime-date-input input", "2018-06-04")
+        b.set_input_text("#systime-date-input input", "2050-06-04")
         b.set_input_text("#systime-time-input-input", "06:34")
         b.click("#system_information_change_systime .apply")
         with b.wait_timeout(120):  # Changing time on Arch can be slow
             b.wait_not_present("#system_information_change_systime")
 
         self.assertFalse(ntp_enabled())
-        self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
-        self.assertIn("EEST 2018\n", m.execute("date"))
+        self.assertIn("Sat Jun  4 06:34:", m.execute("date"))
+        self.assertIn("EEST 2050\n", m.execute("date"))
 
     @testlib.skipImage("timesyncd not available", "rhel*", "centos-*")
     def testTimeServersTimesyncd(self):

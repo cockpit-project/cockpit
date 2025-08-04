@@ -61,7 +61,7 @@ def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
                        {command}
                        # set-ntp off is asynchronous; wait until timesyncd stops before the time can be set
                        while systemctl is-active systemd-timesyncd; do sleep 1; done
-                       timedatectl set-time @{time}""")
+                       date --set='@{time}'""")
 
 
 def redisService(image):
@@ -121,7 +121,7 @@ class TestHistoryMetrics(testlib.MachineCase):
                  timedatectl set-ntp off
              fi""")
         m.execute("while systemctl is-active systemd-timesyncd; do sleep 1; done")
-        m.execute("timedatectl set-time '2020-11-24 09:24:05'")
+        m.execute("date --set='2020-11-24 09:24:05'")
 
         # clean slate, to avoid seeing the data from preparing the VM
         m.execute("rm -rf /var/log/pcp/pmlogger/*; systemctl start pmlogger")
@@ -392,7 +392,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # Check changing of time
         #
 
-        m.execute("timedatectl set-time @1600550674")
+        m.execute("date --set=@1600550674")
         self.login_and_go("/metrics")
         # self.waitStream(3) # FIXME: wait for new data - pcp does not handle time change greatly
         b.wait_text("#date-picker-select-toggle .pf-v6-c-menu-toggle__text", "Today")

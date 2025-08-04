@@ -421,100 +421,154 @@ export class ServiceDetails extends React.Component {
         const isTimer = (this.unitType === "timer");
         const isQuadlet = this.props.unit.SourcePath?.includes("/containers/systemd/");
 
-        let status = [];
+        let statuses = [];
 
-        if (masked) {
-            status.push(
-                <div key="masked" className="status-masked">
-                    <BanIcon className="status-icon" />
+        if (masked || true) {
+            statuses.push(
+                <ListItem
+                    key="masked"
+                    className="status-masked"
+                    icon={
+                        <Icon>
+                            <BanIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
                     <span className="status">{ _("Masked") }</span>
                     <span className="side-note font-xs">{ _("Forbidden from running") }</span>
-                </div>
+                </ListItem>
             );
         }
 
         if (!enabled && !active && !masked && !isStatic) {
-            status.push(
-                <div key="disabled" className="status-disabled">
-                    <OffIcon className="status-icon" />
-                    <span className="status">{ _("Disabled") }</span>
-                </div>
+            statuses.push(
+                <ListItem
+                    key="disabled"
+                    className="status-disabled"
+                    icon={
+                        <Icon>
+                            <OffIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
+                    <span className="status">{_("Disabled")}</span>
+                </ListItem>
             );
         }
 
         if (failed) {
-            status.push(
-                <div key="failed" className="status-failed">
-                    <ErrorCircleOIcon className="status-icon" />
+            statuses.push(
+                <ListItem
+                    key="failed"
+                    className="status-failed"
+                    icon={
+                        <Icon>
+                            <ErrorCircleOIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
                     <span className="status">{ _("Failed to start") }</span>
                     { showAction &&
-                    <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start service") }</Button>
+                        <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit")}>
+                            {_("Start service")}
+                        </Button>
                     }
-                </div>
+                </ListItem>
             );
         }
 
-        if (!status.length) {
+        if (!statuses.length) {
             if (active) {
-                status.push(
-                    <div key="running" className="status-running">
-                        <Icon status="success">
-                            <OnRunningIcon className="status-icon" />
-                        </Icon>
-                        <span className="status">{ _("Running") }</span>
-                        <span className="side-note font-xs">{ _("Active since ") + timeformat.dateTime(this.props.unit.ActiveEnterTimestamp / 1000) }</span>
-                    </div>
+                statuses.push(
+                    <ListItem
+                        key="running"
+                        className="status-running"
+                        icon={
+                            <Icon>
+                                <OnRunningIcon className="status-icon" />
+                            </Icon>
+                        }
+                    >
+                        <span className="status">{_("Running")}</span>
+                        <span className="side-note font-xs">{_("Active since ") + timeformat.dateTime(this.props.unit.ActiveEnterTimestamp / 1000)}</span>
+                    </ListItem>
                 );
             } else {
-                status.push(
-                    <div key="stopped" className="status-stopped">
-                        <Icon>
-                            <OffIcon className="status-icon" />
-                        </Icon>
-                        <span className="status">{ _("Not running") }</span>
-                    </div>
+                statuses.push(
+                    <ListItem
+                        key="stopped"
+                        className="status-stopped"
+                        icon={
+                            <Icon>
+                                <OffIcon className="status-icon" />
+                            </Icon>
+                        }
+                    >
+                        <span className="status">{_("Not running")}</span>
+                    </ListItem>
                 );
             }
         }
 
         if (isStatic && !masked) {
-            status.unshift(
-                <div key="static" className="status-static">
-                    <AsleepIcon className="status-icon" />
-                    <span className="status">{ _("Static") }</span>
-                    { this.props.unit.WantedBy && this.props.unit.WantedBy.length > 0 &&
+            statuses.unshift(
+                <ListItem
+                    key="static"
+                    className="status-static"
+                    icon={
+                        <Icon>
+                            <AsleepIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
+                    <span className="status">{_("Static")}</span>
+                    {this.props.unit.WantedBy && this.props.unit.WantedBy.length > 0 &&
                         <>
-                            <span className="side-note font-xs">{ _("Required by ") }</span>
+                        <span className="side-note font-xs">{_("Required by ")}</span>
                             <ul className="comma-list">
                                 {this.props.unit.WantedBy.map(unit => <li className="font-xs" key={unit}><a href={"#/" + unit}>{unit}</a></li>)}
                             </ul>
                         </>
                     }
-                </div>
+                </ListItem>
             );
         }
 
         if (!showAction && this.props.owner !== 'user') {
-            status.unshift(
-                <div key="readonly" className="status-readonly">
-                    <UserIcon className="status-icon" />
-                    <span className="status">{ _("Read-only") }</span>
-                    <span className="side-note font-xs">{ _("Requires administration access to edit") }</span>
-                </div>
+            statuses.unshift(
+                <ListItem
+                    key="readonly"
+                    className="status-readonly"
+                    icon={
+                        <Icon>
+                            <UserIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
+                    <span className="status">{_("Read-only")}</span>
+                    <span className="side-note font-xs">{_("Requires administration access to edit")}</span>
+                </ListItem>
             );
         }
 
         if (enabled) {
-            status.push(
-                <div key="enabled" className="status-enabled">
-                    <OkIcon className="status-icon" />
-                    <span className="status">{ _("Automatically starts") }</span>
-                </div>
+            statuses.push(
+                <ListItem
+                    key="enabled"
+                    className="status-enabled"
+                    icon={
+                        <Icon>
+                            <OkIcon className="status-icon" />
+                        </Icon>
+                    }
+                >
+                    <span className="status">{_("Automatically starts")}</span>
+                </ListItem>
             );
         }
 
         if (this.props.unit.NextRunTime || this.props.unit.LastTriggerTime) {
-            status.push(
+            statuses.push(
                 <div className="service-unit-triggers" key="triggers">
                     {this.props.unit.NextRunTime && <div className="service-unit-next-trigger">{cockpit.format("Next run: $0", this.props.unit.NextRunTime)}</div>}
                     {this.props.unit.LastTriggerTime && <div className="service-unit-last-trigger">{cockpit.format("Last trigger: $0", this.props.unit.LastTriggerTime)}</div>}
@@ -524,9 +578,11 @@ export class ServiceDetails extends React.Component {
 
         /* If there is some ongoing action just show spinner */
         if (this.state.waitsAction || this.state.waitsFileAction) {
-            status = [
+            statuses = [
                 <div key="updating" className="status-updating">
-                    <Spinner size="md" className="status-icon" />
+                    <Icon>
+                        <Spinner size="md" className="status-icon" />
+                    </Icon>
                     <span className="status">{ _("Updating status...") }</span>
                 </div>
             ];
@@ -651,7 +707,9 @@ export class ServiceDetails extends React.Component {
                             <DescriptionListGroup>
                                 <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
                                 <DescriptionListDescription id="statuses">
-                                    { status }
+                                    <List isPlain>
+                                        {statuses}
+                                    </List>
                                 </DescriptionListDescription>
                             </DescriptionListGroup>
                             <DescriptionListGroup>

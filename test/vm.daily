@@ -6,4 +6,14 @@ exec >&2
 dnf -y copr enable rpmsoftwaremanagement/dnf-nightly
 dnf -y copr enable @storage/udisks-daily
 dnf -y --setopt=install_weak_deps=False update
+
+grep -q 'ID=.*fedora' /etc/os-release
+
+# systemd main branch builds
+. /etc/os-release
+fedora_release="Fedora_${VERSION_ID}"
+echo "https://download.opensuse.org/repositories/system:systemd/${fedora_release}/system:systemd.repo"
+dnf config-manager addrepo --from-repofile="https://download.opensuse.org/repositories/system:systemd/${fedora_release}/system:systemd.repo"
+dnf -y update --repo=system_systemd --setopt=install_weak_deps=False
+
 /var/lib/download-package-sets.sh

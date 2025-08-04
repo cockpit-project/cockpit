@@ -38,11 +38,6 @@ case "${TEST_SCENARIO:=}" in
         RUN_OPTS="$RUN_OPTS "
         PREPARE_OPTS="$PREPARE_OPTS --overlay"
         ;;&
-   *systemd-main*)
-        bots/image-customize --fresh -v --script test/vm.systemd-main "$TEST_OS"
-        RUN_OPTS="$RUN_OPTS "
-        PREPARE_OPTS="$PREPARE_OPTS --overlay"
-        ;;&
    *updates-testing*)
         bots/image-customize --fresh -v --script test/vm.updates-testing "$TEST_OS"
         RUN_OPTS="$RUN_OPTS "

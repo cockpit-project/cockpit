@@ -208,9 +208,9 @@ class TestNetworkingSettings(netlib.NetworkCase):
         self.configure_iface_setting('IPv6')
         b.wait_visible("#network-ip-settings-dialog")
 
-        b.wait_val('#network-ip-settings-route-address-0', "fe80:2:0:0:0:0:0:0")
+        b.wait_val('#network-ip-settings-route-address-0', "fe80:2::")
         b.wait_val('#network-ip-settings-route-netmask-0', "60")
-        b.wait_val('#network-ip-settings-route-gateway-0', "fe80:2:0:0:0:0:0:3")
+        b.wait_val('#network-ip-settings-route-gateway-0', "fe80:2::3")
         b.wait_val('#network-ip-settings-route-metric-0', "42")
         b.click('#network-ip-settings-cancel')
         b.wait_not_present("#network-ip-settings-dialog")

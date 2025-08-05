@@ -157,6 +157,42 @@ export function ip4_prefix_from_text(text) {
     return prefix;
 }
 
+// Shorten IPv6 address according to RFC 5952
+// https://datatracker.ietf.org/doc/html/rfc5952#section-4
+//
+// NetworkManager already handles dropping of leadin zeros within a single 16 bit field
+// but does not replace the longest consecutive zeros fields with "::".
+function ip6_shorten(ip6_addr) {
+    function find_longest_zero(match) {
+        let idx = -1;
+        let length = 0;
+
+        match.forEach((item, i) => {
+            const count_zero = item[0].replaceAll(':', '').length;
+            if (count_zero > length) {
+                idx = i;
+                length = count_zero;
+            }
+        });
+
+        return idx;
+    }
+
+    const REGEX_MATCH_CONSECUTIVE_ZEROS = /\b:?(?:0:?){2,}/g;
+    const match = [...ip6_addr.matchAll(REGEX_MATCH_CONSECUTIVE_ZEROS)];
+
+    // nothing to shorten
+    if (match.length === 0) {
+        return ip6_addr;
+    }
+
+    const longest_idx = find_longest_zero(match);
+    // replace first (leftmost) match
+    const short_addr = ip6_addr.replace(match[longest_idx], "::");
+
+    return short_addr;
+}
+
 export function ip6_to_text(data, zero_is_empty) {
     const parts = [];
     const bytes = cockpit.base64_decode(data);
@@ -165,7 +201,7 @@ export function ip6_to_text(data, zero_is_empty) {
     const result = parts.join(':');
     if (result == "0:0:0:0:0:0:0:0" && zero_is_empty)
         return "";
-    return result;
+    return ip6_shorten(result);
 }
 
 export function ip6_from_text(text, empty_is_zero) {

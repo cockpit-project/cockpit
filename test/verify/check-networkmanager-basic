@@ -123,7 +123,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.set_input_text("#network-ip-settings-gateway-0", "::")
         b.click("button:contains('Save')")
         b.wait_not_present("#network-ip-settings-dialog")
-        self.wait_for_iface_setting("IPv6", "Address 2001:0:0:0:0:0:0:1/64")
+        self.wait_for_iface_setting("IPv6", "Address 2001::1/64")
 
         m.execute(f"until ip a show dev {iface} | grep -q 'inet6 2001::1/64 scope global'; do sleep 0.3; done",
                   timeout=10)
@@ -163,6 +163,48 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_not_present("#network-ip-settings-dialog")
 
         testlib.wait(lambda: "yes" in m.execute(f"nmcli -f ipv4.ignore-auto-dns connection show '{con_id}'"))
+
+        # Validate that IPv6 addresses are properly shortened
+        #
+        def set_and_check_ipv6(expected: str, addr: str, mask: str = "64", gateway: str = "::"):
+            self.configure_iface_setting('IPv6')
+            b.wait_visible("#network-ip-settings-dialog")
+            b.set_input_text("#network-ip-settings-address-0", addr)
+            b.set_input_text("#network-ip-settings-netmask-0", mask)
+            b.set_input_text("#network-ip-settings-gateway-0", gateway)
+            b.click("button:contains('Save')")
+
+            b.wait_not_present("#network-ip-settings-dialog")
+            self.wait_for_iface_setting("IPv6", f"Address {expected}")
+
+        set_and_check_ipv6("2001:db8::ff00:42:8329/64", "2001:db8:0000:0000:0000:ff00:0042:8329")
+        set_and_check_ipv6("2001::1/48", "2001:0:0:0:0:0:0:1", "48")
+        set_and_check_ipv6("::1/128", "0:0:0:0:0:0:0:1", "128")
+        set_and_check_ipv6("::/64", "0:0:0:0:0:0:0:0")
+        set_and_check_ipv6("2001:db0:0:1::1428:57ab", "2001:0db0:0000:0001:0000:0000:1428:57ab")
+        # first longest sequence is replaced
+        set_and_check_ipv6("2001::aaaa:0:0:aaaa:bbbb/64", "2001:0000:0000:aaaa:0000:0000:aaaa:bbbb")
+        # no compression needed
+        set_and_check_ipv6("2001:db8:100:200:300:4:5000:6/64", "2001:db8:100:200:300:4:5000:6")
+        # no compression for single fields of zero, only drop leadin zeros
+        set_and_check_ipv6("2001:0:a:0:a:0:a:0/64", "2001:0000:000a:0000:000a:0000:000a:0000")
+        # left sequence is not the longest
+        set_and_check_ipv6("2001:0:0:ffff::1/64", "2001:0:0:ffff:0:0:0:1")
+        # left sequence is not the longest (full address)
+        set_and_check_ipv6("2001:0:0:aaaa::1/64", "2001:0000:0000:aaaa:0000:0000:0000:0001")
+        # left sequence is the longest
+        set_and_check_ipv6("2001::1000:0:0:1/64", "2001:0000:0000:0000:1000:0000:0000:0001")
+        # same length zeros are at the start and at the end
+        set_and_check_ipv6("::db0:0:1:1:0:0/64", "0:0:db0:0:1:1:0:0")
+        # end is longer
+        set_and_check_ipv6("0:0:db0:0:1::/64", "0:0:db0:0:1:0:0:0")
+        # start is longer
+        set_and_check_ipv6("::db0:0:1:0:0/64", "0:0:0:db0:0:1:0:0")
+        # check that default gateway is also shortened
+        set_and_check_ipv6("2001:db8:cafe::1/64", "2001:db8:cafe:0:0:0:0:1", "64", "2001:0db8:cafe:0000:0000:0000:0000:0010")
+        self.configure_iface_setting('IPv6')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.wait_attr_contains("#network-ip-settings-gateway-0", "value", "2001:db8:cafe::10")
 
     def testIpHelper(self):
         b = self.browser

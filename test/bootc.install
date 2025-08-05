@@ -10,7 +10,7 @@ podman run -d --rm --name ostree-registry -p 5000:5000 -v /var/lib/cockpit-test-
 podman build -t localhost/bootc-test --layers=false -f - . <<EOF
 FROM localhost:5000/bootc:latest
 COPY ./rpms /tmp/rpms
-RUN rpm --upgrade --verbose /tmp/rpms/*.rpm && rm -r /tmp/rpms
+RUN rpm --upgrade --force --verbose /tmp/rpms/*.rpm && rm -r /tmp/rpms
 COPY ./playground /usr/share/cockpit/playground
 EOF
 

@@ -193,7 +193,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b2.set_input_text("#network-ip-settings-gateway-0", "::")
         b2.click("#network-ip-settings-save")
         b2.wait_not_present("#network-ip-settings-dialog")
-        b2.wait_in_text("dt:contains('IPv6') + dd", "Address 2001:0:0:0:0:0:0:2/64")
+        b2.wait_in_text("dt:contains('IPv6') + dd", "Address 2001::2/64")
 
         m2.execute(f"until ip a show dev {m2_iface_name} | grep -q 'inet6 {m2_ip6}/64 scope global'; do sleep 0.3; done", timeout=10)
 
@@ -213,7 +213,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.set_input_text("#network-ip-settings-gateway-0", "::")
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
-        self.wait_for_iface_setting("IPv6", "Address 2001:0:0:0:0:0:0:1/64")
+        self.wait_for_iface_setting("IPv6", "Address 2001::1/64")
 
         m1.execute(f"until ip a show dev {iface_name} | grep -q 'inet6 {m1_ip6}/64 scope global'; do sleep 0.3; done", timeout=10)
 

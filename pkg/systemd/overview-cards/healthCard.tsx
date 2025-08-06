@@ -24,6 +24,7 @@ import cockpit from "cockpit";
 import { PageStatusNotifications } from "../page-status.jsx";
 import { InsightsStatus } from "./insights.jsx";
 import { ShutDownStatus } from "./shutdownStatus.jsx";
+import { UncleanShutdownStatus } from "./uncleanShutdownStatus.jsx";
 import LastLogin from "./lastLogin.jsx";
 import { CryptoPolicyStatus } from "./cryptoPolicies.jsx";
 
@@ -41,6 +42,7 @@ export const HealthCard = () =>
                 <InsightsStatus />
                 <CryptoPolicyStatus />
                 <ShutDownStatus />
+                <UncleanShutdownStatus />
                 <SmartOverviewStatus />
                 <LastLogin />
             </ul>

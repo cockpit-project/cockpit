@@ -1458,7 +1458,7 @@ class Browser:
             def ignorable_change(a: tuple[int, ...], b: tuple[int, ...]) -> bool:
                 return abs(a[0] - b[0]) <= 2 and abs(a[1] - b[1]) <= 2 and abs(a[2] - b[2]) <= 2
 
-            def img_eq(ref: Image.Image, now: Image.Image, delta: Image.Image) -> bool:
+            def img_eq(ref: Image.Image, now: Image.Image, delta: Image.Image) -> str | None:
                 # This is slow but exactly what we want.
                 # ImageMath might be able to speed this up.
                 # no-untyped-call: see https://github.com/python-pillow/Pillow/issues/8029
@@ -1468,38 +1468,41 @@ class Browser:
                 assert data_ref
                 assert data_now
                 assert data_delta
-                result = True
-                count = 0
+                diff_count = 0
                 width, height = delta.size
+
+                if ref.size != now.size:
+                    return f"size mismatch: reference {ref.size[0]}x{ref.size[1]}, now {now.size[0]}x{now.size[1]}"
+
                 for y in range(height):
                     for x in range(width):
-                        if x >= ref.size[0] or x >= now.size[0] or y >= ref.size[1] or y >= now.size[1]:
-                            result = False
-                        else:
-                            # we only support RGBA
-                            ref_pixel = data_ref[x, y]
-                            now_pixel = data_now[x, y]
-                            # we only support RGBA, not single-channel float (grayscale)
-                            assert isinstance(ref_pixel, tuple)
-                            assert isinstance(now_pixel, tuple)
+                        # we only support RGBA
+                        ref_pixel = data_ref[x, y]
+                        now_pixel = data_now[x, y]
+                        # we only support RGBA, not single-channel float (grayscale)
+                        assert isinstance(ref_pixel, tuple)
+                        assert isinstance(now_pixel, tuple)
 
-                            if ref_pixel != now_pixel:
-                                if (
-                                        masked(ref_pixel) or
-                                        ignorable_coord(x, y) or
-                                        ignorable_change(ref_pixel, now_pixel)
-                                ):
-                                    data_delta[x, y] = (0, 255, 0, 255)
-                                else:
-                                    data_delta[x, y] = (255, 0, 0, 255)
-                                    count += 1
-                                    if count > abs_tolerance:
-                                        result = False
+                        if ref_pixel != now_pixel:
+                            if (
+                                    masked(ref_pixel) or
+                                    ignorable_coord(x, y) or
+                                    ignorable_change(ref_pixel, now_pixel)
+                            ):
+                                data_delta[x, y] = (0, 255, 0, 255)
                             else:
-                                data_delta[x, y] = ref_pixel
-                return result
+                                data_delta[x, y] = (255, 0, 0, 255)
+                                diff_count += 1
+                        else:
+                            data_delta[x, y] = ref_pixel
 
-            if not img_eq(img_ref, img_now, img_delta):
+                if diff_count > abs_tolerance:
+                    return f"differs by {diff_count} pixels, tolerance {abs_tolerance}"
+                return None
+
+            reason = img_eq(img_ref, img_now, img_delta)
+
+            if reason:
                 if img_now.size == img_ref.size:
                     # Preserve alpha channel so that the 'now'
                     # image can be used as the new reference image
@@ -1513,7 +1516,7 @@ class Browser:
                 delta_filename = base + "-delta.png"
                 img_delta.save(delta_filename)
                 attach(delta_filename, move=True)
-                print("Differences in pixel test " + base)
+                print(f"Pixel test {base} failed: {reason}")
                 self.failed_pixel_tests += 1
 
     def assert_pixels(

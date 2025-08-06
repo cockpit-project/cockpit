@@ -241,6 +241,9 @@ class TestHistoryMetrics(testlib.MachineCase):
         # move the mouse away from the pixel test region, to avoid spurious focus highlights
         b.mouse("#metrics-header-section", "mousemove")
 
+        # "hold still while I take a photo!" -- the current metrics are too jumpy
+        b.eval_js("document.querySelector('.current-metrics').style.display = 'none'")
+
         def on_layout_change():
             # wait until the toolbar is fully rendered
             b.wait_visible("#date-picker-select-toggle")
@@ -273,6 +276,9 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         b.assert_pixels(".metrics", "metrics-history-compressed-hour", ignore=[".nodata"],
                         skip_layouts=["mobile"], wait_after_layout_change=True)
+
+        # as you were -- you can jump around again
+        b.eval_js("document.querySelector('.current-metrics').style.removeProperty('display')")
 
         b.eval_js("document.querySelector('.bottom-panel').style.removeProperty('display')")
 

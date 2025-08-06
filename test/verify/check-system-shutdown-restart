@@ -144,6 +144,64 @@ class TestShutdownRestart(testlib.MachineCase):
 
         m.wait_poweroff()
 
+    def _cleanReboot(self, m, b):
+        b.click("#reboot-button")
+        b.wait_popup("shutdown-dialog")
+        b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
+        b.set_input_text("#message", "Rebooting for maintenance")
+        b.click("#delay")
+        b.click("button:contains('No delay')")
+        b.wait_text("#delay .pf-v6-c-menu-toggle__text", "No delay")
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
+
+        b.switch_to_top()
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        self.wait_reboot()
+        m.start_cockpit()
+        b.click("#machine-reconnect")
+        b.wait_visible("#login")
+        self.login_and_go("/system")
+
+    def _uncleanReboot(self, m, b):
+        m.spawn("reboot -f", "reboot", check=False)
+
+        b.switch_to_top()
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        self.wait_reboot()
+        m.start_cockpit()
+        b.click("#machine-reconnect")
+        b.wait_visible("#login")
+        self.login_and_go("/system")
+
+    def testUncleanShutdownStatus(self):
+        m = self.machine
+        b = self.browser
+
+        # Disable pre-loading packagekit, dnf needs-restarting (dnf 4) consumes tons of cpu/memory on RHEL-10-1
+        self.disable_preload("packagekit")
+
+        m.start_cockpit()
+        self.login_and_go("/system")
+
+        # Clean reboot
+        self._cleanReboot(m, b)
+        b.wait_not_present(".unclean-shutdown-status")
+
+        # Unclean reboot
+        self._uncleanReboot(m, b)
+        b.is_present(".unclean-shutdown-status")
+        b.wait_in_text(".system-information-unclean-shutdown-status", "Unclean shutdown")
+
+        # Dismiss
+        b.click("#unclean-shutdown-status-dismiss")
+        b.wait_not_present(".unclean-shutdown-status")
+
+        # Clean reboot
+        self._cleanReboot(m, b)
+        b.wait_not_present(".unclean-shutdown-status")
+
 
 if __name__ == '__main__':
     testlib.test_main()

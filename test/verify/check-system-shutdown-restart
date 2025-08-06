@@ -145,5 +145,80 @@ class TestShutdownRestart(testlib.MachineCase):
         m.wait_poweroff()
 
 
+class TestUncleanShutdownStatus(testlib.MachineCase):
+
+    def _cleanReboot(self):
+        m = self.machine
+        b = self.browser
+        b.click("#reboot-button")
+        b.wait_popup("shutdown-dialog")
+        b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
+        b.set_input_text("#message", "Rebooting for maintenance")
+        b.click("#delay")
+        b.click("button:contains('No delay')")
+        b.wait_text("#delay .pf-v6-c-menu-toggle__text", "No delay")
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
+
+        b.switch_to_top()
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        self.wait_reboot()
+        m.start_cockpit()
+        b.click("#machine-reconnect")
+        b.wait_visible("#login")
+        self.login_and_go("/system")
+
+    def _uncleanReboot(self):
+        m = self.machine
+        b = self.browser
+        m.spawn("reboot -f", "reboot")
+
+        b.switch_to_top()
+        with b.wait_timeout(30):
+            b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        self.wait_reboot()
+        m.start_cockpit()
+        b.click("#machine-reconnect")
+        b.wait_visible("#login")
+        self.login_and_go("/system")
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # Disable pre-loading packagekit, dnf needs-restarting (dnf 4) consumes tons of cpu/memory on RHEL-10-1
+        self.disable_preload("packagekit")
+
+        m.start_cockpit()
+        self.login_and_go("/system")
+
+        # Clean reboot
+        self._cleanReboot()
+        b.wait_visible('#system_information_os_text')
+        b.wait_not_present("#unclean-shutdown-status")
+
+        # Unclean reboot
+        self._uncleanReboot()
+        b.wait_visible("#unclean-shutdown-status")
+        b.wait_in_text("#unclean-shutdown-status", "Unclean shutdown")
+
+        # Link to logs page
+        b.click("#unclean-shutdown-status button:contains('View logs')")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/system/logs"')
+        b.wait_js_cond('window.location.hash == "#/?boot=-1"')
+
+        # Dismiss
+        b.go("/system")
+        b.enter_page("/system")
+        b.click("#unclean-shutdown-status-dismiss")
+        b.wait_not_present("#unclean-shutdown-status")
+
+        # Clean reboot
+        self._cleanReboot()
+        b.wait_not_present("#unclean-shutdown-status")
+
+
 if __name__ == '__main__':
     testlib.test_main()

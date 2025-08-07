@@ -187,7 +187,11 @@ class WebdriverBidi:
 
         await self.ws.close()
         await self.close_bidi_session()
-        self.bidi_session.process.terminate()
+        try:
+            self.bidi_session.process.terminate()
+        except ProcessLookupError:
+            # Already gone? No problem.
+            pass
         await self.bidi_session.process.wait()
         self.bidi_session = None
         await self.http_session.close()

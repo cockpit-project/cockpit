@@ -843,8 +843,10 @@ export const SelectSpaces = (tag, title, options) => {
                                             ]}
                             />);
 
+                        const key = block || desc;
+
                         return (
-                            <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
+                            <DataListItem data-space-name={key} key={key}>
                                 <DataListItemRow>
                                     <DataListCheck id={(spc.block ? spc.block.Device : spc.desc) + "-row-checkbox"}
                                                    isDisabled={options.min_selected &&
@@ -887,8 +889,10 @@ export const SelectSpace = (tag, title, options) => {
                                 change(spc);
                         };
 
+                        const key = block || desc;
+
                         return (
-                            <DataListItem key={spc.block ? spc.block.Device : spc.desc}>
+                            <DataListItem data-space-name={key} key={key}>
                                 <DataListItemRow>
                                     <div className="pf-v6-c-data-list__item-control">
                                         <div className="pf-v6-c-data-list__check">

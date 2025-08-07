@@ -180,7 +180,7 @@ class StorageHelpers(MachineCase):
         elif ftype == "select-spaces":
             assert isinstance(val, dict)
             for label, value in val.items():
-                self.browser.set_checked(f'{sel} :contains("{label}") input', value)
+                self.browser.set_checked(f'{sel} [data-space-name="{label}"] input', value)
         elif ftype == "size-slider":
             self.browser.set_val(sel + " .size-unit select", "1000000")
             self.browser.set_input_text(sel + " .size-text input", str(val))

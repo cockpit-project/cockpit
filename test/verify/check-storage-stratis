@@ -853,8 +853,8 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         # Create a pool
         if not legacy:
             self.dialog_with_retry(trigger=lambda: self.click_devices_dropdown("Create Stratis pool"),
-                                   expect=lambda: self.dialog_is_present('disks', "lvol0"),
-                                   values={"disks": {"lvol0": True}})
+                                   expect=lambda: self.dialog_is_present('disks', "/dev/vgroup0/lvol0"),
+                                   values={"disks": {"/dev/vgroup0/lvol0": True}})
         else:
             create_legacy_pool(m, disks=["/dev/vgroup0/lvol0"])
 

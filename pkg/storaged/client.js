@@ -35,7 +35,7 @@ import stratis3_set_key_py from "./stratis/stratis3-set-key.py";
 
 import { reset_pages } from "./pages.jsx";
 import { make_overview_page } from "./overview/overview.jsx";
-import { export_mount_point_mapping } from "./anaconda.jsx";
+import { export_mount_point_mapping, init_anaconda_branding } from "./anaconda.jsx";
 
 import { dequal } from 'dequal/lite';
 
@@ -1068,8 +1068,11 @@ function init_model(callback) {
 
                     update_indices();
                     cockpit.addEventListener("visibilitychange", () => update_lvm2_polling(true));
-                    btrfs_poll().then(() => {
+                    btrfs_poll().then(async () => {
                         client.update(true);
+                        // Initialize anaconda branding if in anaconda mode and wait for it to complete
+                        if (client.in_anaconda_mode())
+                            await init_anaconda_branding();
                         callback();
                     });
                 });

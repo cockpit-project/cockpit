@@ -346,7 +346,8 @@ class TestAccounts(testlib.MachineCase):
 
         # HACK: lastlog does not record sessions from ssh
         if not m.ws_container:
-            b.wait_in_text("#accounts-list tbody tr:contains('paul')", m.execute("date +'%b %-d, %Y'").strip())
+            today = b.eval_js("Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format()")
+            b.wait_in_text("#accounts-list tbody tr:contains('paul')", today)
 
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")

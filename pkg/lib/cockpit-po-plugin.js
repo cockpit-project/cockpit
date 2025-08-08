@@ -10,26 +10,13 @@ const config = {};
 const DEFAULT_WRAPPER = 'cockpit.locale(PO_DATA);';
 
 function get_po_files() {
+    const poDir = path.resolve(config.srcdir, 'po');
     try {
-        const linguas_file = path.resolve(config.srcdir, "po/LINGUAS");
-        const linguas = fs.readFileSync(linguas_file, 'utf8').match(/\S+/g);
-        return linguas.map(lang => path.resolve(config.srcdir, 'po', lang + '.po'));
+        return fs.readdirSync(poDir)
+                .filter(file => file.endsWith('.po'))
+                .map(file => path.join(poDir, file));
     } catch (error) {
-        if (error.code !== 'ENOENT') {
-            throw error;
-        }
-
-        /* No LINGUAS file?  Fall back to reading directory.
-         * Note: we won't detect .po files being added in this case.
-         */
-        const poDir = path.resolve(config.srcdir, 'po');
-        try {
-            return fs.readdirSync(poDir)
-                    .filter(file => file.endsWith('.po'))
-                    .map(file => path.join(poDir, file));
-        } catch (error) {
-            return [];
-        }
+        return [];
     }
 }
 

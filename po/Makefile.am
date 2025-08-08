@@ -1,9 +1,5 @@
-# The concrete set of linguas we are using
-LINGUAS = $(shell cat $(srcdir)/po/LINGUAS)
-
 # The full list of various input and output file types
-PO_LINGUAS = $(addprefix po/,$(LINGUAS))
-PO_INPUTS = $(addsuffix .po,$(PO_LINGUAS))
+PO_INPUTS = $(wildcard $(srcdir)/po/*.po)
 
 # Extract translate attribute, Glade style, angular-gettext HTML translations
 po/cockpit.html.pot: $(srcdir)/package-lock.json
@@ -52,7 +48,6 @@ CLEANFILES += \
 
 EXTRA_DIST += \
 	$(PO_INPUTS) \
-	po/LINGUAS \
 	po/its/polkit.its \
 	po/its/polkit.loc \
 	$(NULL)

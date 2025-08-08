@@ -94,7 +94,7 @@ jobs:
     needs: source
     environment: flathub
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.COCKPITUOUS_TOKEN }}
     permissions: {}
     runs-on: ubuntu-latest
     steps:
@@ -135,6 +135,7 @@ jobs:
           git commit -m "Update to version ${{ github.ref_name }}"
           git show
           git push git@github.com:cockpit-project/org.cockpit_project.CockpitClient HEAD
+          gh auth login
           gh pr create \
             --fill \
             -H cockpit-project:${{ github.ref_name }} \

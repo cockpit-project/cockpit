@@ -107,7 +107,6 @@ function watch_dirs(dir, on_change) {
 
 async function build() {
     // dynamic imports which need node_modules
-    const copy = (await import('esbuild-plugin-copy')).default;
     const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
 
     const cleanPlugin = (await import('./pkg/lib/esbuild-cleanup-plugin.js')).cleanPlugin;
@@ -139,9 +138,21 @@ async function build() {
             // login page does not have cockpit.js, but reads window.cockpit_po
             wrapper: subdir => subdir == "static" ? "window.cockpit_po = PO_DATA;" : undefined,
         }),
-        // Esbuild will only copy assets that are explicitly imported and used
-        // in the code. This is a problem for index.html and manifest.json which are not imported
-        copy({ assets: [...assetFiles, ...redhat_fonts] }),
+
+        // copy the static asset files determined in ./files.js
+        {
+            name: 'copy-assets',
+            setup(build) {
+                build.onEnd(() => {
+                    for (const file of [...assetFiles, ...redhat_fonts]) {
+                        const destDir = path.join('./dist', file.to);
+                        fs.mkdirSync(destDir, { recursive: true });
+                        fs.copyFileSync(file.from, path.join(destDir, path.basename(file.from)));
+                    }
+                });
+            }
+        },
+
         // cockpit-ws cannot currently serve compressed login page
         ...production ? [cockpitCompressPlugin({ subdir: args.onlydir, exclude: /\/static/ })] : [],
 

@@ -109,13 +109,13 @@ async function build() {
     // dynamic imports which need node_modules
     const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
 
+    const sassPlugin = (await import('esbuild-sass-plugin')).sassPlugin;
+
     const cleanPlugin = (await import('./pkg/lib/esbuild-cleanup-plugin.js')).cleanPlugin;
     const cockpitCompressPlugin = (await import('./pkg/lib/esbuild-compress-plugin.js')).cockpitCompressPlugin;
     const cockpitPoEsbuildPlugin = (await import('./pkg/lib/cockpit-po-plugin.js')).cockpitPoEsbuildPlugin;
     const cockpitRsyncEsbuildPlugin = (await import('./pkg/lib/cockpit-rsync-plugin.js')).cockpitRsyncEsbuildPlugin;
     const cockpitTestHtmlPlugin = (await import('./pkg/lib/esbuild-test-html-plugin.js')).cockpitTestHtmlPlugin;
-
-    const esbuildStylesPlugins = (await import('./pkg/lib/esbuild-common.js')).esbuildStylesPlugins;
 
     const { entryPoints, assetFiles, redhat_fonts } = getFiles(args.onlydir);
     const tests = getTestFiles();
@@ -127,7 +127,11 @@ async function build() {
 
     const pkgPlugins = [
         cockpitJSResolvePlugin,
-        ...esbuildStylesPlugins
+        sassPlugin({
+            loadPaths: [...nodePaths, 'node_modules'],
+            filter: /\.scss/,
+            quietDeps: true,
+        })
     ];
 
     const getTime = () => new Date().toTimeString().split(' ')[0];

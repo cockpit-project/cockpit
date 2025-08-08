@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
@@ -89,6 +90,8 @@ const info = {
         "storaged/test-util.js",
     ],
 
+    // esbuild will already copy assets that are explicitly imported from JavaScript.
+    // The others (top-level files, images, etc.) need to be listed explicitly
     files: [
         "apps/index.html",
         "apps/default.png",
@@ -192,14 +195,17 @@ const redhat_fonts_variable_font = [
     "Text",
     "Display",
     "Mono",
-].map(name => {
+].flatMap(name => {
     const subdir = 'RedHat' + name;
     const fontsdir = '@patternfly/patternfly/assets/fonts';
+    const fontsDirPath = path.resolve(nodedir, fontsdir, subdir);
 
-    return {
-        from: path.resolve(nodedir, fontsdir, subdir) + '/**/*VF*.woff2',
-        to: `static/fonts/${subdir}`
-    };
+    return fs.readdirSync(fontsDirPath)
+            .filter(file => file.includes('VF') && file.endsWith('.woff2'))
+            .map(file => ({
+                from: path.resolve(fontsDirPath, file),
+                to: `static/fonts/${subdir}`
+            }));
 });
 
 const pkgfile = suffix => `${srcdir}/pkg/${suffix}`;

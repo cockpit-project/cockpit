@@ -3,7 +3,6 @@ import path from 'node:path';
 import process from 'node:process';
 
 import gettext_parser from "gettext-parser";
-import { glob } from "glob";
 import Jed from "jed";
 
 const config = {};
@@ -20,10 +19,17 @@ function get_po_files() {
             throw error;
         }
 
-        /* No LINGUAS file?  Fall back to globbing.
+        /* No LINGUAS file?  Fall back to reading directory.
          * Note: we won't detect .po files being added in this case.
          */
-        return glob.sync(path.resolve(config.srcdir, 'po/*.po'));
+        const poDir = path.resolve(config.srcdir, 'po');
+        try {
+            return fs.readdirSync(poDir)
+                    .filter(file => file.endsWith('.po'))
+                    .map(file => path.join(poDir, file));
+        } catch (error) {
+            return [];
+        }
     }
 }
 

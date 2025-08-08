@@ -135,8 +135,6 @@ const info = {
         "static/login.html",
 
         "storaged/index.html",
-        "storaged/images/storage-array.png",
-        "storaged/images/storage-disk.png",
 
         "systemd/index.html",
         "systemd/logs.html",

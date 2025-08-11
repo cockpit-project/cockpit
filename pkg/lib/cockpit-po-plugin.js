@@ -3,7 +3,6 @@ import path from 'node:path';
 import process from 'node:process';
 
 import gettext_parser from "gettext-parser";
-import Jed from "jed";
 
 const config = {};
 
@@ -21,14 +20,6 @@ function get_po_files() {
 }
 
 function get_plural_expr(statement) {
-    try {
-        /* Check that the plural forms isn't being sneaky since we build a function here */
-        Jed.PF.parse(statement);
-    } catch (ex) {
-        console.error("bad plural forms: " + ex.message);
-        process.exit(1);
-    }
-
     const expr = statement.replace(/nplurals=[1-9]; plural=([^;]*);?$/, '(n) => $1');
     if (expr === statement) {
         console.error("bad plural forms: " + statement);

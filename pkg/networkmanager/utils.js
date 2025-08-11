@@ -18,6 +18,7 @@
  */
 
 import cockpit from "cockpit";
+import * as ipaddr from "ipaddr.js";
 
 const _ = cockpit.gettext;
 
@@ -75,6 +76,20 @@ function bytes_from_nm32(num) {
         throw new Error("byteorder is unset or has invalid value " + JSON.stringify(byteorder));
     }
     return bytes;
+}
+
+export function validate_ipv4(address) {
+    // explicitly require all 4 octets
+    // NM does not support any IPv4 short format
+    return ipaddr.IPv4.isValidFourPartDecimal(address);
+}
+
+export function validate_ipv6(address) {
+    return ipaddr.IPv6.isValid(address);
+}
+
+export function validate_ip(address) {
+    return validate_ipv4(address) || validate_ipv6(address);
 }
 
 export function ip4_to_text(num, zero_is_empty) {

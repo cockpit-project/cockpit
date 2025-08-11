@@ -288,20 +288,22 @@ export const NetworkInterfacePage = ({
 
             const addr_is_extra = (params.method != "manual");
             const addrs = [];
-            params.addresses?.forEach(function (a) {
-                let addr = a[0] + "/" + a[1];
-                if (a[2] && a[2] != "0.0.0.0" && a[2] != "0:0:0:0:0:0:0:0")
-                    addr += " via " + a[2];
-                addrs.push(addr);
+            params.address_data?.forEach(function (a) {
+                addrs.push(a.address + "/" + a.prefix);
             });
+
             if (addrs.length > 0)
                 parts.push(cockpit.format(addr_is_extra ? _("Additional address $val") : _("Address $val"),
                                           { val: addrs.join(", ") }));
 
+            const gateway = params.gateway;
+            if (gateway && gateway != "0.0.0.0" && gateway != "::")
+                parts.push(cockpit.format(_("Gateway $gateway"), { gateway }));
+
             const dns_is_extra = (!params["ignore-auto-dns"] && params.method != "manual");
-            if (params.dns?.length > 0)
+            if (params.dns_data?.length > 0)
                 parts.push(cockpit.format(dns_is_extra ? _("Additional DNS $val") : _("DNS $val"),
-                                          { val: params.dns.join(", ") }));
+                                          { val: params.dns_data.join(", ") }));
             if (params.dns_search?.length > 0)
                 parts.push(cockpit.format(dns_is_extra ? _("Additional DNS search domains $val") : _("DNS search domains $val"),
                                           { val: params.dns_search.join(", ") }));
@@ -651,17 +653,17 @@ export const NetworkInterfacePage = ({
             },
             ipv4: {
                 method: "auto",
-                addresses: [],
-                dns: [],
+                address_data: [],
+                dns_data: [],
                 dns_search: [],
-                routes: []
+                route_data: []
             },
             ipv6: {
                 method: "auto",
-                addresses: [],
-                dns: [],
+                address_data: [],
+                dns_data: [],
                 dns_search: [],
-                routes: []
+                route_data: []
             }
         };
         complete_settings(settings, dev);

@@ -72,14 +72,16 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
     const model = useContext(ModelContext);
 
     const params = settings[topic];
-    const [addresses, setAddresses] = useState(params.addresses ? params.addresses.map(addr => ({ address: addr[0], netmask: addr[1], gateway: addr[2] })) : []);
+    const [addresses, setAddresses] = useState(params.address_data);
+    const [defaultGateway, setDefaultGateway] = useState(params.gateway);
+    const [gatewaySetExplicitly, setGatewaySetExplicitly] = useState(false);
     const [dialogError, setDialogError] = useState(undefined);
-    const [dns, setDns] = useState(params.dns || []);
+    const [dns, setDns] = useState(params.dns_data || []);
     const [dnsSearch, setDnsSearch] = useState(params.dns_search || []);
     const [ignoreAutoDns, setIgnoreAutoDns] = useState(params.ignore_auto_dns);
     const [ignoreAutoRoutes, setIgnoreAutoRoutes] = useState(params.ignore_auto_routes);
     const [method, setMethod] = useState(params.method);
-    const [routes, setRoutes] = useState(params.routes ? params.routes.map(addr => ({ address: addr[0], netmask: addr[1], gateway: addr[2], metric: addr[3] })) : []);
+    const [routes, setRoutes] = useState(params.route_data);
 
     // The link local, shared, and disabled methods can't take any
     // addresses, dns servers, or dns search domains.  Routes,
@@ -93,10 +95,12 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
     // is "auto" or "dhcp".
     const canAuto = (method == "auto" || method == "dhcp");
 
+    const prefixText = (topic == "ipv4") ? _("Prefix length or netmask") : _("Prefix length");
+
     useEffect(() => {
         // The manual method needs at least one address
         if (method == 'manual' && addresses.length == 0)
-            setAddresses([{ address: "", netmask: "", gateway: "" }]);
+            setAddresses([{ address: "", netmask: "" }]);
 
         if (!canHaveExtra) {
             setAddresses([]);
@@ -114,10 +118,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
             [topic]: {
                 ...settings[topic],
                 method,
-                addresses: addresses.map(addr => [addr.address, addr.netmask, addr.gateway]),
-                dns,
+                address_data: addresses,
+                gateway: defaultGateway,
+                dns_data: dns,
                 dns_search: dnsSearch,
-                routes: routes.map(route => [route.address, route.netmask, route.gateway, route.metric]),
+                route_data: routes,
                 ignore_auto_dns: ignoreAutoDns,
                 ignore_auto_routes: ignoreAutoRoutes,
             }
@@ -132,21 +137,41 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
             onClose: Dialogs.close,
         });
     };
-    const addressIpv4Helper = (address) => {
-        const config = { address, netmask: '', gateway: '' };
+
+    const addressIpv4Helper = (address, i) => {
+        const config = { address, prefix: '' };
         const split = address.split('.');
 
-        if (split.length !== 4)
+        if (split.length !== 4) {
+            if (i === 0 && !gatewaySetExplicitly)
+                setDefaultGateway("");
             return config;
+        }
 
-        config.gateway = `${split[0]}.${split[1]}.${split[2]}.${split[3] === "1" ? "254" : "1"}`;
         if (split[0] >= 0 && split[0] <= 127) {
-            return { ...config, netmask: "255.0.0.0" };
+            config.prefix = "255.0.0.0";
         } else if (split[0] >= 128 && split[0] <= 191) {
-            return { ...config, netmask: "255.255.0.0" };
+            config.prefix = "255.255.0.0";
         } else if (split[0] <= 192 && split[0] <= 223) {
-            return { ...config, netmask: "255.255.255.0" };
-        } else return { ...config, gateway: '' };
+            config.prefix = "255.255.255.0";
+        }
+
+        // pre-fill default gateway based on the first address for classfull prefixes
+        if (i === 0 && config.prefix !== "" && !gatewaySetExplicitly) {
+            setDefaultGateway(`${split[0]}.${split[1]}.${split[2]}.${split[3] === "1" ? "254" : "1"}`);
+        }
+
+        return config;
+    };
+
+    const removeAddress = (i) => {
+        // also reset gateway when removing the last address
+        if (addresses.length === 1) {
+            setDefaultGateway("");
+            setGatewaySetExplicitly(false);
+        }
+
+        setAddresses(addresses.filter((_, index) => index !== i));
     };
 
     return (
@@ -173,7 +198,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <Tooltip content={_("Add address")}>
                                     <Button icon={<PlusIcon />} variant="secondary"
                                         isDisabled={!canHaveExtra}
-                                        onClick={() => setAddresses([...addresses, { address: "", netmask: "", gateway: "" }])}
+                                        onClick={() => setAddresses([...addresses, { address: "", prefix: "" }])}
                                         id={idPrefix + "-address-add"}
                                         aria-label={_("Add address")} />
                                 </Tooltip>
@@ -182,45 +207,45 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                     />
                 }
             >
-                {addresses.map((address, i) => {
-                    const prefixText = (topic == "ipv4") ? _("Prefix length or netmask") : _("Prefix length");
-
-                    return (
-                        <Grid key={i} hasGutter>
-                            <FormGroup fieldId={idPrefix + "-address-" + i} label={_("Address")} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-address-" + i} value={address.address} onChange={(_event, value) => setAddresses(
-                                    addresses.map((item, index) =>
-                                        i === index
-                                            ? addressIpv4Helper(value)
-                                            : item
-                                    ))} />
-                            </FormGroup>
-                            <FormGroup fieldId={idPrefix + "-netmask-" + i} label={prefixText} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-netmask-" + i} value={address.netmask} onChange={(_event, value) => setAddresses(
-                                    addresses.map((item, index) =>
-                                        i === index
-                                            ? { ...item, netmask: value }
-                                            : item
-                                    ))} />
-                            </FormGroup>
-                            <FormGroup fieldId={idPrefix + "-gateway-" + i} label={_("Gateway")} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-gateway-" + i} value={address.gateway} onChange={(_event, value) => setAddresses(
-                                    addresses.map((item, index) =>
-                                        i === index
-                                            ? { ...item, gateway: value }
-                                            : item
-                                    ))} />
-                            </FormGroup>
-                            <FormGroup className="pf-m-1-col-on-sm remove-button-group">
-                                <Button variant='plain'
-                                        isDisabled={method == 'manual' && i == 0}
-                                        onClick={() => setAddresses(addresses.filter((_, index) => index !== i))}
-                                        aria-label={_("Remove item")}
-                                        icon={<TrashIcon />} />
-                            </FormGroup>
-                        </Grid>
-                    );
-                })}
+                <Grid hasGutter>
+                    {addresses.map((address, i) => {
+                        return (
+                            <React.Fragment key={i}>
+                                <FormGroup fieldId={idPrefix + "-address-" + i} label={_("Address")} className="pf-m-6-col-on-sm">
+                                    <TextInput id={idPrefix + "-address-" + i} value={address.address} onChange={(_event, value) => setAddresses(
+                                        addresses.map((item, index) =>
+                                            i === index
+                                                ? addressIpv4Helper(value, i)
+                                                : item
+                                        ))} />
+                                </FormGroup>
+                                <FormGroup fieldId={idPrefix + "-netmask-" + i} label={prefixText} className="pf-m-6-col-on-sm">
+                                    <TextInput id={idPrefix + "-netmask-" + i} value={address.prefix} onChange={(_event, value) => setAddresses(
+                                        addresses.map((item, index) =>
+                                            i === index
+                                                ? { ...item, prefix: value }
+                                                : item
+                                        ))} />
+                                </FormGroup>
+                                <FormGroup className="pf-m-1-col-on-sm remove-button-group">
+                                    <Button variant='plain'
+                                            isDisabled={method == 'manual' && i == 0}
+                                            onClick={() => removeAddress(i)}
+                                            aria-label={_("Remove item")}
+                                            icon={<TrashIcon />} />
+                                </FormGroup>
+                            </React.Fragment>
+                        );
+                    })}
+                    {addresses.length > 0 &&
+                        <FormGroup fieldId={idPrefix + "-gateway"} label={_("Gateway")}>
+                            <TextInput id={idPrefix + "-gateway"}
+                                value={defaultGateway}
+                                onChange={(_event, value) => { setDefaultGateway(value); setGatewaySetExplicitly(true) }}
+                            />
+                        </FormGroup>
+                    }
+                </Grid>
             </FormFieldGroup>
             <FormFieldGroup
                 data-field='dns'
@@ -329,7 +354,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <Tooltip content={_("Add route")}>
                                     <Button icon={<PlusIcon />} variant="secondary"
                                         isDisabled={isOff}
-                                        onClick={() => setRoutes([...routes, { address: "", netmask: "", gateway: "", metric: "" }])}
+                                        onClick={() => setRoutes([...routes, { dest: "", prefix: "", next_hop: "", metric: "" }])}
                                         id={idPrefix + "-route-add"}
                                         aria-label={_("Add route")} />
                                 </Tooltip>
@@ -342,26 +367,26 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                     return (
                         <Grid key={i} hasGutter>
                             <FormGroup fieldId={idPrefix + "-route-address-" + i} label={_("Address")} className="pf-m-3-col-on-sm">
-                                <TextInput id={idPrefix + "-route-address-" + i} value={route.address} onChange={(_event, value) => setRoutes(
+                                <TextInput id={idPrefix + "-route-address-" + i} value={route.dest} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
-                                            ? { ...item, address: value }
+                                            ? { ...item, dest: value }
                                             : item
                                     ))} />
                             </FormGroup>
-                            <FormGroup fieldId={idPrefix + "-route-netmask-" + i} label={_("Prefix length or netmask")} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-route-netmask-" + i} value={route.netmask} onChange={(_event, value) => setRoutes(
+                            <FormGroup fieldId={idPrefix + "-route-netmask-" + i} label={prefixText} className="pf-m-4-col-on-sm">
+                                <TextInput id={idPrefix + "-route-netmask-" + i} value={route.prefix} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
-                                            ? { ...item, netmask: value }
+                                            ? { ...item, prefix: value }
                                             : item
                                     ))} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-route-gateway-" + i} label={_("Gateway")} className="pf-m-3-col-on-sm">
-                                <TextInput id={idPrefix + "-route-gateway-" + i} value={route.gateway} onChange={(_event, value) => setRoutes(
+                                <TextInput id={idPrefix + "-route-gateway-" + i} value={route.next_hop} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
-                                            ? { ...item, gateway: value }
+                                            ? { ...item, next_hop: value }
                                             : item
                                     ))} />
                             </FormGroup>

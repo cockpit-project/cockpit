@@ -421,18 +421,15 @@ export function NetworkManagerModel() {
     /* NetworkManager specific data conversions and utility functions.
      */
 
-    function ip4_address_from_nm(addr) {
-        return [utils.ip4_to_text(addr[0]),
-            utils.ip_prefix_to_text(addr[1]),
-            utils.ip4_to_text(addr[2], true)
-        ];
+    function ip_address_from_nm(addr) {
+        return { address: addr.address.v, prefix: utils.ip_prefix_to_text(addr.prefix.v)};
     }
 
     function ip4_address_to_nm(addr) {
-        return [utils.ip4_from_text(addr[0]),
-            utils.ip4_prefix_from_text(addr[1]),
-            utils.ip4_from_text(addr[2], true)
-        ];
+        return {
+            address: { t: "s", v: addr.address },
+            prefix: { t: "u", v: utils.ip4_prefix_from_text(addr.prefix)},
+        };
     }
 
     function ip4_route_from_nm(addr) {
@@ -450,18 +447,12 @@ export function NetworkManagerModel() {
             utils.ip_metric_from_text(addr[3])
         ];
     }
-    function ip6_address_from_nm(addr) {
-        return [utils.ip6_to_text(addr[0]),
-            utils.ip_prefix_to_text(addr[1]),
-            utils.ip6_to_text(addr[2], true)
-        ];
-    }
 
     function ip6_address_to_nm(addr) {
-        return [utils.ip6_from_text(addr[0]),
-            parseInt(addr[1], 10) || 64,
-            utils.ip6_from_text(addr[2], true)
-        ];
+        return {
+            address: { t: "s", v: addr.address },
+            prefix: { t: "u", v: parseInt(addr.prefix, 10) || 64 },
+        };
     }
 
     function ip6_route_from_nm(addr) {
@@ -488,12 +479,13 @@ export function NetworkManagerModel() {
                 return def;
         }
 
-        function get_ip(first, addr_from_nm, route_from_nm, ip_to_text) {
+        function get_ip(first, route_from_nm, ip_to_text) {
             return {
                 method: get(first, "method", "auto"),
                 ignore_auto_dns: get(first, "ignore-auto-dns", false),
                 ignore_auto_routes: get(first, "ignore-auto-routes", false),
-                addresses: get(first, "addresses", []).map(addr_from_nm),
+                "address-data": get(first, "address-data", []).map(ip_address_from_nm),
+                gateway: get(first, "gateway", first === "ipv4" ? "0.0.0.0" : "::"),
                 dns: get(first, "dns", []).map(ip_to_text),
                 dns_search: get(first, "dns-search", []),
                 routes: get(first, "routes", []).map(route_from_nm)
@@ -516,8 +508,8 @@ export function NetworkManagerModel() {
         };
 
         if (!settings.connection.master) {
-            result.ipv4 = get_ip("ipv4", ip4_address_from_nm, ip4_route_from_nm, utils.ip4_to_text);
-            result.ipv6 = get_ip("ipv6", ip6_address_from_nm, ip6_route_from_nm, utils.ip6_to_text);
+            result.ipv4 = get_ip("ipv4", ip4_route_from_nm, utils.ip4_to_text);
+            result.ipv6 = get_ip("ipv6", ip6_route_from_nm, utils.ip6_to_text);
         }
 
         if (settings["802-3-ethernet"]) {
@@ -612,15 +604,18 @@ export function NetworkManagerModel() {
                 delete result[first][second];
         }
 
-        function set_ip(first, addrs_sig, addr_to_nm, routes_sig, route_to_nm, ips_sig, ip_from_text) {
+        function set_ip(first, addr_to_nm, routes_sig, route_to_nm, ips_sig, ip_from_text) {
             set(first, "method", 's', settings[first].method);
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
             set(first, "addr-gen-mode", 'i', settings[first].addr_gen_mode);
 
-            const addresses = settings[first].addresses;
+            const addresses = settings[first]["address-data"];
             if (addresses)
-                set(first, "addresses", addrs_sig, addresses.map(addr_to_nm));
+                set(first, "address-data", "aa{sv}", addresses.map(addr_to_nm));
+
+            if (settings[first].gateway)
+                set(first, "gateway", "s", settings[first].gateway);
 
             const dns = settings[first].dns;
             if (dns)
@@ -637,6 +632,9 @@ export function NetworkManagerModel() {
             // we don't have to worry about that.
             //
             delete result[first]["address-labels"];
+
+            // Never pass "addresses", instead use "address-data" + "gateway"
+            delete result[first]["addresses"];
         }
 
         set("connection", "id", 's', settings.connection.id);
@@ -649,12 +647,12 @@ export function NetworkManagerModel() {
         set("connection", "master", 's', settings.connection.group);
 
         if (settings.ipv4)
-            set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', utils.ip4_from_text);
+            set_ip("ipv4", ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', utils.ip4_from_text);
         else
             delete result.ipv4;
 
         if (settings.ipv6)
-            set_ip("ipv6", 'a(ayuay)', ip6_address_to_nm, 'a(ayuayu)', ip6_route_to_nm, 'aay', utils.ip6_from_text);
+            set_ip("ipv6", ip6_address_to_nm, 'a(ayuayu)', ip6_route_to_nm, 'aay', utils.ip6_from_text);
         else
             delete result.ipv6;
 
@@ -737,6 +735,7 @@ export function NetworkManagerModel() {
             delete result.wireguard;
         }
 
+        console.log(result);
         return result;
     }
 
@@ -881,7 +880,8 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            Addresses: { conv: conv_Array(ip4_address_from_nm), def: [] }
+            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
+            // TODO: add gateway here too?
         }
     };
 
@@ -891,7 +891,8 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            Addresses: { conv: conv_Array(ip6_address_from_nm), def: [] }
+            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
+            // TODO: add gateway here too?
         }
     };
 
@@ -922,6 +923,7 @@ export function NetworkManagerModel() {
             apply_settings: function (settings) {
                 const self = this;
                 try {
+                    console.log("orig", priv(self).orig);
                     return call_object_method(self,
                                               "org.freedesktop.NetworkManager.Settings.Connection", "Update",
                                               settings_to_nm(settings, priv(self).orig))
@@ -1356,8 +1358,8 @@ export function device_state_text(dev) {
         return _("No carrier");
     if (!is_managed(dev)) {
         if (!dev.ActiveConnection &&
-            (!dev.Ip4Config || dev.Ip4Config.Addresses.length === 0) &&
-            (!dev.Ip6Config || dev.Ip6Config.Addresses.length === 0))
+            (!dev.Ip4Config || dev.Ip4Config.AddressData.length === 0) &&
+            (!dev.Ip6Config || dev.Ip6Config.AddressData.length === 0))
             return _("Inactive");
     }
     return dev.StateText;
@@ -1387,8 +1389,8 @@ export function render_active_connection(dev, with_link, hide_link_local) {
 
     const ip4config = con ? con.Ip4Config : dev.Ip4Config;
     if (ip4config) {
-        ip4config.Addresses.forEach(function (a) {
-            parts.push(a[0] + "/" + a[1]);
+        ip4config.AddressData.forEach(function (a) {
+            parts.push(a.address + "/" + a.prefix);
         });
     }
 
@@ -1401,9 +1403,9 @@ export function render_active_connection(dev, with_link, hide_link_local) {
 
     const ip6config = con ? con.Ip6Config : dev.Ip6Config;
     if (ip6config) {
-        ip6config.Addresses.forEach(function (a) {
-            if (!(hide_link_local && is_ipv6_link_local(a[0])))
-                parts.push(a[0] + "/" + a[1]);
+        ip6config.AddressData.forEach(function (a) {
+            if (!(hide_link_local && is_ipv6_link_local(a.address)))
+                parts.push(a.address + "/" + a.prefix);
         });
     }
 

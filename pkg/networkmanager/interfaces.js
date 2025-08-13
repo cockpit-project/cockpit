@@ -468,14 +468,14 @@ export function NetworkManagerModel() {
                 method: get(first, "method", "auto"),
                 ignore_auto_dns: get(first, "ignore-auto-dns", false),
                 ignore_auto_routes: get(first, "ignore-auto-routes", false),
-                "address-data": get(first, "address-data", []).map(ip_address_from_nm),
+                address_data: get(first, "address-data", []).map(ip_address_from_nm),
                 gateway: get(first, "gateway", first === "ipv4" ? "0.0.0.0" : "::"),
                 dns_data: get(first, "dns-data", []),
                 dns_search: get(first, "dns-search", []),
                 // routes:      [(dstIP, dstPrefix, nextHop, metric)]
                 // routes: get(first, "routes", []).map(route_from_nm)
                 // route-data:  [{ dest: "", prefix: uint32, 'next-hop': "", metric: uint32 }]
-                "route-data": get(first, "route-data", []).map(route_from_nm),
+                route_data: get(first, "route-data", []).map(route_from_nm),
             };
         }
 
@@ -597,7 +597,7 @@ export function NetworkManagerModel() {
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
             set(first, "addr-gen-mode", 'i', settings[first].addr_gen_mode);
 
-            const addresses = settings[first]["address-data"];
+            const addresses = settings[first].address_data;
             if (addresses)
                 set(first, "address-data", "aa{sv}", addresses.map(addr => ip_address_to_nm(addr, first)));
 
@@ -609,7 +609,7 @@ export function NetworkManagerModel() {
                 set(first, "dns-data", "as", dns);
             set(first, "dns-search", 'as', settings[first].dns_search);
 
-            const routes = settings[first]["route-data"];
+            const routes = settings[first].route_data;
             if (routes)
                 set(first, "route-data", "aa{sv}", routes.map(route => route_to_nm(route, first)));
 
@@ -621,9 +621,9 @@ export function NetworkManagerModel() {
             delete result[first]["address-labels"];
 
             // Never pass "addresses", instead use "address-data" + "gateway"
-            delete result[first]["addresses"];
+            delete result[first].addresses;
             // Never pass "routes", instead use "route-data"
-            delete result[first]["routes"];
+            delete result[first].routes;
             // Never pass "dns", instead use "dns-data"
             delete result[first].dns;
         }

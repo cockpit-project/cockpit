@@ -288,7 +288,7 @@ export const NetworkInterfacePage = ({
 
             const addr_is_extra = (params.method != "manual");
             const addrs = [];
-            params["address-data"].forEach(function (a) {
+            params.address_data.forEach(function (a) {
                 let addr = a.address + "/" + a.prefix;
                 addrs.push(addr);
             });
@@ -654,17 +654,17 @@ export const NetworkInterfacePage = ({
             },
             ipv4: {
                 method: "auto",
-                addresses: [],
+                address_data: [],
                 dns_data: [],
                 dns_search: [],
-                routes: []
+                route_data: []
             },
             ipv6: {
                 method: "auto",
-                addresses: [],
+                address_data: [],
                 dns_data: [],
                 dns_search: [],
-                routes: []
+                route_data: []
             }
         };
         complete_settings(settings, dev);

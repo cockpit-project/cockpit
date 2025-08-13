@@ -422,20 +422,17 @@ export function NetworkManagerModel() {
      */
 
     function ip_address_from_nm(addr) {
-        return { address: addr.address.v, prefix: utils.ip_prefix_to_text(addr.prefix.v)};
-    }
-
-    function ip4_address_to_nm(addr) {
         return {
-            address: { t: "s", v: addr.address },
-            prefix: { t: "u", v: utils.ip4_prefix_from_text(addr.prefix)},
+            address: addr.address.v,
+            prefix: utils.ip_prefix_to_text(addr.prefix.v)
         };
     }
 
-    function ip6_address_to_nm(addr) {
+    function ip_address_to_nm(addr, ipv) {
+        const prefix = ipv === "ipv4" ? utils.ip4_prefix_from_text(addr.prefix) : utils.ip_prefix_from_text(addr.prefix);
         return {
             address: { t: "s", v: addr.address },
-            prefix: { t: "u", v: parseInt(addr.prefix, 10) || 64 },
+            prefix: { t: "u", v: prefix },
         };
     }
 
@@ -594,7 +591,7 @@ export function NetworkManagerModel() {
                 delete result[first][second];
         }
 
-        function set_ip(first, addr_to_nm, ips_sig, ip_from_text) {
+        function set_ip(first, ips_sig, ip_from_text) {
             set(first, "method", 's', settings[first].method);
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
@@ -602,7 +599,7 @@ export function NetworkManagerModel() {
 
             const addresses = settings[first]["address-data"];
             if (addresses)
-                set(first, "address-data", "aa{sv}", addresses.map(addr_to_nm));
+                set(first, "address-data", "aa{sv}", addresses.map(addr => ip_address_to_nm(addr, first)));
 
             if (settings[first].gateway)
                 set(first, "gateway", "s", settings[first].gateway);
@@ -639,12 +636,12 @@ export function NetworkManagerModel() {
         set("connection", "master", 's', settings.connection.group);
 
         if (settings.ipv4)
-            set_ip("ipv4", ip4_address_to_nm, 'au', utils.ip4_from_text);
+            set_ip("ipv4", 'au', utils.ip4_from_text);
         else
             delete result.ipv4;
 
         if (settings.ipv6)
-            set_ip("ipv6", ip6_address_to_nm, 'aay', utils.ip6_from_text);
+            set_ip("ipv6", 'aay', utils.ip6_from_text);
         else
             delete result.ipv6;
 

@@ -102,7 +102,7 @@ export const LogsPage = () => {
     const full_grep = getGrepFiltersFromOptions({ options })[0];
 
     /* Initial state */
-    const [currentIdentifiers, setCurrentIdentifiers] = useState(undefined);
+    const [currentIdentifiers, setCurrentIdentifiers] = useState([]);
     const [dataFollowing, setDataFollowing] = useState(follow);
     const [filteredQuery, setFilteredQuery] = useState(undefined);
     const [journalPrio, setJournalPrio] = useState(getPrioFilterOption(options));

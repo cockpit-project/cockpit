@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -96,17 +96,38 @@ function get_expire(name) {
             .then(parse_expire);
 }
 
-export function AccountDetails({ accounts, groups, current_user, user, shells }) {
+export function AccountNotFound() {
+    return (
+        <EmptyState headingLevel="h1" icon={ExclamationCircleIcon} titleText={_("Account not available or cannot be edited.")} variant={EmptyStateVariant.sm} id="account-failure">
+            <EmptyStateFooter>
+                <EmptyStateActions>
+                    <Breadcrumb>
+                        <BreadcrumbItem to="#/">{_("Back to accounts")}</BreadcrumbItem>
+                    </Breadcrumb>
+                </EmptyStateActions>
+            </EmptyStateFooter>
+        </EmptyState>
+    );
+}
+
+export function AccountDetails({ account, groups, isLoading, current_user, shells }) {
     const [expiration, setExpiration] = useState(null);
 
-    useEffect(() => {
-        get_expire(user).then(setExpiration);
-    }, [user, accounts]);
+    const user = useMemo(() => account.name, [account.name]);
+    const [isLocked, setIsLocked] = useState(account.isLocked);
 
     const [editedRealName, setEditedRealName] = useState(null);
     const [comittingRealName, setCommittingRealName] = useState(false);
+    const [disableLockedEdit, setDisableLockedEdit] = useState(false);
 
-    const [editedLocked, setEditedLocked] = useState(null);
+    useEffect(() => {
+        get_expire(account.name).then(setExpiration);
+    }, [account]);
+
+    // Only update isLocked field if account changes value
+    useEffect(() => {
+        setIsLocked(account.isLocked);
+    }, [account.isLocked]);
 
     function changeRealName() {
         if (editedRealName === null || editedRealName === undefined)
@@ -129,7 +150,8 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
     }
 
     function change_locked(value, dont_retry_if_stuck) {
-        setEditedLocked(value);
+        setIsLocked(value);
+        setDisableLockedEdit(true);
 
         cockpit.spawn(["/usr/sbin/usermod", user, value ? "--lock" : "--unlock"],
                       { superuser: "require", err: "message" })
@@ -145,13 +167,15 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     console.log("Account locked state doesn't match desired value, trying again.");
                                     // only retry once to avoid uncontrolled recursion
                                     change_locked(value, true);
-                                } else
-                                    setEditedLocked(null)
+                                }
                             });
                 })
                 .catch(error => {
-                    setEditedLocked(null);
                     show_unexpected_error(error);
+                    setIsLocked(!value);
+                })
+                .finally(() => {
+                    setDisableLockedEdit(false);
                 });
     }
 
@@ -164,26 +188,10 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                 .catch(show_unexpected_error);
     }
 
-    if (!accounts.length) {
+    if (isLoading) {
         return (
             <EmptyState headingLevel="h1" titleText={_("Loading...")} variant={EmptyStateVariant.sm}>
                 <EmptyStateFooter><Spinner size="xl" /></EmptyStateFooter>
-            </EmptyState>
-        );
-    }
-
-    const account = accounts.find(acc => acc.name == user);
-
-    if (!account) {
-        return (
-            <EmptyState headingLevel="h1" icon={ExclamationCircleIcon} titleText={_("Account not available or cannot be edited.")} variant={EmptyStateVariant.sm} id="account-failure">
-                <EmptyStateFooter>
-                    <EmptyStateActions>
-                        <Breadcrumb>
-                            <BreadcrumbItem to="#/">{_("Back to accounts")}</BreadcrumbItem>
-                        </Breadcrumb>
-                    </EmptyStateActions>
-                </EmptyStateFooter>
             </EmptyState>
         );
     }
@@ -262,8 +270,9 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                                         <FlexItem spacer={{ default: 'spacerNone' }}>
                                             <Checkbox id="account-locked"
-                                                        isDisabled={!superuser.allowed || edited_locked != null || user == current_user || account.isLocked == null}
-                                                        isChecked={edited_locked != null ? edited_locked : account.isLocked}
+                                                        ouiaSafe={disableLockedEdit}
+                                                        isDisabled={!superuser.allowed || disableLockedEdit || user == current_user || isLocked == null}
+                                                        isChecked={isLocked}
                                                         onChange={(_event, checked) => change_locked(checked)}
                                                         label={_("Disallow interactive password")} />
                                         </FlexItem>

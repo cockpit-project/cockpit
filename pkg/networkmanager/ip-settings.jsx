@@ -81,7 +81,8 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
     const [ignoreAutoDns, setIgnoreAutoDns] = useState(params.ignore_auto_dns);
     const [ignoreAutoRoutes, setIgnoreAutoRoutes] = useState(params.ignore_auto_routes);
     const [method, setMethod] = useState(params.method);
-    const [routes, setRoutes] = useState(params.routes ? params.routes.map(addr => ({ address: addr[0], netmask: addr[1], gateway: addr[2], metric: addr[3] })) : []);
+    const [routes, setRoutes] = useState(params["route-data"]);
+    console.log(routes);
 
     // The link local, shared, and disabled methods can't take any
     // addresses, dns servers, or dns search domains.  Routes,
@@ -120,7 +121,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                 gateway: defaultGateway,
                 dns,
                 dns_search: dnsSearch,
-                routes: routes.map(route => [route.address, route.netmask, route.gateway, route.metric]),
+                "route-data": routes,
                 ignore_auto_dns: ignoreAutoDns,
                 ignore_auto_routes: ignoreAutoRoutes,
             }
@@ -338,7 +339,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <Tooltip content={_("Add route")}>
                                     <Button variant="secondary"
                                         isDisabled={isOff}
-                                        onClick={() => setRoutes([...routes, { address: "", netmask: "", gateway: "", metric: "" }])}
+                                        onClick={() => setRoutes([...routes, { dest: "", prefix: "", "next-hop": "", metric: "" }])}
                                         id={idPrefix + "-route-add"}
                                         aria-label={_("Add route")}>
                                         <PlusIcon />
@@ -353,26 +354,26 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                     return (
                         <Grid key={i} hasGutter>
                             <FormGroup fieldId={idPrefix + "-route-address-" + i} label={_("Address")} className="pf-m-3-col-on-sm">
-                                <TextInput id={idPrefix + "-route-address-" + i} value={route.address} onChange={(_event, value) => setRoutes(
+                                <TextInput id={idPrefix + "-route-address-" + i} value={route.dest} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
-                                            ? { ...item, address: value }
+                                            ? { ...item, dest: value }
                                             : item
                                     ))} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-route-netmask-" + i} label={_("Prefix length or netmask")} className="pf-m-4-col-on-sm">
-                                <TextInput id={idPrefix + "-route-netmask-" + i} value={route.netmask} onChange={(_event, value) => setRoutes(
+                                <TextInput id={idPrefix + "-route-netmask-" + i} value={route.prefix} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
-                                            ? { ...item, netmask: value }
+                                            ? { ...item, prefix: value }
                                             : item
                                     ))} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-route-gateway-" + i} label={_("Gateway")} className="pf-m-3-col-on-sm">
-                                <TextInput id={idPrefix + "-route-gateway-" + i} value={route.gateway} onChange={(_event, value) => setRoutes(
+                                <TextInput id={idPrefix + "-route-gateway-" + i} value={route["next-hop"]} onChange={(_event, value) => setRoutes(
                                     routes.map((item, index) =>
                                         i === index
-                                            ? { ...item, gateway: value }
+                                            ? { ...item, "next-hop": value }
                                             : item
                                     ))} />
                             </FormGroup>

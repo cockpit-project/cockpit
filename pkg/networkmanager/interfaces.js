@@ -463,14 +463,14 @@ export function NetworkManagerModel() {
                 return def;
         }
 
-        function get_ip(first, ip_to_text) {
+        function get_ip(first) {
             return {
                 method: get(first, "method", "auto"),
                 ignore_auto_dns: get(first, "ignore-auto-dns", false),
                 ignore_auto_routes: get(first, "ignore-auto-routes", false),
                 "address-data": get(first, "address-data", []).map(ip_address_from_nm),
                 gateway: get(first, "gateway", first === "ipv4" ? "0.0.0.0" : "::"),
-                dns: get(first, "dns", []).map(ip_to_text),
+                dns_data: get(first, "dns-data", []),
                 dns_search: get(first, "dns-search", []),
                 // routes:      [(dstIP, dstPrefix, nextHop, metric)]
                 // routes: get(first, "routes", []).map(route_from_nm)
@@ -495,8 +495,8 @@ export function NetworkManagerModel() {
         };
 
         if (!settings.connection.master) {
-            result.ipv4 = get_ip("ipv4", utils.ip4_to_text);
-            result.ipv6 = get_ip("ipv6", utils.ip6_to_text);
+            result.ipv4 = get_ip("ipv4");
+            result.ipv6 = get_ip("ipv6");
         }
 
         if (settings["802-3-ethernet"]) {
@@ -591,7 +591,7 @@ export function NetworkManagerModel() {
                 delete result[first][second];
         }
 
-        function set_ip(first, ips_sig, ip_from_text) {
+        function set_ip(first) {
             set(first, "method", 's', settings[first].method);
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
@@ -604,9 +604,9 @@ export function NetworkManagerModel() {
             if (settings[first].gateway)
                 set(first, "gateway", "s", settings[first].gateway);
 
-            const dns = settings[first].dns;
+            const dns = settings[first].dns_data;
             if (dns)
-                set(first, "dns", ips_sig, dns.map(ip_from_text));
+                set(first, "dns-data", "as", dns);
             set(first, "dns-search", 'as', settings[first].dns_search);
 
             const routes = settings[first]["route-data"];
@@ -624,6 +624,8 @@ export function NetworkManagerModel() {
             delete result[first]["addresses"];
             // Never pass "routes", instead use "route-data"
             delete result[first]["routes"];
+            // Never pass "dns", instead use "dns-data"
+            delete result[first].dns;
         }
 
         set("connection", "id", 's', settings.connection.id);

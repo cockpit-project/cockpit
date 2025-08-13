@@ -302,10 +302,10 @@ export const NetworkInterfacePage = ({
                 parts.push(cockpit.format(_("Gateway $gateway"), { gateway }));
 
             const dns_is_extra = (!params["ignore-auto-dns"] && params.method != "manual");
-            if (params.dns?.length > 0)
+            if (params.dns_data.length > 0)
                 parts.push(cockpit.format(dns_is_extra ? _("Additional DNS $val") : _("DNS $val"),
-                                          { val: params.dns.join(", ") }));
-            if (params.dns_search?.length > 0)
+                                          { val: params.dns_data.join(", ") }));
+            if (params.dns_search.length > 0)
                 parts.push(cockpit.format(dns_is_extra ? _("Additional DNS search domains $val") : _("DNS search domains $val"),
                                           { val: params.dns_search.join(", ") }));
 
@@ -655,14 +655,14 @@ export const NetworkInterfacePage = ({
             ipv4: {
                 method: "auto",
                 addresses: [],
-                dns: [],
+                dns_data: [],
                 dns_search: [],
                 routes: []
             },
             ipv6: {
                 method: "auto",
                 addresses: [],
-                dns: [],
+                dns_data: [],
                 dns_search: [],
                 routes: []
             }

@@ -76,13 +76,13 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
     const [addresses, setAddresses] = useState(params["address-data"]);
     const [defaultGateway, setDefaultGateway] = useState(params.gateway);
     const [dialogError, setDialogError] = useState(undefined);
-    const [dns, setDns] = useState(params.dns || []);
+    const [dns, setDns] = useState(params.dns_data || []);
+    console.log(dns);
     const [dnsSearch, setDnsSearch] = useState(params.dns_search || []);
     const [ignoreAutoDns, setIgnoreAutoDns] = useState(params.ignore_auto_dns);
     const [ignoreAutoRoutes, setIgnoreAutoRoutes] = useState(params.ignore_auto_routes);
     const [method, setMethod] = useState(params.method);
     const [routes, setRoutes] = useState(params["route-data"]);
-    console.log(routes);
 
     // The link local, shared, and disabled methods can't take any
     // addresses, dns servers, or dns search domains.  Routes,
@@ -119,7 +119,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                 method,
                 "address-data": addresses,
                 gateway: defaultGateway,
-                dns,
+                dns_data: dns,
                 dns_search: dnsSearch,
                 "route-data": routes,
                 ignore_auto_dns: ignoreAutoDns,

@@ -18,7 +18,6 @@
  */
 
 import React from "react";
-import PropTypes from "prop-types";
 import {
     Modal, ModalBody, ModalFooter, ModalHeader
 } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
@@ -86,6 +85,8 @@ const themes = {
     },
 };
 
+export type TerminalTheme = keyof typeof themes;
+
 /*
  * A terminal component that communicates over a cockpit channel.
  *
@@ -105,22 +106,20 @@ const themes = {
  */
 
 export class TerminalState {
-    terminal;
-    element;
-    channel;
+    terminal: Term;
+    element: HTMLDivElement;
+    channel: cockpit.Channel<string> | null;
 
-    #default_channel_creator;
+    #default_channel_creator: (() => cockpit.Channel<string>) | undefined;
 
-    constructor(default_channel_creator) {
+    constructor(default_channel_creator?: () => cockpit.Channel<string>) {
         this.terminal = new Term({
             cols: 1,
             rows: 1,
-            screenKeys: true,
             cursorBlink: true,
             fontSize: 16,
             fontFamily: 'Menlo, Monaco, Consolas, monospace',
             screenReaderMode: true,
-            showPastingModal: false,
         });
         this.terminal.loadAddon(new CanvasAddon());
         this.element = document.createElement("div");
@@ -128,7 +127,7 @@ export class TerminalState {
         this.#default_channel_creator = default_channel_creator;
     }
 
-    connectChannel(channel) {
+    connectChannel(channel: cockpit.Channel<string> | undefined) {
         if (!channel && !this.channel && this.#default_channel_creator)
             channel = this.#default_channel_creator();
         if (channel && channel != this.channel) {
@@ -164,7 +163,6 @@ export class TerminalState {
             channel.addEventListener('close', (_event, options) => {
                 const term = this.terminal;
                 term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
-                term.cursorHidden = true;
                 term.refresh(term.rows, term.rows);
             });
         }
@@ -183,8 +181,29 @@ export class TerminalState {
     }
 }
 
-export class Terminal extends React.Component {
-    constructor(props) {
+interface TerminalComponentProps {
+    parentId: string;
+    state?: TerminalState;
+    onTitleChanged?: (title: string) => void;
+    channel?: cockpit.Channel<string>;
+    fontSize?: number;
+    rows?: number;
+    cols?: number;
+    theme?: TerminalTheme;
+}
+
+interface TerminalComponentState {
+    showPastingModal: boolean,
+    cols: number,
+    rows: number
+}
+
+export class Terminal extends React.Component<TerminalComponentProps, TerminalComponentState> {
+    terminal_state: TerminalState;
+    terminalRef: React.RefObject<HTMLDivElement>;
+    terminal: Term;
+
+    constructor(props: TerminalComponentProps) {
         super(props);
         this.reset = this.reset.bind(this);
         this.focus = this.focus.bind(this);
@@ -199,7 +218,7 @@ export class Terminal extends React.Component {
         this.terminal_state = this.props.state || new TerminalState();
         const term = this.terminal_state.terminal;
 
-        this.terminalRef = React.createRef();
+        this.terminalRef = React.createRef<HTMLDivElement>();
 
         if (props.onTitleChanged)
             term.onTitleChange(props.onTitleChanged);
@@ -212,16 +231,16 @@ export class Terminal extends React.Component {
         };
     }
 
-    mountTerminal(state) {
+    mountTerminal(state: TerminalState) {
         this.terminal = state.terminal;
-        this.terminalRef.current.appendChild(state.element);
+        this.terminalRef.current?.appendChild(state.element);
         this.terminal.open(state.element);
         state.connectChannel(this.props.channel);
 
         if (this.props.fontSize)
             this.terminal.options.fontSize = this.props.fontSize;
 
-        if (this.props.rows) {
+        if (this.props.cols && this.props.rows) {
             this.resizeTerminal(this.props.cols, this.props.rows);
         }
 
@@ -229,8 +248,8 @@ export class Terminal extends React.Component {
         this.terminal.focus();
     }
 
-    unmountTerminal(state) {
-        this.terminalRef.current.removeChild(state.element);
+    unmountTerminal(state: TerminalState) {
+        this.terminalRef.current?.removeChild(state.element);
         if (!this.props.rows)
             this.resizeTerminal(80, 1);
     }
@@ -243,7 +262,7 @@ export class Terminal extends React.Component {
         }
     }
 
-    resizeTerminal(cols, rows) {
+    resizeTerminal(cols: number, rows: number) {
         this.terminal.resize(cols, rows);
         if (this.terminal_state.channel) {
             this.terminal_state.channel.control({
@@ -251,20 +270,20 @@ export class Terminal extends React.Component {
                     rows,
                     cols
                 }
-            });
+            } as cockpit.JsonObject as cockpit.ControlMessage);
         }
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.state !== this.props.state) {
             this.unmountTerminal(prevProps.state);
-            this.mountTerminal(this.props.state);
-            this.terminal_state = this.props.state;
-            if (!this.props.rows)
+            this.terminal_state = this.props.state || new TerminalState();
+            this.mountTerminal(this.terminal_state);
+            if (!this.props.cols || !this.props.rows)
                 this.resizeTerminal(this.state.cols, this.state.rows);
         }
 
-        if (prevProps.fontSize !== this.props.fontSize) {
+        if (this.props.fontSize && prevProps.fontSize !== this.props.fontSize) {
             this.terminal.options.fontSize = this.props.fontSize;
 
             // After font size is changed, resize needs to be triggered
@@ -280,18 +299,18 @@ export class Terminal extends React.Component {
         if (prevState.cols !== this.state.cols || prevState.rows !== this.state.rows)
             this.resizeTerminal(this.state.cols, this.state.rows);
 
-        if (prevProps.theme !== this.props.theme)
+        if (this.props.theme && prevProps.theme !== this.props.theme)
             this.setTerminalTheme(this.props.theme);
 
         if (prevProps.channel !== this.props.channel) {
             this.terminal.reset();
             this.terminal_state.connectChannel(this.props.channel);
-            this.props.channel.control({
+            this.props.channel?.control({
                 window: {
                     rows: this.state.rows,
                     cols: this.state.cols
                 }
-            });
+            } as cockpit.JsonObject as cockpit.ControlMessage);
         }
         this.terminal.focus();
     }
@@ -327,10 +346,8 @@ export class Terminal extends React.Component {
                     </ModalFooter>
                 </Modal>
                 <div ref={this.terminalRef}
-                     key={this.terminal}
                      className="console-ct"
                      onFocus={this.onFocusIn}
-                     onContextMenu={this.contextMenu}
                      onBlur={this.onFocusOut} />
                 <ContextMenu parentId={this.props.parentId}>
                     {contextMenuList}
@@ -350,10 +367,10 @@ export class Terminal extends React.Component {
     setText() {
         try {
             navigator.clipboard.readText()
-                    .then(text => this.terminal_state.channel.send(text))
-                    .catch(e => this.setState({ showPastingModal: true }))
+                    .then(text => this.terminal_state.channel?.send(text))
+                    .catch(() => this.setState({ showPastingModal: true }))
                     .finally(() => this.terminal.focus());
-        } catch (error) {
+        } catch {
             this.setState({ showPastingModal: true });
         }
     }
@@ -364,13 +381,13 @@ export class Terminal extends React.Component {
                     .catch(e => console.error('Text could not be copied, use Ctrl+Insert ', e ? e.toString() : ""))
                     .finally(() => this.terminal.focus());
         } catch (error) {
-            console.error('Text could not be copied, use Ctrl+Insert:', error.toString());
+            console.error('Text could not be copied, use Ctrl+Insert:', String(error));
         }
     }
 
     reset() {
         this.terminal.reset();
-        this.terminal_state.channel.send(String.fromCharCode(12)); // Send SIGWINCH to show prompt on attaching
+        this.terminal_state.channel?.send(String.fromCharCode(12)); // Send SIGWINCH to show prompt on attaching
     }
 
     focus() {
@@ -382,9 +399,9 @@ export class Terminal extends React.Component {
         const padding = 10; // Leave a bit of space around terminal
         const realHeight = this.terminal._core._renderService.dimensions.css.cell.height;
         const realWidth = this.terminal._core._renderService.dimensions.css.cell.width;
-        const parentHeight = this.terminalRef.current.parentElement.clientHeight;
-        const parentWidth = this.terminalRef.current.parentElement.clientWidth;
-        if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0)
+        const parentHeight = this.terminalRef.current?.parentElement?.clientHeight;
+        const parentWidth = this.terminalRef.current?.parentElement?.clientWidth;
+        if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0 && parentHeight && parentWidth)
             return {
                 // it can happen that parent{Width,Height} are not yet initialized (0), avoid negative values
                 rows: Math.max(Math.floor((parentHeight - padding) / realHeight), 1),
@@ -398,18 +415,16 @@ export class Terminal extends React.Component {
         this.setState(this.calculateDimensions());
     }
 
-    setTerminalTheme(theme) {
+    setTerminalTheme(theme: TerminalTheme) {
         this.terminal.options.theme = themes[theme];
     }
 
-    onBeforeUnload(event) {
+    onBeforeUnload(event: Event) {
         // Firefox requires this when the page is in an iframe
         event.preventDefault();
 
-        // see "an almost cross-browser solution" at
-        // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event
-        event.returnValue = '';
-        return '';
+        // Included for legacy support, e.g. Chrome/Edge < 119
+        event.returnValue = true;
     }
 
     onFocusIn() {
@@ -420,12 +435,3 @@ export class Terminal extends React.Component {
         window.removeEventListener('beforeunload', this.onBeforeUnload);
     }
 }
-
-Terminal.propTypes = {
-    cols: PropTypes.number,
-    rows: PropTypes.number,
-    channel: PropTypes.object,
-    onTitleChanged: PropTypes.func,
-    theme: PropTypes.string,
-    parentId: PropTypes.string.isRequired
-};

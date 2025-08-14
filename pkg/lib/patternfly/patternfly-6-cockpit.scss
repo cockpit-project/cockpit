@@ -1,11 +1,7 @@
 // Disable fontawesome
 $pf-v6-global--disable-fontawesome: true !default; // Disable Font Awesome 5 Free
 
-@forward "@patternfly/patternfly/sass-utilities" with (
-  // We use a different font directory so lets use that instead
-  $pf-v6-global--font-path: "../../static/fonts",
-);
-@forward "@patternfly/patternfly/base";
+@forward "../global-variables";
 
 // NOTE @Venefilyn: This is here for backwards compatibility. Should be removed at some point
 // There are scenarios such as running tests for a plugin with a stable cockpit-shell/ws

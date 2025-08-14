@@ -108,11 +108,9 @@ export type TerminalTheme = keyof typeof themes;
 export class TerminalState {
     terminal: Term;
     element: HTMLDivElement;
-    channel: cockpit.Channel<string> | null;
+    channel: cockpit.Channel<string>;
 
-    #default_channel_creator: (() => cockpit.Channel<string>) | undefined;
-
-    constructor(default_channel_creator?: () => cockpit.Channel<string>) {
+    constructor(channel: cockpit.Channel<string>) {
         this.terminal = new Term({
             cols: 1,
             rows: 1,
@@ -123,60 +121,51 @@ export class TerminalState {
         });
         this.terminal.loadAddon(new CanvasAddon());
         this.element = document.createElement("div");
-        this.channel = null;
-        this.#default_channel_creator = default_channel_creator;
+        this.channel = channel;
     }
 
-    connectChannel(channel: cockpit.Channel<string> | undefined) {
-        if (!channel && !this.channel && this.#default_channel_creator)
-            channel = this.#default_channel_creator();
-        if (channel && channel != this.channel) {
-            this.disconnectChannel();
-            this.channel = channel;
+    connectChannel() {
+        this.channel.addEventListener('message', (_event, data) => {
+            this.terminal.write(data);
+        });
 
-            channel.addEventListener('message', (_event, data) => {
-                this.terminal.write(data);
-            });
-
-            this.terminal.onData(function(data) {
-                if (channel.valid) {
-                    /* HACK: Ctrl+Space (and possibly other
-                     * characters) is a disaster: While it is U+00A0
-                     * in unicode, with an UTF-8 representation of
-                     * 0xC2A0, the "visible" string in JS is 0x00
-                     * (with TextEncoder, btoa(), and string
-                     * comparison). The internal representation
-                     * retains half of it, and trying to send it to
-                     * the websocket would result in a single 0xA0,
-                     * which is invalid UTF-8 (and causes the session
-                     * to crash). So intercept and ignore such broken
-                     * chars.  See
-                     * https://github.com/cockpit-project/cockpit/issues/21213 */
-                    if (data === '\x00') {
-                        console.log("terminal: ignoring invalid input", data);
-                        return;
-                    }
-                    channel.send(data);
+        this.terminal.onData(data => {
+            if (this.channel.valid) {
+                /* HACK: Ctrl+Space (and possibly other
+                 * characters) is a disaster: While it is U+00A0
+                 * in unicode, with an UTF-8 representation of
+                 * 0xC2A0, the "visible" string in JS is 0x00
+                 * (with TextEncoder, btoa(), and string
+                 * comparison). The internal representation
+                 * retains half of it, and trying to send it to
+                 * the websocket would result in a single 0xA0,
+                 * which is invalid UTF-8 (and causes the session
+                 * to crash). So intercept and ignore such broken
+                 * chars.  See
+                 * https://github.com/cockpit-project/cockpit/issues/21213 */
+                if (data === '\x00') {
+                    console.log("terminal: ignoring invalid input", data);
+                    return;
                 }
-            });
+                this.channel.send(data);
+            }
+        });
 
-            channel.addEventListener('close', (_event, options) => {
-                const term = this.terminal;
-                term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
-                term.refresh(term.rows, term.rows);
-            });
-        }
+        this.channel.addEventListener('close', (_event, options) => {
+            const term = this.terminal;
+            term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
+            term.refresh(term.rows, term.rows);
+        });
     }
 
-    disconnectChannel() {
-        if (this.channel) {
-            this.channel.close();
-            this.channel = null;
-        }
+    resetChannel(channel: cockpit.Channel<string>) {
+        this.channel.close();
+        this.channel = channel;
+        this.connectChannel();
     }
 
     close() {
-        this.disconnectChannel();
+        this.channel.close();
         this.terminal.dispose();
     }
 }
@@ -184,8 +173,8 @@ export class TerminalState {
 interface TerminalComponentProps {
     parentId: string;
     state?: TerminalState;
-    onTitleChanged?: (title: string) => void;
     channel?: cockpit.Channel<string>;
+    onTitleChanged?: (title: string) => void;
     fontSize?: number;
     rows?: number;
     cols?: number;
@@ -215,7 +204,14 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
         this.getText = this.getText.bind(this);
         this.setTerminalTheme = this.setTerminalTheme.bind(this);
 
-        this.terminal_state = this.props.state || new TerminalState();
+        if (this.props.state) {
+            cockpit.assert(!this.props.channel);
+            this.terminal_state = this.props.state;
+        } else {
+            cockpit.assert(this.props.channel);
+            this.terminal_state = new TerminalState(this.props.channel);
+        }
+
         const term = this.terminal_state.terminal;
 
         this.terminalRef = React.createRef<HTMLDivElement>();
@@ -235,7 +231,7 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
         this.terminal = state.terminal;
         this.terminalRef.current?.appendChild(state.element);
         this.terminal.open(state.element);
-        state.connectChannel(this.props.channel);
+        state.connectChannel();
 
         if (this.props.fontSize)
             this.terminal.options.fontSize = this.props.fontSize;
@@ -274,13 +270,27 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
         }
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.state !== this.props.state) {
+    componentDidUpdate(prevProps: TerminalComponentProps, prevState: TerminalComponentState) {
+        if (this.props.state && prevProps.state !== this.props.state) {
+            cockpit.assert(!this.props.channel);
+            cockpit.assert(prevProps.state);
             this.unmountTerminal(prevProps.state);
-            this.terminal_state = this.props.state || new TerminalState();
+            this.terminal_state = this.props.state;
             this.mountTerminal(this.terminal_state);
             if (!this.props.cols || !this.props.rows)
                 this.resizeTerminal(this.state.cols, this.state.rows);
+        }
+
+        if (this.props.channel && prevProps.channel !== this.props.channel) {
+            cockpit.assert(!this.props.state);
+            this.terminal.reset();
+            this.terminal_state.resetChannel(this.props.channel);
+            this.props.channel?.control({
+                window: {
+                    rows: this.state.rows,
+                    cols: this.state.cols
+                }
+            } as cockpit.JsonObject as cockpit.ControlMessage);
         }
 
         if (this.props.fontSize && prevProps.fontSize !== this.props.fontSize) {
@@ -302,16 +312,6 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
         if (this.props.theme && prevProps.theme !== this.props.theme)
             this.setTerminalTheme(this.props.theme);
 
-        if (prevProps.channel !== this.props.channel) {
-            this.terminal.reset();
-            this.terminal_state.connectChannel(this.props.channel);
-            this.props.channel?.control({
-                window: {
-                    rows: this.state.rows,
-                    cols: this.state.cols
-                }
-            } as cockpit.JsonObject as cockpit.ControlMessage);
-        }
         this.terminal.focus();
     }
 

@@ -108,11 +108,11 @@ export type TerminalTheme = keyof typeof themes;
 export class TerminalState {
     terminal: Term;
     element: HTMLDivElement;
-    channel: cockpit.Channel<string>;
+    channel: cockpit.Channel<Uint8Array>;
 
-    constructor(channel: cockpit.Channel<string>) {
+    constructor(channel: cockpit.Channel<Uint8Array>) {
         this.terminal = new Term({
-            cols: 1,
+            cols: 80,
             rows: 1,
             cursorBlink: true,
             fontSize: 16,
@@ -122,15 +122,16 @@ export class TerminalState {
         this.terminal.loadAddon(new CanvasAddon());
         this.element = document.createElement("div");
         this.channel = channel;
+        this.#connectChannel(channel);
     }
 
-    connectChannel() {
-        this.channel.addEventListener('message', (_event, data) => {
+    #connectChannel(channel: cockpit.Channel<Uint8Array>) {
+        channel.addEventListener('message', (_event, data) => {
             this.terminal.write(data);
         });
 
         this.terminal.onData(data => {
-            if (this.channel.valid) {
+            if (channel.valid) {
                 /* HACK: Ctrl+Space (and possibly other
                  * characters) is a disaster: While it is U+00A0
                  * in unicode, with an UTF-8 representation of
@@ -147,21 +148,21 @@ export class TerminalState {
                     console.log("terminal: ignoring invalid input", data);
                     return;
                 }
-                this.channel.send(data);
+                channel.send(data as unknown as Uint8Array); // XXX
             }
         });
 
-        this.channel.addEventListener('close', (_event, options) => {
+        channel.addEventListener('close', (_event, options) => {
             const term = this.terminal;
             term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
             term.refresh(term.rows, term.rows);
         });
     }
 
-    resetChannel(channel: cockpit.Channel<string>) {
+    resetChannel(channel: cockpit.Channel<Uint8Array>) {
         this.channel.close();
         this.channel = channel;
-        this.connectChannel();
+        this.#connectChannel(channel);
     }
 
     close() {
@@ -173,7 +174,7 @@ export class TerminalState {
 interface TerminalComponentProps {
     parentId: string;
     state?: TerminalState;
-    channel?: cockpit.Channel<string>;
+    channel?: cockpit.Channel<Uint8Array>;
     onTitleChanged?: (title: string) => void;
     fontSize?: number;
     rows?: number;
@@ -231,7 +232,6 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
         this.terminal = state.terminal;
         this.terminalRef.current?.appendChild(state.element);
         this.terminal.open(state.element);
-        state.connectChannel();
 
         if (this.props.fontSize)
             this.terminal.options.fontSize = this.props.fontSize;
@@ -283,14 +283,8 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
 
         if (this.props.channel && prevProps.channel !== this.props.channel) {
             cockpit.assert(!this.props.state);
-            this.terminal.reset();
             this.terminal_state.resetChannel(this.props.channel);
-            this.props.channel?.control({
-                window: {
-                    rows: this.state.rows,
-                    cols: this.state.cols
-                }
-            } as cockpit.JsonObject as cockpit.ControlMessage);
+            this.resizeTerminal(this.state.cols, this.state.rows);
         }
 
         if (this.props.fontSize && prevProps.fontSize !== this.props.fontSize) {

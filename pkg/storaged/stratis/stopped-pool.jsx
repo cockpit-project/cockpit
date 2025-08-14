@@ -194,36 +194,11 @@ export function make_stratis_stopped_pool_page(parent, uuid) {
 }
 
 const StoppedStratisPoolCard = ({ card, uuid }) => {
-    const stopped_info = client.stratis_manager.StoppedPools[uuid];
-    let key_desc = false;
-    let clevis_info = false;
-
-    if (is_v1_pool(uuid)) {
-        const kd = stopped_info.key_description;
-        if (kd && kd.v[0] && kd.v[1].v[0])
-            key_desc = kd.v[1].v[1];
-        const ci = stopped_info.clevis_info;
-        if (ci && ci.v[0] && ci.v[1].v[0])
-            clevis_info = ci.v[1].v[1];
-    }
-
-    const encrypted = key_desc || clevis_info;
-    const can_tang = encrypted && (!clevis_info || clevis_info[0] == "tang");
-    const tang_url = (can_tang && clevis_info) ? JSON.parse(clevis_info[1]).url : null;
-
     return (
         <StorageCard card={card}>
             <CardBody>
                 <DescriptionList className="pf-m-horizontal-on-sm">
                     <StorageDescription title={_("UUID")} value={uuid} />
-                    { encrypted &&
-                    <StorageDescription title={_("Passphrases")}>
-                        { key_desc ? cockpit.format(_("using key description $0"), key_desc) : _("none") }
-                    </StorageDescription>
-                    }
-                    { can_tang &&
-                    <StorageDescription title={_("Keyservers")} value={ tang_url || _("none") } />
-                    }
                 </DescriptionList>
             </CardBody>
             <CardHeader><strong>{_("Block devices")}</strong></CardHeader>

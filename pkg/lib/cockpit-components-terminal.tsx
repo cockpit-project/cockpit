@@ -90,17 +90,38 @@ export type TerminalTheme = keyof typeof themes;
 /*
  * A terminal component that communicates over a cockpit channel.
  *
- * The only required property is 'channel', which must point to a cockpit
- * stream channel.
+ * The state of a terminal component can be managed separately from
+ * it. This allows a terminal to stay alive and keep its content while
+ * it is not actually part of the DOM.
+ *
+ * This is done by creating a TerminalState object for the channel,
+ * and then passing this object into a Terminal component via the
+ * "state" property.  You can dispose of the TerminalState object by
+ * calling its close() method. This will also close the channel.
+ *
+ * (So instead of managing the lifetime of a Cockpit channel, you
+ * manage the lifetime of a TerminalState wrapper for the channel, in
+ * exactly the same way.)
+ *
+ * If you don't need to keep a terminal alive while it is not part of
+ * the DOM, you can pass the channel directly into the Terminal
+ * component via the "channel" property.  The Terminal component will
+ * then maintain a internal TerminalState wrapper for the channel.
+ *
+ * The "state" and "channel" properties are of course mutually
+ * exclusive: You can only use one of them for a given Terminal
+ * component.  Also, switching from one to the other over the lifetime
+ * of a Terminal component is not supported.
  *
  * The size of the terminal can be set with the 'rows' and 'cols'
- * properties. If those properties are not given, the terminal will fill
- * its container.
+ * properties. If those properties are not given, the terminal will
+ * fill its container.
  *
- * If the 'onTitleChanged' callback property is set, it will be called whenever
- * the title of the terminal changes.
+ * If the 'onTitleChanged' callback property is set, it will be called
+ * whenever the title of the terminal changes.
  *
- * Call focus() to set the input focus on the terminal.
+ * Call focus() on the Terminal component to set the input focus on
+ * the terminal, or reset() to clear it.
  *
  * Also it is possible to set up theme by property 'theme'.
  */
@@ -108,9 +129,9 @@ export type TerminalTheme = keyof typeof themes;
 export class TerminalState {
     terminal: Term;
     element: HTMLDivElement;
-    channel: cockpit.Channel<Uint8Array>;
+    channel: cockpit.Channel<string>;
 
-    constructor(channel: cockpit.Channel<Uint8Array>) {
+    constructor(channel: cockpit.Channel<string>) {
         this.terminal = new Term({
             cols: 80,
             rows: 1,
@@ -125,7 +146,7 @@ export class TerminalState {
         this.#connectChannel(channel);
     }
 
-    #connectChannel(channel: cockpit.Channel<Uint8Array>) {
+    #connectChannel(channel: cockpit.Channel<string>) {
         channel.addEventListener('message', (_event, data) => {
             this.terminal.write(data);
         });
@@ -148,7 +169,7 @@ export class TerminalState {
                     console.log("terminal: ignoring invalid input", data);
                     return;
                 }
-                channel.send(data as unknown as Uint8Array); // XXX
+                channel.send(data);
             }
         });
 
@@ -159,7 +180,7 @@ export class TerminalState {
         });
     }
 
-    resetChannel(channel: cockpit.Channel<Uint8Array>) {
+    resetChannel(channel: cockpit.Channel<string>) {
         this.channel.close();
         this.channel = channel;
         this.#connectChannel(channel);
@@ -174,7 +195,7 @@ export class TerminalState {
 interface TerminalComponentProps {
     parentId: string;
     state?: TerminalState;
-    channel?: cockpit.Channel<Uint8Array>;
+    channel?: cockpit.Channel<string>;
     onTitleChanged?: (title: string) => void;
     fontSize?: number;
     rows?: number;
@@ -246,6 +267,8 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
 
     unmountTerminal(state: TerminalState) {
         this.terminalRef.current?.removeChild(state.element);
+        // This makes sure that the terminal will not cause its new
+        // container to grow when it is reattached later.
         if (!this.props.rows)
             this.resizeTerminal(80, 1);
     }
@@ -284,7 +307,8 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
         if (this.props.channel && prevProps.channel !== this.props.channel) {
             cockpit.assert(!this.props.state);
             this.terminal_state.resetChannel(this.props.channel);
-            this.resizeTerminal(this.state.cols, this.state.rows);
+            if (!this.props.cols || !this.props.rows)
+                this.resizeTerminal(this.state.cols, this.state.rows);
         }
 
         if (this.props.fontSize && prevProps.fontSize !== this.props.fontSize) {
@@ -391,8 +415,10 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
 
     calculateDimensions() {
         const padding = 10; // Leave a bit of space around terminal
-        const realHeight = this.terminal._core._renderService.dimensions.css.cell.height;
-        const realWidth = this.terminal._core._renderService.dimensions.css.cell.width;
+        // @ts-expect-error: we are accessing internals here...
+        const core = this.terminal._core;
+        const realHeight = core._renderService.dimensions.css.cell.height;
+        const realWidth = core._renderService.dimensions.css.cell.width;
         const parentHeight = this.terminalRef.current?.parentElement?.clientHeight;
         const parentWidth = this.terminalRef.current?.parentElement?.clientWidth;
         if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0 && parentHeight && parentWidth)

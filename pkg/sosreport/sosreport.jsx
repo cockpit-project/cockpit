@@ -521,7 +521,7 @@ const SOSBody = () => {
 const SOSPage = () => {
     return (
         <WithDialogs>
-            <Page className='no-masthead-sidebar'>
+            <Page className="pf-m-no-sidebar">
                 <PageSection hasBodyWrapper={false} padding={{ default: "padding" }}>
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
                         <h2 className="pf-v6-u-font-size-3xl">{_("System diagnostics")}</h2>

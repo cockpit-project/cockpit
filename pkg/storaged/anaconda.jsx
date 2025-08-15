@@ -18,6 +18,7 @@
  */
 
 import client from "./client.js";
+import { read_os_release } from "os-release";
 
 import { decode_filename } from "./utils.js";
 import { parse_subvol_from_options } from "./btrfs/utils.jsx";
@@ -38,6 +39,32 @@ function device_name(block) {
     // Prefer symlinks in /dev/stratis/.
     return (block.Symlinks.map(decode_filename).find(n => n.indexOf("/dev/stratis/") == 0) ||
             decode_filename(block.PreferredDevice));
+}
+
+/**
+ * Initialize anaconda branding support
+ */
+export async function init_anaconda_branding() {
+    // Load anaconda-branding.css and wait for it to load
+    if (!document.querySelector('link[href*="anaconda-branding.css"]')) {
+        await new Promise((resolve) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = '../../static/branding/anaconda-branding.css';
+
+            link.onload = () => resolve(undefined);
+            link.onerror = () => resolve(undefined); // Still resolve on error
+
+            document.head.appendChild(link);
+        });
+    }
+
+    // Apply branding-{distro_id} class based on os-release
+    const osRelease = await read_os_release();
+    if (osRelease?.ID) {
+        document.documentElement.classList.add(`branding-${osRelease.ID}`);
+    }
 }
 
 export function remember_passphrase(block, passphrase) {

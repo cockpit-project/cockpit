@@ -1,0 +1,180 @@
+'\" t
+.\"     Title: cockpit-tls
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.20
+.\"      Date: 2025-07-29
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "COCKPIT\-TLS" "1" "2025-07-29" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.sp
+cockpit
+.sp
+cockpit\-tls
+.sp
+8
+.sp
+cockpit\-tls
+.sp
+TLS proxy for Cockpit web service
+.sp
+cockpit\-tls
+.sp
+\-\-help
+.sp
+\-\-port
+.sp
+PORT
+.sp
+\-\-no\-tls
+.sp
+\-\-idle\-timeout
+.sp
+SECONDS
+.SH "DESCRIPTION"
+.sp
+The \f(CRcockpit\-tls\fP program is a TLS terminating HTTP proxy for
+\f(CRcockpit\-ws(8)\fP. It manages a set of isolated cockpit\-ws instances,
+one per TLS client certificate, plus one for TLS without a client
+certificate, and one for unencrypted HTTP. With that, one session cannot
+tamper with another one through possible security vulnerability
+exploits.
+.sp
+Users or administrators should never need to start this program as it
+automatically started by \f(CRsystemd(1)\fP via socket activation.
+.SH "TRANSPORT SECURITY"
+.sp
+To specify the TLS certificate the web service should use, simply drop a
+file with the extension \f(CR.cert\fP in the \f(CR/etc/cockpit/ws\-certs.d\fP
+directory, or below \f(CR$XDG_CONFIG_DIRS\fP if set (see
+.URL "./cockpit.conf.5.html" "cockpit.conf" ")."
+If there are multiple files
+in this directory, then the highest priority one is chosen after
+sorting.
+.sp
+The \f(CR.cert\fP file should contain at least two OpenSSL style PEM blocks.
+First one or more \f(CRBEGIN CERTIFICATE\fP blocks for the server
+certificate and intermediate certificate authorities and a second one
+containing a \f(CRBEGIN PRIVATE KEY\fP or similar. The key must not be
+encrypted.
+.sp
+If there is no TLS certificate, a self\-signed certificate is
+automatically generated using \f(CRsscg\fP (if available) or \f(CRopenssl\fP and
+stored in the \f(CR0\-self\-signed.cert\fP file.
+.sp
+When enrolling into a FreeIPA domain, an SSL certificate is requested
+from the IPA server and stored in \f(CR10\-ipa.cert\fP.
+.sp
+To check which certificate \f(CRcockpit\-ws\fP will use, run the following
+command.
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ sudo /usr/libexec/cockpit\-certificate\-ensure \-\-check
+.fam
+.fi
+.if n .RE
+.sp
+Or, on Debian\-based systems:
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ sudo /usr/lib/cockpit/cockpit\-certificate\-ensure \-\-check
+.fam
+.fi
+.if n .RE
+.sp
+If using \f(CRcertmonger\fP to manage certificates, following command can be
+used to generate a certificate/key pair:
+.sp
+.if n .RS 4
+.nf
+.fam C
+CERT_FILE=/etc/cockpit/ws\-certs.d/50\-certmonger.crt
+KEY_FILE=/etc/cockpit/ws\-certs.d/50\-certmonger.key
+
+getcert request \-f ${CERT_FILE} \-k ${KEY_FILE} \-D $(hostname \-\-fqdn)
+.fam
+.fi
+.if n .RE
+.SH "OPTIONS"
+.sp
+\f(CR\-\-help\fP
+.RS 4
+Show help options.
+.RE
+.sp
+\f(CR\-\-port\fP <PORT>
+.RS 4
+Serve HTTP requests on <PORT> instead of port 9090. Usually Cockpit is
+started on demand by \f(CRsystemd\fP socket activation, and this option
+has no effect. Update the \f(CRListenStream\fP directive
+\f(CRcockpit.socket\fP file in the usual \f(CRsystemd\fP manner.
+.RE
+.sp
+\f(CR\-\-no\-tls\fP
+.RS 4
+Don\(cqt use TLS. Certificates will not be read, and https connections
+denied. Then \f(CRcockpit\-tls\fP will only manage a single cockpit\-ws
+instance, and thus not do anything different than running
+\f(CRcockpit\-ws \-\-no\-tls\fP directly. Only use this for debugging or
+testing.
+.RE
+.sp
+\f(CR\-\-idle\-timeout\fP <SECONDS>
+.RS 4
+If greater than 0, exit if no connections have happened for the given
+number of seconds, i. e. the server is idle. If not given, the default
+is 90.
+.RE
+.SH "ENVIRONMENT"
+.sp
+The \f(CRcockpit\-tls\fP program expects the \f(CRRUNTIME_DIRECTORY\fP
+environment variable to be set to an empty directory (preferably in
+\f(CR/run/\fP) that is only accessible by the system user under which it is
+running. This contains the Unix sockets for communicating with the
+\f(CRcockpit\-ws\fP instances, and in the future, state information about
+client certificates. This variable is normally set by the
+\f(CRcockpit.service\fP systemd unit.
+.sp
+In addition, \f(CRcockpit\-tls\fP will use the \f(CRXDG_CONFIG_DIRS\fP
+environment variable from the
+\c
+.URL "https://specifications.freedesktop.org/basedir\-spec/basedir\-spec\-latest.html" "XDG
+basedir spec"  to find its certificates and the \f(CRcockpit.conf(5)\fP
+configuration file.
+.SH "BUGS"
+.sp
+Please send bug reports to either the distribution bug tracker or the
+\c
+.URL "https://github.com/cockpit\-project/cockpit/issues/new" "upstream bug
+tracker" .
+.SH "AUTHOR"
+.sp
+Cockpit has been written by many
+.URL "https://github.com/cockpit\-project/cockpit/graphs/contributors" "contributors" "."
+.SH "SEE ALSO"
+.sp
+\f(CRcockpit\-ws(8)\fP , \f(CRcockpit.conf(5)\fP , \f(CRsystemd(1)\fP

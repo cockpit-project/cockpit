@@ -728,30 +728,12 @@ function update_indices() {
     }
 
     client.blocks_stratis_stopped_pool = { };
-    client.stratis_stopped_pool_key_description = { };
-    client.stratis_stopped_pool_clevis_info = { };
     for (const uuid in client.stratis_manager.StoppedPools) {
         const devs = client.stratis_manager.StoppedPools[uuid].devs.v;
         for (const d of devs) {
             block = client.slashdevs_block[d.devnode];
             if (block)
                 client.blocks_stratis_stopped_pool[block.path] = uuid;
-        }
-        const kinfo = client.stratis_manager.StoppedPools[uuid].key_description;
-        if (kinfo &&
-            kinfo.t == "(bv)" &&
-            kinfo.v[0] &&
-            kinfo.v[1].t == "(bs)" &&
-            kinfo.v[1].v[0]) {
-            client.stratis_stopped_pool_key_description[uuid] = kinfo.v[1].v[1];
-        }
-        const cinfo = client.stratis_manager.StoppedPools[uuid].clevis_info;
-        if (cinfo &&
-            cinfo.t == "(bv)" &&
-            cinfo.v[0] &&
-            cinfo.v[1].t == "(b(ss))" &&
-            cinfo.v[1].v[0]) {
-            client.stratis_stopped_pool_clevis_info[uuid] = cinfo.v[1].v[1];
         }
     }
 
@@ -1425,62 +1407,66 @@ client.stratis_start = () => {
 // not allowed.  If we need to bump it, it should be bumped here for all
 // of them at the same time.
 //
-const stratis3_interface_revision = "r6";
+// We try all these versions in order, and use the first we find.
+//
+const stratis3_interface_revisions = [8, 6];
 
-function stratis3_start() {
+async function stratis3_start() {
     const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });
-    client.stratis_manager = stratis.proxy("org.storage.stratis3.Manager." + stratis3_interface_revision,
-                                           "/org/storage/stratis3");
 
     // The rest of the code expects these to be initialized even if no
     // stratisd is found.
     client.stratis_pools = { };
     client.stratis_blockdevs = { };
     client.stratis_filesystems = { };
-    client.stratis_manager.StoppedPools = {};
 
-    return client.stratis_manager.wait()
-            .then(() => {
-                client.stratis_store_passphrase = (desc, passphrase) => {
-                    return python.spawn(stratis3_set_key_py, [desc], { superuser: "require" })
-                            .input(passphrase);
-                };
+    client.stratis_interface_revision = null;
+    for (const rev of stratis3_interface_revisions) {
+        client.stratis_manager = stratis.proxy("org.storage.stratis3.Manager.r" + rev, "/org/storage/stratis3");
+        client.stratis_manager.StoppedPools = {};
+        try {
+            await client.stratis_manager.wait();
+            client.stratis_interface_revision = rev;
+            break;
+        } catch {
+        }
+    }
 
-                client.stratis_set_property = (proxy, prop, sig, value) => {
-                    // DBusProxy is smart enough to allow "proxy.Prop
-                    // = value" to just work, but we want to catch any
-                    // error ourselves, and we want to wait for the
-                    // method call to complete.
-                    return stratis.call(proxy.path, "org.freedesktop.DBus.Properties", "Set",
-                                        [proxy.iface, prop, cockpit.variant(sig, value)]);
-                };
+    if (!client.stratis_interface_revision)
+        throw new Error(`No supported stratisd API revision found. Expected one of: ${stratis3_interface_revisions.join(", ")}`);
 
-                client.features.stratis = true;
-                client.stratis_pools = client.stratis_manager.client.proxies("org.storage.stratis3.pool." +
-                                                                             stratis3_interface_revision,
-                                                                             "/org/storage/stratis3",
-                                                                             { watch: false });
-                client.stratis_blockdevs = client.stratis_manager.client.proxies("org.storage.stratis3.blockdev." +
-                                                                                 stratis3_interface_revision,
-                                                                                 "/org/storage/stratis3",
-                                                                                 { watch: false });
-                client.stratis_filesystems = client.stratis_manager.client.proxies("org.storage.stratis3.filesystem." +
-                                                                                   stratis3_interface_revision,
-                                                                                   "/org/storage/stratis3",
-                                                                                   { watch: false });
+    client.stratis_store_passphrase = (desc, passphrase) => {
+        return python.spawn(stratis3_set_key_py, [desc], { superuser: "require" })
+                .input(passphrase);
+    };
 
-                // HACK - give us a sneak preview of the "r8"
-                // manager. It is used to start V2 pools.
-                client.stratis_manager_r8 = stratis.proxy(
-                    "org.storage.stratis3.Manager.r8",
-                    "/org/storage/stratis3");
+    client.stratis_set_property = (proxy, prop, sig, value) => {
+        // DBusProxy is smart enough to allow "proxy.Prop
+        // = value" to just work, but we want to catch any
+        // error ourselves, and we want to wait for the
+        // method call to complete.
+        return stratis.call(proxy.path, "org.freedesktop.DBus.Properties", "Set",
+                            [proxy.iface, prop, cockpit.variant(sig, value)]);
+    };
 
-                return stratis.watch({ path_namespace: "/org/storage/stratis3" }).then(() => {
-                    client.stratis_manager.client.addEventListener('notify', (event, data) => {
-                        client.update();
-                    });
-                });
-            });
+    client.features.stratis = true;
+    client.stratis_pools = client.stratis_manager.client.proxies("org.storage.stratis3.pool.r" +
+        client.stratis_interface_revision,
+                                                                 "/org/storage/stratis3",
+                                                                 { watch: false });
+    client.stratis_blockdevs = client.stratis_manager.client.proxies("org.storage.stratis3.blockdev.r" +
+        client.stratis_interface_revision,
+                                                                     "/org/storage/stratis3",
+                                                                     { watch: false });
+    client.stratis_filesystems = client.stratis_manager.client.proxies("org.storage.stratis3.filesystem.r" +
+        client.stratis_interface_revision,
+                                                                       "/org/storage/stratis3",
+                                                                       { watch: false });
+
+    await stratis.watch({ path_namespace: "/org/storage/stratis3" });
+    client.stratis_manager.client.addEventListener('notify', (event, data) => {
+        client.update();
+    });
 }
 
 function init_client(manager, callback) {

@@ -3,39 +3,23 @@ import path from 'node:path';
 import process from 'node:process';
 
 import gettext_parser from "gettext-parser";
-import { glob } from "glob";
-import Jed from "jed";
 
 const config = {};
 
 const DEFAULT_WRAPPER = 'cockpit.locale(PO_DATA);';
 
 function get_po_files() {
+    const poDir = path.resolve(config.srcdir, 'po');
     try {
-        const linguas_file = path.resolve(config.srcdir, "po/LINGUAS");
-        const linguas = fs.readFileSync(linguas_file, 'utf8').match(/\S+/g);
-        return linguas.map(lang => path.resolve(config.srcdir, 'po', lang + '.po'));
+        return fs.readdirSync(poDir)
+                .filter(file => file.endsWith('.po'))
+                .map(file => path.join(poDir, file));
     } catch (error) {
-        if (error.code !== 'ENOENT') {
-            throw error;
-        }
-
-        /* No LINGUAS file?  Fall back to globbing.
-         * Note: we won't detect .po files being added in this case.
-         */
-        return glob.sync(path.resolve(config.srcdir, 'po/*.po'));
+        return [];
     }
 }
 
 function get_plural_expr(statement) {
-    try {
-        /* Check that the plural forms isn't being sneaky since we build a function here */
-        Jed.PF.parse(statement);
-    } catch (ex) {
-        console.error("bad plural forms: " + ex.message);
-        process.exit(1);
-    }
-
     const expr = statement.replace(/nplurals=[1-9]; plural=([^;]*);?$/, '(n) => $1');
     if (expr === statement) {
         console.error("bad plural forms: " + statement);

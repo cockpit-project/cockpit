@@ -4,8 +4,6 @@ $pf-v6-global--disable-fontawesome: true !default; // Disable Font Awesome 5 Fre
 @forward "@patternfly/patternfly/sass-utilities" with (
   // We use a different font directory so lets use that instead
   $pf-v6-global--font-path: "../../static/fonts",
-  // Set fake icon path variables
-  $pf-v6-global--fonticon-path: "patternfly-icons-fake-path"
 );
 @forward "@patternfly/patternfly/base";
 

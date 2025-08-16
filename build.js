@@ -107,16 +107,15 @@ function watch_dirs(dir, on_change) {
 
 async function build() {
     // dynamic imports which need node_modules
-    const copy = (await import('esbuild-plugin-copy')).default;
     const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
+
+    const sassPlugin = (await import('esbuild-sass-plugin')).sassPlugin;
 
     const cleanPlugin = (await import('./pkg/lib/esbuild-cleanup-plugin.js')).cleanPlugin;
     const cockpitCompressPlugin = (await import('./pkg/lib/esbuild-compress-plugin.js')).cockpitCompressPlugin;
     const cockpitPoEsbuildPlugin = (await import('./pkg/lib/cockpit-po-plugin.js')).cockpitPoEsbuildPlugin;
     const cockpitRsyncEsbuildPlugin = (await import('./pkg/lib/cockpit-rsync-plugin.js')).cockpitRsyncEsbuildPlugin;
     const cockpitTestHtmlPlugin = (await import('./pkg/lib/esbuild-test-html-plugin.js')).cockpitTestHtmlPlugin;
-
-    const esbuildStylesPlugins = (await import('./pkg/lib/esbuild-common.js')).esbuildStylesPlugins;
 
     const { entryPoints, assetFiles, redhat_fonts } = getFiles(args.onlydir);
     const tests = getTestFiles();
@@ -128,7 +127,11 @@ async function build() {
 
     const pkgPlugins = [
         cockpitJSResolvePlugin,
-        ...esbuildStylesPlugins
+        sassPlugin({
+            loadPaths: [...nodePaths, 'node_modules'],
+            filter: /\.scss/,
+            quietDeps: true,
+        })
     ];
 
     const getTime = () => new Date().toTimeString().split(' ')[0];
@@ -139,9 +142,21 @@ async function build() {
             // login page does not have cockpit.js, but reads window.cockpit_po
             wrapper: subdir => subdir == "static" ? "window.cockpit_po = PO_DATA;" : undefined,
         }),
-        // Esbuild will only copy assets that are explicitly imported and used
-        // in the code. This is a problem for index.html and manifest.json which are not imported
-        copy({ assets: [...assetFiles, ...redhat_fonts] }),
+
+        // copy the static asset files determined in ./files.js
+        {
+            name: 'copy-assets',
+            setup(build) {
+                build.onEnd(() => {
+                    for (const file of [...assetFiles, ...redhat_fonts]) {
+                        const destDir = path.join('./dist', file.to);
+                        fs.mkdirSync(destDir, { recursive: true });
+                        fs.copyFileSync(file.from, path.join(destDir, path.basename(file.from)));
+                    }
+                });
+            }
+        },
+
         // cockpit-ws cannot currently serve compressed login page
         ...production ? [cockpitCompressPlugin({ subdir: args.onlydir, exclude: /\/static/ })] : [],
 

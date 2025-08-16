@@ -132,7 +132,7 @@ Recommends: (cockpit-ostree if rpm-ostree)
 Suggests: cockpit-selinux
 %endif
 %if 0%{?rhel} && 0%{?centos} == 0
-Requires: subscription-manager-cockpit
+Recommends: subscription-manager-cockpit
 %endif
 
 BuildRequires:  python3-devel

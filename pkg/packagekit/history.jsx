@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
@@ -30,7 +30,7 @@ import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
 const PackageItem = ({ name, value }) => {
-    const tooltipRef = React.useRef(null);
+    const tooltipRef = useRef(null);
 
     return (
         <React.Fragment>
@@ -41,13 +41,18 @@ const PackageItem = ({ name, value }) => {
 };
 
 export const PackageList = ({ packages }) => {
-    if (!packages) {
-        return null;
-    }
+    const [packageNames, setPackageNames] = useState([]);
 
-    const packageNames = Object.keys(packages)
-        .filter(name => name !== "_time")
-        .sort();
+    useEffect(() => {
+        const names = Object.keys(packages ?? [])
+            .filter(name => name !== "_time");
+        names.sort();
+        setPackageNames(names);
+    }, [packages]);
+
+    if (!packages) {
+        return <></>;
+    }
 
     return (
         <ul className="flow-list">

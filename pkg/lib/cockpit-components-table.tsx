@@ -168,7 +168,12 @@ export const ListingTable = ({
     const isSortable = cells.some(col => typeof col != "string" && col.sortable);
     const isExpandable = rows.some(row => row.expandedContent);
 
-    const tableProps: TableProps = {};
+    const tableProps: TableProps = {
+        // Animations will be default in PF v7 and can be removed with that bump
+        // https://github.com/patternfly/patternfly-react/issues/11612
+        hasAnimations: true,
+        isExpandable
+    };
 
     /* Basic table properties */
     tableProps.className = "ct-table";
@@ -266,24 +271,26 @@ export const ListingTable = ({
 
         const rowKey = rowProps.key || rowIndex;
         const isExpanded = expanded[rowKey] === undefined ? !!row.initiallyExpanded : expanded[rowKey];
+        if (isExpandable) {
+            rowProps.isContentExpanded = Boolean(row.expandedContent) && isExpanded;
+        }
         let columnSpanCnt = 0;
         const rowPair = (
             <React.Fragment key={rowKey + "-inner-row"}>
                 <Tr {...rowProps}>
                     {isExpandable
                         ? (row.expandedContent
-                            ? <Td expand={{
-                                // HACK - rowIndex is declared to be a number, but we have always used
-                                //        it with strings, and that worked ok. The tests expect it.
-                                //        But I guess we really shouldn't...
-                                rowIndex: rowKey as number,
-                                isExpanded,
-                                onToggle: () => {
-                                    if (afterToggle)
-                                        afterToggle(!expanded[rowKey]);
-                                    setExpanded({ ...expanded, [rowKey]: !expanded[rowKey] });
-                                }
-                            }} />
+                            ? <Td
+                                data-ouia-component-id={`toggle-${rowKey.toString()}`}
+                                expand={{
+                                    rowIndex,
+                                    isExpanded,
+                                    onToggle: () => {
+                                        if (afterToggle)
+                                            afterToggle(!expanded[rowKey]);
+                                        setExpanded({ ...expanded, [rowKey]: !expanded[rowKey] });
+                                    }
+                                }} />
                             : <Td className="pf-v6-c-table__toggle" />)
                         : null
                     }

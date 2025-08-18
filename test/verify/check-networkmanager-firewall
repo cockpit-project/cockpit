@@ -200,7 +200,7 @@ class TestFirewall(netlib.NetworkCase):
         active_rules = get_active_rules(m)
         b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
 
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] [data-ouia-component-id='toggle-pop3']")
         b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-v6-c-table__expandable-row", "Post Office Protocol")
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
@@ -293,10 +293,15 @@ class TestFirewall(netlib.NetworkCase):
 
         # now add pop3
         addService('public', 'pop3')
-        addService('public', 'freeipa-4')
-        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
+        freeipa = "freeipa-4"
+        addService("public", freeipa)
+        b.click(
+            f'.zone-section[data-id="public"] tr[data-row-id="{freeipa}"] [data-ouia-component-id="toggle-{freeipa}"]'
+        )
         b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-v6-c-table__expandable-row:contains(Included Services)")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
+        b.click(
+            f'.zone-section[data-id="public"] tr[data-row-id="{freeipa}"] [data-ouia-component-id="toggle-{freeipa}"]'
+        )
 
         # pop3 should now not appear any more in Add Services dialog
         b.click(".zone-section[data-id='public'] .add-services-button")
@@ -379,7 +384,7 @@ class TestFirewall(netlib.NetworkCase):
             b.wait_in_text(line_sel, "".join([identifier, tcp, udp]))
             if desc:
                 # Click expand button
-                b.click(line_sel + f" #expand-toggle{identifier}")
+                b.click(f'{line_sel} [data-ouia-component-id="toggle-{identifier}"]')
                 b.wait_text(line_sel + " + tr", desc)
 
             out = m.execute("firewall-cmd --zone public --list-services")
@@ -533,7 +538,7 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
         # Remove the service from public zone
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] [data-ouia-component-id='toggle-pop3']")
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
         b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")

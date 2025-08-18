@@ -58,7 +58,7 @@ export class ListingPanel extends React.Component {
                 {listingDetail && <div className="ct-listing-panel-actions pf-v6-c-tabs">
                     {listingDetail}
                 </div>}
-                {this.props.tabRenderers.length && <Tabs activeKey={this.state.activeTab} className="ct-listing-panel-tabs pf-m-initializing-accent" mountOnEnter onSelect={this.handleTabClick}>
+                {this.props.tabRenderers.length && <Tabs activeKey={this.state.activeTab} className="ct-listing-panel-tabs" mountOnEnter onSelect={this.handleTabClick}>
                     {this.props.tabRenderers.map((itm, tabIdx) => {
                         const Renderer = itm.renderer;
                         const rendererData = itm.data;

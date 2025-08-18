@@ -105,8 +105,8 @@ class TestUpdates(NoSubManCase):
         # expand
         b.click(row + "td.pf-v6-c-table__toggle button")
         self.assertIn("pf-m-expanded", b.attr(row, "class"))
-        b.wait_in_text(row + "> tr.pf-m-expanded", "Packages")
-        desc = b.text(row + "> tr.pf-m-expanded")
+        b.wait_in_text(row + "> .pf-v6-c-table__expandable-row.pf-m-expanded", "Packages")
+        desc = b.text(row + "> .pf-v6-c-table__expandable-row.pf-m-expanded")
 
         # details should contain all description bits, CVEs and bug numbers
         for m in (*desc_matches, *cves, *bugs):
@@ -410,8 +410,8 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 
         # history shows the two packages, expanded by default
         b.wait_text("table.updates-history tbody.pf-m-expanded td.history-pkgcount", "2 packages")
-        b.wait_in_text("table.updates-history tr.pf-m-expanded", "chocolate")
-        b.wait_in_text("table.updates-history tr.pf-m-expanded", "vanilla")
+        b.wait_in_text("table.updates-history .pf-v6-c-table__expandable-row.pf-m-expanded", "chocolate")
+        b.wait_in_text("table.updates-history .pf-v6-c-table__expandable-row.pf-m-expanded", "vanilla")
 
         # system page has current state as well
         b.go("/system")
@@ -633,7 +633,7 @@ ExecStart=/usr/local/bin/{package} infinity
 
         # update required only a service restart
         b.wait_text(".update-success-table-title", "1 service needs to be restarted")
-        b.click("#expand-toggleservice")
+        b.click("[data-ouia-component-id='toggle-service']")
         b.wait_in_text(".updates-success-table", "mydaemon.service")
         b.wait_not_present("#reboot-system")
         b.click("#choose-service")
@@ -660,7 +660,7 @@ ExecStart=/usr/local/bin/{package} infinity
         b.wait_text("#service-row .update-success-table-title", "1 service needs to be restarted")
         b.wait_visible("#manual-row .update-success-table-title")
 
-        b.click("#expand-togglemanual")
+        b.click("[data-ouia-component-id='toggle-manual']")
         b.wait_in_text(".updates-success-table", "manual 3600")
 
         # offers both service restart and reboot
@@ -681,7 +681,7 @@ ExecStart=/usr/local/bin/{package} infinity
             b.wait_visible("#available-updates")
         b.wait_in_text("#status", "1 update available")
         b.click("#install-all")
-        b.click("#expand-togglereboot")
+        b.click("[data-ouia-component-id='toggle-reboot']")
         b.wait_in_text(".updates-success-table", "kernel-rt")
         b.wait_visible("#reboot-system")
         b.click("#ignore")
@@ -822,9 +822,14 @@ ExecStart=/usr/local/bin/{packageName}
         self.assertEqual(b.attr(sel + " td.changelog a", "href"), "http://unicorn.example.com")
         self.assertEqual(b.attr(sel + " td.changelog a", "target"), "_blank")
         # verify Markdown formatting in details
-        self.assertEqual(b.text(sel + " .pf-m-expanded em"), "more")  # *more*
-        self.assertEqual(b.attr(sel + " .pf-m-expanded a:first-of-type", "href"), "http://unicorn.example.com")
-        self.assertEqual(b.attr(sel + " .pf-m-expanded a:first-of-type", "target"), "_blank")
+        self.assertEqual(b.text(sel + " .pf-v6-c-table__expandable-row.pf-m-expanded em"), "more")  # *more*
+        self.assertEqual(
+            b.attr(sel + " .pf-v6-c-table__expandable-row.pf-m-expanded a:first-of-type", "href"),
+            "http://unicorn.example.com",
+        )
+        self.assertEqual(
+            b.attr(sel + " .pf-v6-c-table__expandable-row.pf-m-expanded a:first-of-type", "target"), "_blank"
+        )
 
         # verify that changelog is absent in mobile
         b.set_layout("mobile")
@@ -915,7 +920,10 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_in_text("#status", "System is up to date")
 
         # history on "up to date" page should show the recent update (expanded by default)
-        self.assertHistory("table.updates-history tbody.pf-m-expanded ul", ["buggy", "norefs-bin", "norefs-doc"])
+        self.assertHistory(
+            "table.updates-history tbody.pf-m-expanded .pf-v6-c-table__expandable-row-content ul",
+            ["buggy", "norefs-bin", "norefs-doc"],
+        )
         # and the previous one, not expanded
         b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")
 

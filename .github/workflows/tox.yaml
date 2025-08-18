@@ -27,7 +27,7 @@ jobs:
         run: git config --global --add safe.directory /__w/cockpit/cockpit
 
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout submodules
         run: vendor/checkout

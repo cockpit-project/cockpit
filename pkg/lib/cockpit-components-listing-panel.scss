@@ -51,39 +51,3 @@
     max-block-size: unset !important;
   }
 }
-
-// PF6 upstream issue to adopt expand animation:
-// https://github.com/patternfly/patternfly-design/issues/1382
-
-@media not all and (prefers-reduced-motion: reduce) {
-  // Add expansion animations when prefers-reduced isn't enabled
-  .ct-table .pf-v6-c-table__expandable-row-content {
-    // Animation ends at or before 2/3 in most cases; so we extend by 1.5 to compensate
-    animation: ctListingPanelShow var(--pf-t--global--motion--duration--fade--short);
-  }
-}
-
-@keyframes ctListingPanelShow {
-  0% {
-    // The animation needs to flow downward to feel natural
-    transform-origin: top;
-    // Overflow will revert when done (but should be hidden during animation)
-    overflow: hidden;
-    max-block-size: 0;
-    // Padding should 'tween between 0 and the actual padding (unstated)
-    padding-block: 0;
-  }
-
-  67% {
-    // Max height is tricky in animations, as auto doesn't work
-    // 100vh makes sense, but would cause different speeds on different devices
-    // Screens are almost all =< 12000px; data is almost always smaller
-    // we'll relax it to to 100vh at 100%, just in case.
-    max-block-size: 1200px;
-  }
-
-  100% {
-    // Allow content to extend to the height of the screen (just in case)
-    max-block-size: 100vh;
-  }
-}

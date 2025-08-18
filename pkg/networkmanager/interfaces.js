@@ -484,9 +484,6 @@ export function NetworkManagerModel() {
                 gateway: get(first, "gateway", first === "ipv4" ? "0.0.0.0" : "::"),
                 dns_data,
                 dns_search: get(first, "dns-search", []),
-                // routes:      [(dstIP, dstPrefix, nextHop, metric)]
-                // routes: get(first, "routes", []).map(route_from_nm)
-                // route-data:  [{ dest: "", prefix: uint32, 'next-hop': "", metric: uint32 }]
                 route_data: get(first, "route-data", []).map(route_from_nm),
             };
         }
@@ -642,7 +639,7 @@ export function NetworkManagerModel() {
             delete result[first].addresses;
             // Never pass "routes", instead use "route-data"
             delete result[first].routes;
-            // Never pass "dns" if "dns-data is supported"
+            // Never pass "dns" if "dns-data" is supported
             if (self.supports_dns_data)
                 delete result[first].dns;
         }
@@ -890,7 +887,6 @@ export function NetworkManagerModel() {
 
         props: {
             AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
-            // TODO: add gateway here too?
         }
     };
 
@@ -901,7 +897,6 @@ export function NetworkManagerModel() {
 
         props: {
             AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
-            // TODO: add gateway here too?
         }
     };
 

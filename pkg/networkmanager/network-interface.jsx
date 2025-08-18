@@ -288,7 +288,7 @@ export const NetworkInterfacePage = ({
 
             const addr_is_extra = (params.method != "manual");
             const addrs = [];
-            params.address_data.forEach(function (a) {
+            params.address_data?.forEach(function (a) {
                 addrs.push(a.address + "/" + a.prefix);
             });
 
@@ -301,10 +301,10 @@ export const NetworkInterfacePage = ({
                 parts.push(cockpit.format(_("Gateway $gateway"), { gateway }));
 
             const dns_is_extra = (!params["ignore-auto-dns"] && params.method != "manual");
-            if (params.dns_data.length > 0)
+            if (params.dns_data?.length > 0)
                 parts.push(cockpit.format(dns_is_extra ? _("Additional DNS $val") : _("DNS $val"),
                                           { val: params.dns_data.join(", ") }));
-            if (params.dns_search.length > 0)
+            if (params.dns_search?.length > 0)
                 parts.push(cockpit.format(dns_is_extra ? _("Additional DNS search domains $val") : _("DNS search domains $val"),
                                           { val: params.dns_search.join(", ") }));
 

@@ -125,7 +125,6 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
             }
         });
 
-        console.log(createSettingsObj());
         dialogSave({
             model,
             dev,

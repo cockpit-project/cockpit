@@ -442,7 +442,7 @@ export function NetworkManagerModel() {
             prefix: utils.ip_prefix_to_text(route.prefix.v),
             "next-hop": route["next-hop"].v,
             metric: utils.ip_metric_to_text(route.metric.v),
-        }
+        };
     }
 
     function route_to_nm(route, ipv) {
@@ -452,7 +452,7 @@ export function NetworkManagerModel() {
             prefix: { t: "u", v: prefix },
             "next-hop": { t: "s", v: route["next-hop"] },
             metric: { t: "u", v: utils.ip_metric_from_text(route.metric) },
-        }
+        };
     }
 
     function settings_from_nm(settings) {

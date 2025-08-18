@@ -67,10 +67,10 @@ function stringToAddresses(str) {
 
         if (IPv6_REGEX.test(address)) {
             const defaultPrefix = "128";
-            ipv6.push({ address, prefix: prefix ?? defaultPrefix })
+            ipv6.push({ address, prefix: prefix ?? defaultPrefix });
         } else {
             const defaultPrefix = "32";
-            ipv4.push({ address, prefix: prefix ?? defaultPrefix })
+            ipv4.push({ address, prefix: prefix ?? defaultPrefix });
         }
     });
 

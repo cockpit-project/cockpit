@@ -33,7 +33,6 @@ import { PlusIcon, TrashIcon } from '@patternfly/react-icons';
 import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 import { useDialogs } from "dialogs.jsx";
-import { ip_prefix_to_text } from './utils.js';
 
 const _ = cockpit.gettext;
 

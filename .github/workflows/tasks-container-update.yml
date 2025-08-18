@@ -23,7 +23,7 @@ jobs:
           echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/github-token
 
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 

@@ -74,7 +74,18 @@ $phone: 767px;
   min-inline-size: min-content;
 }
 
+
 .pf-v6-c-card {
+  // FIXME: Using an expandable content within a card would cause the card to be scrollable while nothing
+  // would be in view. Makes it look like there is something to scroll to when there isn't anything.
+  // PF deliberately makes expandable `[hidden]` content have `display: revert` which would make them have
+  // `display: block` or whatever is default from the browser. They do this to make animations work.
+  // Until fixed upstream we revert their `display: revert` rule.
+  // https://github.com/patternfly/patternfly/issues/7746
+  .pf-v6-c-expandable-section__content:where([hidden]) {
+    display: none;
+  }
+
   // https://github.com/patternfly/patternfly/issues/3959
   // TODO @Venefilyn: Change so we use .pf-m-no-offset, then remove this
   // --pf-v6-c-card__header-toggle--MarginTop: 0;

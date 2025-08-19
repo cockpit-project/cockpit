@@ -165,12 +165,20 @@ export function NetworkManagerModel() {
     const client = cockpit.dbus("org.freedesktop.NetworkManager", { superuser: "try" });
     self.client = client;
 
+    // set to false by default as newer API is backwards compatible
+    // and supports both "dns" and "dns-data" properties
+    // dns-data property was added in version 1.42.0
+    self.supports_dns_data = false;
+
     /* resolved once first stage of initialization is done */
     self.preinit = new Promise((resolve, reject) => {
         client.call("/org/freedesktop/NetworkManager",
                     "org.freedesktop.DBus.Properties", "Get",
-                    ["org.freedesktop.NetworkManager", "State"], { flags: "" })
+                    ["org.freedesktop.NetworkManager", "Version"], { flags: "" })
                 .then((reply, options) => {
+                    const nm_version = reply[0].v.split(".").map(n => Number.parseInt(n));
+                    self.supports_dns_data = (nm_version[0] >= 1 && nm_version[1] >= 42 && nm_version[2] >= 0);
+
                     if (options.flags) {
                         if (options.flags.indexOf(">") !== -1)
                             utils.set_byteorder("be");
@@ -463,14 +471,18 @@ export function NetworkManagerModel() {
                 return def;
         }
 
-        function get_ip(first) {
+        function get_ip(first, ip_to_text) {
+            const dns_data = self.supports_dns_data
+                ? get(first, "dns-data", [])
+                : get(first, "dns", []).map(ip_to_text);
+
             return {
                 method: get(first, "method", "auto"),
                 ignore_auto_dns: get(first, "ignore-auto-dns", false),
                 ignore_auto_routes: get(first, "ignore-auto-routes", false),
                 address_data: get(first, "address-data", []).map(ip_address_from_nm),
                 gateway: get(first, "gateway", first === "ipv4" ? "0.0.0.0" : "::"),
-                dns_data: get(first, "dns-data", []),
+                dns_data,
                 dns_search: get(first, "dns-search", []),
                 // routes:      [(dstIP, dstPrefix, nextHop, metric)]
                 // routes: get(first, "routes", []).map(route_from_nm)
@@ -495,8 +507,8 @@ export function NetworkManagerModel() {
         };
 
         if (!settings.connection.master) {
-            result.ipv4 = get_ip("ipv4");
-            result.ipv6 = get_ip("ipv6");
+            result.ipv4 = get_ip("ipv4", utils.ip4_to_text);
+            result.ipv6 = get_ip("ipv6", utils.ip6_to_text);
         }
 
         if (settings["802-3-ethernet"]) {
@@ -591,7 +603,7 @@ export function NetworkManagerModel() {
                 delete result[first][second];
         }
 
-        function set_ip(first) {
+        function set_ip(first, dns_ip_sig, ip_from_text) {
             set(first, "method", 's', settings[first].method);
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
@@ -605,8 +617,14 @@ export function NetworkManagerModel() {
                 set(first, "gateway", "s", settings[first].gateway);
 
             const dns = settings[first].dns_data;
-            if (dns)
-                set(first, "dns-data", "as", dns);
+            if (dns) {
+                if (self.supports_dns_data) {
+                    set(first, "dns-data", "as", dns);
+                } else {
+                    set(first, "dns", dns_ip_sig, dns.map(addr => ip_from_text(addr)));
+                }
+            }
+
             set(first, "dns-search", 'as', settings[first].dns_search);
 
             const routes = settings[first].route_data;
@@ -624,8 +642,9 @@ export function NetworkManagerModel() {
             delete result[first].addresses;
             // Never pass "routes", instead use "route-data"
             delete result[first].routes;
-            // Never pass "dns", instead use "dns-data"
-            delete result[first].dns;
+            // Never pass "dns" if "dns-data is supported"
+            if (self.supports_dns_data)
+                delete result[first].dns;
         }
 
         set("connection", "id", 's', settings.connection.id);
@@ -726,7 +745,6 @@ export function NetworkManagerModel() {
             delete result.wireguard;
         }
 
-        console.log(result);
         return result;
     }
 
@@ -914,7 +932,6 @@ export function NetworkManagerModel() {
             apply_settings: function (settings) {
                 const self = this;
                 try {
-                    console.log("orig", priv(self).orig);
                     return call_object_method(self,
                                               "org.freedesktop.NetworkManager.Settings.Connection", "Update",
                                               settings_to_nm(settings, priv(self).orig))

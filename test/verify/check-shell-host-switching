@@ -70,7 +70,7 @@ class HostSwitcherHelpers:
         b.click(f".nav-item a[href='/@{address}'] + span button.nav-action.pf-m-danger")
         if second_to_last:
             b.wait_not_present("button:contains('Stop editing hosts')")
-            b.wait_not_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
+            b.wait_not_present(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
         else:
             b.click("button:contains('Stop editing hosts')")
 
@@ -249,8 +249,8 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
         b.assert_pixels(".edit-hosts", "edit-hosts")
         b.click("button:contains('Stop editing hosts')")
-        b.wait_not_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
-        b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
+        b.wait_not_present(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
 
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 
@@ -447,8 +447,8 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-danger:not(:disabled)")
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
         b.click("button:contains('Stop editing hosts')")
-        b.wait_not_visible(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
-        b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
+        b.wait_not_present(".nav-item a[href='/'] + span button.nav-action.pf-m-danger")
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
 
         b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
 

@@ -256,14 +256,16 @@ export class CockpitHosts extends React.Component {
                 status={m.state === "failed" ? { type: "error", title: _("Connection error") } : null}
                 className={m.state || ""}
                 onClick={() => this.onHostSwitch(m)}
-                actions={<>
-                    <Tooltip content={_("Edit")} position="right">
-                        <Button icon={<EditIcon />} isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={_e => this.onHostEdit(m)} key={m.label + "edit"} variant="secondary" />
-                    </Tooltip>
-                    <Tooltip content={_("Remove")} position="right">
-                        <Button icon={<MinusIcon />} isDisabled={m.address === "localhost"} onClick={e => this.onRemove(e, m)} className="nav-action" hidden={!editing} key={m.label + "remove"} variant="danger" />
-                    </Tooltip>
-                </>}
+                actions={
+                    editing && <>
+                        <Tooltip content={_("Edit")} position="right">
+                            <Button icon={<EditIcon />} isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={_e => this.onHostEdit(m)} key={m.label + "edit"} variant="secondary" />
+                        </Tooltip>
+                        <Tooltip content={_("Remove")} position="right">
+                            <Button icon={<MinusIcon />} isDisabled={m.address === "localhost"} onClick={e => this.onRemove(e, m)} className="nav-action" hidden={!editing} key={m.label + "remove"} variant="danger" />
+                        </Tooltip>
+                    </>
+                }
         />;
         const label = current_machine?.label || "";
         const user = current_machine?.user || this.state.current_user;

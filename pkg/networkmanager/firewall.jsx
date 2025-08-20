@@ -187,6 +187,35 @@ function ZoneSection(props) {
 
     const actions = !firewall.readonly && <div className="zone-section-buttons">{addServiceAction}{deleteButton}</div>;
 
+    /** @type {import('cockpit-components-table.jsx').ListingTableColumnProps[]} */
+    const listingTableColumns = [
+        {
+            title: _("Service"),
+            props: {
+                width: 40,
+            }
+        },
+        {
+            title: _("TCP"),
+            props: {
+                width: 30
+            }
+        },
+        {
+            title: _("UDP"),
+            props: {
+                width: 30
+            }
+        },
+        {
+            title: "",
+            props: {
+                width: 10,
+                screenReaderText: _("Actions")
+            }
+        }
+    ];
+
     return <Card isPlain className="zone-section" data-id={props.zone.id}>
         <CardHeader actions={{ actions }} className="zone-section-heading">
             <Flex alignItems={{ default: 'alignSelfBaseline' }} spaceItems={{ default: 'spaceItemsXl' }}>
@@ -207,7 +236,7 @@ function ZoneSection(props) {
         </CardHeader>
         {(props.zone.services.length > 0 || props.zone.ports.length > 0) &&
         <CardBody className="contains-list">
-            <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }, { title: "", props: { width: 10 } }]}
+            <ListingTable columns={listingTableColumns}
                           id={props.zone.id}
                           aria-label={props.zone.id}
                           variant="compact"

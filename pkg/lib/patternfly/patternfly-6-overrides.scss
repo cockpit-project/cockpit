@@ -49,15 +49,6 @@ $phone: 767px;
   --pf-v6-c-description-list--RowGap: var(--pf-t--global--spacer--300); // 1rem
 }
 
-.pf-v6-c-description-list {
-
-  // When using horizontal ruler inside description list it's just for the spacing - don't show it
-  // FIXME @Venefilyn: This seems weird.. we should not have hr like this if it's only for spacing..
-  > hr {
-    border-block-start: none;
-  }
-}
-
 .pf-v6-c-modal-box.pf-m-align-top {
 
   // We utilize custom footers in dialogs
@@ -228,14 +219,12 @@ $phone: 767px;
   }
 }
 
-// InputMenus now use the PF Panel component which mistakenly uses position:
-// relative, when it needs to be set to absolute.
-// Additionally, it needs to be full width to properly align to the widget the
-// popover panel describes.
-// https://github.com/patternfly/patternfly-react/issues/7592
-.pf-v6-c-search-input__menu.pf-v6-c-panel {
-  position: absolute;
-  inline-size: 100%;
+// PF Modals has a brighter background than normal pages in dark mode.
+// Tables are made to match the background but since modals change background
+// this is something we need to change ourselves
+// https://github.com/patternfly/patternfly/issues/5278
+.pf-v6-c-modal-box .pf-v6-c-table {
+  background-color: inherit;
 }
 
 // Breadcrumb links should have the correct pointing hand cursor.
@@ -269,12 +258,6 @@ $phone: 767px;
   }
 }
 
-// Fix icons in buttons
-.pf-v6-c-button__icon.pf-m-start {
-  margin-inline: 0 var(--pf-v6-c-button__icon--m-start--MarginRight);
-}
-
-
 @media screen and (max-width: $pf-v6-global--breakpoint--md) {
   // Drop side padding in mobile mode,
   // intended mainly for PF PageSection elements (pf-v6-c-page__main-section).
@@ -282,14 +265,6 @@ $phone: 767px;
   // except this only affects the sides, not the top and bottom.
   .pf-v6-c-page__main>section.pf-v6-c-page__main-section:not(.pf-m-padding) {
     padding-inline: 0;
-  }
-
-  // Drop page padding and radius for page container in mobile mode. Make sure
-  // the page container is also covering as much as possible
-  .pf-v6-c-page {
-    --pf-v6-c-page--inset: 0;
-    --pf-v6-c-page__main-container--BorderRadius: 0;
-    --pf-v6-c-page__main-container--MaxHeight: 100%;
   }
 }
 
@@ -332,12 +307,6 @@ $phone: 767px;
   src: url(data:font/woff2;base64,d09GMgABAAAAAASEAAsAAAAADlwAAAQ2AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmAAgkIRCAqBFIEsCwwAATYCJAMUBCAFlSEHIBukDRGVnM0Bfh7YtpMt1pMMwRCUu0ZjuTUEq7QbeQVD9K0cz/Ot8btvZnf/YKZJNFnHE01D/RnzSKWKhUyUChVONznY33vvR2dGwQ2aI5GoNmehLcEOiWwABJeyW3OVmVcm8ohUq47RZ7FbwPRAePVny2WpHmHbKIFFSYTiZgv0eNbhCK663oXEgZAouis1niAM8d0RrIJ/++6lfvsW4tlZz+XCcgddeYS86ClXUGEcuZ9pztoaHSVD7Uom1PoYXN4HzmM1HDvo8UJstrl+/duh/ooIdyFfyySwWFBRMV/ALlUwX2cxOp1g8////ez/7wTIYNOHFBRPpuM3UT2dduT/fwTQg7HosBaHAOMBUJSJ41s7f/UIRt8fohuPkYqTk0DjIYx+wDSdIBXHF4dHTScnx41XjWvbCeXg09bl7Kq2spLoZndx7KxpLys+bE+xPzlSvtEU9Kdaw+XrzSFfCjx7S7xYdVVkdxPPNt0V6Tn3pXNM35O5+5Lj8TVY8f+1pJQVQcrNGpprY9Ik7deGqZ/h49BxJ+DT3euFXl45vWgKCHjCmw1FF5wzw5Or//U/Ro5RHsGeErZC0JurgIII9gFYngkI4ITnAmJa5AKKIccFVEvTCwGdufkT0JtQdggYzCr5AkacqAYBzaT6BgLGmFS/CBjrdk8VMM7s/k7AeDMHpoAJbo+kCZhoXuMJmGx828MUE9q1+VPNbbuqdGPwlM8QK4OHYnwOQ3UoSdDZnlXozS1EGGwsFhjxtDRBs7B2yceo12BsltZPGGdzPw7jre+/YEKWDgaYaOfIK0w2u7lgirlNLucvmGpSt7lM7qfkWAGGRgZGhtBDQEM3moI2CEMXpUxIkxiaqrFAplRBDQHGchVPX5/lsEBN6JEyib5sun/VmWE4kkNiintWMinWBKkq1j5mPQKNN61wQ1xoZ4PJlTQWfjfEOg5qkYlI9NKWD4LKvsIBWNs3wdfAg/b9JD/GK04tASqxsZdO7i0AsMW2oxcemJdGiAQY6v2hj4/5jub2DnznuBqjbimBQcMNRmM/O3D5FqNuVZcqy4v1JSg8sy8eXD/7opUqTiaFNzdUr4ltdQWPsnLjOwlH+QU1zSZWiSQ6EEejweUpky0p6SA48swT/xBwKuiT9El+l5vYD1LSkIqGHupwVyFgqz9rKPLSzaGjvds6iLOcPkV66UGKvJMJY/hKQzuzbm7RfuSNODEixDT0CVekwI2Yun7uzTyIAlGRSAvNsUrPEhHr4Wac1Xe2cgCFYQwS3sbkcQPzJRV0vfftYZIvhIHN7j0prlgOThTI+EtwCbhkFD29IrGHWGFLMysqF5fCO59XB/DG+Xle3pOQIjH2k9PYLoHSvy+RUVwIR/xlEFc+BxEXVNQ/eHIo4f1HsH/OR5zIVm52mVCpjKZqyJHY+j1zNf8f/y+v5iopAAAAAA==);
 }
 
-// Workaround for https://github.com/patternfly/patternfly/issues/5865
-.pf-v6-c-card.pf-m-selectable,
-.pf-v6-c-card.pf-m-clickable {
-  isolation: auto;
-}
-
 // Override as PF Page doesn't allow empty masthead and sidebar
 @media (min-width: 75rem) {
   .pf-v6-c-page.no-masthead-sidebar { /* custom class to scope this style to a specific page component instance */
@@ -365,13 +334,6 @@ $phone: 767px;
 .pf-v6-c-card.ct-small-table-card {
   border-block-start: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);
   border-radius: var(--pf-t--global--border--radius--0);
-}
-
-
-// NOTE @Venefilyn: This is missing in PF6 so we need to define it ourselves to make sure it works as it should
-// Tracked upstream here https://github.com/patternfly/patternfly/issues/7414
-:root[dir="rtl"] {
-  --pf-v6-global--inverse--multiplier: -1;
 }
 
 // NOTEs @Venefilyn: Expandable table has an alignment issue with the expand button and the text

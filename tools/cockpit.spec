@@ -615,5 +615,18 @@ via PackageKit.
 %files -n cockpit-packagekit -f packagekit.list
 %license COPYING
 
+%post -n cockpit-packagekit
+
+# on upgrades, move old dnf5 automatic config file to current location
+# see https://github.com/cockpit-project/cockpit/issues/22184
+if [ "$1" = 2 ]; then
+    old=/etc/dnf/dnf5-plugins/automatic.conf
+    new=/etc/dnf/automatic.conf
+   if [ -e $old ] && ! [ -e $new ]; then
+       echo "Moving deprecated dnf-automatic config $old to $new" >&2
+       mv $old $new
+   fi
+fi
+
 # The changelog is automatically generated and merged
 %changelog

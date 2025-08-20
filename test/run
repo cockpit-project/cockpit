@@ -35,7 +35,7 @@ case "${TEST_SCENARIO:=}" in
 
     *daily*)
         bots/image-customize --fresh -v --script test/vm.daily "$TEST_OS"
-        RUN_OPTS="$RUN_OPTS "
+        RUN_OPTS="$RUN_OPTS TestConnection.testHttpsInstanceDoS"
         PREPARE_OPTS="$PREPARE_OPTS --overlay"
         ;;&
    *updates-testing*)

@@ -219,7 +219,7 @@ window.ph_set_checked = function(sel, val) {
 
 window.ph_is_visible = function(sel) {
     const el = window.ph_find(sel);
-    return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none"));
+    return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(getComputedStyle(el).visibility == "hidden" || getComputedStyle(el).display == "none"));
 };
 
 window.ph_is_present = function(sel) {

@@ -49,6 +49,9 @@ QUnit.test("basename", function (assert) {
         ["foo", "foo"],
         ["bar/foo/", "foo"],
         ["//bar//foo///", "foo"],
+        ["/home/admin/", "admin"],
+        ["/home/", "home"],
+        ["/home", "home"],
         ["/", "/"],
     ];
 

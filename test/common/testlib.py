@@ -1550,6 +1550,15 @@ class Browser:
             classes = self.attr("body", "class")
             self.set_attr("body", "class", f"{classes} pixel-test")
 
+            # Also try to add it to parent frame if it exists.
+            # If it doesn't then it'll throw an exception that we can ignore
+            try:
+                body = f"body:has({selector})"
+                classes = self.attr(body, "class")
+                self.set_attr(body, "class", f"{classes} pixel-test")
+            except Error:
+                pass
+
         # move the mouse to a harmless place where it doesn't accidentally focus anything (as that changes UI)
         self.bidi("input.performActions", context=self.driver.context, actions=[{
             "id": "move-away",

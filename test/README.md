@@ -81,7 +81,7 @@ See below for details.
 You can conduct manual interactive testing against a test image by starting the
 image like so:
 
-     bots/vm-run -s cockpit.socket debian-stable
+     bots/vm-run -s cockpit.socket arch
 
 Once the machine is booted and the cockpit socket has been activated, a
 message will be printed describing how to access the virtual machine, via
@@ -96,7 +96,7 @@ By default, it's only possible to contact the virtual machine from the host
 machine on which it's running.   If you want to conduct manual testing from
 other devices on your network, set `TEST_BIND_GLOBAL=1`, for example:
 
-     TEST_BIND_GLOBAL=1 bots/vm-run -s cockpit.socket debian-stable
+     TEST_BIND_GLOBAL=1 bots/vm-run -s cockpit.socket arch
 
 This will bind the Cockpit and SSH ports to all interfaces, making it possible
 to access a URL like http://yourhost.local:9091/ to test Cockpit from another
@@ -174,7 +174,7 @@ to push pixel tests.
 You can set these environment variables to configure the test suite:
 
  * `TEST_OS`: The OS to run the tests in, like "fedora-coreos" or
-    "debian-stable". See the "cockpit-project/cockpit" section in the
+    "debian-testing". See the "cockpit-project/cockpit" section in the
     [test map](https://github.com/cockpit-project/bots/blob/main/lib/testmap.py)
     for all supported values. "fedora-41" is the default (`TEST_OS_DEFAULT` in
     bots' [constants.py](https://github.com/cockpit-project/bots/blob/main/lib/constants.py)).

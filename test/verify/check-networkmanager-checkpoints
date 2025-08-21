@@ -53,17 +53,16 @@ class TestNetworkingCheckpoints(netlib.NetworkCase):
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
         b.wait_not_present("#confirm-breaking-change-popup")
 
-        if m.image not in ["debian-testing", "debian-stable"]:
-            # Change IP
-            self.configure_iface_setting('IPv4')
-            b.wait_visible("#network-ip-settings-dialog")
-            b.select_from_dropdown("#network-ip-settings-select-method", "manual")
-            b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
-            b.set_input_text('#network-ip-settings-netmask-0', "24")
-            b.click("#network-ip-settings-save")
-            with b.wait_timeout(60):
-                b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
-            b.wait_not_present("#confirm-breaking-change-popup")
+        # Change IP
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
+        b.set_input_text('#network-ip-settings-netmask-0', "24")
+        b.click("#network-ip-settings-save")
+        with b.wait_timeout(60):
+            b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+        b.wait_not_present("#confirm-breaking-change-popup")
 
     @testlib.skipImage("Main interface settings are read-only", "debian-*")
     @testlib.skipImage("no dhclient on OS image", "arch", "centos-10*", "rhel-10*")

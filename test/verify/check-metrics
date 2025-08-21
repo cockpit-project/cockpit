@@ -463,7 +463,7 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # Now add the journal
         # Older systemds get a slightly wrong log window with --since/until, so only run on newer ones
-        if re.search(r"centos-[89]|rhel-[89]|debian-stable|ubuntu-2204", self.machine.image):
+        if re.search(r"centos-[89]|rhel-[89]|ubuntu-2204", self.machine.image):
             return
 
         m.upload(["verify/files/metrics-archives/journal.journal.gz"], "/tmp")

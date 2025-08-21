@@ -122,7 +122,7 @@ Server = file://{empty_repo_dir}
         self.machine.execute("systemctl reset-failed packagekit || true")
         self.restore_file("/var/lib/PackageKit/transactions.db")
 
-        if self.image in ["debian-stable", "debian-testing"]:
+        if self.image in ["debian-trixie", "debian-testing"]:
             # PackageKit tries to resolve some DNS names, but our test VM is offline;
             # temporarily disable the name server to fail quickly
             self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")

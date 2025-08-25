@@ -231,9 +231,7 @@ class Dialog extends React.Component {
                   bodyContent={this.props.helpMessage}
                   footerContent={footer}
             >
-                <Button variant="plain" aria-label={_("Learn more")}>
-                    <HelpIcon />
-                </Button>
+                <Button icon={<HelpIcon />} variant="plain" aria-label={_("Learn more")} />
             </Popover>;
 
         const error = this.props.error || this.props.static_error;

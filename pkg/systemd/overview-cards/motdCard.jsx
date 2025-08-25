@@ -111,12 +111,10 @@ export const MotdCard = () => {
 
     const actionClose = <>
         {superuser.allowed &&
-        <Button variant="plain"
+        <Button icon={<EditIcon />} variant="plain"
                 id="motd-box-edit"
                 onClick={() => Dialogs.show(<MotdEditDialog text={motdText} expectedTag={motdTag} />)}
-                aria-label={_("Edit motd")}>
-            <EditIcon />
-        </Button>}
+                aria-label={_("Edit motd")} />}
         <AlertActionCloseButton onClose={hideAlert} />
     </>;
 

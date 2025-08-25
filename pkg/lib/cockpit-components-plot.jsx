@@ -283,19 +283,13 @@ export const ZoomControls = ({ plot_state }) => {
                 </DropdownList>
             </Dropdown>
             { "\n" }
-            <Button variant="secondary" onClick={() => zoom_state.zoom_out()}
-                    isDisabled={!zoom_state.enable_zoom_out}>
-                <SearchMinusIcon />
-            </Button>
+            <Button icon={<SearchMinusIcon />} variant="secondary" onClick={() => zoom_state.zoom_out()}
+                isDisabled={!zoom_state.enable_zoom_out} />
             { "\n" }
-            <Button variant="secondary" onClick={() => zoom_state.scroll_left()}
-                    isDisabled={!zoom_state.enable_scroll_left}>
-                <AngleLeftIcon />
-            </Button>
-            <Button variant="secondary" onClick={() => zoom_state.scroll_right()}
-                    isDisabled={!zoom_state.enable_scroll_right}>
-                <AngleRightIcon />
-            </Button>
+            <Button icon={<AngleLeftIcon />} variant="secondary" onClick={() => zoom_state.scroll_left()}
+                isDisabled={!zoom_state.enable_scroll_left} />
+            <Button icon={<AngleRightIcon />} variant="secondary" onClick={() => zoom_state.scroll_right()}
+                isDisabled={!zoom_state.enable_scroll_right} />
         </div>
     );
 };

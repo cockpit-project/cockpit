@@ -349,13 +349,11 @@ const CreateTimerDialogBody = ({ owner }) => {
                                             </>}
                                             {repeat !== "no" && <FlexItem align={{ default: 'alignRight' }}>
                                                 <InputGroup>
-                                                    <Button aria-label={_("Remove")}
+                                                    <Button icon={<MinusIcon />} aria-label={_("Remove")}
                                                             variant="secondary"
                                                             isDisabled={repeatPatterns.length == 1}
-                                                            onClick={() => setRepeatPatterns(old => old.filter((item, item_idx) => idx != item_idx))}>
-                                                        <MinusIcon />
-                                                    </Button>
-                                                    <Button aria-label={_("Add")}
+                                                        onClick={() => setRepeatPatterns(old => old.filter((item, item_idx) => idx != item_idx))} />
+                                                    <Button icon={<PlusIcon />} aria-label={_("Add")}
                                                             variant="secondary"
                                                             onClick={() => {
                                                                 if (repeat == "minutely")
@@ -370,9 +368,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                                     setRepeatPatterns(old => [...old, { key: repeatPatterns.length, day: 1, time: "00:00" }]);
                                                                 else if (repeat == "yearly")
                                                                     setRepeatPatterns(old => [...old, { key: repeatPatterns.length, date: undefined, time: "00:00" }]);
-                                                            }}>
-                                                        <PlusIcon />
-                                                    </Button>
+                                                            }} />
                                                 </InputGroup>
                                             </FlexItem>}
                                         </Flex>

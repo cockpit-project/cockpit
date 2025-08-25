@@ -171,13 +171,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     {get_ip_method_choices(topic, dev.DeviceType).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                                 </FormSelect>
                                 <Tooltip content={_("Add address")}>
-                                    <Button variant="secondary"
+                                    <Button icon={<PlusIcon />} variant="secondary"
                                         isDisabled={!canHaveExtra}
                                         onClick={() => setAddresses([...addresses, { address: "", netmask: "", gateway: "" }])}
                                         id={idPrefix + "-address-add"}
-                                        aria-label={_("Add address")}>
-                                        <PlusIcon />
-                                    </Button>
+                                        aria-label={_("Add address")} />
                                 </Tooltip>
                             </Flex>
                         }
@@ -237,13 +235,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     onChange={(_event, value) => setIgnoreAutoDns(!value)}
                                     label={_("Automatic")} />
                                 <Tooltip content={_("Add DNS server")}>
-                                    <Button variant="secondary"
+                                    <Button icon={<PlusIcon />} variant="secondary"
                                         isDisabled={!canHaveExtra}
                                         onClick={() => setDns([...dns, ""])}
                                         id={idPrefix + "-dns-add"}
-                                        aria-label={_("Add DNS server")}>
-                                        <PlusIcon />
-                                    </Button>
+                                        aria-label={_("Add DNS server")} />
                                 </Tooltip>
                             </Flex>
                         }
@@ -285,13 +281,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     onChange={(_event, value) => setIgnoreAutoDns(!value)}
                                     label={_("Automatic")} />
                                 <Tooltip content={_("Add search domain")}>
-                                    <Button variant="secondary"
+                                    <Button icon={<PlusIcon />} variant="secondary"
                                         isDisabled={!canHaveExtra}
                                         onClick={() => setDnsSearch([...dnsSearch, ""])}
                                         id={idPrefix + "-dns-search-add"}
-                                        aria-label={_("Add search domain")}>
-                                        <PlusIcon />
-                                    </Button>
+                                        aria-label={_("Add search domain")} />
                                 </Tooltip>
                             </Flex>
                         }
@@ -333,13 +327,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     onChange={(_event, value) => setIgnoreAutoRoutes(!value)}
                                     label={_("Automatic")} />
                                 <Tooltip content={_("Add route")}>
-                                    <Button variant="secondary"
+                                    <Button icon={<PlusIcon />} variant="secondary"
                                         isDisabled={isOff}
                                         onClick={() => setRoutes([...routes, { address: "", netmask: "", gateway: "", metric: "" }])}
                                         id={idPrefix + "-route-add"}
-                                        aria-label={_("Add route")}>
-                                        <PlusIcon />
-                                    </Button>
+                                        aria-label={_("Add route")} />
                                 </Tooltip>
                             </Flex>
                         }

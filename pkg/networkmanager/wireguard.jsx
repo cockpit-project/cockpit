@@ -326,7 +326,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
                                                 <p>{_("Endpoint acting as a \"server\" need to be specified as host:port, otherwise it can be left empty.")}</p>
                                             }
                                         >
-                                            <Button variant='plain'><HelpIcon /></Button>
+                                            <Button icon={<HelpIcon />} variant='plain' />
                                         </Popover>
                                     </FlexItem>
                                 </Flex>
@@ -375,16 +375,14 @@ export function WireGuardDialog({ settings, connection, dev }) {
                                 />
                             </FormGroup>
                             <FormGroup className='pf-m-1-col-on-md remove-button-group'>
-                                <Button
+                                <Button icon={<TrashIcon />}
                                     variant='plain'
                                     id={idPrefix + '-btn-close-peer-' + i}
                                     size='sm'
                                     onClick={() => {
                                         setPeers(peers => peers.filter((_, index) => i !== index));
                                     }}
-                                >
-                                    <TrashIcon />
-                                </Button>
+                                />
                             </FormGroup>
                         </Grid>
                     ))

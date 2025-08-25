@@ -131,9 +131,7 @@ export const PasswordFormFields = ({
             <FormGroup label={password_label}
                 {...password_label_info && {
                     labelHelp: <Popover bodyContent={password_label_info}>
-                        <Button id={`${password_label}-help-popup-button`} variant="plain" aria-label="Help">
-                            <HelpIcon />
-                        </Button>
+                        <Button icon={<HelpIcon />} id={`${password_label}-help-popup-button`} variant="plain" aria-label="Help" />
                     </Popover>
                 }}
                        id={idPrefix + "-pw1-group"}

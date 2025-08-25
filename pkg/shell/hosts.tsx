@@ -258,10 +258,10 @@ export class CockpitHosts extends React.Component {
                 onClick={() => this.onHostSwitch(m)}
                 actions={<>
                     <Tooltip content={_("Edit")} position="right">
-                        <Button isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={_e => this.onHostEdit(m)} key={m.label + "edit"} variant="secondary"><EditIcon /></Button>
+                        <Button icon={<EditIcon />} isDisabled={m.address === "localhost"} className="nav-action" hidden={!editing} onClick={_e => this.onHostEdit(m)} key={m.label + "edit"} variant="secondary" />
                     </Tooltip>
                     <Tooltip content={_("Remove")} position="right">
-                        <Button isDisabled={m.address === "localhost"} onClick={e => this.onRemove(e, m)} className="nav-action" hidden={!editing} key={m.label + "remove"} variant="danger"><MinusIcon /></Button>
+                        <Button icon={<MinusIcon />} isDisabled={m.address === "localhost"} onClick={e => this.onRemove(e, m)} className="nav-action" hidden={!editing} key={m.label + "remove"} variant="danger" />
                     </Tooltip>
                 </>}
         />;

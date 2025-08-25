@@ -99,7 +99,7 @@ export const NetworkInterfaceMembers = ({
                         title: (
                             <div className="btn-group">
                                 {onoff}
-                                {privileged && <Button variant="secondary"
+                                {privileged && <Button icon={<MinusIcon />} variant="secondary"
                                     size="sm"
                                     onClick={syn_click(model, () => {
                                         with_checkpoint(
@@ -112,9 +112,7 @@ export const NetworkInterfaceMembers = ({
                                                 hack_does_add_or_remove: true
                                             });
                                         return false;
-                                    })}>
-                                    <MinusIcon />
-                                </Button>}
+                                    })} />}
                             </div>
                         ),
                         props: { className: "pf-v6-c-table__action" }

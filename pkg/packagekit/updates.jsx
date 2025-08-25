@@ -900,7 +900,7 @@ class CardsPage extends React.Component {
             className: settingsContent !== null ? "ct-card-info" : "",
             title: _("Status"),
             actions: (<Tooltip content={_("Check for updates")}>
-                <Button variant="secondary" onClick={this.props.handleRefresh}><RedoIcon /></Button>
+                <Button icon={<RedoIcon />} variant="secondary" onClick={this.props.handleRefresh} />
             </Tooltip>),
             body: statusContent,
         });

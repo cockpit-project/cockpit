@@ -94,7 +94,7 @@ jobs:
     needs: source
     environment: flathub
     env:
-      GH_TOKEN: ${{ secrets.COCKPITUOUS_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.COCKPITUOUS_TOKEN }}
     permissions: {}
     runs-on: ubuntu-latest
     steps:

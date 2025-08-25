@@ -151,9 +151,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
     } else {
         refresh_progress = null;
         refresh_button = (
-            <Button variant="secondary" onClick={refresh} id="refresh" aria-label={ _("Update package information") }>
-                <RebootingIcon />
-            </Button>
+            <Button icon={<RebootingIcon />} variant="secondary" onClick={refresh} id="refresh" aria-label={_("Update package information")} />
         );
     }
 

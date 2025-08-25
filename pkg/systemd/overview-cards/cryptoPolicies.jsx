@@ -195,9 +195,7 @@ const CryptoPolicyDialog = ({
                 </Button>
             }
         >
-            <Button variant="plain" aria-label={_("Help")}>
-                <HelpIcon />
-            </Button>
+            <Button icon={<HelpIcon />} variant="plain" aria-label={_("Help")} />
         </Popover>
     );
 

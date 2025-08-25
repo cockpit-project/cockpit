@@ -162,9 +162,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                                   </Button>
                               }
                           >
-                              <Button id="bond-help-popup-button" variant="plain" aria-label="Help">
-                                  <HelpIcon />
-                              </Button>
+                              <Button icon={<HelpIcon />} id="bond-help-popup-button" variant="plain" aria-label="Help" />
                           </Popover>
                       }
                       isCreateDialog={!connection}

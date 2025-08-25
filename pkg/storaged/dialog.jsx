@@ -930,9 +930,7 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, disabled, update_function
                       <>
                           {title}
                           { tooltip && <Popover bodyContent={tooltip}>
-                              <Button className="dialog-item-tooltip" variant="link">
-                                  <HelpIcon />
-                              </Button>
+                              <Button icon={<HelpIcon />} className="dialog-item-tooltip" variant="link" />
                           </Popover>
                           }
                       </>
@@ -1250,8 +1248,8 @@ const UsersPopover = ({ users }) => {
                         : null
                     }
                 </>}>
-            <Button variant="link" style={{ visibility: users.length == 0 ? "hidden" : null }}>
-                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> { "\n" }
+            <Button icon={<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />} variant="link" style={{ visibility: users.length == 0 ? "hidden" : null }}>
+                { "\n" }
                 {_("Currently in use")}
             </Button>
         </Popover>);

@@ -63,14 +63,13 @@ export const SidebarToggle = () => {
     }, [active]);
 
     return (
-        <Button className={"pf-v6-c-select__toggle ct-nav-toggle " + (active ? "active" : "")}
-                id="nav-system-item" variant="plain"
-                onClick={() => setActive(!active)}>
+        <Button icon={
             <Icon size="xl">
                 <ContainerNodeIcon />
-            </Icon>
-            {_("System")}
-        </Button>
+            </Icon>}
+            className={"pf-v6-c-select__toggle ct-nav-toggle " + (active ? "active" : "")}
+                id="nav-system-item" variant="plain"
+                onClick={() => setActive(!active)}>{_("System")}</Button>
     );
 };
 

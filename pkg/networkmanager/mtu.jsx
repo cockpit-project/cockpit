@@ -82,6 +82,7 @@ export const MtuDialog = ({ connection, dev, settings }) => {
                        value="auto" />
                 <Radio id={idPrefix + "-custom"}
                        isChecked={mode == "custom"}
+                       className="ct-align-center"
                        label={
                            <>
                                <span>{_("Set to")}</span>

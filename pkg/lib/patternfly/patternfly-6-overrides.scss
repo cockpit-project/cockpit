@@ -192,33 +192,6 @@ $phone: 767px;
   }
 }
 
-// Realign the radio and checks: https://github.com/patternfly/patternfly/issues/5802
-.pf-v6-c-radio,
-.pf-v6-c-check {
-  // `baseline` is different in Firefox than Chrome & WebKit; use `normal`
-  align-items: normal;
-
-  // Remove incorrect PF settings on the children
-  &__label,
-  &__input {
-    margin-block: auto;
-    align-self: unset;
-    transform: unset;
-  }
-
-  // Slightly shift the radio and check widgets
-  &__input {
-    // Shift up the checks/radios for (most) browsers
-    transform: translateY(-1px);
-    // Mozilla doesn't need the translation, so undo it
-    -moz-transform: none;  // stylelint-disable-line property-no-vendor-prefix
-    // If the size is not specified, browsers may size it between 12px - 16px; so let's set it to the font size (which winds up 16px)
-    block-size: var(--pf-t--global--font--size--md);
-    // Use the height for width too
-    aspect-ratio: 1;
-  }
-}
-
 // PF Modals has a brighter background than normal pages in dark mode.
 // Tables are made to match the background but since modals change background
 // this is something we need to change ourselves

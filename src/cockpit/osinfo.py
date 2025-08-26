@@ -16,9 +16,9 @@ supported_oses: 'list[dict[str, str | None]]' = [
     # rolling release
     {"ID": "debian", "VERSION_ID": None},
 
-    {"ID": "fedora", "VERSION_ID": "40"},
     {"ID": "fedora", "VERSION_ID": "41"},
     {"ID": "fedora", "VERSION_ID": "42"},
+    {"ID": "fedora", "VERSION_ID": "43"},
 
     {"ID": "ubuntu", "VERSION_ID": "22.04"},
     {"ID": "ubuntu", "VERSION_ID": "24.04"},

@@ -82,11 +82,9 @@ export const MtuDialog = ({ connection, dev, settings }) => {
                        value="auto" />
                 <Radio id={idPrefix + "-custom"}
                        isChecked={mode == "custom"}
-                       label={
-                           <>
-                               <span>{_("Set to")}</span>
-                               <TextInput id={idPrefix + "-input"} value={mtu} onChange={(_event, value) => setMtu(value)} className="mtu-label-input" />
-                           </>
+                       label={_("Set to")}
+                       body={
+                           <TextInput id={idPrefix + "-input"} value={mtu} onChange={(_event, value) => setMtu(value)} className="mtu-label-input" />
                        }
                        name="mtu-mode"
                        onChange={() => setMode("custom")}

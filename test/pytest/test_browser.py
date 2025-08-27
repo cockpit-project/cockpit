@@ -11,6 +11,8 @@ from js_coverage import CoverageReport
 from webdriver_bidi import ChromiumBidi
 from yarl import URL
 
+from .mockwebserver import mock_webserver
+
 SRCDIR = os.path.realpath(f'{__file__}/../../..')
 BUILDDIR = os.environ.get('abs_builddir', SRCDIR)
 
@@ -20,6 +22,14 @@ SKIP = {
 
 XFAIL = {
     'base1/test-websocket.html',
+}
+
+MOCK_WEBSERVER_XFAIL = {
+    'base1/test-dbus.html',
+    'base1/test-external.html',
+    'base1/test-http.html',
+    'base1/test-stream.html',
+    'shell/machines/test-machines.html',
 }
 
 
@@ -53,14 +63,17 @@ async def spawn_test_server() -> AsyncIterator[URL]:  # noqa:RUF029
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('html', glob.glob('**/test-*.html', root_dir=f'{SRCDIR}/qunit', recursive=True))
-async def test_browser(coverage_report: CoverageReport, html: str) -> None:
+@pytest.mark.parametrize('server', ['test-server', 'mock_webserver'])
+async def test_browser(coverage_report: CoverageReport, html: str, server: str) -> None:
     if html in SKIP:
         pytest.skip()
     elif html in XFAIL:
         pytest.xfail()
+    elif server == 'mock_webserver' and html in MOCK_WEBSERVER_XFAIL:
+        pytest.xfail()
 
     async with (
-        spawn_test_server() as base_url,
+        (mock_webserver() if server == 'mock_webserver' else spawn_test_server()) as base_url,
         ChromiumBidi(headless=os.environ.get('TEST_SHOW_BROWSER', '0') == '0') as browser
     ):
         await browser.cdp("Profiler.enable")
@@ -119,4 +132,4 @@ async def test_timeformat_timezones(
     coverage_report: CoverageReport, tz: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv('TZ', tz)
-    await test_browser(coverage_report, 'base1/test-timeformat.html')
+    await test_browser(coverage_report, 'base1/test-timeformat.html', 'mock_webserver')

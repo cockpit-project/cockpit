@@ -439,6 +439,8 @@ session include system-auth
         # Remove all superuser methods
         self.restore_file("/usr/bin/sudo")
         m.execute(["rm", "/usr/bin/sudo"])
+        self.restore_file("/usr/bin/run0")
+        m.execute(["rm", "/usr/bin/run0"])
         self.restore_file("/usr/bin/pkexec")
         m.execute(["rm", "/usr/bin/pkexec"])
 

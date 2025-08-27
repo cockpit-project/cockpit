@@ -49,8 +49,8 @@ const IPv6_REGEX = /^[0-9a-fA-F:]+$/;
 const IPv6_PORT_REGEX = /^\[?([0-9a-fA-F:]+)(\]:)?(\d{0,5})$/;
 
 function addressesToString(settings) {
-    const addresses = settings.ipv4.addresses.concat(settings.ipv6.addresses);
-    return addresses.map(address => address[0] + "/" + address[1]).join(", ");
+    const addresses = settings.ipv4.address_data.concat(settings.ipv6.address_data);
+    return addresses.map(addr => addr.address + "/" + addr.prefix).join(", ");
 }
 
 function stringToAddresses(str) {
@@ -67,14 +67,10 @@ function stringToAddresses(str) {
 
         if (IPv6_REGEX.test(address)) {
             const defaultPrefix = "128";
-            const gateway = "::0";
-            ipv6.push([address, prefix ?? defaultPrefix, gateway]);
+            ipv6.push({ address, prefix: prefix ?? defaultPrefix });
         } else {
             const defaultPrefix = "32";
-            // Gateway usually conflicts with routing that NetworkManager configures for WireGuard interfaces
-            // So it should not be set in that case or more accurately set to 0 i.e. "0.0.0.0" in string format
-            const gateway = "0.0.0.0";
-            ipv4.push([address, prefix ?? defaultPrefix, gateway]);
+            ipv4.push({ address, prefix: prefix ?? defaultPrefix });
         }
     });
 
@@ -197,7 +193,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
 
             if (ipv4.length > 0) {
                 addresses.ipv4 = {
-                    addresses: ipv4,
+                    address_data: ipv4,
                     method: "manual",
                     dns: [],
                     dns_search: [],
@@ -208,7 +204,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
 
             if (ipv6.length > 0) {
                 addresses.ipv6 = {
-                    addresses: ipv6,
+                    address_data: ipv6,
                     // "stable-privacy" use hashing method for IPv6 autoconfiguration
                     addr_gen_mode: 1,
                     method: "manual",
@@ -407,10 +403,10 @@ export function getWireGuardGhostSettings({ newIfaceName }) {
             peers: []
         },
         ipv4: {
-            addresses: []
+            address_data: []
         },
         ipv6: {
-            addresses: []
+            address_data: []
         },
     };
 }

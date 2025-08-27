@@ -420,6 +420,18 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
+    def testBasic2(self):
+        self.testBasic()
+
+    def testBasic3(self):
+        self.testBasic()
+
+    def testBasic4(self):
+        self.testBasic()
+
+    def testBasic5(self):
+        self.testBasic()
+
     # returns ExecMainStartTimestamp
     def createServicePackageUpgrade(self, package: str, *, manual_proc: bool = False) -> str:
         m = self.machine

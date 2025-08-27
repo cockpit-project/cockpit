@@ -1545,8 +1545,8 @@ class Browser:
             return
 
         # If the page overflows make sure to not show a scrollbar
-        # Don't apply this hack for login and terminal and shell as they don't use PF Page
-        if not self.is_present("#shell-page") and not self.is_present("#login-details") and not self.is_present("#system-terminal-page"):
+        # Don't apply this hack for login and terminal as they don't use PF Page
+        if not self.is_present("#login-details") and not self.is_present("#system-terminal-page"):
             classes = self.attr("body", "class")
             self.set_attr("body", "class", f"{classes} pixel-test")
 

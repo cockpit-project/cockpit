@@ -30,7 +30,7 @@ from typing import Sequence
 
 from cockpit._vendor import ferny
 from cockpit._vendor.bei.bootloader import make_bootloader
-from cockpit._vendor.systemd_ctypes import Variant, bus
+from cockpit._vendor.systemd_ctypes import Bus, Variant, bus
 
 from .beipack import BridgeBeibootHelper
 from .jsonutil import JsonObject, get_str
@@ -75,9 +75,51 @@ class SuperuserPeer(ConfiguredPeer):
         super().__init__(router, config)
         self.responder = responder
 
+    async def start_transient_unit(self, args: 'Sequence[str]', stderr: object) -> asyncio.Transport:
+        ours, theirs = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
+        loop = asyncio.get_running_loop()
+
+        unit_name = f"cockpit-superuser-{os.getpid()}.service"
+
+        system = Bus.default_system()
+        msg = system.message_new_method_call(
+            "org.freedesktop.systemd1",
+            "/org/freedesktop/systemd1",
+            "org.freedesktop.systemd1.Manager",
+            "StartTransientUnit",
+            "ssa(sv)a(sa(sv))",
+            unit_name,
+            "fail",
+            [
+                ("Description", {"t": "s", "v": "Cockpit privileged bridge"}),
+                ("Type", {"t": "s", "v": "exec"}),
+                ("User", {"t": "s", "v": "root"}),
+                ("StandardInputFileDescriptor", {"t": "h", "v": theirs}),
+                ("StandardOutputFileDescriptor", {"t": "h", "v": theirs}),
+                ("StandardErrorFileDescriptor", {"t": "h", "v": stderr}),
+                ("ExecStart", {"t": "a(sasb)", "v": [(args[0], args, False)]}),
+            ],
+            [],
+        )
+        msg.set_allow_interactive_authorization(True)
+
+        # We fire and forget.  If we catch an authentication error, that'll be
+        # raised as a BusError which will propagate upwards to our caller (ie:
+        # the Start method) and get displayed as an error dialog.  If we get
+        # other errors (like failure to spawn the named executable for some
+        # reason or unusual exit codes) then we will see the stderr output but
+        # otherwise won't get any notification about it.  The amount of work
+        # required to do this "properly" is quite high and it's not super
+        # useful.
+        await system.call_async(msg)
+
+        transport, protocol = await loop.create_connection(lambda: self, sock=ours)
+        assert protocol is self
+        return transport
+
     async def do_connect_transport(self) -> None:
         async with contextlib.AsyncExitStack() as context:
-            if 'pkexec' in self.args:
+            if self.config.polkit:
                 logger.debug('connecting polkit superuser peer transport %r', self.args)
                 await context.enter_async_context(PolkitAgent(self.responder))
             else:
@@ -102,7 +144,10 @@ class SuperuserPeer(ConfiguredPeer):
             else:
                 env = self.env
 
-            transport = await self.spawn(self.args, env, stderr=agent, start_new_session=True)
+            if self.config.method == 'StartTransientUnit':
+                transport = await self.start_transient_unit(self.args, stderr=agent)
+            else:
+                transport = await self.spawn(self.args, env, stderr=agent, start_new_session=True)
 
             if stage1 is not None:
                 transport.write(stage1)

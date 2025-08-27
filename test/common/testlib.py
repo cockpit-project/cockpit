@@ -1388,9 +1388,13 @@ class Browser:
         ref_filename = os.path.join(reference_dir, filename)
         self.used_pixel_references.add(ref_filename)
         rect["type"] = "box"
-        ret = self.bidi("browsingContext.captureScreenshot", quiet=True,
-                        context=self.driver.top_context,
-                        clip=rect)
+        ret = self.bidi(
+            "browsingContext.captureScreenshot",
+            quiet=True,
+            context=self.driver.top_context,
+            optimizeForSpeed=True,
+            clip=rect,
+        )
         if chrome_hack_double_shots:
             # HACK - https://github.com/cockpit-project/cockpit/issues/21577
             #
@@ -1406,9 +1410,13 @@ class Browser:
             # this time.
             #
             ret1 = ret
-            ret = self.bidi("browsingContext.captureScreenshot", quiet=True,
-                            context=self.driver.top_context,
-                            clip=rect)
+            ret = self.bidi(
+                "browsingContext.captureScreenshot",
+                quiet=True,
+                context=self.driver.top_context,
+                optimizeForSpeed=True,
+                clip=rect,
+            )
             if ret1["data"] != ret["data"]:
                 print("WARNING: Inconsistent screenshots for", base)
         png_now = base64.standard_b64decode(ret["data"])

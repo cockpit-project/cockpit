@@ -54,6 +54,7 @@ from .jsonutil import (
     JsonValue,
     get_bool,
     get_dict,
+    get_enum,
     get_int,
     get_objv,
     get_str,
@@ -184,6 +185,7 @@ class BridgeConfig(dict, JsonObject):  # type: ignore[type-arg]
 
         self.label = get_str(self, 'label', None)
 
+        self.method = get_enum(self, 'method', ['spawn', 'StartTransientUnit'], 'spawn')
         self.privileged = get_bool(self, 'privileged', default=False)
         self.match = get_dict(self, 'match', {})
         if not self.privileged and not self.match:
@@ -193,6 +195,7 @@ class BridgeConfig(dict, JsonObject):  # type: ignore[type-arg]
         self.spawn = get_strv(self, 'spawn')
         if not self.spawn:
             raise JsonError(value, 'spawn vector must be non-empty')
+        self.polkit = get_bool(self, 'polkit', 'pkexec' in self.spawn)
 
         self.name = self.label or self.spawn[0]
 

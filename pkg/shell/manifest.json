@@ -49,6 +49,16 @@
         },
         {
             "privileged": true,
+            "polkit": true,
+            "method": "StartTransientUnit",
+            "spawn": [
+                "cockpit-bridge",
+                "--privileged"
+            ]
+        },
+        {
+            "privileged": true,
+            "polkit": true,
             "spawn": [
                 "pkexec",
                 "--disable-internal-agent",

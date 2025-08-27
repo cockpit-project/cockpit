@@ -240,6 +240,7 @@ class ConfiguredPeer(Peer):
 
     def __init__(self, router: Router, config: BridgeConfig):
         self.config = config
+        self.method = config.method
         self.args = config.spawn
         self.env = config.environ
         super().__init__(router)

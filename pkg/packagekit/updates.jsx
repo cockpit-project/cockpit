@@ -1243,6 +1243,8 @@ class OsUpdates extends React.Component {
                     data => this.setState({ state: data.waiting ? "locked" : "loading" }),
                     {
                         Package: (info, packageId, _summary) => {
+                            // HACK: security updates have 0x50008 with PackageKit 1.2.8, so just consider the lower 8 bits
+                            info = info & 0xff;
                             const id_fields = packageId.split(";");
                             packageSummaries[id_fields[0]] = _summary;
                             // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)

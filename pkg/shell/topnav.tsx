@@ -28,6 +28,7 @@ import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/inde
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/components/ToggleGroup/index.js";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import { CogIcon, ExternalLinkAltIcon, HelpIcon } from '@patternfly/react-icons';
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
 import { ShellState } from "./state";
 import { ManifestDocs, ManifestParentSection } from "./manifests";
@@ -37,7 +38,6 @@ import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
 import { superuser_proxy, SuperuserProxy, SuperuserIndicator } from "./superuser.jsx";
 import { read_os_release } from "os-release.js";
 import { DialogsContext } from "dialogs.jsx";
-import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 

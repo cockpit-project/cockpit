@@ -21,10 +21,10 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Nav, NavItem, NavList } from "@patternfly/react-core/dist/esm/components/Nav/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
-import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 

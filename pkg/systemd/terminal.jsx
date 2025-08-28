@@ -8,8 +8,9 @@ import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/co
 import { NumberInput } from "@patternfly/react-core/dist/esm/components/NumberInput/index.js";
 import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import { Alert, AlertActionCloseButton, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { fsinfo } from "cockpit/fsinfo";
-import { Button, Page, PageSection } from '@patternfly/react-core';
 
 import "./terminal.scss";
 

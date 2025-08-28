@@ -21,6 +21,7 @@ import React from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { CheckIcon, ExclamationTriangleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
 import cockpit from "cockpit";
 import * as service from "service.js";
@@ -29,7 +30,6 @@ import { superuser } from "superuser";
 import insights_poll_hack_sh from "./insights-poll-hack.sh";
 
 import "./insights.scss";
-import { Icon } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 

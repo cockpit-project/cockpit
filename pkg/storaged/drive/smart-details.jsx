@@ -22,7 +22,7 @@ import React from "react";
 
 import { CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { DropdownList } from "@patternfly/react-core";
+import { DropdownList } from "@patternfly/react-core/dist/esm/components/Dropdown";
 import { ExclamationCircleIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";

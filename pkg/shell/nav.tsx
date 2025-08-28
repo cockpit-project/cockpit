@@ -26,12 +26,12 @@ import { Nav } from "@patternfly/react-core/dist/esm/components/Nav/index.js";
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { ContainerNodeIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
 import { Status } from "notifications";
 import { Location, encode_location, ManifestItem } from "./util.jsx";
 import { ShellState } from "./state";
 import { ManifestKeyword } from "./manifests";
-import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 

@@ -35,7 +35,7 @@ import { EarlyFailure, Disconnected, MachineTroubleshoot } from "./failures.jsx"
 import { ShellState } from "./state.jsx";
 import { IdleTimeoutState, FinalCountdownModal } from "./idle.jsx";
 
-import { SkipToContent } from '@patternfly/react-core';
+import { SkipToContent } from '@patternfly/react-core/dist/esm/components/SkipToContent/index.js';
 
 import 'cockpit-dark-theme'; // once per page
 

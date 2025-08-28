@@ -1182,12 +1182,12 @@ class OsUpdates extends React.Component {
         return text;
     }
 
-    loadUpdateDetails(pkg_ids) {
-        const limit = 500; // Load iteratively to avoid exceeding cockpit-ws frame size
-        PK.cancellableTransaction("GetUpdateDetail", [pkg_ids.slice(0, limit)], null, {
+    /** @returns {Promise<void>} */
+    loadUpdateDetailsBatch(pkg_ids, update_details) {
+        return PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], null, {
             UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
                 update_text, changelog /* state, issued, updated */) => {
-                const u = this.state.updates[packageId];
+                const u = update_details[packageId];
                 if (!u) {
                     console.warn("Mismatching update:", packageId);
                     return;
@@ -1204,21 +1204,47 @@ class OsUpdates extends React.Component {
                     u.severity = PK.Enum.INFO_SECURITY;
                 u.vendor_urls = vendor_urls || [];
                 // u.restart = restart; // broken (always "1") at least in Fedora
+                debug("UpdateDetail:", u);
+            }
+        });
+    }
 
-                this.setState(prevState => ({ updates: prevState.updates }));
-            },
-        })
-                .then(() => {
-                    if (pkg_ids.length <= limit)
-                        this.setState({ state: "available" });
-                    else
-                        this.loadUpdateDetails(pkg_ids.slice(limit));
-                })
-                .catch(ex => {
-                    console.warn("GetUpdateDetail failed:", JSON.stringify(ex));
-                    // still show available updates, with reduced detail
-                    this.setState({ state: "available" });
-                });
+    loadUpdateDetails(pkg_ids) {
+        const update_details = Object.assign({}, this.state.updates);
+
+        /** @returns {Promise<void>} */
+        const processBatch = (remaining_ids, current_batch_size) => {
+            if (remaining_ids.length === 0) {
+                // All done, set the state
+                this.setState({ updates: update_details, state: "available" });
+                return Promise.resolve();
+            }
+
+            const batch = remaining_ids.slice(0, current_batch_size);
+            const next_ids = remaining_ids.slice(current_batch_size);
+
+            return this.loadUpdateDetailsBatch(batch, update_details)
+                    // continue with next batch using same batch size
+                    .then(() => processBatch(next_ids, current_batch_size))
+                    .catch(ex => {
+                        console.warn("GetUpdateDetail failed with batch size", current_batch_size, ":", JSON.stringify(ex));
+
+                        if (current_batch_size > 1) {
+                            // Reduce batch size to 1 and retry
+                            console.log("Reducing GetUpdateDetail batch size to 1 and retrying");
+                            return processBatch(remaining_ids, 1);
+                        } else {
+                            // Even batch size 1 failed, skip this batch and continue
+                            console.warn("Failed to load update details for package:", batch[0]);
+                            return processBatch(next_ids, 1);
+                        }
+                    });
+        };
+
+        // Avoid exceeding cockpit-ws frame size, so batch the loading of details
+        // if we run into https://issues.redhat.com/browse/RHEL-109779 then we need to fall back to load packages
+        // individually
+        return processBatch(pkg_ids, 500);
     }
 
     loadUpdates() {
@@ -1260,6 +1286,7 @@ class OsUpdates extends React.Component {
                         },
                     }))
                 .then(() => {
+                    debug("GetUpdates result:", updates);
                     // get the details for all packages
                     const pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {

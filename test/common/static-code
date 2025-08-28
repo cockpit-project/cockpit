@@ -72,6 +72,10 @@ if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then
     }
 fi
 
+test_patternfly_barrel_file() {
+    ! git grep -n "@patternfly/react-core[^/]" -- {src,pkg}/'*'.{js,ts,jsx,tsx}
+}
+
 test_stylelint() {
     test -x node_modules/.bin/stylelint -a -x /usr/bin/node || skip 'no stylelint'
     git ls-files -z '*.css' '*.scss' | xargs -r -0 node_modules/.bin/stylelint

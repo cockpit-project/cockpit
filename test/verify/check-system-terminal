@@ -230,8 +230,16 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         new_style = b.attr(".xterm-accessibility-tree div:first-child", "style")
         self.assertNotEqual(current_style, new_style)
 
+        # Unfocus the terminal before switching away to stop the
+        # cursor from blinking, which hopefully avoids internal
+        # Firefox errors related to canvs rendering in invisible
+        # iframes.
+
+        b.focus("#toolbar input")
+
         # Relogin and white-style and bigger font should be remembered
         # Relogin on different page, as reloging on terminal prompts asking if you want to leave the site
+
         b.go("/system")
         b.relogin("/system")
         b.go("/system/terminal")

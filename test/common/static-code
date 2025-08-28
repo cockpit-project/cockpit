@@ -58,7 +58,7 @@ fi
 test_js_translatable_strings() {
     # Translatable strings must be marked with _(""), not _('')
 
-    ! git grep -n -E "(gettext|_)\(['\`]" -- {src,pkg}/'*'.{js,jsx}
+    ! git grep -n -E "(gettext|_)\(['\`]" -- {src,pkg}/'*'.{js,ts,jsx,tsx}
 }
 
 if [ "${WITH_PARTIAL_TREE:-0}" = 0 ]; then

@@ -26,6 +26,7 @@ import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/inde
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { SimpleSelect } from "cockpit-components-simple-select";
@@ -40,7 +41,6 @@ import get_timesync_backend_py from "./get-timesync-backend.py";
 import { superuser } from "superuser.js";
 
 import "serverTime.scss";
-import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 

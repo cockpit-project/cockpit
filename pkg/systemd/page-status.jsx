@@ -23,6 +23,7 @@ import React from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import {
     BugIcon,
     CheckIcon,
@@ -36,7 +37,6 @@ import {
 import "./page-status.scss";
 
 import { page_status } from "notifications";
-import { Icon } from "@patternfly/react-core";
 
 function icon_for_type(type) {
     if (type == "error")

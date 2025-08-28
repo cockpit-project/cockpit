@@ -27,11 +27,11 @@ import {
 } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Tab, Tabs } from "@patternfly/react-core/dist/esm/components/Tabs/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import { CheckIcon, CopyIcon, ExternalLinkAltIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 import 'cockpit-components-modifications.css';
-import { Icon } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 

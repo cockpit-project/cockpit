@@ -52,17 +52,9 @@ SOFTWARE.
 /* eslint-disable */
 
 import React from 'react';
-import {
-  Badge,
-  MenuToggle,
-  MenuToggleElement,
-  MenuToggleProps,
-  Select,
-  SelectList,
-  SelectOption,
-  SelectOptionProps,
-  SelectProps
-} from '@patternfly/react-core';
+import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
+import { Select, SelectList, SelectOption, SelectOptionProps, SelectProps } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { MenuToggle, MenuToggleElement, MenuToggleProps } from "@patternfly/react-core/dist/esm/components/MenuToggle/index.js";
 
 export interface CheckboxSelectOption<T> extends Omit<SelectOptionProps, 'content'> {
   /** Content of the select option. */

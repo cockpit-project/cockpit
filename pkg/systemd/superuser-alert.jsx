@@ -21,12 +21,12 @@ import cockpit from "cockpit";
 import React from 'react';
 
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 
 import { LockIcon } from '@patternfly/react-icons';
 
 import { SuperuserButton } from "../shell/superuser.jsx";
 import { superuser } from "superuser.js";
-import { PageSection } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 

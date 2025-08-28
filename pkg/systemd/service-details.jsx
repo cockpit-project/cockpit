@@ -34,6 +34,7 @@ import {
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import {
     AsleepIcon,
     BanIcon, ErrorCircleOIcon, OnRunningIcon, OffIcon,
@@ -51,7 +52,6 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import './service-details.scss';
 import { KebabDropdown } from "cockpit-components-dropdown";
-import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 const METRICS_POLL_DELAY = 30000; // 30s

@@ -50,20 +50,10 @@ SOFTWARE.
 
 import cockpit from "cockpit";
 import React from 'react';
-import {
-  Select,
-  SelectOption,
-  SelectList,
-  SelectOptionProps,
-  MenuToggle,
-  MenuToggleElement,
-  TextInputGroup,
-  TextInputGroupMain,
-  TextInputGroupUtilities,
-  Button,
-  MenuToggleProps,
-  SelectProps,
-} from '@patternfly/react-core';
+import { MenuToggle, MenuToggleProps, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle/index.js';
+import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
+import { Select, SelectOption, SelectList, SelectOptionProps, SelectProps } from '@patternfly/react-core/dist/esm/components/Select/index.js';
+import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/esm/components/TextInputGroup/index.js';
 import { Label, LabelGroup, LabelProps } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 

@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 import React, { useState } from "react";
 import { createRoot, Container } from 'react-dom/client';
 
-import { Checkbox } from '@patternfly/react-core';
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { TypeaheadSelect, TypeaheadSelectOption } from "cockpit-components-typeahead-select";
 
 const TypeaheadDemo = ({ options } : { options: TypeaheadSelectOption[] }) => {

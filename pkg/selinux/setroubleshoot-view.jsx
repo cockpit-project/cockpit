@@ -31,7 +31,9 @@ import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Pa
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
-import { Icon, Content, ContentVariants, CodeBlock, CodeBlockCode } from "@patternfly/react-core";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
+import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
+import { CodeBlock, CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 
 import { Modifications } from "cockpit-components-modifications.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";

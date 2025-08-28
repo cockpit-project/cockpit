@@ -34,13 +34,13 @@ import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { InfoIcon, InfoCircleIcon } from "@patternfly/react-icons";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
 import cockpit from "cockpit";
 import { proxy as serviceProxy } from "service";
 import { check_missing_packages } from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { read_os_release } from "os-release.js";
-import { Icon } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 

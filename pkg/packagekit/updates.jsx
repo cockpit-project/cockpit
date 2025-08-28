@@ -1183,41 +1183,41 @@ class OsUpdates extends React.Component {
     }
 
     loadUpdateDetails(pkg_ids) {
-        const limit = 500; // Load iteratively to avoid exceeding cockpit-ws frame size
-        PK.cancellableTransaction("GetUpdateDetail", [pkg_ids.slice(0, limit)], null, {
-            UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
-                update_text, changelog /* state, issued, updated */) => {
-                const u = this.state.updates[packageId];
-                if (!u) {
-                    console.warn("Mismatching update:", packageId);
-                    return;
-                }
+        const update_details = Object.assign(this.state.updates);
 
-                u.vendor_urls = vendor_urls;
-                u.description = this.removeHeading(update_text) || changelog;
-                if (update_text)
-                    u.markdown = true;
-                u.bug_urls = deduplicate(bug_urls);
-                // many backends don't support proper severities; parse CVEs from description as a fallback
-                u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
-                if (u.cve_urls && u.cve_urls.length > 0)
-                    u.severity = PK.Enum.INFO_SECURITY;
-                u.vendor_urls = vendor_urls || [];
-                // u.restart = restart; // broken (always "1") at least in Fedora
+        // load details for each package individually because of https://issues.redhat.com/browse/RHEL-109779
+        // otherwise we won't get details for any package if just a single one fails, and that pretty much always
+        // happens on RHEL
+        const promises = pkg_ids.map(pkg_id =>
+            PK.cancellableTransaction("GetUpdateDetail", [[pkg_id]], null, {
+                UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
+                    update_text, changelog /* state, issued, updated */) => {
+                    const description = this.removeHeading(update_text) || changelog;
+                    const u = {
+                        ...update_details[packageId],
+                        description,
+                        markdown: !!update_text,
+                        bug_urls: deduplicate(bug_urls),
+                        // many backends don't support proper severities; parse CVEs from description as a fallback
+                        cve_urls: deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(description)),
+                        vendor_urls: vendor_urls || []
+                    };
 
-                this.setState(prevState => ({ updates: prevState.updates }));
-            },
-        })
+                    if (u.cve_urls && u.cve_urls.length > 0)
+                        u.severity = PK.Enum.INFO_SECURITY;
+
+                    update_details[packageId] = u;
+
+                    debug("loadUpdateDetails UpdateDetail:", u);
+                },
+            })
+                    .catch(ex => console.warn("GetUpdateDetail for", pkg_id, "failed:", JSON.stringify(ex)))
+        );
+
+        Promise.allSettled(promises)
                 .then(() => {
-                    if (pkg_ids.length <= limit)
-                        this.setState({ state: "available" });
-                    else
-                        this.loadUpdateDetails(pkg_ids.slice(limit));
-                })
-                .catch(ex => {
-                    console.warn("GetUpdateDetail failed:", JSON.stringify(ex));
-                    // still show available updates, with reduced detail
-                    this.setState({ state: "available" });
+                    debug("loadUpdateDetails complete");
+                    this.setState({ updates: update_details, state: "available" });
                 });
     }
 
@@ -1260,6 +1260,7 @@ class OsUpdates extends React.Component {
                         },
                     }))
                 .then(() => {
+                    debug("GetUpdates result:", updates);
                     // get the details for all packages
                     const pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {

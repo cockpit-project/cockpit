@@ -1139,6 +1139,9 @@ on_web_socket_open (WebSocketConnection *connection,
   json_array_add_string_element (capabilities, "multi");
   json_array_add_string_element (capabilities, "credentials");
   json_array_add_string_element (capabilities, "binary");
+  // https://github.com/cockpit-project/cockpit/pull/22310
+  // commit a4dfe17769d576d34f226bb653e0a26d1e5156af
+  json_array_add_string_element (capabilities, "websocket-channel-close-fix");
   json_object_set_array_member (object, "capabilities", capabilities);
 
   info = json_object_new ();

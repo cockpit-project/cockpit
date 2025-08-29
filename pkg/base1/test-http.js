@@ -74,6 +74,9 @@ QUnit.test("simple request", assert => {
                         speed: {
                             label: "Speed Tests"
                         },
+                        terminal: {
+                            label: "Terminal"
+                        },
                         journal: {
                             label: "Logs Box"
                         },

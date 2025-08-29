@@ -728,30 +728,12 @@ function update_indices() {
     }
 
     client.blocks_stratis_stopped_pool = { };
-    client.stratis_stopped_pool_key_description = { };
-    client.stratis_stopped_pool_clevis_info = { };
     for (const uuid in client.stratis_manager.StoppedPools) {
         const devs = client.stratis_manager.StoppedPools[uuid].devs.v;
         for (const d of devs) {
             block = client.slashdevs_block[d.devnode];
             if (block)
                 client.blocks_stratis_stopped_pool[block.path] = uuid;
-        }
-        const kinfo = client.stratis_manager.StoppedPools[uuid].key_description;
-        if (kinfo &&
-            kinfo.t == "(bv)" &&
-            kinfo.v[0] &&
-            kinfo.v[1].t == "(bs)" &&
-            kinfo.v[1].v[0]) {
-            client.stratis_stopped_pool_key_description[uuid] = kinfo.v[1].v[1];
-        }
-        const cinfo = client.stratis_manager.StoppedPools[uuid].clevis_info;
-        if (cinfo &&
-            cinfo.t == "(bv)" &&
-            cinfo.v[0] &&
-            cinfo.v[1].t == "(b(ss))" &&
-            cinfo.v[1].v[0]) {
-            client.stratis_stopped_pool_clevis_info[uuid] = cinfo.v[1].v[1];
         }
     }
 
@@ -1427,7 +1409,7 @@ client.stratis_start = () => {
 //
 // We try all these versions in order, and use the first we find.
 //
-const stratis3_interface_revisions = [6];
+const stratis3_interface_revisions = [8, 6];
 
 async function stratis3_start() {
     const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });

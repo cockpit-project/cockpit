@@ -28,6 +28,44 @@ import { validate_url, get_tang_adv } from "../crypto/tang.jsx";
 
 const _ = cockpit.gettext;
 
+function manager_create_pool(name, devs, key_desc, clevis_info) {
+    // "clevis_info" is either falsy or an array with two elements:
+    //
+    //   [ pin, pin_config ]
+    //
+    // This array can be used directly with the (b(ss)) signature of
+    // the r6 CreatePool call, but needs to be taken apart for the
+    // a((bu)ss) signature of the r8 CreatePool call.
+
+    if (client.stratis_interface_revision < 8) {
+        let key_desc_arg = [false, ""];
+        if (key_desc)
+            key_desc_arg = [true, key_desc];
+        let clevis_info_arg = [false, ["", ""]];
+        if (clevis_info)
+            clevis_info_arg = [true, clevis_info];
+        return client.stratis_manager.CreatePool(name,
+                                                 devs,
+                                                 key_desc_arg,
+                                                 clevis_info_arg);
+    } else {
+        const any_slot = [false, 0];
+        const key_descs_arg = [];
+        if (key_desc)
+            key_descs_arg.push([any_slot, key_desc]);
+        const clevis_infos_arg = [];
+        if (clevis_info)
+            clevis_infos_arg.push([any_slot, clevis_info[0], clevis_info[1]]);
+        return client.stratis_manager.CreatePool(name,
+                                                 devs,
+                                                 key_descs_arg,
+                                                 clevis_infos_arg,
+                                                 [false, 0], // journal_size
+                                                 [false, ""], // tag_spec
+                                                 [false, false]); // allocate_superblock
+    }
+}
+
 export function create_stratis_pool() {
     function find_pool(name) {
         for (const p in client.stratis_pools) {
@@ -124,10 +162,7 @@ export function create_stratis_pool() {
                         let clevis_info = null;
                         if (adv)
                             clevis_info = ["tang", JSON.stringify({ url: vals.tang_url, adv })];
-                        return client.stratis_manager.CreatePool(vals.name,
-                                                                 devs,
-                                                                 key_desc ? [true, key_desc] : [false, ""],
-                                                                 clevis_info ? [true, clevis_info] : [false, ["", ""]])
+                        return manager_create_pool(vals.name, devs, key_desc, clevis_info)
                                 .then(std_reply)
                                 .then(result => {
                                     if (vals.overprov && !vals.overprov.on && result[0]) {

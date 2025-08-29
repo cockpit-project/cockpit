@@ -646,6 +646,8 @@ class TestStorageStratisReboot(storagelib.StorageCase):
             m.execute("stratis key unset pool0.1")
         m.execute("stratis key unset pool0")
 
+        v1_pool = legacy or m.image in V1_POOL_IMAGES
+
         self.click_card_row("Storage", name="pool0")
         b.wait_visible(self.card("Encrypted Stratis pool"))
 
@@ -665,31 +667,51 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val('disks', {dev_2: True})
         self.dialog_apply()
-        self.dialog_wait_error("passphrase", "Passphrase cannot be empty")
-        self.dialog_set_val('passphrase', passphrase)
-        self.dialog_apply()
+        if v1_pool:
+            self.dialog_wait_error("pool_passphrase", "Passphrase cannot be empty")
+            self.dialog_set_val('pool_passphrase', passphrase)
+            self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_2), "data")
 
         # Change the passphrase
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove):disabled")
-        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
+        if v1_pool:
+            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Remove):disabled")
+            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Change)")
+        else:
+            self.click_dropdown(self.card_row("Encryption tokens", index=1), "Change")
         self.dialog({'old_passphrase': passphrase,
                      'new_passphrase': "boodeefoodeebar",
                      'new_passphrase2': "boodeefoodeebar"})
         # do it again, with the old passphrase in the keyring
         create_pool_key(m, "pool0", "boodeefoodeebar")
-        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Change)")
+        if v1_pool:
+            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Change)")
+        else:
+            self.click_dropdown(self.card_row("Encryption tokens", index=1), "Change")
         self.dialog({'new_passphrase': passphrase,
                      'new_passphrase2': passphrase})
         m.execute("stratis key unset pool0")
+
+        if not v1_pool:
+            # Add a second passphrase
+            b.wait_text(self.card_row_col("Encryption tokens", 1, 2), "Passphrase")
+            b.click(self.card_button("Encryption tokens", "Add passphrase"))
+            self.dialog({'pool_passphrase': passphrase,
+                         'passphrase': "boodeefoodeebar",
+                         'passphrase2': "boodeefoodeebar"})
+            b.wait_text(self.card_row_col("Encryption tokens", 2, 2), "Passphrase")
+            # And remove it again
+            self.click_dropdown(self.card_row("Encryption tokens", index=2), "Remove")
+            self.confirm()
 
         # Add a cache blockdev
         b.click(self.card_button("Encrypted Stratis pool", "Add block device"))
         self.dialog_wait_open()
         self.dialog_set_val('tier', "cache")
         self.dialog_set_val('disks', {dev_3: True})
-        self.dialog_set_val('passphrase', passphrase)
+        if v1_pool:
+            self.dialog_set_val('pool_passphrase', passphrase)
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text(self.card_row("Encrypted Stratis pool", name=dev_3), "cache")
@@ -1001,19 +1023,34 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
             create_legacy_pool(m, disks=[dev_1], keydesc="pool0", tang="10.111.112.5")
             m.execute("stratis key unset pool0")
 
+        v1_pool = legacy or m.image in V1_POOL_IMAGES
+
         self.click_card_row("Storage", name="pool0")
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase"))
-        b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
+        if v1_pool:
+            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase"))
+            b.wait_in_text(self.card_desc("Encryption tokens", "Keyserver"), "10.111.112.5")
+        else:
+            b.wait_visible(self.card_row("Encryption tokens", location="passphrase"))
+            b.wait_visible(self.card_row("Encryption tokens", location="10.111.112.5"))
 
         if not legacy:
             b.assert_pixels(self.card("Encrypted Stratis pool"), "header",
                             ignore=['.pf-v6-c-description-list__group:contains(UUID)'])
 
         # Remove passphrase
-        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove)")
-        self.confirm()
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Add passphrase)")
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Remove):disabled")
+        if v1_pool:
+            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Remove)")
+            self.confirm()
+            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Add passphrase)")
+            b.wait_visible(self.card_desc("Encryption tokens", "Keyserver") + " button:contains(Remove):disabled")
+        else:
+            self.click_dropdown(self.card_row("Encryption tokens", index=1), "Remove")
+            self.confirm()
+            row = self.card_row("Encryption tokens", location="10.111.112.5")
+            b.wait_visible(row)
+            b.click(self.dropdown_toggle(row))
+            b.wait_visible(self.dropdown_action("Remove") + "[disabled]")
+            b.click(self.dropdown_toggle(row))
 
         # Stop the pool and start it again.  This should not ask
         # for the passphrase (since there isn't any)
@@ -1022,16 +1059,10 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         tang_m.execute("systemctl stop tangd.socket")
         b.click(self.card_button("Stratis pool", "Start"))
         self.dialog_wait_open()
-        if m.image not in V1_POOL_IMAGES and not legacy:
-            # For V2 pools (created by Stratis 3.8.0 and later),
-            # Cockpit doesn't know whether they have a passphrase or
-            # not. So it asks always.
-            self.dialog_wait_val("passphrase", "")
-        else:
-            # stratis' error message for unreachable tang server is very poor:
-            # https://bugzilla.redhat.com/show_bug.cgi?id=2246920 Version < 3.6.0 said
-            # "Error communicating with server 10.111.112.5", check this again after fixing
-            b.wait_in_text("#dialog", "Error")
+        # stratis' error message for unreachable tang server is very poor:
+        # https://bugzilla.redhat.com/show_bug.cgi?id=2246920 Version < 3.6.0 said
+        # "Error communicating with server 10.111.112.5", check this again after fixing
+        b.wait_in_text("#dialog", "Error")
         self.dialog_cancel()
         self.dialog_wait_close()
 
@@ -1043,10 +1074,17 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         # without tangd running.  This should try clevis but then fall
         # back to asking for a passphrase.
 
-        b.click(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Add passphrase)")
+        b.click(self.card_button("Encryption tokens", "Add passphrase"))
         self.dialog({'passphrase': "foodeeboodeebar",
                      'passphrase2': "foodeeboodeebar"})
-        b.wait_visible(self.card_desc("Encrypted Stratis pool", "Passphrase") + " button:contains(Remove):not(:disabled)")
+        if v1_pool:
+            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Remove):not(:disabled)")
+        else:
+            b.wait_visible(self.card_row("Encryption tokens", location="passphrase"))
+            b.click(self.dropdown_toggle(row))
+            b.wait_visible(self.dropdown_action("Remove") + ":not([disabled])")
+            b.click(self.dropdown_toggle(row))
+
         m.execute(f"stratis pool stop {self.stop_type_opt} pool0")
         tang_m.execute("systemctl stop tangd.socket")
         b.click(self.card_button("Stratis pool", "Start"))
@@ -1060,36 +1098,54 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         b.click(self.card_button("Stratis pool", "Start"))
         b.wait_visible(self.card("Encrypted Stratis pool"))
 
-        # Add a blockdevice.  This requires the passphrase.
+        # Add a blockdevice.
 
         b.click(self.card_button("Encrypted Stratis pool", "Add block device"))
-        self.dialog({'disks': {dev_2: True}, 'passphrase': "foodeeboodeebar"})
+        if v1_pool:
+            self.dialog({'disks': {dev_2: True}, 'pool_passphrase': "foodeeboodeebar"})
+        else:
+            self.dialog({'disks': {dev_2: True}})
 
         # Remove the keyserver and add it back
 
-        b.click(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Remove)")
+        if v1_pool:
+            b.click(self.card_desc("Encryption tokens", "Keyserver") + " button:contains(Remove)")
+        else:
+            self.click_dropdown(self.card_row("Encryption tokens", location="10.111.112.5"), "Remove")
         self.confirm()
 
-        b.click(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Add keyserver)")
+        if v1_pool:
+            b.wait_not_in_text(self.card_desc("Encryption tokens", "Keyserver"), "10.111.112.5")
+        else:
+            b.wait_not_present(self.card_row("Encryption tokens", location="10.111.112.5"))
+
+        b.click(self.card_button("Encryption tokens", "Add keyserver"))
         self.dialog_wait_open()
         self.dialog_set_val("tang_url", "10.111.112.5")
-        self.dialog_set_val("passphrase", "foodeeboodeebar")
+        self.dialog_set_val("pool_passphrase", "foodeeboodeebar")
         self.dialog_apply()
         b.wait_in_text("#dialog", "Check the key hash")
         b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
         self.dialog_apply()
         with b.wait_timeout(60):
             self.dialog_wait_close()
-            b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
+
+        if v1_pool:
+            b.wait_in_text(self.card_desc("Encryption tokens", "Keyserver"), "10.111.112.5")
+        else:
+            b.wait_visible(self.card_row("Encryption tokens", location="10.111.112.5"))
 
         # Remove the keyserver and add it back a second time, but try
         # first with the wrong passphrase already in the keyring
 
-        b.click(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Remove)")
+        if v1_pool:
+            b.click(self.card_desc("Encryption tokens", "Keyserver") + " button:contains(Remove)")
+        else:
+            self.click_dropdown(self.card_row("Encryption tokens", location="10.111.112.5"), "Remove")
         self.confirm()
 
         create_pool_key(m, "pool0", "foobar")
-        b.click(self.card_desc("Encrypted Stratis pool", "Keyserver") + " button:contains(Add keyserver)")
+        b.click(self.card_button("Encryption tokens", "Add keyserver"))
         self.dialog_wait_open()
         self.dialog_set_val("tang_url", "10.111.112.5")
         self.dialog_apply()
@@ -1103,7 +1159,12 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         self.dialog_apply()
         with b.wait_timeout(60):
             self.dialog_wait_close()
-            b.wait_in_text(self.card_desc("Encrypted Stratis pool", "Keyserver"), "10.111.112.5")
+
+        if v1_pool:
+            b.wait_in_text(self.card_desc("Encryption tokens", "Keyserver"), "10.111.112.5")
+        else:
+            b.wait_visible(self.card_row("Encryption tokens", location="10.111.112.5"))
+
         m.execute("stratis key unset pool0")
 
         # Create a mounted filesystem and reboot.
@@ -1124,6 +1185,136 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
     @testlib.skipImage("Stratis too old for legacy tests", *V1_POOL_IMAGES)
     def testBasicLegacy(self):
         self.testBasic(legacy=True)
+
+    @testlib.skipImage("Stratis too old", *V1_POOL_IMAGES)
+    def testEncryptionTokens(self):
+        m = self.machine
+        b = self.browser
+
+        tang_m = self.machines["tang"]
+        tang_m.execute("systemctl start tangd.socket")
+        tang_m.execute("firewall-cmd --add-port 80/tcp")
+
+        self.login_and_go("/storage")
+
+        dev_1 = "/dev/sda"
+        m.add_disk("4G", serial="DISK1")
+        b.wait_visible(self.card_row("Storage", name=dev_1))
+
+        passphrase = "foodeeboodeebar"
+        passphrase2 = "boodeefoodeebar"
+
+        # Create a pool with a passphrase
+
+        self.dialog_open_with_retry(trigger=lambda: self.click_devices_dropdown("Create Stratis pool"),
+                                    expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                                    self.dialog_check({"name": "pool0"})))
+        self.dialog_set_val("encrypt_pass.on", val=True)
+        self.dialog_set_val("passphrase", passphrase)
+        self.dialog_set_val("passphrase2", passphrase)
+        self.dialog_set_val("disks", {dev_1: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.click_card_row("Storage", name="pool0")
+        b.wait_visible(self.card("Encrypted Stratis pool"))
+
+        # Adding a token needs the existing passphrase.
+
+        b.click(self.card_button("Encryption tokens", "Add keyserver"))
+        self.dialog_wait_open()
+        b.wait_visible(self.dialog_field("pool_passphrase"))
+        b.wait_in_text("#dialog", "Please provide an existing pool passphrase.")
+        b.assert_pixels("#dialog", "dialog")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # When the only passphrase is already in the keyring, it must
+        # work.
+
+        create_pool_key(m, "pool0", passphrase)
+        b.click(self.card_button("Encryption tokens", "Add keyserver"))
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "At least one of the non-interactive unlock methods must work.")
+        b.wait_not_present(self.dialog_field("pool_passphrase"))
+        self.dialog_set_val("tang_url", "10.111.112.5")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Check the key hash")
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+
+        # A single keyserver will be mentioned explicitly
+
+        m.execute("stratis key unset pool0")
+        b.click(self.card_button("Encryption tokens", "Add passphrase"))
+        self.dialog_wait_open()
+        self.dialog_set_val("passphrase", passphrase2)
+        self.dialog_set_val("passphrase2", passphrase2)
+        b.wait_visible(self.dialog_field("pool_passphrase"))
+        b.wait_in_text("#dialog", "If the keyserver at 10.111.112.5 is not reachable, you can provide an existing passphrase.")
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+
+        # When only one passphrase is in the keyring, the other one can be provided.
+
+        create_pool_key(m, "pool0", passphrase)
+        b.click(self.card_button("Encryption tokens", "Add keyserver"))
+        self.dialog_wait_open()
+        b.wait_visible(self.dialog_field("pool_passphrase"))
+        b.wait_in_text("#dialog", "If none of the non-interactive unlock methods works, you can provide an existing passphrase.")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # When there is only one tang, it is mentioned explicitly and it must work
+
+        m.execute("stratis key unset pool0")
+        self.click_dropdown(self.card_row("Encryption tokens", index=1), "Remove")
+        self.confirm()
+        self.click_dropdown(self.card_row("Encryption tokens", location="passphrase"), "Remove")
+        self.confirm()
+        b.click(self.card_button("Encryption tokens", "Add keyserver"))
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "The keyserver at 10.111.112.5 must be reachable.")
+        b.wait_not_present(self.dialog_field("pool_passphrase"))
+        self.dialog_set_val("tang_url", "10.111.112.5")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Check the key hash")
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+
+        # With two, one must work
+
+        b.click(self.card_button("Encryption tokens", "Add passphrase"))
+        self.dialog_wait_open()
+        self.dialog_set_val("passphrase", passphrase)
+        self.dialog_set_val("passphrase2", passphrase)
+        b.wait_in_text("#dialog", "At least one keyserver must be reachable.")
+        b.wait_not_present(self.dialog_field("pool_passphrase"))
+        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
+
+        # Add TPM2 while letting Tang unlock the tokens for us
+
+        m.execute("stratis pool bind tpm2 pool0")
+        b.wait_visible(self.card_row("Encryption tokens", location="tpm2"))
+
+        b.assert_pixels(self.card("Encryption tokens"), "tokens")
+
+        # Remove TPM2 with Cockpit
+
+        self.click_dropdown(self.card_row("Encryption tokens", location="tpm2"), "Remove")
+        self.confirm()
+
+        # Change the passphrase
+
+        self.click_dropdown(self.card_row("Encryption tokens", location="passphrase"), "Change")
+        self.dialog({'old_passphrase': passphrase,
+                     'new_passphrase': passphrase2,
+                     'new_passphrase2': passphrase2})
 
 
 if __name__ == '__main__':

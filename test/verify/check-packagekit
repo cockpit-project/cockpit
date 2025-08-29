@@ -755,10 +755,31 @@ ExecStart=/usr/local/bin/{packageName}
         b = self.browser
         m = self.machine
 
+        # make a package available from two repositories; PackageKit dnf doesn't handle
+        # that properly: https://issues.redhat.com/browse/RHEL-109155
+        self.createPackage("xeroxed", "10", "1", install=True)
+        self.createPackage("xeroxed", "12", "1", severity="enhancement", bugs=["789"],
+                           changes="Uniqueness is boring")
+        self.enableRepo()
+        dupe_dir = self.vm_tmpdir + "/repo-dupe"
+        m.execute(f"cp -r {self.repo_dir} {dupe_dir}")
+        if self.backend.startswith("dnf"):
+            repo = m.execute("cat /etc/yum.repos.d/cockpittest.repo")
+            repo = repo.replace(self.repo_dir, dupe_dir)
+            repo = repo.replace("name=cockpittest", "name=test-dupe")
+            m.write("/etc/yum.repos.d/test-dupe.repo", repo)
+        elif self.backend == "apt":
+            repo = m.execute("cat /etc/apt/sources.list.d/test.list")
+            repo = repo.replace(self.repo_dir, dupe_dir)
+            m.write("/etc/apt/sources.list.d/dupe.list", repo)
+        else:
+            self.fail(f"Copy logic for backend {self.backend} needs to be written")
+
         # just changelog
         self.createPackage("norefs-bin", "1", "1", install=True)
         self.createPackage("norefs-bin", "2", "1", severity="enhancement",
                            changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
+
         # binary from same source
         self.createPackage("norefs-doc", "1", "1", install=True)
         self.createPackage("norefs-doc", "2", "1", severity="enhancement",
@@ -784,7 +805,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
-        b.wait_in_text("#status", "6 updates available, including 3 security fixes")
+        b.wait_in_text("#status", "7 updates available, including 3 security fixes")
 
         b.wait_in_text("table[aria-label='Available updates']", "sevcritical")
 
@@ -837,6 +858,21 @@ ExecStart=/usr/local/bin/{packageName}
         b.set_layout("desktop")
         b.wait_visible(sel + " td.changelog em")
 
+        # check xeroxed
+        if self.backend.startswith("dnf"):
+            # see RHEL-109155 above; can't load update details, so no bugs nor description;
+            # realistically this won't ever get fixed, but if it does, surprise us!
+            self.check_nth_update(6, "xeroxed", "12-1", self.enhancement_severity)
+        elif m.image == "ubuntu-2204":
+            # different PK bug: It sees *two* bugs, the first one being invalid
+            self.check_nth_update(6, "xeroxed", "12-1", "bug", 2,
+                                  bugs=["http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=", "789"],
+                                  desc_matches=["Uniqueness is boring"])
+        else:
+            # apt works fine
+            self.check_nth_update(6, "xeroxed", "12-1", "bug", 1, bugs=["789"],
+                                  desc_matches=["Uniqueness is boring"])
+
         # updates are shown on system page
         b.go("/system")
         b.enter_page("/system")
@@ -862,8 +898,8 @@ ExecStart=/usr/local/bin/{packageName}
         # ignore restarting
         b.click("#ignore")
 
-        # should have succeeded; 3 non-security updates left
-        b.wait_in_text("#status", "3 updates available")
+        # should have succeeded; 4 non-security updates left
+        b.wait_in_text("#status", "4 updates available")
         b.wait_in_text("#available-updates h2", "Available updates")
 
         b.wait_in_text("#available-updates table", "norefs-doc")
@@ -873,6 +909,10 @@ ExecStart=/usr/local/bin/{packageName}
 
         # history should show the security updates
         self.assertHistory("table.updates-history #expanded-content0 ul", ["secdeclare", "secparse", "sevcritical"])
+
+        # re-drop the duplicate repo with dnf; PackageKit can't update otherwise (still RHEL-109155)
+        if self.backend.startswith("dnf"):
+            m.execute("rm /etc/yum.repos.d/test-dupe.repo")
 
         # stop PackageKit (e. g. idle timeout) to make sure the page survives that
         m.execute("systemctl stop packagekit; systemctl reset-failed packagekit || true")
@@ -893,7 +933,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # history on restart page should show the three non-security updates
         b.click(".pf-v6-c-expandable-section__toggle button")
-        self.assertHistory(".pf-v6-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
+        self.assertHistory(".pf-v6-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc", "xeroxed"])
 
         if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer) and not any(
                 fnmatch.fnmatch(m.image, img) for img in OSesWithDnfRestart):
@@ -922,7 +962,7 @@ ExecStart=/usr/local/bin/{packageName}
         # history on "up to date" page should show the recent update (expanded by default)
         self.assertHistory(
             "table.updates-history tbody.pf-m-expanded .pf-v6-c-table__expandable-row-content ul",
-            ["buggy", "norefs-bin", "norefs-doc"],
+            ["buggy", "norefs-bin", "norefs-doc", "xeroxed"],
         )
         # and the previous one, not expanded
         b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")

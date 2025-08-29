@@ -134,7 +134,7 @@ class DialogFooter extends React.Component {
 
         let wait_element;
         let actions_disabled = false;
-        let cancel_disabled;
+        const cancel_disabled = this.state.action_in_progress && !this.state.action_progress_cancel;
         if (this.state.action_in_progress) {
             actions_disabled = true;
             wait_element = <div className="dialog-wait-ct">

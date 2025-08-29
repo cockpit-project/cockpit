@@ -13,7 +13,6 @@
 
   .pf-v6-c-page {
     --pf-v6-c-page--BackgroundColor: var(--pf-t--global--background--color--primary--default);
-    height: 100%;
   }
 
   .pf-v6-c-card {
@@ -23,6 +22,6 @@
 
 body {
   // allow scrolling if a menu gets positioned outside the bounds of the viewport
-  overflow-y: scroll;
-  // background-color: var(--pf-t--global--background--color--primary--default);
+  overflow-y: scroll !important;
+  background-color: var(--pf-t--global--background--color--primary--default);
 }

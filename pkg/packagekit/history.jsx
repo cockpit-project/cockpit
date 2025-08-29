@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from "react";
+import React, { useRef } from "react";
 import PropTypes from "prop-types";
 
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
@@ -29,22 +29,34 @@ import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
 
-function formatPkgs(pkgs) {
-    const names = Object.keys(pkgs).filter(i => i != "_time");
-    names.sort();
-    return names.map(n => {
-        const tooltipRef = React.useRef(null);
+const PackageItem = ({ name, value }) => {
+    const tooltipRef = useRef(null);
 
-        return (
-            <React.Fragment key={n}>
-                <li ref={tooltipRef}>{n}</li>
-                <Tooltip triggerRef={tooltipRef} content={ n + " " + pkgs[n] } />
-            </React.Fragment>
-        );
-    });
-}
+    return (
+        <React.Fragment>
+            <li ref={tooltipRef}>{name}</li>
+            <Tooltip triggerRef={tooltipRef} content={`${name} ${value}`} />
+        </React.Fragment>
+    );
+};
 
-export const PackageList = ({ packages }) => packages ? <ul className='flow-list'>{formatPkgs(packages)}</ul> : null;
+export const PackageList = ({ packages }) => {
+    if (!packages) {
+        return null;
+    }
+
+    const packageNames = Object.keys(packages)
+        .filter(name => name !== "_time");
+    packageNames.sort();
+
+    return (
+        <ul className="flow-list">
+            {packageNames.map(name => (
+                <PackageItem key={name} name={name} value={packages[name]} />
+            ))}
+        </ul>
+    );
+};
 
 export class History extends React.Component {
     /* Some PackageKit transactions come in pairs with identical package list,

@@ -133,7 +133,7 @@ class DialogFooter extends React.Component {
         // via the progress reporting.
 
         let wait_element;
-        let actions_disabled;
+        let actions_disabled = false;
         let cancel_disabled;
         if (this.state.action_in_progress) {
             actions_disabled = true;

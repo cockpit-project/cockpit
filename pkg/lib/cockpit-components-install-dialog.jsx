@@ -28,17 +28,9 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import * as PK from "packagekit.js";
 
 import "cockpit-components-install-dialog.css";
+import { fmt_to_fragments } from "utils";
 
 const _ = cockpit.gettext;
-
-// TODO - generalize this to arbitrary number of arguments (when needed)
-function format_to_fragments(fmt, arg) {
-    const index = fmt.indexOf("$0");
-    if (index >= 0)
-        return <>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</>;
-    else
-        return fmt;
-}
 
 /* Calling install_dialog will open a dialog that lets the user
  * install the given package.
@@ -102,7 +94,7 @@ export function install_dialog(pkg, options) {
         else if (data?.download_size) {
             footer_message = (
                 <div>
-                    { format_to_fragments(_("Total size: $0"), <strong>{cockpit.format_bytes(data.download_size)}</strong>) }
+                    { fmt_to_fragments(_("Total size: $0"), <strong>{cockpit.format_bytes(data.download_size)}</strong>) }
                 </div>
             );
         }
@@ -112,7 +104,7 @@ export function install_dialog(pkg, options) {
             title: options.title || _("Install software"),
             body: (
                 <div className="scroll">
-                    <p>{ format_to_fragments(options.text || _("$0 will be installed."), missing_name) }</p>
+                    <p>{ fmt_to_fragments(options.text || _("$0 will be installed."), missing_name) }</p>
                     { remove_details }
                     { extra_details }
                 </div>
@@ -187,7 +179,7 @@ export function install_dialog(pkg, options) {
                                                        fmt = _("Removing $0");
                                                    else
                                                        fmt = _("Installing $0");
-                                                   text = format_to_fragments(fmt, <strong>{p.package}</strong>);
+                                                   text = fmt_to_fragments(fmt, <strong>{p.package}</strong>);
                                                }
                                                progress_cb(text, p.cancel);
                                            });

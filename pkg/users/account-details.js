@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -96,40 +96,62 @@ function get_expire(name) {
             .then(parse_expire);
 }
 
-export function AccountDetails({ accounts, groups, current_user, user, shells }) {
+export function AccountNotFound() {
+    return (
+        <EmptyState headingLevel="h1" icon={ExclamationCircleIcon} titleText={_("Account not available or cannot be edited.")} variant={EmptyStateVariant.sm} id="account-failure">
+            <EmptyStateFooter>
+                <EmptyStateActions>
+                    <Breadcrumb>
+                        <BreadcrumbItem to="#/">{_("Back to accounts")}</BreadcrumbItem>
+                    </Breadcrumb>
+                </EmptyStateActions>
+            </EmptyStateFooter>
+        </EmptyState>
+    );
+}
+
+export function AccountDetails({ account, groups, isLoading, current_user, shells }) {
     const [expiration, setExpiration] = useState(null);
 
+    const user = useMemo(() => account.name, [account.name]);
+    const [isLocked, setIsLocked] = useState(account.isLocked);
+
+    const [editedRealName, setEditedRealName] = useState(null);
+    const [comittingRealName, setCommittingRealName] = useState(false);
+    const [disableLockedEdit, setDisableLockedEdit] = useState(false);
+
     useEffect(() => {
-        get_expire(user).then(setExpiration);
-    }, [user, accounts]);
+        get_expire(account.name).then(setExpiration);
+    }, [account]);
 
-    const [edited_real_name, set_edited_real_name] = useState(null);
-    const [committing_real_name, set_committing_real_name] = useState(false);
+    // Only update isLocked field if account changes value
+    useEffect(() => {
+        setIsLocked(account.isLocked);
+    }, [account.isLocked]);
 
-    const [edited_locked, set_edited_locked] = useState(null);
-
-    function change_real_name() {
-        if (edited_real_name === null || edited_real_name === undefined)
+    function changeRealName() {
+        if (editedRealName === null || editedRealName === undefined)
             return;
 
-        set_committing_real_name(true);
+        setCommittingRealName(true);
 
         // TODO: unwanted chars check
-        cockpit.spawn(["/usr/sbin/usermod", user, "--comment", edited_real_name],
+        cockpit.spawn(["/usr/sbin/usermod", user, "--comment", editedRealName],
                       { superuser: "try", err: "message" })
                 .then(() => {
-                    set_edited_real_name(null);
-                    set_committing_real_name(false);
+                    setEditedRealName(null);
+                    setCommittingRealName(false);
                 })
                 .catch(error => {
-                    set_edited_real_name(null);
-                    set_committing_real_name(false);
+                    setEditedRealName(null);
+                    setCommittingRealName(false);
                     show_unexpected_error(error);
                 });
     }
 
     function change_locked(value, dont_retry_if_stuck) {
-        set_edited_locked(value);
+        setIsLocked(value);
+        setDisableLockedEdit(true);
 
         cockpit.spawn(["/usr/sbin/usermod", user, value ? "--lock" : "--unlock"],
                       { superuser: "require", err: "message" })
@@ -145,13 +167,15 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     console.log("Account locked state doesn't match desired value, trying again.");
                                     // only retry once to avoid uncontrolled recursion
                                     change_locked(value, true);
-                                } else
-                                    set_edited_locked(null);
+                                }
                             });
                 })
                 .catch(error => {
-                    set_edited_locked(null);
                     show_unexpected_error(error);
+                    setIsLocked(!value);
+                })
+                .finally(() => {
+                    setDisableLockedEdit(false);
                 });
     }
 
@@ -164,26 +188,10 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                 .catch(show_unexpected_error);
     }
 
-    if (!accounts.length) {
+    if (isLoading) {
         return (
             <EmptyState headingLevel="h1" titleText={_("Loading...")} variant={EmptyStateVariant.sm}>
                 <EmptyStateFooter><Spinner size="xl" /></EmptyStateFooter>
-            </EmptyState>
-        );
-    }
-
-    const account = accounts.find(acc => acc.name == user);
-
-    if (!account) {
-        return (
-            <EmptyState headingLevel="h1" icon={ExclamationCircleIcon} titleText={_("Account not available or cannot be edited.")} variant={EmptyStateVariant.sm} id="account-failure">
-                <EmptyStateFooter>
-                    <EmptyStateActions>
-                        <Breadcrumb>
-                            <BreadcrumbItem to="#/">{_("Back to accounts")}</BreadcrumbItem>
-                        </Breadcrumb>
-                    </EmptyStateActions>
-                </EmptyStateFooter>
             </EmptyState>
         );
     }
@@ -240,15 +248,15 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                 <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full name")}>
                                     { superuser.allowed
                                         ? <TextInput id="account-real-name"
-                                                     isDisabled={committing_real_name || account.uid == 0}
-                                                     value={edited_real_name !== null ? edited_real_name : account.gecos}
+                                                     isDisabled={comittingRealName || account.uid == 0}
+                                                     value={editedRealName !== null ? editedRealName : account.gecos}
                                                      onKeyDown={event => {
                                                          if (event.key == "Enter") {
                                                              event.target.blur();
                                                          }
                                                      }}
-                                                     onChange={(_event, value) => set_edited_real_name(value)}
-                                                     onBlur={() => change_real_name()} />
+                                                     onChange={(_event, value) => setEditedRealName(value)}
+                                                     onBlur={() => changeRealName()} />
                                         : <output id="account-real-name">{account.gecos}</output>}
                                 </FormGroup>
                                 <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>
@@ -262,8 +270,9 @@ export function AccountDetails({ accounts, groups, current_user, user, shells })
                                     <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                                         <FlexItem spacer={{ default: 'spacerNone' }}>
                                             <Checkbox id="account-locked"
-                                                        isDisabled={!superuser.allowed || edited_locked != null || user == current_user || account.isLocked == null}
-                                                        isChecked={edited_locked != null ? edited_locked : account.isLocked}
+                                                        ouiaSafe={disableLockedEdit}
+                                                        isDisabled={!superuser.allowed || disableLockedEdit || user == current_user || isLocked == null}
+                                                        isChecked={isLocked}
                                                         onChange={(_event, checked) => change_locked(checked)}
                                                         label={_("Disallow interactive password")} />
                                         </FlexItem>

@@ -33,7 +33,7 @@ import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "pam_user
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 import { AccountsMain } from "./accounts-list.js";
-import { AccountDetails } from "./account-details.js";
+import { AccountDetails, AccountNotFound } from "./account-details.js";
 
 import "./users.scss";
 import { fsinfo } from 'cockpit/fsinfo';
@@ -129,7 +129,7 @@ function AccountsPage() {
             });
         else
             return [];
-    }, [accounts, details]);
+    }, [accounts, details]); // FIXME: We only want to update this when details is updated, not accounts
 
     const groupsExtraInfo = useMemo(() => sortGroups(
         (groups || []).map(group => {
@@ -164,9 +164,12 @@ function AccountsPage() {
             />
         );
     } else if (path.length === 1) {
+        const account = accountsInfo?.find(account => account.name === path[0]);
+        if (!account)
+            return <AccountNotFound />;
         return (
-            <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo}
-                current_user={current_user_info?.name} user={path[0]} shells={shells} />
+            <AccountDetails account={account} isLoading={accountsInfo.length === 0} groups={groupsExtraInfo}
+                current_user={current_user_info?.name} shells={shells} />
         );
     } else return null;
 }

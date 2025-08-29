@@ -592,6 +592,7 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
                         &nbsp;{curPackage}
                     </div>
                     <Progress title={remain}
+                              aria-label={remain ? _("Time remaining: ") : _("Update progress")}
                               value={percentage}
                               size={ProgressSize.sm}
                               className="pf-v6-u-mb-xs" />

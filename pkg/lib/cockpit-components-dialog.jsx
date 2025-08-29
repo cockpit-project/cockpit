@@ -61,6 +61,7 @@ class DialogFooter extends React.Component {
             action_progress_message: '',
             action_progress_cancel: null,
             action_canceled: false,
+            action_caption_in_progress: '',
         };
         this.update_progress = this.update_progress.bind(this);
         this.cancel_click = this.cancel_click.bind(this);

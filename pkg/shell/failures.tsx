@@ -40,7 +40,7 @@ export const EarlyFailure = () => {
 
     return (
         <div id="early-failure" className="early-failure">
-            <Page className='no-masthead-sidebar'>
+            <Page className="pf-m-no-sidebar">
                 <PageSection hasBodyWrapper={false}>
                     <EmptyStatePanel icon={ExclamationCircleIcon}
                                      title={ _("Connection failed") }
@@ -80,7 +80,7 @@ const EarlyFailureReady = ({
 }) => {
     return (
         <div id="early-failure-ready" className="curtains-ct">
-            <Page className="no-masthead-sidebar">
+            <Page className="pf-m-no-sidebar">
                 <PageSection hasBodyWrapper={false}>
                     <EmptyStatePanel {... !loading ? { icon: ExclamationCircleIcon } : {} }
                                      loading={loading}

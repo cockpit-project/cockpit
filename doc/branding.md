@@ -74,3 +74,15 @@ body.login-pf {
 
 Notice how we can use variables from `/etc/os-release` in the branding.
 The value for these variables come from the machine that cockpit is logged into.
+
+`branding.css` may also set the `--ct-color-host-accent` CSS variable to change
+the Cockpit Shell panel's accent color. You can also customize
+[PatternFly's brand colors](https://www.patternfly.org/design-foundations/colors/#brand-colors)
+and other PatternFly variables. For example:
+
+```css
+:root {
+    --ct-color-host-accent: #c00 !important;
+    --pf-t--global--color--brand--default: red;
+}
+```

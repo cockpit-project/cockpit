@@ -1219,6 +1219,20 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
 
         b.wait_text("#brand", expected)
 
+        # customize branding
+        if not m.ws_container and not m.ostree_image:
+            self.write_file(f"{branddir}/branding.css", """
+    :root {
+        --pf-t--global--color--brand--default: #FF5001;
+    }""")
+            b.reload(ignore_cache=True)
+            b.login_and_go("/system", superuser=False)
+            # PF button uses PF brand color, check that
+            b.wait_visible('.ct-limited-access-alert button')
+            bgcol = b.eval_js(
+                "getComputedStyle(document.querySelector('.ct-limited-access-alert button')).backgroundColor")
+            self.assertEqual(bgcol, "rgb(255, 80, 1)")
+
     @testlib.skipOstree("tests cockpit-ws package")
     @testlib.skipWsContainer("tests cockpit-ws package")
     @testlib.nondestructive

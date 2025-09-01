@@ -239,6 +239,36 @@ export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
     if (!client.superuser.allowed)
         return null;
 
+    // Grab the PF token for a small spacer, and convert to px based on the root element (rem)
+    const rootStyle = getComputedStyle(document.documentElement);
+    const menuDistance = parseFloat(rootStyle.getPropertyValue("--pf-t--global--spacer--md")) *
+                         parseFloat(rootStyle.fontSize);
+    /*
+     * This popperProps object is for kebab menus in the storage list, where
+     * space is limited, especially when on small screens or from within Anaconda
+     * (via an iframe)
+     *
+     * - placement: Defaults to below the icon, aligned to the right edge.
+     * - flip: If there's not enough space for default, it tries to position the menu above,
+     * then to the side. ("end-start" is for automatic LTR/RTL support)
+     * - offset: Vertically centers the menu relative to the icon (using the PF half spacer).
+     */
+    const storageListKebabPopperProps = {
+        placement: "bottom-end",
+        modifiers: [
+            {
+                name: "flip",
+                options: {
+                    fallbackPlacements: ["top-end", "end-start"]
+                }
+            },
+        ],
+        offset: ({ placement, popper, reference }) =>
+                        placement.startsWith("end") || placement.startsWith("start")
+                            ? [(reference.height / 2) - (popper.height / 2), menuDistance]
+                : [0, menuDistance]
+    };
+
     const onToggleClick = (event) => {
         setIsOpen(!isOpen);
     };
@@ -263,7 +293,8 @@ export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
                   onSelect={onSelect}
                   onOpenChange={isOpen => setIsOpen(isOpen)}
                   toggle={toggle}
-                  popperProps={{ position: "right" }}
+            popperProps={storageListKebabPopperProps}
+        //   appendTo={isKebab ? "parent" : "body"}
                   shouldFocusToggleOnSelect>
             {menuItems}
         </Dropdown>);

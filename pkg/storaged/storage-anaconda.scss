@@ -19,3 +19,9 @@
     --pf-v6-c-card--BorderColor: transparent;
   }
 }
+
+body:has(.storage-anaconda) {
+  // containers like pf-v6-c-page won't expand with the viewport when dropdown menus are created 
+  // on lower resolutions, so we force all background to match the default
+  background: var(--pf-t--global--background--color--primary--default);
+}

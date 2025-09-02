@@ -36,17 +36,12 @@ import { HelpIcon, TrashIcon } from '@patternfly/react-icons';
 import { Name, NetworkModal, dialogSave } from "./dialogs-common";
 import { ModelContext } from './model-context';
 import { useDialogs } from 'dialogs.jsx';
+import { validate_ip, validate_ipv4, validate_ipv6 } from './utils';
 
 import './wireguard.scss';
 import { useInit } from 'hooks';
 
 const _ = cockpit.gettext;
-
-// Matches IPv6 address with optional netmask
-const IPv6_REGEX = /^[0-9a-fA-F:]+$/;
-
-// Matches IPv6 addres with optional port
-const IPv6_PORT_REGEX = /^\[?([0-9a-fA-F:]+)(\]:)?(\d{0,5})$/;
 
 function addressesToString(settings) {
     const addresses = settings.ipv4.address_data.concat(settings.ipv6.address_data);
@@ -65,12 +60,14 @@ function stringToAddresses(str) {
 
         const [address, prefix] = parts;
 
-        if (IPv6_REGEX.test(address)) {
+        if (validate_ipv6(address)) {
             const defaultPrefix = "128";
             ipv6.push({ address, prefix: prefix ?? defaultPrefix });
-        } else {
+        } else if (validate_ipv4(address)) {
             const defaultPrefix = "32";
             ipv4.push({ address, prefix: prefix ?? defaultPrefix });
+        } else {
+            throw cockpit.format(_("Invalid IP address '$0'"), address);
         }
     });
 
@@ -142,20 +139,16 @@ export function WireGuardDialog({ settings, connection, dev }) {
     function validatePeer(peer, index) {
         const endpoint = peer.endpoint?.trim();
         if (endpoint) {
-            let port = "";
-            const match = endpoint.match(IPv6_PORT_REGEX);
+            const split = endpoint.split(":");
+            // port should be after last ':'
+            const port = Number(split.at(-1));
+            const address = split.slice(0, -1).join(":").replace(/^\[|]$/g, '');
 
-            if (match) {
-                port = match[3];
-            } else {
-                const parts = endpoint.split(":");
-                if (parts.length !== 2) {
-                    throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820"), index + 1);
-                }
-                port = parts[1];
+            if (!validate_ip(address)) {
+                throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820"), index + 1);
             }
 
-            if (port == '' || isNaN(Number(port))) {
+            if (!Number.isInteger(port) || port < 0 || port > 65535) {
                 throw cockpit.format(_("Peer #$0 has invalid endpoint port. Port must be a number."), index + 1);
             }
         }

@@ -452,6 +452,11 @@ export function NetworkManagerModel() {
 
     function ip_address_to_nm(addr, ipv) {
         const prefix = ipv === "ipv4" ? utils.ip4_prefix_from_text(addr.prefix) : utils.ip_prefix_from_text(addr.prefix);
+
+        if (!utils.validate_ip(addr.address)) {
+            throw cockpit.format(_("Invalid IP address: $0"), addr.address);
+        }
+
         return {
             address: { t: "s", v: addr.address },
             prefix: { t: "u", v: prefix },
@@ -469,6 +474,15 @@ export function NetworkManagerModel() {
 
     function route_to_nm(route, ipv) {
         const prefix = ipv === "ipv4" ? utils.ip4_prefix_from_text(route.prefix) : utils.ip_prefix_from_text(route.prefix);
+
+        if (!utils.validate_ip(route.dest)) {
+            throw cockpit.format(_("Invalid destination address: $0"), route.dest);
+        }
+
+        if (!utils.validate_ip(route.next_hop)) {
+            throw cockpit.format(_("Invalid gateway address: $0"), route.next_hop);
+        }
+
         return {
             dest: { t: "s", v: route.dest },
             prefix: { t: "u", v: prefix },
@@ -624,8 +638,12 @@ export function NetworkManagerModel() {
             if (addresses)
                 set(first, "address-data", "aa{sv}", addresses.map(addr => ip_address_to_nm(addr, first)));
 
-            if (settings[first].gateway && addresses.length > 0) {
-                set(first, "gateway", "s", settings[first].gateway);
+            const gateway = settings[first].gateway;
+            if (gateway && addresses.length > 0) {
+                if (!utils.validate_ip(gateway)) {
+                    throw cockpit.format(_("Invalid gateway address: $0"), gateway);
+                }
+                set(first, "gateway", "s", gateway);
             } else {
                 // gateway cannot be set if there are no addresses
                 delete result[first].gateway;
@@ -633,6 +651,11 @@ export function NetworkManagerModel() {
 
             const dns = settings[first].dns_data;
             if (dns) {
+                const invalid = dns.find(addr => !utils.validate_ip(addr));
+                if (invalid) {
+                    throw cockpit.format(_("Invalid DNS address: $0"), invalid);
+                }
+
                 if (self.supports_dns_data) {
                     set(first, "dns-data", "as", dns);
                 } else {

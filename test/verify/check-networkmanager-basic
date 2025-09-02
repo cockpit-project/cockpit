@@ -104,7 +104,6 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.0.8")
-        b.set_input_text('#network-ip-settings-gateway', "1.2.3.1")
         b.click("#network-ip-settings-save")
         b.wait_text_not("#network-ip-settings-error h4", "")
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.192.0")

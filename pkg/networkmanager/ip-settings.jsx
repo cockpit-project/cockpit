@@ -137,7 +137,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         });
     };
 
-    const addressIpv4Helper = (address) => {
+    const addressIpv4Helper = (address, i) => {
         const config = { address, prefix: '' };
         const split = address.split('.');
 
@@ -145,12 +145,19 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
             return config;
 
         if (split[0] >= 0 && split[0] <= 127) {
-            return { ...config, prefix: "255.0.0.0" };
+            config.prefix = "255.0.0.0";
         } else if (split[0] >= 128 && split[0] <= 191) {
-            return { ...config, prefix: "255.255.0.0" };
+            config.prefix = "255.255.0.0";
         } else if (split[0] <= 192 && split[0] <= 223) {
-            return { ...config, prefix: "255.255.255.0" };
-        } else return { ...config };
+            config.prefix = "255.255.255.0";
+        }
+
+        // pre-fill default gateway based on the first address for classfull prefixes
+        if (i === 0 && config.prefix !== "") {
+            setDefaultGateway(`${split[0]}.${split[1]}.${split[2]}.${split[3] === "1" ? "254" : "1"}`);
+        }
+
+        return config;
     };
 
     return (
@@ -194,7 +201,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     <TextInput id={idPrefix + "-address-" + i} value={address.address} onChange={(_event, value) => setAddresses(
                                         addresses.map((item, index) =>
                                             i === index
-                                                ? addressIpv4Helper(value)
+                                                ? addressIpv4Helper(value, i)
                                                 : item
                                         ))} />
                                 </FormGroup>

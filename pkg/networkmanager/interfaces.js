@@ -481,7 +481,7 @@ export function NetworkManagerModel() {
                 ignore_auto_dns: get(first, "ignore-auto-dns", false),
                 ignore_auto_routes: get(first, "ignore-auto-routes", false),
                 address_data: get(first, "address-data", []).map(ip_address_from_nm),
-                gateway: get(first, "gateway", first === "ipv4" ? "0.0.0.0" : "::"),
+                gateway: get(first, "gateway", ""),
                 dns_data,
                 dns_search: get(first, "dns-search", []),
                 route_data: get(first, "route-data", []).map(route_from_nm),
@@ -610,8 +610,12 @@ export function NetworkManagerModel() {
             if (addresses)
                 set(first, "address-data", "aa{sv}", addresses.map(addr => ip_address_to_nm(addr, first)));
 
-            if (settings[first].gateway)
+            if (settings[first].gateway && addresses.length > 0) {
                 set(first, "gateway", "s", settings[first].gateway);
+            } else {
+                // gateway cannot be set if there are no addresses
+                delete result[first].gateway;
+            }
 
             const dns = settings[first].dns_data;
             if (dns) {

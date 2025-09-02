@@ -170,6 +170,20 @@ export function NetworkManagerModel() {
     // dns-data property was added in version 1.42.0
     self.supports_dns_data = false;
 
+    function check_version_dns_data_support(version) {
+        if (version.length < 2) {
+            return false;
+        }
+
+        if (version[0] > 1) {
+            return true;
+        } else if (version[0] === 1 && version[1] >= 42) {
+            return true;
+        }
+
+        return false;
+    }
+
     /* resolved once first stage of initialization is done */
     self.preinit = new Promise((resolve, reject) => {
         client.call("/org/freedesktop/NetworkManager",
@@ -177,7 +191,7 @@ export function NetworkManagerModel() {
                     ["org.freedesktop.NetworkManager", "Version"], { flags: "" })
                 .then((reply, options) => {
                     const nm_version = reply[0].v.split(".").map(n => Number.parseInt(n));
-                    self.supports_dns_data = (nm_version[0] >= 1 && nm_version[1] >= 42 && nm_version[2] >= 0);
+                    self.supports_dns_data = check_version_dns_data_support(nm_version);
 
                     if (options.flags) {
                         if (options.flags.indexOf(">") !== -1)

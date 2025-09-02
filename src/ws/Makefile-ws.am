@@ -132,6 +132,11 @@ test_kerberos_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_kerberos_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS) $(krb5_LIBS)
 test_kerberos_SOURCES = src/ws/test-kerberos.c
 
+TEST_PROGRAM += test-branding
+test_branding_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_branding_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_branding_SOURCES = src/ws/test-branding.c
+
 noinst_PROGRAMS += mock-pam-conv-mod.so
 mock_pam_conv_mod_so_SOURCES = src/ws/mock-pam-conv-mod.c
 mock_pam_conv_mod_so_CFLAGS = -fPIC $(AM_CFLAGS)

@@ -36,21 +36,16 @@ import { HelpIcon, TrashIcon } from '@patternfly/react-icons';
 import { Name, NetworkModal, dialogSave } from "./dialogs-common";
 import { ModelContext } from './model-context';
 import { useDialogs } from 'dialogs.jsx';
+import { validate_ip, validate_ipv4, validate_ipv6 } from './utils';
 
 import './wireguard.scss';
 import { useInit } from 'hooks';
 
 const _ = cockpit.gettext;
 
-// Matches IPv6 address with optional netmask
-const IPv6_REGEX = /^[0-9a-fA-F:]+$/;
-
-// Matches IPv6 addres with optional port
-const IPv6_PORT_REGEX = /^\[?([0-9a-fA-F:]+)(\]:)?(\d{0,5})$/;
-
 function addressesToString(settings) {
-    const addresses = settings.ipv4.addresses.concat(settings.ipv6.addresses);
-    return addresses.map(address => address[0] + "/" + address[1]).join(", ");
+    const addresses = settings.ipv4.address_data.concat(settings.ipv6.address_data);
+    return addresses.map(addr => addr.address + "/" + addr.prefix).join(", ");
 }
 
 function stringToAddresses(str) {
@@ -65,16 +60,14 @@ function stringToAddresses(str) {
 
         const [address, prefix] = parts;
 
-        if (IPv6_REGEX.test(address)) {
+        if (validate_ipv6(address)) {
             const defaultPrefix = "128";
-            const gateway = "::0";
-            ipv6.push([address, prefix ?? defaultPrefix, gateway]);
-        } else {
+            ipv6.push({ address, prefix: prefix ?? defaultPrefix });
+        } else if (validate_ipv4(address)) {
             const defaultPrefix = "32";
-            // Gateway usually conflicts with routing that NetworkManager configures for WireGuard interfaces
-            // So it should not be set in that case or more accurately set to 0 i.e. "0.0.0.0" in string format
-            const gateway = "0.0.0.0";
-            ipv4.push([address, prefix ?? defaultPrefix, gateway]);
+            ipv4.push({ address, prefix: prefix ?? defaultPrefix });
+        } else {
+            throw cockpit.format(_("Invalid IP address '$0'"), address);
         }
     });
 
@@ -146,20 +139,16 @@ export function WireGuardDialog({ settings, connection, dev }) {
     function validatePeer(peer, index) {
         const endpoint = peer.endpoint?.trim();
         if (endpoint) {
-            let port = "";
-            const match = endpoint.match(IPv6_PORT_REGEX);
+            const split = endpoint.split(":");
+            // port should be after last ':'
+            const port = Number(split.at(-1));
+            const address = split.slice(0, -1).join(":").replace(/^\[|]$/g, '');
 
-            if (match) {
-                port = match[3];
-            } else {
-                const parts = endpoint.split(":");
-                if (parts.length !== 2) {
-                    throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820"), index + 1);
-                }
-                port = parts[1];
+            if (!validate_ip(address)) {
+                throw cockpit.format(_("Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820"), index + 1);
             }
 
-            if (port == '' || isNaN(Number(port))) {
+            if (!Number.isInteger(port) || port < 0 || port > 65535) {
                 throw cockpit.format(_("Peer #$0 has invalid endpoint port. Port must be a number."), index + 1);
             }
         }
@@ -197,7 +186,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
 
             if (ipv4.length > 0) {
                 addresses.ipv4 = {
-                    addresses: ipv4,
+                    address_data: ipv4,
                     method: "manual",
                     dns: [],
                     dns_search: [],
@@ -208,7 +197,7 @@ export function WireGuardDialog({ settings, connection, dev }) {
 
             if (ipv6.length > 0) {
                 addresses.ipv6 = {
-                    addresses: ipv6,
+                    address_data: ipv6,
                     // "stable-privacy" use hashing method for IPv6 autoconfiguration
                     addr_gen_mode: 1,
                     method: "manual",
@@ -407,10 +396,10 @@ export function getWireGuardGhostSettings({ newIfaceName }) {
             peers: []
         },
         ipv4: {
-            addresses: []
+            address_data: []
         },
         ipv6: {
-            addresses: []
+            address_data: []
         },
     };
 }

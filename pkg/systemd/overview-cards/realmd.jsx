@@ -37,8 +37,8 @@ import { superuser } from "superuser";
 import { useEvent } from "hooks.js";
 import { FormHelper } from "cockpit-components-form-helper";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import * as packagekit from "packagekit.js";
 import { useDialogs } from "dialogs.jsx";
+import { getPackageManager } from 'packagemanager';
 
 import "./realmd.scss";
 
@@ -68,13 +68,12 @@ export class RealmdClient {
     onClose(ev, options) {
         if (options.problem === "not-found") {
             // see if we can install it
-            packagekit.detect().then(exists => {
-                if (exists) {
-                    this.error = _("Joining a domain requires installation of realmd");
-                    this.install_realmd = true;
-                } else {
-                    this.error = _("Cannot join a domain because realmd is not available on this system");
-                }
+            getPackageManager().then(() => {
+                this.error = _("Joining a domain requires installation of realmd");
+                this.install_realmd = true;
+                this.dispatchEvent("changed");
+            }).catch(exc => {
+                this.error = _("Cannot join a domain because realmd is not available on this system");
                 this.dispatchEvent("changed");
             });
         } else {

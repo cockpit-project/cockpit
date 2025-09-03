@@ -1167,7 +1167,9 @@ class TestPackageInstall(packagelib.PackageCase):
 
         m.execute("dpkg --purge realmd 2>/dev/null || rpm --erase realmd || dnf remove -y realmd")
 
-        # case 1: disable PackageKit
+        # case 1: disable package backend
+        if self.backend == 'dnf5':
+            m.execute("systemctl mask dnf5daemon-server; systemctl stop dnf5daemon-server.service || true")
         m.execute("systemctl mask packagekit; systemctl stop packagekit.service || true")
         self.allow_browser_errors('checkRealm failed.*"problem":"not-found"')
         self.login_and_go("/system")
@@ -1176,7 +1178,9 @@ class TestPackageInstall(packagelib.PackageCase):
         self.waitTooltip("realmd is not available on this system")
         b.logout()
 
-        # case 2: enable PackageKit, but no realmd package available
+        # case 2: enable package backend, but no realmd package available
+        if self.backend == 'dnf5':
+            m.execute("systemctl unmask dnf5daemon-server")
         m.execute("systemctl unmask packagekit")
         self.login_and_go("/system")
         # Joining a domain should bring up the install dialog
@@ -1194,7 +1198,8 @@ class TestPackageInstall(packagelib.PackageCase):
         # case 3: provide an available realmd package
         self.createPackage("realmd", "1", "1", content={"/realmd-stub": ""})
         self.enableRepo()
-        m.execute("pkcon refresh")
+        if self.backend != 'dnf5':
+            m.execute("pkcon refresh")
 
         self.login_and_go("/system")
 

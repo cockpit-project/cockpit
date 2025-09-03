@@ -18,17 +18,24 @@
  */
 
 import cockpit from "cockpit";
-import * as PK from "packagekit.js";
 
 import { dialog_open, TextInput, SelectOne, Message, SelectSpaces, SelectOneRadio, SizeSlider, CheckBoxes } from "../dialog.jsx";
 import { validate_lvm2_name } from "../utils.js";
 
 import { pvs_to_spaces, next_default_logical_volume_name } from "./utils.jsx";
+import { getPackageManager } from "packagemanager.js";
 
 const _ = cockpit.gettext;
 
-function install_package(name, progress) {
-    return PK.check_missing_packages([name], p => progress(_("Checking installed software"), p.cancel))
+async function install_package(name, progress) {
+    let package_manager = null;
+    try {
+        package_manager = await getPackageManager();
+    } catch (err) {
+        return;
+    }
+
+    return package_manager.check_missing_packages([name], p => progress(_("Checking installed software"), p.cancel))
             .then(data => {
                 if (data.unavailable_names.length > 0)
                     return Promise.reject(new Error(
@@ -38,7 +45,7 @@ function install_package(name, progress) {
                     return Promise.reject(new Error(
                         cockpit.format(_("Installing $0 would remove $1."), name, data.remove_names[0])));
 
-                return PK.install_missing_packages(data, p => progress(_("Installing packages"), p.cancel));
+                return package_manager.install_missing_packages(data, p => progress(_("Installing packages"), p.cancel));
             });
 }
 

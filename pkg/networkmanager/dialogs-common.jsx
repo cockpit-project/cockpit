@@ -19,7 +19,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import cockpit from 'cockpit';
-import * as packagekit from 'packagekit.js';
+import { getPackageManager } from "packagemanager";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -202,12 +202,16 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
             try {
                 await cockpit.script("command -v wg");
             } catch {
-                const packagekitExits = await packagekit.detect();
                 const os_release = await read_os_release();
 
-                // RHEL 8 does not have wireguard-tools
-                if (packagekitExits && os_release.PLATFORM_ID !== "platform:el8")
-                    await install_dialog("wireguard-tools");
+                try {
+                    await getPackageManager();
+                    // RHEL 8 does not have wireguard-tools
+                    if (os_release.PLATFORM_ID !== "platform:el8")
+                        await install_dialog("wireguard-tools");
+                } catch (exc) {
+                    console.log("no package manager support");
+                }
             }
         }
     }

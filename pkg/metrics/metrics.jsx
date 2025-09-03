@@ -46,7 +46,6 @@ import {
 
 import cockpit from 'cockpit';
 import * as machine_info from "../lib/machine-info.js";
-import * as packagekit from "packagekit.js";
 import * as service from "service";
 import * as timeformat from "timeformat";
 import { superuser } from "superuser";
@@ -66,6 +65,7 @@ import { FirewalldRequest } from "cockpit-components-firewalld-request.jsx";
 
 import "./metrics.scss";
 import "journal.css";
+import { getPackageManager } from 'packagemanager.js';
 
 const MSEC_PER_H = 3600000;
 const INTERVAL = 5000;
@@ -1353,9 +1353,10 @@ const PCPConfigDialog = ({
     const [dialogLoggerValue, setDialogLoggerValue] = useState(runningService(s_pmlogger));
     const [dialogProxyValue, setDialogProxyValue] = useState(dialogInitialProxyValue);
     const [pending, setPending] = useState(false);
-    const [packagekitExists, setPackagekitExists] = useState(null);
+    const [packageManager, setPackageManager] = useState(null);
 
-    useInit(() => packagekit.detect().then(setPackagekitExists));
+    useInit(() => getPackageManager().then(setPackageManager));
+    console.log(packageManager);
 
     const handleInstall = async () => {
     // when enabling services, install missing packages on demand
@@ -1467,7 +1468,7 @@ const PCPConfigDialog = ({
                     <StackItem>
                         <Switch id="switch-pmlogger"
                                     isChecked={dialogLoggerValue}
-                                    isDisabled={!s_pmlogger.exists && !packagekitExists}
+                                    isDisabled={!s_pmlogger.exists && !packageManager}
                                     label={
                                         <Flex>
                                             <FlexItem>{ _("Collect metrics") }</FlexItem>
@@ -1574,7 +1575,7 @@ class MetricsHistory extends React.Component {
             error: null,
             isDatepickerOpened: false,
             selectedDate: null,
-            packagekitExists: false,
+            packageManager: false,
             isBeibootBridge: false,
             isPythonPCPInstalled: null,
             selectedVisibility: this.columns.reduce((a, v) => ({ ...a, [v[0]]: true }), {}),
@@ -1632,7 +1633,13 @@ class MetricsHistory extends React.Component {
     }
 
     async componentDidMount() {
-        const packagekitExists = await packagekit.detect();
+        let packageManager = false;
+        try {
+            await getPackageManager();
+            packageManager = true;
+        } catch (err) {
+            packageManager = false;
+        }
         // HACK: See https://github.com/cockpit-project/cockpit/issues/19143
         let cmdline = "";
         try {
@@ -1640,7 +1647,7 @@ class MetricsHistory extends React.Component {
         } catch (_ex) {}
 
         const isBeibootBridge = cmdline?.includes("ic# cockpit-bridge");
-        this.setState({ packagekitExists, isBeibootBridge });
+        this.setState({ packageManager, isBeibootBridge });
 
         try {
             // Only 14 days of metrics are shown
@@ -1821,7 +1828,7 @@ class MetricsHistory extends React.Component {
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("PCP is missing for metrics history")}
-                        action={this.state.packagekitExists && <Button onClick={this.handleInstall}>{_("Install PCP support")}</Button>}
+                        action={this.state.packageManager && <Button onClick={this.handleInstall}>{_("Install PCP support")}</Button>}
             />;
 
         if (!this.state.metricsAvailable) {

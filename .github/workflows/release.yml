@@ -135,7 +135,9 @@ jobs:
           git commit -m "Update to version ${{ github.ref_name }}"
           git show
           git push git@github.com:cockpit-project/org.cockpit_project.CockpitClient HEAD
-          gh auth login
+
+          echo {{ GITHUB_TOKEN }} | gh auth login --with-token
+
           gh pr create \
             --fill \
             -H cockpit-project:${{ github.ref_name }} \

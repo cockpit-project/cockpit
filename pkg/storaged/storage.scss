@@ -310,11 +310,3 @@ td.job-action {
 .pf-v6-c-button .pf-v6-c-truncate span {
     text-decoration: var(--pf-v6-c-button--TextDecorationLine) var(--pf-v6-c-button--TextDecorationStyle);
 }
-
-// HACK - https://github.com/patternfly/patternfly-react/issues/11987
-// Allow scrolling if a dropdown menu gets positioned outside the bounds of the window.
-// This is easier to reproduce on 1080p or lower resolutions
-// (see https://bugzilla.redhat.com/show_bug.cgi?id=2388785)
- body:has(#storage) {
-  overflow-y: auto !important;
- }

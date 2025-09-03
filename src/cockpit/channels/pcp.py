@@ -186,6 +186,13 @@ class PcpMetricsChannel(AsyncChannel):
         return pmapi.timeval(sec, usec)
 
     @staticmethod
+    def float_to_timespec(timestamp: float) -> 'pmapi.timespec':
+        ts = pmapi.timespec()
+        ts.tv_sec = int(timestamp / 1000)
+        ts.tv_nsec = int((timestamp % 1000) * 1000000)
+        return ts
+
+    @staticmethod
     def get_context_and_name(source: str) -> 'tuple[str, str]':
         if source == "":
             raise ChannelError('protocol-error', message='no "source" option specified for metrics channel')
@@ -377,8 +384,13 @@ class PcpMetricsChannel(AsyncChannel):
             metrics.append(desc)
 
         now = int(time.time()) * 1000
-        timestamp = int(results.contents.timestamp.tv_sec * 1000
-                        + results.contents.timestamp.tv_usec / 1000)
+
+        # PCP 7.0+: timespec with nanoseconds; PCP < 7.0: timeval with microseconds
+        ms = (results.contents.timestamp.tv_nsec / 1000000
+              if hasattr(results.contents.timestamp, 'tv_nsec')
+              else results.contents.timestamp.tv_usec / 1000)
+        timestamp = int(results.contents.timestamp.tv_sec * 1000 + ms)
+
         self.send_json(source=self.source,
                        interval=self.interval,
                        timestamp=timestamp,
@@ -631,8 +643,15 @@ class PcpMetricsChannel(AsyncChannel):
 
             context = archive.context
             try:
-                context.pmSetMode(c_api.PM_MODE_INTERP | c_api.PM_XTB_SET(c_api.PM_TIME_MSEC),
-                                  self.float_to_timeval(timestamp), self.interval)
+                if hasattr(c_api, 'PM_XTB_SET'):
+                    # PCP < 7.0: use XTB encoding with timeval
+                    context.pmSetMode(c_api.PM_MODE_INTERP | c_api.PM_XTB_SET(c_api.PM_TIME_MSEC),
+                                      self.float_to_timeval(timestamp), self.interval)
+                else:
+                    # PCP 7.0 removed PM_XTB_SET, use new timespec-based API
+                    context.pmSetMode(c_api.PM_MODE_INTERP,
+                                      self.float_to_timespec(timestamp),
+                                      self.float_to_timespec(self.interval))
             except pmapi.pmErr as exc:
                 raise ChannelError('internal-error', message=str(exc)) from None
 

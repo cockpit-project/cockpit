@@ -1660,7 +1660,6 @@ class TestAutoUpdates(NoSubManCase):
             # don't allow stomping over unparsable custom settings
             b.wait_not_present("#autoupdates-settings button")
 
-    @testlib.skipImage("TODO: support DNF5 automatic updates", "fedora-41")
     def testWithAvailableUpdates(self):
         b = self.browser
         m = self.machine

@@ -63,7 +63,7 @@ class TestSystemInfo(testlib.MachineCase):
         self.expect_smt_default = self.machine.image in ["fedora-coreos"]
 
         # Switching into and out of FIPS mode is not supported anymore in newer OSes.
-        self.supportsFIPS = self.machine.image.startswith(("fedora-40", "fedora-41", "rhel-8", "rhel-9", "centos-9"))
+        self.supportsFIPS = self.machine.image.startswith(("rhel-8", "rhel-9", "centos-9"))
 
     def testBasic(self):
         m = self.machine

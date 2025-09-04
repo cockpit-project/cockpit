@@ -176,7 +176,7 @@ You can set these environment variables to configure the test suite:
  * `TEST_OS`: The OS to run the tests in, like "fedora-coreos" or
     "debian-testing". See the "cockpit-project/cockpit" section in the
     [test map](https://github.com/cockpit-project/bots/blob/main/lib/testmap.py)
-    for all supported values. "fedora-41" is the default (`TEST_OS_DEFAULT` in
+    for all supported values. "fedora-42" is the default (`TEST_OS_DEFAULT` in
     bots' [constants.py](https://github.com/cockpit-project/bots/blob/main/lib/constants.py)).
 
  * `TEST_JOBS`:  How many tests to run in parallel.  The default is 1.

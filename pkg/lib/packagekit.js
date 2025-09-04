@@ -313,6 +313,7 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
  */
 
 export function check_missing_packages(names, progress_cb) {
+    const install_ids = [];
     const data = {
         missing_ids: [],
         missing_names: [],
@@ -354,8 +355,6 @@ export function check_missing_packages(names, progress_cb) {
     }
 
     function simulate(data) {
-        data.install_ids = [];
-        data.remove_ids = [];
         data.extra_names = [];
         data.remove_names = [];
 
@@ -367,11 +366,10 @@ export function check_missing_packages(names, progress_cb) {
                                               Package: (info, package_id) => {
                                                   const name = package_id.split(";")[0];
                                                   if (info == Enum.INFO_REMOVING) {
-                                                      data.remove_ids.push(package_id);
                                                       data.remove_names.push(name);
                                                   } else if (info == Enum.INFO_INSTALLING ||
                                                              info == Enum.INFO_UPDATING) {
-                                                      data.install_ids.push(package_id);
+                                                      install_ids.push(package_id);
                                                       if (data.missing_names.indexOf(name) == -1)
                                                           data.extra_names.push(name);
                                                   }
@@ -390,9 +388,9 @@ export function check_missing_packages(names, progress_cb) {
 
     function get_details(data) {
         data.download_size = 0;
-        if (data.install_ids.length > 0) {
+        if (install_ids.length > 0) {
             return cancellableTransaction("GetDetails",
-                                          [data.install_ids],
+                                          [install_ids],
                                           progress_cb,
                                           {
                                               Details: details => {

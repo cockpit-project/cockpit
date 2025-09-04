@@ -1572,7 +1572,6 @@ class MetricsHistory extends React.Component {
             metricsAvailable: true,
             pmLoggerState: null,
             error: null,
-            isDatepickerOpened: false,
             selectedDate: null,
             packagekitExists: false,
             isBeibootBridge: false,
@@ -1582,7 +1581,6 @@ class MetricsHistory extends React.Component {
         };
 
         this.handleMoreData = this.handleMoreData.bind(this);
-        this.handleToggle = this.handleToggle.bind(this);
         this.handleSelect = this.handleSelect.bind(this);
         this.handleInstall = this.handleInstall.bind(this);
 
@@ -1664,10 +1662,6 @@ class MetricsHistory extends React.Component {
         this.load_data(this.oldest_timestamp - (LOAD_HOURS * MSEC_PER_H), LOAD_HOURS * SAMPLES_PER_H, true);
     }
 
-    handleToggle(_, isOpen) {
-        this.setState({ isDatepickerOpened: isOpen });
-    }
-
     handleSelect(sel) {
         // Stop fetching of new data
         if (this.history_refresh_timer !== null) {
@@ -1680,7 +1674,6 @@ class MetricsHistory extends React.Component {
         cockpit.location.go([], Object.assign(cockpit.location.options, { date: sel }));
         this.setState({
             selectedDate: sel,
-            isDatepickerOpened: false,
             hours: [],
         }, () => this.load_data(sel, sel === this.today_midnight ? undefined : 24 * SAMPLES_PER_H, true));
     }

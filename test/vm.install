@@ -56,11 +56,6 @@ if [ "${PLATFORM_ID#platform:el}" != "$PLATFORM_ID" ]; then
     echo 'Defaults secure_path = /sbin:/usr/sbin:/usr/local/bin:/bin:/usr/bin' > /etc/sudoers.d/usr-local
 fi
 
-if [ "$PLATFORM_ID" = "platform:el10" ]; then
-    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=2273078
-    printf  '[network]\nfirewall_driver = "nftables"\n' > /etc/containers/containers.conf
-fi
-
 # HACK: unbreak subuid assignment for current and new users; see
 # https://bugzilla.redhat.com/show_bug.cgi?id=2382662
 # https://issues.redhat.com/browse/RHEL-103765

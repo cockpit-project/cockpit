@@ -69,11 +69,6 @@ systemctl start firewalld
 firewall-cmd --add-service=cockpit --permanent
 firewall-cmd --add-service=cockpit
 
-# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=2273078
-if grep -q platform:el10 /etc/os-release; then
-    export NETAVARK_FW=nftables
-fi
-
 # HACK: unbreak subuid assignment for new users; see
 # https://bugzilla.redhat.com/show_bug.cgi?id=2382662
 # https://issues.redhat.com/browse/RHEL-103765

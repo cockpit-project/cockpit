@@ -237,6 +237,12 @@ declare module 'cockpit' {
         [property: string]: unknown;
     }
 
+    interface DBusClientEvents extends EventMap {
+        notify(data: unknown): void;
+        meta(data: unknown): void;
+        owner(owner: string): void;
+    }
+
     interface DBusOptions {
         bus?: string;
         address?: string;
@@ -258,7 +264,7 @@ declare module 'cockpit' {
         wait(callback?: () => void): Promise<void>;
     }
 
-    interface DBusClient {
+    interface DBusClient extends EventSource<DBusClientEvents> {
         readonly unique_name: string;
         readonly options: DBusOptions;
         proxy(interface?: string, path?: string, options?: { watch?: boolean }): DBusProxy;

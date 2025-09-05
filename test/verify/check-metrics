@@ -1373,7 +1373,8 @@ class TestMetricsPackages(packagelib.PackageCase):
         self.createPackage("pcp", "999", "1", content=pcp_content, postinst="systemctl daemon-reload")
         self.createPackage(redis_package, "999", "1", content=redis_content, postinst="systemctl daemon-reload")
         self.enableRepo()
-        m.execute("pkcon refresh")
+        if self.backend != "dnf5":
+            m.execute("pkcon refresh")
 
         # install c-pcp from the empty state
         self.login_and_go("/metrics")

@@ -1219,7 +1219,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
 
         b.wait_text("#brand", expected)
 
-        # customize branding
+        # customize branding in package dirs
         if not m.ws_container and not m.ostree_image:
             self.write_file(f"{branddir}/branding.css", """
     :root {
@@ -1232,6 +1232,25 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
             bgcol = b.eval_js(
                 "getComputedStyle(document.querySelector('.ct-limited-access-alert button')).backgroundColor")
             self.assertEqual(bgcol, "rgb(255, 80, 1)")
+            b.logout()
+
+        # customize branding in /etc/cockpit; overrides package dirs
+        if not m.ws_container:
+            m.write("/etc/cockpit/branding/branding.css", """
+    :root {
+        --pf-t--global--color--brand--default: #50FF02;
+    }""")
+            # cockpit-ws only detects branding on startup, and browsers cache; so apply some force
+            m.restart_cockpit()
+            b.login_and_go("/system", superuser=False)
+            b.reload(ignore_cache=True)
+            b.enter_page("/system")
+
+            b.wait_visible('.ct-limited-access-alert button')
+            bgcol = b.eval_js(
+                "getComputedStyle(document.querySelector('.ct-limited-access-alert button')).backgroundColor")
+            self.assertEqual(bgcol, "rgb(80, 255, 2)")
+            b.logout()
 
     @testlib.skipOstree("tests cockpit-ws package")
     @testlib.skipWsContainer("tests cockpit-ws package")

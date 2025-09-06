@@ -22,10 +22,35 @@
 #include "common/cockpitwebserver.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitsystem.h"
+#include "common/cockpitconf.h"
 
 #include "cockpitauth.h"
 #include "cockpitbranding.h"
 #include "cockpitwebservice.h"
+
+static gboolean
+add_config_branding_dirs (GPtrArray *dirs)
+{
+  const gchar * const* config_dirs;
+  gboolean found_any = FALSE;
+
+  config_dirs = cockpit_conf_get_dirs ();
+  while (config_dirs && config_dirs[0])
+    {
+      g_autofree gchar *config_path = g_build_filename (config_dirs[0], "cockpit", "branding", NULL);
+      g_autofree gchar *config_css = g_build_filename (config_path, "branding.css", NULL);
+
+      if (g_file_test (config_css, G_FILE_TEST_IS_REGULAR))
+        {
+          g_ptr_array_add (dirs, g_steal_pointer (&config_path));
+          found_any = TRUE;
+        }
+
+      config_dirs++;
+    }
+
+  return found_any;
+}
 
 static const gchar * const*
 get_system_data_dirs (void)
@@ -51,6 +76,18 @@ add_system_dirs (GPtrArray *dirs)
     }
 }
 
+static void
+add_system_branding_dirs (GPtrArray *dirs, const gchar *branding_path)
+{
+  const gchar * const* system;
+  system = get_system_data_dirs ();
+  while (system && system[0])
+    {
+      g_ptr_array_add (dirs, g_build_filename (system[0], "cockpit", "branding", branding_path, NULL));
+      system++;
+    }
+}
+
 gchar **
 cockpit_branding_calculate_static_roots (const gchar *os_id,
                                          const gchar *os_variant_id,
@@ -58,39 +95,51 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
                                          gboolean is_local)
 {
   GPtrArray *dirs;
-  gchar **roots;
 
   dirs = g_ptr_array_new_with_free_func (g_free);
 
-  if (is_local)
-    add_system_dirs (dirs);
-
-  if (os_id)
+  /* if /etc/cockpit/branding exists, use only that; otherwise scan /usr */
+  if (!add_config_branding_dirs (dirs))
     {
-      if (os_variant_id)
-          g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id));
-      g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id));
+      if (is_local)
+        add_system_dirs (dirs);
+
+      if (os_id)
+        {
+          if (os_variant_id)
+            {
+              g_autofree gchar *variant_path = g_strdup_printf ("%s-%s", os_id, os_variant_id);
+              add_system_branding_dirs (dirs, variant_path);
+              g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", variant_path));
+            }
+          add_system_branding_dirs (dirs, os_id);
+          g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id));
+        }
+
+      if (os_id_like)
+        {
+          gchar **ids;
+
+          ids = g_strsplit_set (os_id_like, " ", -1);
+          for (gint i = 0; ids[i]; i += 1)
+            {
+              add_system_branding_dirs (dirs, ids[i]);
+              g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", ids[i]));
+            }
+
+          g_strfreev (ids);
+        }
+
+      if (!is_local)
+        add_system_dirs (dirs);
+
+      add_system_branding_dirs (dirs, "default");
+      g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/branding/default"));
     }
 
-  if (os_id_like)
-    {
-      gchar **ids;
-
-      ids = g_strsplit_set (os_id_like, " ", -1);
-      for (gint i = 0; ids[i]; i += 1)
-        g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", ids[i]));
-
-      g_strfreev (ids);
-    }
-
-  if (!is_local)
-    add_system_dirs (dirs);
-
-  g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/branding/default"));
   g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/static"));
   g_ptr_array_add (dirs, NULL);
-
-  roots = cockpit_web_response_resolve_roots ((const gchar **)dirs->pdata);
+  gchar **roots = cockpit_web_response_resolve_roots ((const gchar **)dirs->pdata);
 
   g_ptr_array_free (dirs, TRUE);
   return roots;

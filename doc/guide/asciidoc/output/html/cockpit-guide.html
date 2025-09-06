@@ -1,0 +1,3747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.20">
+<title>Deployment Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#guide">Deployment Guide</a>
+<ul class="sectlevel2">
+<li><a href="#cockpit-manual">Manual pages</a>
+<ul class="sectlevel4">
+<li><a href="#_description">DESCRIPTION</a></li>
+<li><a href="#_components">COMPONENTS</a></li>
+<li><a href="#_bugs">BUGS</a></li>
+<li><a href="#_author">AUTHOR</a></li>
+<li><a href="#_see_also">SEE ALSO</a></li>
+<li><a href="#cockpit-conf-description">DESCRIPTION</a></li>
+<li><a href="#cockpit-conf-webservice">WebService</a></li>
+<li><a href="#cockpit-conf-log">Log</a></li>
+<li><a href="#cockpit-conf-oauth">OAuth</a></li>
+<li><a href="#cockpit-conf-session">Session</a></li>
+<li><a href="#cockpit-conf-bugs">BUGS</a></li>
+<li><a href="#cockpit-conf-author">AUTHOR</a></li>
+<li><a href="#cockpit-conf-also">SEE ALSO</a></li>
+<li><a href="#cockpit-desktop-description">DESCRIPTION</a></li>
+<li><a href="#cockpit-desktop-environment">ENVIRONMENT</a></li>
+<li><a href="#cockpit-desktop-bugs">BUGS</a></li>
+<li><a href="#cockpit-desktop-author">AUTHOR</a></li>
+<li><a href="#cockpit-desktop-also">SEE ALSO</a></li>
+</ul>
+</li>
+<li><a href="#https">SSL/TLS Usage</a>
+<ul class="sectlevel3">
+<li><a href="#https-required">HTTPS Requirement</a></li>
+<li><a href="#https-certificates">Certificates</a></li>
+</ul>
+</li>
+<li><a href="#listen">TCP Port and Address</a>
+<ul class="sectlevel3">
+<li><a href="#listen-systemd">Cockpit systemd Socket</a></li>
+<li><a href="#listen-selinux">SELinux Port</a></li>
+<li><a href="#listen-firewalld">Firewalld Port</a></li>
+</ul>
+</li>
+<li><a href="#startup">Start up</a>
+<ul class="sectlevel3">
+<li><a href="#startup-shutdown">Process exit</a></li>
+<li><a href="#startup-boot">Boot start up</a></li>
+</ul>
+</li>
+<li><a href="#multi-host">Managing multiple hosts at the same time</a></li>
+<li><a href="#authentication">Cockpit Authentication</a>
+<ul class="sectlevel3">
+<li><a href="#initial-auth">Directly logging into the primary server</a></li>
+<li><a href="#direct-secondary-auth">Directly logging into a secondary server without a primary session</a></li>
+<li><a href="#secondary-auth">Logging into a secondary server from the primary session</a></li>
+</ul>
+</li>
+<li><a href="#sso">Single Sign On</a>
+<ul class="sectlevel3">
+<li><a href="#sso-server">Server Requirements</a></li>
+<li><a href="#sso-client">Client Requirements</a></li>
+</ul>
+</li>
+<li><a href="#cert-authentication">Certificate/smart card authentication</a>
+<ul class="sectlevel3">
+<li><a href="#certauth-server-cert-generation">User certificate generation</a></li>
+<li><a href="#certauth-server-ipa">Certificate mapping with FreeIPA</a></li>
+<li><a href="#certauth-server-ms-ad">Certificate mapping with Microsoft Active Directory</a></li>
+<li><a href="#certauth-server-samba-ad">Certificate mapping with Samba Active Directory</a></li>
+<li><a href="#certauth-server-cockpitconf">Cockpit web server configuration</a></li>
+<li><a href="#certauth-server-resourcelimits">Cockpit web server resource limits</a></li>
+<li><a href="#certauth-forwarding">Authentication to other services like sudo and ssh</a></li>
+</ul>
+</li>
+<li><a href="#privileges">Privileges and Permissions</a>
+<ul class="sectlevel3">
+<li><a href="#privileges-polkit">Customizing Polkit Privileges</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#features">Feature Internals</a>
+<ul class="sectlevel2">
+<li><a href="#feature-systemd">systemd</a></li>
+<li><a href="#feature-journal">Journal</a></li>
+<li><a href="#feature-networkmanager">NetworkManager</a></li>
+<li><a href="#feature-firewall">Firewall</a></li>
+<li><a href="#feature-storaged">storaged</a></li>
+<li><a href="#feature-users">User Tools</a></li>
+<li><a href="#feature-realmd">realmd</a></li>
+<li><a href="#feature-terminal">Terminal</a></li>
+<li><a href="#feature-pcp">PCP Metrics</a></li>
+<li><a href="#feature-machines">Multiple Machines</a></li>
+<li><a href="#feature-selinux">SELinux Policy</a></li>
+<li><a href="#feature-tuned">Tuned Profiles</a></li>
+<li><a href="#feature-sosreport">SOS Report</a></li>
+<li><a href="#feature-packagekit">Package Updates</a></li>
+</ul>
+</li>
+<li><a href="#development">Developer Guide</a>
+<ul class="sectlevel2">
+<li><a href="#embedding">Embedding and Integrating Cockpit</a>
+<ul class="sectlevel3">
+<li><a href="#embedding-full">Embedding the Cockpit Interface</a></li>
+<li><a href="#embedding-components">Integrating Cockpit Components into Web Applications</a></li>
+<li><a href="#embedding-deep">Deep Integration</a></li>
+<li><a href="#embedding-cors">Pinging Cockpit</a></li>
+</ul>
+</li>
+<li><a href="#packages">Cockpit Packages</a>
+<ul class="sectlevel3">
+<li><a href="#package-layout">Layout of Package Files</a></li>
+<li><a href="#_package_manifest">Package Manifest</a></li>
+<li><a href="#package-manifest-override">Manifest overrides</a></li>
+<li><a href="#package-links">Package Links and Paths</a></li>
+<li><a href="#package-minified">Content Negotiation</a></li>
+<li><a href="#package-api">Using Cockpit API</a></li>
+<li><a href="#package-bridges">Bridges for specific tasks</a></li>
+<li><a href="#package-replace">Replacing an existing package</a></li>
+</ul>
+</li>
+<li><a href="#urls">Cockpit URLs</a>
+<ul class="sectlevel3">
+<li><a href="#urls-components">Component URLs</a></li>
+<li><a href="#urls-visible">Visible URLs</a></li>
+</ul>
+</li>
+<li><a href="#api-shell-html-description">Description</a></li>
+<li><a href="#api-logs-html-description">Description</a></li>
+<li><a href="#api-terminal-html-description">Description</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="guide">Deployment Guide</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Documentation for Cockpit VERSION.</p>
+</div>
+<div class="paragraph">
+<p>Latest version available at <a href="https://cockpit-project.org/guide/latest/" class="bare">https://cockpit-project.org/guide/latest/</a></p>
+</div>
+<div class="sect2">
+<h3 id="cockpit-manual">Manual pages</h3>
+<div class="paragraph">
+<p>cockpit</p>
+</div>
+<div class="paragraph">
+<p>cockpit</p>
+</div>
+<div class="paragraph">
+<p>1</p>
+</div>
+<div class="paragraph">
+<p>cockpit</p>
+</div>
+<div class="paragraph">
+<p>Cockpit</p>
+</div>
+<div class="sect4">
+<h5 id="_description">DESCRIPTION</h5>
+<div class="paragraph">
+<p>Cockpit is a web accessible interactive admin interface for Linux
+machines. Cockpit can usually be accessed on port <code>9090</code> of the
+machine it&#8217;s installed on. Cockpit starts on demand. Use your system
+credentials to log in.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_components">COMPONENTS</h5>
+<div class="paragraph">
+<p>The <code>cockpit-ws</code> web service listens on port <code>9090</code> and is started
+on demand by <code>systemd</code>. The Cockpit web service authenticates the
+user, loads Cockpit into the browser, and starts <code>cockpit-bridge</code> in a
+Linux user session.</p>
+</div>
+<div class="paragraph">
+<p>The <code>cockpit-bridge</code> provides Cockpit in the web browser with access
+to the system APIs. It does this over its standard in and standard out.
+The bridge is started like a shell once per Linux user session.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_bugs">BUGS</h5>
+<div class="paragraph">
+<p>Please send bug reports to either the distribution bug tracker or the
+<a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug
+tracker</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_author">AUTHOR</h5>
+<div class="paragraph">
+<p>Cockpit has been written by many
+<a href="https://github.com/cockpit-project/cockpit/">contributors</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_see_also">SEE ALSO</h5>
+<div class="paragraph">
+<p>Cockpit Guide</p>
+</div>
+<div class="paragraph">
+<p>cockpit-ws</p>
+</div>
+<div class="paragraph">
+<p>8</p>
+</div>
+<div class="paragraph">
+<p>cockpit-bridge</p>
+</div>
+<div class="paragraph">
+<p>1</p>
+</div>
+<div class="paragraph">
+<p>cockpit.conf</p>
+</div>
+<div class="paragraph">
+<p>5</p>
+</div>
+<div class="paragraph">
+<p>systemd</p>
+</div>
+<div class="paragraph">
+<p>1</p>
+</div>
+<div class="paragraph">
+<p>cockpit</p>
+</div>
+<div class="paragraph">
+<p>cockpit.conf</p>
+</div>
+<div class="paragraph">
+<p>5</p>
+</div>
+<div class="paragraph">
+<p>cockpit.conf</p>
+</div>
+<div class="paragraph">
+<p>Cockpit configuration file</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-conf-description">DESCRIPTION</h5>
+<div class="paragraph">
+<p>Cockpit can be configured via /etc/cockpit/cockpit.conf. If
+<code>$XDG_CONFIG_DIRS</code> is set, then the first path containing a
+<code>../cockpit/cockpit.conf</code> is used instead. Other configuration files
+and directories are searched for in the same way.</p>
+</div>
+<div class="paragraph">
+<p>This file is not required and may need to be created manually. The file
+has a INI file syntax and thus contains key / value pairs, grouped into
+topical groups. See the examples below for details.</p>
+</div>
+<div class="paragraph">
+<p>Note: The port that cockpit listens on cannot be changed in this file.
+To change the port change the systemd <code>cockpit.socket</code> file.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-conf-webservice">WebService</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>Origins</code></dt>
+<dd>
+<p>By default cockpit will not accept crossdomain websocket connections.
+Use this setting to allow access from alternate domains. Origins
+should include scheme, host and port, if necessary. Wildcards and glob
+expressions are permitted.
++</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">[WebService]
+Origins = https://somedomain1.com https://somedomain2.com:9090 https://*.somedomain3.com</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>ProtocolHeader</code></dt>
+<dd>
+<p>Configure cockpit to look at the contents of this header to determine
+if a connection is using tls. This should only be used when cockpit is
+behind a reverse proxy, and care should be taken to make sure that
+incoming requests cannot set this header.
++</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">[WebService]
+ProtocolHeader = X-Forwarded-Proto</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>ForwardedForHeader</code></dt>
+<dd>
+<p>Configure cockpit to look at the contents of this header to determine
+the real origin of a connection. This should only be used when cockpit
+is behind a reverse proxy, and care should be taken to make sure that
+incoming requests cannot set this header.
++</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">[WebService]
+ForwardedForHeader = X-Forwarded-For</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>LoginTitle</code></dt>
+<dd>
+<p>Set the browser title for the login screen.</p>
+</dd>
+<dt class="hdlist1"><code>LoginTo</code></dt>
+<dd>
+<p>When set to <code>true</code> the <em>Connect to</em> option on the login screen is
+visible and allows logging into another server. When set to <code>false</code>,
+direct remote logins are disallowed. If this option is not specified
+then it will be automatically detected based on whether the
+<code>cockpit-bridge</code> package is installed and the <code>ssh</code> program is
+available.
++
+If cockpit-ws is exposed to the public internet, and also has access
+to a private internal network, it is recommended to explicitly set
+<code>LoginTo=false</code>. This prevents unauthenticated remote attackers from
+scanning the internal network for existing machines and open ports.</p>
+</dd>
+<dt class="hdlist1"><code>RequireHost</code></dt>
+<dd>
+<p>When set to <code>true</code> cockpit will require users to use the <em>Connect
+to</em> option to specify the host to log into.</p>
+</dd>
+<dt class="hdlist1"><code>AllowMultiHost</code></dt>
+<dd>
+<p>When set to <code>true</code>, cockpit will allow users to connect to multiple
+hosts in one session. The default is OS specific.
++
+When connecting to multiple servers, JavaScript runs without
+isolation. All systems will be vulnerable to potential attacks from
+other connected hosts. Enable this option <em>only</em> when all hosts are
+trusted.</p>
+</dd>
+<dt class="hdlist1"><code>MaxStartups</code></dt>
+<dd>
+<p>Same as the <code>sshd</code> configuration option by the same name. Specifies
+the maximum number of concurrent login attempts allowed. Additional
+connections will be dropped until authentication succeeds or the
+connections are closed. Defaults to 10.
++
+Alternatively, random early drop can be enabled by specifying the
+three colon separated values <code>start:rate:full</code> (e.g. "10:30:60").
+Cockpit will start refusing authentication attempts with a probability
+of <code>rate/100</code> (30%) if there are currently <code>start</code> (10)
+unauthenticated connections. The probability increases linearly and
+all connection attempts are refused if the number of unauthenticated
+connections reaches <code>full</code> (60).</p>
+</dd>
+<dt class="hdlist1"><code>AllowUnencrypted</code></dt>
+<dd>
+<p>If true, cockpit will accept unencrypted HTTP connections. Otherwise,
+it redirects all HTTP connections to HTTPS. Exceptions are connections
+from localhost and for certain URLs (like <code>/ping</code>). Defaults to
+false.</p>
+</dd>
+<dt class="hdlist1"><code>UrlRoot</code></dt>
+<dd>
+<p>The root URL where you will be serving cockpit. When provided cockpit
+will expect all requests to be prefixed with the given url. This is
+mostly useful when you are using cockpit behind a reverse proxy, such
+as nginx. <code>/cockpit/</code> and <code>/cockpit+</code> are reserved and should not
+be used. For example <code>/cockpit-new/</code> is ok. <code>/cockpit/</code> and
+<code>/cockpit+new/</code> are not.</p>
+</dd>
+<dt class="hdlist1"><code>ClientCertAuthentication</code></dt>
+<dd>
+<p>If true, enable TLS client certificates for authenticating users.
+Commonly these are provided by a smart card, but it&#8217;s equally possible
+to import certificates directly into the web browser. Please see the
+<a href="https://cockpit-project.org/guide/latest/cert-authentication.html">Certificate/smart
+card authentication</a> section in the Cockpit guide for details.</p>
+</dd>
+<dt class="hdlist1"><code>Shell</code></dt>
+<dd>
+<p>The relative URL to top level component to display in Cockpit once
+logged in. Defaults to <code>/shell/index.html</code></p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-conf-log">Log</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>Fatal</code></dt>
+<dd>
+<p>The kind of log messages in the bridge to treat as fatal. Separate
+multiple values with spaces. Relevant values are: <code>criticals</code> and
+<code>warnings</code>.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-conf-oauth">OAuth</h5>
+<div class="paragraph">
+<p>Cockpit can be configured to support the
+<a href="https://tools.ietf.org/html/rfc6749#section-4.2">implicit grant</a> OAuth
+authorization flow. When successful the resulting oauth token will be
+passed to cockpit-ws using the <code>Bearer</code> auth-scheme. For a login to be
+successful, cockpit will also need a to be configured to verify and
+allow <code>Bearer</code> tokens.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>URL</code></dt>
+<dd>
+<p>This is the url that cockpit will redirect the users browser to when
+it needs to obtain an oauth token. Cockpit will add a redirect_uri
+parameter to the url with the location of where the oauth provider
+should redirect to once a token has been obtained.</p>
+</dd>
+<dt class="hdlist1"><code>ErrorParam</code></dt>
+<dd>
+<p>When a oauth provider redirects a user back to cockpit, look for this
+parameter in the querystring or fragment portion of the url to find a
+error message. When not provided it will default to
+<code>error_description</code></p>
+</dd>
+<dt class="hdlist1"><code>TokenParam</code></dt>
+<dd>
+<p>When a oauth provider redirects a user back to cockpit, look for this
+parameter in the querystring or fragment portion of the url to find
+the access token. When not provided it will default to
+<code>access_token</code></p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-conf-session">Session</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>Banner</code></dt>
+<dd>
+<p>The contents of the specified file (commonly <code>/etc/issue</code>) are shown
+on the login page. By default, no banner is displayed.</p>
+</dd>
+<dt class="hdlist1"><code>IdleTimeout</code></dt>
+<dd>
+<p>Time in minutes after which session expires and user is logged out if
+no user action has been performed in the given time. This idle timeout
+only applies to interactive password logins. With non-interactive
+authentication methods like Kerberos, OAuth, or certificate login, the
+browser cannot forget credentials, and thus automatic logouts are not
+useful for protecting credentials of forgotten sessions. Set to <code>0</code>
+to disable session timeout.
++</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">[Session]
+IdleTimeout=15</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>  +
+  When not specified, there is no idle timeout by default.
+`+WarnBeforeConnecting+`::
+  Whether to warn before connecting to remote hosts from the Shell.
+  Defaults to true.
+  +</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">[Session]
+WarnBeforeConnecting=false</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-conf-bugs">BUGS</h5>
+<div class="paragraph">
+<p>Please send bug reports to either the distribution bug tracker or the
+<a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug
+tracker</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-conf-author">AUTHOR</h5>
+<div class="paragraph">
+<p>Cockpit has been written by many
+<a href="https://github.com/cockpit-project/cockpit/">contributors</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-conf-also">SEE ALSO</h5>
+<div class="paragraph">
+<p><code>cockpit-ws(8)</code>, <code>cockpit-tls(8)</code></p>
+</div>
+<div class="paragraph">
+<p>cockpit</p>
+</div>
+<div class="paragraph">
+<p>cockpit-desktop</p>
+</div>
+<div class="paragraph">
+<p>1</p>
+</div>
+<div class="paragraph">
+<p>cockpit-desktop</p>
+</div>
+<div class="paragraph">
+<p>Cockpit Desktop integration</p>
+</div>
+<div class="paragraph">
+<p>cockpit-desktop</p>
+</div>
+<div class="paragraph">
+<p>URLPATH</p>
+</div>
+<div class="paragraph">
+<p>SSH_HOST</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-desktop-description">DESCRIPTION</h5>
+<div class="paragraph">
+<p>The <code>cockpit-desktop</code> program provides secure access to Cockpit pages
+in an already running desktop session. It starts a web server
+(<code>cockpit-ws</code>) and a web browser in an isolated network namespace, and
+a <code>cockpit-bridge(8)</code> in the running user session.</p>
+</div>
+<div class="paragraph">
+<p>This avoids having to log into Cockpit, and having to enable
+<code>cockpit.socket</code> system-wide. The network isolation ensures that no
+other user, and not even other processes in the user&#8217;s session, can
+access this local web server.</p>
+</div>
+<div class="paragraph">
+<p><code>URLPATH</code> is the Cockpit page to open, i. e. the path component of
+Cockpit URLs. It is highly recommended to only open a
+<a href="https://cockpit-project.org/guide/latest/embedding.html">particular page
+frame</a>, not the entire Cockpit navigation and menu. For example, the
+path <code>/cockpit/@localhost/storage/index.html</code> will open the Storage
+page. It is also possible to give abbreviated forms of urls, such as
+&#8220;storage&#8221; or &#8220;network/firewall&#8221;.</p>
+</div>
+<div class="paragraph">
+<p><code>SSH_HOST</code> is an optional SSH remote host specification (<code>hostname</code>
+or <code>username@hostname</code>). If given, <code>cockpit-bridge</code> will be started
+on the remote host through <code>ssh(1)</code> instead, i. e. the Cockpit web
+browser will show that remote host. Note that this is more of an
+experimental/demo feature.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-desktop-environment">ENVIRONMENT</h5>
+<div class="paragraph">
+<p>The <code>BROWSER</code> environment variable specifies the browser command (and
+possibly options) that will be used to open the requested Cockpit page.
+If not set, <code>cockpit-desktop</code> attempts to use an internal minimalistic
+WebKit browser, and failing that, will attempt to detect some reasonable
+alternatives.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-desktop-bugs">BUGS</h5>
+<div class="paragraph">
+<p>Please send bug reports to either the distribution bug tracker or the
+<a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug
+tracker</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-desktop-author">AUTHOR</h5>
+<div class="paragraph">
+<p>Cockpit has been written by many
+<a href="https://github.com/cockpit-project/cockpit/">contributors</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-desktop-also">SEE ALSO</h5>
+<div class="paragraph">
+<p><code>cockpit-ws(8)</code>, <code>cockpit-bridge(1)</code></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="https">SSL/TLS Usage</h3>
+<div class="paragraph">
+<p>Cockpit usually requires that web browsers communicate with it using
+HTTPS, for security reasons.</p>
+</div>
+<div class="sect3">
+<h4 id="https-required">HTTPS Requirement</h4>
+<div class="paragraph">
+<p>Cockpit listens for both HTTP and HTTPS connections on the same port, by
+default 9090. If an HTTP connection is made, Cockpit will redirect that
+connection to HTTPS. There are some exceptions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If an HTTP connection comes from <code>localhost</code> (<code>127.0.0.1</code> or
+<code>::1</code>, then Cockpit will allow communication without redirecting to
+HTTPS.</p>
+</li>
+<li>
+<p>Certain URLs, like <code>/ping</code> are not required to use HTTPS.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This behavior can be overridden by setting the <code>AllowUnencrypted</code>
+option in <code>cockpit.conf</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="https-certificates">Certificates</h4>
+<div class="paragraph">
+<p>Cockpit will load a certificate from the <code>/etc/cockpit/ws-certs.d</code>,
+directory, or below <code>$XDG_CONFIG_DIRS</code> if set (see
+<a href="./cockpit.conf.5.html">cockpit.conf</a>). It will use the last file
+with a <code>.cert</code> or <code>.crt</code> extension in alphabetical order. The file
+should contain one or more OpenSSL style <code>BEGIN CERTIFICATE</code> blocks
+for the server certificate and the intermediate certificate authorities.</p>
+</div>
+<div class="paragraph">
+<p>The private key must be contained in a separate file with the same name
+as the certificate, but with a <code>.key</code> suffix instead. The key must not
+be encrypted.</p>
+</div>
+<div class="paragraph">
+<p>If no certificate is found, a self-signed certificate is created and
+stored in the <code>0-self-signed.cert</code> file. On some platforms, Cockpit
+will also generate a ca.crt in that directory, which may be safely
+imported into client browsers.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit will read the files as root, so they can have tight permissions.</p>
+</div>
+<div class="paragraph">
+<p>To check which certificate <code>cockpit-ws</code> will use run the following
+command.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo /usr/libexec/cockpit-certificate-ensure --check</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or, on Debian-based systems:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If using <code>certmonger</code> to manage certificates, following command can be
+used to automatically prepare a certificate/key file pair:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>getcert request -f /etc/cockpit/ws-certs.d/50-certmonger.cert \
+                -k /etc/cockpit/ws-certs.d/50-certmonger.key \
+                -D myhostname.example.com \
+                [--ca=...]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will not work on Red Hat Enterprise Linux 8 by default. Adjust the
+SELinux type of the certificate directory to <code>cert_t</code> to allow
+certmonger to write its certificates there:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>semanage fcontext -a -t cert_t '/etc/cockpit/ws-certs\.d(/.*)?'
+restorecon -v /etc/cockpit/ws-certs.d</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="listen">TCP Port and Address</h3>
+<div class="paragraph">
+<p>Cockpit&#8217;s <code>cockpit-ws</code> component is configured by default to accept
+connections on port <code>9090</code>. This is the port that is documented for a
+"Web-based System Manager" to listen on. It is also relatively
+memorable.</p>
+</div>
+<div class="paragraph">
+<p>However there are many reasons you may wish to change the default port.
+For example other software may use port <code>9090</code> or you may wish to
+setup Cockpit to listen on <code>443</code> instead. It is also possible to have
+Cockpit only listen on one specific IP address.</p>
+</div>
+<div class="paragraph">
+<p>Note that it is only required to have Cockpit listening on a TCP port on
+the server that you access with your web browser. If you add multiple
+servers with host switcher, Cockpit will connect to those servers via
+<code>ssh</code>.</p>
+</div>
+<div class="paragraph">
+<p>The systems that Cockpit runs on are typically locked down with
+firewalls, SELinux, so changing the default port is not as easy as
+editing a configuration file.</p>
+</div>
+<div class="sect3">
+<h4 id="listen-systemd">Cockpit systemd Socket</h4>
+<div class="paragraph">
+<p>On servers with
+<a href="https://www.freedesktop.org/wiki/Software/systemd/"><code>systemd</code></a> Cockpit
+starts on demand via socket activation. To change its port and/or
+address you should place the following content in the
+<code>/etc/systemd/system/cockpit.socket.d/listen.conf</code> file. Create the
+file and directories in that path which not already exist. The
+<code>ListenStream</code> option specifies the desired address and TCP port.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[Socket]
+ListenStream=
+ListenStream=443</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[Socket]
+ListenStream=
+ListenStream=7777
+ListenStream=192.168.1.1:443
+FreeBind=yes</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The first line with an empty value is intentional. <code>systemd</code>
+allows multiple <code>Listen</code> directives to be declared in a single socket
+unit; an empty value in a drop-in file resets the list and thus disables
+the default port 9090 from the original unit.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <code>FreeBind</code> option is highly recommended when defining specific IP
+addresses. See the
+<a href="https://www.freedesktop.org/software/systemd/man/systemd.socket.html"><code>systemd.socket</code>
+manpage</a> for details.</p>
+</div>
+<div class="paragraph">
+<p>In order for the changes to take effect, run the following commands:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo systemctl daemon-reload
+$ sudo systemctl restart cockpit.socket</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="listen-selinux">SELinux Port</h4>
+<div class="paragraph">
+<p>If <a href="https://selinuxproject.org/page/Main_Page">SELinux</a> is protecting your
+server, then you will need to tell it to allow Cockpit to listen on the
+new port. Run the following command to do so. The last argument
+specifies the desired TCP port.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo semanage port -a -t websm_port_t -p tcp 9999</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the port is already defined by some other part of the SELinux policy,
+then you will need to use the <code>-m</code> argument to modify the definition.
+That&#8217;s the case with the <code>443</code> SSL port, which is typically defined as
+an <code>http_port_t</code> port.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo semanage port -m -t websm_port_t -p tcp 443</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The changes should take effect immediately.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="listen-firewalld">Firewalld Port</h4>
+<div class="paragraph">
+<p>If <a href="https://fedoraproject.org/wiki/FirewallD">Firewalld</a> is configured as
+your firewall, then you will need to tell it to allow Cockpit to receive
+connections on the new port. Run the following commands to do so. The
+last options specify the desired TCP port.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo firewall-cmd [--zone=ZONE] --add-port=443/tcp
+$ sudo firewall-cmd --permanent [--zone=ZONE] --add-port=443/tcp</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="startup">Start up</h3>
+<div class="paragraph">
+<p>Cockpit&#8217;s <code>cockpit-ws</code> component is what the browser connects to and
+it typically starts on demand via
+<a href="https://www.freedesktop.org/wiki/Software/systemd/"><code>systemd</code></a> socket
+activation.</p>
+</div>
+<div class="paragraph">
+<p>The actual <code>cockpit.service</code> and <code>cockpit-ws</code> process will start on
+demand when a browser accesses the <code>cockpit.socket</code>,
+<a href="#listen">usually on port 9090</a>. Once a user logs in then a
+<code>cockpit-bridge</code> process will be started in a Linux user login
+session.</p>
+</div>
+<div class="paragraph">
+<p>Only systems that you connect to with your browser need to have the
+<code>cockpit.socket</code> enabled. For systems that you add through host
+switcher the bridge is started via SSH on demand.</p>
+</div>
+<div class="sect3">
+<h4 id="startup-shutdown">Process exit</h4>
+<div class="paragraph">
+<p>The <code>cockpit-bridge</code> process will exit when the user logs out. In
+addition, after 10 minutes of inactivity, the <code>cockpit-ws</code> process
+will exit on its own. The browser will automatically disconnect if it
+fails to hear from the <code>cockpit-ws</code> process for 30 seconds.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="startup-boot">Boot start up</h4>
+<div class="paragraph">
+<p>To make Cockpit available by default after system boot the
+<code>cockpit.socket</code> needs to be enabled:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo systemctl enable cockpit.socket</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you wish to not have Cockpit available by default via a browser, then
+the <code>cockpit.socket</code> should be disabled:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo systemctl disable cockpit.socket</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="multi-host">Managing multiple hosts at the same time</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This feature is deprecated as of Cockpit 322.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Cockpit allows you to access multiple hosts in a single session, by
+establishing SSH connections to other hosts. This is quite similar to
+logging into these other hosts using the <code>ssh</code> command on the command
+line, with one very important difference:</p>
+</div>
+<div class="paragraph">
+<p>Code from the local host and all the remote hosts run at the same time,
+in the same browser context. They are not isolated from each other in
+the browser. All code effectively has the same privileges as the primary
+session on the local host.</p>
+</div>
+<div class="paragraph">
+<p>Thus, <em>you should only only connect to remote hosts that you trust</em>. You
+must be sure that none of the hosts that you connect to will cause
+Cockpit to load malicious JavaScript code into your browser.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, Cockpit will warn you before connecting to more than one
+host. It is also possible to disable multiple hosts entirely, and some
+operating systems do this already by default.</p>
+</div>
+<div class="paragraph">
+<p>You can prevent loading of JavaScript, HTML, etc from more than one host
+by adding this to <code>cockpit.conf</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>    [WebService]
+    AllowMultiHost=false</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you allow multiple hosts in a single Cockpit session by setting
+<code>AllowMultiHost</code> to true, then the user will be warned once per
+session, before connecting to the second host. If that is still too
+much, you can switch the warning off completely by adding the following
+to <code>cockpit.conf</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>    [Session]
+    WarnBeforeConnecting=false</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="authentication">Cockpit Authentication</h3>
+<div class="paragraph">
+<p>While cockpit allows you to monitor and administer several servers at
+the same time, there is always a primary server your browser connects to
+that runs the Cockpit web service (cockpit-ws) through which connections
+to additional servers are established. See
+<a href="https://raw.githubusercontent.com/cockpit-project/cockpit/main/doc/cockpit-transport.png">this
+diagram</a> for how it works.</p>
+</div>
+<div class="paragraph">
+<p>Normally, a session is established on the primary server, and you use
+the Shell UI of that session to connect to secondary servers.</p>
+</div>
+<div class="paragraph">
+<p>However, it is also possible to instruct the <code>cockpit-ws</code> process on
+the primary server to directly connect to a secondary server, without
+opening a session on the primary server at all. This is done on the main
+login page of Cockpit, by filling out the "Connect to" field.</p>
+</div>
+<div class="sect3">
+<h4 id="initial-auth">Directly logging into the primary server</h4>
+<div class="paragraph">
+<p>The most common way to use Cockpit is to just log directly into the
+server that you want to access. This can be done if you have direct
+network access to port 9090 on that server.</p>
+</div>
+<div class="paragraph">
+<p>By default the cockpit web service is installed on the base system and
+<a href="#listen">socket activated by systemd</a>. In this setup access is
+controlled by a cockpit specific pam stack, generally located at
+<code>/etc/pam.d/cockpit</code>. By default this is configured to allow you to
+login with the username and password of any local account on the system.
+You can also setup a <a href="#sso">Kerberos based SSO solution</a> or
+<a href="#cert-authentication">certificate/smart card authentication</a>.</p>
+</div>
+<div class="paragraph">
+<p>You can also
+<a href="https://github.com/cockpit-project/cockpit/blob/main/doc/authentication.md#actions">disable
+authentication schemes</a> to enforce authentication policies, or to
+suppress undesired browser GSSAPI authentication dialogs.</p>
+</div>
+<div class="paragraph">
+<p>The web server can also be run from the
+<a href="https://hub.docker.com/r/cockpit/ws/">cockpit/ws</a> container. If you are
+running cockpit on a container host operating system like
+<a href="https://getfedora.org/coreos/">Fedora CoreOS</a> this will be the only
+supported mode. In this setup, cockpit establishes an SSH connection
+from the container to the underlying host, meaning that it is up to your
+SSH server to grant access. To login with a local account, <code>sshd</code> will
+need to be configured to allow password based authentication.
+Alternatively you can setup a <a href="#sso">Kerberos based SSO solution</a>.</p>
+</div>
+<div class="paragraph">
+<p>Like <code>sshd</code>, cockpit can be configured to limit the number of
+concurrent login attempts allowed. This is done by adding a
+<code>MaxStartups</code> option to the <code>WebService</code> section of your
+<code>cockpit.conf</code>. Additional connections will be dropped until
+authentication succeeds or the connections are closed.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="direct-secondary-auth">Directly logging into a secondary server without a primary session</h4>
+<div class="paragraph">
+<p>It is also possible to log into a secondary server without opening a
+session on the primary server. This is useful if you are not actually
+interested in the primary server and would only use it because you do
+not have direct network access to the secondary server.</p>
+</div>
+<div class="paragraph">
+<p>In this case, <code>cockpit-ws</code> still runs on the primary server, but the
+credentials from the login screen are directly used with SSH to log into
+the secondary server given in the "Connect To" field of the login
+screen.</p>
+</div>
+<div class="paragraph">
+<p>Thus, the PAM configuration and accounts on the primary server don&#8217;t
+matter at all. Often, the only purpose of the primary server is to sit
+on the boundary of your network and forward connections to internal
+machines.</p>
+</div>
+<div class="paragraph">
+<p>In this case, the login page will prompt you to verify unknown SSH keys.
+Accepted keys will be remembered in the local storage of your browser.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="secondary-auth">Logging into a secondary server from the primary session</h4>
+<div class="paragraph">
+<p>Once you have a session on the primary server, it is possible connect to
+additional servers by using the host switching UI of the Cockpit Shell.
+This is useful if you have direct network access to the primary server,
+but not to the secondary server.</p>
+</div>
+<div class="paragraph">
+<p>On the command line, you would log into the primary server and then use
+SSH to log into the secondary one. Cockpit does just the same, and uses
+SSH to log into the secondary server. Instead of running a interactive
+shell there, however, it starts a <code>cockpit-bridge</code> process.</p>
+</div>
+<div class="paragraph">
+<p><em>Warning:</em> Unlike with SSH on the command line though, this will also
+load and use the Cockpit pages (i.e. JavaScript) from the remote
+machine, which means that the remote machine can execute arbitrary code
+on your primary and all other connected secondary machines. Hence, only
+connect to <em>machines which you trust</em>.</p>
+</div>
+<div class="paragraph">
+<p>Due to this security risk, this host switcher functionality is disabled
+by default, except on long-term stable Linux distributions (Red Hat
+Enterprise Linux 9, Debian 12, and Ubuntu 22.04/24.04 LTS). If you are
+comfortable with the security implications, you can enable it manually
+with the <code>AllowMultiHost</code> option in <code>cockpit.conf</code>.</p>
+</div>
+<div class="paragraph">
+<p>These servers will need to be running an SSH server and be configured to
+support one of the following authentication methods.</p>
+</div>
+<div class="sect4">
+<h5 id="_password">Password</h5>
+<div class="paragraph">
+<p>The target server will need to have password based authentication
+enabled in <code>sshd</code>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_kerberos">Kerberos</h5>
+<div class="paragraph">
+<p>The target server will need to be a member of the same domain as the
+primary server and your domain must be whitelisted in your browser. See
+the <a href="#sso">SSO documentation</a> for how to set this up.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_public_key">Public key</h5>
+<div class="paragraph">
+<p>When you successfully log into the primary server, a <code>ssh-agent</code> is
+started and keys are loaded into it by running <code>ssh-add</code> without any
+arguments. Any passphrase prompt is answered with the password used to
+log into the primary server.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit provides a user interface for loading other keys into the agent
+that could not be automatically loaded.</p>
+</div>
+<div class="paragraph">
+<p>The target server will need to have public key authentication enabled in
+<code>sshd</code>, and the public key you wish to use must be present in
+<code>~/.ssh/authorized_keys</code>. Cockpit has a user interface for creating
+SSH keys and for authorizing them.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="host-keys">SSH host keys</h5>
+<div class="paragraph">
+<p>Cockpit will prompt the user to verify unknown SSH host keys, and will
+write accepted host keys into <code>~/.ssh/known_hosts</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="sso">Single Sign On</h3>
+<div class="paragraph">
+<p>Cockpit can use Kerberos for Single Sign On authentication, where users
+are automatically authenticated if they have a valid Kerberos ticket.</p>
+</div>
+<div class="sect3">
+<h4 id="sso-server">Server Requirements</h4>
+<div class="paragraph">
+<p>To authenticate users, the server that Cockpit is running on must be
+joined to a domain. This can usually be accomplished using the
+<a href="https://freedesktop.org/software/realmd/docs/realm.html"><code>realm join example.com</code></a>
+command.</p>
+</div>
+<div class="paragraph">
+<p>The domain must be resolvable by DNS. For instance, the SRV records of
+the kerberos server should be resolvable:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ host -t SRV  _kerberos._udp.example.com
+_kerberos._udp.example.com has SRV record 0 100 88 dc.example.com</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The server running Cockpit should have a fully qualified name that ends
+with the domain name.</p>
+</div>
+<div class="paragraph">
+<p>There must be a valid Kerberos host key for the server in the
+<code>/etc/krb5.keytab</code> file. Alternatively, if you would like to use a
+different keytab, you can do so by placing it in
+<code>/etc/cockpit/krb5.keytab</code>, or below <code>$XDG_CONFIG_DIRS</code> if set (see
+<a href="./cockpit.conf.5.html">cockpit.conf</a>). It may be necessary to create
+a kerberos service principal and update the keytab if it is not present.
+Depending on your domain type different service names are required:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Active Directory</dt>
+<dd>
+<p><code>HOST/server.example.com@EXAMPLE.COM</code></p>
+</dd>
+<dt class="hdlist1">IPA and MIT</dt>
+<dd>
+<p><code>HTTP/server.example.com@EXAMPLE.COM</code></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>When joining an IPA domain with Cockpit and the <code>ipa</code> command line
+tool is available, both the service principal name and a
+<code>/etc/cockpit/krb5.keytab</code> get created automatically, so that Kerberos
+based single sign on into Cockpit works out of the box. If you want/need
+to do this by hand or in a script, first create or modify the <code>HTTP/</code>
+service principal:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo ipa service-add --ok-as-delegate=true --ok-to-auth-as-delegate=true \
+    HTTP/server.example.com@EXAMPLE.COM
+# or, if it already exists, just enable delegation:
+$ sudo ipa service-mod --ok-as-delegate=true --ok-to-auth-as-delegate=true \
+    HTTP/server.example.com@EXAMPLE.COM</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then generate a key for that principal:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo ipa-getkeytab -p HTTP/server.example.com@EXAMPLE.COM -k /etc/cockpit/krb5.keytab</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The following command can be used to list the
+<code>/etc/cockpit/krb5.keytab</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo klist -k /etc/cockpit/krb5.keytab</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lastly accounts from the domain must be resolvable to unix accounts on
+the server running Cockpit. For example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ getent passwd user@example.com
+user@example.com:*:381001109:381000513:User Name:/home/user:/bin/sh</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you wish to delegate your kerberos credentials to Cockpit, and allow
+Cockpit to then connect to other machines using those credentials, you
+should enable delegation for the hosts running Cockpit, and in some
+cases the <code>HTTP</code> service as well. When joining an IPA domain, this is
+enabled by default.</p>
+</div>
+<div class="paragraph">
+<p>Domain admins (usually the <code>admins@example.com</code> group) should normally
+also be able to administer any joined machine. Enable sudo access for
+that group with the following command on the IPA server, for version
+4.7.1 and later:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>ipa-advise enable-admins-sudo | sh -ex</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On earlier FreeIPA versions, run these commands instead, as a domain
+admin on any joined machine:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>ipa sudorule-add --hostcat=all --cmdcat=all All
+ipa sudorule-add-user --groups=admins All</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that this does not change security properties; domain admins can
+give this privilege to themselves, so it is safe to enable by default.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sso-client">Client Requirements</h4>
+<div class="paragraph">
+<p>The client side, where your web browser is running, should have a valid
+kerberos ticket in the current user session. A command like this will
+get one:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ kinit user@EXAMPLE.COM
+Password for user@EXAMPLE.COM:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In addition your browser must be usually be configured to allow kerberos
+authentication for the domain.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Mozilla Firefox</dt>
+<dd>
+<p>Go to <code>about:config</code> and set the
+<code>network.negotiate-auth.trusted-uris</code> setting to your domain name
+preceded by a dot, ie: <code>.example.com</code></p>
+</dd>
+<dt class="hdlist1">Google Chrome</dt>
+<dd>
+<p>On Linux: create the file
+<code>/etc/opt/chrome/policies/managed/example-com.json</code> with the
+contents:
++</p>
+</dd>
+</dl>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+  "AuthServerWhitelist": "*example.com"
+}</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>+
+and restart the browser. On other platforms, exit your browser
+completely, and start it with a command line like this:
+`+google-chrome --auth-server-whitelist=*example.com+`</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use a fully qualified server name (with the domain name at the end) to
+access Cockpit in your web browser.</p>
+</div>
+<div class="paragraph">
+<p>If you wish to connect from one server to another in Cockpit using
+kerberos SSO, then you have to explicitly enable all sorts of things.
+For starters, make sure that delegated credentials are allowed by your
+domain (see above). Next when requesting your kerberos ticket make sure
+that forwardable tickets are requested:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ kinit -f user@EXAMPLE.COM
+Password for user@EXAMPLE.COM:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Make sure that the forwardable flag <code>F</code> is present in your ticket:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ klist -f
+Ticket cache: KEYRING:persistent:1000:1000
+Default principal: user@EXAMPLE.COM
+
+Valid starting       Expires              Service principal
+18.03.2017 05:39:23  19.03.2017 05:39:20  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+    Flags: FIA</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lastly configure your browser to allow delegated, forwardable kerberos
+credentials to be sent to Cockpit:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Mozilla Firefox</dt>
+<dd>
+<p>Go to <code>about:config</code> and set the
+<code>network.negotiate-auth.delegation-uris</code> setting to your domain name
+preceded by a dot, ie: <code>.example.com</code></p>
+</dd>
+<dt class="hdlist1">Google Chrome</dt>
+<dd>
+<p>On Linux: create the file
+<code>/etc/opt/chrome/policies/managed/example-com.json</code> with the
+contents:
++</p>
+</dd>
+</dl>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+  "AuthServerWhitelist": "*example.com",
+  "AuthNegotiateDelegateWhitelist": "*example.com"
+}</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>+
+and restart the browser. On other platforms, exit your browser
+completely, and start it with a command line like this:
+`+google-chrome --auth-server-whitelist=*example.com --auth-negotiate-delegate-whitelist=*example.com+`</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cert-authentication">Certificate/smart card authentication</h3>
+<div class="paragraph">
+<p>Cockpit can use TLS client certificates for authenticating users.
+Commonly these are provided by a smart card, but it&#8217;s equally possible
+to import certificates directly into the web browser.</p>
+</div>
+<div class="paragraph">
+<p>This requires the host to be in an Identity Management domain like
+<a href="https://www.freeipa.org">FreeIPA</a> or
+<a href="https://en.wikipedia.org/wiki/Active_Directory">Active Directory</a>, which
+can associate certificates to users.</p>
+</div>
+<div class="paragraph">
+<p>To authenticate users from a Identity Management domain, the server that
+Cockpit is running on must be joined to that domain. See the
+<a href="#sso-server">SSO server requirements</a> for details.</p>
+</div>
+<div class="sect3">
+<h4 id="certauth-server-cert-generation">User certificate generation</h4>
+<div class="paragraph">
+<p>Generating the certificates for users is usually done with a certificate
+management system like <a href="https://pagure.io/certmonger">certmonger</a> or
+<a href="https://www.freeipa.org/page/PKI">FreeIPA</a>, which are not documented
+here. This command generates a simple key and certificate request for
+the "alice" user:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>openssl req -new -newkey rsa:2048 -days 365 \
+    -keyout alice.key -out alice.csr -subj "/CN=alice"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now get this certificate request signed by the Certificate Authority of
+your Identity Management domain, to get a PEM certificate. Browsers and
+smart cart utilities accept PKCS#12 format for importing/transfer, so
+convert the certificate/key pair; it will ask for and protect it with a
+transfer password:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>openssl pkcs12 -export -in alice.pem -inkey alice.key -out alice.p12</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Don&#8217;t forget to clean up the key file when you do not need it any more:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>shred -u alice.key</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can now import <code>alice.p12</code> directly into your browser, with giving
+the transfer password set above. Or
+<a href="https://linux.die.net/man/1/pkcs15-init">put the certificate onto a smart
+card</a>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>pkcs15-init --store-private-key alice.p12 --format pkcs12 --auth-id 01</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="certauth-server-ipa">Certificate mapping with FreeIPA</h4>
+<div class="paragraph">
+<p>The recommended method to sign a user certificate request and associate
+it to a user is <code>ipa cert-request</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>ipa cert-request alice.csr --principal=alice --certificate-out=alice.pem</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Alternatively, if you are using a different CA, you can use
+<code>ipa user-add-cert</code> to associate the signed certificate to the user.
+This expects PEM format, but without the <code>-----BEGIN</code>/<code>-----END</code>
+markers:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>ipa user-add-cert alice --certificate="$(grep -v ^---- alice.pem)"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>See the
+<a href="https://www.freeipa.org/page/V4/User_Certificates#Feature_Management">FreeIPA
+User Certificates documentation</a> for details.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="certauth-server-ms-ad">Certificate mapping with Microsoft Active Directory</h4>
+<div class="paragraph">
+<p>The domain user certificates get imported into the
+<code>userCertificate;binary</code> LDAP attribute. The following commands
+convert the PEM certificate into binary DER form, create an
+<a href="https://ldap.com/ldif-the-ldap-data-interchange-format/">LDIF</a> file and
+apply it to the LDAP server running on the domain controller
+"dc.example.com":</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>openssl x509 -outform der -in alice.pem -out alice.der
+
+cat &lt;&lt;EOF &gt; alice.ldif
+version: 1
+dn: cn=alice,ou=users,ou=YOUR_NETBIOS_NAME,dc=example,dc=com
+changetype: modify
+add: userCertificate;binary
+userCertificate;binary:&lt; file://$(pwd)/alice.der
+EOF
+
+ldapmodify -H ldap://dc.example.com -f alice.ldif</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="certauth-server-samba-ad">Certificate mapping with Samba Active Directory</h4>
+<div class="paragraph">
+<p>At least some versions of <a href="https://www.samba.org/">Samba</a> do not support
+the <code>userCertificate;binary</code> LDAP attribute, so the import has to
+happen in base64 PEM form into the textual <code>userCertificate</code> attribute
+instead. Also, Samba uses a slightly different user hierarchy:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>cat &lt;&lt;EOF &gt; alice.ldif
+version: 1
+dn: cn=alice,cn=users,dc=example,dc=com
+changetype: modify
+add: userCertificate
+userCertificate: $(grep -v ^---- alice.pem | tr -d '\n')
+EOF
+
+ldapmodify -H ldap://dc.example.com  -f alice.ldif</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As <code>userCertificate</code> is a text instead of binary field, you need to
+set up a
+<a href="https://www.mankier.com/5/sssd.conf#Certificate_Mapping_Section">certificate
+mapping rule</a> in <code>sssd.conf(5)</code> in a <code>[certmap/domain/rulename]</code>
+section, for example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[certmap/example.com/adcerts]
+# we match full certificates, so it is not important to check anything here
+matchrule = &lt;KU&gt;digitalSignature
+maprule = LDAP:(userCertificate={cert!base64})</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="certauth-server-cockpitconf">Cockpit web server configuration</h4>
+<div class="paragraph">
+<p>Set the trusted Certificate Authority of your user certificates in
+<code>sssd</code>, either by copying the CA PEM file to
+<code>/etc/sssd/pki/sssd_auth_ca_db.pem</code> or setting the
+<a href="https://www.mankier.com/5/sssd.conf#Services_Sections-PAM_configuration_options"><code>pam_cert_db_path</code></a>
+configuration option to the path of the CA. If you use FreeIPA and its
+CA:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>cp /etc/ipa/ca.crt /etc/sssd/pki/sssd_auth_ca_db.pem</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Certificate authentication needs to be enabled in
+<a href="./cockpit.conf.5.html">cockpit.conf</a> explicitly:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[WebService]
+ClientCertAuthentication = yes</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When enabling this mode,
+<a href="https://github.com/cockpit-project/cockpit/blob/main/doc/authentication.md">other
+authentication types</a> commonly get disabled, so that <em>only</em> client
+certificate authentication will be accepted. By default, after a failed
+certificate authentication attempt, Cockpit&#8217;s normal login page will
+appear and permit other login types such as <code>basic</code> (passwords) or
+<code>negotiate</code> (Kerberos). For example, password authentication gets
+disabled with:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[basic]
+action = none</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="certauth-server-resourcelimits">Cockpit web server resource limits</h4>
+<div class="paragraph">
+<p>When using certificate authentication, all requests with a particular
+certificate will be handled by a separate and isolated instance of the
+<a href="./cockpit-ws.8.html">cockpit-ws</a> web server. This protects against
+possible vulnerabilities in the web server and prevents an attacker from
+impersonating another user. However, this introduces a potential Denial
+of Service: Some remote attacker could create a large number of
+certificates and send a large number of http requests to Cockpit with
+these.</p>
+</div>
+<div class="paragraph">
+<p>To mitigate that, all <code>cockpit-ws</code> instances run in a
+<code>system-cockpithttps.slice</code>
+<a href="https://www.freedesktop.org/software/systemd/man/systemd.slice.html">systemd
+slice unit</a> which
+<a href="https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html">limits
+the collective resources</a> of these web server instances: by default,
+this slice sets a limit of 200 threads (roughly 100 instances of
+<code>cockpit-ws</code>&#8201;&#8212;&#8201;in other words, a maximum of 100 parallel user
+sessions with different certificates) and a 75% (soft)/90% (hard) memory
+limit.</p>
+</div>
+<div class="paragraph">
+<p>You are welcome to adjust these limits to your need through a
+<a href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html">drop-in</a>.
+For example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl edit system-cockpithttps.slice
+
+[Slice]
+# change existing value
+TasksMax=100
+# add new restriction
+CPUQuota=30%</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="certauth-forwarding">Authentication to other services like sudo and ssh</h4>
+<div class="paragraph">
+<p>Once you logged into Cockpit with a certificate, you likely need to
+switch to administrative mode (root privileges through sudo), or connect
+to remote machines through SSH. If your user account has a password,
+that can be used for authenticating to sudo or ssh as usual.</p>
+</div>
+<div class="paragraph">
+<p><em>Supported with FreeIPA only:</em> As an alternative to password
+authentication, you can also declare the initial Cockpit certificate
+authentication as trusted for authenticating to SSH, sudo, or other
+services. For that purpose, Cockpit automatically creates an
+<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu/bde93b0e-f3c9-4ddf-9f44-e1453be7af5a">S4U2Proxy
+Kerberos ticket</a> in the user session:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ klist
+Ticket cache: FILE:/run/user/1894000001/cockpit-session-3692.ccache
+Default principal: user@EXAMPLE.COM
+
+Valid starting     Expires            Service principal
+07/30/21 09:19:06  07/31/21 09:19:06  HTTP/myhost.example.com@EXAMPLE.COM
+07/30/21 09:19:06  07/31/21 09:19:06  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+    for client HTTP/myhost.example.com@EXAMPLE.COM</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can set up
+<a href="https://www.freeipa.org/page/V4/Service_Constraint_Delegation">constrained
+delegation rules</a> to enumerate which hosts (including its own) that
+ticket is trusted to access. For example, if the cockpit session runs on
+host <code>myhost.example.com</code> and should be trusted to access its own host
+(through sudo) and another host <code>remote.example.com</code> (through ssh),
+create a delegation like this:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># a list of target machines which can be accessed by a particular rule
+ipa servicedelegationtarget-add cockpit-target
+ipa servicedelegationtarget-add-member cockpit-target \
+  --principals=host/myhost.example.com@EXAMPLE.COM \
+  --principals=host/remote.example.com@EXAMPLE.COM
+
+# allow cockpit sessions (HTTP/ principal) to access that host list
+ipa servicedelegationrule-add cockpit-delegation
+ipa servicedelegationrule-add-member cockpit-delegation \
+  --principals=HTTP/myhost.example.com@EXAMPLE.COM
+ipa servicedelegationrule-add-target cockpit-delegation \
+  --servicedelegationtargets=cockpit-target</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In addition, you need to enable GSS (Kerberos) authentication in the
+corresponding services.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>For SSH, enable <code>GSSAPIAuthentication yes</code> in
+<a href="https://linux.die.net/man/5/sshd_config">/etc/ssh/sshd_config</a>.</p>
+</li>
+<li>
+<p>For sudo, enable <code>pam_sss_gss</code> as described in the
+<a href="https://www.mankier.com/8/pam_sss_gss">manpage</a>: In
+<code>/etc/sssd/sssd.conf</code>: Add an entry for your domain:</p>
+<div class="literalblock">
+<div class="content">
+<pre>[domain/example.com]
+pam_gssapi_services = sudo, sudo-i</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In <code>/etc/pam.d/sudo</code>, enable the module in the first line:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>auth sufficient pam_sss_gss.so</pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><em>Caveat:</em> The delegated S4U ticket is not yet forwarded to remote SSH
+hosts when connecting to them from Cockpit, so authenticating to sudo on
+the remote host with that ticket does not work. This will be provided in
+a future version.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="privileges">Privileges and Permissions</h3>
+<div class="paragraph">
+<p>When a user is logged into Cockpit, they are logged into a normal
+session that has exactly the same privileges as if they logged in via
+SSH or on the console.</p>
+</div>
+<div class="paragraph">
+<p>However, Cockpit will usually try to escalate the privileges of the user
+using <a href="https://www.freedesktop.org/wiki/Software/polkit/">Policy Kit</a> or
+<a href="https://www.sudo.ws/">sudo</a>. If the user is able to escalate privileges
+from the command line by typing in their password again (or without
+typing in any password), then Cockpit will be able to escalate the
+privileges of the session to "root" immediately upon login.</p>
+</div>
+<div class="paragraph">
+<p>The user can change the privileges of a session from within that
+session, via the "Administrative access" indicator in the top bar. From
+that indicator, the user can drop "root" privileges and regain them. On
+the next login, Cockpit will give the session the same privileges.</p>
+</div>
+<div class="paragraph">
+<p>Usually a user needs to be in the <code>wheel</code> Unix user group for the user
+to be able to escalate privileges in this way. However both Policy Kit
+and sudo may be configured to use other criteria.</p>
+</div>
+<div class="sect3">
+<h4 id="privileges-polkit">Customizing Polkit Privileges</h4>
+<div class="paragraph">
+<p>Services like
+<a href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a> and
+<a href="https://wiki.gnome.org/Projects/NetworkManager">NetworkManager</a> use
+<a href="https://www.freedesktop.org/wiki/Software/polkit/">Polkit</a> to validate
+and escalate privileges. It is possible to customize these rules with
+files in <code>/etc/polkit-1/rules.d</code>.</p>
+</div>
+<div class="paragraph">
+<p>Polkit rules files are
+<a href="https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html">javascript
+with specific methods and objects</a>. For example, placing the following
+polkit rule to <code>/etc/polkit-1/rules.d/10-operators.rule</code> allows all
+users in the <code>operators</code> group to start, stop, restart and otherwise
+manage systemd services:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units") {
+        if (subject.isInGroup("operators")) {
+            return polkit.Result.YES;
+        }
+    }
+});</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In order to allow a certain group to perform any administrative action
+you could add a rule like this:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>polkit.addAdminRule(function(action, subject) {
+    return ["unix-group:operators"];
+});</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features">Feature Internals</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="feature-systemd">systemd</h3>
+<div class="paragraph">
+<p>Cockpit uses <a href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a>
+and the DBus APIs it provides to configure and monitor core aspects of
+the system. Use of alternate system APIs are not currently implemented.</p>
+</div>
+<div class="paragraph">
+<p>For non root users, systemd controls access to its APIs via
+<a href="#privileges">Policy Kit</a> and a user logged into Cockpit will have
+the same permissions as they do from the command line.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit retrieves information about the host and changes the hostname
+via the <code>hostnamed</code> daemon. To perform similar tasks from the command
+line use the
+<a href="https://www.freedesktop.org/software/systemd/man/hostnamectl.html"><code>hostnamectl</code></a>
+command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostnamectl
+   Static hostname: pink.example.com
+   Pretty hostname: Pink
+         Icon name: computer-desktop
+           Chassis: desktop
+        Machine ID: ef00b79be229463cbb844c3e715de96c
+           Boot ID: 934983d64d34465cb5a8383b5a89ad8c
+  Operating System: Fedora 22 (Twenty Two)
+       CPE OS Name: cpe:/o:fedoraproject:fedora:22
+            Kernel: Linux 4.0.4-301.fc22.x86_64
+      Architecture: x86-64</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Cockpit configures the system time and time zone via the <code>timedated</code>
+daemon. To perform similar tasks from the command line use the
+<a href="https://www.freedesktop.org/software/systemd/man/timedatectl.html"><code>timedatectl</code></a>
+command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ timedatectl list-timezones
+Africa/Abidjan
+Africa/Accra
+Africa/Addis_Ababa
+Africa/Algiers
+...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Cockpit can manage the list of NTP servers used by <code>systemd-timesyncd</code>
+by putting its own file into <code>/etc/systemd/timesyncd.conf.d/</code>. Note
+that <code>systemd-timesyncd</code> is not always enabled, depending on the
+configuration of the machine. In that case, Cockpit disabled the UI for
+managing the list of NTP servers. In some cases use of <code>ntpd</code> can
+cause the <code>timedated</code> daemon to behave inconsistently with regards to
+time synchronization.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit reboots or powers down the machine by using the
+<a href="https://www.freedesktop.org/software/systemd/man/shutdown.html"><code>shutdown</code></a>
+command. To perform similar tasks from the command line, run it
+directly:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo shutdown +15
+Shutdown scheduled for Sa 2015-09-26 15:49:40 CEST, use 'shutdown -c' to cancel.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Cockpit manages system services and sockets via systemd. To perform
+similar tasks from the command line use the
+<a href="https://www.freedesktop.org/software/systemd/man/systemctl.html"><code>systemctl</code></a>
+command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ systemctl status cockpit
+● cockpit.service - Cockpit Web Service
+   Loaded: loaded (/usr/lib/systemd/system/cockpit.service; static; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/cockpit.service.d
+           └─debug.conf
+   Active: active (running) since Sa 2015-09-26 13:28:02 CEST; 2h 7min ago
+     Docs: man:cockpit-ws(8)
+ Main PID: 6957 (cockpit-ws)
+   Memory: 1.8M
+   CGroup: /system.slice/cockpit.service
+           ├─ 6957 /usr/libexec/cockpit-ws
+           └─29598 /usr/bin/ssh-agent</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In order to customize who can perform various actions in system,
+<a href="#privileges-polkit">create polkit rules</a> with the following actions
+and details:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>org.freedesktop.systemd1.manage-units</code></dt>
+<dd>
+<p>Permission to manage system services or other units. Details
+available: <code>unit</code>, <code>verb</code></p>
+</dd>
+<dt class="hdlist1"><code>org.freedesktop.systemd1.manage-unit-files</code></dt>
+<dd>
+<p>Permission to manage system services or other unit files.</p>
+</dd>
+<dt class="hdlist1"><code>org.freedesktop.systemd1.reload-daemon</code></dt>
+<dd>
+<p>Permission to reload the systemd state.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>For example, placing the following polkit rule to
+<code>/etc/polkit-1/rules.d/10-http.rule</code> allows all users in the
+<code>operators</code> group start, stop, and restart the Apache HTTP service:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units") {
+        if (subject.isInGroup("operators") &amp;&amp; action.lookup("unit") == "httpd.service") {
+            var verb = action.lookup("verb");
+            if (verb == "start" || verb == "stop" || verb == "restart") {
+                return polkit.Result.YES;
+            }
+        }
+    }
+});</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-journal">Journal</h3>
+<div class="paragraph">
+<p>The systemd journal provides Cockpit with indexed log data. This log
+data is found on the Journal page, as well as in various other places
+when configuring services, storage, networking etc.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit accesses Journal data via the
+<a href="https://www.freedesktop.org/software/systemd/man/journalctl.html"><code>journalctl</code></a>
+command. Similar tasks can be performed at the command line:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo journalctl -f -u docker
+...</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-networkmanager">NetworkManager</h3>
+<div class="paragraph">
+<p>If available on the system, Cockpit uses
+<a href="https://wiki.gnome.org/Projects/NetworkManager">NetworkManager</a> and the
+DBus APIs it provides to interact with the system&#8217;s network
+configuration.</p>
+</div>
+<div class="paragraph">
+<p>For non root users, NetworkManager controls access to its APIs via
+<a href="#privileges">Policy Kit</a> and a user logged into Cockpit will have
+the same permissions as they do from the command line.</p>
+</div>
+<div class="paragraph">
+<p>To perform similar tasks from the command line, use the
+<a href="https://fedoraproject.org/wiki/Networking/CLI">nmcli</a> command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ nmcli general status
+STATE      CONNECTIVITY  WIFI-HW  WIFI     WWAN-HW  WWAN
+connected  full          enabled  enabled  enabled  enabled</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Devices marked as "not managed" with the <code>NM_CONTROLLED=no</code> setting
+will not be displayed in the interface.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-firewall">Firewall</h3>
+<div class="paragraph">
+<p>Cockpit uses <a href="https://www.firewalld.org">firewalld</a> to interact with the
+system&#8217;s firewall. No firewall configuration UI will be shown if
+firewalld is not installed.</p>
+</div>
+<div class="paragraph">
+<p>Firewalld controls access to its APIs via PolicyKit. The user logged
+into Cockpit needs to have the appropriate permissions to view or modify
+the settings.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit can currently only show, add, and remove predefined firewalld
+services in the default zone.</p>
+</div>
+<div class="paragraph">
+<p>To perform similar tasks from the command line, use
+<a href="https://www.firewalld.org/documentation/man-pages/firewall-cmd.html">firewall-cmd</a>.
+For example, to get the same list of allowed services that Cockpit
+displays:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo firewall-cmd --list-services
+dhcpv6-client samba-client mdns ssh cockpit</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To enable an additional service, use:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ firewall-cmd --add-service pop3
+success</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-storaged">storaged</h3>
+<div class="paragraph">
+<p>If available on the system, Cockpit uses
+<a href="https://github.com/storaged-project/storaged/"><code>storaged</code></a> to configure
+and monitor storage, disks, mounts etc. on the system. This
+functionality is present in the Cockpit <em>storaged</em> package.</p>
+</div>
+<div class="paragraph">
+<p>The <code>storaged</code> project is originally based on a project called
+<a href="https://www.freedesktop.org/wiki/Software/udisks/"><code>udisks</code></a> and added
+support for many more features such as
+<a href="https://en.wikipedia.org/wiki/Logical_Volume_Manager_(Linux)">LVM</a>,
+<a href="https://en.wikipedia.org/wiki/ISCSI">iSCSI</a>,
+<a href="https://en.wikipedia.org/wiki/Linux_DM_Multipath">Multipath</a>, and
+<a href="https://btrfs.wiki.kernel.org/index.php/Main_Page">BTRFS</a>. The same tools
+and backwards compatible API are available between <code>storaged</code> and
+<code>udisks</code> the projects. Cockpit can use <code>udisks</code> but disables many of
+it&#8217;s storage related features, including updating <code>/etc/fstab</code> and
+<code>/etc/crypttab</code> for stability reasons.</p>
+</div>
+<div class="paragraph">
+<p>For non root users, storaged controls access to its APIs via
+<a href="#privileges">Policy Kit</a> and a user logged into Cockpit will have
+the same permissions as they do from the command line.</p>
+</div>
+<div class="paragraph">
+<p>To perform similar tasks from the command line, use the <code>storagedctl</code>
+command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ udisksctl dump
+...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To perform LVM tasks, you may use the various LVM commands, such as
+<code>vgcreate</code>, <code>lvresize</code> and so on. Cockpit will detect such changes
+made at the command line.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit recognizes devices with multiple paths and can start the
+<code>multipathd</code> service in case it is not running. On the command line,
+you can control multipath features with the <code>mpathconf</code>,
+<code>multipathd</code>, and <code>multipath</code> commands.</p>
+</div>
+<div class="paragraph">
+<p>To manage iSCSI initiators from the command line, you can use
+<code>iscsiadm</code> and related tools.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-users">User Tools</h3>
+<div class="paragraph">
+<p>Cockpit uses the usual tools to create and modify local user accounts.
+Examples are <code>useradd</code>, <code>usermod</code> and <code>passwd</code>. These same tools
+are available for use on the command line.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-realmd">realmd</h3>
+<div class="paragraph">
+<p>If available on the system, Cockpit uses
+<a href="https://www.freedesktop.org/software/realmd/">realmd</a> and the DBus APIs
+it provides to configure the system&#8217;s Active Directory or IPA domain
+membership.</p>
+</div>
+<div class="paragraph">
+<p>Not all systems can join all kinds of domains. This depends on the
+availability of the necessary client software.</p>
+</div>
+<div class="paragraph">
+<p>For non root users, realmd controls access to its APIs via
+<a href="#privileges">Policy Kit</a> and a user logged into Cockpit will have
+the same permissions as they do from the command line.</p>
+</div>
+<div class="paragraph">
+<p>To perform similar tasks from the command line, use the
+<a href="https://www.freedesktop.org/software/realmd/docs/realm.html">realm</a>
+command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ realm join example.com
+Password for Administrator:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><a href="http://www.freedesktop.org/software/realmd/">realmd</a> sets up
+domain-qualified user names by default, i. e. login user names look like
+&#8220;user@example.com&#8221;. For using unqualified names (just &#8220;user&#8221;),
+set the <code>fully-qualified-names</code> option in
+<a href="https://www.freedesktop.org/software/realmd/docs/realmd-conf.html">/etc/realmd.conf</a>
+before joining a domain.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit requests an SSL certificate from the IPA server for
+<code>cockpit-ws</code> with the
+<a href="https://www.freeipa.org/page/Certmonger">ipa-getcert</a> command.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-terminal">Terminal</h3>
+<div class="paragraph">
+<p>Cockpit provides a standard shell in a terminal. This shell and the
+processes running in it have the <a href="#privileges">same privileges</a> as if
+the user had logged in via SSH.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-pcp">PCP Metrics</h3>
+<div class="paragraph">
+<p>If available, Cockpit uses the <a href="https://pcp.io/">Performance Co-Pilot</a>
+framework to gather metrics data about the system. This data is used to
+display the history graphs on the "Metrics and history" page. Cockpit
+can use the PCP logging feature to display archived data about the
+system from a different point in time. If PCP is not available, then
+Cockpit gathers the metrics data itself, but archival features are not
+available.</p>
+</div>
+<div class="paragraph">
+<p>Whether or not metrics are archived depends on whether the
+<a href="https://linux.die.net/man/1/pmlogger"><code>pmlogger.service</code></a> systemd unit
+is running or not. The "Enable PCP metrics collector" button on the
+Metrics page will enable and start this service.</p>
+</div>
+<div class="paragraph">
+<p>To see similar metrics data from the command line, you can use tools
+like <a href="https://linux.die.net/man/1/pmstat"><code>pmstat</code></a> or
+<a href="https://linux.die.net/man/1/pminfo"><code>pminfo</code></a>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ pmstat
+@ Sat Sep 26 15:30:10 2015
+ loadavg                      memory      swap        io    system         cpu
+   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
+    4.19      0 20710m 605148  6450m    0    0    0 2548 5688  14K  19   3  76
+...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These metrics can also be exposed to other machines on a TCP port with
+<a href="https://linux.die.net/man/1/pmproxy">pmproxy</a> and
+<a href="https://redis.io/">Redis</a> or <a href="https://valkey.io/">Valkey</a>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>systemctl enable --now redis pmproxy
+# if you use firewalld, open port 44322:
+firewall-cmd --permanent --add-service pmproxy
+firewall-cmd --reload</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This allows you to gather and visualize PCP metrics from multiple
+machines with <a href="https://grafana.com/">Grafana</a> and the
+<a href="https://grafana-pcp.readthedocs.io">PCP Grafana plugin</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-machines">Multiple Machines</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This feature is deprecated as of Cockpit 322.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Cockpit can connect to multiple machines from a single Cockpit session.
+These are listed in the host switcher.</p>
+</div>
+<div class="paragraph">
+<p>These additional machines are accessed via SSH from the machine that the
+first machine connected to, and are <a href="#authentication">authenticated</a>
+with the logged in user&#8217;s password and/or SSH keys.</p>
+</div>
+<div class="paragraph">
+<p>SSH host keys are stored in <code>/etc/ssh/ssh_known_hosts</code>.</p>
+</div>
+<div class="paragraph">
+<p>The machine data is stored in <code>/etc/cockpit/machines.d/*.json</code>, or
+below <code>$XDG_CONFIG_DIRS</code> if set (see
+<a href="./cockpit.conf.5.html">cockpit.conf</a>). Settings in lexicographically
+later files amend or override settings in earlier ones. Cockpit itself
+writes into <code>99-webui.json</code>; packages or admins who want to
+pre-configure machines should ship files like <code>05-mymachine.json</code> so
+that changes from the web interface override the pre-configured files.</p>
+</div>
+<div class="paragraph">
+<p>Each JSON file contains an object that maps machine IDs to objects that
+define the properties of that machine. The ID can be a human readable
+name or an IP address or any other unique value, and is shown in the web
+interface until conneting to it the first time, at which point the web
+interface will show the machine&#8217;s host name.</p>
+</div>
+<div class="paragraph">
+<p>The following properties are recognized:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>"address"</code></dt>
+<dd>
+<p><em>(string, mandatory)</em> IP address or DNS name of the machine</p>
+</dd>
+<dt class="hdlist1"><code>"visible"</code></dt>
+<dd>
+<p><em>(boolean, optional)</em> If <code>true</code>, the machine will be displayed and
+available for managing with Cockpit. If <code>false</code> (the default), it
+will not be displayed, but still taken into account for type-ahead
+search when adding new machines in the web interface.</p>
+</dd>
+<dt class="hdlist1"><code>"user"</code></dt>
+<dd>
+<p><em>(string, optional)</em> User name on the remote machine. When not given,
+Cockpit will default to the user name that was being used to log into
+Cockpit itself.</p>
+</dd>
+<dt class="hdlist1"><code>"port"</code></dt>
+<dd>
+<p><em>(integer, optional)</em> ssh port of the remote machine. When not given,
+the default port 22 is used.</p>
+</dd>
+<dt class="hdlist1"><code>"color"</code></dt>
+<dd>
+<p><em>(string, optional)</em> Color to assign to the machine label in the web
+interface. This can be either given as
+<code>rgb(r_value, g_value, b_value)</code> with each value being an integer
+between 0 and 255, or as a color name like <code>yellow</code>. When not given,
+Cockpit will assign an unused color automatically.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+    "web server": {
+        "address": "192.168.2.4",
+        "visible": true,
+        "color": "rgb(100, 200, 0)",
+        "user": "admin"
+    },
+    "192.168.2.1": {
+        "address": "192.168.2.1",
+        "port": 2222,
+        "visible": true,
+        "color": "green"
+    }
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-selinux">SELinux Policy</h3>
+<div class="paragraph">
+<p>If present on the system Cockpit can set the SELinux mode to enforcing
+or permissive. It can also use <code>setroubleshootd</code> to show audit issues
+and apply suggested fixes.</p>
+</div>
+<div class="paragraph">
+<p>To perform similar tasks from the command line use the <code>setenforce</code>
+and <code>sealert</code> tools.</p>
+</div>
+<div class="paragraph">
+<p>To clear out all the information that <code>setroubleshootd</code> tracks, you
+can use a commands like:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo killall setroubleshootd
+$ sudo rm -rf /var/lib/setroubleshoot/*</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-tuned">Tuned Profiles</h3>
+<div class="paragraph">
+<p>If present on the system Cockpit can use Tuned and the DBUS API it
+provides to set system performance profiles. To perform similar tasks
+from the command line, use the <code>tuned-adm</code> command.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-sosreport">SOS Report</h3>
+<div class="paragraph">
+<p>If present on the system Cockpit can use <code>sosreport</code> to collect system
+configuration and diagnostic information.</p>
+</div>
+<div class="paragraph">
+<p>To perform similar tasks from the command line, use the <code>sosreport</code>
+command.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="feature-packagekit">Package Updates</h3>
+<div class="paragraph">
+<p>Cockpit uses the
+<a href="https://www.freedesktop.org/software/PackageKit/gtk-doc/api-reference.html">PackageKit</a>
+D-Bus API to get information about available package updates and to
+apply them, in an Operating System independent manner.</p>
+</div>
+<div class="paragraph">
+<p>To perform similar tasks from the command line, use the
+<a href="https://www.freedesktop.org/software/PackageKit/pk-using.html">pkcon</a>
+command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ pkcon refresh
+
+$ pkcon get-updates
+Available  sudo-1.8.20p2-1.fc26.x86_64 (updates-testing)
+    Allows restricted root access for specified users
+Available  vim-filesystem-2:8.0.617-1.fc26.x86_64 (updates-testing)
+    VIM filesystem layout
+Available  vim-minimal-2:8.0.617-1.fc26.x86_64 (updates-testing)
+    A minimal version of the VIM editor
+
+$ pkcon get-update-detail sudo
+Details about the update:6.x86_64 [fedora]
+ Package: sudo-1.8.20p2-1.fc26.x86_64
+ Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1452941
+ Update text: - update to 1.8.20p2
+    - added sudo package to dnf/yum protected packages
+
+$ pkcon update
+The following packages have to be updated:
+ sudo-1.8.20p2-1.fc26.x86_64    Allows restricted root access for specified users
+ vim-filesystem-2:8.0.617-1.fc26.x86_64 VIM filesystem layout
+ vim-minimal-2:8.0.617-1.fc26.x86_64    A minimal version of the VIM editor
+Proceed with changes? [N/y] y
+[...]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Of course you can also use your Operating System specific commands for
+that, such as <code>dnf updateinfo info</code> on Fedora or <code>sudo apt upgrade</code>
+on Debian.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="development">Developer Guide</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="embedding">Embedding and Integrating Cockpit</h3>
+<div class="paragraph">
+<p>Cockpit can be embedded in other web applications either as a whole or
+specific Cockpit components can be integrated. Due to frame security
+policy restrictions, this only works if Cockpit and the web application
+have the <em>same origin</em>; this is commonly achieved by running both from a
+common reverse proxy.</p>
+</div>
+<div class="sect3">
+<h4 id="embedding-full">Embedding the Cockpit Interface</h4>
+<div class="paragraph">
+<p>Cockpit can be embedded into a larger web page as a frame. To embed the
+entire Cockpit Window use the URI: <code>https://server.example.com:9090/</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-html" data-lang="html">&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Embedded Cockpit&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    This is Cockpit.
+    &lt;br/&gt;
+    &lt;iframe width="800px" height="600px"
+            src="https://server.example.com:9090/"/&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="embedding-components">Integrating Cockpit Components into Web Applications</h4>
+<div class="paragraph">
+<p>Instead of embedding the entirety of Cockpit, you can integrate specific
+components. Only those components explicitly documented as API should be
+integrated. Other components can and will change regularly.</p>
+</div>
+<div class="paragraph">
+<p>The component will load from the server in question and a WebSocket
+connection will be established with the server to relay the component&#8217;s
+message stream.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit components are HTML files contained in <a href="#packages">packages</a>.
+These can be placed in an iframe or web browser window. Each documented
+and stable component has a well-known URL and these are documented in
+the <a href="#development">API reference</a>. Each component URL begins with the
+string <code>/cockpit/@localhost/</code> followed a package name, and then the
+component itself.</p>
+</div>
+<div class="paragraph">
+<p>For example the <a href="#api-terminal-html">terminal.html</a> in the
+<a href="#api-system">system</a> package, has this URL:
+<code>/cockpit/@localhost/system/terminal.html</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-html" data-lang="html">&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Embedded Terminal&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    This is a terminal.
+    &lt;br/&gt;
+    &lt;iframe width="800px" height="600px"
+      src="https://server.example.com:9090/cockpit/@localhost/system/terminal.html"/&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="embedding-deep">Deep Integration</h4>
+<div class="paragraph">
+<p>Most often <a href="#embedding-components">simple integration</a> will be used
+to bring Cockpit components into web applications. However it is also
+possible to do deep integration for embedders who wish to perform
+non-standard authentication with the server, and relay the component&#8217;s
+message stream to the server themselves.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Deep integration capability is in heavy flux and is not yet documented.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="embedding-cors">Pinging Cockpit</h4>
+<div class="paragraph">
+<p>When embedding Cockpit or integrating Cockpit components, it may be
+necessary to check whether Cockpit is available on a server before
+proceeding.</p>
+</div>
+<div class="paragraph">
+<p>To do this perform a <code>/ping</code> request to Cockpit. This is a simple HTTP
+GET request. It returns the following:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>GET: https://server.example.com:9090/ping
+200 OK: { "service": "cockpit" }</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>/ping</code> request allows
+<a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">Cross Origin
+Resource Sharing</a> headers and as such can be performed from Javascript
+code with any origin. The request can also be made via plain HTTP
+without SSL. It is by design that no further information is present in
+the response.</p>
+</div>
+<div class="paragraph">
+<p>A complete example of using <code>/ping</code> is available in the Cockpit
+sources in the <code>/examples/ping-server/</code> directory.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="packages">Cockpit Packages</h3>
+<div class="paragraph">
+<p>Cockpit is separated into various packages, each of which brings
+specific features and/or code.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In addition, any APIs or behavior not explicitly documented here is an
+internal API and can be changed at any time.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="package-layout">Layout of Package Files</h4>
+<div class="paragraph">
+<p>A package consists of one or more files placed in a directory or its
+subdirectories. It must have a <code>manifest.json</code> file and follow certain
+naming conventions.</p>
+</div>
+<div class="paragraph">
+<p>The name of a package is the name of the directory.</p>
+</div>
+<div class="paragraph">
+<p>The name of the package must be ASCII alphanumeric, and may contain an
+underscore. Names of directories and files in the package must consist
+of ASCII alphanumeric along with dash, underscore, dot, and comma. No
+spaces are allowed.</p>
+</div>
+<div class="paragraph">
+<p>Cockpit uses the data directories from the
+<a href="https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+Base Directory Specification</a> to locate packages. The <code>$XDG_DATA_DIRS</code>
+represents a colon separate list of system data directories, and
+<code>$XDG_DATA_HOME</code> is a user specific data directory. If the environment
+variables are not set, defaults are used, according to the spec. If
+cockpit has been built with an alternate <code>--prefix=/path</code> then the
+<code>$prefix/share/cockpit</code> is used by default.</p>
+</div>
+<div class="paragraph">
+<p>A <code>cockpit/</code> subdirectories in any of these data directories is the
+location where packages are loaded by Cockpit. If Cockpit finds a
+package with the same name, in multiple data directories, then the first
+one wins. According to the spec the first data directory is
+<code>$XDG_DATA_HOME</code> and then <code>$XDG_DATA_DIRS</code> in order.</p>
+</div>
+<div class="paragraph">
+<p>This means that, by default the following directories are searched for
+cockpit packages, and in this order:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>~/.local/share/cockpit/</code></p>
+</li>
+<li>
+<p><code>/usr/local/share/cockpit/</code></p>
+</li>
+<li>
+<p><code>/usr/share/cockpit/</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Packages placed in <code>$XDG_DATA_HOME</code> are not cached by Cockpit or the
+web browser. Other packages are cached aggressively, and are accessed
+using a checksum of the files in the packages and their names.</p>
+</div>
+<div class="paragraph">
+<p>You can use the following command to list the packages installed on a
+server. You&#8217;ll note that it&#8217;s output may change when you run the command
+as different users, if there are packages installed in the user&#8217;s home
+directory.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cockpit-bridge --packages
+...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To further clarify things, here is an example package called
+"my-package" and its file layout:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>/usr/share/cockpit/
+    my-package/
+        manifest.json
+        file.html
+        some.js</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Place or symlink packages in your <code>~/.local/share/cockpit</code> directory
+(or appropriate <code>$XDG_DATA_HOME</code> location) that you would like to
+modify and develop. System installed packages should not change while
+Cockpit is running.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_package_manifest">Package Manifest</h4>
+<div class="paragraph">
+<p>Each package has a <code>manifest.json</code> file. It is a JSON object. The
+following fields may be present in the manifest:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">content-security-policy</dt>
+<dd>
+<p>By default Cockpit serves packages using a strict
+<a href="https://en.wikipedia.org/wiki/Content_Security_Policy">Content Security
+Policy</a>, which among other things does not allow inline styles or
+scripts. This can be overridden on a per-package basis, with this
+setting.
++
+If the overridden content security policy does not contain a
+<code>default-src</code>, <code>connect-src</code>, <code>base-uri</code>, <code>form-action</code>,
+<code>object-src</code>, or <code>block-all-mixed-content</code> then these will be
+added to the policy from the manifest.</p>
+</dd>
+<dt class="hdlist1">name</dt>
+<dd>
+<p>An optional string that changes the name of the package. Normally
+packages derive their name from the directory that they are located
+in. This field overrides that name.</p>
+</dd>
+<dt class="hdlist1">priority</dt>
+<dd>
+<p>An optional number that specifies which package is preferred in cases
+where there are conflicts. For example given two packages with the
+same <code>name</code> a package is chosen based on its priority.</p>
+</dd>
+<dt class="hdlist1">conditions</dt>
+<dd>
+<p>An optional list of <code>{"predicate": "value"}</code> objects. Cockpit will
+only consider the package if <em>all</em> conditions are met. Currently
+supported predicates are <code>path-exists</code> and <code>path-not-exists</code>.
+Unknown predicates are ignored. This is preferable to using
+<code>priority</code>, but only available since Cockpit 286.</p>
+</dd>
+<dt class="hdlist1">requires</dt>
+<dd>
+<p>An optional JSON object that contains a <code>"cockpit"</code> string version
+number. The package will only be usable if the Cockpit bridge and
+javascript base are equal or newer than the given version number.</p>
+</dd>
+<dt class="hdlist1">version</dt>
+<dd>
+<p>An informational version number for the package.</p>
+</dd>
+<dt class="hdlist1">preload</dt>
+<dd>
+<p>A list of identifiers of the components that should be preloaded.
+Normally, the files of a component are loaded when the user navigates
+to it for the first time. The files of a preloaded component are
+loaded immediately after the user logs in, and the initialization code
+of the component is invoked.
++
+The value of this field is an array of strings, where each string is
+one of the keys used in the <code>dashboard</code>, <code>menu</code>, or <code>tool</code>
+fields that are explained below.</p>
+</dd>
+<dt class="hdlist1">parent</dt>
+<dd>
+<p>This option is used when module does not have its own menu item but is
+a part of a different module. This is described by JSON object with
+properties <code>component</code> which takes name of the superordinate
+component and <code>docs</code> with list of documentation URLs for the given
+page. See below for structure of <code>docs</code> property.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>In addition, the following keys contain information about where
+components of the package should appear in Cockpit&#8217;s user interface.
+Each of these keys is optional and contains an object mapping unique
+identifiers to menu items, which are described below. (The naming of
+these fields doesn&#8217;t perfectly match the current user interface for
+historical reasons.)</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">dashboard</dt>
+<dd>
+<p>Dashboard items appear in the menu under the section <em>Apps</em>.</p>
+</dd>
+<dt class="hdlist1">menu</dt>
+<dd>
+<p>These items appear in the menu under the section <em>System</em>. This
+section is roughly ordered into these categories (with their <em>order</em>
+in parentheses):
++</p>
+<div class="ulist">
+<ul>
+<li>
+<p>System Information (10)</p>
+</li>
+<li>
+<p>Logs (20)</p>
+</li>
+<li>
+<p>Configuring major subsystems (30-40)</p>
+</li>
+<li>
+<p>Things running on the machine (VMs, Containers - 50-60)</p>
+</li>
+<li>
+<p>Implementation Details (Accounts, Services - 70-100)</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">tools</dt>
+<dd>
+<p>These items appear in the menu under the section <em>Tools</em>.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Menu items and tools are registered using JSON objects that have the
+following properties:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">label</dt>
+<dd>
+<p>The label for the menu item or tool.</p>
+</dd>
+<dt class="hdlist1">order</dt>
+<dd>
+<p>An optional order number to place this menu item or tool. Lower
+numbers are listed first.</p>
+</dd>
+<dt class="hdlist1">path</dt>
+<dd>
+<p>The relative path to the HTML file within the package that implements
+the menu item or tool.</p>
+</dd>
+<dt class="hdlist1">docs</dt>
+<dd>
+<p>List of documentation URLs for the given page. Each item is an object
+containing <code>label</code> and <code>url</code>.</p>
+</dd>
+<dt class="hdlist1">keywords</dt>
+<dd>
+<p>Keywords that describe the page and which are used for searching.
+These keywords should be lowercase. Keywords is a list containing
+keyword items as described below. Page label is prepended as first
+keyword in the first keyword item.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Keyword items are registered using JSON objects that have the following
+properties:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">matches</dt>
+<dd>
+<p>List of keywords to be matched.</p>
+</dd>
+<dt class="hdlist1">goto</dt>
+<dd>
+<p>Optional path that is used for all keywords in this item. When this
+argument starts with slash, then it is used as pathname, otherwise it
+is used as hash. Defining <code>goto:"page_hash"</code> in page with
+<code>path:"/page_path"</code> would redirect to <code>/page_path#page_hash</code>,
+while <code>goto:"/page_path"</code> would redirect to <code>/page_path</code> ignoring
+default page path.</p>
+</dd>
+<dt class="hdlist1">weight</dt>
+<dd>
+<p>How much keywords are prioritized over others. Default is 3.</p>
+</dd>
+<dt class="hdlist1">translate</dt>
+<dd>
+<p><code>false</code> when keywords should not be localized. Default is <code>true</code>.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>An example manifest.json with some optional properties set:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+  "version": 0,
+  "require": {
+      "cockpit": "120"
+  },
+  "tools": {
+     "mytool": {
+        "label": "My Tool",
+        "path": "tool.html"
+     }
+  }
+}</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+  "version": 0,
+  "require": {
+    "cockpit": "120"
+  },
+  "conditions": [
+    {"path-exists": "/usr/bin/mytool"},
+    {"path-exists": "/etc/mytool.conf"},
+    {"path-not-exist": "/etc/incompatible-tool"}
+  ],
+  "tools": {
+     "mytool": {
+        "label": "My Tool",
+        "path": "tool.html"
+     }
+  }
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="package-manifest-override">Manifest overrides</h4>
+<div class="paragraph">
+<p>To change a manifest system-wide, a file
+<code>&lt;package-directory-name&gt;.override.json</code> may be placed into
+<code>/etc/cockpit/</code>, or below <code>$XDG_CONFIG_DIRS</code> if set (see
+<a href="./cockpit.conf.5.html">cockpit.conf</a>). To change it for a particular
+user only, put the override into <code>~/.config/cockpit</code>.</p>
+</div>
+<div class="paragraph">
+<p>These override the information in the manifest in the simple
+<a href="https://tools.ietf.org/html/rfc7386">JSON Merge Patch</a> format.</p>
+</div>
+<div class="paragraph">
+<p>This can be used to hide or modify menu items of an existing package.
+For example <code>/etc/cockpit/systemd.override.json</code> or
+<code>~/.config/cockpit/systemd.override.json</code> could hide the <em>Logs</em> menu
+item and move the <em>Services</em> menu item to the top of the menu.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+  "menu": {
+    "logs": null,
+    "services": {
+      "order": -1
+    }
+  }
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="package-links">Package Links and Paths</h4>
+<div class="paragraph">
+<p>When referring to files in your package, such as in a hyperlink or a
+<code>&lt;style&gt;</code> tag or <code>&lt;script&gt;</code> tag, simply use a relative path, and
+refer to the files in the same directory. When you need to refer to
+files in another package use a relative link.</p>
+</div>
+<div class="paragraph">
+<p>For example here&#8217;s how to include the base <code>cockpit.js</code> script in your
+HTML from the <code>latest</code> package:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>&lt;script src="../base1/cockpit.js"&gt;&lt;/script&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Do not assume you can link to any file in any other package. Refer to
+the <a href="#development">list of API packages</a> for those that are available
+for use.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="package-minified">Content Negotiation</h4>
+<div class="paragraph">
+<p>In order to support gzipped and/or minified data, the files in a package
+are loaded using content negotiation logic. A HTTP request for the file
+<code>test.js</code> in the package named <code>mypackage</code> will return
+<code>mypackage/test.js</code> or <code>mypackage/test.js.gz</code> (in undefined
+preference). If neither exists, then it returns
+<code>mypackage/test.js.min</code> or <code>mypackage/test.js.min.gz</code> (again in
+undefined preference).</p>
+</div>
+<div class="paragraph">
+<p>When packages are loaded from a system directory, Cockpit optimizes the
+file system lookups above, by pre-listing the files. This is one of the
+reasons that you should never change packages installed to a system
+directory while Cockpit is running.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="package-api">Using Cockpit API</h4>
+<div class="paragraph">
+<p>Cockpit has API available for writing packages. There is no API
+available for external callers to invoke via HTTP, REST or otherwise.</p>
+</div>
+<div class="paragraph">
+<p>API from various packages can be used to implement Cockpit packages.
+Each package listed here has some API available for use. Only the API
+explicitly documented should be used.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#development">API Listing</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To include javascript from the API, simply load it into your HTML using
+a script tag. Alternatively you can use an javascript loader.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="package-bridges">Bridges for specific tasks</h4>
+<div class="paragraph">
+<p>On the server side the <a href="#cockpit-bridge.1"><code>cockpit-bridge</code></a>
+connects to various system APIs that the front end UI requests it to.
+There are additional bridges for specific tasks that the main
+<code>cockpit-bridge</code> cannot handle, such as using the PCP C library API.</p>
+</div>
+<div class="paragraph">
+<p>These additional bridges can be registered in a <code>"bridges"</code> section of
+a package&#8217;s <code>manifest.json</code> file. Building such a bridge is a complex
+tasks, and we will skip over that here. However it is useful to adjust
+how these additional bridges are called, and so we&#8217;ll look at how they
+are registered.</p>
+</div>
+<div class="paragraph">
+<p>An example <code>manifest.json</code> with a bridges section:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+    "bridges": [
+        {
+            "match": { "payload": "metrics1" },
+            "spawn": [ "/usr/libexec/cockpit-pcp" ]
+        }
+    ]
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The bridges are considered in the order they are listed in the array.
+Use the <code>manifest.json`</code>"priority"` field to control order between
+packages. The bridges are registered using JSON objects that have the
+following properties:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">environ</dt>
+<dd>
+<p>Optional, additional environment variables to pass to the bridge
+command.</p>
+</dd>
+<dt class="hdlist1">match</dt>
+<dd>
+<p>The <code>"match"</code> object describes which channel open command options
+need to match for a given channel to be handed over to this bridge.</p>
+</dd>
+<dt class="hdlist1">privileged</dt>
+<dd>
+<p>If set to <code>true</code>, this marks the bridge as a superuser bridge.
+Cockpit will start one of these explicitly when trying to escalate the
+privileges of a session. A privileged bridge can not have a
+<code>"match"</code> property.</p>
+</dd>
+<dt class="hdlist1">label</dt>
+<dd>
+<p>Setting this enables selection of privileged bridges in the UI. When
+no privileged bridge has a <code>label</code>, then Cockpit will start the
+bridge that runs <code>sudo</code>. This is the case in a default Cockpit
+installation. When at least one privileged bridge has a <code>label</code> then
+the user can select one of them when escalating privileges. As a
+special case, if only one bridge has a <code>label</code>, then the step of
+selecting a bridge is omitted in the UI and that one bridge is always
+started.
++
+Thus, if you add a privileged bridge with a <code>label</code> in a new
+manifest, Cockpit will use that bridge the next time a user opens the
+"Administrative access" dialog. If you want the user to choose between
+the <code>sudo</code> method and your new one, you need to duplicate the
+<code>sudo</code> bridge definition in your manifest and give it a label.</p>
+</dd>
+<dt class="hdlist1">problem</dt>
+<dd>
+<p>If a problem is specified, and this bridge fails to start up then
+channels will be closed with this problem code. Otherwise later
+bridges or internal handlers for the channel will be invoked.</p>
+</dd>
+<dt class="hdlist1">spawn</dt>
+<dd>
+<p>The command and arguments to invoke.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>The <code>spawn</code> and <code>environ</code> values can be dynamically taken from a
+matching open command values. When a value in either the <code>spawn</code> or
+<code>environ</code> array contains a named variable wrapped in <code>${}</code>, the
+variable will be replaced with the value contained in the matching open
+command. Only named variables are supported and name can only contain
+letters, numbers and the following symbols: <code>._-</code></p>
+</div>
+<div class="paragraph">
+<p>For example a bridges section like:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+  "bridges": [
+    {
+      "match": { "payload": "example" },
+      "environ": [ "TAG=${tag}" ],
+      "spawn: [ "/example-bridge", "--tag", "${tag}" ],
+      "problem": "access-denied"
+    }
+  ]
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>when a open command is received with a payload of <code>example</code> with
+<code>tag</code> value of <code>tag1</code>. The following command will be spawned</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>TAG=tag1 /example-bridge --tag tag1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Processes that are reused so if another open command with a "tag" of
+<code>tag1</code> is received. The open command will be passed to existing
+process, rather than spawning a new one. However a open command with an
+tag of <code>tag2</code> will spawn a new command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>TAG=tag2 /example-bridge --tag tag2</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you need to include <code>${}</code>, as an actual value in your arguments you
+can escape it by prefixing it with a <code>\</code></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="package-replace">Replacing an existing package</h4>
+<div class="paragraph">
+<p>If the functionality in a package replaces that of another package then
+it can replace that package by claiming the same <code>name</code> and a higher
+<code>priority</code>.</p>
+</div>
+<div class="paragraph">
+<p>For example, a package in the <code>/usr/share/cockpit/disks</code> directory
+could replace Cockpit&#8217;s <em>storage</em> package with a <code>manifest.json</code> like
+this:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>{
+  "version": 0,
+  "name": "storage",
+  "priority": 10,
+  "menu": {
+     "index": {
+        "label": "Disk Storage",
+        "order": 15
+     }
+  }
+}</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="urls">Cockpit URLs</h3>
+<div class="paragraph">
+<p>Cockpit URLs follow a specific structure, related to the components they
+are loading. Various components are loaded in <code>&lt;iframe&gt;</code> tags. The
+URLs for these components are described first. Further down below you
+can find information about the top level bookmarkable Cockpit address
+URLs.</p>
+</div>
+<div class="sect3">
+<h4 id="urls-components">Component URLs</h4>
+<div class="paragraph">
+<p>Cockpit components are HTML documents. They are organized into
+<a href="#packages">packages</a>. Each package contains information about which
+HTML components are available in that package. Components should always
+use relative URLs to access resources, such as images, scripts or CSS
+files, even if they refer to a resource in another package.</p>
+</div>
+<div class="paragraph">
+<p>The following are valid component URLs, each bit will be discussed
+below:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>/cockpit/@localhost/package/component.html#/hash
+/cockpit/$checksum/package/component.html#/hash
+/cockpit/@server.example.com/package/component.html#/hash
+/cockpit+embedder/@localhost/package/component.html#/hash</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All resource URLs are under the <code>/cockpit</code> namespace. In cases where a
+Cockpit component is being <a href="#embedding">embedded</a> the <code>/cockpit</code>
+may be followed by a plus sign and another <code>embedder</code> specific
+identifier.</p>
+</div>
+<div class="paragraph">
+<p>What follows is either a <code>@host</code> or <code>$checksum</code> which tells cockpit
+where to <a href="#packages">find the package</a>. Checksums are used when more
+than one host has identical packages and the resources can be cached.</p>
+</div>
+<div class="paragraph">
+<p>The <code>package</code> name is next, followed by the <code>component</code> HTML path
+inside that package. And lastly a hash allows for navigation within a
+single component. The hash should follow a URL path and/or query string
+form.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Never assume that the <code>@host</code> or <code>$checksum</code> portion is predictable.
+Only refer to resources in packages on the same host.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="urls-visible">Visible URLs</h4>
+<div class="paragraph">
+<p>The above Component URLs are usually not visible to the user. Instead
+the Cockpit Web Service wraps the components in a shell which allows
+navigation, and provides bookmarkable clean URLs to the component. These
+URLs do not affect <a href="#embedding">embedders</a> or
+<a href="#packages">components</a> directly.</p>
+</div>
+<div class="paragraph">
+<p>If no path is present then the Cockpit will redirect to the default page
+for the server.</p>
+</div>
+<div class="paragraph">
+<p>If the first segment of the path begins with an <code>@</code> sign, then the
+component is being shown from a non-local host.</p>
+</div>
+<div class="paragraph">
+<p>The next segment of the path, (or first if the component is being shown
+on the local host) is the <a href="#packages">package name</a>. The remainder of
+the path is a component file in the package. If no further path segments
+are present, a default <code>index.html</code> component in the package is
+loaded. An extension of <code>.html</code> is automatically appended.</p>
+</div>
+<div class="paragraph">
+<p>The hash portion of the path is automatically transferred to the
+component as the hash of its <a href="#urls-components">resource URL</a>.</p>
+</div>
+<div class="paragraph">
+<p>This package contains basic support API available to other packages.</p>
+</div>
+<div class="paragraph">
+<p>This package contains the shell that loads other components.</p>
+</div>
+<div class="paragraph">
+<p>index.html</p>
+</div>
+<div class="paragraph">
+<p>index.html</p>
+</div>
+<div class="paragraph">
+<p>Main cockpit shell, for a single machine</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="api-shell-html-description">Description</h3>
+<div class="literalblock">
+<div class="content">
+<pre>&lt;iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/shell/index.html"
+    width="600" height="400"&gt;&lt;/iframe&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a Cockpit component that provides an interface to configure a
+single machine. It loads other components on demand to make that happen.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Component URL</dt>
+<dd>
+<p><code>/cockpit+app/@localhost/shell/index.html</code></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>This package contains general components for basic control of a system.</p>
+</div>
+<div class="paragraph">
+<p>logs.html</p>
+</div>
+<div class="paragraph">
+<p>logs.html</p>
+</div>
+<div class="paragraph">
+<p>System log component</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="api-logs-html-description">Description</h3>
+<div class="literalblock">
+<div class="content">
+<pre>&lt;iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/system/logs.html"
+    width="600" height="400"&gt;&lt;/iframe&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a Cockpit component that brings up system log viewer, with
+filtering capabilities. On systemd based systems this displays the
+entries from journal.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Component URL</dt>
+<dd>
+<p><code>/cockpit+app/@localhost/system/logs.html</code></p>
+</dd>
+<dt class="hdlist1">Filter by priority</dt>
+<dd>
+<p><code>#?prio=notice</code>
++
+Filters the log to show entries below the specific priority,
+inclusive. These
+<a href="https://en.wikipedia.org/wiki/Syslog#Severity_levels">priorities are
+syslog level keywords</a>. Specifying <code>*</code> as a priority will show all
+available entries. The default priority is <code>err</code>.</p>
+</dd>
+<dt class="hdlist1">Filter by service</dt>
+<dd>
+<p><code>#?service=sshd.service</code>
++
+Filters the log to show entries related to the specific service. The
+format of the service is specific to the logging implementation. For
+journald these are systemd service unit names.</p>
+</dd>
+<dt class="hdlist1">Filter by tag</dt>
+<dd>
+<p><code>#?tag=kernel</code>
++
+Filters the log to show entries related to the specific syslog
+identifier.</p>
+</dd>
+<dt class="hdlist1">Filter by message</dt>
+<dd>
+<p><code>#?grep=</code>
++
+Filters the log to show entries where the <code>MESSAGE=</code> field matches
+the specified regular expression. PERL-compatible regular expressions
+are used. If the pattern is all lowercase, matching is case
+insensitive. Otherwise, matching is case sensitive.</p>
+</dd>
+<dt class="hdlist1">Filter by any field</dt>
+<dd>
+<p><code>#?FIELD=VALUE</code>
++
+A field is referring to the components of a structured journal entry.
+The match must be exact. Value can be comma separated list in which
+case they are automatically matched as alternatives.</p>
+</dd>
+<dt class="hdlist1">Start at point</dt>
+<dd>
+<p><code>#?start=boot</code>
++
+Filters the log to show entries after the specific point in time.
+Valid values are <code>boot</code> (since last boot), <code>last-24h</code> (last 24
+hours), <code>last-week</code> (last seven days) and <code>previous-boot</code>
+(previous boot).</p>
+</dd>
+<dt class="hdlist1">Follow the journal</dt>
+<dd>
+<p><code>#?follow=true</code>
++
+Keep listening on new entries. Valid values are <code>true</code> (follow) and
+<code>false</code> (do not follow).</p>
+</dd>
+<dt class="hdlist1">Show log entry</dt>
+<dd>
+<p><code>#/6e272d82993c4e0d...</code>
++
+To show a specific log entry, put the log entry cursor in a path after
+the hash above. Note that cursors are logging system specific, and
+journal cursors are subject to change.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>terminal.html</p>
+</div>
+<div class="paragraph">
+<p>terminal.html</p>
+</div>
+<div class="paragraph">
+<p>Server terminal component</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="api-terminal-html-description">Description</h3>
+<div class="literalblock">
+<div class="content">
+<pre>&lt;iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/system/terminal.html"
+    width="600" height="400"&gt;&lt;/iframe&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a Cockpit component that brings up a web-based terminal for the
+logged in user.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Component URL</dt>
+<dd>
+<p><code>/cockpit+app/@localhost/system/terminal.html</code></p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2025-07-29 00:49:36 +0200
+</div>
+</div>
+</body>
+</html>

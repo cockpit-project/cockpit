@@ -1,0 +1,92 @@
+'\" t
+.\"     Title: cockpit-bridge
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.20
+.\"      Date: 2025-07-29
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "COCKPIT\-BRIDGE" "1" "2025-07-29" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.sp
+cockpit
+.sp
+cockpit\-bridge
+.sp
+1
+.sp
+cockpit\-bridge
+.sp
+Cockpit Host Bridge
+.sp
+cockpit\-bridge
+.sp
+\-\-help
+.sp
+\-\-packages
+.SH "DESCRIPTION"
+.sp
+The \f(CRcockpit\-bridge\fP program is used by Cockpit to relay messages and
+commands from the Web front end to the server. Among other things it
+relays DBus, and spawns processes on behalf of the Web user interface.
+.sp
+This program is not routinely run by users or administrators. It is in
+the \f(CR$PATH\fP so that Cockpit can find it when connecting between hosts.
+However there are some diagnostics available when running from the
+command line.
+.SH "OPTIONS"
+.sp
+\f(CR\-\-help\fP
+.RS 4
+Show help options.
+.RE
+.sp
+\f(CR\-\-interact=boundary\fP
+.RS 4
+Interact with the raw cockpit1 protocol. Useful for debugging and
+testing. Specify a \f(CRboundary\fP which should be on an empty line
+between messages.
+.RE
+.sp
+\f(CR\-\-packages\fP
+.RS 4
+List all available Cockpit packages and exit. Note this includes
+packages available to the user running this command.
+.RE
+.sp
+\f(CR\-\-version\fP
+.RS 4
+Show Cockpit version information.
+.RE
+.SH "BUGS"
+.sp
+Please send bug reports to either the distribution bug tracker or the
+\c
+.URL "https://github.com/cockpit\-project/cockpit/issues/new" "upstream bug
+tracker" .
+.SH "AUTHOR"
+.sp
+Cockpit has been written by many
+.URL "https://github.com/cockpit\-project/cockpit/" "contributors" "."
+.SH "SEE ALSO"
+.sp
+\f(CRcockpit\-ws(8)\fP

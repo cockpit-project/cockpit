@@ -23,6 +23,10 @@ the list, the second will be consulted, and so on.
 The `$ID` and `$VARIANT_ID` variables are those listed in `/etc/os-release`,
 and `$prefix` is usually `/usr`.
 
+Administrators can provide a custom local branding in `/etc/cockpit/branding/`
+(more generally, `$XDG_CONFIG_DIRS/cockpit/branding/`). If that directory
+exists, it is considered before the above directories.
+
 All of the files served from these directories are available over HTTP
 without authentication. This is required since these resources will be used
 on the login screen.

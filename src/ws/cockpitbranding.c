@@ -22,10 +22,28 @@
 #include "common/cockpitwebserver.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitsystem.h"
+#include "common/cockpitconf.h"
 
 #include "cockpitauth.h"
 #include "cockpitbranding.h"
 #include "cockpitwebservice.h"
+
+static void
+add_config_branding_dirs (GPtrArray *dirs)
+{
+  const gchar * const* config_dirs;
+
+  config_dirs = cockpit_conf_get_dirs ();
+  while (config_dirs && config_dirs[0])
+    {
+      g_autofree gchar *config_path = g_build_filename (config_dirs[0], "cockpit", "branding", NULL);
+
+      if (g_file_test (config_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR))
+        g_ptr_array_add (dirs, g_steal_pointer (&config_path));
+
+      config_dirs++;
+    }
+}
 
 static const gchar * const*
 get_system_data_dirs (void)
@@ -73,6 +91,8 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
   gchar **roots;
 
   dirs = g_ptr_array_new_with_free_func (g_free);
+
+  add_config_branding_dirs (dirs);
 
   if (is_local)
     add_system_dirs (dirs);

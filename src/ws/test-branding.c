@@ -156,6 +156,23 @@ test_roots_variant (gconstpointer data)
   assert_roots_contains (roots_variant, data_dir, "cockpit/static");
 }
 
+static void
+test_roots_config (gconstpointer data)
+{
+  const gchar *config_dir = (const gchar *)data;
+
+  /* Create config branding directory */
+  g_autofree gchar *config_branding_dir = g_build_filename (config_dir, "cockpit", "branding", NULL);
+  g_mkdir_with_parents (config_branding_dir, 0755);
+  g_autofree gchar *config_css = g_build_filename (config_branding_dir, "branding.css", NULL);
+  g_file_set_contents (config_css, "/* config branding */", -1, NULL);
+
+  /* config dirs short-circuit system dirs */
+  g_auto(GStrv) roots = cockpit_branding_calculate_static_roots ("fedora", NULL, NULL, FALSE);
+  g_assert_cmpint (g_strv_length (roots), ==, 1);
+  assert_roots_contains (roots, config_dir, "cockpit/branding");
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -173,6 +190,10 @@ main (int argc, char *argv[])
   g_mkdir(data_dir, 0755);
   g_setenv ("XDG_DATA_DIRS", data_dir, TRUE);
 
+  g_autofree gchar *config_dir = g_build_filename (global_temp_dir, "config", NULL);
+  g_mkdir(config_dir, 0755);
+  g_setenv ("XDG_CONFIG_DIRS", config_dir, TRUE);
+
   g_test_add_data_func ("/branding/roots/local", data_dir,
                         test_roots_local);
 
@@ -181,6 +202,9 @@ main (int argc, char *argv[])
 
   g_test_add_data_func ("/branding/roots/variant", data_dir,
                         test_roots_variant);
+
+  g_test_add_data_func ("/branding/roots/config", config_dir,
+                        test_roots_config);
 
   result = g_test_run ();
 

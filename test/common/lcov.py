@@ -459,7 +459,7 @@ def get_review_comments(diff_info_file):
     return comments
 
 
-def prepare_for_code_coverage():
+def prepare_for_code_coverage() -> None:
     # This gives us a convenient link at the top of the logs, see link-patterns.json
     print("Code coverage report in Coverage/index.html")
     if os.path.exists("lcov"):

@@ -23,7 +23,7 @@ export interface ProgressData {
     // If not null, the operation can be cancelled
     cancel?: (() => void) | null
     // Transaction percentage
-    absolute_percentage: number
+    percentage: number
 }
 
 export type ProgressCB = (data: ProgressData) => void;

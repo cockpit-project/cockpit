@@ -216,7 +216,7 @@ export class Dnf5DaemonManager implements PackageManager {
             if (progress_cb) {
                 progress_cb({
                     waiting: false,
-                    absolute_percentage: 0,
+                    percentage: 0,
                     cancel: null,
                 });
             }
@@ -292,7 +292,7 @@ export class Dnf5DaemonManager implements PackageManager {
                     cancel: null,
                     info: last_info,
                     package: last_name,
-                    absolute_percentage: last_progress,
+                    percentage: last_progress,
                     waiting: false,
                 });
         }

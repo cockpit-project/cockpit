@@ -23,7 +23,7 @@ from lcov import create_coverage_report, prepare_for_code_coverage
 from lib.constants import DEFAULT_MACHINE_MEMORY_MB
 from machine import testvm
 
-os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ["PYTHONUNBUFFERED"] = "1"
 
 # Amount of times a test is re-run to find flakes / race conditions
 AMPLIFY_TEST_COUNT = 10
@@ -62,10 +62,13 @@ class Test:
 
     def start(self):
         if self.nondestructive:
-            assert self.machine_id is not None, f"need to assign nondestructive test {self} {self.command} to a machine"
+            assert self.machine_id is not None, (
+                f"need to assign nondestructive test {self} {self.command} to a machine"
+            )
         self.outfile = tempfile.TemporaryFile()
-        self.process = subprocess.Popen(["timeout", "-v", str(self.timeout), *self.command],
-                                        stdout=self.outfile, stderr=subprocess.STDOUT)
+        self.process = subprocess.Popen(
+            ["timeout", "-v", str(self.timeout), *self.command], stdout=self.outfile, stderr=subprocess.STDOUT
+        )
 
     def poll(self):
         poll_result = self.process.poll()
@@ -111,12 +114,12 @@ class Test:
             if self.returncode == 0:
                 # The test passed, but it shouldn't have.
                 self.returncode = 1  # that's a fail
-                self._print_test(print_tap, todo_reason=f'# expected failure: {self.todo}')
+                self._print_test(print_tap, todo_reason=f"# expected failure: {self.todo}")
                 return None, 1
             else:
                 # The test failed as expected
                 # Outputs  'not ok 1 test # TODO ...'
-                self._print_test(print_tap, todo_reason=f'# TODO {self.todo}')
+                self._print_test(print_tap, todo_reason=f"# TODO {self.todo}")
                 return None, 0
 
         if self.returncode == 0:
@@ -179,7 +182,7 @@ class Test:
                     sys.stdout.buffer.write(line)
                     break
                 except BlockingIOError as e:
-                    line = line[e.characters_written:]
+                    line = line[e.characters_written :]
                     time.sleep(0.1)
 
         # be quiet in TAP mode for successful tests
@@ -206,7 +209,7 @@ class Test:
             return
 
         print()  # Tap needs to start on a separate line
-        status = 'ok' if self.returncode in [0, 77] else 'not ok'
+        status = "ok" if self.returncode in [0, 77] else "not ok"
         print(f"{status} {self}{retry_reason}{skip_reason}{todo_reason}")
         flush_stdout()
 
@@ -218,8 +221,9 @@ class GlobalMachine:
         self.networking = self.network.host(restrict=restrict)
         # provide enough RAM for cryptsetup's PBKDF, as long as that is not configurable:
         # https://bugzilla.redhat.com/show_bug.cgi?id=1881829
-        self.machine = machine_class(verbose=True, networking=self.networking, image=self.image, cpus=cpus,
-                                     memory_mb=memory_mb or 1400)
+        self.machine = machine_class(
+            verbose=True, networking=self.networking, image=self.image, cpus=cpus, memory_mb=memory_mb or 1400
+        )
         self.machine_class = machine_class
         if not os.path.exists(self.machine.image_file):
             self.machine.pull(self.machine.image_file)
@@ -252,7 +256,7 @@ class GlobalMachine:
 
 def check_valid(filename):
     name = os.path.basename(filename)
-    allowed = string.ascii_letters + string.digits + '-_'
+    allowed = string.ascii_letters + string.digits + "-_"
     if not all(c in allowed for c in name):
         return None
     return name.replace("-", "_")
@@ -304,7 +308,7 @@ def get_affected_tests(test_dir, base_branch, test_files):
     # Drop changes in css files - this does not affect tests thus no reason to retry
     files = [f.decode() for f in diff_out.strip().splitlines() if not f.endswith(b"css")]
 
-    changed_pkgs = {"check-" + pkg.split('/')[1] for pkg in files}
+    changed_pkgs = {"check-" + pkg.split("/")[1] for pkg in files}
     changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
 
     return changed_tests
@@ -334,7 +338,9 @@ def detect_tests(test_files, image, opts):
             for test in test_suite:
                 if hasattr(test, "machine_class") and test.machine_class is not None:
                     if machine_class is not None and machine_class != test.machine_class:
-                        raise ValueError(f"only one unique machine_class can be used per project, provided with {machine_class} and {test.machine_class}")
+                        raise ValueError(
+                            f"only one unique machine_class can be used per project, provided with {machine_class} and {test.machine_class}"
+                        )
 
                     machine_class = test.machine_class
 
@@ -359,7 +365,10 @@ def detect_tests(test_files, image, opts):
                 todo = testlib.get_decorator(test_method, test, "todo")
                 if getattr(test.__class__, "provision", None):
                     # each additionally provisioned VM memory costs destructive test capacity
-                    total_memory = sum(config.get('memory_mb', DEFAULT_MACHINE_MEMORY_MB) for config in test.__class__.provision.values())
+                    total_memory = sum(
+                        config.get("memory_mb", DEFAULT_MACHINE_MEMORY_MB)
+                        for config in test.__class__.provision.values()
+                    )
                     cost = math.ceil(total_memory / DEFAULT_MACHINE_MEMORY_MB)
                 else:
                     cost = 1
@@ -418,9 +427,14 @@ def run(opts, image):
         num_global = min(nondestructive_tests_len, opts.jobs)
 
         for _ in range(num_global):
-            global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,
-                                                 memory_mb=opts.nondestructive_memory_mb,
-                                                 machine_class=machine_class or testvm.VirtMachine))
+            global_machines.append(
+                GlobalMachine(
+                    restrict=not opts.enable_network,
+                    cpus=opts.nondestructive_cpus,
+                    memory_mb=opts.nondestructive_memory_mb,
+                    machine_class=machine_class or testvm.VirtMachine,
+                )
+            )
 
     # test scheduling loop
     while True:
@@ -467,7 +481,7 @@ def run(opts, image):
                 made_progress = True
         else:
             # find free global machines, and either assign a new non destructive test, or kill them to free resources
-            for (idx, machine) in enumerate(global_machines):
+            for idx, machine in enumerate(global_machines):
                 if machine.is_available():
                     if nondestructive_tests:
                         test = nondestructive_tests.pop(0)
@@ -486,17 +500,25 @@ def run(opts, image):
             return sum(test.cost for test in running_tests)
 
         # fill the remaining available job slots with destructive tests; run tests with a cost higher than #jobs by themselves
-        while destructive_tests and (running_cost() + destructive_tests[0].cost <= opts.jobs or len(running_tests) == 0):
+        while destructive_tests and (
+            running_cost() + destructive_tests[0].cost <= opts.jobs or len(running_tests) == 0
+        ):
             test = destructive_tests.pop(0)
-            logging.debug("%d running tests with total cost %d, starting next destructive test %s",
-                          len(running_tests), running_cost(), test)
+            logging.debug(
+                "%d running tests with total cost %d, starting next destructive test %s",
+                len(running_tests),
+                running_cost(),
+                test,
+            )
             test.start()
             running_tests.append(test)
             made_progress = True
 
         # are we done?
         if not running_tests:
-            assert not nondestructive_tests, f"nondestructive_tests should be empty: {[str(t) for t in nondestructive_tests]}"
+            assert not nondestructive_tests, (
+                f"nondestructive_tests should be empty: {[str(t) for t in nondestructive_tests]}"
+            )
             assert not destructive_tests, f"destructive_tests should be empty: {[str(t) for t in destructive_tests]}"
             break
 
@@ -514,7 +536,7 @@ def run(opts, image):
 
     nondestructive_details = []
     if not opts.machine:
-        for (idx, machine) in enumerate(global_machines):
+        for idx, machine in enumerate(global_machines):
             nondestructive_details.append(f"{idx}: {machine.duration}s")
 
     details = f"[{duration}s on {hostname}, {destructive_tests_len} destructive tests, {nondestructive_tests_len} nondestructive tests: {', '.join(nondestructive_details)}]"
@@ -530,34 +552,56 @@ def run(opts, image):
 
 def main():
     parser = testlib.arg_parser(enable_sit=False)
-    parser.add_argument('-j', '--jobs', type=int,
-                        default=int(os.environ.get("TEST_JOBS", 1)), help="Number of concurrent jobs")
-    parser.add_argument('--thorough', action='store_true',
-                        help='Thorough mode, no skipping known issues')
-    parser.add_argument('-n', '--nondestructive', action='store_true',
-                        help='Only consider @nondestructive tests')
-    parser.add_argument('--machine', metavar="hostname[:port]",
-                        default=None, help="Run tests against an already running machine;  implies --nondestructive")
-    parser.add_argument('--browser', metavar="hostname[:port]",
-                        default=None, help="When using --machine, use this cockpit web address")
-    parser.add_argument('--test-dir', default=os.environ.get("TEST_DIR", testvm.TEST_DIR),
-                        help="Directory in which to glob for test files; default: %(default)s")
-    parser.add_argument('--test-glob', default="check-*",
-                        help="Pattern with which to glob in the test directory; default: %(default)s")
-    parser.add_argument('--exclude', action="append", default=[], metavar="TestClass.testName",
-                        help="Exclude test (exact match only); can be specified multiple times")
-    parser.add_argument('--nondestructive-cpus', type=int, default=None,
-                        help="Number of CPUs for nondestructive test global machines")
-    parser.add_argument('--nondestructive-memory-mb', type=int, default=None,
-                        help="RAM size for nondestructive test global machines")
-    parser.add_argument('--base', default=os.environ.get("BASE_BRANCH"),
-                        help="Retry affected tests compared to given base branch; default: %(default)s")
-    parser.add_argument('--track-naughties', action='store_true',
-                        help='Update the occurrence of naughties on cockpit-project/bots')
-    parser.add_argument('--no-retry-fail', action='store_true',
-                        help="Don't retry failed tests")
-    parser.add_argument('--amplify', type=str, default=None,
-                        help="Run the given tests multiple times in a row")
+    parser.add_argument(
+        "-j", "--jobs", type=int, default=int(os.environ.get("TEST_JOBS", 1)), help="Number of concurrent jobs"
+    )
+    parser.add_argument("--thorough", action="store_true", help="Thorough mode, no skipping known issues")
+    parser.add_argument("-n", "--nondestructive", action="store_true", help="Only consider @nondestructive tests")
+    parser.add_argument(
+        "--machine",
+        metavar="hostname[:port]",
+        default=None,
+        help="Run tests against an already running machine;  implies --nondestructive",
+    )
+    parser.add_argument(
+        "--browser",
+        metavar="hostname[:port]",
+        default=None,
+        help="When using --machine, use this cockpit web address",
+    )
+    parser.add_argument(
+        "--test-dir",
+        default=os.environ.get("TEST_DIR", testvm.TEST_DIR),
+        help="Directory in which to glob for test files; default: %(default)s",
+    )
+    parser.add_argument(
+        "--test-glob",
+        default="check-*",
+        help="Pattern with which to glob in the test directory; default: %(default)s",
+    )
+    parser.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        metavar="TestClass.testName",
+        help="Exclude test (exact match only); can be specified multiple times",
+    )
+    parser.add_argument(
+        "--nondestructive-cpus", type=int, default=None, help="Number of CPUs for nondestructive test global machines"
+    )
+    parser.add_argument(
+        "--nondestructive-memory-mb", type=int, default=None, help="RAM size for nondestructive test global machines"
+    )
+    parser.add_argument(
+        "--base",
+        default=os.environ.get("BASE_BRANCH"),
+        help="Retry affected tests compared to given base branch; default: %(default)s",
+    )
+    parser.add_argument(
+        "--track-naughties", action="store_true", help="Update the occurrence of naughties on cockpit-project/bots"
+    )
+    parser.add_argument("--no-retry-fail", action="store_true", help="Don't retry failed tests")
+    parser.add_argument("--amplify", type=str, default=None, help="Run the given tests multiple times in a row")
     opts = parser.parse_args()
 
     if opts.machine:
@@ -569,8 +613,7 @@ def main():
 
     # Tell any subprocesses what we are testing
     if "TEST_REVISION" not in os.environ:
-        r = subprocess.run(["git", "rev-parse", "HEAD"],
-                           universal_newlines=True, check=False, stdout=subprocess.PIPE)
+        r = subprocess.run(["git", "rev-parse", "HEAD"], universal_newlines=True, check=False, stdout=subprocess.PIPE)
         if r.returncode == 0:
             os.environ["TEST_REVISION"] = r.stdout.strip()
 
@@ -590,6 +633,6 @@ def main():
     return run(opts, image)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # logging.basicConfig(level=logging.DEBUG)
     sys.exit(main())

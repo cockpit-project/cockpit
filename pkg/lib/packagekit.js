@@ -234,7 +234,7 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
         let allow_wait_status = false;
         const progress_data = {
             waiting: false,
-            absolute_percentage: 0,
+            percentage: 0,
             cancel: null
         };
 
@@ -251,7 +251,7 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
                 if ("AllowCancel" in props)
                     progress_data.cancel = props.AllowCancel ? cancel : null;
                 if ("Percentage" in props && props.Percentage <= 100)
-                    progress_data.absolute_percentage = props.Percentage;
+                    progress_data.percentage = props.Percentage;
 
                 progress_cb(progress_data);
             }

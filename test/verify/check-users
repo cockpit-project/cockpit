@@ -42,7 +42,7 @@ def performUserAction(browser, user, action):
 
 def performGroupAction(browser, group, action):
     browser.click(f"#groups-list tbody tr:contains({group}) button.pf-v6-c-menu-toggle")
-    browser.click(f"body > .pf-v6-c-menu .pf-v6-c-menu__list-item:contains({action}) button")
+    browser.click(f".pf-v6-c-menu .pf-v6-c-menu__list-item:contains({action}) button")
 
 
 def createUser(

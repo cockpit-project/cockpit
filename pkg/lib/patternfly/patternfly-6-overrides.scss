@@ -365,3 +365,10 @@ $phone: 767px;
 .pf-v6-c-table .pf-v6-c-table__tbody :where(.pf-v6-c-table__th, .pf-v6-c-table__td)[data-label]::before {
     font-weight: var(--pf-t--global--font--weight--body--bold);
 }
+
+// HACK: Setting position relative helps ensure that absolute elements like
+// PF's dropdown will increase the scrollable area to see all the dropdown actions.
+// https://github.com/patternfly/patternfly-react/issues/11987
+.pf-v6-c-page__main-section {
+  position: relative;
+}

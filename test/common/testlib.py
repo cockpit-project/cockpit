@@ -39,6 +39,7 @@ import time
 import traceback
 import unittest
 from collections.abc import Collection, Container, Coroutine, Iterator, Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, ClassVar, Literal, TypedDict, TypeVar
 
@@ -308,7 +309,7 @@ class Browser:
     def _is_running(self) -> bool:
         """True initially, false after calling .kill()"""
 
-        return self.driver is not None and self.driver.bidi_session is not None
+        return self.driver.bidi_session is not None
 
     def have_test_api(self) -> bool:
         """Check if the browser is running and has a Cockpit page
@@ -1629,7 +1630,7 @@ class MachineCase(unittest.TestCase):
     runner = None
     machine: testvm.Machine
     machines: Mapping[str, testvm.Machine]
-    machine_class: type | None = None
+    machine_class: type[testvm.VirtMachine] | None = None
     browser: Browser
     network = None
     journal_start: str | None = None
@@ -2782,6 +2783,18 @@ def print_tests(tests: unittest.TestSuite | Collection[unittest.TestSuite | unit
             print(test.id().replace("__main__.", ""))
 
 
+@dataclass
+class TestlibArgs:
+    coverage: bool
+    enable_network: bool
+    fetch: bool
+    list: bool
+    sit: bool
+    trace: bool
+    verbosity: int
+    tests: Sequence[str]
+
+
 def arg_parser(enable_sit: bool = True) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
@@ -2793,6 +2806,8 @@ def arg_parser(enable_sit: bool = True) -> argparse.ArgumentParser:
     if enable_sit:
         parser.add_argument('-s', "--sit", dest='sit', action='store_true',
                             help="Sit and wait after test failure")
+    else:
+        parser.set_defaults(sit=False)
     parser.add_argument('--nonet', dest="fetch", action="store_false",
                         help="Don't go online to download images or data")
     parser.add_argument('--enable-network', dest='enable_network', action='store_true',

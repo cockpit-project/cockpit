@@ -2,12 +2,12 @@
 .\"     Title: cockpit-desktop
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2025-07-29
-.\"    Manual: \ \&
-.\"    Source: \ \&
+.\"      Date: 2025-09-04
+.\"    Manual: cockpit-desktop
+.\"    Source: cockpit
 .\"  Language: English
 .\"
-.TH "COCKPIT\-DESKTOP" "1" "2025-07-29" "\ \&" "\ \&"
+.TH "COCKPIT\-DESKTOP" "1" "2025-09-04" "cockpit" "cockpit\-desktop"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -27,65 +27,51 @@
 .  .
 .  LINKSTYLE blue R < >
 .\}
+.SH "NAME"
+cockpit-desktop \- Cockpit Desktop integration
+.SH "SYNOPSIS"
 .sp
-cockpit
-.sp
-cockpit\-desktop
-.sp
-1
-.sp
-cockpit\-desktop
-.sp
-Cockpit Desktop integration
-.sp
-cockpit\-desktop
-.sp
-URLPATH
-.sp
-SSH_HOST
+\fBcockpit\-desktop\fP \fIURLPATH\fP [\fISSH_HOST\fP]
 .SH "DESCRIPTION"
 .sp
-The \f(CRcockpit\-desktop\fP program provides secure access to Cockpit pages
+The \fBcockpit\-desktop\fP program provides secure access to Cockpit pages
 in an already running desktop session. It starts a web server
-(\f(CRcockpit\-ws\fP) and a web browser in an isolated network namespace, and
-a \f(CRcockpit\-bridge(8)\fP in the running user session.
+(\fBcockpit\-ws\fP) and a web browser in an isolated network namespace, and
+a \fBcockpit\-bridge(8)\fP in the running user session.
 .sp
 This avoids having to log into Cockpit, and having to enable
-\f(CRcockpit.socket\fP system\-wide. The network isolation ensures that no
+\fBcockpit.socket\fP system\-wide. The network isolation ensures that no
 other user, and not even other processes in the user\(cqs session, can
 access this local web server.
 .sp
-\f(CRURLPATH\fP is the Cockpit page to open, i. e. the path component of
+\fBURLPATH\fP is the Cockpit page to open, i. e. the path component of
 Cockpit URLs. It is highly recommended to only open a
-\c
-.URL "https://cockpit\-project.org/guide/latest/embedding.html" "particular page
-frame" , not the entire Cockpit navigation and menu. For example, the
+.URL "https://cockpit\-project.org/guide/latest/embedding.html" "particular page frame" ","
+not the entire Cockpit navigation and menu. For example, the
 path \f(CR/cockpit/@localhost/storage/index.html\fP will open the Storage
 page. It is also possible to give abbreviated forms of urls, such as
-\(lqstorage\(rq or \(lqnetwork/firewall\(rq.
+\(lq/storage\(rq or \(lq/network/firewall\(rq.
 .sp
-\f(CRSSH_HOST\fP is an optional SSH remote host specification (\f(CRhostname\fP
-or \f(CRusername@hostname\fP). If given, \f(CRcockpit\-bridge\fP will be started
-on the remote host through \f(CRssh(1)\fP instead, i. e. the Cockpit web
+\fISSH_HOST\fP is an optional SSH remote host specification (\fIhostname\fP
+or \fIusername@hostname\fP). If given, \fBcockpit\-bridge\fP will be started
+on the remote host through \fBssh(1)\fP instead, i. e. the Cockpit web
 browser will show that remote host. Note that this is more of an
 experimental/demo feature.
 .SH "ENVIRONMENT"
 .sp
-The \f(CRBROWSER\fP environment variable specifies the browser command (and
+The \fBBROWSER\fP environment variable specifies the browser command (and
 possibly options) that will be used to open the requested Cockpit page.
-If not set, \f(CRcockpit\-desktop\fP attempts to use an internal minimalistic
+If not set, \fBcockpit\-desktop\fP attempts to use an internal minimalistic
 WebKit browser, and failing that, will attempt to detect some reasonable
 alternatives.
 .SH "BUGS"
 .sp
-Please send bug reports to either the distribution bug tracker or the
-\c
-.URL "https://github.com/cockpit\-project/cockpit/issues/new" "upstream bug
-tracker" .
+Please send bug reports to either the distribution bug tracker or the \c
+.URL "https://github.com/cockpit\-project/cockpit/issues/new" "upstream bug tracker" "."
 .SH "AUTHOR"
 .sp
 Cockpit has been written by many
-.URL "https://github.com/cockpit\-project/cockpit/" "contributors" "."
+.URL "https://github.com/cockpit\-project/cockpit" "contributors" "."
 .SH "SEE ALSO"
 .sp
-\f(CRcockpit\-ws(8)\fP, \f(CRcockpit\-bridge(1)\fP
+\fBcockpit\-ws(8)\fP, \fBcockpit\-bridge(1)\fP

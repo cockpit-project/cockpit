@@ -3,11 +3,11 @@
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.20
 .\"      Date: 2025-09-04
-.\"    Manual: \ \&
-.\"    Source: \ \&
+.\"    Manual: pam_ssh_add
+.\"    Source: cockpit
 .\"  Language: English
 .\"
-.TH "PAM_SSH_ADD" "1" "2025-09-04" "\ \&" "\ \&"
+.TH "PAM_SSH_ADD" "8" "2025-09-04" "cockpit" "pam_ssh_add"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -27,16 +27,8 @@
 .  .
 .  LINKSTYLE blue R < >
 .\}
-.sp
-pam_ssh_add
-.sp
-pam_ssh_add
-.sp
-8
-.sp
-pam_ssh_add
-.sp
-PAM module to auto load ssh keys into an agent
+.SH "NAME"
+pam_ssh_add \- PAM module to auto load ssh keys into an agent
 .SH "DESCRIPTION"
 .sp
 pam_ssh_add provides authentication and session modules that allow users
@@ -56,7 +48,7 @@ token was successfully stored, that token will be provided as the
 password.
 .SH "OPTIONS"
 .sp
-\f(CRdebug\fP
+\fBdebug\fP
 .RS 4
 This option will turn on debug logging to syslog.
 .RE
@@ -71,13 +63,11 @@ This option will turn on debug logging to syslog.
 .fam
 .fi
 .if n .RE
+.SH "BUGS"
+.sp
+Please send bug reports to either the distribution bug tracker or the \c
+.URL "https://github.com/cockpit\-project/cockpit/issues/new" "upstream bug tracker" "."
 .SH "AUTHOR"
 .sp
 Cockpit has been written by many
-.URL "https://github.com/cockpit\-project/cockpit/" "contributors" "."
-.SH "BUGS"
-.sp
-Please send bug reports to either the distribution bug tracker or the
-\c
-.URL "https://github.com/cockpit\-project/cockpit/issues/new" "upstream bug
-tracker" .
+.URL "https://github.com/cockpit\-project/cockpit" "contributors" "."

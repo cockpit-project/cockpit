@@ -441,25 +441,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#guide">Deployment Guide</a>
 <ul class="sectlevel2">
 <li><a href="#cockpit-manual">Manual pages</a>
-<ul class="sectlevel4">
-<li><a href="#_description">DESCRIPTION</a></li>
-<li><a href="#_components">COMPONENTS</a></li>
-<li><a href="#_bugs">BUGS</a></li>
-<li><a href="#_author">AUTHOR</a></li>
-<li><a href="#_see_also">SEE ALSO</a></li>
-<li><a href="#cockpit-conf-description">DESCRIPTION</a></li>
-<li><a href="#cockpit-conf-webservice">WebService</a></li>
-<li><a href="#cockpit-conf-log">Log</a></li>
-<li><a href="#cockpit-conf-oauth">OAuth</a></li>
-<li><a href="#cockpit-conf-session">Session</a></li>
-<li><a href="#cockpit-conf-bugs">BUGS</a></li>
-<li><a href="#cockpit-conf-author">AUTHOR</a></li>
-<li><a href="#cockpit-conf-also">SEE ALSO</a></li>
-<li><a href="#cockpit-desktop-description">DESCRIPTION</a></li>
-<li><a href="#cockpit-desktop-environment">ENVIRONMENT</a></li>
-<li><a href="#cockpit-desktop-bugs">BUGS</a></li>
-<li><a href="#cockpit-desktop-author">AUTHOR</a></li>
-<li><a href="#cockpit-desktop-also">SEE ALSO</a></li>
+<ul class="sectlevel3">
+<li><a href="#_cockpit1">cockpit(1)</a></li>
+<li><a href="#_cockpit_conf5">cockpit.conf(5)</a></li>
+<li><a href="#_cockpit_ws8">cockpit-ws(8)</a></li>
+<li><a href="#_cockpit_tls8">cockpit-tls(8)</a></li>
+<li><a href="#_cockpit_desktop1">cockpit-desktop(1)</a></li>
+<li><a href="#_cockpit_bridge1">cockpit-bridge(1)</a></li>
 </ul>
 </li>
 <li><a href="#https">SSL/TLS Usage</a>
@@ -579,23 +567,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="sect2">
 <h3 id="cockpit-manual">Manual pages</h3>
+<div class="sect3">
+<h4 id="_cockpit1">cockpit(1)</h4>
+<div class="sect4">
+<h5 id="cockpit-name">Name</h5>
 <div class="paragraph">
-<p>cockpit</p>
+<p>cockpit - Cockpit</p>
 </div>
-<div class="paragraph">
-<p>cockpit</p>
-</div>
-<div class="paragraph">
-<p>1</p>
-</div>
-<div class="paragraph">
-<p>cockpit</p>
-</div>
-<div class="paragraph">
-<p>Cockpit</p>
 </div>
 <div class="sect4">
-<h5 id="_description">DESCRIPTION</h5>
+<h5 id="cockpit-synopsis">Description</h5>
 <div class="paragraph">
 <p>Cockpit is a web accessible interactive admin interface for Linux
 machines. Cockpit can usually be accessed on port <code>9090</code> of the
@@ -604,85 +585,53 @@ credentials to log in.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_components">COMPONENTS</h5>
+<h5 id="cockpit-components">Components</h5>
 <div class="paragraph">
-<p>The <code>cockpit-ws</code> web service listens on port <code>9090</code> and is started
-on demand by <code>systemd</code>. The Cockpit web service authenticates the
-user, loads Cockpit into the browser, and starts <code>cockpit-bridge</code> in a
+<p>The <strong>cockpit-ws</strong> web service listens on port <code>9090</code> and is started
+on demand by <strong>systemd</strong>. The Cockpit web service authenticates the
+user, loads Cockpit into the browser, and starts <strong>cockpit-bridge</strong> in a
 Linux user session.</p>
 </div>
 <div class="paragraph">
-<p>The <code>cockpit-bridge</code> provides Cockpit in the web browser with access
+<p>The <strong>cockpit-bridge</strong> provides Cockpit in the web browser with access
 to the system APIs. It does this over its standard in and standard out.
 The bridge is started like a shell once per Linux user session.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_bugs">BUGS</h5>
+<h5 id="cockpit-bugs">Bugs</h5>
 <div class="paragraph">
-<p>Please send bug reports to either the distribution bug tracker or the
-<a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug
-tracker</a>.</p>
+<p>Please send bug reports to either the distribution bug tracker or the <a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</a>.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_author">AUTHOR</h5>
+<h5 id="cockpit-author">Author</h5>
 <div class="paragraph">
 <p>Cockpit has been written by many
-<a href="https://github.com/cockpit-project/cockpit/">contributors</a>.</p>
+<a href="https://github.com/cockpit-project/cockpit">contributors</a>.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_see_also">SEE ALSO</h5>
+<h5 id="cockpit-also">See also</h5>
 <div class="paragraph">
-<p>Cockpit Guide</p>
+<p><strong>cockpit-tls(8)</strong> , <strong>cockpit.bridge(1)</strong> , <strong>systemd(1)</strong>, <strong><a href="https://cockpit-project.org/guide/latest">Cockpit guide</a></strong></p>
 </div>
-<div class="paragraph">
-<p>cockpit-ws</p>
 </div>
-<div class="paragraph">
-<p>8</p>
 </div>
+<div class="sect3">
+<h4 id="_cockpit_conf5">cockpit.conf(5)</h4>
+<div class="sect4">
+<h5 id="cockpit-conf-name">Name</h5>
 <div class="paragraph">
-<p>cockpit-bridge</p>
-</div>
-<div class="paragraph">
-<p>1</p>
-</div>
-<div class="paragraph">
-<p>cockpit.conf</p>
-</div>
-<div class="paragraph">
-<p>5</p>
-</div>
-<div class="paragraph">
-<p>systemd</p>
-</div>
-<div class="paragraph">
-<p>1</p>
-</div>
-<div class="paragraph">
-<p>cockpit</p>
-</div>
-<div class="paragraph">
-<p>cockpit.conf</p>
-</div>
-<div class="paragraph">
-<p>5</p>
-</div>
-<div class="paragraph">
-<p>cockpit.conf</p>
-</div>
-<div class="paragraph">
-<p>Cockpit configuration file</p>
+<p>cockpit.conf - Cockpit configuration file</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-conf-description">DESCRIPTION</h5>
+<h5 id="cockpit-conf-description">Description</h5>
 <div class="paragraph">
 <p>Cockpit can be configured via /etc/cockpit/cockpit.conf. If
-<code>$XDG_CONFIG_DIRS</code> is set, then the first path containing a
-<code>../cockpit/cockpit.conf</code> is used instead. Other configuration files
+<strong>$XDG_CONFIG_DIRS</strong> is set, then the first path containing a
+<strong>../cockpit/cockpit.conf</strong> is used instead. Other configuration files
 and directories are searched for in the same way.</p>
 </div>
 <div class="paragraph">
@@ -692,14 +641,14 @@ topical groups. See the examples below for details.</p>
 </div>
 <div class="paragraph">
 <p>Note: The port that cockpit listens on cannot be changed in this file.
-To change the port change the systemd <code>cockpit.socket</code> file.</p>
+To change the port change the systemd <strong>cockpit.socket</strong> file.</p>
 </div>
 </div>
 <div class="sect4">
 <h5 id="cockpit-conf-webservice">WebService</h5>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>Origins</code></dt>
+<dt class="hdlist1"><strong>Origins</strong></dt>
 <dd>
 <p>By default cockpit will not accept crossdomain websocket connections.
 Use this setting to allow access from alternate domains. Origins
@@ -717,7 +666,7 @@ Origins = https://somedomain1.com https://somedomain2.com:9090 https://*.somedom
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>ProtocolHeader</code></dt>
+<dt class="hdlist1"><strong>ProtocolHeader</strong></dt>
 <dd>
 <p>Configure cockpit to look at the contents of this header to determine
 if a connection is using tls. This should only be used when cockpit is
@@ -735,7 +684,7 @@ ProtocolHeader = X-Forwarded-Proto</code></pre>
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>ForwardedForHeader</code></dt>
+<dt class="hdlist1"><strong>ForwardedForHeader</strong></dt>
 <dd>
 <p>Configure cockpit to look at the contents of this header to determine
 the real origin of a connection. This should only be used when cockpit
@@ -753,30 +702,30 @@ ForwardedForHeader = X-Forwarded-For</code></pre>
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>LoginTitle</code></dt>
+<dt class="hdlist1"><strong>LoginTitle</strong></dt>
 <dd>
 <p>Set the browser title for the login screen.</p>
 </dd>
-<dt class="hdlist1"><code>LoginTo</code></dt>
+<dt class="hdlist1"><strong>LoginTo</strong></dt>
 <dd>
 <p>When set to <code>true</code> the <em>Connect to</em> option on the login screen is
 visible and allows logging into another server. When set to <code>false</code>,
 direct remote logins are disallowed. If this option is not specified
 then it will be automatically detected based on whether the
-<code>cockpit-bridge</code> package is installed and the <code>ssh</code> program is
+<strong>cockpit-bridge</strong> package is installed and the <strong>ssh</strong> program is
 available.
 +
 If cockpit-ws is exposed to the public internet, and also has access
 to a private internal network, it is recommended to explicitly set
-<code>LoginTo=false</code>. This prevents unauthenticated remote attackers from
+<strong>LoginTo=false</strong>. This prevents unauthenticated remote attackers from
 scanning the internal network for existing machines and open ports.</p>
 </dd>
-<dt class="hdlist1"><code>RequireHost</code></dt>
+<dt class="hdlist1"><strong>RequireHost</strong></dt>
 <dd>
 <p>When set to <code>true</code> cockpit will require users to use the <em>Connect
 to</em> option to specify the host to log into.</p>
 </dd>
-<dt class="hdlist1"><code>AllowMultiHost</code></dt>
+<dt class="hdlist1"><strong>AllowMultiHost</strong></dt>
 <dd>
 <p>When set to <code>true</code>, cockpit will allow users to connect to multiple
 hosts in one session. The default is OS specific.
@@ -786,29 +735,29 @@ isolation. All systems will be vulnerable to potential attacks from
 other connected hosts. Enable this option <em>only</em> when all hosts are
 trusted.</p>
 </dd>
-<dt class="hdlist1"><code>MaxStartups</code></dt>
+<dt class="hdlist1"><strong>MaxStartups</strong></dt>
 <dd>
-<p>Same as the <code>sshd</code> configuration option by the same name. Specifies
+<p>Same as the <strong>sshd</strong> configuration option by the same name. Specifies
 the maximum number of concurrent login attempts allowed. Additional
 connections will be dropped until authentication succeeds or the
 connections are closed. Defaults to 10.
 +
 Alternatively, random early drop can be enabled by specifying the
-three colon separated values <code>start:rate:full</code> (e.g. "10:30:60").
+three colon separated values <strong>start:rate:full</strong> (e.g. "10:30:60").
 Cockpit will start refusing authentication attempts with a probability
-of <code>rate/100</code> (30%) if there are currently <code>start</code> (10)
+of <strong>rate/100</strong> (30%) if there are currently <strong>start</strong> (10)
 unauthenticated connections. The probability increases linearly and
 all connection attempts are refused if the number of unauthenticated
-connections reaches <code>full</code> (60).</p>
+connections reaches <strong>full</strong> (60).</p>
 </dd>
-<dt class="hdlist1"><code>AllowUnencrypted</code></dt>
+<dt class="hdlist1"><strong>AllowUnencrypted</strong></dt>
 <dd>
 <p>If true, cockpit will accept unencrypted HTTP connections. Otherwise,
 it redirects all HTTP connections to HTTPS. Exceptions are connections
-from localhost and for certain URLs (like <code>/ping</code>). Defaults to
+from localhost and for certain URLs (like <strong>/ping</strong>). Defaults to
 false.</p>
 </dd>
-<dt class="hdlist1"><code>UrlRoot</code></dt>
+<dt class="hdlist1"><strong>UrlRoot</strong></dt>
 <dd>
 <p>The root URL where you will be serving cockpit. When provided cockpit
 will expect all requests to be prefixed with the given url. This is
@@ -817,7 +766,7 @@ as nginx. <code>/cockpit/</code> and <code>/cockpit+</code> are reserved and sho
 be used. For example <code>/cockpit-new/</code> is ok. <code>/cockpit/</code> and
 <code>/cockpit+new/</code> are not.</p>
 </dd>
-<dt class="hdlist1"><code>ClientCertAuthentication</code></dt>
+<dt class="hdlist1"><strong>ClientCertAuthentication</strong></dt>
 <dd>
 <p>If true, enable TLS client certificates for authenticating users.
 Commonly these are provided by a smart card, but it&#8217;s equally possible
@@ -825,7 +774,7 @@ to import certificates directly into the web browser. Please see the
 <a href="https://cockpit-project.org/guide/latest/cert-authentication.html">Certificate/smart
 card authentication</a> section in the Cockpit guide for details.</p>
 </dd>
-<dt class="hdlist1"><code>Shell</code></dt>
+<dt class="hdlist1"><strong>Shell</strong></dt>
 <dd>
 <p>The relative URL to top level component to display in Cockpit once
 logged in. Defaults to <code>/shell/index.html</code></p>
@@ -837,11 +786,11 @@ logged in. Defaults to <code>/shell/index.html</code></p>
 <h5 id="cockpit-conf-log">Log</h5>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>Fatal</code></dt>
+<dt class="hdlist1"><strong>Fatal</strong></dt>
 <dd>
 <p>The kind of log messages in the bridge to treat as fatal. Separate
-multiple values with spaces. Relevant values are: <code>criticals</code> and
-<code>warnings</code>.</p>
+multiple values with spaces. Relevant values are: <strong>criticals</strong> and
+<strong>warnings</strong>.</p>
 </dd>
 </dl>
 </div>
@@ -852,32 +801,32 @@ multiple values with spaces. Relevant values are: <code>criticals</code> and
 <p>Cockpit can be configured to support the
 <a href="https://tools.ietf.org/html/rfc6749#section-4.2">implicit grant</a> OAuth
 authorization flow. When successful the resulting oauth token will be
-passed to cockpit-ws using the <code>Bearer</code> auth-scheme. For a login to be
+passed to cockpit-ws using the <strong>Bearer</strong> auth-scheme. For a login to be
 successful, cockpit will also need a to be configured to verify and
-allow <code>Bearer</code> tokens.</p>
+allow <strong>Bearer</strong> tokens.</p>
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>URL</code></dt>
+<dt class="hdlist1"><strong>URL</strong></dt>
 <dd>
 <p>This is the url that cockpit will redirect the users browser to when
 it needs to obtain an oauth token. Cockpit will add a redirect_uri
 parameter to the url with the location of where the oauth provider
 should redirect to once a token has been obtained.</p>
 </dd>
-<dt class="hdlist1"><code>ErrorParam</code></dt>
+<dt class="hdlist1"><strong>ErrorParam</strong></dt>
 <dd>
 <p>When a oauth provider redirects a user back to cockpit, look for this
 parameter in the querystring or fragment portion of the url to find a
 error message. When not provided it will default to
-<code>error_description</code></p>
+<strong>error_description</strong></p>
 </dd>
-<dt class="hdlist1"><code>TokenParam</code></dt>
+<dt class="hdlist1"><strong>TokenParam</strong></dt>
 <dd>
 <p>When a oauth provider redirects a user back to cockpit, look for this
 parameter in the querystring or fragment portion of the url to find
 the access token. When not provided it will default to
-<code>access_token</code></p>
+<strong>access_token</strong></p>
 </dd>
 </dl>
 </div>
@@ -886,19 +835,19 @@ the access token. When not provided it will default to
 <h5 id="cockpit-conf-session">Session</h5>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>Banner</code></dt>
+<dt class="hdlist1"><strong>Banner</strong></dt>
 <dd>
-<p>The contents of the specified file (commonly <code>/etc/issue</code>) are shown
+<p>The contents of the specified file (commonly <strong>/etc/issue</strong>) are shown
 on the login page. By default, no banner is displayed.</p>
 </dd>
-<dt class="hdlist1"><code>IdleTimeout</code></dt>
+<dt class="hdlist1"><strong>IdleTimeout</strong></dt>
 <dd>
 <p>Time in minutes after which session expires and user is logged out if
 no user action has been performed in the given time. This idle timeout
 only applies to interactive password logins. With non-interactive
 authentication methods like Kerberos, OAuth, or certificate login, the
 browser cannot forget credentials, and thus automatic logouts are not
-useful for protecting credentials of forgotten sessions. Set to <code>0</code>
+useful for protecting credentials of forgotten sessions. Set to <strong>0</strong>
 to disable session timeout.
 +</p>
 </dd>
@@ -914,7 +863,7 @@ IdleTimeout=15</code></pre>
 <div class="content">
 <pre>  +
   When not specified, there is no idle timeout by default.
-`+WarnBeforeConnecting+`::
+*WarnBeforeConnecting*::
   Whether to warn before connecting to remote hosts from the Shell.
   Defaults to true.
   +</pre>
@@ -928,110 +877,473 @@ WarnBeforeConnecting=false</code></pre>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-conf-bugs">BUGS</h5>
+<h5 id="cockpit-conf-bugs">Bugs</h5>
 <div class="paragraph">
-<p>Please send bug reports to either the distribution bug tracker or the
-<a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug
-tracker</a>.</p>
+<p>Please send bug reports to either the distribution bug tracker or the <a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</a>.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-conf-author">AUTHOR</h5>
+<h5 id="cockpit-conf-author">Author</h5>
 <div class="paragraph">
 <p>Cockpit has been written by many
-<a href="https://github.com/cockpit-project/cockpit/">contributors</a>.</p>
+<a href="https://github.com/cockpit-project/cockpit">contributors</a>.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-conf-also">SEE ALSO</h5>
+<h5 id="cockpit-conf-also">See also</h5>
 <div class="paragraph">
-<p><code>cockpit-ws(8)</code>, <code>cockpit-tls(8)</code></p>
+<p><strong>cockpit-ws(8)</strong>, <strong>cockpit-tls(8)</strong></p>
 </div>
-<div class="paragraph">
-<p>cockpit</p>
 </div>
-<div class="paragraph">
-<p>cockpit-desktop</p>
 </div>
+<div class="sect3">
+<h4 id="_cockpit_ws8">cockpit-ws(8)</h4>
+<div class="sect4">
+<h5 id="cockpit-ws-name">Name</h5>
 <div class="paragraph">
-<p>1</p>
-</div>
-<div class="paragraph">
-<p>cockpit-desktop</p>
-</div>
-<div class="paragraph">
-<p>Cockpit Desktop integration</p>
-</div>
-<div class="paragraph">
-<p>cockpit-desktop</p>
-</div>
-<div class="paragraph">
-<p>URLPATH</p>
-</div>
-<div class="paragraph">
-<p>SSH_HOST</p>
+<p>cockpit-ws - Cockpit web service</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-desktop-description">DESCRIPTION</h5>
+<h5 id="cockpit-ws-synopsis">Synopsis</h5>
 <div class="paragraph">
-<p>The <code>cockpit-desktop</code> program provides secure access to Cockpit pages
+<p><strong>cockpit-ws</strong> [<strong>--help</strong>] [<strong>--port</strong> <em>PORT</em>] [<strong>--address</strong> <em>ADDRESS</em>] [<strong>--no-tls</strong>]
+			 [<strong>--for-tls-proxy</strong>] [<strong>--local-ssh</strong>] [<strong>--local-session</strong> <em>BRIDGE</em>]</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-ws-description">Description</h5>
+<div class="paragraph">
+<p>The <strong>cockpit-ws</strong> program is the web service component used for
+communication between the browser application and various configuration
+tools and services like <strong>cockpit-bridge(1)</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Users or administrators should never need to start this program as it
+automatically started by <strong>systemd(1)</strong> on bootup, through
+<strong>cockpit-tls(8)</strong>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-ws-transport">Transport security</h5>
+<div class="paragraph">
+<p><strong>cockpit-ws</strong> is normally run behind the <strong>cockpit-tls</strong> TLS
+terminating proxy, and only deals with unencrypted HTTP by itself. But
+for backwards compatibility it can also handle TLS connections by itself
+when being run directly. For details how to configure certificates,
+please refer to the <strong>cockpit-tls(8)</strong> documentation.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-ws-timeout">Timeout</h5>
+<div class="paragraph">
+<p>When started via <strong>systemd(1)</strong> then <strong>cockpit-ws</strong> will exit after 90
+seconds if nobody logs in, or after the last user is disconnected.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-ws-options">Options</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>--help</strong></dt>
+<dd>
+<p>Show help options.</p>
+</dd>
+<dt class="hdlist1"><strong>--port</strong> <em>PORT</em></dt>
+<dd>
+<p>Serve HTTP requests <em>PORT</em> instead of port <strong>9090</strong>. Usually Cockpit is
+started on demand by <strong>systemd</strong> socket activation, and this option
+has no effect. Update the <strong>ListenStream</strong> directive
+<strong>cockpit.socket</strong> file in the usual <strong>systemd</strong> manner.</p>
+</dd>
+<dt class="hdlist1"><strong>--address</strong> <em>ADDRESS</em></dt>
+<dd>
+<p>Bind to address <em>ADDRESS</em> instead of binding to all available
+addresses. Usually Cockpit is started on demand by <strong>systemd</strong> socket
+activation, and this option has no effect. In that case, update the
+<strong>ListenStream</strong> directive in the <strong>cockpit.socket</strong> file in the usual
+<strong>systemd</strong> manner.</p>
+</dd>
+<dt class="hdlist1"><strong>--no-tls</strong></dt>
+<dd>
+<p>Don&#8217;t use TLS.</p>
+</dd>
+<dt class="hdlist1"><strong>--for-tls-proxy</strong></dt>
+<dd>
+<p>Tell <strong>cockpit-ws</strong> that it is running behind a local reverse proxy
+that does the TLS termination. Then Cockpit puts https:// URLs into
+the default <strong>Content-Security-Policy</strong>, and accepts only https://
+origins, instead of http: ones by default. However, if <strong>Origins</strong> is
+set in the <strong>cockpit.conf(5)</strong> configuration file, it will override
+this default.</p>
+</dd>
+<dt class="hdlist1"><strong>--local-ssh</strong></dt>
+<dd>
+<p>Normally <strong>cockpit-ws</strong> uses <strong>cockpit-session</strong> and PAM to
+authenticate the user and start a user session. With this option
+enabled, it will instead authenticate via SSH at <strong>127.0.0.1</strong> port
+<strong>22</strong>.</p>
+</dd>
+<dt class="hdlist1"><strong>--local-session</strong> <em>BRIDGE</em></dt>
+<dd>
+<p>Skip all authentication and <strong>cockpit-session</strong>, and launch the
+<strong>cockpit-bridge</strong> specified in <em>BRIDGE</em> in the local session. If the
+<em>BRIDGE</em> is specified as <code>-</code> then expect an already running bridge
+that is connected to stdin and stdout of this <strong>cockpit-ws</strong> process.
+This allows the web server to run as any unprivileged user in an
+already running session.
++
+This mode implies <strong>--no-tls</strong>, thus you need to use http:// URLs with
+this.
++
+[WARNING]
+====
+If you use this, you <em>have to isolate the opened TCP port</em> somehow
+(for example in a network namespace), otherwise all other users (or
+even remote machines if the port is not just listening on localhost)
+can access the session!
+====</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-ws-environment">ENVIRONMENT</h5>
+<div class="paragraph">
+<p>The <strong>cockpit-ws</strong> process will use the <strong>XDG_CONFIG_DIRS</strong> environment
+variable from the
+<a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+basedir spec</a> to find its <strong>cockpit.conf(5)</strong> configuration file.</p>
+</div>
+<div class="paragraph">
+<p>In addition the <strong>XDG_DATA_DIRS</strong> environment variable from the
+<a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+basedir spec</a> can be used to override the location to serve static files
+from. These are the files that are served to a non-logged in user.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-ws-bugs">BUGS</h5>
+<div class="paragraph">
+<p>Please send bug reports to either the distribution bug tracker or the <a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-ws-author">AUTHOR</h5>
+<div class="paragraph">
+<p>Cockpit has been written by many
+<a href="https://github.com/cockpit-project/cockpit">contributors</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-ws-also">SEE ALSO</h5>
+<div class="paragraph">
+<p><strong>cockpit-tls(8)</strong> , <strong>cockpit.conf(5)</strong> , <strong>systemd(1)</strong></p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_cockpit_tls8">cockpit-tls(8)</h4>
+<div class="sect4">
+<h5 id="cockpit-bridge-name">Name</h5>
+<div class="paragraph">
+<p>cockpit-tls - TLS proxy for Cockpit web service</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-bridge-synopsis">Synopsis</h5>
+<div class="paragraph">
+<p><strong>cockpit-tls</strong> [<strong>--help</strong>] [<strong>--port</strong> <em>PORT</em>] [<strong>--no-tls</strong>] [<strong>--idle-timeout</strong> <em>SECONDS</em>]</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-tls-description">Description</h5>
+<div class="paragraph">
+<p>The <strong>cockpit-tls</strong> program is a TLS terminating HTTP proxy for
+<strong>cockpit-ws(8)</strong>. It manages a set of isolated cockpit-ws instances,
+one per TLS client certificate, plus one for TLS without a client
+certificate, and one for unencrypted HTTP. With that, one session cannot
+tamper with another one through possible security vulnerability
+exploits.</p>
+</div>
+<div class="paragraph">
+<p>Users or administrators should never need to start this program as it
+automatically started by <strong>systemd(1)</strong> via socket activation.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-tls-transport">Transport security</h5>
+<div class="paragraph">
+<p>To specify the TLS certificate the web service should use, simply drop a
+file with the extension <strong>.cert</strong> in the <strong>/etc/cockpit/ws-certs.d</strong>
+directory, or below <strong>$XDG_CONFIG_DIRS</strong> if set (see
+<a href="./cockpit.conf.5.html">cockpit.conf</a>). If there are multiple files
+in this directory, then the highest priority one is chosen after
+sorting.</p>
+</div>
+<div class="paragraph">
+<p>The <strong>.cert</strong> file should contain at least two OpenSSL style PEM blocks.
+First one or more <code>BEGIN CERTIFICATE</code> blocks for the server
+certificate and intermediate certificate authorities and a second one
+containing a <code>BEGIN PRIVATE KEY</code> or similar. The key must not be
+encrypted.</p>
+</div>
+<div class="paragraph">
+<p>If there is no TLS certificate, a self-signed certificate is
+automatically generated using <strong>sscg</strong> (if available) or <strong>openssl</strong> and
+stored in the <strong>0-self-signed.cert</strong> file.</p>
+</div>
+<div class="paragraph">
+<p>When enrolling into a FreeIPA domain, an SSL certificate is requested
+from the IPA server and stored in <strong>10-ipa.cert</strong>.</p>
+</div>
+<div class="paragraph">
+<p>To check which certificate <strong>cockpit-ws</strong> will use, run the following
+command.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo /usr/libexec/cockpit-certificate-ensure --check</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or, on Debian-based systems:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If using <strong>certmonger</strong> to manage certificates, following command can be
+used to generate a certificate/key pair:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>CERT_FILE=/etc/cockpit/ws-certs.d/50-certmonger.crt
+KEY_FILE=/etc/cockpit/ws-certs.d/50-certmonger.key
+
+getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn)</pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-tls-options">Options</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>--help</strong></dt>
+<dd>
+<p>Show help options.</p>
+</dd>
+<dt class="hdlist1"><strong>--port</strong> <em>PORT</em></dt>
+<dd>
+<p>Serve HTTP requests on <em>PORT</em> instead of port 9090. Usually Cockpit is
+started on demand by <strong>systemd</strong> socket activation, and this option
+has no effect. Update the <strong>ListenStream</strong> directive
+<strong>cockpit.socket</strong> file in the usual <strong>systemd</strong> manner.</p>
+</dd>
+<dt class="hdlist1"><strong>--no-tls</strong></dt>
+<dd>
+<p>Don&#8217;t use TLS. Certificates will not be read, and https connections
+denied. Then <strong>cockpit-tls</strong> will only manage a single cockpit-ws
+instance, and thus not do anything different than running
+<strong>cockpit-ws --no-tls</strong> directly. Only use this for debugging or
+testing.</p>
+</dd>
+<dt class="hdlist1"><strong>--idle-timeout</strong> <em>SECONDS</em></dt>
+<dd>
+<p>If greater than 0, exit if no connections have happened for the given
+number of seconds, i. e. the server is idle. If not given, the default
+is 90.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-tls-environment">Environment</h5>
+<div class="paragraph">
+<p>The <strong>cockpit-tls</strong> program expects the <strong>RUNTIME_DIRECTORY</strong>
+environment variable to be set to an empty directory (preferably in
+<strong>/run/</strong>) that is only accessible by the system user under which it is
+running. This contains the Unix sockets for communicating with the
+<strong>cockpit-ws</strong> instances, and in the future, state information about
+client certificates. This variable is normally set by the
+<strong>cockpit.service</strong> systemd unit.</p>
+</div>
+<div class="paragraph">
+<p>In addition, <strong>cockpit-tls</strong> will use the <strong>XDG_CONFIG_DIRS</strong>
+environment variable from the
+<a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+basedir spec</a> to find its certificates and the <strong>cockpit.conf(5)</strong>
+configuration file.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-tls-bugs">Bugs</h5>
+<div class="paragraph">
+<p>Please send bug reports to either the distribution bug tracker or the <a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-tls-author">Author</h5>
+<div class="paragraph">
+<p>Cockpit has been written by many
+<a href="https://github.com/cockpit-project/cockpit">contributors</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-tls-also">See also</h5>
+<div class="paragraph">
+<p><strong>cockpit-ws(8)</strong> , <strong>cockpit.conf(5)</strong> , <strong>systemd(1)</strong></p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_cockpit_desktop1">cockpit-desktop(1)</h4>
+<div class="sect4">
+<h5 id="cockpit-desktop-name">Name</h5>
+<div class="paragraph">
+<p>cockpit-desktop - Cockpit Desktop integration</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-desktop-synopsis">Synopsis</h5>
+<div class="paragraph">
+<p><strong>cockpit-desktop</strong> <em>URLPATH</em> [<em>SSH_HOST</em>]</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-desktop-description">Description</h5>
+<div class="paragraph">
+<p>The <strong>cockpit-desktop</strong> program provides secure access to Cockpit pages
 in an already running desktop session. It starts a web server
-(<code>cockpit-ws</code>) and a web browser in an isolated network namespace, and
-a <code>cockpit-bridge(8)</code> in the running user session.</p>
+(<strong>cockpit-ws</strong>) and a web browser in an isolated network namespace, and
+a <strong>cockpit-bridge(8)</strong> in the running user session.</p>
 </div>
 <div class="paragraph">
 <p>This avoids having to log into Cockpit, and having to enable
-<code>cockpit.socket</code> system-wide. The network isolation ensures that no
+<strong>cockpit.socket</strong> system-wide. The network isolation ensures that no
 other user, and not even other processes in the user&#8217;s session, can
 access this local web server.</p>
 </div>
 <div class="paragraph">
-<p><code>URLPATH</code> is the Cockpit page to open, i. e. the path component of
+<p><strong>URLPATH</strong> is the Cockpit page to open, i. e. the path component of
 Cockpit URLs. It is highly recommended to only open a
-<a href="https://cockpit-project.org/guide/latest/embedding.html">particular page
-frame</a>, not the entire Cockpit navigation and menu. For example, the
+<a href="https://cockpit-project.org/guide/latest/embedding.html">particular page frame</a>, not the entire Cockpit navigation and menu. For example, the
 path <code>/cockpit/@localhost/storage/index.html</code> will open the Storage
 page. It is also possible to give abbreviated forms of urls, such as
-&#8220;storage&#8221; or &#8220;network/firewall&#8221;.</p>
+&#8220;/storage&#8221; or &#8220;/network/firewall&#8221;.</p>
 </div>
 <div class="paragraph">
-<p><code>SSH_HOST</code> is an optional SSH remote host specification (<code>hostname</code>
-or <code>username@hostname</code>). If given, <code>cockpit-bridge</code> will be started
-on the remote host through <code>ssh(1)</code> instead, i. e. the Cockpit web
+<p><em>SSH_HOST</em> is an optional SSH remote host specification (<em>hostname</em>
+or <em>username@hostname</em>). If given, <strong>cockpit-bridge</strong> will be started
+on the remote host through <strong>ssh(1)</strong> instead, i. e. the Cockpit web
 browser will show that remote host. Note that this is more of an
 experimental/demo feature.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-desktop-environment">ENVIRONMENT</h5>
+<h5 id="cockpit-desktop-environment">Environment</h5>
 <div class="paragraph">
-<p>The <code>BROWSER</code> environment variable specifies the browser command (and
+<p>The <strong>BROWSER</strong> environment variable specifies the browser command (and
 possibly options) that will be used to open the requested Cockpit page.
-If not set, <code>cockpit-desktop</code> attempts to use an internal minimalistic
+If not set, <strong>cockpit-desktop</strong> attempts to use an internal minimalistic
 WebKit browser, and failing that, will attempt to detect some reasonable
 alternatives.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-desktop-bugs">BUGS</h5>
+<h5 id="cockpit-desktop-bugs">Bugs</h5>
 <div class="paragraph">
-<p>Please send bug reports to either the distribution bug tracker or the
-<a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug
-tracker</a>.</p>
+<p>Please send bug reports to either the distribution bug tracker or the <a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</a>.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-desktop-author">AUTHOR</h5>
+<h5 id="cockpit-desktop-author">Author</h5>
 <div class="paragraph">
 <p>Cockpit has been written by many
-<a href="https://github.com/cockpit-project/cockpit/">contributors</a>.</p>
+<a href="https://github.com/cockpit-project/cockpit">contributors</a>.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="cockpit-desktop-also">SEE ALSO</h5>
+<h5 id="cockpit-desktop-also">See also</h5>
 <div class="paragraph">
-<p><code>cockpit-ws(8)</code>, <code>cockpit-bridge(1)</code></p>
+<p><strong>cockpit-ws(8)</strong>, <strong>cockpit-bridge(1)</strong></p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_cockpit_bridge1">cockpit-bridge(1)</h4>
+<div class="sect4">
+<h5 id="cockpit-bridge-name">Name</h5>
+<div class="paragraph">
+<p>cockpit-bridge - Cockpit Host Bridge</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-bridge-synopsis">Synopsis</h5>
+<div class="paragraph">
+<p><strong>cockpit-bridge</strong> [<strong>--help</strong>] [<strong>--packages</strong>]</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-bridge-description">Description</h5>
+<div class="paragraph">
+<p>The <strong>cockpit-bridge</strong> program is used by Cockpit to relay messages and
+commands from the Web front end to the server. Among other things it
+relays DBus, and spawns processes on behalf of the Web user interface.</p>
+</div>
+<div class="paragraph">
+<p>This program is not routinely run by users or administrators. It is in
+the <strong>$PATH</strong> so that Cockpit can find it when connecting between hosts.
+However there are some diagnostics available when running from the
+command line.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-bridge-options">Options</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>--help</strong></dt>
+<dd>
+<p>Show help options.</p>
+</dd>
+<dt class="hdlist1"><strong>--interact</strong>=<em>boundary</em></dt>
+<dd>
+<p>Interact with the raw cockpit1 protocol. Useful for debugging and
+testing. Specify a <em>boundary</em> which should be on an empty line
+between messages.</p>
+</dd>
+<dt class="hdlist1"><strong>--packages</strong></dt>
+<dd>
+<p>List all available Cockpit packages and exit. Note this includes
+packages available to the user running this command.</p>
+</dd>
+<dt class="hdlist1"><strong>--version</strong></dt>
+<dd>
+<p>Show Cockpit version information.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-bridge-bugs">Bugs</h5>
+<div class="paragraph">
+<p>Please send bug reports to either the distribution bug tracker or the <a href="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-bridge-author">Author</h5>
+<div class="paragraph">
+<p>Cockpit has been written by many
+<a href="https://github.com/cockpit-project/cockpit">contributors</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cockpit-bridge-also">See also</h5>
+<div class="paragraph">
+<p><strong>cockpit-ws(8)</strong></p>
+</div>
 </div>
 </div>
 </div>
@@ -3740,7 +4052,7 @@ logged in user.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-07-29 00:49:36 +0200
+Last updated 2025-09-04 16:54:54 +0200
 </div>
 </div>
 </body>

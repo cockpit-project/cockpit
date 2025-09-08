@@ -35,9 +35,12 @@ class TestStorageUsed(storagelib.StorageCase):
         m.execute(f"parted -s {disk} mktable msdos")
         m.execute(f"parted -s {disk} mkpart primary ext2 1M 25")
         m.execute("udevadm settle")
+        m.execute(f"until udevadm info --query=all {disk} | grep -q ID_PART_TABLE_TYPE=dos; do sleep 0.1; done")
         m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}1")
         m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk}1 dm-test")
         m.execute("udevadm settle")
+        m.execute("until [ -b /dev/mapper/dm-test ]; do sleep 0.1; done")
+        m.execute("until udevadm info --query=all /dev/mapper/dm-test | grep -q DM_NAME=dm-test; do sleep 0.1; done")
         m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
         m.execute(f"mount /dev/mapper/dm-test {self.mnt_dir}")
 

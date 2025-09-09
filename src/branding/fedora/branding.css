@@ -9,3 +9,22 @@
 #brand::before {
     content: "${NAME} <b>${VARIANT}</b>";
 }
+
+.anaconda {
+    /* Brand palette */
+    --brand-default-light: #51a2da;
+    --brand-default: #3c6eb4;
+    --brand-default-dark: #294172;
+}
+
+:not(.pf-v6-theme-dark) .anaconda {
+    /* Default (light theme) token mapping */
+    --pf-t--global--color--brand--default: var(--brand-default);
+    --pf-t--global--color--brand--hover: var(--brand-default-dark);
+}
+
+.pf-v6-theme-dark .anaconda {
+    /* Dark theme token mapping */
+    --pf-t--global--color--brand--default: var(--brand-default-light);
+    --pf-t--global--color--brand--hover: var(--brand-default);
+}

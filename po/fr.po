@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-02 03:07+0000\n"
-"PO-Revision-Date: 2025-08-13 18:27+0000\n"
+"POT-Creation-Date: 2025-09-08 03:07+0000\n"
+"PO-Revision-Date: 2025-09-09 02:34+0000\n"
 "Last-Translator: Léane GRASSER <leane.grasser@proton.me>\n"
 "Language-Team: French <https://translate.fedoraproject.org/projects/cockpit/"
 "cockpit/fr/>\n"
@@ -31,7 +31,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 5.13.2\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -306,7 +306,7 @@ msgstr[1] "$0 mises à jour disponibles"
 msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 utilisé de $1 ($2 enregistré)"
 
-#: pkg/storaged/dialog.jsx:1402
+#: pkg/storaged/dialog.jsx:1425
 msgid "$0 used, $1 total"
 msgstr "$0 utilisés, $1 au total"
 
@@ -334,7 +334,7 @@ msgstr "$0 zone"
 msgid "$name (from $host)"
 msgstr "$name (de $host )"
 
-#: pkg/storaged/dialog.jsx:1304
+#: pkg/storaged/dialog.jsx:1327
 msgid "(Not part of target)"
 msgstr "(Ne fait pas partie de la cible)"
 
@@ -706,16 +706,16 @@ msgstr "Mot de passe acceptable"
 msgid "Account expiration"
 msgstr "Expiration du compte"
 
-#: pkg/users/account-details.js:179
+#: pkg/users/account-details.js:101
 msgid "Account not available or cannot be edited."
 msgstr "Le compte n’est pas disponible ou ne peut pas être modifié."
 
-#: pkg/users/account-details.js:228 pkg/users/accounts-list.js:232
+#: pkg/users/account-details.js:236 pkg/users/accounts-list.js:232
 #: pkg/users/accounts-list.js:448 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "Comptes"
 
-#: pkg/storaged/dialog.jsx:1329
+#: pkg/storaged/dialog.jsx:1352
 msgid "Action"
 msgstr "Action"
 
@@ -939,28 +939,16 @@ msgstr ""
 "d’administration indisponible."
 
 #: pkg/storaged/stratis/pool.jsx:951
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid "Adding a keyserver requires unlocking the pool."
-msgstr ""
-"L'ajout d'un serveur de clés nécessite de déverrouiller le pool. Veuillez "
-"fournir le mot de passe actuel du pool."
+msgstr "L'ajout d'un serveur de clés nécessite le déverrouillage du pool."
 
 #: pkg/storaged/stratis/pool.jsx:874
-#, fuzzy
-#| msgid ""
-#| "Saving a new passphrase requires unlocking the disk. Please provide a "
-#| "current disk passphrase."
 msgid "Adding a passphrase requires unlocking the pool."
-msgstr ""
-"L'enregistrement d'une nouvelle phrase secrète nécessite le déverrouillage "
-"du disque. Veuillez fournir la phrase secrète du disque actuel."
+msgstr "L'ajout d'une phrase secrète nécessite le déverrouillage du pool."
 
 #: pkg/storaged/stratis/pool.jsx:522
 msgid "Adding blockdevices requires unlocking the pool."
-msgstr ""
+msgstr "L'ajout de périphériques block nécessite le déverrouillage du pool."
 
 #: pkg/networkmanager/firewall.jsx:734
 msgid ""
@@ -1234,14 +1222,14 @@ msgid "At least one disk is needed."
 msgstr "Au moins un disque est nécessaire."
 
 #: pkg/storaged/stratis/pool.jsx:322
-#, fuzzy
-#| msgid "At least one block device is needed."
 msgid "At least one keyserver must be reachable."
-msgstr "Au moins un périphérique block est nécessaire."
+msgstr "Au moins un serveur de clés doit être atteignable."
 
 #: pkg/storaged/stratis/pool.jsx:326
 msgid "At least one of the non-interactive unlock methods must work."
 msgstr ""
+"Au moins une des méthodes de déverrouillage non interactives doit "
+"fonctionner."
 
 #: pkg/storaged/btrfs/subvolume.jsx:383
 msgid "At least one subvolume needs to be mounted"
@@ -1374,7 +1362,7 @@ msgstr "Date du BIOS"
 msgid "BIOS version"
 msgstr "Version du BIOS"
 
-#: pkg/users/account-details.js:183
+#: pkg/users/account-details.js:105
 msgid "Back to accounts"
 msgstr "Retour aux comptes"
 
@@ -1505,7 +1493,7 @@ msgstr "Contourner la vérification du navigateur"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:116
 #: pkg/metrics/metrics.jsx:114 pkg/metrics/metrics.jsx:784
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1948
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1941
 msgid "CPU"
 msgstr "CPU"
 
@@ -1521,7 +1509,7 @@ msgstr "Paramètres de sécurité du CPU"
 msgid "CPU usage"
 msgstr "Utilisation CPU"
 
-#: pkg/metrics/metrics.jsx:1938
+#: pkg/metrics/metrics.jsx:1931
 msgid "CPU usage/load"
 msgstr "Utilisation/charge CPU"
 
@@ -1739,7 +1727,7 @@ msgstr "Vérification du périphérique RAID $target"
 msgid "Checking and repairing MDRAID device $target"
 msgstr "Vérification et réparation du périphérique MDRAID $target"
 
-#: pkg/storaged/dialog.jsx:1386
+#: pkg/storaged/dialog.jsx:1409
 msgid "Checking filesystem usage"
 msgstr "Vérification de l'utilisation des systèmes de fichiers"
 
@@ -1805,10 +1793,8 @@ msgid "Cleartext device"
 msgstr "Périphérique en clair"
 
 #: pkg/storaged/stratis/pool.jsx:747 pkg/storaged/stratis/pool.jsx:811
-#, fuzzy
-#| msgid "e.g. \"$0\""
 msgid "Clevis \"$0\""
-msgstr "par ex. \"$0\""
+msgstr "Clevis \"$0\""
 
 #: pkg/systemd/overview-cards/realmd.jsx:302
 msgid "Client software"
@@ -1921,8 +1907,8 @@ msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr ""
 "Les ports, les plages et les services séparés par des virgules sont acceptés"
 
-#: pkg/systemd/timer-dialog.jsx:165 pkg/storaged/dialog.jsx:1474
-#: pkg/storaged/dialog.jsx:1494
+#: pkg/systemd/timer-dialog.jsx:165 pkg/storaged/dialog.jsx:1497
+#: pkg/storaged/dialog.jsx:1517
 msgid "Command"
 msgstr "Commander"
 
@@ -2405,7 +2391,7 @@ msgstr "Démarrage actuel"
 msgid "Current top CPU usage"
 msgstr "Pic d’utilisation du processeur"
 
-#: pkg/storaged/dialog.jsx:1253
+#: pkg/storaged/dialog.jsx:1276
 msgid "Currently in use"
 msgstr "Actuellement en cours d’utilisation"
 
@@ -2633,7 +2619,7 @@ msgstr "Le retard doit correspondre à un nombre"
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:400
 #: pkg/storaged/mdraid/mdraid.jsx:133 pkg/storaged/mdraid/mdraid.jsx:240
 #: pkg/users/delete-account-dialog.js:60 pkg/users/delete-group-dialog.js:51
-#: pkg/users/account-details.js:219
+#: pkg/users/account-details.js:227
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -2732,7 +2718,7 @@ msgid "Deletion will remove the following files:"
 msgstr "La suppression supprimera les fichiers suivants :"
 
 #: pkg/systemd/timer-dialog.jsx:157 pkg/networkmanager/firewall.jsx:722
-#: pkg/networkmanager/firewall.jsx:871 pkg/storaged/dialog.jsx:1495
+#: pkg/networkmanager/firewall.jsx:871 pkg/storaged/dialog.jsx:1518
 msgid "Description"
 msgstr "Description"
 
@@ -2754,11 +2740,11 @@ msgid "Development"
 msgstr "Développement"
 
 #: pkg/metrics/metrics.jsx:749 pkg/storaged/mdraid/mdraid.jsx:309
-#: pkg/storaged/dialog.jsx:1208 pkg/storaged/dialog.jsx:1327
+#: pkg/storaged/dialog.jsx:1231 pkg/storaged/dialog.jsx:1350
 msgid "Device"
 msgstr "Périphérique"
 
-#: pkg/storaged/dialog.jsx:1406 pkg/storaged/dialog.jsx:1413
+#: pkg/storaged/dialog.jsx:1429 pkg/storaged/dialog.jsx:1436
 msgid "Device contains unrecognized data"
 msgstr "L'appareil contient des données non reconnues"
 
@@ -2817,7 +2803,7 @@ msgstr "Désactiver tuned"
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: pkg/users/account-details.js:268
+#: pkg/users/account-details.js:277
 msgid "Disallow interactive password"
 msgstr "Interdire le mot de passe interactif"
 
@@ -2838,8 +2824,8 @@ msgid "Disconnected"
 msgstr "Déconnecté"
 
 #: pkg/metrics/metrics.jsx:142 pkg/metrics/metrics.jsx:143
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1938
-#: pkg/metrics/metrics.jsx:1950
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1931
+#: pkg/metrics/metrics.jsx:1943
 msgid "Disk I/O"
 msgstr "E / S disque"
 
@@ -3157,10 +3143,8 @@ msgid "Encryption passphrase"
 msgstr "Phrase de chiffrement"
 
 #: pkg/storaged/stratis/pool.jsx:599
-#, fuzzy
-#| msgid "Encryption options"
 msgid "Encryption tokens"
-msgstr "Options de chiffrement"
+msgstr "Jetons de chiffrement"
 
 #: pkg/storaged/crypto/encryption.jsx:226
 msgid "Encryption type"
@@ -3221,7 +3205,7 @@ msgstr "Erreur"
 msgid "Error and above"
 msgstr "Erreur et au-dessus"
 
-#: pkg/metrics/metrics.jsx:1854
+#: pkg/metrics/metrics.jsx:1847
 msgid "Error has occurred"
 msgstr "Une erreur s’est produite"
 
@@ -3456,7 +3440,7 @@ msgstr "Le système de fichiers est monté en lecture seule"
 msgid "Filesystem name"
 msgstr "Nom du système de fichiers"
 
-#: pkg/storaged/dialog.jsx:1189
+#: pkg/storaged/dialog.jsx:1212
 msgid "Filesystem outside the target"
 msgstr "Système de fichiers hors de la cible"
 
@@ -3510,7 +3494,7 @@ msgstr "Taille de police"
 msgid "Forbidden from running"
 msgstr "Non autorisé à exécuter"
 
-#: pkg/users/account-details.js:300
+#: pkg/users/account-details.js:309
 msgid "Force change"
 msgstr "Forcer la modification"
 
@@ -3544,7 +3528,7 @@ msgstr "Formater et démarrer"
 msgid "Format only"
 msgstr "Format uniquement"
 
-#: pkg/storaged/block/format-dialog.jsx:399
+#: pkg/storaged/block/format-dialog.jsx:402
 msgid "Formatting erases all data on a storage device."
 msgstr "Le formatage efface toutes les données d’un périphérique de stockage."
 
@@ -3568,7 +3552,7 @@ msgstr "Vendredis"
 msgid "From"
 msgstr "De"
 
-#: pkg/users/account-details.js:240 pkg/users/accounts-list.js:381
+#: pkg/users/account-details.js:248 pkg/users/accounts-list.js:381
 #: pkg/users/account-create-dialog.js:68
 msgid "Full name"
 msgstr "Nom complet"
@@ -3598,11 +3582,11 @@ msgstr "Aller à l’application"
 msgid "Go to now"
 msgstr "Aller à maintenant"
 
-#: pkg/metrics/metrics.jsx:1927
+#: pkg/metrics/metrics.jsx:1920
 msgid "Graph visibility"
 msgstr "Visibilité du graphique"
 
-#: pkg/metrics/metrics.jsx:1924
+#: pkg/metrics/metrics.jsx:1917
 msgid "Graph visibility options menu"
 msgstr "Menu des options de visibilité du graphique"
 
@@ -3614,7 +3598,7 @@ msgstr "Groupe"
 msgid "Group name"
 msgstr "Nom du groupe"
 
-#: pkg/users/account-details.js:417 pkg/users/accounts-list.js:313
+#: pkg/users/account-details.js:426 pkg/users/accounts-list.js:313
 #: pkg/users/accounts-list.js:317
 msgid "Groups"
 msgstr "Groupes"
@@ -3702,7 +3686,7 @@ msgstr "Une meilleure interopérabilité au prix d’une surface d’attaque acc
 msgid "History package count"
 msgstr "Comptage des paquets d’historique"
 
-#: pkg/users/account-details.js:318 pkg/users/account-create-dialog.js:84
+#: pkg/users/account-details.js:327 pkg/users/account-create-dialog.js:84
 msgid "Home directory"
 msgstr "Répertoire utilisateur"
 
@@ -3746,7 +3730,7 @@ msgstr "Heures"
 msgid "How to check"
 msgstr "Comment vérifier"
 
-#: pkg/storaged/dialog.jsx:1422
+#: pkg/storaged/dialog.jsx:1445
 msgid "I confirm I want to lose this data forever"
 msgstr "Je confirme vouloir perdre définitivement ces données"
 
@@ -3784,10 +3768,8 @@ msgstr ""
 "virgule. Exemple : 192.0.2.0/24, 2001:db8::/32"
 
 #: pkg/networkmanager/wireguard.jsx:302
-#, fuzzy
-#| msgid "IPv4 addresses"
 msgid "IP addresses"
-msgstr "Adresses IPv4"
+msgstr "Adresses IP"
 
 #: pkg/networkmanager/network-interface.jsx:569
 msgid "IPv4"
@@ -3818,28 +3800,20 @@ msgstr ""
 "numéros de port associés"
 
 #: pkg/storaged/stratis/pool.jsx:308
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If none of the keyservers is reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"L'ajout d'un serveur de clés nécessite de déverrouiller le pool. Veuillez "
-"fournir le mot de passe actuel du pool."
+"Si aucun serveur de clé n'est atteignable, vous pouvez fournir une phrase "
+"secrète existante."
 
 #: pkg/storaged/stratis/pool.jsx:312
-#, fuzzy
-#| msgid ""
-#| "The disk needs to be unlocked before formatting. Please provide an "
-#| "existing passphrase."
 msgid ""
 "If none of the non-interactive unlock methods works, you can provide an "
 "existing passphrase."
 msgstr ""
-"Le disque doit être déverrouillé avant le formatage. Veuillez fournir une "
-"phrase secrète existante."
+"Si aucune des méthodes de déverrouillage non interactives ne fonctionne, "
+"vous pouvez fournir une phrase secrète existante."
 
 #: pkg/static/login.html:102
 msgid ""
@@ -3858,23 +3832,19 @@ msgstr ""
 "l'hôte ». Sinon, ne vous connectez pas et contactez votre administrateur."
 
 #: pkg/storaged/stratis/pool.jsx:306
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If the keyserver at $0 is not reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"L'ajout d'un serveur de clés nécessite de déverrouiller le pool. Veuillez "
-"fournir le mot de passe actuel du pool."
+"Si le serveur de clés à l'adresse $0 n'est pas atteignable, vous pouvez "
+"fournir une phrase secrète existante."
 
 #: pkg/networkmanager/ip-settings.jsx:44 pkg/packagekit/updates.jsx:675
 #: pkg/packagekit/updates.jsx:757
 msgid "Ignore"
 msgstr "Ignorer"
 
-#: pkg/storaged/dialog.jsx:1358
+#: pkg/storaged/dialog.jsx:1381
 msgid "Important data might be deleted:"
 msgstr "Des données importantes pourraient être supprimées :"
 
@@ -3979,7 +3949,7 @@ msgstr "Installer"
 msgid "Install NFS support"
 msgstr "Installer la prise en charge NFS"
 
-#: pkg/metrics/metrics.jsx:1824
+#: pkg/metrics/metrics.jsx:1817
 msgid "Install PCP support"
 msgstr "Installer la prise en charge PCP"
 
@@ -4201,7 +4171,7 @@ msgstr "Entrée de journal"
 msgid "Journal entry not found"
 msgstr "Entrée de journal non trouvée"
 
-#: pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1913
 msgid "Jump to"
 msgstr "Aller à"
 
@@ -4346,7 +4316,7 @@ msgstr "Dernière vérification : $0"
 msgid "Last disk can not be removed"
 msgstr "Impossible de retirer le dernier disque"
 
-#: pkg/users/account-details.js:258
+#: pkg/users/account-details.js:266
 msgid "Last login"
 msgstr "Dernière connexion"
 
@@ -4359,10 +4329,8 @@ msgid "Last successful login:"
 msgstr "Dernière connexion réussie :"
 
 #: pkg/storaged/stratis/pool.jsx:768
-#, fuzzy
-#| msgid "Last disk can not be removed"
 msgid "Last token can not be removed"
-msgstr "Impossible de retirer le dernier disque"
+msgstr "Le dernier jeton ne peut pas être retiré"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:294
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:192
@@ -4482,7 +4450,7 @@ msgid "Listing units failed: $0"
 msgstr "L’énumération des unités a échoué : $0"
 
 #: pkg/metrics/metrics.jsx:120 pkg/metrics/metrics.jsx:121
-#: pkg/metrics/metrics.jsx:813 pkg/metrics/metrics.jsx:1948
+#: pkg/metrics/metrics.jsx:813 pkg/metrics/metrics.jsx:1941
 msgid "Load"
 msgstr "Charge"
 
@@ -4490,7 +4458,7 @@ msgstr "Charge"
 msgid "Load balancing"
 msgstr "L’équilibrage de charge"
 
-#: pkg/metrics/metrics.jsx:1984
+#: pkg/metrics/metrics.jsx:1977
 msgid "Load earlier data"
 msgstr "Charger des données antérieures"
 
@@ -4534,8 +4502,8 @@ msgstr "Échec du chargement de l'unité"
 
 #: pkg/systemd/logsJournal.jsx:268 pkg/systemd/services.jsx:684
 #: pkg/systemd/service.jsx:132 pkg/systemd/logDetails.jsx:172
-#: pkg/kdump/kdump-view.jsx:456 pkg/metrics/metrics.jsx:1983
-#: pkg/storaged/storaged.jsx:66 pkg/users/account-details.js:169
+#: pkg/kdump/kdump-view.jsx:456 pkg/metrics/metrics.jsx:1976
+#: pkg/storaged/storaged.jsx:66 pkg/users/account-details.js:193
 #: pkg/users/accounts-list.js:318 pkg/users/accounts-list.js:339
 #: pkg/users/accounts-list.js:454
 msgid "Loading..."
@@ -4562,7 +4530,7 @@ msgid "Local, $0"
 msgstr "Local, $0"
 
 #: pkg/kdump/kdump-view.jsx:233 pkg/storaged/pages.jsx:728
-#: pkg/storaged/dialog.jsx:1209 pkg/storaged/dialog.jsx:1328
+#: pkg/storaged/dialog.jsx:1232 pkg/storaged/dialog.jsx:1351
 msgid "Location"
 msgstr "Emplacement"
 
@@ -4587,7 +4555,7 @@ msgstr "Verrouiller le compte"
 msgid "Locked data"
 msgstr "Données verrouillées"
 
-#: pkg/storaged/dialog.jsx:1410
+#: pkg/storaged/dialog.jsx:1433
 msgid "Locked encrypted device might contain data"
 msgstr "Un périphérique chiffré et verrouillé pourrait contenir des données"
 
@@ -4620,7 +4588,7 @@ msgstr "Déconnexion"
 msgid "Log user out"
 msgstr "Déconnexion de l'utilisateur"
 
-#: pkg/users/account-details.js:204 pkg/users/accounts-list.js:161
+#: pkg/users/account-details.js:212 pkg/users/accounts-list.js:161
 msgid "Logged in"
 msgstr "Connecté"
 
@@ -4863,7 +4831,7 @@ msgstr "Lecteur média"
 #: pkg/systemd/overview-cards/usageCard.jsx:145 pkg/systemd/hwinfo.jsx:294
 #: pkg/systemd/hwinfo.jsx:338 pkg/systemd/service-details.jsx:677
 #: pkg/metrics/metrics.jsx:128 pkg/metrics/metrics.jsx:844
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1949
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1942
 msgid "Memory"
 msgstr "Mémoire"
 
@@ -4875,7 +4843,7 @@ msgstr "Technologie de mémoire"
 msgid "Memory usage"
 msgstr "Utilisation de la mémoire"
 
-#: pkg/metrics/metrics.jsx:1938
+#: pkg/metrics/metrics.jsx:1931
 msgid "Memory usage/swap"
 msgstr "Utilisation de la mémoire/swap"
 
@@ -4892,10 +4860,8 @@ msgid "Messages related to the failure might be found in the journal:"
 msgstr "Les messages relatifs à la défaillance se trouvent dans le journal :"
 
 #: pkg/storaged/stratis/pool.jsx:1018
-#, fuzzy
-#| msgid "Invalid date format"
 msgid "Metadata format"
-msgstr "Format de date non valide"
+msgstr "Format des métadonnées"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:144
 #: pkg/storaged/lvm2/vdo-pool.jsx:83
@@ -4910,11 +4876,11 @@ msgstr "Méthode"
 msgid "Metric"
 msgstr "Métrique"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2008
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2001
 msgid "Metrics and history"
 msgstr "Métriques et historique"
 
-#: pkg/metrics/metrics.jsx:1845
+#: pkg/metrics/metrics.jsx:1838
 msgid "Metrics history could not be loaded"
 msgstr "L’historique des métriques n’a pas pu être chargé"
 
@@ -5191,7 +5157,7 @@ msgid "Need at least one NTP server"
 msgstr "Besoin d’au moins un serveur NTP"
 
 #: pkg/metrics/metrics.jsx:943 pkg/metrics/metrics.jsx:1567
-#: pkg/metrics/metrics.jsx:1938 pkg/metrics/metrics.jsx:1951
+#: pkg/metrics/metrics.jsx:1931 pkg/metrics/metrics.jsx:1944
 msgid "Network"
 msgstr "Réseau"
 
@@ -5234,7 +5200,7 @@ msgstr "Stockage réseau"
 msgid "Networking"
 msgstr "Réseau"
 
-#: pkg/users/account-details.js:206
+#: pkg/users/account-details.js:214
 msgid "Never"
 msgstr "Jamais"
 
@@ -5323,11 +5289,11 @@ msgstr "Pas de transporteur"
 msgid "No configuration found"
 msgstr "Aucune configuration trouvée"
 
-#: pkg/metrics/metrics.jsx:1874
+#: pkg/metrics/metrics.jsx:1867
 msgid "No data available"
 msgstr "Aucune donnée disponible"
 
-#: pkg/metrics/metrics.jsx:1870
+#: pkg/metrics/metrics.jsx:1863
 msgid "No data available between $0 and $1"
 msgstr "Aucune donnée disponible entre $0 et $1"
 
@@ -5434,6 +5400,7 @@ msgstr "Aucun média inséré"
 #: pkg/storaged/stratis/pool.jsx:776
 msgid "No more space for passphrases or keyservers."
 msgstr ""
+"Aucun espace restant pour les phrases secrètes ou les serveurs de clés."
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:58
 msgid "No partitioning"
@@ -5702,7 +5669,7 @@ msgstr "Opération « $operation » sur $target"
 #: pkg/storaged/stratis/filesystem.jsx:207
 #: pkg/storaged/stratis/create-dialog.jsx:102
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
-#: pkg/storaged/crypto/encryption.jsx:235 pkg/users/account-details.js:261
+#: pkg/storaged/crypto/encryption.jsx:235 pkg/users/account-details.js:269
 msgid "Options"
 msgstr "Options"
 
@@ -5714,7 +5681,7 @@ msgstr "Ou utilisez un navigateur groupé"
 msgid "Other"
 msgstr "Autre"
 
-#: pkg/users/account-details.js:271 pkg/users/account-create-dialog.js:131
+#: pkg/users/account-details.js:280 pkg/users/account-create-dialog.js:131
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -5735,7 +5702,7 @@ msgstr "Sortie"
 msgid "Overprovisioning"
 msgstr "Surallocation"
 
-#: pkg/systemd/hwinfo.jsx:311 pkg/metrics/metrics.jsx:2007
+#: pkg/systemd/hwinfo.jsx:311 pkg/metrics/metrics.jsx:2000
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Aperçu"
@@ -5754,11 +5721,11 @@ msgstr "Écraser les données existantes avec des zéros (plus lent)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1823
+#: pkg/metrics/metrics.jsx:1816
 msgid "PCP is missing for metrics history"
 msgstr "L'historique des métriques requiert PCP"
 
-#: pkg/storaged/dialog.jsx:1473
+#: pkg/storaged/dialog.jsx:1496
 msgid "PID"
 msgstr "PID"
 
@@ -5884,7 +5851,7 @@ msgid "Passphrases do not match"
 msgstr "Les phrases secrète ne correspondent pas"
 
 #: pkg/static/login.html:113 pkg/storaged/iscsi/create-dialog.jsx:34
-#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/users/account-details.js:288
+#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/superuser.tsx:174
 #: pkg/shell/credentials.tsx:177 pkg/shell/credentials.tsx:236
@@ -5989,16 +5956,12 @@ msgstr ""
 "un nombre."
 
 #: pkg/networkmanager/wireguard.jsx:157
-#, fuzzy
-#| msgid ""
-#| "Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. "
-#| "1.2.3.4:51820 or example.com:51820"
 msgid ""
 "Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. "
 "1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820"
 msgstr ""
 "Le point de terminaison du pair n°$0 est invalide. Il doit être spécifié au "
-"format hôte:port, ex. 1.2.3.4:51820 ou exemple.fr:51820"
+"format hôte:port, ex. 1.2.3.4:51820, [2001:db8::1]:51820 ou exemple.fr:51820"
 
 #: pkg/networkmanager/wireguard.jsx:318
 msgid "Peers"
@@ -6116,14 +6079,8 @@ msgid "Please install the $0 package"
 msgstr "Veuillez installer le paquet $0"
 
 #: pkg/storaged/stratis/pool.jsx:304
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid "Please provide an existing pool passphrase."
-msgstr ""
-"L'ajout d'un serveur de clés nécessite de déverrouiller le pool. Veuillez "
-"fournir le mot de passe actuel du pool."
+msgstr "Veuillez fournir une phrase secrète existante du pool."
 
 #: pkg/packagekit/updates.jsx:1582
 msgid "Please resolve the issue and reload this page."
@@ -6162,6 +6119,8 @@ msgid ""
 "Pools with metadata format V1 are restricted to at most one passphrase and "
 "at most one keyserver."
 msgstr ""
+"Les pools dont les métadonnées sont au format V1 peuvent utiliser un maximum "
+"de 1 phrase secrète et de 1 serveur de clés."
 
 #: pkg/storaged/iscsi/create-dialog.jsx:111 pkg/shell/hosts_dialog.jsx:564
 msgid "Port"
@@ -6236,7 +6195,7 @@ msgstr "Clé privée"
 msgid "Problem becoming administrator"
 msgstr "Problème pour devenir administrateur"
 
-#: pkg/storaged/dialog.jsx:1242
+#: pkg/storaged/dialog.jsx:1265
 msgid "Processes using the location"
 msgstr "Processus utilisant l’emplacement"
 
@@ -6504,15 +6463,15 @@ msgstr "Régénération d’ initrd"
 msgid "Register…"
 msgstr "Enregistrement…"
 
-#: pkg/storaged/dialog.jsx:1374
+#: pkg/storaged/dialog.jsx:1397
 msgid "Related processes and services will be forcefully stopped."
 msgstr "Les processus et services connexes seront arrêtés de force."
 
-#: pkg/storaged/dialog.jsx:1376
+#: pkg/storaged/dialog.jsx:1399
 msgid "Related processes will be forcefully stopped."
 msgstr "Les processus connexes seront arrêtés de force."
 
-#: pkg/storaged/dialog.jsx:1378
+#: pkg/storaged/dialog.jsx:1401
 msgid "Related services will be forcefully stopped."
 msgstr "Les services connexes seront arrêtés par la force."
 
@@ -6561,11 +6520,8 @@ msgid "Remote over SSH, $0"
 msgstr "Distant par SSH, $0"
 
 #: pkg/storaged/stratis/pool.jsx:975
-#, fuzzy
-#| msgid "Keyserver removal may prevent unlocking $0."
 msgid "Removal may prevent unlocking $0."
-msgstr ""
-"La suppression du serveur de clés peut empêcher le déverrouillage de $0."
+msgstr "Le retrait est susceptible d'empêcher le déverrouillage de $0."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:82
 msgid "Removals:"
@@ -6597,10 +6553,8 @@ msgid "Remove $0?"
 msgstr "Supprimer $0 ?"
 
 #: pkg/storaged/stratis/pool.jsx:972
-#, fuzzy
-#| msgid "Remove device"
 msgid "Remove Clevis token?"
-msgstr "Supprimer le périphérique"
+msgstr "Retirer le jeton Clevis ?"
 
 #: pkg/storaged/stratis/pool.jsx:972 pkg/storaged/crypto/keyslots.jsx:663
 msgid "Remove Tang keyserver?"
@@ -7224,7 +7178,7 @@ msgstr "Logiciels du serveur"
 #: pkg/networkmanager/firewall.jsx:193 pkg/metrics/metrics.jsx:776
 #: pkg/metrics/metrics.jsx:777 pkg/metrics/metrics.jsx:832
 #: pkg/metrics/metrics.jsx:870 pkg/metrics/metrics.jsx:930
-#: pkg/metrics/metrics.jsx:936 pkg/storaged/dialog.jsx:1493
+#: pkg/metrics/metrics.jsx:936 pkg/storaged/dialog.jsx:1516
 msgid "Service"
 msgstr "Service"
 
@@ -7242,7 +7196,7 @@ msgstr "Journaux de service"
 msgid "Services"
 msgstr "Services"
 
-#: pkg/storaged/dialog.jsx:1228
+#: pkg/storaged/dialog.jsx:1251
 msgid "Services using the location"
 msgstr "Services utilisant l’emplacement"
 
@@ -7274,7 +7228,7 @@ msgstr "Définir la limite de taille du système de fichiers virtuel"
 msgid "Set partition type of $0"
 msgstr "Définir le type de partition de $0"
 
-#: pkg/users/account-details.js:293 pkg/users/password-dialogs.js:226
+#: pkg/users/account-details.js:302 pkg/users/password-dialogs.js:226
 #: pkg/users/password-dialogs.js:233
 msgid "Set password"
 msgstr "Définir le mot de passe"
@@ -7322,7 +7276,7 @@ msgstr "Gravité"
 msgid "Shared"
 msgstr "Partagé"
 
-#: pkg/users/account-details.js:321 pkg/users/account-create-dialog.js:93
+#: pkg/users/account-details.js:330 pkg/users/account-create-dialog.js:93
 msgid "Shell"
 msgstr "Shell"
 
@@ -7417,23 +7371,23 @@ msgstr "Rang unique"
 msgid "Size"
 msgstr "Taille"
 
-#: pkg/storaged/dialog.jsx:1133
+#: pkg/storaged/dialog.jsx:1156
 msgid "Size cannot be negative"
 msgstr "La taille ne peut pas être négative"
 
-#: pkg/storaged/dialog.jsx:1131
+#: pkg/storaged/dialog.jsx:1154
 msgid "Size cannot be zero"
 msgstr "La taille ne peut pas être nulle"
 
-#: pkg/storaged/dialog.jsx:1135
+#: pkg/storaged/dialog.jsx:1158
 msgid "Size is too large"
 msgstr "La taille est trop grande"
 
-#: pkg/storaged/dialog.jsx:1129
+#: pkg/storaged/dialog.jsx:1152
 msgid "Size must be a number"
 msgstr "La taille doit correspondre à un nombre"
 
-#: pkg/storaged/dialog.jsx:1137
+#: pkg/storaged/dialog.jsx:1160
 msgid "Size must be at least $0"
 msgstr "La taille doit être au moins $0"
 
@@ -7590,7 +7544,7 @@ msgstr ""
 msgid "Start showing entries on or older than the specified date."
 msgstr "Commencez à afficher les entrées au plus tard à la date spécifiée."
 
-#: pkg/storaged/dialog.jsx:1476 pkg/storaged/dialog.jsx:1496
+#: pkg/storaged/dialog.jsx:1499 pkg/storaged/dialog.jsx:1519
 #: pkg/users/account-logs-panel.jsx:77
 msgid "Started"
 msgstr "Démarré"
@@ -7774,7 +7728,7 @@ msgid "Sundays"
 msgstr "Dimanches"
 
 #: pkg/metrics/metrics.jsx:135 pkg/metrics/metrics.jsx:689
-#: pkg/metrics/metrics.jsx:1949 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1942 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "Swap"
 
@@ -7910,7 +7864,7 @@ msgstr "Température dépassant les seuils recommandés"
 msgid "Terminal"
 msgstr "Terminal"
 
-#: pkg/users/account-details.js:214
+#: pkg/users/account-details.js:222
 msgid "Terminate session"
 msgstr "Terminer la session"
 
@@ -8154,7 +8108,7 @@ msgstr "La clé que vous avez fournie n’était pas valide."
 
 #: pkg/storaged/stratis/pool.jsx:320
 msgid "The keyserver at $0 must be reachable."
-msgstr ""
+msgstr "Le serveur de clés à l'adresse $0 doit être atteignable."
 
 #: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
@@ -8164,15 +8118,15 @@ msgstr "Le dernier logement de clé ne peut pas être retiré"
 msgid "The last mounted subvolume can not be deleted"
 msgstr "Le dernier sous-volume monté ne peut pas être supprimé"
 
-#: pkg/storaged/dialog.jsx:1511
+#: pkg/storaged/dialog.jsx:1534
 msgid "The listed processes and services will be forcefully stopped."
 msgstr "Les processus et services listés seront stoppés en force."
 
-#: pkg/storaged/dialog.jsx:1513
+#: pkg/storaged/dialog.jsx:1536
 msgid "The listed processes will be forcefully stopped."
 msgstr "Les processus énumérés seront stoppés en force."
 
-#: pkg/storaged/dialog.jsx:1515
+#: pkg/storaged/dialog.jsx:1538
 msgid "The listed services will be forcefully stopped."
 msgstr "Les services répertoriés seront stoppés en force."
 
@@ -8186,11 +8140,11 @@ msgstr ""
 msgid "The machine is rebooting"
 msgstr "La machine est en train de redémarrer"
 
-#: pkg/storaged/dialog.jsx:1469
+#: pkg/storaged/dialog.jsx:1492
 msgid "The mount point $0 is in use by these processes:"
 msgstr "Le point de montage $0 est utilisé par ces processus :"
 
-#: pkg/storaged/dialog.jsx:1489
+#: pkg/storaged/dialog.jsx:1512
 msgid "The mount point $0 is in use by these services:"
 msgstr "Le point de montage $0 est utilisé par ces services :"
 
@@ -8274,7 +8228,7 @@ msgstr ""
 "L’utilisateur $0 n’a pas le droit de faire planter le noyau à des fins de "
 "tests"
 
-#: pkg/users/account-details.js:440
+#: pkg/users/account-details.js:449
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8335,7 +8289,7 @@ msgstr "Il y a eu une erreur inattendue lors de la connexion à la machine."
 msgid "These additional steps are necessary:"
 msgstr "Ces étapes supplémentaires sont nécessaires :"
 
-#: pkg/storaged/dialog.jsx:1324
+#: pkg/storaged/dialog.jsx:1347
 msgid "These changes will be made:"
 msgstr "Ces changements seront effectués :"
 
@@ -8375,7 +8329,7 @@ msgstr "Ce périphérique ne peut pas être utilisé pour la cible d'installatio
 msgid "This device cannot be managed here."
 msgstr "Ce périphérique ne peut pas être géré ici."
 
-#: pkg/storaged/dialog.jsx:1205
+#: pkg/storaged/dialog.jsx:1228
 msgid "This device is currently in use."
 msgstr "Ce périphérique est actuellement en cours d’utilisation."
 
@@ -8605,7 +8559,7 @@ msgstr "Temps"
 
 #: pkg/packagekit/updates.jsx:595
 msgid "Time remaining: "
-msgstr ""
+msgstr "Temps restant : "
 
 #: pkg/lib/serverTime.js:574
 msgid "Time zone"
@@ -8659,7 +8613,7 @@ msgstr ""
 "$0 en étant physiquement assis devant la machine ou en passant par un réseau "
 "de confiance :"
 
-#: pkg/metrics/metrics.jsx:1880
+#: pkg/metrics/metrics.jsx:1873
 msgid "Today"
 msgstr "Aujourd’hui"
 
@@ -8724,7 +8678,7 @@ msgstr "Déclenché par"
 msgid "Triggers"
 msgstr "Déclencheurs"
 
-#: pkg/metrics/metrics.jsx:1840
+#: pkg/metrics/metrics.jsx:1833
 msgid "Troubleshoot"
 msgstr "Dépannage"
 
@@ -8918,7 +8872,7 @@ msgstr "Impossible de démonter le système de fichiers"
 msgid "Unavailable packages"
 msgstr "Paquets indisponibles"
 
-#: pkg/users/account-details.js:441
+#: pkg/users/account-details.js:450
 msgid "Undo"
 msgstr "Annuler"
 
@@ -9104,10 +9058,8 @@ msgid "Update package information"
 msgstr "Mise à jour des informations sur le paquet"
 
 #: pkg/packagekit/updates.jsx:595
-#, fuzzy
-#| msgid "Update log"
 msgid "Update progress"
-msgstr "Journaux de la mise à jour"
+msgstr "Progression de la mise à jour"
 
 #: pkg/packagekit/updates.jsx:680 pkg/packagekit/updates.jsx:744
 msgid "Update was successful"
@@ -9146,9 +9098,9 @@ msgstr "Mise à jour du l'état..."
 msgid "Upload"
 msgstr "Mettre en ligne"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:128 pkg/metrics/metrics.jsx:1948
-#: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
-#: pkg/metrics/metrics.jsx:1951 pkg/storaged/stratis/pool.jsx:1044
+#: pkg/systemd/overview-cards/usageCard.jsx:128 pkg/metrics/metrics.jsx:1941
+#: pkg/metrics/metrics.jsx:1942 pkg/metrics/metrics.jsx:1943
+#: pkg/metrics/metrics.jsx:1944 pkg/storaged/stratis/pool.jsx:1044
 #: pkg/storaged/stratis/filesystem.jsx:256
 #: pkg/storaged/lvm2/physical-volume.jsx:122
 #: pkg/storaged/filesystem/filesystem.jsx:152
@@ -9161,11 +9113,11 @@ msgstr "Utilisation"
 msgid "Usage of $0"
 msgstr "Utilisation de $0"
 
-#: pkg/storaged/dialog.jsx:1210
+#: pkg/storaged/dialog.jsx:1233
 msgid "Use"
 msgstr "Utilisation"
 
-#: pkg/networkmanager/dialogs-common.jsx:107 pkg/storaged/dialog.jsx:693
+#: pkg/networkmanager/dialogs-common.jsx:107 pkg/storaged/dialog.jsx:716
 msgid "Use $0"
 msgstr "Utiliser $0"
 
@@ -9205,7 +9157,7 @@ msgstr ""
 "Utile pour les montages facultatifs ou nécessitant une interaction (comme "
 "les phrases secrètes)"
 
-#: pkg/systemd/services.jsx:928 pkg/storaged/dialog.jsx:1475
+#: pkg/systemd/services.jsx:928 pkg/storaged/dialog.jsx:1498
 msgid "User"
 msgstr "Utilisateur"
 
@@ -9230,7 +9182,7 @@ msgstr "L'ID de l'utilisateur ne doit pas être supérieur à $0"
 msgid "User ID must not be lower than $0"
 msgstr "L'ID de l'utilisateur ne doit pas être inférieur à $0"
 
-#: pkg/static/login.html:108 pkg/users/account-details.js:254
+#: pkg/static/login.html:108 pkg/users/account-details.js:262
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:463
 msgid "User name"
 msgstr "Nom d’utilisateur"
@@ -9687,7 +9639,7 @@ msgstr "avc"
 msgid "average: $0%"
 msgstr "moyenne : $0%"
 
-#: pkg/storaged/dialog.jsx:1187
+#: pkg/storaged/dialog.jsx:1210
 msgid "backing device for VDO device"
 msgstr "périphérique de sauvegarde pour périphérique VDO"
 
@@ -9757,7 +9709,7 @@ msgstr "cache"
 msgid "cgroups"
 msgstr "cgroups"
 
-#: pkg/users/account-details.js:329
+#: pkg/users/account-details.js:338
 msgid "change"
 msgstr "modifier"
 
@@ -9781,7 +9733,7 @@ msgstr "coredump"
 msgid "cpu"
 msgstr "processeur"
 
-#: pkg/kdump/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/kdump/manifest.json:0
 msgid "crash"
 msgstr "plantage"
 
@@ -9812,7 +9764,7 @@ msgstr "déboguer"
 msgid "delete"
 msgstr "supprimer"
 
-#: pkg/storaged/dialog.jsx:1190
+#: pkg/storaged/dialog.jsx:1213
 msgid "device of btrfs volume"
 msgstr "périphérique d'un volume btrfs"
 
@@ -9856,7 +9808,7 @@ msgstr "disque"
 #: pkg/storaged/crypto/encryption.jsx:237 pkg/storaged/filesystem/utils.jsx:221
 #: pkg/storaged/filesystem/filesystem.jsx:145
 #: pkg/storaged/partitions/partition.jsx:232 pkg/storaged/btrfs/volume.jsx:192
-#: pkg/users/account-details.js:283 pkg/users/account-details.js:313
+#: pkg/users/account-details.js:292 pkg/users/account-details.js:322
 msgid "edit"
 msgstr "modifier"
 
@@ -10094,11 +10046,11 @@ msgstr "masque"
 msgid "max: $0%"
 msgstr "max : $0%"
 
-#: pkg/storaged/dialog.jsx:1186
+#: pkg/storaged/dialog.jsx:1209
 msgid "member of MDRAID device"
 msgstr "membre d'un périphérique MDRAID"
 
-#: pkg/storaged/dialog.jsx:1188
+#: pkg/storaged/dialog.jsx:1211
 msgid "member of Stratis pool"
 msgstr "membre du pool Stratis"
 
@@ -10123,10 +10075,8 @@ msgid "more details"
 msgstr "Plus de détails"
 
 #: pkg/storaged/pages.jsx:844
-#, fuzzy
-#| msgid "More info..."
 msgid "more info"
-msgstr "Plus d’infos..."
+msgstr "plus d'infos"
 
 #: pkg/storaged/utils.js:854 pkg/storaged/manifest.json:0
 msgid "mount"
@@ -10136,7 +10086,7 @@ msgstr "monter"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "réseau"
 
@@ -10234,7 +10184,7 @@ msgstr "pcp"
 msgid "performance"
 msgstr "performance"
 
-#: pkg/storaged/dialog.jsx:1185
+#: pkg/storaged/dialog.jsx:1208
 msgid "physical volume of LVM2 volume group"
 msgstr "volume physique du groupe de volumes LVM2"
 
@@ -10242,15 +10192,15 @@ msgstr "volume physique du groupe de volumes LVM2"
 msgid "plugin"
 msgstr "plugin"
 
-#: pkg/metrics/metrics.jsx:1837
+#: pkg/metrics/metrics.jsx:1830
 msgid "pmlogger.service has failed"
 msgstr "Le service pmlogger.service a échoué"
 
-#: pkg/metrics/metrics.jsx:1839
+#: pkg/metrics/metrics.jsx:1832
 msgid "pmlogger.service is failing to collect data"
 msgstr "Le service pmlogger.service ne parvient pas à collecter des données"
 
-#: pkg/metrics/metrics.jsx:1832
+#: pkg/metrics/metrics.jsx:1825
 msgid "pmlogger.service is not running"
 msgstr "Le service pmlogger.service n’est pas en cours d’exécution"
 
@@ -10371,7 +10321,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "échec du rapport SOS"
 
-#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 

@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-02 03:07+0000\n"
-"PO-Revision-Date: 2025-09-01 09:37+0000\n"
+"POT-Creation-Date: 2025-09-08 03:07+0000\n"
+"PO-Revision-Date: 2025-09-07 23:53+0000\n"
 "Last-Translator: joo es <jonnyse@users.noreply.translate.fedoraproject.org>\n"
 "Language-Team: Arabic <https://translate.fedoraproject.org/projects/cockpit/"
 "cockpit/ar/>\n"
@@ -31,7 +31,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.13\n"
+"X-Generator: Weblate 5.13.2\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -398,7 +398,7 @@ msgstr[5] "$0 تحديث متاح"
 msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 مستخدمة من $1 (تم حفظ $2)"
 
-#: pkg/storaged/dialog.jsx:1402
+#: pkg/storaged/dialog.jsx:1425
 msgid "$0 used, $1 total"
 msgstr "$0 مستخدمة من أصل $1"
 
@@ -434,7 +434,7 @@ msgstr "منطقة $0"
 msgid "$name (from $host)"
 msgstr "$name (من $host)"
 
-#: pkg/storaged/dialog.jsx:1304
+#: pkg/storaged/dialog.jsx:1327
 msgid "(Not part of target)"
 msgstr "(ليس جزءًا من الهدف)"
 
@@ -806,16 +806,16 @@ msgstr "كلمة السر صالحة"
 msgid "Account expiration"
 msgstr "حساب منتهي الصلاحية"
 
-#: pkg/users/account-details.js:179
+#: pkg/users/account-details.js:101
 msgid "Account not available or cannot be edited."
 msgstr "الحساب غير متاح أو غير قابل للتعديل."
 
-#: pkg/users/account-details.js:228 pkg/users/accounts-list.js:232
+#: pkg/users/account-details.js:236 pkg/users/accounts-list.js:232
 #: pkg/users/accounts-list.js:448 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "الحسابات"
 
-#: pkg/storaged/dialog.jsx:1329
+#: pkg/storaged/dialog.jsx:1352
 msgid "Action"
 msgstr "نشاط"
 
@@ -1038,28 +1038,16 @@ msgstr ""
 "إضافة $0 ستؤدي إلى قطع الاتصال بالخادم، وسيجعل واجهة الإدارة غير متاحة."
 
 #: pkg/storaged/stratis/pool.jsx:951
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid "Adding a keyserver requires unlocking the pool."
-msgstr ""
-"إضافة خادم مفاتيح تتطلب فك قفل مجموعة التخزين. يُرجى إدخال عبارة المرور "
-"الحالية للمجموعة."
+msgstr "إضافة خادم مفاتيح تتطلب فك قفل مجموعة التخزين."
 
 #: pkg/storaged/stratis/pool.jsx:874
-#, fuzzy
-#| msgid ""
-#| "Saving a new passphrase requires unlocking the disk. Please provide a "
-#| "current disk passphrase."
 msgid "Adding a passphrase requires unlocking the pool."
-msgstr ""
-"يتطلب حفظ عبارة مرور جديدة إلغاء قفل القرص. يرجى تقديم عبارة مرور القرص "
-"الحالية."
+msgstr "تتطلب إضافة عبارة مرور إلغاء قفل المجمع."
 
 #: pkg/storaged/stratis/pool.jsx:522
 msgid "Adding blockdevices requires unlocking the pool."
-msgstr ""
+msgstr "تتطلب إضافة أجهزة الكُتل إلغاء قفل المجمع."
 
 #: pkg/networkmanager/firewall.jsx:734
 msgid ""
@@ -1330,14 +1318,12 @@ msgid "At least one disk is needed."
 msgstr "يحتاج إلى قرص صلب واحد على الأقل."
 
 #: pkg/storaged/stratis/pool.jsx:322
-#, fuzzy
-#| msgid "At least one block device is needed."
 msgid "At least one keyserver must be reachable."
-msgstr "يحتاج إلى جهاز تخزين واحد على الأقل."
+msgstr "يجب أن يكون خادم مفاتيح واحد على الأقل قابلاً للوصول."
 
 #: pkg/storaged/stratis/pool.jsx:326
 msgid "At least one of the non-interactive unlock methods must work."
-msgstr ""
+msgstr "يجب أن تَعمل إحدى طرق إلغاء القفل غير التفاعلية على الأقل."
 
 #: pkg/storaged/btrfs/subvolume.jsx:383
 msgid "At least one subvolume needs to be mounted"
@@ -1468,7 +1454,7 @@ msgstr "تاريخ الـ BIOS"
 msgid "BIOS version"
 msgstr "إصدار الـ BIOS"
 
-#: pkg/users/account-details.js:183
+#: pkg/users/account-details.js:105
 msgid "Back to accounts"
 msgstr "الرجوع إلى الحسابات"
 
@@ -1595,7 +1581,7 @@ msgstr "تجاوز فحص المتصفح"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:116
 #: pkg/metrics/metrics.jsx:114 pkg/metrics/metrics.jsx:784
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1948
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1941
 msgid "CPU"
 msgstr "المعالج"
 
@@ -1611,7 +1597,7 @@ msgstr "مفاتيح تبديل أمان المعالج"
 msgid "CPU usage"
 msgstr "استخدام وحدة المعالجة المركزية (CPU)"
 
-#: pkg/metrics/metrics.jsx:1938
+#: pkg/metrics/metrics.jsx:1931
 msgid "CPU usage/load"
 msgstr "استخدام/حمل وحدة المعالجة المركزية (CPU)"
 
@@ -1818,7 +1804,7 @@ msgstr "التحقق من جهاز MDRAID $target"
 msgid "Checking and repairing MDRAID device $target"
 msgstr "فحص وإصلاح جهاز MDRAID $target"
 
-#: pkg/storaged/dialog.jsx:1386
+#: pkg/storaged/dialog.jsx:1409
 msgid "Checking filesystem usage"
 msgstr "التحقق من استخدام نظام الملفات"
 
@@ -1993,8 +1979,8 @@ msgstr "اللون"
 msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr "إدخال المنافذ والنطاقات والخدمات مفصولة بفواصل متاح"
 
-#: pkg/systemd/timer-dialog.jsx:165 pkg/storaged/dialog.jsx:1474
-#: pkg/storaged/dialog.jsx:1494
+#: pkg/systemd/timer-dialog.jsx:165 pkg/storaged/dialog.jsx:1497
+#: pkg/storaged/dialog.jsx:1517
 msgid "Command"
 msgstr "أمر"
 
@@ -2474,7 +2460,7 @@ msgstr "الإقلاع الحالي"
 msgid "Current top CPU usage"
 msgstr "أعلى استخدام لوحدة المعالجة المركزية (CPU) حالياً"
 
-#: pkg/storaged/dialog.jsx:1253
+#: pkg/storaged/dialog.jsx:1276
 msgid "Currently in use"
 msgstr "قيد الاستخدام"
 
@@ -2695,7 +2681,7 @@ msgstr "التأخير يجب أن يكون عدداً"
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:400
 #: pkg/storaged/mdraid/mdraid.jsx:133 pkg/storaged/mdraid/mdraid.jsx:240
 #: pkg/users/delete-account-dialog.js:60 pkg/users/delete-group-dialog.js:51
-#: pkg/users/account-details.js:219
+#: pkg/users/account-details.js:227
 msgid "Delete"
 msgstr "حذف"
 
@@ -2787,7 +2773,7 @@ msgid "Deletion will remove the following files:"
 msgstr "سيؤدي الحذف إلى إزالة الملفات التالية:"
 
 #: pkg/systemd/timer-dialog.jsx:157 pkg/networkmanager/firewall.jsx:722
-#: pkg/networkmanager/firewall.jsx:871 pkg/storaged/dialog.jsx:1495
+#: pkg/networkmanager/firewall.jsx:871 pkg/storaged/dialog.jsx:1518
 msgid "Description"
 msgstr "الوصف"
 
@@ -2809,11 +2795,11 @@ msgid "Development"
 msgstr "تطوير"
 
 #: pkg/metrics/metrics.jsx:749 pkg/storaged/mdraid/mdraid.jsx:309
-#: pkg/storaged/dialog.jsx:1208 pkg/storaged/dialog.jsx:1327
+#: pkg/storaged/dialog.jsx:1231 pkg/storaged/dialog.jsx:1350
 msgid "Device"
 msgstr "جهاز"
 
-#: pkg/storaged/dialog.jsx:1406 pkg/storaged/dialog.jsx:1413
+#: pkg/storaged/dialog.jsx:1429 pkg/storaged/dialog.jsx:1436
 msgid "Device contains unrecognized data"
 msgstr "يحوي الجهاز على بيانات غير معترف بها"
 
@@ -2872,7 +2858,7 @@ msgstr "تعطيل الضبط"
 msgid "Disabled"
 msgstr "معطّل"
 
-#: pkg/users/account-details.js:268
+#: pkg/users/account-details.js:277
 msgid "Disallow interactive password"
 msgstr "عدم السماح بكلمة السر التفاعلية"
 
@@ -2893,8 +2879,8 @@ msgid "Disconnected"
 msgstr "مفصول"
 
 #: pkg/metrics/metrics.jsx:142 pkg/metrics/metrics.jsx:143
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1938
-#: pkg/metrics/metrics.jsx:1950
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1931
+#: pkg/metrics/metrics.jsx:1943
 msgid "Disk I/O"
 msgstr "قرص I/O"
 
@@ -3216,10 +3202,8 @@ msgid "Encryption passphrase"
 msgstr "تشفير عبارة المرور"
 
 #: pkg/storaged/stratis/pool.jsx:599
-#, fuzzy
-#| msgid "Encryption options"
 msgid "Encryption tokens"
-msgstr "إعدادات التشفير"
+msgstr "رموز التشفير"
 
 #: pkg/storaged/crypto/encryption.jsx:226
 msgid "Encryption type"
@@ -3280,7 +3264,7 @@ msgstr "خطأ"
 msgid "Error and above"
 msgstr "الخطأ وما فوق"
 
-#: pkg/metrics/metrics.jsx:1854
+#: pkg/metrics/metrics.jsx:1847
 msgid "Error has occurred"
 msgstr "حصل خطأ"
 
@@ -3513,7 +3497,7 @@ msgstr "تم تركيب نظام الملفات للقراءة فقط"
 msgid "Filesystem name"
 msgstr "اسم نظام الملفات"
 
-#: pkg/storaged/dialog.jsx:1189
+#: pkg/storaged/dialog.jsx:1212
 msgid "Filesystem outside the target"
 msgstr "نظام الملفات خارج نطاق الهدف"
 
@@ -3566,7 +3550,7 @@ msgstr "حجم الخط"
 msgid "Forbidden from running"
 msgstr "ممنوع من التشغيل"
 
-#: pkg/users/account-details.js:300
+#: pkg/users/account-details.js:309
 msgid "Force change"
 msgstr "تعديل إجباري"
 
@@ -3600,7 +3584,7 @@ msgstr "تهيئة وبدء"
 msgid "Format only"
 msgstr "التهيئة فقط"
 
-#: pkg/storaged/block/format-dialog.jsx:399
+#: pkg/storaged/block/format-dialog.jsx:402
 msgid "Formatting erases all data on a storage device."
 msgstr "التهئية ستمسح كل البيانات من جهاز التخزين."
 
@@ -3624,7 +3608,7 @@ msgstr "أيام الجُمع"
 msgid "From"
 msgstr "من"
 
-#: pkg/users/account-details.js:240 pkg/users/accounts-list.js:381
+#: pkg/users/account-details.js:248 pkg/users/accounts-list.js:381
 #: pkg/users/account-create-dialog.js:68
 msgid "Full name"
 msgstr "الاسم الكامل"
@@ -3654,11 +3638,11 @@ msgstr "انتقل إلى التطبيق"
 msgid "Go to now"
 msgstr "انتقل الآن"
 
-#: pkg/metrics/metrics.jsx:1927
+#: pkg/metrics/metrics.jsx:1920
 msgid "Graph visibility"
 msgstr "عرض الرسم البياني"
 
-#: pkg/metrics/metrics.jsx:1924
+#: pkg/metrics/metrics.jsx:1917
 msgid "Graph visibility options menu"
 msgstr "قائمة خيارات عرض الرسم البياني"
 
@@ -3670,7 +3654,7 @@ msgstr "مجموعة"
 msgid "Group name"
 msgstr "اسم المجموعة"
 
-#: pkg/users/account-details.js:417 pkg/users/accounts-list.js:313
+#: pkg/users/account-details.js:426 pkg/users/accounts-list.js:313
 #: pkg/users/accounts-list.js:317
 msgid "Groups"
 msgstr "المجموعات"
@@ -3758,7 +3742,7 @@ msgstr "توافقية أعلى على حساب زيادة المساحة الم
 msgid "History package count"
 msgstr "تعداد حزمة التاريخ"
 
-#: pkg/users/account-details.js:318 pkg/users/account-create-dialog.js:84
+#: pkg/users/account-details.js:327 pkg/users/account-create-dialog.js:84
 msgid "Home directory"
 msgstr "مجلد المنزل"
 
@@ -3802,7 +3786,7 @@ msgstr "ساعات"
 msgid "How to check"
 msgstr "كيفية التحقق"
 
-#: pkg/storaged/dialog.jsx:1422
+#: pkg/storaged/dialog.jsx:1445
 msgid "I confirm I want to lose this data forever"
 msgstr "أؤكد أنني أريد التخلص من هذه البيانات إلى الأبد"
 
@@ -3870,26 +3854,19 @@ msgstr ""
 "إذا تُرك فارغًا، فسيتم توليد المعرف وفق خدمات المنافذ ، وأرقامها ذات الصلة"
 
 #: pkg/storaged/stratis/pool.jsx:308
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If none of the keyservers is reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"إضافة خادم مفاتيح تتطلب فك قفل مجموعة التخزين. يُرجى إدخال عبارة المرور "
-"الحالية للمجموعة."
+"إذا لم يكن أي من خوادم المفاتيح قابلاً للوصول، يمكنك توفير عبارة مرور موجودة."
 
 #: pkg/storaged/stratis/pool.jsx:312
-#, fuzzy
-#| msgid ""
-#| "The disk needs to be unlocked before formatting. Please provide an "
-#| "existing passphrase."
 msgid ""
 "If none of the non-interactive unlock methods works, you can provide an "
 "existing passphrase."
-msgstr "يجب إلغاء قفل القرص قبل التهيئة. يرجى تقديم عبارة مرور موجودة."
+msgstr ""
+"إذا لم تنجح أي من طرق إلغاء القفل غير التفاعلية، يمكنك توفير عبارة مرور "
+"موجودة."
 
 #: pkg/static/login.html:102
 msgid ""
@@ -3908,23 +3885,18 @@ msgstr ""
 "وتواصل مع مسؤول النظام."
 
 #: pkg/storaged/stratis/pool.jsx:306
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If the keyserver at $0 is not reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"إضافة خادم مفاتيح تتطلب فك قفل مجموعة التخزين. يُرجى إدخال عبارة المرور "
-"الحالية للمجموعة."
+"إذا كان خادم المفاتيح في $0 غير قابل للوصول، يمكنك توفير عبارة مرور موجودة."
 
 #: pkg/networkmanager/ip-settings.jsx:44 pkg/packagekit/updates.jsx:675
 #: pkg/packagekit/updates.jsx:757
 msgid "Ignore"
 msgstr "تجاهل"
 
-#: pkg/storaged/dialog.jsx:1358
+#: pkg/storaged/dialog.jsx:1381
 msgid "Important data might be deleted:"
 msgstr "قد يتم حذف بيانات مهمة:"
 
@@ -4027,7 +3999,7 @@ msgstr "تثبيت"
 msgid "Install NFS support"
 msgstr "تثبيت خدمة NFS"
 
-#: pkg/metrics/metrics.jsx:1824
+#: pkg/metrics/metrics.jsx:1817
 msgid "Install PCP support"
 msgstr "تثبيت دعم PCP"
 
@@ -4253,7 +4225,7 @@ msgstr "قيد اليوميات"
 msgid "Journal entry not found"
 msgstr "قيد اليوميات غير موجود"
 
-#: pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1913
 msgid "Jump to"
 msgstr "الانتقال إلى"
 
@@ -4397,7 +4369,7 @@ msgstr "آخر تحقق: $0"
 msgid "Last disk can not be removed"
 msgstr "لا بمكن إزالة القرص الأخير"
 
-#: pkg/users/account-details.js:258
+#: pkg/users/account-details.js:266
 msgid "Last login"
 msgstr "آخر تسجيل دخول"
 
@@ -4410,10 +4382,8 @@ msgid "Last successful login:"
 msgstr "آخر تسجيل دخول ناجح:"
 
 #: pkg/storaged/stratis/pool.jsx:768
-#, fuzzy
-#| msgid "Last disk can not be removed"
 msgid "Last token can not be removed"
-msgstr "لا بمكن إزالة القرص الأخير"
+msgstr "لا بمكن إزالة الرمز الأخير"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:294
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:192
@@ -4533,7 +4503,7 @@ msgid "Listing units failed: $0"
 msgstr "استماع الوحدات فشل: $0"
 
 #: pkg/metrics/metrics.jsx:120 pkg/metrics/metrics.jsx:121
-#: pkg/metrics/metrics.jsx:813 pkg/metrics/metrics.jsx:1948
+#: pkg/metrics/metrics.jsx:813 pkg/metrics/metrics.jsx:1941
 msgid "Load"
 msgstr "حمل"
 
@@ -4541,7 +4511,7 @@ msgstr "حمل"
 msgid "Load balancing"
 msgstr "موازنة الأحمال"
 
-#: pkg/metrics/metrics.jsx:1984
+#: pkg/metrics/metrics.jsx:1977
 msgid "Load earlier data"
 msgstr "تحميل البيانات السابقة"
 
@@ -4583,8 +4553,8 @@ msgstr "تحميل الوحدة فشل"
 
 #: pkg/systemd/logsJournal.jsx:268 pkg/systemd/services.jsx:684
 #: pkg/systemd/service.jsx:132 pkg/systemd/logDetails.jsx:172
-#: pkg/kdump/kdump-view.jsx:456 pkg/metrics/metrics.jsx:1983
-#: pkg/storaged/storaged.jsx:66 pkg/users/account-details.js:169
+#: pkg/kdump/kdump-view.jsx:456 pkg/metrics/metrics.jsx:1976
+#: pkg/storaged/storaged.jsx:66 pkg/users/account-details.js:193
 #: pkg/users/accounts-list.js:318 pkg/users/accounts-list.js:339
 #: pkg/users/accounts-list.js:454
 msgid "Loading..."
@@ -4611,7 +4581,7 @@ msgid "Local, $0"
 msgstr "محلي، $0"
 
 #: pkg/kdump/kdump-view.jsx:233 pkg/storaged/pages.jsx:728
-#: pkg/storaged/dialog.jsx:1209 pkg/storaged/dialog.jsx:1328
+#: pkg/storaged/dialog.jsx:1232 pkg/storaged/dialog.jsx:1351
 msgid "Location"
 msgstr "الموقع"
 
@@ -4636,7 +4606,7 @@ msgstr "قفل الحساب"
 msgid "Locked data"
 msgstr "بيانات مقفلة"
 
-#: pkg/storaged/dialog.jsx:1410
+#: pkg/storaged/dialog.jsx:1433
 msgid "Locked encrypted device might contain data"
 msgstr "قد يحتوي الجهاز المشفّر المقفل على بيانات"
 
@@ -4669,7 +4639,7 @@ msgstr "تسجيل خروج"
 msgid "Log user out"
 msgstr "تسجيل خروج المستخدم"
 
-#: pkg/users/account-details.js:204 pkg/users/accounts-list.js:161
+#: pkg/users/account-details.js:212 pkg/users/accounts-list.js:161
 msgid "Logged in"
 msgstr "تم تسجيل الدخول"
 
@@ -4909,7 +4879,7 @@ msgstr "قرص وسائط"
 #: pkg/systemd/overview-cards/usageCard.jsx:145 pkg/systemd/hwinfo.jsx:294
 #: pkg/systemd/hwinfo.jsx:338 pkg/systemd/service-details.jsx:677
 #: pkg/metrics/metrics.jsx:128 pkg/metrics/metrics.jsx:844
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1949
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1942
 msgid "Memory"
 msgstr "الذاكرة"
 
@@ -4921,7 +4891,7 @@ msgstr "تقنية الذاكرة"
 msgid "Memory usage"
 msgstr "استخدام الذاكرة"
 
-#: pkg/metrics/metrics.jsx:1938
+#: pkg/metrics/metrics.jsx:1931
 msgid "Memory usage/swap"
 msgstr "استخدام الذاكرة/swap"
 
@@ -4938,10 +4908,8 @@ msgid "Messages related to the failure might be found in the journal:"
 msgstr "قد توجد رسائل متعلقة بالعطل في سجل النظام:"
 
 #: pkg/storaged/stratis/pool.jsx:1018
-#, fuzzy
-#| msgid "Invalid date format"
 msgid "Metadata format"
-msgstr "تنسيق التاريخ خاطئ"
+msgstr "تنسيق البيانات الوصفية"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:144
 #: pkg/storaged/lvm2/vdo-pool.jsx:83
@@ -4956,11 +4924,11 @@ msgstr "الطريقة"
 msgid "Metric"
 msgstr "مقياس"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2008
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2001
 msgid "Metrics and history"
 msgstr "المقاييس والتاريخ"
 
-#: pkg/metrics/metrics.jsx:1845
+#: pkg/metrics/metrics.jsx:1838
 msgid "Metrics history could not be loaded"
 msgstr "تعذر تحميل سجل المقاييس"
 
@@ -5233,7 +5201,7 @@ msgid "Need at least one NTP server"
 msgstr "يحتاج خادم NTP واحداً على الأقل"
 
 #: pkg/metrics/metrics.jsx:943 pkg/metrics/metrics.jsx:1567
-#: pkg/metrics/metrics.jsx:1938 pkg/metrics/metrics.jsx:1951
+#: pkg/metrics/metrics.jsx:1931 pkg/metrics/metrics.jsx:1944
 msgid "Network"
 msgstr "شبكة"
 
@@ -5276,7 +5244,7 @@ msgstr "الشبكات المخزنة"
 msgid "Networking"
 msgstr "التشبيك"
 
-#: pkg/users/account-details.js:206
+#: pkg/users/account-details.js:214
 msgid "Never"
 msgstr "أبداً"
 
@@ -5365,11 +5333,11 @@ msgstr "لا حامل"
 msgid "No configuration found"
 msgstr "لا يوجد تكوين"
 
-#: pkg/metrics/metrics.jsx:1874
+#: pkg/metrics/metrics.jsx:1867
 msgid "No data available"
 msgstr "لا بيانات متاحة"
 
-#: pkg/metrics/metrics.jsx:1870
+#: pkg/metrics/metrics.jsx:1863
 msgid "No data available between $0 and $1"
 msgstr "لا بيانات متاحة بين $0 و$1"
 
@@ -5738,7 +5706,7 @@ msgstr "العملية '$operation' على '$target'"
 #: pkg/storaged/stratis/filesystem.jsx:207
 #: pkg/storaged/stratis/create-dialog.jsx:102
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
-#: pkg/storaged/crypto/encryption.jsx:235 pkg/users/account-details.js:261
+#: pkg/storaged/crypto/encryption.jsx:235 pkg/users/account-details.js:269
 msgid "Options"
 msgstr "الخيارات"
 
@@ -5750,7 +5718,7 @@ msgstr "أو استخدم متصفحاً مدمجاً"
 msgid "Other"
 msgstr "أُخرى"
 
-#: pkg/users/account-details.js:271 pkg/users/account-create-dialog.js:131
+#: pkg/users/account-details.js:280 pkg/users/account-create-dialog.js:131
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -5771,7 +5739,7 @@ msgstr "خارج"
 msgid "Overprovisioning"
 msgstr "التوفير الزائد"
 
-#: pkg/systemd/hwinfo.jsx:311 pkg/metrics/metrics.jsx:2007
+#: pkg/systemd/hwinfo.jsx:311 pkg/metrics/metrics.jsx:2000
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "نظرة عامة"
@@ -5790,11 +5758,11 @@ msgstr "الكتابة فوق البيانات الموجودة بأصفار (أ
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1823
+#: pkg/metrics/metrics.jsx:1816
 msgid "PCP is missing for metrics history"
 msgstr "PCP مفقود بالنسبة لسجل المقاييس"
 
-#: pkg/storaged/dialog.jsx:1473
+#: pkg/storaged/dialog.jsx:1496
 msgid "PID"
 msgstr "PID"
 
@@ -5917,7 +5885,7 @@ msgid "Passphrases do not match"
 msgstr "عبارتا المرور غير متطابقتين"
 
 #: pkg/static/login.html:113 pkg/storaged/iscsi/create-dialog.jsx:34
-#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/users/account-details.js:288
+#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/superuser.tsx:174
 #: pkg/shell/credentials.tsx:177 pkg/shell/credentials.tsx:236
@@ -6261,7 +6229,7 @@ msgstr "المفتاح الخاص"
 msgid "Problem becoming administrator"
 msgstr "مشكلة في الحصول على صلاحيات المسؤول"
 
-#: pkg/storaged/dialog.jsx:1242
+#: pkg/storaged/dialog.jsx:1265
 msgid "Processes using the location"
 msgstr "عمليات تستخدم الموقع"
 
@@ -6524,15 +6492,15 @@ msgstr "إعادة توليد initrd"
 msgid "Register…"
 msgstr "التسجيل…"
 
-#: pkg/storaged/dialog.jsx:1374
+#: pkg/storaged/dialog.jsx:1397
 msgid "Related processes and services will be forcefully stopped."
 msgstr "سيتم إيقاف العمليات والخدمات ذات الصلة بالقوة."
 
-#: pkg/storaged/dialog.jsx:1376
+#: pkg/storaged/dialog.jsx:1399
 msgid "Related processes will be forcefully stopped."
 msgstr "سيتم إيقاف العمليات ذات الصلة بالقوة."
 
-#: pkg/storaged/dialog.jsx:1378
+#: pkg/storaged/dialog.jsx:1401
 msgid "Related services will be forcefully stopped."
 msgstr "سيتم إيقاف الخدمات ذات الصلة بالقوة."
 
@@ -7232,7 +7200,7 @@ msgstr "برنامج الخادم"
 #: pkg/networkmanager/firewall.jsx:193 pkg/metrics/metrics.jsx:776
 #: pkg/metrics/metrics.jsx:777 pkg/metrics/metrics.jsx:832
 #: pkg/metrics/metrics.jsx:870 pkg/metrics/metrics.jsx:930
-#: pkg/metrics/metrics.jsx:936 pkg/storaged/dialog.jsx:1493
+#: pkg/metrics/metrics.jsx:936 pkg/storaged/dialog.jsx:1516
 msgid "Service"
 msgstr "خدمة"
 
@@ -7250,7 +7218,7 @@ msgstr "سجلات الخدمة"
 msgid "Services"
 msgstr "الخدمات"
 
-#: pkg/storaged/dialog.jsx:1228
+#: pkg/storaged/dialog.jsx:1251
 msgid "Services using the location"
 msgstr "خدمات تستخدم الموقع"
 
@@ -7282,7 +7250,7 @@ msgstr "تعيين الحد لحجم نظام الملفات الافتراضي"
 msgid "Set partition type of $0"
 msgstr "تعيين نوع القسم لـ $0"
 
-#: pkg/users/account-details.js:293 pkg/users/password-dialogs.js:226
+#: pkg/users/account-details.js:302 pkg/users/password-dialogs.js:226
 #: pkg/users/password-dialogs.js:233
 msgid "Set password"
 msgstr "تعيين كلمة سر"
@@ -7330,7 +7298,7 @@ msgstr "الخطورة"
 msgid "Shared"
 msgstr "مشتركة"
 
-#: pkg/users/account-details.js:321 pkg/users/account-create-dialog.js:93
+#: pkg/users/account-details.js:330 pkg/users/account-create-dialog.js:93
 msgid "Shell"
 msgstr "الصدفة"
 
@@ -7425,23 +7393,23 @@ msgstr "رتبة واحدة"
 msgid "Size"
 msgstr "الحجم"
 
-#: pkg/storaged/dialog.jsx:1133
+#: pkg/storaged/dialog.jsx:1156
 msgid "Size cannot be negative"
 msgstr "الحجم لا يمكن أن يكون عدداً سالباً"
 
-#: pkg/storaged/dialog.jsx:1131
+#: pkg/storaged/dialog.jsx:1154
 msgid "Size cannot be zero"
 msgstr "الحجم لا يمكن أن يكون صفراً"
 
-#: pkg/storaged/dialog.jsx:1135
+#: pkg/storaged/dialog.jsx:1158
 msgid "Size is too large"
 msgstr "الحجم كبير جداً"
 
-#: pkg/storaged/dialog.jsx:1129
+#: pkg/storaged/dialog.jsx:1152
 msgid "Size must be a number"
 msgstr "الحجم يجب أن يكون عدداً"
 
-#: pkg/storaged/dialog.jsx:1137
+#: pkg/storaged/dialog.jsx:1160
 msgid "Size must be at least $0"
 msgstr "يجب ألا يقل الحجم عن $0"
 
@@ -7593,7 +7561,7 @@ msgstr "بدء عرض الإدخالات في التاريخ المحدد أو �
 msgid "Start showing entries on or older than the specified date."
 msgstr "بدء عرض الإدخالات في التاريخ المحدد أو أقدم."
 
-#: pkg/storaged/dialog.jsx:1476 pkg/storaged/dialog.jsx:1496
+#: pkg/storaged/dialog.jsx:1499 pkg/storaged/dialog.jsx:1519
 #: pkg/users/account-logs-panel.jsx:77
 msgid "Started"
 msgstr "بدأ"
@@ -7777,7 +7745,7 @@ msgid "Sundays"
 msgstr "أيام الأحد"
 
 #: pkg/metrics/metrics.jsx:135 pkg/metrics/metrics.jsx:689
-#: pkg/metrics/metrics.jsx:1949 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1942 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "Swap"
 
@@ -7913,7 +7881,7 @@ msgstr "درجة الحرارة خارج الحدود الموصى بها"
 msgid "Terminal"
 msgstr "الطرفية"
 
-#: pkg/users/account-details.js:214
+#: pkg/users/account-details.js:222
 msgid "Terminate session"
 msgstr "إنهاء الجلسة"
 
@@ -8153,15 +8121,15 @@ msgstr "لا يمكن إزالة فتحة المفتاح الأخير"
 msgid "The last mounted subvolume can not be deleted"
 msgstr "لا يمكن حذف آخر وحدة تخزين فرعية مركَّبة"
 
-#: pkg/storaged/dialog.jsx:1511
+#: pkg/storaged/dialog.jsx:1534
 msgid "The listed processes and services will be forcefully stopped."
 msgstr "سيتم إيقاف العمليات والخدمات المدرجة بالقوة."
 
-#: pkg/storaged/dialog.jsx:1513
+#: pkg/storaged/dialog.jsx:1536
 msgid "The listed processes will be forcefully stopped."
 msgstr "سيتم إيقاف العمليات المدرجة بالقوة."
 
-#: pkg/storaged/dialog.jsx:1515
+#: pkg/storaged/dialog.jsx:1538
 msgid "The listed services will be forcefully stopped."
 msgstr "سيتم إيقاف الخدمات المدرجة بالقوة."
 
@@ -8173,11 +8141,11 @@ msgstr "لا يُسمح للمستخدم الذي قام بتسجيل الدخو
 msgid "The machine is rebooting"
 msgstr "تتم إعادة تشغيل الجهاز"
 
-#: pkg/storaged/dialog.jsx:1469
+#: pkg/storaged/dialog.jsx:1492
 msgid "The mount point $0 is in use by these processes:"
 msgstr "نقطة التركيب $0 مستخدمة من قبل هذه العمليات:"
 
-#: pkg/storaged/dialog.jsx:1489
+#: pkg/storaged/dialog.jsx:1512
 msgid "The mount point $0 is in use by these services:"
 msgstr "نقطة التركيب $0 مستخدمة من قبل هذه الخدمات:"
 
@@ -8251,7 +8219,7 @@ msgstr "المستخدم $0 غير مصرَّح له بتغيير سياسات �
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "المستخدم $0 غير مصرّح له باختبار تعطل نواة النظام"
 
-#: pkg/users/account-details.js:440
+#: pkg/users/account-details.js:449
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8308,7 +8276,7 @@ msgstr "حدث خطأ غير متوقع أثناء الاتصال بالجهاز
 msgid "These additional steps are necessary:"
 msgstr "هذه الخطوات الإضافية ضرورية:"
 
-#: pkg/storaged/dialog.jsx:1324
+#: pkg/storaged/dialog.jsx:1347
 msgid "These changes will be made:"
 msgstr "سيتم إجراء هذه التغييرات:"
 
@@ -8346,7 +8314,7 @@ msgstr "لا يمكن استخدام هذا الجهاز كهدف للتثبيت
 msgid "This device cannot be managed here."
 msgstr "لا يمكن إدارة هذا الجهاز هنا."
 
-#: pkg/storaged/dialog.jsx:1205
+#: pkg/storaged/dialog.jsx:1228
 msgid "This device is currently in use."
 msgstr "هذا الجهاز حالياً قيد الاستخدام."
 
@@ -8616,7 +8584,7 @@ msgstr ""
 "للتحقق من البصمة ، قم بتشغيل ما يلي على $0 أثناء تشغيل الجهاز أو من خلال "
 "شبكة موثوقة:"
 
-#: pkg/metrics/metrics.jsx:1880
+#: pkg/metrics/metrics.jsx:1873
 msgid "Today"
 msgstr "اليوم"
 
@@ -8681,7 +8649,7 @@ msgstr "تم تشغيله بواسطة"
 msgid "Triggers"
 msgstr "المشغِّلات"
 
-#: pkg/metrics/metrics.jsx:1840
+#: pkg/metrics/metrics.jsx:1833
 msgid "Troubleshoot"
 msgstr "استكشاف الأخطاء وإصلاحها"
 
@@ -8870,7 +8838,7 @@ msgstr "تعذر فك تركيب نظام الملفات"
 msgid "Unavailable packages"
 msgstr "الحزم غير المتاحة"
 
-#: pkg/users/account-details.js:441
+#: pkg/users/account-details.js:450
 msgid "Undo"
 msgstr "الرجوع للخلف"
 
@@ -9096,9 +9064,9 @@ msgstr "حالة التحديث..."
 msgid "Upload"
 msgstr "ارفع"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:128 pkg/metrics/metrics.jsx:1948
-#: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
-#: pkg/metrics/metrics.jsx:1951 pkg/storaged/stratis/pool.jsx:1044
+#: pkg/systemd/overview-cards/usageCard.jsx:128 pkg/metrics/metrics.jsx:1941
+#: pkg/metrics/metrics.jsx:1942 pkg/metrics/metrics.jsx:1943
+#: pkg/metrics/metrics.jsx:1944 pkg/storaged/stratis/pool.jsx:1044
 #: pkg/storaged/stratis/filesystem.jsx:256
 #: pkg/storaged/lvm2/physical-volume.jsx:122
 #: pkg/storaged/filesystem/filesystem.jsx:152
@@ -9111,11 +9079,11 @@ msgstr "الاستخدام"
 msgid "Usage of $0"
 msgstr "استخدام $0"
 
-#: pkg/storaged/dialog.jsx:1210
+#: pkg/storaged/dialog.jsx:1233
 msgid "Use"
 msgstr "استخدم"
 
-#: pkg/networkmanager/dialogs-common.jsx:107 pkg/storaged/dialog.jsx:693
+#: pkg/networkmanager/dialogs-common.jsx:107 pkg/storaged/dialog.jsx:716
 msgid "Use $0"
 msgstr "اشتخدم $0"
 
@@ -9153,7 +9121,7 @@ msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr "مفيد للتركيبات الإضافية أو التي تحتاج إلى تفاعل (مثل عبارات المرور)"
 
-#: pkg/systemd/services.jsx:928 pkg/storaged/dialog.jsx:1475
+#: pkg/systemd/services.jsx:928 pkg/storaged/dialog.jsx:1498
 msgid "User"
 msgstr "المستخدم"
 
@@ -9177,7 +9145,7 @@ msgstr "يجب أن يكون عنوان الـ ID للمستخدم أكبر من
 msgid "User ID must not be lower than $0"
 msgstr "يجب أن يكون عنوان الـ ID للمستخدم أصغر من $0"
 
-#: pkg/static/login.html:108 pkg/users/account-details.js:254
+#: pkg/static/login.html:108 pkg/users/account-details.js:262
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:463
 msgid "User name"
 msgstr "اسم المستخدِم"
@@ -9619,7 +9587,7 @@ msgstr "avc"
 msgid "average: $0%"
 msgstr "معدل: $0%"
 
-#: pkg/storaged/dialog.jsx:1187
+#: pkg/storaged/dialog.jsx:1210
 msgid "backing device for VDO device"
 msgstr "جهاز التخزين الأساسي لجهاز VDO"
 
@@ -9689,7 +9657,7 @@ msgstr "ذاكرة التخزين المؤقت"
 msgid "cgroups"
 msgstr "مجموعات التحكم"
 
-#: pkg/users/account-details.js:329
+#: pkg/users/account-details.js:338
 msgid "change"
 msgstr "غيّر"
 
@@ -9713,7 +9681,7 @@ msgstr "تفريغ الذاكرة الأساسية"
 msgid "cpu"
 msgstr "وحدة معالجة مركزية"
 
-#: pkg/kdump/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/kdump/manifest.json:0
 msgid "crash"
 msgstr "تعطل"
 
@@ -9744,7 +9712,7 @@ msgstr "التنقيح"
 msgid "delete"
 msgstr "حذف"
 
-#: pkg/storaged/dialog.jsx:1190
+#: pkg/storaged/dialog.jsx:1213
 msgid "device of btrfs volume"
 msgstr "جهاز وحدة تخزين btrfs"
 
@@ -9788,7 +9756,7 @@ msgstr "قرص صلب"
 #: pkg/storaged/crypto/encryption.jsx:237 pkg/storaged/filesystem/utils.jsx:221
 #: pkg/storaged/filesystem/filesystem.jsx:145
 #: pkg/storaged/partitions/partition.jsx:232 pkg/storaged/btrfs/volume.jsx:192
-#: pkg/users/account-details.js:283 pkg/users/account-details.js:313
+#: pkg/users/account-details.js:292 pkg/users/account-details.js:322
 msgid "edit"
 msgstr "عدِّل"
 
@@ -10026,11 +9994,11 @@ msgstr "قناع"
 msgid "max: $0%"
 msgstr "الحد الأقصى: $0٪"
 
-#: pkg/storaged/dialog.jsx:1186
+#: pkg/storaged/dialog.jsx:1209
 msgid "member of MDRAID device"
 msgstr "عضو في جهاز MDRAID"
 
-#: pkg/storaged/dialog.jsx:1188
+#: pkg/storaged/dialog.jsx:1211
 msgid "member of Stratis pool"
 msgstr "عضو في مجمع Stratis"
 
@@ -10068,7 +10036,7 @@ msgstr "ركِّب"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "الشَبكة"
 
@@ -10170,7 +10138,7 @@ msgstr "pcp"
 msgid "performance"
 msgstr "الأداء"
 
-#: pkg/storaged/dialog.jsx:1185
+#: pkg/storaged/dialog.jsx:1208
 msgid "physical volume of LVM2 volume group"
 msgstr "القرص المادي الخاص بمجموعة وحدة التخزين من نوع LVM2"
 
@@ -10178,15 +10146,15 @@ msgstr "القرص المادي الخاص بمجموعة وحدة التخزي�
 msgid "plugin"
 msgstr "ملحق"
 
-#: pkg/metrics/metrics.jsx:1837
+#: pkg/metrics/metrics.jsx:1830
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service فشلت"
 
-#: pkg/metrics/metrics.jsx:1839
+#: pkg/metrics/metrics.jsx:1832
 msgid "pmlogger.service is failing to collect data"
 msgstr "خدمة pmlogger غير قادرة على جمع البيانات"
 
-#: pkg/metrics/metrics.jsx:1832
+#: pkg/metrics/metrics.jsx:1825
 msgid "pmlogger.service is not running"
 msgstr "خدمة pmlogger.service ليست قيد العمل"
 
@@ -10307,7 +10275,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "تقرير sos فشل"
 
-#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 

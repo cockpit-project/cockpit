@@ -7,9 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-02 03:07+0000\n"
-"PO-Revision-Date: 2025-08-28 17:53+0000\n"
-"Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
+"POT-Creation-Date: 2025-09-08 03:07+0000\n"
+"PO-Revision-Date: 2025-09-03 06:53+0000\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
 "cockpit/sv/>\n"
 "Language: sv\n"
@@ -292,7 +293,7 @@ msgstr[1] "$0 uppdateringar tillgängliga"
 msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 använt av $1 ($2 sparat)"
 
-#: pkg/storaged/dialog.jsx:1402
+#: pkg/storaged/dialog.jsx:1425
 msgid "$0 used, $1 total"
 msgstr "$0 använt, $1 totalt"
 
@@ -320,7 +321,7 @@ msgstr "zon $0"
 msgid "$name (from $host)"
 msgstr "$name (från $host)"
 
-#: pkg/storaged/dialog.jsx:1304
+#: pkg/storaged/dialog.jsx:1327
 msgid "(Not part of target)"
 msgstr "(Inte del av mål)"
 
@@ -685,16 +686,16 @@ msgstr "Acceptabelt lösenord"
 msgid "Account expiration"
 msgstr "Utgång av konto"
 
-#: pkg/users/account-details.js:179
+#: pkg/users/account-details.js:101
 msgid "Account not available or cannot be edited."
 msgstr "Kontot är inte tillgängligt eller kan inte redigeras."
 
-#: pkg/users/account-details.js:228 pkg/users/accounts-list.js:232
+#: pkg/users/account-details.js:236 pkg/users/accounts-list.js:232
 #: pkg/users/accounts-list.js:448 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "Konton"
 
-#: pkg/storaged/dialog.jsx:1329
+#: pkg/storaged/dialog.jsx:1352
 msgid "Action"
 msgstr "Åtgärd"
 
@@ -918,28 +919,16 @@ msgstr ""
 "administrationsgränssnittet otillgängligt."
 
 #: pkg/storaged/stratis/pool.jsx:951
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid "Adding a keyserver requires unlocking the pool."
-msgstr ""
-"Att lägga till en nyckelserver kräver upplåsning av poolen. Ange den "
-"existerande poollösenfrasen."
+msgstr "Att lägga till en nyckelserver kräver upplåsning av poolen."
 
 #: pkg/storaged/stratis/pool.jsx:874
-#, fuzzy
-#| msgid ""
-#| "Saving a new passphrase requires unlocking the disk. Please provide a "
-#| "current disk passphrase."
 msgid "Adding a passphrase requires unlocking the pool."
-msgstr ""
-"Att spara en ny lösenfras kräver att disken låses upp. Ge en aktuell "
-"disklösenfras."
+msgstr "Att lägga till en lösenfras kräver att poolen låses upp."
 
 #: pkg/storaged/stratis/pool.jsx:522
 msgid "Adding blockdevices requires unlocking the pool."
-msgstr ""
+msgstr "Att lägga till blockenheter kräver att poolen låses upp."
 
 #: pkg/networkmanager/firewall.jsx:734
 msgid ""
@@ -1206,14 +1195,14 @@ msgid "At least one disk is needed."
 msgstr "Åtminstone en disk behövs."
 
 #: pkg/storaged/stratis/pool.jsx:322
-#, fuzzy
-#| msgid "At least one block device is needed."
 msgid "At least one keyserver must be reachable."
-msgstr "Åtminstone en blockenhet behövs."
+msgstr "Åtminstone en nyckelserver måste vara nåbar."
 
 #: pkg/storaged/stratis/pool.jsx:326
 msgid "At least one of the non-interactive unlock methods must work."
 msgstr ""
+"Åtminstone minst en av de icke-interaktiva upplåsningsmetoderna måste "
+"fungera."
 
 #: pkg/storaged/btrfs/subvolume.jsx:383
 msgid "At least one subvolume needs to be mounted"
@@ -1346,7 +1335,7 @@ msgstr "BIOS-datum"
 msgid "BIOS version"
 msgstr "BIOS-version"
 
-#: pkg/users/account-details.js:183
+#: pkg/users/account-details.js:105
 msgid "Back to accounts"
 msgstr "Tilllbaka till konton"
 
@@ -1476,7 +1465,7 @@ msgstr "Förbigå webbläsarkontroll"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:116
 #: pkg/metrics/metrics.jsx:114 pkg/metrics/metrics.jsx:784
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1948
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1941
 msgid "CPU"
 msgstr "CPU"
 
@@ -1492,7 +1481,7 @@ msgstr "CPU-säkerhetsinställningar"
 msgid "CPU usage"
 msgstr "CPU-användning"
 
-#: pkg/metrics/metrics.jsx:1938
+#: pkg/metrics/metrics.jsx:1931
 msgid "CPU usage/load"
 msgstr "CPU-användning/belastning"
 
@@ -1703,7 +1692,7 @@ msgstr "Kontrollerar MDRAID-enhet $target"
 msgid "Checking and repairing MDRAID device $target"
 msgstr "Kontrollera och reparera MDRAID-enhet $target"
 
-#: pkg/storaged/dialog.jsx:1386
+#: pkg/storaged/dialog.jsx:1409
 msgid "Checking filesystem usage"
 msgstr "Kontrollerar filsystemsanvändning"
 
@@ -1769,10 +1758,8 @@ msgid "Cleartext device"
 msgstr "Klar text enhet"
 
 #: pkg/storaged/stratis/pool.jsx:747 pkg/storaged/stratis/pool.jsx:811
-#, fuzzy
-#| msgid "e.g. \"$0\""
 msgid "Clevis \"$0\""
-msgstr "t.ex. ”$0”"
+msgstr "Clevis \"$0\""
 
 #: pkg/systemd/overview-cards/realmd.jsx:302
 msgid "Client software"
@@ -1882,8 +1869,8 @@ msgstr "Färg"
 msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr "Kommaseparerade portar, intervall och tjänster accepteras"
 
-#: pkg/systemd/timer-dialog.jsx:165 pkg/storaged/dialog.jsx:1474
-#: pkg/storaged/dialog.jsx:1494
+#: pkg/systemd/timer-dialog.jsx:165 pkg/storaged/dialog.jsx:1497
+#: pkg/storaged/dialog.jsx:1517
 msgid "Command"
 msgstr "Kommando"
 
@@ -2366,7 +2353,7 @@ msgstr "Nuvarande uppstart"
 msgid "Current top CPU usage"
 msgstr "Aktuell högsta CPU-användning"
 
-#: pkg/storaged/dialog.jsx:1253
+#: pkg/storaged/dialog.jsx:1276
 msgid "Currently in use"
 msgstr "Används just nu"
 
@@ -2591,7 +2578,7 @@ msgstr "Fördröjning måste vara en siffra"
 #: pkg/storaged/btrfs/subvolume.jsx:253 pkg/storaged/btrfs/subvolume.jsx:400
 #: pkg/storaged/mdraid/mdraid.jsx:133 pkg/storaged/mdraid/mdraid.jsx:240
 #: pkg/users/delete-account-dialog.js:60 pkg/users/delete-group-dialog.js:51
-#: pkg/users/account-details.js:219
+#: pkg/users/account-details.js:227
 msgid "Delete"
 msgstr "Ta bort"
 
@@ -2681,7 +2668,7 @@ msgid "Deletion will remove the following files:"
 msgstr "Radering kommer ta bort följande filer:"
 
 #: pkg/systemd/timer-dialog.jsx:157 pkg/networkmanager/firewall.jsx:722
-#: pkg/networkmanager/firewall.jsx:871 pkg/storaged/dialog.jsx:1495
+#: pkg/networkmanager/firewall.jsx:871 pkg/storaged/dialog.jsx:1518
 msgid "Description"
 msgstr "Beskrivning"
 
@@ -2703,11 +2690,11 @@ msgid "Development"
 msgstr "Utveckling"
 
 #: pkg/metrics/metrics.jsx:749 pkg/storaged/mdraid/mdraid.jsx:309
-#: pkg/storaged/dialog.jsx:1208 pkg/storaged/dialog.jsx:1327
+#: pkg/storaged/dialog.jsx:1231 pkg/storaged/dialog.jsx:1350
 msgid "Device"
 msgstr "Enhet"
 
-#: pkg/storaged/dialog.jsx:1406 pkg/storaged/dialog.jsx:1413
+#: pkg/storaged/dialog.jsx:1429 pkg/storaged/dialog.jsx:1436
 msgid "Device contains unrecognized data"
 msgstr "Enhet innehåller okänd data"
 
@@ -2766,7 +2753,7 @@ msgstr "Avaktivera tuned"
 msgid "Disabled"
 msgstr "Avaktiverad"
 
-#: pkg/users/account-details.js:268
+#: pkg/users/account-details.js:277
 msgid "Disallow interactive password"
 msgstr "Tillåt inte interaktivt lösenord"
 
@@ -2787,8 +2774,8 @@ msgid "Disconnected"
 msgstr "Frånkopplad"
 
 #: pkg/metrics/metrics.jsx:142 pkg/metrics/metrics.jsx:143
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1938
-#: pkg/metrics/metrics.jsx:1950
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1931
+#: pkg/metrics/metrics.jsx:1943
 msgid "Disk I/O"
 msgstr "Disk-I/O"
 
@@ -3106,10 +3093,8 @@ msgid "Encryption passphrase"
 msgstr "Krypteringslösenfras"
 
 #: pkg/storaged/stratis/pool.jsx:599
-#, fuzzy
-#| msgid "Encryption options"
 msgid "Encryption tokens"
-msgstr "Krypteringsalternativ"
+msgstr "Krypteringstokens"
 
 #: pkg/storaged/crypto/encryption.jsx:226
 msgid "Encryption type"
@@ -3170,7 +3155,7 @@ msgstr "Fel"
 msgid "Error and above"
 msgstr "Fel och högre"
 
-#: pkg/metrics/metrics.jsx:1854
+#: pkg/metrics/metrics.jsx:1847
 msgid "Error has occurred"
 msgstr "Fel har uppstått"
 
@@ -3404,7 +3389,7 @@ msgstr "Filsystem är monterade skrivskyddade"
 msgid "Filesystem name"
 msgstr "Filsystemsnamn"
 
-#: pkg/storaged/dialog.jsx:1189
+#: pkg/storaged/dialog.jsx:1212
 msgid "Filesystem outside the target"
 msgstr "Filsystem utanför mål"
 
@@ -3457,7 +3442,7 @@ msgstr "Textstorlek"
 msgid "Forbidden from running"
 msgstr "Kan ej köras"
 
-#: pkg/users/account-details.js:300
+#: pkg/users/account-details.js:309
 msgid "Force change"
 msgstr "Framtvinga ändring"
 
@@ -3491,7 +3476,7 @@ msgstr "Formatera och starta"
 msgid "Format only"
 msgstr "Formatera endast"
 
-#: pkg/storaged/block/format-dialog.jsx:399
+#: pkg/storaged/block/format-dialog.jsx:402
 msgid "Formatting erases all data on a storage device."
 msgstr "Formatering raderar all data på en lagringsenhet."
 
@@ -3515,7 +3500,7 @@ msgstr "Fredagar"
 msgid "From"
 msgstr "Från"
 
-#: pkg/users/account-details.js:240 pkg/users/accounts-list.js:381
+#: pkg/users/account-details.js:248 pkg/users/accounts-list.js:381
 #: pkg/users/account-create-dialog.js:68
 msgid "Full name"
 msgstr "Fullständigt namn"
@@ -3545,11 +3530,11 @@ msgstr "Gå till programmet"
 msgid "Go to now"
 msgstr "Gå till nu"
 
-#: pkg/metrics/metrics.jsx:1927
+#: pkg/metrics/metrics.jsx:1920
 msgid "Graph visibility"
 msgstr "Grafens synlighet"
 
-#: pkg/metrics/metrics.jsx:1924
+#: pkg/metrics/metrics.jsx:1917
 msgid "Graph visibility options menu"
 msgstr "Meny med alternativ för grafsynlighet"
 
@@ -3561,7 +3546,7 @@ msgstr "Grupp"
 msgid "Group name"
 msgstr "Gruppnamn"
 
-#: pkg/users/account-details.js:417 pkg/users/accounts-list.js:313
+#: pkg/users/account-details.js:426 pkg/users/accounts-list.js:313
 #: pkg/users/accounts-list.js:317
 msgid "Groups"
 msgstr "Grupper"
@@ -3649,7 +3634,7 @@ msgstr "Högre interoperabilitet till priset av en ökad attackyta."
 msgid "History package count"
 msgstr "Historiepaketantal"
 
-#: pkg/users/account-details.js:318 pkg/users/account-create-dialog.js:84
+#: pkg/users/account-details.js:327 pkg/users/account-create-dialog.js:84
 msgid "Home directory"
 msgstr "Hemkatalog"
 
@@ -3693,7 +3678,7 @@ msgstr "Timmar"
 msgid "How to check"
 msgstr "Hur man kontrollerar"
 
-#: pkg/storaged/dialog.jsx:1422
+#: pkg/storaged/dialog.jsx:1445
 msgid "I confirm I want to lose this data forever"
 msgstr "Jag bekräftar att jag vill förlora denna data för alltid"
 
@@ -3762,26 +3747,19 @@ msgstr ""
 "porttjänster och portnummer"
 
 #: pkg/storaged/stratis/pool.jsx:308
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If none of the keyservers is reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"Att lägga till en nyckelserver kräver upplåsning av poolen. Ange den "
-"existerande poollösenfrasen."
+"Om ingen av nyckelservrarna är nåbara kan du ange en befintlig lösenfras."
 
 #: pkg/storaged/stratis/pool.jsx:312
-#, fuzzy
-#| msgid ""
-#| "The disk needs to be unlocked before formatting. Please provide an "
-#| "existing passphrase."
 msgid ""
 "If none of the non-interactive unlock methods works, you can provide an "
 "existing passphrase."
-msgstr "Disken måste låsas upp innan formatering. Ange en befintlig lösenfras."
+msgstr ""
+"Om ingen av de icke-interaktiva upplåsningsmetoderna fungerar kan du ange en "
+"befintlig lösenfras."
 
 #: pkg/static/login.html:102
 msgid ""
@@ -3800,23 +3778,18 @@ msgstr ""
 "Annars, anslut inte och kontakta din administratör."
 
 #: pkg/storaged/stratis/pool.jsx:306
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If the keyserver at $0 is not reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"Att lägga till en nyckelserver kräver upplåsning av poolen. Ange den "
-"existerande poollösenfrasen."
+"Om nyckelservern på $0 inte kan nås kan du ange en befintlig lösenfras."
 
 #: pkg/networkmanager/ip-settings.jsx:44 pkg/packagekit/updates.jsx:675
 #: pkg/packagekit/updates.jsx:757
 msgid "Ignore"
 msgstr "Ignorera"
 
-#: pkg/storaged/dialog.jsx:1358
+#: pkg/storaged/dialog.jsx:1381
 msgid "Important data might be deleted:"
 msgstr "Viktig data kan raderas:"
 
@@ -3921,7 +3894,7 @@ msgstr "Installera"
 msgid "Install NFS support"
 msgstr "Installera stöd för NFS"
 
-#: pkg/metrics/metrics.jsx:1824
+#: pkg/metrics/metrics.jsx:1817
 msgid "Install PCP support"
 msgstr "Installera PCP-stöd"
 
@@ -4143,7 +4116,7 @@ msgstr "Journalpost"
 msgid "Journal entry not found"
 msgstr "Journalposten hittades inte"
 
-#: pkg/metrics/metrics.jsx:1920
+#: pkg/metrics/metrics.jsx:1913
 msgid "Jump to"
 msgstr "Hoppa till"
 
@@ -4287,7 +4260,7 @@ msgstr "Senast kontrollerad: $0 sedan"
 msgid "Last disk can not be removed"
 msgstr "Den senaste disken kan inte tas bort"
 
-#: pkg/users/account-details.js:258
+#: pkg/users/account-details.js:266
 msgid "Last login"
 msgstr "Senaste inloggning"
 
@@ -4300,10 +4273,8 @@ msgid "Last successful login:"
 msgstr "Senaste lyckade inloggning:"
 
 #: pkg/storaged/stratis/pool.jsx:768
-#, fuzzy
-#| msgid "Last disk can not be removed"
 msgid "Last token can not be removed"
-msgstr "Den senaste disken kan inte tas bort"
+msgstr "Den sista token kan inte tas bort"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:294
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:192
@@ -4423,7 +4394,7 @@ msgid "Listing units failed: $0"
 msgstr "Misslyckades att lista enheter: $0"
 
 #: pkg/metrics/metrics.jsx:120 pkg/metrics/metrics.jsx:121
-#: pkg/metrics/metrics.jsx:813 pkg/metrics/metrics.jsx:1948
+#: pkg/metrics/metrics.jsx:813 pkg/metrics/metrics.jsx:1941
 msgid "Load"
 msgstr "Belastning"
 
@@ -4431,7 +4402,7 @@ msgstr "Belastning"
 msgid "Load balancing"
 msgstr "Lastbalansering"
 
-#: pkg/metrics/metrics.jsx:1984
+#: pkg/metrics/metrics.jsx:1977
 msgid "Load earlier data"
 msgstr "Läs in tidigare data"
 
@@ -4473,8 +4444,8 @@ msgstr "Läsa in enhet misslyckades"
 
 #: pkg/systemd/logsJournal.jsx:268 pkg/systemd/services.jsx:684
 #: pkg/systemd/service.jsx:132 pkg/systemd/logDetails.jsx:172
-#: pkg/kdump/kdump-view.jsx:456 pkg/metrics/metrics.jsx:1983
-#: pkg/storaged/storaged.jsx:66 pkg/users/account-details.js:169
+#: pkg/kdump/kdump-view.jsx:456 pkg/metrics/metrics.jsx:1976
+#: pkg/storaged/storaged.jsx:66 pkg/users/account-details.js:193
 #: pkg/users/accounts-list.js:318 pkg/users/accounts-list.js:339
 #: pkg/users/accounts-list.js:454
 msgid "Loading..."
@@ -4501,7 +4472,7 @@ msgid "Local, $0"
 msgstr "Lokal, $0"
 
 #: pkg/kdump/kdump-view.jsx:233 pkg/storaged/pages.jsx:728
-#: pkg/storaged/dialog.jsx:1209 pkg/storaged/dialog.jsx:1328
+#: pkg/storaged/dialog.jsx:1232 pkg/storaged/dialog.jsx:1351
 msgid "Location"
 msgstr "Plats"
 
@@ -4526,7 +4497,7 @@ msgstr "Lås kontot"
 msgid "Locked data"
 msgstr "Låst data"
 
-#: pkg/storaged/dialog.jsx:1410
+#: pkg/storaged/dialog.jsx:1433
 msgid "Locked encrypted device might contain data"
 msgstr "Låst krypterad enhet kan innehålla data"
 
@@ -4559,7 +4530,7 @@ msgstr "Logga ut"
 msgid "Log user out"
 msgstr "Logga ut användare"
 
-#: pkg/users/account-details.js:204 pkg/users/accounts-list.js:161
+#: pkg/users/account-details.js:212 pkg/users/accounts-list.js:161
 msgid "Logged in"
 msgstr "Inloggad"
 
@@ -4800,7 +4771,7 @@ msgstr "Media enhet"
 #: pkg/systemd/overview-cards/usageCard.jsx:145 pkg/systemd/hwinfo.jsx:294
 #: pkg/systemd/hwinfo.jsx:338 pkg/systemd/service-details.jsx:677
 #: pkg/metrics/metrics.jsx:128 pkg/metrics/metrics.jsx:844
-#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1949
+#: pkg/metrics/metrics.jsx:1567 pkg/metrics/metrics.jsx:1942
 msgid "Memory"
 msgstr "Minne"
 
@@ -4812,7 +4783,7 @@ msgstr "Minnesteknologi"
 msgid "Memory usage"
 msgstr "Minnesanvändning"
 
-#: pkg/metrics/metrics.jsx:1938
+#: pkg/metrics/metrics.jsx:1931
 msgid "Memory usage/swap"
 msgstr "Minnesanvändning/swap"
 
@@ -4829,10 +4800,8 @@ msgid "Messages related to the failure might be found in the journal:"
 msgstr "Meddelanden angående detta fel kan finnas i journalen:"
 
 #: pkg/storaged/stratis/pool.jsx:1018
-#, fuzzy
-#| msgid "Invalid date format"
 msgid "Metadata format"
-msgstr "Felaktigt datumformat"
+msgstr "Metadata format"
 
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:144
 #: pkg/storaged/lvm2/vdo-pool.jsx:83
@@ -4847,11 +4816,11 @@ msgstr "Metod"
 msgid "Metric"
 msgstr "Mått"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2008
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:2001
 msgid "Metrics and history"
 msgstr "Mått och historik"
 
-#: pkg/metrics/metrics.jsx:1845
+#: pkg/metrics/metrics.jsx:1838
 msgid "Metrics history could not be loaded"
 msgstr "Metrikhistoriken kunde inte läsas in"
 
@@ -5125,7 +5094,7 @@ msgid "Need at least one NTP server"
 msgstr "Behöver åtminstone en NTP-server"
 
 #: pkg/metrics/metrics.jsx:943 pkg/metrics/metrics.jsx:1567
-#: pkg/metrics/metrics.jsx:1938 pkg/metrics/metrics.jsx:1951
+#: pkg/metrics/metrics.jsx:1931 pkg/metrics/metrics.jsx:1944
 msgid "Network"
 msgstr "Nätverk"
 
@@ -5168,7 +5137,7 @@ msgstr "Nätverkslagring"
 msgid "Networking"
 msgstr "Nätverk"
 
-#: pkg/users/account-details.js:206
+#: pkg/users/account-details.js:214
 msgid "Never"
 msgstr "Aldrig"
 
@@ -5257,11 +5226,11 @@ msgstr "Ingen bärvåg"
 msgid "No configuration found"
 msgstr "Ingen konfiguration hittad"
 
-#: pkg/metrics/metrics.jsx:1874
+#: pkg/metrics/metrics.jsx:1867
 msgid "No data available"
 msgstr "Ingen data tillgänglig"
 
-#: pkg/metrics/metrics.jsx:1870
+#: pkg/metrics/metrics.jsx:1863
 msgid "No data available between $0 and $1"
 msgstr "Ingen data tillgänglig mellan $0 och $1"
 
@@ -5367,7 +5336,7 @@ msgstr "Inget medium isatt"
 
 #: pkg/storaged/stratis/pool.jsx:776
 msgid "No more space for passphrases or keyservers."
-msgstr ""
+msgstr "Inget mer utrymme för lösenfraser eller nyckelservrar."
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:58
 msgid "No partitioning"
@@ -5632,7 +5601,7 @@ msgstr "Åtgärden ”$operation” på $target"
 #: pkg/storaged/stratis/filesystem.jsx:207
 #: pkg/storaged/stratis/create-dialog.jsx:102
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:224
-#: pkg/storaged/crypto/encryption.jsx:235 pkg/users/account-details.js:261
+#: pkg/storaged/crypto/encryption.jsx:235 pkg/users/account-details.js:269
 msgid "Options"
 msgstr "Alternativ"
 
@@ -5644,7 +5613,7 @@ msgstr "Eller använd en medpackad bläddrare"
 msgid "Other"
 msgstr "Annan"
 
-#: pkg/users/account-details.js:271 pkg/users/account-create-dialog.js:131
+#: pkg/users/account-details.js:280 pkg/users/account-create-dialog.js:131
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -5665,7 +5634,7 @@ msgstr "Ut"
 msgid "Overprovisioning"
 msgstr "Överprovisionering"
 
-#: pkg/systemd/hwinfo.jsx:311 pkg/metrics/metrics.jsx:2007
+#: pkg/systemd/hwinfo.jsx:311 pkg/metrics/metrics.jsx:2000
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Översikt"
@@ -5684,11 +5653,11 @@ msgstr "Skriv över befintlig data med nollor (långsammare)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1823
+#: pkg/metrics/metrics.jsx:1816
 msgid "PCP is missing for metrics history"
 msgstr "PCP saknas för statistikhistorik"
 
-#: pkg/storaged/dialog.jsx:1473
+#: pkg/storaged/dialog.jsx:1496
 msgid "PID"
 msgstr "PID"
 
@@ -5812,7 +5781,7 @@ msgid "Passphrases do not match"
 msgstr "Lösenfraserna stämmer inte överens"
 
 #: pkg/static/login.html:113 pkg/storaged/iscsi/create-dialog.jsx:34
-#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/users/account-details.js:288
+#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/superuser.tsx:174
 #: pkg/shell/credentials.tsx:177 pkg/shell/credentials.tsx:236
@@ -6037,14 +6006,8 @@ msgid "Please install the $0 package"
 msgstr "Installera paketet $0"
 
 #: pkg/storaged/stratis/pool.jsx:304
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid "Please provide an existing pool passphrase."
-msgstr ""
-"Att lägga till en nyckelserver kräver upplåsning av poolen. Ange den "
-"existerande poollösenfrasen."
+msgstr "Vänligen ange en befintligt lösenfras för poolen."
 
 #: pkg/packagekit/updates.jsx:1582
 msgid "Please resolve the issue and reload this page."
@@ -6083,6 +6046,8 @@ msgid ""
 "Pools with metadata format V1 are restricted to at most one passphrase and "
 "at most one keyserver."
 msgstr ""
+"Pooler med metadataformat V1 är begränsade till högst en lösenfras och högst "
+"en nyckelserver."
 
 #: pkg/storaged/iscsi/create-dialog.jsx:111 pkg/shell/hosts_dialog.jsx:564
 msgid "Port"
@@ -6157,7 +6122,7 @@ msgstr "Privatnyckel"
 msgid "Problem becoming administrator"
 msgstr "Problem med att bli administratör"
 
-#: pkg/storaged/dialog.jsx:1242
+#: pkg/storaged/dialog.jsx:1265
 msgid "Processes using the location"
 msgstr "Processer som använder platsen"
 
@@ -6422,15 +6387,15 @@ msgstr "Regenererar initrd"
 msgid "Register…"
 msgstr "Registrera …"
 
-#: pkg/storaged/dialog.jsx:1374
+#: pkg/storaged/dialog.jsx:1397
 msgid "Related processes and services will be forcefully stopped."
 msgstr "Relaterade processer och tjänster kommer tvingas stoppa."
 
-#: pkg/storaged/dialog.jsx:1376
+#: pkg/storaged/dialog.jsx:1399
 msgid "Related processes will be forcefully stopped."
 msgstr "Relaterade processer kommer tvingas stoppa."
 
-#: pkg/storaged/dialog.jsx:1378
+#: pkg/storaged/dialog.jsx:1401
 msgid "Related services will be forcefully stopped."
 msgstr "Relaterade tjänster kommer tvingas stoppa."
 
@@ -6479,10 +6444,8 @@ msgid "Remote over SSH, $0"
 msgstr "Fjärr över SSH, $0"
 
 #: pkg/storaged/stratis/pool.jsx:975
-#, fuzzy
-#| msgid "Keyserver removal may prevent unlocking $0."
 msgid "Removal may prevent unlocking $0."
-msgstr "Att ta bort nyckelservern kan förhindra upplåsning av $0."
+msgstr "Borttagning kan förhindra att $0 låses upp."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:82
 msgid "Removals:"
@@ -6514,10 +6477,8 @@ msgid "Remove $0?"
 msgstr "Ta bort $0?"
 
 #: pkg/storaged/stratis/pool.jsx:972
-#, fuzzy
-#| msgid "Remove device"
 msgid "Remove Clevis token?"
-msgstr "Ta bort enhet"
+msgstr "Ta bort Clevis-token?"
 
 #: pkg/storaged/stratis/pool.jsx:972 pkg/storaged/crypto/keyslots.jsx:663
 msgid "Remove Tang keyserver?"
@@ -7136,7 +7097,7 @@ msgstr "Serverprogramvara"
 #: pkg/networkmanager/firewall.jsx:193 pkg/metrics/metrics.jsx:776
 #: pkg/metrics/metrics.jsx:777 pkg/metrics/metrics.jsx:832
 #: pkg/metrics/metrics.jsx:870 pkg/metrics/metrics.jsx:930
-#: pkg/metrics/metrics.jsx:936 pkg/storaged/dialog.jsx:1493
+#: pkg/metrics/metrics.jsx:936 pkg/storaged/dialog.jsx:1516
 msgid "Service"
 msgstr "Tjänst"
 
@@ -7154,7 +7115,7 @@ msgstr "Tjänsteloggar"
 msgid "Services"
 msgstr "Tjänster"
 
-#: pkg/storaged/dialog.jsx:1228
+#: pkg/storaged/dialog.jsx:1251
 msgid "Services using the location"
 msgstr "Tjänster som använder platsen"
 
@@ -7186,7 +7147,7 @@ msgstr "Ställ in gräns för storlek på virtuellt filsystem"
 msgid "Set partition type of $0"
 msgstr "Ställ in partitionstyp till $0"
 
-#: pkg/users/account-details.js:293 pkg/users/password-dialogs.js:226
+#: pkg/users/account-details.js:302 pkg/users/password-dialogs.js:226
 #: pkg/users/password-dialogs.js:233
 msgid "Set password"
 msgstr "Sätt lösenord"
@@ -7234,7 +7195,7 @@ msgstr "Allvarsgrad"
 msgid "Shared"
 msgstr "Delad"
 
-#: pkg/users/account-details.js:321 pkg/users/account-create-dialog.js:93
+#: pkg/users/account-details.js:330 pkg/users/account-create-dialog.js:93
 msgid "Shell"
 msgstr "Skal"
 
@@ -7329,23 +7290,23 @@ msgstr "Ensam ordning"
 msgid "Size"
 msgstr "Storlek"
 
-#: pkg/storaged/dialog.jsx:1133
+#: pkg/storaged/dialog.jsx:1156
 msgid "Size cannot be negative"
 msgstr "Storleken kan inte vara negativ"
 
-#: pkg/storaged/dialog.jsx:1131
+#: pkg/storaged/dialog.jsx:1154
 msgid "Size cannot be zero"
 msgstr "Storleken kan inte vara noll"
 
-#: pkg/storaged/dialog.jsx:1135
+#: pkg/storaged/dialog.jsx:1158
 msgid "Size is too large"
 msgstr "Storleken är för stor"
 
-#: pkg/storaged/dialog.jsx:1129
+#: pkg/storaged/dialog.jsx:1152
 msgid "Size must be a number"
 msgstr "Storleken måste vara ett tal"
 
-#: pkg/storaged/dialog.jsx:1137
+#: pkg/storaged/dialog.jsx:1160
 msgid "Size must be at least $0"
 msgstr "Storleken måste vara åtminstone $0"
 
@@ -7498,7 +7459,7 @@ msgstr "Börja visa poster på eller nyare än det angivna datumet."
 msgid "Start showing entries on or older than the specified date."
 msgstr "Börja visa poster på eller äldre än det angivna datumet."
 
-#: pkg/storaged/dialog.jsx:1476 pkg/storaged/dialog.jsx:1496
+#: pkg/storaged/dialog.jsx:1499 pkg/storaged/dialog.jsx:1519
 #: pkg/users/account-logs-panel.jsx:77
 msgid "Started"
 msgstr "Startad"
@@ -7682,7 +7643,7 @@ msgid "Sundays"
 msgstr "Söndagar"
 
 #: pkg/metrics/metrics.jsx:135 pkg/metrics/metrics.jsx:689
-#: pkg/metrics/metrics.jsx:1949 pkg/storaged/swap/swap.jsx:88
+#: pkg/metrics/metrics.jsx:1942 pkg/storaged/swap/swap.jsx:88
 msgid "Swap"
 msgstr "Växlingsutrymme"
 
@@ -7818,7 +7779,7 @@ msgstr "Temperatur utanför rekommenderade gränsvärden"
 msgid "Terminal"
 msgstr "Terminal"
 
-#: pkg/users/account-details.js:214
+#: pkg/users/account-details.js:222
 msgid "Terminate session"
 msgstr "Avsluta sessionen"
 
@@ -8056,7 +8017,7 @@ msgstr "Nyckeln du angav var inte giltig."
 
 #: pkg/storaged/stratis/pool.jsx:320
 msgid "The keyserver at $0 must be reachable."
-msgstr ""
+msgstr "Nyckelservern på $0 måste vara nåbar."
 
 #: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
@@ -8066,15 +8027,15 @@ msgstr "Det sista nyckelfacket kan inte tas bort"
 msgid "The last mounted subvolume can not be deleted"
 msgstr "Den sista monterade undervolymen kan inte tas bort"
 
-#: pkg/storaged/dialog.jsx:1511
+#: pkg/storaged/dialog.jsx:1534
 msgid "The listed processes and services will be forcefully stopped."
 msgstr "De listade processerna och tjänsterna kommer tvingas stoppa."
 
-#: pkg/storaged/dialog.jsx:1513
+#: pkg/storaged/dialog.jsx:1536
 msgid "The listed processes will be forcefully stopped."
 msgstr "De listade processerna kommer att tvingas stoppa."
 
-#: pkg/storaged/dialog.jsx:1515
+#: pkg/storaged/dialog.jsx:1538
 msgid "The listed services will be forcefully stopped."
 msgstr "De listade tjänsterna kommer att tvingas stoppa."
 
@@ -8086,11 +8047,11 @@ msgstr "Den inloggade användaren har inte tillåtelse att se systemändringar"
 msgid "The machine is rebooting"
 msgstr "Maskinen startar om"
 
-#: pkg/storaged/dialog.jsx:1469
+#: pkg/storaged/dialog.jsx:1492
 msgid "The mount point $0 is in use by these processes:"
 msgstr "Monteringspunkten $0 används av dessa processer:"
 
-#: pkg/storaged/dialog.jsx:1489
+#: pkg/storaged/dialog.jsx:1512
 msgid "The mount point $0 is in use by these services:"
 msgstr "Monteringspunkten $0 används av dessa tjänster:"
 
@@ -8165,7 +8126,7 @@ msgstr "Användaren $0 har inte rättighet att ändra kryptografisk policy"
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "Användaren $0 har inte tillåtelse att testa att krascha kärnan"
 
-#: pkg/users/account-details.js:440
+#: pkg/users/account-details.js:449
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8225,7 +8186,7 @@ msgstr "Det uppstod ett oväntat fel vid anslutning till maskinen."
 msgid "These additional steps are necessary:"
 msgstr "Dessa ytterligare steg är nödvändiga:"
 
-#: pkg/storaged/dialog.jsx:1324
+#: pkg/storaged/dialog.jsx:1347
 msgid "These changes will be made:"
 msgstr "Dessa ändringar kommer att göras:"
 
@@ -8263,7 +8224,7 @@ msgstr "Den här enheten kan inte användas för installationsmålet."
 msgid "This device cannot be managed here."
 msgstr "Denna enhet kan inte hanteras här."
 
-#: pkg/storaged/dialog.jsx:1205
+#: pkg/storaged/dialog.jsx:1228
 msgid "This device is currently in use."
 msgstr "Den här enheten används för närvarande."
 
@@ -8489,7 +8450,7 @@ msgstr "Tid"
 
 #: pkg/packagekit/updates.jsx:595
 msgid "Time remaining: "
-msgstr ""
+msgstr "Återstående tid: "
 
 #: pkg/lib/serverTime.js:574
 msgid "Time zone"
@@ -8542,7 +8503,7 @@ msgstr ""
 "För att verifiera ett fingeravtryck, kör följande på $0 medan du fysiskt "
 "sitter vid maskinen eller genom ett pålitligt nätverk:"
 
-#: pkg/metrics/metrics.jsx:1880
+#: pkg/metrics/metrics.jsx:1873
 msgid "Today"
 msgstr "Idag"
 
@@ -8607,7 +8568,7 @@ msgstr "Utlöst av"
 msgid "Triggers"
 msgstr "Utlösare"
 
-#: pkg/metrics/metrics.jsx:1840
+#: pkg/metrics/metrics.jsx:1833
 msgid "Troubleshoot"
 msgstr "Felsök"
 
@@ -8797,7 +8758,7 @@ msgstr "Kan inte avmontera filsystem"
 msgid "Unavailable packages"
 msgstr "Otillgängliga paket"
 
-#: pkg/users/account-details.js:441
+#: pkg/users/account-details.js:450
 msgid "Undo"
 msgstr "Ångra"
 
@@ -8982,10 +8943,8 @@ msgid "Update package information"
 msgstr "Uppdatera paketinformation"
 
 #: pkg/packagekit/updates.jsx:595
-#, fuzzy
-#| msgid "Update log"
 msgid "Update progress"
-msgstr "Uppdatera loggen"
+msgstr "Uppdateringsförlopp"
 
 #: pkg/packagekit/updates.jsx:680 pkg/packagekit/updates.jsx:744
 msgid "Update was successful"
@@ -9023,9 +8982,9 @@ msgstr "Uppdaterar status..."
 msgid "Upload"
 msgstr "Ladda upp"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:128 pkg/metrics/metrics.jsx:1948
-#: pkg/metrics/metrics.jsx:1949 pkg/metrics/metrics.jsx:1950
-#: pkg/metrics/metrics.jsx:1951 pkg/storaged/stratis/pool.jsx:1044
+#: pkg/systemd/overview-cards/usageCard.jsx:128 pkg/metrics/metrics.jsx:1941
+#: pkg/metrics/metrics.jsx:1942 pkg/metrics/metrics.jsx:1943
+#: pkg/metrics/metrics.jsx:1944 pkg/storaged/stratis/pool.jsx:1044
 #: pkg/storaged/stratis/filesystem.jsx:256
 #: pkg/storaged/lvm2/physical-volume.jsx:122
 #: pkg/storaged/filesystem/filesystem.jsx:152
@@ -9038,11 +8997,11 @@ msgstr "Användning"
 msgid "Usage of $0"
 msgstr "Användning av $0"
 
-#: pkg/storaged/dialog.jsx:1210
+#: pkg/storaged/dialog.jsx:1233
 msgid "Use"
 msgstr "Använd"
 
-#: pkg/networkmanager/dialogs-common.jsx:107 pkg/storaged/dialog.jsx:693
+#: pkg/networkmanager/dialogs-common.jsx:107 pkg/storaged/dialog.jsx:716
 msgid "Use $0"
 msgstr "Använd $0"
 
@@ -9082,7 +9041,7 @@ msgstr ""
 "Användbart för monteringar som är valfria eller behöver interaktion (som "
 "lösenfraser)"
 
-#: pkg/systemd/services.jsx:928 pkg/storaged/dialog.jsx:1475
+#: pkg/systemd/services.jsx:928 pkg/storaged/dialog.jsx:1498
 msgid "User"
 msgstr "Användare"
 
@@ -9106,7 +9065,7 @@ msgstr "Användar-ID måste inte vara högre än $0"
 msgid "User ID must not be lower than $0"
 msgstr "Användar-ID får inte vara lägre än $0"
 
-#: pkg/static/login.html:108 pkg/users/account-details.js:254
+#: pkg/static/login.html:108 pkg/users/account-details.js:262
 #: pkg/users/account-create-dialog.js:76 pkg/shell/hosts_dialog.jsx:463
 msgid "User name"
 msgstr "Användarnamn"
@@ -9555,7 +9514,7 @@ msgstr "avc"
 msgid "average: $0%"
 msgstr "genomsnitt: $0%"
 
-#: pkg/storaged/dialog.jsx:1187
+#: pkg/storaged/dialog.jsx:1210
 msgid "backing device for VDO device"
 msgstr "bakomliggande enhet för VDO-enheten"
 
@@ -9625,7 +9584,7 @@ msgstr "cache"
 msgid "cgroups"
 msgstr "cgroups"
 
-#: pkg/users/account-details.js:329
+#: pkg/users/account-details.js:338
 msgid "change"
 msgstr "ändra"
 
@@ -9649,7 +9608,7 @@ msgstr "coredump"
 msgid "cpu"
 msgstr "cpu"
 
-#: pkg/kdump/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/kdump/manifest.json:0
 msgid "crash"
 msgstr "krasch"
 
@@ -9680,7 +9639,7 @@ msgstr "felsök"
 msgid "delete"
 msgstr "ta bort"
 
-#: pkg/storaged/dialog.jsx:1190
+#: pkg/storaged/dialog.jsx:1213
 msgid "device of btrfs volume"
 msgstr "enhet av btrfs volym"
 
@@ -9724,7 +9683,7 @@ msgstr "disk"
 #: pkg/storaged/crypto/encryption.jsx:237 pkg/storaged/filesystem/utils.jsx:221
 #: pkg/storaged/filesystem/filesystem.jsx:145
 #: pkg/storaged/partitions/partition.jsx:232 pkg/storaged/btrfs/volume.jsx:192
-#: pkg/users/account-details.js:283 pkg/users/account-details.js:313
+#: pkg/users/account-details.js:292 pkg/users/account-details.js:322
 msgid "edit"
 msgstr "redigera"
 
@@ -9962,11 +9921,11 @@ msgstr "mask"
 msgid "max: $0%"
 msgstr "max: $0%"
 
-#: pkg/storaged/dialog.jsx:1186
+#: pkg/storaged/dialog.jsx:1209
 msgid "member of MDRAID device"
 msgstr "medlem i MDRAID-enhet"
 
-#: pkg/storaged/dialog.jsx:1188
+#: pkg/storaged/dialog.jsx:1211
 msgid "member of Stratis pool"
 msgstr "medlem i Stratis pool"
 
@@ -9991,10 +9950,8 @@ msgid "more details"
 msgstr "mer detaljer"
 
 #: pkg/storaged/pages.jsx:844
-#, fuzzy
-#| msgid "More info..."
 msgid "more info"
-msgstr "Mer information..."
+msgstr "mer information"
 
 #: pkg/storaged/utils.js:854 pkg/storaged/manifest.json:0
 msgid "mount"
@@ -10004,7 +9961,7 @@ msgstr "montering"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "nätverk"
 
@@ -10102,7 +10059,7 @@ msgstr "pcp"
 msgid "performance"
 msgstr "prestanda"
 
-#: pkg/storaged/dialog.jsx:1185
+#: pkg/storaged/dialog.jsx:1208
 msgid "physical volume of LVM2 volume group"
 msgstr "fysisk volym på LVM2 volymgrupp"
 
@@ -10110,15 +10067,15 @@ msgstr "fysisk volym på LVM2 volymgrupp"
 msgid "plugin"
 msgstr "insticksmodul"
 
-#: pkg/metrics/metrics.jsx:1837
+#: pkg/metrics/metrics.jsx:1830
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service har misslyckats"
 
-#: pkg/metrics/metrics.jsx:1839
+#: pkg/metrics/metrics.jsx:1832
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service misslyckas att samla in data"
 
-#: pkg/metrics/metrics.jsx:1832
+#: pkg/metrics/metrics.jsx:1825
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service körs inte"
 
@@ -10239,7 +10196,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "sos rapportering misslyckades"
 
-#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 

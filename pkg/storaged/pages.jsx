@@ -847,7 +847,7 @@ export const StoragePage = ({ location, plot_state }) => {
     const page = get_page_from_location(location);
 
     return (
-        <Page id="storage" className={"no-masthead-sidebar" + (client.in_anaconda_mode() ? " storage-anaconda" : "")}>
+        <Page id="storage" className={"no-masthead-sidebar" + (client.in_anaconda_mode() ? " anaconda" : "")}>
             { (!client.in_anaconda_mode() && page.parent) &&
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <StorageBreadcrumb page={page} />

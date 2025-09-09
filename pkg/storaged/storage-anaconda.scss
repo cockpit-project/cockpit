@@ -19,3 +19,15 @@
     --pf-v6-c-card--BorderColor: transparent;
   }
 }
+
+body:has(.anaconda) {
+  // HACK - https://github.com/patternfly/patternfly-react/issues/11987
+  // Allow scrolling if a dropdown menu gets positioned outside the bounds of the window.
+  // This is easier to reproduce on 1080p or lower resolutions
+  // remove this once the proper fix is implemented on PF and the rest of cockpit
+  // (see https://bugzilla.redhat.com/show_bug.cgi?id=2388785)
+  overflow-y: auto !important;
+  // containers like pf-v6-c-page won't expand with the viewport when dropdown menus are created
+  // on lower resolutions, so we force all background to match the default
+  background: var(--pf-t--global--background--color--primary--default);
+}

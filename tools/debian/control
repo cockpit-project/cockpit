@@ -154,6 +154,11 @@ Description: Cockpit Web Service
  .
  Install sssd-dbus for supporting client certificate/smart card authentication
  via sssd/FreeIPA.
+ .
+ Install python3 for running cockpit-desktop. That presents Cockpit in a
+ WebKit view or a web browser without having to run cockpit.service. That
+ feature additionally needs either gir1.2-webkit2-* or a web browser
+ installed.
 
 Package: cockpit-sosreport
 Architecture: all

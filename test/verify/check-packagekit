@@ -1841,5 +1841,70 @@ WantedBy=basic.target
         b.wait_visible("#automatic-updates-dialog")
 
 
+@testlib.skipOstree("Image uses OSTree")
+@testlib.nondestructive
+class TestInstallDialog(NoSubManCase):
+
+    def show_install_dialog(self, *packages: str):
+        b = self.browser
+        b.set_input_text("#install-packages", ",".join(packages))
+        b.click("#install-button")
+        b.wait_in_text("#dialog", "Install software")
+
+    def install_packages(self):
+        b = self.browser
+        b.click("#dialog button:contains('Install')")
+        # assert some progress
+        b.wait_not_present("#dialog")
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        # dummy package
+        self.createPackage("dummy", "1", "1")
+
+        # package which depends on another package
+        self.createPackage("test-webserver", "998", "1", depends="test-webengine")
+        self.createPackage("test-webengine", "998", "1")
+
+        # package which conflicts with another package
+        self.createPackage("ok-software", "998", "1", install=True)
+        self.createPackage("breaking-software", "999", "1", conflicts="ok-software")
+
+        # Test error condition, package not being available yet
+        self.login_and_go('/playground/packagemanager')
+        b.wait_in_text("#install-card-title", "Install dialog test")
+        self.show_install_dialog("dummy")
+        b.wait_in_text("#dialog .pf-v6-c-alert__title", "dummy is not available from any repository.")
+        b.wait_visible("#dialog button.pf-m-primary:disabled")
+        b.click("#dialog button.cancel")
+        b.wait_not_present("#dialog")
+
+        # Install dummy which is now available
+        # Also works around https://github.com/PackageKit/PackageKit/issues/893
+        self.enableRepo()
+        if self.backend != "dnf5":
+            m.execute("pkcon refresh force")
+
+        self.show_install_dialog("dummy")
+        b.wait_in_text("#dialog", "dummy will be installed.")
+        self.install_packages()
+
+        # Test that additional installed packages are shown in the dialog
+        b.wait_in_text("#install-card-title", "Install dialog test")
+        self.show_install_dialog("test-webserver")
+        b.wait_in_text("#dialog", "test-webserver will be installed.")
+        b.wait_text("#dialog .scale-up-ct", "Additional packages:test-webengine")
+        self.install_packages()
+
+        # Test conflicting packages are shown as removed
+        self.show_install_dialog("breaking-software")
+        b.wait_in_text("#dialog", "breaking-software will be installed.")
+        # The svg icon creates a tiny bit of whitespace
+        b.wait_text("#dialog .scale-up-ct", " Removals:ok-software")
+        self.install_packages()
+
+
 if __name__ == '__main__':
     testlib.test_main()

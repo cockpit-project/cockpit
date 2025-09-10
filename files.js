@@ -28,6 +28,7 @@ const info = {
         "playground/journal.jsx",
         "playground/remote.tsx",
         "playground/terminal.tsx",
+        "playground/packagemanager.tsx",
 
         "selinux/selinux.js",
         "shell/shell.jsx",
@@ -122,6 +123,7 @@ const info = {
         "playground/journal.html",
         "playground/remote.html",
         "playground/terminal.html",
+        "playground/packagemanager.html",
 
         "selinux/index.html",
 

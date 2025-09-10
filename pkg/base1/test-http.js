@@ -82,6 +82,9 @@ QUnit.test("simple request", assert => {
                         },
                         test: {
                             label: "Playground"
+                        },
+                        packagemanager: {
+                            label: "PackageManager (install dialog)"
                         }
                     },
                     preload: ["preloaded"],

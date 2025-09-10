@@ -153,38 +153,40 @@ Server = file://{empty_repo_dir}
     def createPackage(self, name: str, version: str, release: str, *, install: bool = False,
                       postinst: str | None = None, depends: str = "",
                       content: Mapping[str, Mapping[str, str] | str] | None = None,
-                      arch: str | None = None, provides: str | None = None, **updateinfo: str | list[str]) -> None:
+                      arch: str | None = None, provides: str | None = None,
+                      conflicts: str | None = None,
+                      **updateinfo: str | list[str]) -> None:
         """Create a dummy package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
         """
-        if provides:
-            provides = f"Provides: {provides}"
-        else:
-            provides = ""
 
         if self.backend == "apt":
             self.createDeb(name, version + '-' + release, depends, postinst, install=install, content=content,
-                           arch=arch, provides=provides)
+                           arch=arch, provides=provides, conflicts=conflicts)
         elif self.backend == "alpm":
             self.createPacmanPkg(name, version, release, depends, postinst, install=install, content=content,
-                                 arch=arch, provides=provides)
+                                 arch=arch, provides=provides, conflicts=conflicts)
         else:
             self.createRpm(name, version, release, depends, postinst, install=install, content=content,
-                           arch=arch, provides=provides)
+                           arch=arch, provides=provides, conflicts=conflicts)
         if updateinfo:
             self.updateInfo[name, version, release] = updateinfo
 
     def createDeb(self, name: str, version: str, depends: str, postinst: str | None = None, *, install: bool,
                   content: Mapping[str, Mapping[str, str] | str] | None = None,
-                  arch: str | None = None, provides: str | None = None) -> None:
+                  arch: str | None = None, provides: str | None = None,
+                  conflicts: str | None = None) -> None:
         """Create a dummy deb in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
         """
         m = self.machine
+
+        provides = f"{provides}" if provides else ""
+        conflicts = f"{conflicts}" if conflicts else ""
 
         if arch is None:
             arch = self.primary_arch
@@ -211,7 +213,8 @@ Server = file://{empty_repo_dir}
             Depends: {depends}
             Architecture: {arch}
             Description: dummy {name}
-            {provides}
+            Conflicts: {conflicts}
+            Provides: {provides}\n
             """))
 
         cmd = f"""set -e
@@ -229,7 +232,8 @@ Server = file://{empty_repo_dir}
                   install: bool,
                   content: Mapping[str, Mapping[str, str] | str] | None = None,
                   arch: str | None = None,
-                  provides: str | None = None) -> None:
+                  provides: str | None = None,
+                  conflicts: str | None = None) -> None:
         """Create a dummy rpm in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -241,6 +245,10 @@ Server = file://{empty_repo_dir}
             postcode = ''
         if requires:
             requires = f"Requires: {requires}\n"
+
+        conflicts = f"Conflicts: {conflicts}\n" if conflicts is not None else ""
+        provides = f"Provides: {provides}\n" if provides is not None else ""
+
         if arch is None:
             arch = self.primary_arch
         installcmds = f"touch $RPM_BUILD_ROOT/stamp-{name}-{version}-{release}\n"
@@ -266,6 +274,7 @@ License: BSD
 {provides}
 {architecture}
 {requires}
+{conflicts}
 
 %define _build_id_links none
 
@@ -296,7 +305,8 @@ rm -rf ~/rpmbuild
                         install: bool,
                         content: Mapping[str, Mapping[str, str] | str] | None = None,
                         arch: str | None = None,
-                        provides: str | None = None) -> None:
+                        provides: str | None = None,
+                        conflicts: str | None = None) -> None:
         """Create a dummy pacman package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -305,6 +315,9 @@ rm -rf ~/rpmbuild
 
         if arch is None:
             arch = 'any'
+
+        conflicts = f'conflicts=("{conflicts}")' if conflicts else ''
+        provides = f'provides=("{provides}")' if provides else ''
 
         sources = ""
         installcmds = 'package() {\n'
@@ -339,6 +352,8 @@ pkgdesc="dummy {name}"
 pkgrel={release}
 arch=({arch})
 depends=({requires})
+{conflicts}
+{provides}
 options=(!debug)
 {sources}
 

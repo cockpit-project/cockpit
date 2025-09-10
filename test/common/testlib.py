@@ -1731,13 +1731,17 @@ class MachineCase(unittest.TestCase):
             result = self.defaultTestResult()
             errors = result.errors
             self._feedErrorsToResult(result, self._outcome.errors)
-        elif hasattr(self._outcome, 'result') and hasattr(self._outcome.result, '_excinfo'):
+        elif hasattr(self._outcome, 'result') and getattr(self._outcome.result, '_excinfo', None) is not None:
             # pytest emulating unittest
-            assert isinstance(self._outcome.result._excinfo, str)
-            return self._outcome.result._excinfo
+            if isinstance(self._outcome.result._excinfo, str):
+                return self._outcome.result._excinfo
+            else:
+                assert isinstance(self._outcome.result._excinfo, list)
+                return str(self._outcome.result._excinfo[0])
+
         else:
-            # Python 3.11+ now records errors and failures seperate
-            errors = self._outcome.result.errors + self._outcome.result.failures
+            # Python 3.11+ now records errors and failures separate
+            errors = getattr(self._outcome.result, 'errors', []) + getattr(self._outcome.result, 'failures', [])
 
         try:
             return errors[0][1]

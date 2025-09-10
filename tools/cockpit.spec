@@ -573,7 +573,7 @@ Requires: udisks2 >= 2.9
 Recommends: udisks2-lvm2 >= 2.9
 Recommends: udisks2-iscsi >= 2.9
 %if ! 0%{?rhel}
-Recommends: udisks2-btrfs >= 2.9
+Recommends: (udisks2-btrfs >= 2.9 if btrfs-progs)
 %endif
 Recommends: device-mapper-multipath
 Recommends: clevis-luks

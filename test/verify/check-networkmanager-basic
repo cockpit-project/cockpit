@@ -139,6 +139,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.0.8")
+        b.set_input_text('#network-ip-settings-gateway', "1.2.3.1")
         b.click("#network-ip-settings-save")
         b.wait_text_not("#network-ip-settings-error h4", "")
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.192.0")
@@ -323,6 +324,18 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         self.assertIn("192.168.1.1/25", m.execute(f"nmcli -g ipv4.addresses connection show {iface}"))
         self.assertIn("192.168.1.126", m.execute(f"nmcli -g ipv4.gateway connection show {iface}"))
+
+        b.click("#networking-edit-ipv4:contains('edit')")
+        b.wait_visible("#network-ip-settings-dialog")
+        # gateway is not changed after it has been explicitly edited by user
+        b.set_input_text("#network-ip-settings-gateway", "192.168.20.7")
+        b.set_input_text("#network-ip-settings-address-0", "10.0.0.5")
+        b.wait_val("#network-ip-settings-gateway", "192.168.20.7")
+        b.set_input_text("#network-ip-settings-address-0", "192.168.2.5")
+        b.wait_val("#network-ip-settings-gateway", "192.168.20.7")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting("IPv4", "Address 192.168.2.5/24Gateway 192.168.20.7")
 
     def testNoService(self):
         b = self.browser

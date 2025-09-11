@@ -74,6 +74,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
     const params = settings[topic];
     const [addresses, setAddresses] = useState(params.address_data);
     const [defaultGateway, setDefaultGateway] = useState(params.gateway);
+    const [gatewaySetExplicitly, setGatewaySetExplicitly] = useState(false);
     const [dialogError, setDialogError] = useState(undefined);
     const [dns, setDns] = useState(params.dns_data || []);
     const [dnsSearch, setDnsSearch] = useState(params.dns_search || []);
@@ -141,8 +142,11 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         const config = { address, prefix: '' };
         const split = address.split('.');
 
-        if (split.length !== 4)
+        if (split.length !== 4) {
+            if (i === 0 && !gatewaySetExplicitly)
+                setDefaultGateway("");
             return config;
+        }
 
         if (split[0] >= 0 && split[0] <= 127) {
             config.prefix = "255.0.0.0";
@@ -153,11 +157,21 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         }
 
         // pre-fill default gateway based on the first address for classfull prefixes
-        if (i === 0 && config.prefix !== "") {
+        if (i === 0 && config.prefix !== "" && !gatewaySetExplicitly) {
             setDefaultGateway(`${split[0]}.${split[1]}.${split[2]}.${split[3] === "1" ? "254" : "1"}`);
         }
 
         return config;
+    };
+
+    const removeAddress = (i) => {
+        // also reset gateway when removing the last address
+        if (addresses.length === 1) {
+            setDefaultGateway("");
+            setGatewaySetExplicitly(false);
+        }
+
+        setAddresses(addresses.filter((_, index) => index !== i));
     };
 
     return (
@@ -216,7 +230,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <FormGroup className="pf-m-1-col-on-sm remove-button-group">
                                     <Button variant='plain'
                                             isDisabled={method == 'manual' && i == 0}
-                                            onClick={() => setAddresses(addresses.filter((_, index) => index !== i))}
+                                            onClick={() => removeAddress(i)}
                                             aria-label={_("Remove item")}
                                             icon={<TrashIcon />} />
                                 </FormGroup>
@@ -225,7 +239,10 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                     })}
                     {addresses.length > 0 &&
                         <FormGroup fieldId={idPrefix + "-gateway"} label={_("Gateway")}>
-                            <TextInput id={idPrefix + "-gateway"} value={defaultGateway} onChange={(_event, value) => setDefaultGateway(value)} />
+                            <TextInput id={idPrefix + "-gateway"}
+                                value={defaultGateway}
+                                onChange={(_event, value) => { setDefaultGateway(value); setGatewaySetExplicitly(true) }}
+                            />
                         </FormGroup>
                     }
                 </Grid>

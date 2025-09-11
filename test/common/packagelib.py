@@ -39,7 +39,7 @@ class PackageCase(MachineCase):
             self.backend = "apt"
             self.primary_arch = "all"
             self.secondary_arch = "amd64"
-        elif re.match(r"fedora-(39|40)|(centos|rhel)-(8|9|10).*", self.machine.image):
+        elif re.match(r"(centos|rhel)-(8|9|10).*", self.machine.image):
             self.backend = "dnf4"
             self.primary_arch = "noarch"
             self.secondary_arch = "x86_64"

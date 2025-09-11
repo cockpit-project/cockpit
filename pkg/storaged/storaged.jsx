@@ -49,7 +49,12 @@ class Application extends React.Component {
     componentDidMount() {
         client.addEventListener("changed", this.on_client_changed);
         cockpit.addEventListener("locationchanged", this.on_navigate);
-        client.init(() => { this.setState({ inited: true }) });
+        client.init(() => {
+            if (client.in_anaconda_mode()) {
+                document.body.classList.add("anaconda");
+            }
+            this.setState({ inited: true });
+        });
         window.setTimeout(() => { if (!this.state.inited) this.setState({ slow_init: true }); }, 1000);
     }
 

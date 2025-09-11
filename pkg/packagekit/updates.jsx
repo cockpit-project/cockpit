@@ -80,6 +80,7 @@ import { debug, watchRedHatSubscription } from './utils';
 import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
+import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
 
 const _ = cockpit.gettext;
 
@@ -586,10 +587,11 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
         <div className="progress-main-view">
             <Grid hasGutter>
                 <GridItem span={12}>
-                    <div className="progress-description">
-                        <Spinner size="md" />
-                        <strong>{ PK_STATUS_STRINGS[lastAction?.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
-                        &nbsp;{curPackage}
+                    <div className="progress-description pf-v6-u-display-flex">
+                        <Spinner size="md" isInline />
+                        <strong>{PK_STATUS_STRINGS[lastAction?.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE]}</strong>
+                        &nbsp;
+                        <Truncate content={curPackage} />
                     </div>
                     <Progress title={remain}
                               aria-label={remain ? _("Time remaining: ") : _("Update progress")}

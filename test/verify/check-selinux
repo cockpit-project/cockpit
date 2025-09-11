@@ -233,9 +233,7 @@ class TestSelinux(testlib.MachineCase):
             # Combining of versions < 3.0 with versions >= 3.0 provides a bit
             # different outputs.
             script = script.replace("permissive -D\n", "")
-            # likewise, this only started to exist in Fedora 40
-            if not m.image.startswith('fedora-4'):
-                script = script.replace("boolean -m -1 selinuxuser_execmod\n", "")
+            script = script.replace("boolean -m -1 selinuxuser_execmod\n", "")
             return script
 
         b.click("button:contains('Ansible')")

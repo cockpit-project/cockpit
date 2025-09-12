@@ -25,7 +25,7 @@ import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/inde
 import { WarningTriangleIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
-import * as PK from "packagekit.js";
+import { getPackageManager, InstallProgressType } from "packagemanager";
 
 import "cockpit-components-install-dialog.css";
 import { fmt_to_fragments } from "utils";
@@ -46,7 +46,7 @@ const _ = cockpit.gettext;
  * (If you do anyway, the resulting D-Bus errors will be shown to the user.)
  */
 
-export function install_dialog(pkg, options) {
+export async function install_dialog(pkg, options) {
     let data = null;
     let error_message = null;
     let progress_message = null;
@@ -58,6 +58,7 @@ export function install_dialog(pkg, options) {
 
     options = options || { };
 
+    const package_manager = await getPackageManager();
     const prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); } });
 
     let dialog = null;
@@ -134,19 +135,19 @@ export function install_dialog(pkg, options) {
     }
 
     function check_missing() {
-        PK.check_missing_packages(pkg,
-                                  p => {
-                                      cancel = p.cancel;
-                                      let pm = null;
-                                      if (p.waiting)
-                                          pm = _("Waiting for other software management operations to finish");
-                                      else
-                                          pm = _("Checking installed software");
-                                      if (pm != progress_message) {
-                                          progress_message = pm;
-                                          update();
-                                      }
-                                  })
+        package_manager.check_missing_packages(pkg,
+                                               p => {
+                                                   cancel = p.cancel;
+                                                   let pm = null;
+                                                   if (p.waiting)
+                                                       pm = _("Waiting for other software management operations to finish");
+                                                   else
+                                                       pm = _("Checking installed software");
+                                                   if (pm != progress_message) {
+                                                       progress_message = pm;
+                                                       update();
+                                                   }
+                                               })
                 .then(d => {
                     if (d.unavailable_names.length > 0)
                         error_message = cockpit.format(_("$0 is not available from any repository."),
@@ -166,23 +167,23 @@ export function install_dialog(pkg, options) {
     }
 
     function install_missing(progress_cb) {
-        return PK.install_missing_packages(data,
-                                           p => {
-                                               let text = null;
-                                               if (p.waiting) {
-                                                   text = _("Waiting for other software management operations to finish");
-                                               } else if (p.package) {
-                                                   let fmt;
-                                                   if (p.info == PK.Enum.INFO_DOWNLOADING)
-                                                       fmt = _("Downloading $0");
-                                                   else if (p.info == PK.Enum.INFO_REMOVING)
-                                                       fmt = _("Removing $0");
-                                                   else
-                                                       fmt = _("Installing $0");
-                                                   text = fmt_to_fragments(fmt, <strong>{p.package}</strong>);
-                                               }
-                                               progress_cb(text, p.cancel);
-                                           });
+        return package_manager.install_missing_packages(data,
+                                                        p => {
+                                                            let text = null;
+                                                            if (p.waiting) {
+                                                                text = _("Waiting for other software management operations to finish");
+                                                            } else if (p.package) {
+                                                                let fmt;
+                                                                if (p.info == InstallProgressType.DOWNLOADING)
+                                                                    fmt = _("Downloading $0");
+                                                                else if (p.info == InstallProgressType.REMOVING)
+                                                                    fmt = _("Removing $0");
+                                                                else
+                                                                    fmt = _("Installing $0");
+                                                                text = fmt_to_fragments(fmt, <strong>{p.package}</strong>);
+                                                            }
+                                                            progress_cb(text, p.cancel);
+                                                        });
     }
 
     update();

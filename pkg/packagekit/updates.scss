@@ -1,7 +1,10 @@
 @use "ct-card";
 @use "page";
+@use "global-variables" as *;
 
 @use "@patternfly/patternfly/utilities/Spacing/spacing.css";
+// For .pf-v6-u-display-flex
+@use "@patternfly/patternfly/utilities/Display/display.css";
 
 /* Style the list cards as ct-cards */
 .pf-v6-c-page__main-section .pf-v6-c-card {
@@ -112,9 +115,14 @@ div.changelog {
 
 /* don't let the install progress bar get too wide */
 .progress-main-view {
+  inline-size: 50vw;
   max-inline-size: 60rem;
   margin-block: 10ex 0;
   margin-inline: auto;
+
+  @media screen and (max-width: $pf-v6-global--breakpoint--sm - 1) {
+    inline-size: 100%;
+  }
 
   .pf-v6-l-grid {
     align-items: end;

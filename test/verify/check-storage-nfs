@@ -332,6 +332,7 @@ class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase):
         # anything on the Debian test images, for unknown reasons.  So
         # we install a dummy package to warm up all parts of the
         # machinery and distribute the fluids evenly.
+        # https://github.com/PackageKit/PackageKit/issues/893
         #
         if "debian" in m.image or "ubuntu" in m.image:
             m.execute("pkcon refresh; pkcon install -y dummy")

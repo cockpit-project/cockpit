@@ -83,25 +83,26 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.wait_visible(".pf-v6-c-alert:contains('Listen port must be a number')")
         b.set_input_text("#network-wireguard-settings-listen-port-input", str(m1_port))
 
-        # check ip addresses
         b.set_input_text("#network-wireguard-settings-addresses-input", "10.0.0.1/24/56")
         b.click("#network-wireguard-settings-save")
         b.wait_visible(".pf-v6-c-alert:contains('Addresses are not formatted correctly')")
         b.set_input_text("#network-wireguard-settings-addresses-input", "10.0.0")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Invalid address 10.0.0')")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '10.0.0'")
         b.set_input_text("#network-wireguard-settings-addresses-input", "ten.one")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Invalid address ten.one')")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address 'ten.one'")
         b.set_input_text("#network-wireguard-settings-addresses-input", "10 1")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Invalid address 10')")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '10'")
         b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4/")
         b.click("#network-wireguard-settings-save")
         b.wait_visible(".pf-v6-c-alert:contains('Invalid prefix or netmask')")
-        b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4  ,  5.6.7.8  1.2.3.4.5")
-        b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Invalid address 1.2.3.4.5')")
+        # older version of NM discards invalid address and applies correct addresses
+        if m1.image != "ubuntu-2204":
+            b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4  ,  5.6.7.8  1.2.3.4.5")
+            b.click("#network-wireguard-settings-save")
+            b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '1.2.3.4.5'")
         b.set_input_text("#network-wireguard-settings-addresses-input", f"{m1_ip4}/24 1.2.3.4")
 
         # peer
@@ -198,10 +199,10 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.wait_visible(".pf-v6-c-alert:contains('Addresses are not formatted correctly')")
         b.set_input_text("#network-wireguard-settings-addresses-input", "2001:1/64")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Invalid address 2001:1')")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '2001:1'")
         b.set_input_text("#network-wireguard-settings-addresses-input", "cafe:face:nope::1/64")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Invalid address cafe:face:nope::1')")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address 'cafe:face:nope::1'")
         b.set_input_text("#network-wireguard-settings-addresses-input", "2001:db8:cafe::1/64/64")
         b.click("#network-wireguard-settings-save")
         b.wait_visible(".pf-v6-c-alert:contains('Addresses are not formatted correctly')")
@@ -273,17 +274,17 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         # No port specified
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "2001:db8::1")
         b.click("#network-wireguard-settings-save")
-        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint port")
+        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint")
 
         # Not a valid port number (string)
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "[2001:db8::1]:portnum")
         b.click("#network-wireguard-settings-save")
-        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint")
+        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint port")
 
         # Not a valid port number (high value)
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "[2001:db8::1]:80000")
         b.click("#network-wireguard-settings-save")
-        b.wait_in_text(".pf-v6-c-alert", "peer #1 has invalid endpoint")
+        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint port")
 
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "[2001:db8::1]:50000")
 

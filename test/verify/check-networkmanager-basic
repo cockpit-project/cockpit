@@ -102,14 +102,50 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_visible("#network-ip-settings-dialog [data-field='dns_search'] input[type=checkbox]:disabled")
         b.wait_visible("#network-ip-settings-dialog [data-field='routes'] input[type=checkbox]:disabled")
 
+        # Test IPv4 validation
+        # Address
+        b.set_input_text('#network-ip-settings-address-0', "192.168.48.10.2")
+        b.set_input_text('#network-ip-settings-netmask-0', "24")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address: 192.168.48.10.2")
+        b.set_input_text('#network-ip-settings-address-0', "192.168.256.10")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address: 192.168.256.10")
+        b.set_input_text('#network-ip-settings-address-0', "192.168.48.10")
+        b.set_input_text('#network-ip-settings-gateway', "192.168.48.")
+        b.click("#network-ip-settings-save")
+        # Gateway
+        b.wait_in_text(".pf-v6-c-alert", "Invalid gateway address: 192.168.48.")
+        b.set_input_text('#network-ip-settings-gateway', "192.168.48.1")
+        # DNS
+        b.click("#network-ip-settings-dns-add")
+        b.set_input_text('#network-ip-settings-dns-server-0', "8..8")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid DNS address: 8..8")
+        b.set_input_text('#network-ip-settings-dns-server-0', "8.8.8.8")
+        # Route
+        b.click("#network-ip-settings-route-add")
+        b.set_input_text('#network-ip-settings-route-address-0', "192")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "24")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "192.168.48.1")
+        b.set_input_text('#network-ip-settings-route-metric-0', "500")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid destination address: 192")
+        b.set_input_text('#network-ip-settings-route-address-0', "192.168.66.0")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "not.an.ip.address")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid gateway address: not.an.ip.address")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "192.168.48.1")
+
         b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.0.8")
+        b.set_input_text('#network-ip-settings-gateway', "1.2.3.1")
         b.click("#network-ip-settings-save")
         b.wait_text_not("#network-ip-settings-error h4", "")
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.192.0")
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
-        self.wait_for_iface_setting("IPv4", "Address 1.2.3.4/18 via 1.2.3.1")
+        self.wait_for_iface_setting("IPv4", "Address 1.2.3.4/18Gateway 1.2.3.1DNS 8.8.8.8")
 
         m.execute(f"until ip a show dev {iface} | grep -q 'inet 1.2.3.4/18'; do sleep 0.3; done",
                   timeout=10)
@@ -118,12 +154,50 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.click("#networking-edit-ipv6")
         b.wait_visible("#network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+
+        # Test IPv6 validation
+        # Address
+        b.set_input_text('#network-ip-settings-address-0', "2001:db8::10::1")
+        b.set_input_text('#network-ip-settings-netmask-0', "64")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address: 2001:db8::10::1")
+        b.set_input_text('#network-ip-settings-address-0', "no:ipv6:here::1")
+        b.set_input_text('#network-ip-settings-netmask-0', "64")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address: no:ipv6:here::1")
+        b.set_input_text('#network-ip-settings-address-0', "2001:db8::10:2")
+        b.set_input_text('#network-ip-settings-netmask-0', "64")
+        b.set_input_text('#network-ip-settings-gateway', "2001:db8::10:q")
+        b.click("#network-ip-settings-save")
+        # Gateway
+        b.wait_in_text(".pf-v6-c-alert", "Invalid gateway address: 2001:db8::10:q")
+        b.set_input_text('#network-ip-settings-gateway', "2001:db8::10:1")
+        # DNS
+        b.click("#network-ip-settings-dns-add")
+        b.set_input_text('#network-ip-settings-dns-server-0', "2001:db8:64:::")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid DNS address: 2001:db8:64:::")
+        b.set_input_text('#network-ip-settings-dns-server-0', "2001:db8:cafe::1")
+        # Route
+        b.click("#network-ip-settings-route-add")
+        b.set_input_text('#network-ip-settings-route-address-0', "2001")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "48")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "2001:db8::10:1")
+        b.set_input_text('#network-ip-settings-route-metric-0', "500")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid destination address: 2001")
+        b.set_input_text('#network-ip-settings-route-address-0', "2001:db8:face::")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "::db8:cafe::1")
+        b.click("#network-ip-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid gateway address: ::db8:cafe::1")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "2001:db8::10:1")
+
         b.set_input_text("#network-ip-settings-address-0", "2001::1")
         b.set_input_text("#network-ip-settings-netmask-0", "64")
-        b.set_input_text("#network-ip-settings-gateway-0", "::")
+        b.set_input_text("#network-ip-settings-gateway", "::")
         b.click("button:contains('Save')")
         b.wait_not_present("#network-ip-settings-dialog")
-        self.wait_for_iface_setting("IPv6", "Address 2001::1/64")
+        self.wait_for_iface_setting("IPv6", "Address 2001::1/64DNS 2001:db8:cafe::1")
 
         m.execute(f"until ip a show dev {iface} | grep -q 'inet6 2001::1/64 scope global'; do sleep 0.3; done",
                   timeout=10)
@@ -171,7 +245,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
             b.wait_visible("#network-ip-settings-dialog")
             b.set_input_text("#network-ip-settings-address-0", addr)
             b.set_input_text("#network-ip-settings-netmask-0", mask)
-            b.set_input_text("#network-ip-settings-gateway-0", gateway)
+            b.set_input_text("#network-ip-settings-gateway", gateway)
             b.click("button:contains('Save')")
 
             b.wait_not_present("#network-ip-settings-dialog")
@@ -204,7 +278,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
         set_and_check_ipv6("2001:db8:cafe::1/64", "2001:db8:cafe:0:0:0:0:1", "64", "2001:0db8:cafe:0000:0000:0000:0000:0010")
         self.configure_iface_setting('IPv6')
         b.wait_visible("#network-ip-settings-dialog")
-        b.wait_attr_contains("#network-ip-settings-gateway-0", "value", "2001:db8:cafe::10")
+        b.wait_attr_contains("#network-ip-settings-gateway", "value", "2001:db8:cafe::10")
 
     def testIpHelper(self):
         b = self.browser
@@ -228,31 +302,40 @@ class TestNetworkingBasic(netlib.NetworkCase):
         # test class A IP
         b.set_input_text("#network-ip-settings-address-0", "10.0.5.1")
         b.wait_val("#network-ip-settings-netmask-0", "255.0.0.0")
-        b.wait_val("#network-ip-settings-gateway-0", "10.0.5.254")
 
         # test class B IP
         b.set_input_text("#network-ip-settings-address-0", "172.16.44.2")
         b.wait_val("#network-ip-settings-netmask-0", "255.255.0.0")
-        b.wait_val("#network-ip-settings-gateway-0", "172.16.44.1")
         # test class C IP
         b.set_input_text("#network-ip-settings-address-0", "192.168.1.1")
         b.wait_val("#network-ip-settings-netmask-0", "255.255.255.0")
-        b.wait_val("#network-ip-settings-gateway-0", "192.168.1.254")
         # others | Need to manually reset fields
         b.set_input_text("#network-ip-settings-netmask-0", "")
-        b.set_input_text("#network-ip-settings-gateway-0", "")
+        b.set_input_text("#network-ip-settings-gateway", "")
         b.set_input_text("#network-ip-settings-address-0", "225.4.3.2")
         b.wait_val("#network-ip-settings-netmask-0", "")
-        b.wait_val("#network-ip-settings-gateway-0", "")
+        b.wait_val("#network-ip-settings-gateway", "")
         # free manual edit & save
         b.set_input_text("#network-ip-settings-address-0", "192.168.1.1")
         b.set_input_text("#network-ip-settings-netmask-0", "255.255.255.128")
-        b.set_input_text("#network-ip-settings-gateway-0", "192.168.1.126")
+        b.set_input_text("#network-ip-settings-gateway", "192.168.1.126")
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
 
         self.assertIn("192.168.1.1/25", m.execute(f"nmcli -g ipv4.addresses connection show {iface}"))
         self.assertIn("192.168.1.126", m.execute(f"nmcli -g ipv4.gateway connection show {iface}"))
+
+        b.click("#networking-edit-ipv4:contains('edit')")
+        b.wait_visible("#network-ip-settings-dialog")
+        # gateway is not changed after it has been explicitly edited by user
+        b.set_input_text("#network-ip-settings-gateway", "192.168.20.7")
+        b.set_input_text("#network-ip-settings-address-0", "10.0.0.5")
+        b.wait_val("#network-ip-settings-gateway", "192.168.20.7")
+        b.set_input_text("#network-ip-settings-address-0", "192.168.2.5")
+        b.wait_val("#network-ip-settings-gateway", "192.168.20.7")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting("IPv4", "Address 192.168.2.5/24Gateway 192.168.20.7")
 
     def testNoService(self):
         b = self.browser

@@ -388,7 +388,7 @@ class Browser:
         # (e.g. in TestKeys.testAuthorizedKeys). Load the blank page first to always
         # force a load.
         self.bidi("browsingContext.navigate", context=self.driver.context, url="about:blank", wait="complete")
-        self.bidi("browsingContext.navigate", context=self.driver.context, url=href, wait="complete")
+        self.bidi("browsingContext.navigate", context=self.driver.context, url=href, wait="complete", timeout=30)
 
     def set_user_agent(self, ua: str) -> None:
         """Set the user agent of the browser

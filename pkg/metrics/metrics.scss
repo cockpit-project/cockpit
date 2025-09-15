@@ -95,7 +95,7 @@ html {
     .progress-stack {
       display: grid;
       padding-block-end: var(--pf-t--global--spacer--sm);
-      grid-gap: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
+      gap: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
 
       &:not(:first-child) {
         padding-block-start: var(--pf-t--global--spacer--sm);
@@ -105,7 +105,7 @@ html {
     .progress-stack-no-space {
       display: grid;
       padding-block-end: var(--pf-t--global--spacer--sm);
-      grid-gap: 0;
+      gap: 0;
 
       &:not(:first-child) {
         padding-block-start: var(--pf-t--global--spacer--sm);
@@ -150,7 +150,7 @@ html {
 
   // Shrink progress bars and their gap a little
   .pf-v6-c-progress {
-    grid-gap: 0;
+    gap: 0;
     --pf-v6-c-progress__bar--Height: var(--pf-t--global--spacer--xs);
     // PF4 uses end; it probably should arguably use last baseline.
     // (perhaps end may work better for non-text content?)
@@ -268,7 +268,7 @@ html {
 
   // Trim down the gutter space between cards
   .current-metrics.pf-v6-l-gallery.pf-m-gutter {
-    grid-gap: var(--pf-t--global--spacer--sm);
+    gap: var(--pf-t--global--spacer--sm);
   }
 
   // Shave off a few pixels from cards
@@ -298,7 +298,7 @@ html {
     .pf-v6-c-table > tbody {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
-      grid-gap: 0 var(--pf-t--global--spacer--lg);
+      gap: 0 var(--pf-t--global--spacer--lg);
     }
   }
 }

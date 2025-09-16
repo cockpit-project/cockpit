@@ -123,6 +123,9 @@ Requires: cockpit-system
 # Optional components
 Recommends: (cockpit-storaged if udisks2)
 Recommends: (cockpit-packagekit if dnf)
+%if 0%{?suse_version} == 0
+Recommends: (dnf5-daemonserver if dnf5)
+%endif
 Suggests: python3-pcp
 
 %if 0%{?rhel} == 0
@@ -321,7 +324,6 @@ Provides: cockpit-users = %{version}-%{release}
 Requires: NetworkManager >= 1.6
 Requires: sos
 Requires: sudo
-Recommends: PackageKit
 Recommends: setroubleshoot-server >= 3.3.3
 Recommends: /usr/bin/kdumpctl
 Suggests: NetworkManager-team

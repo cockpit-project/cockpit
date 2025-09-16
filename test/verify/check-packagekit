@@ -1898,12 +1898,30 @@ class TestInstallDialog(NoSubManCase):
         b.wait_text("#dialog .scale-up-ct", "Additional packages:test-webengine")
         self.install_packages()
 
-        # Test conflicting packages are shown as removed
-        self.show_install_dialog("breaking-software")
-        b.wait_in_text("#dialog", "breaking-software will be installed.")
-        # The svg icon creates a tiny bit of whitespace
-        b.wait_text("#dialog .scale-up-ct", " Removals:ok-software")
-        self.install_packages()
+        if self.backend != "dnf5":
+            # Test conflicting packages are shown as removed
+            self.show_install_dialog("breaking-software")
+            b.wait_in_text("#dialog", "breaking-software will be installed.")
+            # The svg icon creates a tiny bit of whitespace
+            b.wait_text("#dialog .scale-up-ct", " Removals:ok-software")
+            self.install_packages()
+        else:
+            # package which is replaced with another package
+            self.createPackage("good-software", "998", "1", install=True)
+            self.createPackage("awesome-software", "999", "1", provides="good-software = 999", obsoletes="good-software < 999")
+            self.enableRepo()
+
+            self.show_install_dialog("awesome-software")
+            b.wait_in_text("#dialog", "awesome-software will be installed.")
+            # The svg icon creates a tiny bit of whitespace
+            b.wait_text("#dialog .scale-up-ct", " Removals:good-software")
+            self.install_packages()
+
+            # Conflicting packages require setting `allow_erasing`.
+            self.show_install_dialog("breaking-software")
+            b.wait_in_text("#dialog", "breaking-software will be installed.")
+            b.wait_in_text("#dialog .pf-v6-c-alert__title", "Resolving install failed with result=2")
+            b.wait_in_text("#dialog .pf-v6-c-alert__title", "installed package ok-software-998-1.noarch conflicts with ok-software provided by breaking-software-999")
 
 
 if __name__ == '__main__':

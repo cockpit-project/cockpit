@@ -154,6 +154,7 @@ Server = file://{empty_repo_dir}
                       content: Mapping[str, Mapping[str, str] | str] | None = None,
                       arch: str | None = None, provides: str | None = None,
                       conflicts: str | None = None,
+                      obsoletes: str | None = None,
                       **updateinfo: str | list[str]) -> None:
         """Create a dummy package in repo_dir on self.machine
 
@@ -169,7 +170,7 @@ Server = file://{empty_repo_dir}
                                  arch=arch, provides=provides, conflicts=conflicts)
         else:
             self.createRpm(name, version, release, depends, postinst, install=install, content=content,
-                           arch=arch, provides=provides, conflicts=conflicts)
+                           arch=arch, provides=provides, conflicts=conflicts, obsoletes=obsoletes)
         if updateinfo:
             self.updateInfo[name, version, release] = updateinfo
 
@@ -234,6 +235,7 @@ Description: dummy {name}
                   content: Mapping[str, Mapping[str, str] | str] | None = None,
                   arch: str | None = None,
                   provides: str | None = None,
+                  obsoletes: str | None = None,
                   conflicts: str | None = None) -> None:
         """Create a dummy rpm in repo_dir on self.machine
 
@@ -249,6 +251,7 @@ Description: dummy {name}
 
         conflicts = f"Conflicts: {conflicts}\n" if conflicts is not None else ""
         provides = f"Provides: {provides}\n" if provides is not None else ""
+        obsoletes = f"Obsoletes: {obsoletes}\n" if obsoletes is not None else ""
 
         if arch is None:
             arch = self.primary_arch
@@ -276,6 +279,7 @@ License: BSD
 {architecture}
 {requires}
 {conflicts}
+{obsoletes}
 
 %define _build_id_links none
 

@@ -23,6 +23,8 @@ import { PackageManager, InstallProgressType, UnsupportedError, NotFoundError } 
 import { Dnf5DaemonManager } from './_internal/dnf5daemon';
 import { PackageKitManager } from './_internal/packagekit';
 
+let package_manager: PackageManager | null = null;
+
 function debug(...args: unknown[]) {
     if (window.debugging == 'all' || window.debugging?.includes('packagemanager'))
         console.debug('packagemanager', ...args);
@@ -63,6 +65,9 @@ async function detect_packagekit() {
 
 // Cache result for a session
 export async function getPackageManager(): Promise<PackageManager> {
+    if (package_manager !== null)
+        return Promise.resolve(package_manager);
+
     const [unsupported, has_dnf5daemon, has_packagekit] = await Promise.all([is_immutable_os(), detect_dnf5daemon(), detect_packagekit()]);
 
     if (unsupported)
@@ -70,12 +75,14 @@ export async function getPackageManager(): Promise<PackageManager> {
 
     if (has_dnf5daemon) {
         debug("constructing dnf5daemon");
-        return Promise.resolve(new Dnf5DaemonManager());
+        package_manager = new Dnf5DaemonManager();
+        return Promise.resolve(package_manager);
     }
 
     if (has_packagekit) {
         debug("constructing packagekit");
-        return Promise.resolve(new PackageKitManager());
+        package_manager = new PackageKitManager();
+        return Promise.resolve(package_manager);
     }
 
     throw new NotFoundError("No package manager found");

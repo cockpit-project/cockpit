@@ -97,9 +97,10 @@ name::
   packages derive their name from the directory that they are located
   in. This field overrides that name.
 priority::
-  An optional number that specifies which package is preferred in cases
+  An optional integer that specifies which package is preferred in cases
   where there are conflicts. For example given two packages with the
-  same `+name+` a package is chosen based on its priority.
+  same `+name+` a package is chosen based on its priority. A higher integer
+  means higher priority.
 conditions::
   An optional list of `+{"predicate": "value"}+` objects. Cockpit will
   only consider the package if _all_ conditions are met. This is
@@ -124,7 +125,7 @@ preload::
   of the component is invoked.
   +
   The value of this field is an array of strings, where each string is
-  one of the keys used in the `+dashboard+`, `+menu+`, or `+tool+`
+  one of the keys used in the `+dashboard+`, `+menu+`, or `+tools+`
   fields that are explained below.
 parent::
   This option is used when module does not have its own menu item but is
@@ -161,8 +162,8 @@ following properties:
 label::
   The label for the menu item or tool.
 order::
-  An optional order number to place this menu item or tool. Lower
-  numbers are listed first.
+  An optional order integer to place this menu item or tool. Lower
+  integers are listed first.
 path::
   The relative path to the HTML file within the package that implements
   the menu item or tool.

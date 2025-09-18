@@ -202,7 +202,7 @@ function sosDownload(path) {
         binary: "raw",
         path,
         superuser: "require",
-        max_read_size: 150 * 1024 * 1024,
+        max_read_size: -1,
         external: {
             "content-disposition": 'attachment; filename="' + basename + '"',
             "content-type": "application/x-xz, application/octet-stream"

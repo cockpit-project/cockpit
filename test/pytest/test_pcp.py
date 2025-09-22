@@ -23,6 +23,13 @@ try:
         PM_TYPE_U64,
     )
     from pcp import pmi
+
+    # This comes from inside of the PCP code.  It's fixed upstream but not yet
+    # released. See https://github.com/performancecopilot/pcp/pull/2330
+    pytestmark = pytest.mark.filterwarnings(
+        r"ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated:DeprecationWarning"
+    )
+
 except ImportError:
     pytestmark = pytest.mark.skip("PCP not available")
 

@@ -213,7 +213,7 @@ envlist = lint,pytest
 isolated_build = True
 requires = virtualenv<20.22.0
 labels =
-  venv = py3{6,9,10,11,12,13}-pytest
+  venv = py3{9,10,11,12,13}-pytest
 
 # The default test environments use system packages and never PyPI.
 [testenv:{lint,pytest}]
@@ -221,7 +221,7 @@ sitepackages = True
 install_command = python3 -m pip install --no-index --no-build-isolation {opts} {packages}
 wheel_build_env = pkg
 
-# All other environments (names like py311-lint, py36-pytest, etc) are isolated
+# All other environments (names like py311-lint, py39-pytest, etc) are isolated
 # from the system and get their packages from PyPI, according to the specific
 # test environment being requested.  We build the wheel in a common environment.
 # These tests will not run the PCP tests as there is no wheel available.
@@ -235,7 +235,7 @@ deps =
   lint: ruff
   lint: vulture
   pytest
-  pytest-asyncio < 1.1.1
+  pytest-asyncio
   pytest: pytest-cov
   pytest: pytest-timeout
   pytest: pytest-xdist
@@ -243,6 +243,6 @@ allowlist_externals = test/common/static-code
 setenv =
   NO_QUNIT=1
 commands =
-  pytest: python3 -m pytest -opythonpath= {posargs}
+  pytest: python3 -m pytest -opythonpath=test/common {posargs}
   lint: test/common/static-code --tap
 """

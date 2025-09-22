@@ -264,8 +264,8 @@ class TestSubprocessTransport:
     @pytest.mark.asyncio
     async def test_send_signal(self) -> None:
         protocol, transport = self.subprocess(['cat'])
-        transport.send_signal(signal.SIGINT)
-        await protocol.eof_and_exited_with_code(-signal.SIGINT)
+        transport.send_signal(signal.SIGTERM)
+        await protocol.eof_and_exited_with_code(-signal.SIGTERM)
 
     @pytest.mark.asyncio
     async def test_pid(self) -> None:

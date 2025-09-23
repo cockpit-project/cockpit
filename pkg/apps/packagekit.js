@@ -73,7 +73,7 @@ export function install(name, progress_cb) {
                 progress.base = 1;
                 progress.range = 99;
 
-                return PK.cancellableTransaction("InstallPackages", [0, [pkgid]], progress.progress_reporter)
+                return PK.install_missing_packages({ missing_ids: [pkgid] }, progress.progress_reporter)
                         .then(reload_bridge_packages);
             });
 }
@@ -166,8 +166,7 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
                             progress.base = start_progress + 1;
                             progress.range = 4;
 
-                            return PK.cancellableTransaction("InstallPackages", [0, ids],
-                                                             progress.progress_reporter)
+                            return PK.install_missing_packages({ missing_ids: ids }, progress.progress_reporter)
                                     .catch(ex => {
                                         if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
                                             return Promise.reject(ex);

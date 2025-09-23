@@ -1707,7 +1707,7 @@ class OsUpdates extends React.Component {
 
     handleRefresh() {
         this.setState({ state: "refreshing", loadPercent: null });
-        PK.cancellableTransaction("RefreshCache", [true], data => this.setState({ loadPercent: data.percentage }))
+        PK.refresh(true, data => this.setState({ loadPercent: data.percentage }))
                 .then(() => {
                     if (this._mounted === false)
                         return;

@@ -323,10 +323,6 @@ export function check_missing_packages(names, progress_cb) {
     if (names.length === 0)
         return Promise.resolve(data);
 
-    function refresh() {
-        return cancellableTransaction("RefreshCache", [false], progress_cb);
-    }
-
     function resolve() {
         const installed_names = { };
 
@@ -404,7 +400,7 @@ export function check_missing_packages(names, progress_cb) {
         }
     }
 
-    return refresh().then(resolve)
+    return refresh(false, progress_cb).then(resolve)
             .then(simulate)
             .then(get_details);
 }
@@ -478,4 +474,13 @@ export function install_missing_packages(data, progress_cb) {
 export function getBackendName() {
     return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
                 "Get", ["org.freedesktop.PackageKit", "BackendName"]);
+}
+
+/**
+ * Refresh PackageKit Cache
+ * @param {boolean} force - force refresh the cache (expensive)
+ * @param {*} progress_cb - progress callback
+ */
+export function refresh(force = false, progress_cb) {
+    return cancellableTransaction("RefreshCache", [force], progress_cb);
 }

@@ -79,7 +79,6 @@ class TestApps(packagelib.PackageCase):
         # ignore the corresponding journal entry
         self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
 
-    @testlib.skipImage("TODO: works locally, unstable in CI", "arch")
     def testBasic(self, urlroot: str = ""):
         b = self.browser
         m = self.machine

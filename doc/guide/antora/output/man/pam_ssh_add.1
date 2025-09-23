@@ -1,0 +1,83 @@
+'\" t
+.\"     Title: pam_ssh_add
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.20
+.\"      Date: 2025-09-04
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "PAM_SSH_ADD" "1" "2025-09-04" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.sp
+pam_ssh_add
+.sp
+pam_ssh_add
+.sp
+8
+.sp
+pam_ssh_add
+.sp
+PAM module to auto load ssh keys into an agent
+.SH "DESCRIPTION"
+.sp
+pam_ssh_add provides authentication and session modules that allow users
+to start their session with a running ssh\-agent with as many ssh keys
+loaded as possible.
+.sp
+If used, the authentication module simply stores the authentication
+token for later use by the session module. Because this module performs
+no actual authentication it returns PAM_CRED_INSUFFICIENT on success and
+should always be accompanied by an actual authentication module in your
+pam configuration.
+.sp
+By default the session module will start a new ssh\-agent and run
+ssh\-add, loading any keys that exist in the default path for the newly
+logged in user. If any keys prompt for a password, and a authentication
+token was successfully stored, that token will be provided as the
+password.
+.SH "OPTIONS"
+.sp
+\f(CRdebug\fP
+.RS 4
+This option will turn on debug logging to syslog.
+.RE
+.SH "EXAMPLES"
+.sp
+.if n .RS 4
+.nf
+.fam C
+        auth     required  pam_unix.so
+        auth     optional  pam_ssh_add.so
+        session  optional  pam_ssh_add.so
+.fam
+.fi
+.if n .RE
+.SH "AUTHOR"
+.sp
+Cockpit has been written by many
+.URL "https://github.com/cockpit\-project/cockpit/" "contributors" "."
+.SH "BUGS"
+.sp
+Please send bug reports to either the distribution bug tracker or the
+\c
+.URL "https://github.com/cockpit\-project/cockpit/issues/new" "upstream bug
+tracker" .

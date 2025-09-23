@@ -128,7 +128,7 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
         progress.base = 6;
         progress.range = 69;
 
-        return PK.cancellableTransaction("RefreshCache", [true], progress.progress_reporter);
+        return PK.refresh(true, progress.progress_reporter);
     };
 
     const maybe_update_origin_file_packages = () => {

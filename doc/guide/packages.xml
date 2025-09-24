@@ -111,9 +111,13 @@ $ cockpit-bridge --packages
       <varlistentry>
         <term>conditions</term>
         <listitem><para>An optional list of <code>{"predicate": "value"}</code> objects. Cockpit will only
-          consider the package if <emphasis>all</emphasis> conditions are met. Currently supported predicates
-          are <code>path-exists</code> and <code>path-not-exists</code>. Unknown predicates are ignored.
-          This is preferable to using <code>priority</code>, but only available since Cockpit 286.</para>
+          consider the package if <emphasis>all</emphasis> conditions are met. This is preferable to using
+          <code>priority</code>.</para>
+
+          <para>Currently supported predicates are <code>path-exists</code> and <code>path-not-exists</code>
+          (since Cockpit 286), and <code>any</code> (since Cockpit 348). <code>any</code> accepts a list of
+          conditions and evaluates to true if <emphasis>at least one</emphasis> of the nested conditions is
+          met. Unknown predicates are ignored.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -278,6 +282,18 @@ $ cockpit-bridge --packages
      }
   }
 }
+</programlisting>
+
+    <para>The following example shows how to use disjunctive conditions with <code>any</code>
+      to specify alternative requirements (available since Cockpit 348). This package will be available if either
+      <filename>/usr/bin/alt1</filename> or <filename>/usr/bin/alt2</filename> exists. In any case,
+      <filename>/etc/incompatible-tool</filename> must not exist.</para>
+
+<programlisting>
+  "conditions": [
+    {"any": [{"path-exists": "/usr/bin/alt1"}, {"path-exists": "/usr/bin/alt2"}]},
+    {"path-not-exists": "/etc/incompatible-tool"}
+  ]
 </programlisting>
 
   </section>

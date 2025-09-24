@@ -230,6 +230,21 @@ class PathExistsCondition(Condition):
         return self.exists == path_exists(self.path)
 
 
+class DisjunctiveCondition(Condition):
+    def __init__(self, conditions: Iterable[Condition]) -> None:
+        self.conditions = conditions
+
+    def __str__(self) -> str:
+        return f'DisjunctiveCondition({", ".join(str(c) for c in self.conditions)})'
+
+    def get_condition_files(self) -> Iterable[str]:
+        for condition in self.conditions:
+            yield from condition.get_condition_files()
+
+    def check(self, path_exists: Callable[[str], bool]) -> bool:
+        return any(c.check(path_exists) for c in self.conditions)
+
+
 # This wants to be 'dict[str, JsonValue]', but that does not work in Python 3.6 yet
 class Manifest(dict, JsonObject):  # type: ignore[type-arg]
     # Skip version check when running out of the git checkout (__version__ is None)
@@ -262,6 +277,9 @@ class Manifest(dict, JsonObject):  # type: ignore[type-arg]
 
         elif "path-not-exists" in value:
             return PathExistsCondition(get_str(value, "path-not-exists"), exists=False)
+
+        elif "any" in value:
+            return DisjunctiveCondition(get_objv(value, "any", self.parse_condition))
 
         else:
             # do *not* ignore manifests with unknown predicates, for forward compatibility

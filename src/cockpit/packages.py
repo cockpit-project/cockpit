@@ -227,6 +227,15 @@ class PathNotExistsCondition(Condition):
         return not os.path.exists(self.path)
 
 
+class DisjunctiveCondition(Condition):
+    def __init__(self, predicate: JsonObject) -> None:
+        super().__init__(predicate)
+        self.conditions = get_objv(predicate, "any", parse_condition)
+
+    def check(self) -> bool:
+        return any(c.check() for c in self.conditions)
+
+
 def parse_condition(value: JsonObject) -> Condition:
     if len(value) != 1:
         raise JsonError(value, 'must contain exactly one key/value pair')
@@ -236,6 +245,9 @@ def parse_condition(value: JsonObject) -> Condition:
 
     elif "path-not-exists" in value:
         return PathNotExistsCondition(value)
+
+    elif "any" in value:
+        return DisjunctiveCondition(value)
 
     else:
         return Condition(value)

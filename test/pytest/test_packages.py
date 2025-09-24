@@ -16,9 +16,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
+from pathlib import Path
 
 import pytest
 
+from cockpit.jsonutil import JsonValue
 from cockpit.packages import Packages, parse_accept_language
 
 
@@ -46,7 +48,7 @@ def test_parse_accept_language(test_input: str, expected: 'tuple[str]') -> None:
 
 
 @pytest.fixture
-def pkgdir(tmp_path, monkeypatch):
+def pkgdir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv('XDG_DATA_DIRS', str(tmp_path))
     monkeypatch.setenv('XDG_DATA_HOME', '/nonexisting')
 
@@ -57,18 +59,18 @@ def pkgdir(tmp_path, monkeypatch):
 
 
 @pytest.fixture
-def confdir(tmp_path, monkeypatch):
+def confdir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv('XDG_CONFIG_DIRS', str(tmp_path))
     return tmp_path / 'cockpit'
 
 
-def make_package(pkgdir, dirname: str, **kwargs: object) -> None:
+def make_package(pkgdir: Path, dirname: str, **kwargs: JsonValue) -> None:
     (pkgdir / dirname).mkdir()
     with (pkgdir / dirname / 'manifest.json').open('w') as file:
         json.dump(kwargs, file, indent=2)
 
 
-def test_basic(pkgdir):
+def test_basic(pkgdir: Path) -> None:
     packages = Packages()
     assert len(packages.packages) == 1
     assert packages.packages['basic'].name == 'basic'
@@ -79,7 +81,7 @@ def test_basic(pkgdir):
     assert packages.manifests == '{"basic": {"description": "standard package", "requires": {"cockpit": "42"}}}'
 
 
-def test_override_etc(pkgdir, confdir):
+def test_override_etc(pkgdir: Path, confdir: Path) -> None:
     (confdir / 'basic.override.json').write_text('{"description": null, "priority": 5, "does-not-exist": null}')
 
     packages = Packages()
@@ -99,7 +101,7 @@ def test_override_etc(pkgdir, confdir):
     }
 
 
-def test_priority(pkgdir):
+def test_priority(pkgdir: Path) -> None:
     make_package(pkgdir, 'vip', name='basic', description='VIP', priority=100)
     make_package(pkgdir, 'guest', description='Guest')
 
@@ -116,7 +118,7 @@ def test_priority(pkgdir):
     assert parsed['guest'] == {'description': 'Guest'}
 
 
-def test_conditions(pkgdir):
+def test_conditions(pkgdir: Path) -> None:
     make_package(pkgdir, 'empty', conditions=[])
 
     # path-exists only
@@ -147,7 +149,7 @@ def test_conditions(pkgdir):
     }
 
 
-def test_conditions_errors(pkgdir):
+def test_conditions_errors(pkgdir: Path) -> None:
     make_package(pkgdir, 'broken-syntax-1', conditions=[1])
     make_package(pkgdir, 'broken-syntax-2', conditions=[["path-exists"]])
     make_package(pkgdir, 'broken-syntax-3', conditions=[{"path-exists": "/foo", "path-not-exists": "/bar"}])
@@ -161,7 +163,7 @@ def test_conditions_errors(pkgdir):
     assert set(packages.packages.keys()) == {'basic', 'unknown-predicate-good'}
 
 
-def test_condition_hides_priority(pkgdir):
+def test_condition_hides_priority(pkgdir: Path) -> None:
     make_package(pkgdir, 'vip', name="basic", description="VIP", priority=100,
                  conditions=[{"path-exists": "/nonexisting"}])
 
@@ -172,7 +174,7 @@ def test_condition_hides_priority(pkgdir):
     assert packages.packages['basic'].priority == 1
 
 
-def test_english_translation(pkgdir):
+def test_english_translation(pkgdir: Path) -> None:
     make_package(pkgdir, 'one')
     (pkgdir / 'one' / 'po.de.js').write_text('eins')
 
@@ -210,7 +212,7 @@ def test_english_translation(pkgdir):
     assert document.data.read() == b''
 
 
-def test_translation(pkgdir):
+def test_translation(pkgdir: Path) -> None:
     # old style: make sure po.de.js is served as fallback for manifest translations
     make_package(pkgdir, 'one')
     (pkgdir / 'one' / 'po.de.js').write_text('eins')
@@ -240,7 +242,7 @@ def test_translation(pkgdir):
     assert b'zwei\n' not in contents
 
 
-def test_filename_mangling(pkgdir):
+def test_filename_mangling(pkgdir: Path) -> None:
     make_package(pkgdir, 'one')
 
     # test various filename variations
@@ -261,7 +263,7 @@ def test_filename_mangling(pkgdir):
     assert encodings == {None, 'gzip'}  # make sure we saw both compressed and uncompressed
 
 
-def test_overlapping_minified(pkgdir):
+def test_overlapping_minified(pkgdir: Path) -> None:
     make_package(pkgdir, 'one')
     (pkgdir / 'one' / 'one.min.js').write_text('min')
     (pkgdir / 'one' / 'one.js').write_text('max')

@@ -188,6 +188,87 @@ def test_condition_hides_priority(pkgdir: Path) -> None:
     assert packages.packages['basic'].priority == 1
 
 
+def test_conditions_any(pkgdir: Path) -> None:
+    make_package(pkgdir, 'any-empty-fail', conditions=[{"any": []}])
+
+    # Test basic "any" condition - should pass if any one condition is true
+    make_package(pkgdir, 'any-pass-1', conditions=[
+        {"any": [{"path-exists": "/usr"}, {"path-exists": "/nonexisting"}]}
+    ])
+    make_package(pkgdir, 'any-pass-2', conditions=[
+        {"any": [{"path-exists": "/nonexisting"}, {"path-exists": "/usr"}]}
+    ])
+    make_package(pkgdir, 'any-fail', conditions=[
+        {"any": [{"path-exists": "/nonexisting"}, {"path-exists": "/alsonotexisting"}]}
+    ])
+
+    # Test "any" mixed with path-not-exists
+    make_package(pkgdir, 'any-mixed-pass', conditions=[
+        {"any": [{"path-not-exists": "/nonexisting"}, {"path-exists": "/alsonotexisting"}]}
+    ])
+    make_package(pkgdir, 'any-mixed-fail', conditions=[
+        {"any": [{"path-not-exists": "/usr"}, {"path-exists": "/nonexisting"}]}
+    ])
+
+    # Test combination of regular conditions with "any" conditions
+    make_package(pkgdir, 'mixed-any-pass', conditions=[
+        {"any": [{"path-exists": "/usr"}, {"path-exists": "/nonexisting"}]},
+        {"path-not-exists": "/nonexisting"}
+    ])
+    make_package(pkgdir, 'mixed-any-fail-1', conditions=[
+        {"any": [{"path-exists": "/nonexisting"}, {"path-exists": "/alsonotexisting"}]},
+        {"path-not-exists": "/nonexisting"}
+    ])
+    make_package(pkgdir, 'mixed-any-fail-2', conditions=[
+        {"any": [{"path-exists": "/usr"}, {"path-exists": "/nonexisting"}]},
+        {"path-not-exists": "/usr"}
+    ])
+
+    # Test nested "any" conditions
+    make_package(pkgdir, 'nested-any-pass', conditions=[
+        {"any": [
+            {"any": [{"path-exists": "/usr"}, {"path-exists": "/nonexisting2"}]},
+            {"path-not-exists": "/nonexisting3"}
+        ]}
+    ])
+    make_package(pkgdir, 'nested-any-fail', conditions=[
+        {"any": [
+            {"any": [{"path-exists": "/nonexisting"}, {"path-exists": "/alsonotexisting"}]},
+            {"path-not-exists": "/usr"}
+        ]}
+    ])
+
+    packages = Packages()
+    assert set(packages.packages.keys()) == {
+        'basic', 'any-pass-1', 'any-pass-2', 'any-mixed-pass', 'mixed-any-pass', 'nested-any-pass',
+    }
+
+    # get_condition_files()
+    assert set(packages.packages['any-pass-1'].manifest.get_condition_files()) == {'/usr', '/nonexisting'}
+    assert set(packages.packages['mixed-any-pass'].manifest.get_condition_files()) == {'/usr', '/nonexisting'}
+    assert set(packages.packages['nested-any-pass'].manifest.get_condition_files()) == {
+        '/usr', '/nonexisting2', '/nonexisting3'
+    }
+
+    assert set(PackagesLoader.get_condition_files()) == {'/usr', '/nonexisting', '/nonexisting2',
+                                                          '/nonexisting3', '/alsonotexisting'}
+
+
+def test_conditions_any_errors(pkgdir: Path) -> None:
+    # Test "any" with invalid syntax
+    make_package(pkgdir, 'any-invalid-1', conditions=[{"any": "not-a-list"}])
+    make_package(pkgdir, 'any-invalid-2', conditions=[{"any": [1, 2, 3]}])
+    make_package(pkgdir, 'any-invalid-3', conditions=[{"any": [{"invalid": "dict", "multiple": "keys"}]}])
+
+    # Unknown predicates inside "any" are ignored
+    make_package(pkgdir, 'any-mixed-unknown', conditions=[
+        {"any": [{"path-exists": "/usr"}, {"frobnicated": True}]}
+    ])
+
+    packages = Packages()
+    assert set(packages.packages.keys()) == {'basic', 'any-mixed-unknown'}
+
+
 def test_english_translation(pkgdir: Path) -> None:
     make_package(pkgdir, 'one')
     (pkgdir / 'one' / 'po.de.js').write_text('eins')

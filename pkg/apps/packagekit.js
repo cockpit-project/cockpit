@@ -78,17 +78,13 @@ export function install(name, progress_cb) {
             });
 }
 
-export function remove(name, progress_cb) {
+export async function remove(name, progress_cb) {
     const progress = new ProgressReporter(0, 1, progress_cb);
-
-    return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress.progress_reporter)
-            .then(pkgid => {
-                progress.base = 1;
-                progress.range = 99;
-
-                return PK.cancellableTransaction("RemovePackages", [0, [pkgid], true, false], progress.progress_reporter)
-                        .then(reload_bridge_packages);
-            });
+    const pkgnames = await PK.find_file_packages([name], progress.progress_reporter);
+    progress.base = 1;
+    progress.range = 99;
+    await PK.remove_packages(pkgnames, progress.progress_reporter);
+    await reload_bridge_packages();
 }
 
 export function refresh(origin_files, config_packages, data_packages, progress_cb) {

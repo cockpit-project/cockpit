@@ -505,3 +505,23 @@ export function getBackendName() {
 export function refresh(force = false, progress_cb) {
     return cancellableTransaction("RefreshCache", [force], progress_cb);
 }
+
+/**
+ * Remove packages by their names.
+ *
+ * @param {?string[] | undefined} pkgnames - packages to remove
+ * @param {?() => void} progress_cb - progress callback
+ */
+export async function remove_packages(pkgnames, progress_cb) {
+    const ids = [];
+
+    await cancellableTransaction("Resolve", [Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED | Enum.FILTER_NOT_SOURCE, pkgnames], null,
+                                 {
+                                     Package: (_info, package_id) => ids.push(package_id),
+                                 });
+
+    if (ids.length === 0)
+        return Promise.resolve();
+
+    return cancellableTransaction("RemovePackages", [0, ids, true, false], progress_cb);
+}

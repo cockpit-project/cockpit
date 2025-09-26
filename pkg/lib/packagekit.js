@@ -673,3 +673,19 @@ export async function get_updates(details, progress_cb) {
     });
     return results;
 }
+
+/**
+ * Update packages
+ *
+ * @param {any[]} updates - packages to update from get_updates()
+ * @param {?() => void} progress_cb - optional progress callback
+ * @param {?string} transaction_path - optional transaction_path to re-use an existing transaction
+ */
+export function update_packages(updates, progress_cb, transaction_path) {
+    const update_ids = updates.map(update => update.id);
+    if (transaction_path) {
+        return call(transaction_path, transactionInterface, "UpdatePackages", [0, update_ids]);
+    } else {
+        return cancellableTransaction("UpdatePackages", [0, update_ids], progress_cb);
+    }
+}

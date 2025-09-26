@@ -112,8 +112,7 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
                     progress.range = 15;
 
                     if (update_ids.length > 0)
-                        return PK.cancellableTransaction("UpdatePackages", [0, update_ids],
-                                                         progress.progress_reporter);
+                        return PK.update_packages(update_ids, progress.progress_reporter, null);
                 });
     };
 

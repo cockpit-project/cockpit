@@ -485,3 +485,37 @@ export function refresh(force, progress_cb) {
     force = force || false;
     return cancellableTransaction("RefreshCache", [force], progress_cb);
 }
+
+/**
+ * Remove a package
+ *
+ * @param {?string[] | undefined} pkgnames - packages to remove
+ * @param {?string[] | undefined} files - files of a package to remove, used to resolve to a package
+ * @param {?() => void} progress_cb - progress callback
+ */
+export async function remove_packages(pkgnames, files, progress_cb) {
+    const promises = [];
+    const ids = [];
+
+    if (pkgnames) {
+        const flags = Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED | Enum.FILTER_NOT_SOURCE;
+        promises.push(cancellableTransaction("Resolve", [flags, pkgnames], progress_cb,
+                                             {
+                                                 Package: (_info, package_id) => ids.push(package_id),
+                                             }));
+    }
+
+    if (files) {
+        promises.push(cancellableTransaction("SearchFiles", [Enum.FILTER_INSTALLED, files], progress_cb,
+                                             {
+                                                 Package: (_info, package_id) => ids.push(package_id),
+                                             }));
+    }
+
+    await Promise.all(promises);
+
+    if (ids.length === 0)
+        return Promise.reject(new TransactionError("not-found", "Can't resolve packages(s)"));
+
+    return cancellableTransaction("RemovePackages", [0, ids, true, false], progress_cb);
+}

@@ -80,15 +80,7 @@ export function install(name, progress_cb) {
 
 export function remove(name, progress_cb) {
     const progress = new ProgressReporter(0, 1, progress_cb);
-
-    return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress.progress_reporter)
-            .then(pkgid => {
-                progress.base = 1;
-                progress.range = 99;
-
-                return PK.cancellableTransaction("RemovePackages", [0, [pkgid], true, false], progress.progress_reporter)
-                        .then(reload_bridge_packages);
-            });
+    return PK.remove_packages(null, [name], progress.progress_reporter).then(reload_bridge_packages);
 }
 
 export function refresh(origin_files, config_packages, data_packages, progress_cb) {

@@ -1330,7 +1330,7 @@ class OsUpdates extends React.Component {
                 .then(transactionPath => {
                     this.watchUpdates(transactionPath)
                             .then(() => {
-                                PK.call(transactionPath, PK.transactionInterface, "UpdatePackages", [0, ids])
+                                PK.update_packages(updates, null, transactionPath)
                                         .catch(ex => {
                                             // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
                                             // show this if we don't have anything else

@@ -167,7 +167,9 @@ class TestLongRunning(testlib.MachineCase):
         b.wait_text("#state", "cockpit-longrunning.service stopped")
 
         # cancel long-running command
-        b.set_val("#command", "for i in $(seq 100); do echo LONG$i; sleep 1; done")
+        b.set_val("#command", "for i in $(seq 100); do echo $FOOBAR$i; sleep 1; done")
+        # ensure we can set systemd-run arguments
+        b.set_val("#sysrun-args", '--setenv=FOOBAR=LONG')
         b.wait_text("button#run", "Start")
         b.click("button#run")
         b.wait_text("#state", "cockpit-longrunning.service running")

@@ -66,17 +66,28 @@ export class LongRunningProcess {
         this._checkState();
     }
 
-    /* Start long-running process. Only call this in states STOPPED or FAILED.
-     * This runs as root, thus will be shared with all privileged Cockpit sessions.
-     * Return cockpit.spawn promise. You need to handle exceptions, but not success.
+    /** Start long-running process. Only call this in states STOPPED or FAILED.
+     *  This runs as root, thus will be shared with all privileged Cockpit sessions.
+     *  Return cockpit.spawn promise. You need to handle exceptions, but not success.
+     * @param {string[]} argv array starting with executable and all of the arguments to pass to it
+     * @param {object} options same properties as cockpit-spawn https://cockpit-project.org/guide/latest/cockpit-spawn.html
+     * @param {string[]} runArgs arguments to provide to systemd-run itself, such as `--setenv`
      */
-    run(argv, options) {
+    run(argv, options, runArgs = []) {
         if (this.state !== ProcessState.STOPPED && this.state !== ProcessState.FAILED)
             throw new Error(`cannot start LongRunningProcess in state ${this.state}`);
-
         // no need to directly react to this -- JobNew and _checkState() will pick up when the unit runs
-        return cockpit.spawn(["systemd-run", "--unit", this.serviceName, "--service-type=oneshot", "--no-block", "--"].concat(argv),
-                             { superuser: "require", err: "message", ...options });
+        return cockpit.spawn(
+            [
+                "systemd-run",
+                "--unit", this.serviceName,
+                "--service-type=oneshot",
+                "--no-block",
+                ...runArgs,
+                "--"
+            ].concat(argv),
+            { superuser: "require", err: "message", ...options }
+        );
     }
 
     /*  Stop long-running process while it is RUNNING, or reset a FAILED one */

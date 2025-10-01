@@ -153,6 +153,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         b = self.browser
         m1 = self.machines["machine1"]

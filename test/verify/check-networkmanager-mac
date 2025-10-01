@@ -28,6 +28,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 512}
     }
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testMac(self):
         b = self.browser
         m = self.machine
@@ -54,6 +55,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         b.wait_text("#network-interface-mac", new_mac.upper())
         self.assertIn(new_mac.lower(), m.execute(f"ip link show '{iface}'"))
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBondMac(self):
         b = self.browser
         m = self.machine

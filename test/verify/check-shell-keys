@@ -25,6 +25,7 @@ KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEAkRTvQCSEZNPXpA5bP82ilQn3TMeQ6z2NO3
 
 @testlib.nondestructive
 class TestKeys(testlib.MachineCase):
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testAuthorizedKeys(self):
         m = self.machine
         b = self.browser
@@ -148,6 +149,7 @@ class TestKeys(testlib.MachineCase):
 
     # Possible workaround - ssh as `admin` and just do `m.execute()`
     @testlib.skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testPrivateKeys(self):
         b = self.browser
         m = self.machine

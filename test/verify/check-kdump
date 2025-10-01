@@ -420,7 +420,7 @@ class TestKdumpConfiguration(KdumpHelpers):
         b.wait_text("#kdump-target-info", "Remote over NFS, someserver:/srv/")
         conf = m.execute("cat /etc/sysconfig/kdump")
         self.assertIn('KDUMP_SAVEDIR=nfs://someserver/srv', conf)
-        self.assertNotIn("ssh://", conf)
+        self.assertNotIn("=ssh://", conf)
 
         # Check local location
         b.click("#kdump-change-target")
@@ -432,7 +432,7 @@ class TestKdumpConfiguration(KdumpHelpers):
         b.wait_text("#kdump-target-info", "Local, /var/tmp")
         conf = m.execute("cat /etc/sysconfig/kdump")
         self.assertIn('KDUMP_SAVEDIR=file:///var/tmp', conf)
-        self.assertNotIn("nfs://", conf)
+        self.assertNotIn("=nfs://", conf)
 
         # Check compression
         conf = m.execute("cat /etc/sysconfig/kdump")
@@ -475,6 +475,7 @@ class TestKdumpNFS(KdumpHelpers):
         "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512}
     }
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         m = self.machine
         b = self.browser

@@ -83,19 +83,11 @@ def ensure_ferny_askpass() -> Path:
 class ProxyPackagesLoader(PackagesLoader):
     file_status: Dict[str, bool]
 
-    def check_condition(self, condition: str, value: object) -> bool:
-        assert isinstance(value, str)
-        assert value in self.file_status
-
-        if condition == 'path-exists':
-            return self.file_status[value]
-        elif condition == 'path-not-exists':
-            return not self.file_status[value]
-        else:
-            raise KeyError
-
     def __init__(self, file_status: Dict[str, bool]):
         self.file_status = file_status
+
+    def path_exists(self, path: str) -> bool:
+        return self.file_status.get(path, False)
 
 
 BEIBOOT_GADGETS = {

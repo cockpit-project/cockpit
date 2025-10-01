@@ -1,5 +1,7 @@
 if ENABLE_DOC
 
+GUIDE_MAIN_ADOC_FILE = doc/guide/cockpit-guide.adoc
+
 GUIDE_ADOC_FILES = \
 	doc/guide/modules/ROOT/pages/api-cockpit.adoc \
 	doc/guide/modules/ROOT/pages/api-base1.adoc \
@@ -46,17 +48,27 @@ GUIDE_ADOC_FILES = \
 	doc/guide/modules/ROOT/pages/urls.adoc \
 	$(NULL)
 
+MAN_ADOC_FILES = \
+	doc/guide/modules/man/pages/cockpit.1.adoc \
+	doc/guide/modules/man/pages/cockpit-bridge.1.adoc \
+	doc/guide/modules/man/pages/cockpit-desktop.1.adoc \
+	doc/guide/modules/man/pages/cockpit-ws.8.adoc \
+	doc/guide/modules/man/pages/cockpit-tls.8.adoc \
+	doc/guide/modules/man/pages/cockpit.conf.5.adoc \
+	doc/guide/modules/man/pages/pam_ssh_add.8.adoc \
+	$(NULL)
+
 dist_noinst_DATA += \
 	$(GUIDE_ADOC_FILES) \
 	$(NULL)
 
 noinst_DATA += \
-	doc/guide/html/cockpit-guide.html \
+	doc/guide/html/* \
 	$(NULL)
 
 render-docs: $(GUIDE_ADOC_FILES)
 	mkdir -p doc/guide/output/html
-	asciidoctor -a cockpit-version=$(VERSION) -b html5 -D doc/guide/output/html doc/guide/cockpit-guide.adoc
+	asciidoctor -a cockpit-version=$(VERSION) -b html5 -D doc/guide/output/html $(GUIDE_MAIN_ADOC_FILE) $(GUIDE_ADOC_FILES) $(MAN_ADOC_FILES)
 
 CLEAN_LOCAL_TARGETS += clean-guide
 clean-guide:

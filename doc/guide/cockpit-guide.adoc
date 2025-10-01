@@ -6,7 +6,7 @@
 
 Documentation for Cockpit {cockpit-version}.
 
-ifeval::[{page-component-version} != main]
+ifeval::[{page-component-version} != {cockpit-version}]
 Latest version https://cockpit-project.org/guide/latest[available here].
 endif::[]
 
@@ -16,17 +16,19 @@ include::modules/ROOT/pages/index.adoc[leveloffset=+2]
 === Manual pages
 
 
-include::modules/man/pages/cockpit.adoc[leveloffset=+3]
+include::modules/man/pages/cockpit.1.adoc[leveloffset=+3]
 
-include::modules/man/pages/cockpit.conf.adoc[leveloffset=+3]
+include::modules/man/pages/cockpit.conf.5.adoc[leveloffset=+3]
 
-include::modules/man/pages/cockpit-ws.adoc[leveloffset=+3]
+include::modules/man/pages/cockpit-ws.8.adoc[leveloffset=+3]
 
-include::modules/man/pages/cockpit-tls.adoc[leveloffset=+3]
+include::modules/man/pages/cockpit-tls.8.adoc[leveloffset=+3]
 
-include::modules/man/pages/cockpit-desktop.adoc[leveloffset=+3]
+include::modules/man/pages/cockpit-desktop.1.adoc[leveloffset=+3]
 
-include::modules/man/pages/cockpit-bridge.adoc[leveloffset=+3]
+include::modules/man/pages/cockpit-bridge.1.adoc[leveloffset=+3]
+
+include::modules/man/pages/pam_ssh_add.8.adoc[leveloffset=+3]
 
 
 include::modules/ROOT/pages/https.adoc[leveloffset=+1]

@@ -30,7 +30,6 @@ import shutil
 from pathlib import Path
 from typing import (
     BinaryIO,
-    Callable,
     ClassVar,
     Dict,
     Generator,
@@ -194,11 +193,52 @@ class BridgeConfig(dict, JsonObject):  # type: ignore[type-arg]
 
 
 class Condition:
-    def __init__(self, value: JsonObject):
-        try:
-            (self.name, self.value), = value.items()
-        except ValueError as exc:
-            raise JsonError(value, 'must contain exactly one key/value pair') from exc
+    def __init__(self, predicate: JsonObject) -> None:
+        self.predicate = predicate
+
+    def get_condition_files(self) -> Iterable[str]:
+        return []
+
+    def check(self) -> bool:
+        raise NotImplementedError(str(self.predicate))
+
+
+class PathExistsCondition(Condition):
+    def __init__(self, predicate: JsonObject) -> None:
+        super().__init__(predicate)
+        self.path = get_str(predicate, "path-exists")
+
+    def get_condition_files(self) -> Iterable[str]:
+        yield self.path
+
+    def check(self) -> bool:
+        return os.path.exists(self.path)
+
+
+class PathNotExistsCondition(Condition):
+    def __init__(self, predicate: JsonObject) -> None:
+        super().__init__(predicate)
+        self.path = get_str(predicate, "path-not-exists")
+
+    def get_condition_files(self) -> Iterable[str]:
+        yield self.path
+
+    def check(self) -> bool:
+        return not os.path.exists(self.path)
+
+
+def parse_condition(value: JsonObject) -> Condition:
+    if len(value) != 1:
+        raise JsonError(value, 'must contain exactly one key/value pair')
+
+    if "path-exists" in value:
+        return PathExistsCondition(value)
+
+    elif "path-not-exists" in value:
+        return PathNotExistsCondition(value)
+
+    else:
+        return Condition(value)
 
 
 # This wants to be 'dict[str, JsonValue]', but that does not work in Python 3.6 yet
@@ -213,7 +253,7 @@ class Manifest(dict, JsonObject):  # type: ignore[type-arg]
         self.bridges = get_objv(self, 'bridges', BridgeConfig)
         self.priority = get_int(self, 'priority', 1)
         self.csp = get_str(self, 'content-security-policy', '')
-        self.conditions = get_objv(self, 'conditions', Condition)
+        self.conditions = get_objv(self, 'conditions', parse_condition)
 
         # Skip version check when running out of the git checkout (COCKPIT_VERSION is None)
         if self.COCKPIT_VERSION is not None:
@@ -226,8 +266,7 @@ class Manifest(dict, JsonObject):  # type: ignore[type-arg]
 
     def get_condition_files(self) -> Iterable[str]:
         for condition in self.conditions:
-            if condition.name in ('path-exists', 'path-not-exists') and isinstance(condition.value, str):
-                yield condition.value
+            yield from condition.get_condition_files()
 
 
 class Package:
@@ -354,11 +393,6 @@ class Package:
 
 
 class PackagesLoader:
-    CONDITIONS: ClassVar[Dict[str, Callable[[str], bool]]] = {
-        'path-exists': os.path.exists,
-        'path-not-exists': lambda p: not os.path.exists(p),
-    }
-
     @classmethod
     def get_xdg_data_dirs(cls) -> Iterable[str]:
         try:
@@ -423,27 +457,15 @@ class PackagesLoader:
         for manifest in cls.load_manifests():
             yield from manifest.get_condition_files()
 
-    def check_condition(self, condition: str, value: object) -> bool:
-        check_fn = self.CONDITIONS[condition]
-
-        # All known predicates currently only work on strings
-        if not isinstance(value, str):
-            return False
-
-        return check_fn(value)
-
     def check_conditions(self, manifest: Manifest) -> bool:
         for condition in manifest.conditions:
             try:
-                okay = self.check_condition(condition.name, condition.value)
-            except KeyError:
+                if not condition.check():
+                    logger.debug('  hiding package %s as its %s condition is not met', manifest.path, condition)
+                    return False
+            except NotImplementedError as e:
                 # do *not* ignore manifests with unknown predicates, for forward compatibility
-                logger.warning('  %s: ignoring unknown predicate in manifest: %s', manifest.path, condition.name)
-                continue
-
-            if not okay:
-                logger.debug('  hiding package %s as its %s condition is not met', manifest.path, condition)
-                return False
+                logger.warning('  %s: ignoring unknown predicate in manifest: %s', manifest.path, e)
 
         return True
 

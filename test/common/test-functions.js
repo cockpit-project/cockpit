@@ -111,14 +111,9 @@ window.ph_text = function(sel) {
     if (el.textContent === undefined)
         throw new Error(sel + " can not have text");
 
-    // HACK: https://github.com/patternfly/patternfly-react/issues/11678
-    const el_copy = el.cloneNode(true);
-    // find and clear .pf-v6-screen-reader subelements for HelperText
-    el_copy.querySelectorAll('.pf-v6-c-helper-text__item-text > .pf-v6-screen-reader').forEach(el => { el.textContent = '' });
-
     // 0xa0 is a non-breakable space, which is a rendering detail of Chromium
     // and awkward to handle in tests; turn it into normal spaces
-    return el_copy.textContent.replaceAll("\xa0", " ");
+    return el.textContent.replaceAll("\xa0", " ");
 };
 
 window.ph_attr = function(sel, attr) {

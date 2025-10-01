@@ -194,11 +194,40 @@ class BridgeConfig(dict, JsonObject):  # type: ignore[type-arg]
 
 
 class Condition:
-    def __init__(self, value: JsonObject):
-        try:
-            (self.name, self.value), = value.items()
-        except ValueError as exc:
-            raise JsonError(value, 'must contain exactly one key/value pair') from exc
+    def get_condition_files(self) -> Iterable[str]:
+        raise NotImplementedError
+
+    def check(self, path_exists: Callable[[str], bool]) -> bool:
+        raise NotImplementedError
+
+
+class ConstantCondition(Condition):
+    def __init__(self, *, value: bool) -> None:
+        self.value = value
+
+    def __str__(self) -> str:
+        return f'ConstantCondition({self.value})'
+
+    def get_condition_files(self) -> Iterable[str]:
+        return []
+
+    def check(self, path_exists: Callable[[str], bool]) -> bool:
+        return self.value
+
+
+class PathExistsCondition(Condition):
+    def __init__(self, path: str, *, exists: bool) -> None:
+        self.path = path
+        self.exists = exists
+
+    def __str__(self) -> str:
+        return f'PathExistsCondition({self.path!r}, exists={self.exists})'
+
+    def get_condition_files(self) -> Iterable[str]:
+        yield self.path
+
+    def check(self, path_exists: Callable[[str], bool]) -> bool:
+        return self.exists == path_exists(self.path)
 
 
 # This wants to be 'dict[str, JsonValue]', but that does not work in Python 3.6 yet
@@ -213,7 +242,7 @@ class Manifest(dict, JsonObject):  # type: ignore[type-arg]
         self.bridges = get_objv(self, 'bridges', BridgeConfig)
         self.priority = get_int(self, 'priority', 1)
         self.csp = get_str(self, 'content-security-policy', '')
-        self.conditions = get_objv(self, 'conditions', Condition)
+        self.conditions = get_objv(self, 'conditions', self.parse_condition)
 
         # Skip version check when running out of the git checkout (COCKPIT_VERSION is None)
         if self.COCKPIT_VERSION is not None:
@@ -224,10 +253,24 @@ class Manifest(dict, JsonObject):  # type: ignore[type-arg]
                 if sortify_version(typechecked(version, str)) > self.COCKPIT_VERSION:
                     raise JsonError(version, f'required cockpit version ({version}) not met')
 
+    def parse_condition(self, value: JsonObject) -> Condition:
+        if len(value) != 1:
+            raise JsonError(value, 'must contain exactly one key/value pair')
+
+        if "path-exists" in value:
+            return PathExistsCondition(get_str(value, "path-exists"), exists=True)
+
+        elif "path-not-exists" in value:
+            return PathExistsCondition(get_str(value, "path-not-exists"), exists=False)
+
+        else:
+            # do *not* ignore manifests with unknown predicates, for forward compatibility
+            logger.warning('  %s: ignoring unknown predicate in manifest: %s', self.path, value)
+            return ConstantCondition(value=True)
+
     def get_condition_files(self) -> Iterable[str]:
         for condition in self.conditions:
-            if condition.name in ('path-exists', 'path-not-exists') and isinstance(condition.value, str):
-                yield condition.value
+            yield from condition.get_condition_files()
 
 
 class Package:
@@ -354,10 +397,8 @@ class Package:
 
 
 class PackagesLoader:
-    CONDITIONS: ClassVar[Dict[str, Callable[[str], bool]]] = {
-        'path-exists': os.path.exists,
-        'path-not-exists': lambda p: not os.path.exists(p),
-    }
+    def path_exists(self, path: str) -> bool:
+        return os.path.exists(path)
 
     @classmethod
     def get_xdg_data_dirs(cls) -> Iterable[str]:
@@ -423,25 +464,9 @@ class PackagesLoader:
         for manifest in cls.load_manifests():
             yield from manifest.get_condition_files()
 
-    def check_condition(self, condition: str, value: object) -> bool:
-        check_fn = self.CONDITIONS[condition]
-
-        # All known predicates currently only work on strings
-        if not isinstance(value, str):
-            return False
-
-        return check_fn(value)
-
     def check_conditions(self, manifest: Manifest) -> bool:
         for condition in manifest.conditions:
-            try:
-                okay = self.check_condition(condition.name, condition.value)
-            except KeyError:
-                # do *not* ignore manifests with unknown predicates, for forward compatibility
-                logger.warning('  %s: ignoring unknown predicate in manifest: %s', manifest.path, condition.name)
-                continue
-
-            if not okay:
+            if not condition.check(self.path_exists):
                 logger.debug('  hiding package %s as its %s condition is not met', manifest.path, condition)
                 return False
 

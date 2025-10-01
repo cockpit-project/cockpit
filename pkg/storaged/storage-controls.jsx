@@ -258,12 +258,29 @@ export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
         </MenuToggle>
     );
 
+    /**
+     * Try to find parent Page section to append dropdown to. If we can't find it, use the default `document.body`.
+     * This is a temporary workaround to fix scrolling within iframes whenever the dropdown itself expands past the
+     * page content.
+     *
+     * To reproduce behavior:
+     *   1. Open a page with a dropdown button near the bottom of the page, like Storage -> btrfs subvolume
+     *   2. Resize window to make the page content height constrained.
+     *   3. Open dropdown and scroll up and down
+     *   4. Dropdown should move to be above and below the button, you should be able to scroll to see all actions.
+     *
+     * Remove once Patternfly makes it possible to use PopperJS offset function prop.
+     * @link https://github.com/patternfly/patternfly-react/issues/11987
+     * @type HTMLElement
+     * */
+    const appendTo = document.querySelector(".pf-v6-c-page__main-section") || document.body;
+
     return (
         <Dropdown isOpen={isOpen}
                   onSelect={onSelect}
                   onOpenChange={isOpen => setIsOpen(isOpen)}
                   toggle={toggle}
-                  popperProps={{ position: "right" }}
+                  popperProps={{ position: "right", appendTo }}
                   shouldFocusToggleOnSelect>
             {menuItems}
         </Dropdown>);

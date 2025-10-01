@@ -33,6 +33,7 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
+    Generator,
     Iterable,
     List,
     NamedTuple,
@@ -172,7 +173,8 @@ class PackagesListener:
         """Called when the packages have been reloaded"""
 
 
-class BridgeConfig(dict, JsonObject):
+# This wants to be 'dict[str, JsonValue]', but that does not work in Python 3.6 yet
+class BridgeConfig(dict, JsonObject):  # type: ignore[type-arg]
     def __init__(self, value: JsonObject):
         super().__init__(value)
 
@@ -199,7 +201,8 @@ class Condition:
             raise JsonError(value, 'must contain exactly one key/value pair') from exc
 
 
-class Manifest(dict, JsonObject):
+# This wants to be 'dict[str, JsonValue]', but that does not work in Python 3.6 yet
+class Manifest(dict, JsonObject):  # type: ignore[type-arg]
     # Skip version check when running out of the git checkout (__version__ is None)
     COCKPIT_VERSION = __version__ and sortify_version(__version__)
 
@@ -224,7 +227,7 @@ class Manifest(dict, JsonObject):
 
 class Package:
     # For po{,.manifest}.js files, the interesting part is the locale name
-    PO_JS_RE: ClassVar[Pattern] = re.compile(r'(po|po\.manifest)\.([^.]+)\.js(\.gz)?')
+    PO_JS_RE: ClassVar[Pattern[str]] = re.compile(r'(po|po\.manifest)\.([^.]+)\.js(\.gz)?')
 
     # immutable after __init__
     manifest: Manifest
@@ -489,14 +492,16 @@ class Packages(bus.Object, interface='cockpit.Packages'):
             package = self.packages[name]
             menuitems = []
             for entry in itertools.chain(
-                    package.manifest.get('menu', {}).values(),
-                    package.manifest.get('tools', {}).values()):
-                with contextlib.suppress(KeyError):
-                    menuitems.append(entry['label'])
+                    get_dict(package.manifest, 'menu', {}).values(),
+                    get_dict(package.manifest, 'tools', {}).values()):
+                if isinstance(entry, dict):
+                    label = get_str(entry, 'label', None)
+                    if label is not None:
+                        menuitems.append(label)
             print(f'{name:20} {", ".join(menuitems):40} {package.path}')
 
     def get_bridge_configs(self) -> Sequence[BridgeConfig]:
-        def yield_configs():
+        def yield_configs() -> Generator[BridgeConfig, None, None]:
             for package in sorted(self.packages.values(), key=lambda package: -package.priority):
                 yield from package.manifest.bridges
         return tuple(yield_configs())
@@ -504,13 +509,13 @@ class Packages(bus.Object, interface='cockpit.Packages'):
     # D-Bus Interface
     manifests = bus.Interface.Property('s', value="{}")
 
-    @bus.Interface.Method()
+    @bus.Interface.Method()  # type: ignore[misc]
     def reload(self) -> None:
         self.load()
         if self.listener is not None:
             self.listener.packages_loaded()
 
-    @bus.Interface.Method()
+    @bus.Interface.Method()  # type: ignore[misc]
     def reload_hint(self) -> None:
         if self.saw_first_reload_hint:
             self.reload()

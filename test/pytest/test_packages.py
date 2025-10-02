@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 
 from cockpit.jsonutil import JsonValue
-from cockpit.packages import Packages, parse_accept_language
+from cockpit.packages import Packages, PackagesLoader, parse_accept_language
 
 
 @pytest.mark.parametrize(("test_input", "expected"), [
@@ -148,6 +148,15 @@ def test_conditions(pkgdir: Path) -> None:
         'basic', 'empty', 'exists-1-yes', 'exists-2-yes', 'notexists-1-yes', 'notexists-2-yes', 'mixed-yes'
     }
 
+    # Manifest.get_condition_files()
+    assert set(packages.packages['empty'].manifest.get_condition_files()) == set()
+    assert set(packages.packages['exists-1-yes'].manifest.get_condition_files()) == {'/usr'}
+    assert set(packages.packages['exists-2-yes'].manifest.get_condition_files()) == {'/usr', '/bin/sh'}
+    assert set(packages.packages['mixed-yes'].manifest.get_condition_files()) == {'/usr', '/nonexisting'}
+
+    # PackagesLoader.get_condition_files()
+    assert set(PackagesLoader.get_condition_files()) == {'/usr', '/bin/sh', '/nonexisting', '/obscure'}
+
 
 def test_conditions_errors(pkgdir: Path) -> None:
     make_package(pkgdir, 'broken-syntax-1', conditions=[1])
@@ -161,6 +170,11 @@ def test_conditions_errors(pkgdir: Path) -> None:
 
     packages = Packages()
     assert set(packages.packages.keys()) == {'basic', 'unknown-predicate-good'}
+
+    # get_condition_files() should have the valid ones
+    assert set(packages.packages['unknown-predicate-good'].manifest.get_condition_files()) == {'/usr'}
+
+    assert set(PackagesLoader.get_condition_files()) == {'/usr', '/nonexisting'}
 
 
 def test_condition_hides_priority(pkgdir: Path) -> None:

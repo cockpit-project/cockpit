@@ -26,7 +26,7 @@ import shlex
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, Iterable, Literal, Optional, Sequence
+from typing import Dict, Literal, Optional, Sequence
 
 from cockpit import polyfills
 from cockpit._vendor import ferny
@@ -78,13 +78,6 @@ def ensure_ferny_askpass() -> Path:
         dest_path.chmod(0o700)
 
     return dest_path
-
-
-def get_interesting_files() -> Iterable[str]:
-    for manifest in PackagesLoader.load_manifests():
-        for condition in manifest.conditions:
-            if condition.name in ('path-exists', 'path-not-exists') and isinstance(condition.value, str):
-                yield condition.value
 
 
 class ProxyPackagesLoader(PackagesLoader):
@@ -391,7 +384,7 @@ class SshPeer(Peer):
         # Send the first-stage bootloader
         stage1 = bootloader.make_bootloader([
             *exec_cockpit_bridge_steps,
-            ('report_exists', [list(get_interesting_files())]),
+            ('report_exists', [list(PackagesLoader.get_condition_files())]),
             *beiboot_helper.steps,
         ], gadgets=BEIBOOT_GADGETS)
         transport.write(stage1.encode())

@@ -26,7 +26,7 @@ import shlex
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, Iterable, Literal, Optional, Sequence
+from typing import Dict, Literal, Optional, Sequence
 
 from cockpit import polyfills
 from cockpit._vendor import ferny
@@ -37,7 +37,7 @@ from cockpit.channel import ChannelRoutingRule
 from cockpit.channels import PackagesChannel
 from cockpit.jsonutil import JsonObject, get_str
 from cockpit.osinfo import supported_oses
-from cockpit.packages import Packages, PackagesLoader, patch_libexecdir
+from cockpit.packages import Manifest, Packages, PackagesLoader, patch_libexecdir
 from cockpit.peer import Peer
 from cockpit.protocol import CockpitProblem, CockpitProtocolError
 from cockpit.router import Router, RoutingRule
@@ -80,29 +80,21 @@ def ensure_ferny_askpass() -> Path:
     return dest_path
 
 
-def get_interesting_files() -> Iterable[str]:
-    for manifest in PackagesLoader.load_manifests():
-        for condition in manifest.conditions:
-            if condition.name in ('path-exists', 'path-not-exists') and isinstance(condition.value, str):
-                yield condition.value
-
-
 class ProxyPackagesLoader(PackagesLoader):
     file_status: Dict[str, bool]
 
-    def check_condition(self, condition: str, value: object) -> bool:
-        assert isinstance(value, str)
-        assert value in self.file_status
-
-        if condition == 'path-exists':
-            return self.file_status[value]
-        elif condition == 'path-not-exists':
-            return not self.file_status[value]
-        else:
-            raise KeyError
-
     def __init__(self, file_status: Dict[str, bool]):
         self.file_status = file_status
+
+    def check_conditions(self, manifest: Manifest) -> bool:
+        # redirect os.path.exists calls to our pre-cached results
+        # yes, hackish monkey-patching, but it's also simple and effective
+        original_exists = os.path.exists
+        try:
+            os.path.exists = lambda path: self.file_status.get(str(path), False)  # type: ignore[assignment]
+            return super().check_conditions(manifest)
+        finally:
+            os.path.exists = original_exists
 
 
 BEIBOOT_GADGETS = {
@@ -391,7 +383,7 @@ class SshPeer(Peer):
         # Send the first-stage bootloader
         stage1 = bootloader.make_bootloader([
             *exec_cockpit_bridge_steps,
-            ('report_exists', [list(get_interesting_files())]),
+            ('report_exists', [list(PackagesLoader.get_condition_files())]),
             *beiboot_helper.steps,
         ], gadgets=BEIBOOT_GADGETS)
         transport.write(stage1.encode())

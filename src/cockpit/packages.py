@@ -30,9 +30,9 @@ import shutil
 from pathlib import Path
 from typing import (
     BinaryIO,
-    Callable,
     ClassVar,
     Dict,
+    Generator,
     Iterable,
     List,
     NamedTuple,
@@ -172,7 +172,8 @@ class PackagesListener:
         """Called when the packages have been reloaded"""
 
 
-class BridgeConfig(dict, JsonObject):
+# This wants to be 'dict[str, JsonValue]', but that does not work in Python 3.6 yet
+class BridgeConfig(dict, JsonObject):  # type: ignore[type-arg]
     def __init__(self, value: JsonObject):
         super().__init__(value)
 
@@ -192,14 +193,68 @@ class BridgeConfig(dict, JsonObject):
 
 
 class Condition:
-    def __init__(self, value: JsonObject):
-        try:
-            (self.name, self.value), = value.items()
-        except ValueError as exc:
-            raise JsonError(value, 'must contain exactly one key/value pair') from exc
+    def __init__(self, predicate: JsonObject) -> None:
+        self.predicate = predicate
+
+    def get_condition_files(self) -> Iterable[str]:
+        return []
+
+    def check(self) -> bool:
+        raise NotImplementedError(str(self.predicate))
 
 
-class Manifest(dict, JsonObject):
+class PathExistsCondition(Condition):
+    def __init__(self, predicate: JsonObject) -> None:
+        super().__init__(predicate)
+        self.path = get_str(predicate, "path-exists")
+
+    def get_condition_files(self) -> Iterable[str]:
+        yield self.path
+
+    def check(self) -> bool:
+        return os.path.exists(self.path)
+
+
+class PathNotExistsCondition(Condition):
+    def __init__(self, predicate: JsonObject) -> None:
+        super().__init__(predicate)
+        self.path = get_str(predicate, "path-not-exists")
+
+    def get_condition_files(self) -> Iterable[str]:
+        yield self.path
+
+    def check(self) -> bool:
+        return not os.path.exists(self.path)
+
+
+class DisjunctiveCondition(Condition):
+    def __init__(self, predicate: JsonObject) -> None:
+        super().__init__(predicate)
+        self.conditions = get_objv(predicate, "any", parse_condition)
+
+    def check(self) -> bool:
+        return any(c.check() for c in self.conditions)
+
+
+def parse_condition(value: JsonObject) -> Condition:
+    if len(value) != 1:
+        raise JsonError(value, 'must contain exactly one key/value pair')
+
+    if "path-exists" in value:
+        return PathExistsCondition(value)
+
+    elif "path-not-exists" in value:
+        return PathNotExistsCondition(value)
+
+    elif "any" in value:
+        return DisjunctiveCondition(value)
+
+    else:
+        return Condition(value)
+
+
+# This wants to be 'dict[str, JsonValue]', but that does not work in Python 3.6 yet
+class Manifest(dict, JsonObject):  # type: ignore[type-arg]
     # Skip version check when running out of the git checkout (__version__ is None)
     COCKPIT_VERSION = __version__ and sortify_version(__version__)
 
@@ -210,7 +265,7 @@ class Manifest(dict, JsonObject):
         self.bridges = get_objv(self, 'bridges', BridgeConfig)
         self.priority = get_int(self, 'priority', 1)
         self.csp = get_str(self, 'content-security-policy', '')
-        self.conditions = get_objv(self, 'conditions', Condition)
+        self.conditions = get_objv(self, 'conditions', parse_condition)
 
         # Skip version check when running out of the git checkout (COCKPIT_VERSION is None)
         if self.COCKPIT_VERSION is not None:
@@ -221,10 +276,14 @@ class Manifest(dict, JsonObject):
                 if sortify_version(typechecked(version, str)) > self.COCKPIT_VERSION:
                     raise JsonError(version, f'required cockpit version ({version}) not met')
 
+    def get_condition_files(self) -> Iterable[str]:
+        for condition in self.conditions:
+            yield from condition.get_condition_files()
+
 
 class Package:
     # For po{,.manifest}.js files, the interesting part is the locale name
-    PO_JS_RE: ClassVar[Pattern] = re.compile(r'(po|po\.manifest)\.([^.]+)\.js(\.gz)?')
+    PO_JS_RE: ClassVar[Pattern[str]] = re.compile(r'(po|po\.manifest)\.([^.]+)\.js(\.gz)?')
 
     # immutable after __init__
     manifest: Manifest
@@ -346,11 +405,6 @@ class Package:
 
 
 class PackagesLoader:
-    CONDITIONS: ClassVar[Dict[str, Callable[[str], bool]]] = {
-        'path-exists': os.path.exists,
-        'path-not-exists': lambda p: not os.path.exists(p),
-    }
-
     @classmethod
     def get_xdg_data_dirs(cls) -> Iterable[str]:
         try:
@@ -410,27 +464,20 @@ class PackagesLoader:
                 except JsonError as exc:
                     logger.warning('%s %s', file, exc)
 
-    def check_condition(self, condition: str, value: object) -> bool:
-        check_fn = self.CONDITIONS[condition]
-
-        # All known predicates currently only work on strings
-        if not isinstance(value, str):
-            return False
-
-        return check_fn(value)
+    @classmethod
+    def get_condition_files(cls) -> Iterable[str]:
+        for manifest in cls.load_manifests():
+            yield from manifest.get_condition_files()
 
     def check_conditions(self, manifest: Manifest) -> bool:
         for condition in manifest.conditions:
             try:
-                okay = self.check_condition(condition.name, condition.value)
-            except KeyError:
+                if not condition.check():
+                    logger.debug('  hiding package %s as its %s condition is not met', manifest.path, condition)
+                    return False
+            except NotImplementedError as e:
                 # do *not* ignore manifests with unknown predicates, for forward compatibility
-                logger.warning('  %s: ignoring unknown predicate in manifest: %s', manifest.path, condition.name)
-                continue
-
-            if not okay:
-                logger.debug('  hiding package %s as its %s condition is not met', manifest.path, condition)
-                return False
+                logger.warning('  %s: ignoring unknown predicate in manifest: %s', manifest.path, e)
 
         return True
 
@@ -489,14 +536,16 @@ class Packages(bus.Object, interface='cockpit.Packages'):
             package = self.packages[name]
             menuitems = []
             for entry in itertools.chain(
-                    package.manifest.get('menu', {}).values(),
-                    package.manifest.get('tools', {}).values()):
-                with contextlib.suppress(KeyError):
-                    menuitems.append(entry['label'])
+                    get_dict(package.manifest, 'menu', {}).values(),
+                    get_dict(package.manifest, 'tools', {}).values()):
+                if isinstance(entry, dict):
+                    label = get_str(entry, 'label', None)
+                    if label is not None:
+                        menuitems.append(label)
             print(f'{name:20} {", ".join(menuitems):40} {package.path}')
 
     def get_bridge_configs(self) -> Sequence[BridgeConfig]:
-        def yield_configs():
+        def yield_configs() -> Generator[BridgeConfig, None, None]:
             for package in sorted(self.packages.values(), key=lambda package: -package.priority):
                 yield from package.manifest.bridges
         return tuple(yield_configs())
@@ -504,13 +553,13 @@ class Packages(bus.Object, interface='cockpit.Packages'):
     # D-Bus Interface
     manifests = bus.Interface.Property('s', value="{}")
 
-    @bus.Interface.Method()
+    @bus.Interface.Method()  # type: ignore[misc]
     def reload(self) -> None:
         self.load()
         if self.listener is not None:
             self.listener.packages_loaded()
 
-    @bus.Interface.Method()
+    @bus.Interface.Method()  # type: ignore[misc]
     def reload_hint(self) -> None:
         if self.saw_first_reload_hint:
             self.reload()

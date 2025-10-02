@@ -224,6 +224,11 @@ class Manifest(dict, JsonObject):  # type: ignore[type-arg]
                 if sortify_version(typechecked(version, str)) > self.COCKPIT_VERSION:
                     raise JsonError(version, f'required cockpit version ({version}) not met')
 
+    def get_condition_files(self) -> Iterable[str]:
+        for condition in self.conditions:
+            if condition.name in ('path-exists', 'path-not-exists') and isinstance(condition.value, str):
+                yield condition.value
+
 
 class Package:
     # For po{,.manifest}.js files, the interesting part is the locale name
@@ -412,6 +417,11 @@ class PackagesLoader:
                     yield Manifest(parent, manifest)
                 except JsonError as exc:
                     logger.warning('%s %s', file, exc)
+
+    @classmethod
+    def get_condition_files(cls) -> Iterable[str]:
+        for manifest in cls.load_manifests():
+            yield from manifest.get_condition_files()
 
     def check_condition(self, condition: str, value: object) -> bool:
         check_fn = self.CONDITIONS[condition]

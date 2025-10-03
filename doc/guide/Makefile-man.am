@@ -1,0 +1,41 @@
+EXTRA_DIST += \
+	doc/guide/modules/man/pages/cockpit.adoc \
+	doc/guide/modules/man/pages/cockpit-bridge.adoc \
+	doc/guide/modules/man/pages/cockpit-ws.adoc \
+	doc/guide/modules/man/pages/cockpit-tls.adoc \
+	doc/guide/modules/man/pages/cockpit-desktop.adoc \
+	doc/guide/modules/man/pages/cockpit.conf.adoc \
+	doc/guide/modules/man/pages/pam_ssh_add.adoc \
+	$(NULL)
+
+if ENABLE_DOC
+
+MANPAGES = \
+	doc/guide/output/man/cockpit.1 \
+	doc/guide/output/man/cockpit-bridge.1 \
+	doc/guide/output/man/cockpit-desktop.1 \
+	doc/guide/output/man/cockpit-ws.8 \
+	doc/guide/output/man/cockpit-tls.8 \
+	doc/guide/output/man/cockpit.conf.5 \
+	doc/guide/output/man/pam_ssh_add.8 \
+	$(NULL)
+
+man_MANS += $(MANPAGES)
+CLEANFILES += $(MANPAGES)
+
+render-man:
+	mkdir -p doc/guide/output/man
+	asciidoctor -a cockpit-version=$(COCKPIT_VERSION) -b manpage -D doc/guide/output/man doc/guide/modules/man/pages/*.adoc
+
+%.8: %.xml
+	$(AM_V_GEN) make render-man
+%.1: %.xml
+	$(AM_V_GEN) make render-man
+%.5: %.xml
+	$(AM_V_GEN) make render-man
+
+CLEAN_LOCAL_TARGETS += clean-man
+clean-man:
+	rm -rf doc/guide/output/man
+
+endif

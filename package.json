@@ -10,6 +10,8 @@
     "@patternfly/react-styles": "6.3.1",
     "@patternfly/react-table": "6.3.1",
     "@patternfly/react-tokens": "6.3.1",
+    "@xterm/xterm": "5.5.0",
+    "@xterm/addon-canvas": "0.7.0",
     "dequal": "2.0.3",
     "ipaddr.js": "2.2.0",
     "json-stable-stringify-without-jsonify": "1.0.1",
@@ -18,9 +20,7 @@
     "react-dom": "18.3.1",
     "remarkable": "2.0.1",
     "throttle-debounce": "5.0.2",
-    "uuid": "13.0.0",
-    "@xterm/xterm": "5.5.0",
-    "@xterm/addon-canvas": "0.7.0"
+    "uuid": "13.0.0"
   },
   "devDependencies": {
     "@types/qunit": "2.19.13",
@@ -28,6 +28,7 @@
     "@types/react-dom": "18.3.1",
     "@types/throttle-debounce": "5.0.2",
     "@typescript-eslint/eslint-plugin": "8.38.0",
+    "antora": "^3.1.13",
     "argparse": "2.0.1",
     "esbuild": "0.25.10",
     "esbuild-sass-plugin": "3.3.1",
@@ -58,6 +59,7 @@
     "eslint": "eslint --ext .js --ext .jsx --ext .ts --ext .tsx pkg/ test/common/",
     "eslint:fix": "eslint --fix --ext .js --ext .jsx --ext .ts --ext .tsx pkg/ test/common/",
     "stylelint": "stylelint pkg/*/*{.css,scss}",
-    "stylelint:fix": "stylelint --fix pkg/*/*{.css,scss}"
+    "stylelint:fix": "stylelint --fix pkg/*/*{.css,scss}",
+    "antora": "antora antora-playbook.yml"
   }
 }

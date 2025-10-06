@@ -33,7 +33,10 @@ class TestSOS(testlib.MachineCase):
         super().setUp()
         m = self.machine
 
-        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+        # Older Debian and Ubuntu systems have sosreport in /tmp
+        # Newer versions of sosreport changed to /var/tmp
+        # https://github.com/sosreport/sos/pull/4090
+        if m.image in ["debian-trixie", "ubuntu-stable", "ubuntu-2204", "ubuntu-2404"]:
             self.report_dir = "/tmp"
         else:
             self.report_dir = "/var/tmp"

@@ -1318,11 +1318,13 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         redis_service = redisService(m.image)
         redis_package = "valkey" if redis_service == "valkey" else "redis"
-        extra_packages = ""
+        extra_packages = []
         if redis_package == "valkey" and m.image.startswith("fedora"):
             # Fedora has a compat package that we need to
             # remove at the same time as valkey.
-            extra_packages = "valkey-compat-redis"
+            # Fedora split out valkey to more packages as
+            # well which we need to remove.
+            extra_packages += m.execute("rpm -qa valkey-*").split("\n")
 
         if m.ostree_image:
             self.login_and_go("/metrics")
@@ -1349,7 +1351,7 @@ class TestMetricsPackages(packagelib.PackageCase):
             # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
             m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
-            m.execute(f"rpm --erase --verbose pcp python3-pcp {redis_package} {extra_packages}")
+            m.execute(f"rpm --erase --verbose pcp python3-pcp {redis_package} {' '.join(extra_packages)}")
             if "centos-8" in m.image or "rhel-8" in m.image:
                 # RHEL 8 ships this in a module, make sure that doesn't hide our fake package
                 m.execute("dnf module disable -y redis || true")

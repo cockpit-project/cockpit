@@ -150,6 +150,41 @@ class TestNetworkingBasic(netlib.NetworkCase):
         m.execute(f"until ip a show dev {iface} | grep -q 'inet 1.2.3.4/18'; do sleep 0.3; done",
                   timeout=10)
 
+        # Add IPv4 route without optonal properties
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        # route without metric and next-hop address
+        b.set_input_text('#network-ip-settings-route-address-0', "192.168.67.0")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "24")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "")
+        b.set_input_text('#network-ip-settings-route-metric-0', "")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        route = m.execute(f"nmcli -t -f ipv4.routes con sh {iface}").strip()
+        self.assertEqual(route, "ipv4.routes:192.168.67.0/24")
+        # route without metric
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.set_input_text('#network-ip-settings-route-address-0', "192.168.68.0")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "24")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "192.168.48.1")
+        b.set_input_text('#network-ip-settings-route-metric-0', "")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        route = m.execute(f"nmcli -t -f ipv4.routes con sh {iface}").strip()
+        self.assertEqual(route, "ipv4.routes:192.168.68.0/24 192.168.48.1")
+        # route without next-hop address
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.set_input_text('#network-ip-settings-route-address-0', "192.168.69.0")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "24")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "")
+        b.set_input_text('#network-ip-settings-route-metric-0', "500")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        route = m.execute(f"nmcli -t -f ipv4.routes con sh {iface}").strip()
+        self.assertEqual(route, "ipv4.routes:192.168.69.0/24 500")
+
         # Configure manual IPv6 address
         b.click("#networking-edit-ipv6")
         b.wait_visible("#network-ip-settings-dialog")
@@ -201,6 +236,41 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         m.execute(f"until ip a show dev {iface} | grep -q 'inet6 2001::1/64 scope global'; do sleep 0.3; done",
                   timeout=10)
+
+        # Add IPv6 route without optonal properties
+        self.configure_iface_setting('IPv6')
+        b.wait_visible("#network-ip-settings-dialog")
+        # route without metric and next-hop address
+        b.set_input_text('#network-ip-settings-route-address-0', "2001:db8:face::")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "64")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "")
+        b.set_input_text('#network-ip-settings-route-metric-0', "")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        route = m.execute(f"nmcli -t -f ipv6.routes con sh {iface}").strip()
+        self.assertEqual(route, "ipv6.routes:2001:db8:face::/64")
+        # route without metric
+        self.configure_iface_setting('IPv6')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.set_input_text('#network-ip-settings-route-address-0', "2001:db8:face:1::")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "64")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "2001:db8::10:1")
+        b.set_input_text('#network-ip-settings-route-metric-0', "")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        route = m.execute(f"nmcli -t -f ipv6.routes con sh {iface}").strip()
+        self.assertEqual(route, "ipv6.routes:2001:db8:face:1::/64 2001:db8::10:1")
+        # route without next-hop address
+        self.configure_iface_setting('IPv6')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.set_input_text('#network-ip-settings-route-address-0', "2001:db8:face:2::")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "64")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "")
+        b.set_input_text('#network-ip-settings-route-metric-0', "500")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        route = m.execute(f"nmcli -t -f ipv6.routes con sh {iface}").strip()
+        self.assertEqual(route, "ipv6.routes:2001:db8:face:2::/64 500")
 
         # Disconnect
         self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=True)

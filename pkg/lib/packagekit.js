@@ -519,3 +519,26 @@ export async function remove_packages(pkgnames, files, progress_cb) {
 
     return cancellableTransaction("RemovePackages", [0, ids, true, false], progress_cb);
 }
+
+/**
+ * @param {string[]} pkgnames - packages to install
+ * @param {?() => void} progress_cb - optional progress callback
+ */
+export async function install_packages(pkgnames, progress_cb) {
+    const flags = Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST | Enum.FILTER_NOT_INSTALLED;
+    const ids = [];
+
+    await cancellableTransaction("Resolve", [flags, pkgnames], progress_cb,
+                                 {
+                                     Package: (_info, package_id) => ids.push(package_id),
+                                 });
+
+    if (ids.length === 0)
+        return Promise.reject(new TransactionError("not-found", "Can't resolve package(s)"));
+    else
+        return cancellableTransaction("InstallPackages", [0, ids], progress_cb)
+                .catch(ex => {
+                    if (ex.code != Enum.ERROR_ALREADY_INSTALLED)
+                        return Promise.reject(ex);
+                });
+}

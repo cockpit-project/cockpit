@@ -40,42 +40,14 @@ class ProgressReporter {
     }
 }
 
-function resolve_many(method, filter, names, progress_cb) {
-    const ids = [];
-
-    return PK.cancellableTransaction(method, [filter, names], progress_cb,
-                                     {
-                                         Package: (info, package_id) => ids.push(package_id),
-                                     })
-            .then(() => ids);
-}
-
-function resolve(method, filter, name, progress_cb) {
-    return resolve_many(method, filter, [name], progress_cb)
-            .then(function (ids) {
-                if (ids.length === 0)
-                    return Promise.reject(new PK.TransactionError("not-found", "Can't resolve package"));
-                else
-                    return ids[0];
-            });
-}
-
 function reload_bridge_packages() {
     return cockpit.dbus(null, { bus: "internal" }).call("/packages", "cockpit.Packages", "Reload", []);
 }
 
 export function install(name, progress_cb) {
-    const progress = new ProgressReporter(0, 1, progress_cb);
+    const progress = new ProgressReporter(0, 100, progress_cb);
 
-    return resolve("Resolve", PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, name,
-                   progress.progress_reporter)
-            .then(pkgid => {
-                progress.base = 1;
-                progress.range = 99;
-
-                return PK.cancellableTransaction("InstallPackages", [0, [pkgid]], progress.progress_reporter)
-                        .then(reload_bridge_packages);
-            });
+    return PK.install_packages([name], progress.progress_reporter).then(reload_bridge_packages);
 }
 
 export async function remove(name, progress_cb) {
@@ -149,24 +121,9 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
     const ensure_packages = (pkgs, start_progress) => {
         if (pkgs.length > 0) {
             progress.base = start_progress;
-            progress.range = 1;
+            progress.range = 5;
 
-            return resolve_many("Resolve",
-                                PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED,
-                                pkgs, progress.progress_reporter)
-                    .then(ids => {
-                        if (ids.length > 0) {
-                            progress.base = start_progress + 1;
-                            progress.range = 4;
-
-                            return PK.cancellableTransaction("InstallPackages", [0, ids],
-                                                             progress.progress_reporter)
-                                    .catch(ex => {
-                                        if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
-                                            return Promise.reject(ex);
-                                    });
-                        }
-                    });
+            return PK.install_packages(pkgs, progress.progress_reporter);
         } else {
             return Promise.resolve();
         }

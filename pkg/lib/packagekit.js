@@ -410,23 +410,41 @@ export function check_missing_packages(names, progress_cb) {
  * This is a lightweight version of check_missing_packages() which does not
  * refresh, simulates, or retrieves details. It just checks which of the given package
  * names are already installed, and returns a Set of the missing ones.
+ *
+ * @param {string[]} names - names of packages which should be installed
+ * @param {?string[]} files - filenames of packages which should be installed
  */
-export function check_uninstalled_packages(names) {
-    const uninstalled = new Set(names);
+export async function is_installed(names, files, progress_cb) {
+    const installed = [];
 
-    if (names.length === 0)
-        return Promise.resolve(uninstalled);
+    if ((names && names.length === 0) || (files && files.length === 0))
+        return Promise.resolve([]);
 
-    return cancellableTransaction("Resolve",
-                                  [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, names],
-                                  null, // don't need progress, this is fast
-                                  {
-                                      Package: (info, package_id) => {
-                                          const parts = package_id.split(";");
-                                          uninstalled.delete(parts[0]);
-                                      },
-                                  })
-            .then(() => uninstalled);
+    if (names) {
+        await cancellableTransaction("Resolve",
+                                     [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, names],
+                                     progress_cb,
+                                     {
+                                         Package: (info, package_id) => {
+                                             const pkg = package_id.split(";")[0];
+                                             installed.push(pkg);
+                                         },
+                                     });
+    }
+
+    if (files) {
+        await cancellableTransaction("SearchFiles",
+                                     [Enum.FILTER_ARCH | Enum.FILTER_INSTALLED, files],
+                                     progress_cb,
+                                     {
+                                         Package: (info, package_id) => {
+                                             const pkg = package_id.split(";")[0];
+                                             installed.push(pkg);
+                                         },
+                                     });
+    }
+
+    return installed;
 }
 
 /* Carry out what check_missing_packages has planned.

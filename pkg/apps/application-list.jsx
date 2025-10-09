@@ -28,7 +28,7 @@ import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/
 
 import { RebootingIcon } from "@patternfly/react-icons";
 
-import { check_uninstalled_packages } from "packagekit";
+import { is_installed } from "packagekit";
 import { get_manifest_config_matchlist } from "utils";
 import { read_os_release } from "os-release";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -106,8 +106,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
 
     async function check_missing_data(packages) {
         try {
-            const missing = await check_uninstalled_packages(packages);
-            setDataPackagesInstalled(missing.size === 0);
+            setDataPackagesInstalled(await is_installed(packages, null));
         } catch (e) {
             console.warn("Failed to check missing AppStream metadata packages:", e.toString());
         }

@@ -117,17 +117,6 @@ function init() {
     PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_SIGCHECK] = _("Verified");
 }
 
-// parse CVEs from an arbitrary text (changelog) and return URL array
-function parseCVEs(text) {
-    if (!text)
-        return [];
-
-    const cves = text.match(/CVE-\d{4}-\d+/g);
-    if (!cves)
-        return [];
-    return cves.map(n => "https://www.cve.org/CVERecord?id=" + n);
-}
-
 function deduplicate(list) {
     return [...new Set(list)].sort();
 }
@@ -162,8 +151,8 @@ function shortenCockpitWsInstance(list) {
 
 function count_security_updates(updates) {
     let num_security = 0;
-    for (const u in updates)
-        if (updates[u].severity === PK.Enum.INFO_SECURITY)
+    for (const u of updates)
+        if (u.severity === PK.Enum.INFO_SECURITY)
             ++num_security;
     return num_security;
 }
@@ -174,17 +163,17 @@ function isKpatchPackage(name) {
 
 function count_kpatch_updates(updates) {
     let num_kpatches = 0;
-    for (const u in updates)
-        if (isKpatchPackage(updates[u].name))
+    for (const u of updates)
+        if (isKpatchPackage(u.name))
             ++num_kpatches;
     return num_kpatches;
 }
 
 function find_highest_severity(updates) {
     let max = PK.Enum.INFO_LOW;
-    for (const u in updates)
-        if (updates[u].severity > max)
-            max = updates[u].severity;
+    for (const u of updates)
+        if (u.severity > max)
+            max = u.severity;
     return max;
 }
 
@@ -402,14 +391,13 @@ function updateItem(remarkable, info, pkgNames, key) {
 
 const UpdatesList = ({ updates }) => {
     const remarkable = customRemarkable();
-    const update_ids = [];
+    const combined_updates = [];
 
     // PackageKit doesn"t expose source package names, so group packages with the same version and changelog
     // create a reverse version+changes → [id] map on iteration
     const sameUpdate = {};
     const packageNames = {};
-    Object.keys(updates).forEach(id => {
-        const u = updates[id];
+    for (const u of updates) {
         // did we already see the same version and description? then merge
         const hash = u.version + u.description;
         const seenId = sameUpdate[hash];
@@ -417,19 +405,19 @@ const UpdatesList = ({ updates }) => {
             packageNames[seenId].push({ name: u.name, arch: u.arch, summary: u.summary });
         } else {
             // this is a new update
-            sameUpdate[hash] = id;
-            packageNames[id] = [{ name: u.name, arch: u.arch, summary: u.summary }];
-            update_ids.push(id);
+            sameUpdate[hash] = u.id;
+            packageNames[u.id] = [{ name: u.name, arch: u.arch, summary: u.summary }];
+            combined_updates.push(u);
         }
-    });
+    }
 
     // sort security first
-    update_ids.sort((a, b) => {
-        if (updates[a].severity === PK.Enum.INFO_SECURITY && updates[b].severity !== PK.Enum.INFO_SECURITY)
+    combined_updates.sort((a, b) => {
+        if (a.severity === PK.Enum.INFO_SECURITY && b.severity !== PK.Enum.INFO_SECURITY)
             return -1;
-        if (updates[a].severity !== PK.Enum.INFO_SECURITY && updates[b].severity === PK.Enum.INFO_SECURITY)
+        if (a.severity !== PK.Enum.INFO_SECURITY && b.severity === PK.Enum.INFO_SECURITY)
             return 1;
-        return a.localeCompare(b);
+        return a.name.localeCompare(b.name);
     });
 
     return (
@@ -441,7 +429,7 @@ const UpdatesList = ({ updates }) => {
                     { title: _("Severity"), props: { width: 15 } },
                     { title: _("Details"), props: { width: 30 } },
                 ]}
-                rows={update_ids.map(id => updateItem(remarkable, updates[id], packageNames[id].sort((a, b) => a.name > b.name), id))} />
+                rows={combined_updates.map(update => updateItem(remarkable, update, packageNames[update.id].sort((a, b) => a.name > b.name), update.id))} />
     );
 };
 
@@ -769,7 +757,7 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
 };
 
 const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, restartPackages, onValueChanged }) => {
-    const numUpdates = Object.keys(updates).length;
+    const numUpdates = updates.length;
     const numSecurity = count_security_updates(updates);
     const numRestartServices = restartPackages.daemons.length;
     const numManualSoftware = restartPackages.manual.length;
@@ -976,7 +964,7 @@ class OsUpdates extends React.Component {
         this.state = {
             state: "loading",
             errorMessages: [],
-            updates: {},
+            updates: [],
             timeSinceRefresh: null,
             loadPercent: null,
             cockpitUpdate: false,
@@ -1174,82 +1162,7 @@ class OsUpdates extends React.Component {
         this.setState({ state: "loadError" });
     }
 
-    removeHeading(text) {
-        // on Debian the update_text starts with "== version ==" which is
-        // redundant; we don't want Markdown headings in the table
-        if (text)
-            return text.trim().replace(/^== .* ==\n/, "")
-                    .trim();
-        return text;
-    }
-
-    /** @returns {Promise<void>} */
-    loadUpdateDetailsBatch(pkg_ids, update_details) {
-        return PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], null, {
-            UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
-                update_text, changelog /* state, issued, updated */) => {
-                const u = update_details[packageId];
-                if (!u) {
-                    console.warn("Mismatching update:", packageId);
-                    return;
-                }
-
-                u.vendor_urls = vendor_urls;
-                u.description = this.removeHeading(update_text) || changelog;
-                if (update_text)
-                    u.markdown = true;
-                u.bug_urls = deduplicate(bug_urls);
-                // many backends don't support proper severities; parse CVEs from description as a fallback
-                u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
-                if (u.cve_urls && u.cve_urls.length > 0)
-                    u.severity = PK.Enum.INFO_SECURITY;
-                u.vendor_urls = vendor_urls || [];
-                // u.restart = restart; // broken (always "1") at least in Fedora
-                debug("UpdateDetail:", u);
-            }
-        });
-    }
-
-    loadUpdateDetails(pkg_ids) {
-        const update_details = Object.assign({}, this.state.updates);
-
-        /** @returns {Promise<void>} */
-        const processBatch = (remaining_ids, current_batch_size) => {
-            if (remaining_ids.length === 0) {
-                // All done, set the state
-                this.setState({ updates: update_details, state: "available" });
-                return Promise.resolve();
-            }
-
-            const batch = remaining_ids.slice(0, current_batch_size);
-            const next_ids = remaining_ids.slice(current_batch_size);
-
-            return this.loadUpdateDetailsBatch(batch, update_details)
-                    // continue with next batch using same batch size
-                    .then(() => processBatch(next_ids, current_batch_size))
-                    .catch(ex => {
-                        console.warn("GetUpdateDetail failed with batch size", current_batch_size, ":", JSON.stringify(ex));
-
-                        if (current_batch_size > 1) {
-                            // Reduce batch size to 1 and retry
-                            console.log("Reducing GetUpdateDetail batch size to 1 and retrying");
-                            return processBatch(remaining_ids, 1);
-                        } else {
-                            // Even batch size 1 failed, skip this batch and continue
-                            console.warn("Failed to load update details for package:", batch[0]);
-                            return processBatch(next_ids, 1);
-                        }
-                    });
-        };
-
-        // Avoid exceeding cockpit-ws frame size, so batch the loading of details
-        // if we run into https://issues.redhat.com/browse/RHEL-109779 then we need to fall back to load packages
-        // individually
-        return processBatch(pkg_ids, 500);
-    }
-
     loadUpdates() {
-        const updates = {};
         let cockpitUpdate = false;
 
         this.setState({ state: "loading" });
@@ -1266,38 +1179,23 @@ class OsUpdates extends React.Component {
             })
                 .then(() => this.setState({ haveOsRepo: have_coreutils }),
                       ex => console.warn("Resolving coreutils failed:", JSON.stringify(ex)))
-                .then(() => PK.cancellableTransaction(
-                    "GetUpdates", [0],
-                    data => this.setState({ state: data.waiting ? "locked" : "loading" }),
-                    {
-                        Package: (info, packageId, summary) => {
-                            // HACK: security updates have 0x50008 with PackageKit 1.2.8, so just consider the lower 8 bits
-                            info = info & 0xff;
-                            const id_fields = packageId.split(";");
-                            // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
-                            if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
-                                info = PK.Enum.INFO_NORMAL;
-                            updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2], summary };
-                            if (id_fields[0] == "cockpit-ws")
+                .then(() => PK.get_updates(true, null).then(updates => {
+                    debug("GetUpdates result:", updates);
+                    if (updates.length) {
+                        for (const update of updates) {
+                            if (update.name === 'cockpit-ws') {
                                 cockpitUpdate = true;
                             // Arch Linux has no cockpit-ws package
-                            if (id_fields[0] == "cockpit" && this.state.backend === "alpm")
+                            } else if (update.name === 'cockpit' && this.state.backend === "alpm") {
                                 cockpitUpdate = true;
-                        },
-                    }))
-                .then(() => {
-                    debug("GetUpdates result:", updates);
-                    // get the details for all packages
-                    const pkg_ids = Object.keys(updates);
-                    if (pkg_ids.length) {
-                        this.setState({ updates, cockpitUpdate }, () => {
-                            this.loadUpdateDetails(pkg_ids);
-                        });
+                            }
+                        }
+                        this.setState({ updates, cockpitUpdate, state: "available" });
                     } else {
-                        this.setState({ updates: {}, state: "uptodate" });
+                        this.setState({ updates: [], state: "uptodate" });
                     }
                     this.loadHistory();
-                })
+                }))
                 .catch(this.handleLoadError);
     }
 
@@ -1421,11 +1319,11 @@ class OsUpdates extends React.Component {
     }
 
     applyUpdates(type) {
-        let ids = Object.keys(this.state.updates);
+        let updates = [...this.state.updates];
         if (type === UPDATES.SECURITY)
-            ids = ids.filter(id => this.state.updates[id].severity === PK.Enum.INFO_SECURITY);
+            updates = updates.filter(update => update.severity === PK.Enum.INFO_SECURITY);
         if (type === UPDATES.KPATCHES) {
-            ids = ids.filter(id => isKpatchPackage(this.state.updates[id].name));
+            updates = updates.filter(update => isKpatchPackage(update.name));
         }
 
         PK.transaction()
@@ -1499,7 +1397,7 @@ class OsUpdates extends React.Component {
 
         case "available":
         {
-            const num_updates = Object.keys(this.state.updates).length;
+            const num_updates = this.state.updates.length;
             const num_security_updates = count_security_updates(this.state.updates);
             const num_kpatches = count_kpatch_updates(this.state.updates);
             const highest_severity = find_highest_severity(this.state.updates);

@@ -100,22 +100,19 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
         progress.base = 75;
         progress.range = 5;
 
-        return PK.cancellableTransaction("GetUpdates", [0], progress.progress_reporter,
-                                         {
-                                             Package: (info, package_id) => {
-                                                 const pkg = package_id.split(";")[0];
-                                                 if (pkg in origin_pkgs)
-                                                     update_ids.push(package_id);
-                                             },
-                                         })
-                .then(() => {
-                    progress.base = 80;
-                    progress.range = 15;
+        return PK.get_updates(false, progress.progress_reporter).then(updates => {
+            for (const update of updates) {
+                if (update.name in origin_pkgs)
+                    update_ids.push(update.id);
+            }
 
-                    if (update_ids.length > 0)
-                        return PK.cancellableTransaction("UpdatePackages", [0, update_ids],
-                                                         progress.progress_reporter);
-                });
+            progress.base = 80;
+            progress.range = 15;
+
+            if (update_ids.length > 0)
+                return PK.cancellableTransaction("UpdatePackages", [0, update_ids],
+                                                 progress.progress_reporter);
+        });
     };
 
     const ensure_packages = (pkgs, start_progress) => {

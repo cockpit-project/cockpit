@@ -88,7 +88,6 @@ const _ = cockpit.gettext;
 const STATE_HEADINGS = {};
 const PK_STATUS_STRINGS = {};
 const PK_STATUS_LOG_STRINGS = {};
-const packageSummaries = {};
 
 const UPDATES = {
     ALL: 0,
@@ -320,7 +319,7 @@ function updateItem(remarkable, info, pkgNames, key) {
     }
 
     const pkgList = pkgNames.map((n, index) => (
-        <Tooltip key={n.name + n.arch} id="tip-summary" content={packageSummaries[n.name] + " (" + n.arch + ")"}>
+        <Tooltip key={n.name + n.arch} id="tip-summary" content={n.summary + " (" + n.arch + ")"}>
             <span>{n.name + (index !== (pkgNames.length - 1) ? ", " : "")}</span>
         </Tooltip>)
     );
@@ -415,11 +414,11 @@ const UpdatesList = ({ updates }) => {
         const hash = u.version + u.description;
         const seenId = sameUpdate[hash];
         if (seenId) {
-            packageNames[seenId].push({ name: u.name, arch: u.arch });
+            packageNames[seenId].push({ name: u.name, arch: u.arch, summary: u.summary });
         } else {
             // this is a new update
             sameUpdate[hash] = id;
-            packageNames[id] = [{ name: u.name, arch: u.arch }];
+            packageNames[id] = [{ name: u.name, arch: u.arch, summary: u.summary }];
             update_ids.push(id);
         }
     });
@@ -1271,15 +1270,14 @@ class OsUpdates extends React.Component {
                     "GetUpdates", [0],
                     data => this.setState({ state: data.waiting ? "locked" : "loading" }),
                     {
-                        Package: (info, packageId, _summary) => {
+                        Package: (info, packageId, summary) => {
                             // HACK: security updates have 0x50008 with PackageKit 1.2.8, so just consider the lower 8 bits
                             info = info & 0xff;
                             const id_fields = packageId.split(";");
-                            packageSummaries[id_fields[0]] = _summary;
                             // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
                             if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
                                 info = PK.Enum.INFO_NORMAL;
-                            updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2] };
+                            updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2], summary };
                             if (id_fields[0] == "cockpit-ws")
                                 cockpitUpdate = true;
                             // Arch Linux has no cockpit-ws package

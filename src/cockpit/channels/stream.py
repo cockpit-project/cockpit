@@ -119,5 +119,5 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         except PermissionError as error:
             raise ChannelError('access-denied') from error
         except OSError as error:
-            logger.info("Failed to spawn %s: %s", args, str(error))
+            logger.info("Failed to spawn %s: %s", args, error)
             raise ChannelError('internal-error') from error

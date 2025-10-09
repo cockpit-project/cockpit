@@ -377,7 +377,7 @@ class FsWatchChannel(Channel, PathWatchListener):
             self.send_json(event=event, path=self._path, tag=self._tag, type=type_)
 
     def do_identity_changed(self, fd: 'int | None', err: 'int | None') -> None:
-        logger.debug("do_identity_changed(%s): fd %s, err %s", self._path, str(fd), err)
+        logger.debug("do_identity_changed(%s): fd %s, err %s", self._path, fd, err)
         self._tag = tag_from_fd(fd) if fd else '-'
         if self._active:
             self.send_json(event='created' if fd else 'deleted', path=self._path, tag=self._tag)

@@ -432,7 +432,7 @@ class DBusChannel(Channel):
                                                                   'ss', name, inv)
                     except BusError as exc:
                         logger.debug('failed to fetch property %s.%s on %s %s: %s',
-                                     name, inv, self.name, path, str(exc))
+                                     name, inv, self.name, path, exc)
                         continue
                     props[inv] = reply
                 notify = {}

@@ -117,17 +117,6 @@ function init() {
     PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_SIGCHECK] = _("Verified");
 }
 
-// parse CVEs from an arbitrary text (changelog) and return URL array
-function parseCVEs(text) {
-    if (!text)
-        return [];
-
-    const cves = text.match(/CVE-\d{4}-\d+/g);
-    if (!cves)
-        return [];
-    return cves.map(n => "https://www.cve.org/CVERecord?id=" + n);
-}
-
 function deduplicate(list) {
     return [...new Set(list)].sort();
 }
@@ -1174,82 +1163,7 @@ class OsUpdates extends React.Component {
         this.setState({ state: "loadError" });
     }
 
-    removeHeading(text) {
-        // on Debian the update_text starts with "== version ==" which is
-        // redundant; we don't want Markdown headings in the table
-        if (text)
-            return text.trim().replace(/^== .* ==\n/, "")
-                    .trim();
-        return text;
-    }
-
-    /** @returns {Promise<void>} */
-    loadUpdateDetailsBatch(pkg_ids, update_details) {
-        return PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], null, {
-            UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
-                update_text, changelog /* state, issued, updated */) => {
-                const u = update_details[packageId];
-                if (!u) {
-                    console.warn("Mismatching update:", packageId);
-                    return;
-                }
-
-                u.vendor_urls = vendor_urls;
-                u.description = this.removeHeading(update_text) || changelog;
-                if (update_text)
-                    u.markdown = true;
-                u.bug_urls = deduplicate(bug_urls);
-                // many backends don't support proper severities; parse CVEs from description as a fallback
-                u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
-                if (u.cve_urls && u.cve_urls.length > 0)
-                    u.severity = PK.Enum.INFO_SECURITY;
-                u.vendor_urls = vendor_urls || [];
-                // u.restart = restart; // broken (always "1") at least in Fedora
-                debug("UpdateDetail:", u);
-            }
-        });
-    }
-
-    loadUpdateDetails(pkg_ids) {
-        const update_details = Object.assign({}, this.state.updates);
-
-        /** @returns {Promise<void>} */
-        const processBatch = (remaining_ids, current_batch_size) => {
-            if (remaining_ids.length === 0) {
-                // All done, set the state
-                this.setState({ updates: update_details, state: "available" });
-                return Promise.resolve();
-            }
-
-            const batch = remaining_ids.slice(0, current_batch_size);
-            const next_ids = remaining_ids.slice(current_batch_size);
-
-            return this.loadUpdateDetailsBatch(batch, update_details)
-                    // continue with next batch using same batch size
-                    .then(() => processBatch(next_ids, current_batch_size))
-                    .catch(ex => {
-                        console.warn("GetUpdateDetail failed with batch size", current_batch_size, ":", JSON.stringify(ex));
-
-                        if (current_batch_size > 1) {
-                            // Reduce batch size to 1 and retry
-                            console.log("Reducing GetUpdateDetail batch size to 1 and retrying");
-                            return processBatch(remaining_ids, 1);
-                        } else {
-                            // Even batch size 1 failed, skip this batch and continue
-                            console.warn("Failed to load update details for package:", batch[0]);
-                            return processBatch(next_ids, 1);
-                        }
-                    });
-        };
-
-        // Avoid exceeding cockpit-ws frame size, so batch the loading of details
-        // if we run into https://issues.redhat.com/browse/RHEL-109779 then we need to fall back to load packages
-        // individually
-        return processBatch(pkg_ids, 500);
-    }
-
     loadUpdates() {
-        const updates = {};
         let cockpitUpdate = false;
 
         this.setState({ state: "loading" });
@@ -1266,38 +1180,24 @@ class OsUpdates extends React.Component {
             })
                 .then(() => this.setState({ haveOsRepo: have_coreutils }),
                       ex => console.warn("Resolving coreutils failed:", JSON.stringify(ex)))
-                .then(() => PK.cancellableTransaction(
-                    "GetUpdates", [0],
-                    data => this.setState({ state: data.waiting ? "locked" : "loading" }),
-                    {
-                        Package: (info, packageId, summary) => {
-                            // HACK: security updates have 0x50008 with PackageKit 1.2.8, so just consider the lower 8 bits
-                            info = info & 0xff;
-                            const id_fields = packageId.split(";");
-                            // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
-                            if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
-                                info = PK.Enum.INFO_NORMAL;
-                            updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2], summary };
-                            if (id_fields[0] == "cockpit-ws")
-                                cockpitUpdate = true;
-                            // Arch Linux has no cockpit-ws package
-                            if (id_fields[0] == "cockpit" && this.state.backend === "alpm")
-                                cockpitUpdate = true;
-                        },
-                    }))
-                .then(() => {
+                .then(() => PK.get_updates(true).then(updates => {
                     debug("GetUpdates result:", updates);
-                    // get the details for all packages
                     const pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {
-                        this.setState({ updates, cockpitUpdate }, () => {
-                            this.loadUpdateDetails(pkg_ids);
-                        });
+                        for (const pkg_id of pkg_ids) {
+                            if (pkg_id.startsWith('cockpit-ws')) {
+                                cockpitUpdate = true;
+                            // Arch Linux has no cockpit-ws package
+                            } else if (pkg_id.startsWith('cockpit') && this.state.backend === "alpm") {
+                                cockpitUpdate = true;
+                            }
+                        }
+                        this.setState({ updates, cockpitUpdate, state: "available" });
                     } else {
                         this.setState({ updates: {}, state: "uptodate" });
                     }
                     this.loadHistory();
-                })
+                }))
                 .catch(this.handleLoadError);
     }
 

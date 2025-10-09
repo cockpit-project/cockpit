@@ -98,21 +98,19 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
         progress.base = 75;
         progress.range = 5;
 
-        return PK.cancellableTransaction("GetUpdates", [0], progress.progress_reporter,
-                                         {
-                                             Package: (info, package_id) => {
-                                                 const pkg = package_id.split(";")[0];
-                                                 if (pkg in origin_pkgs)
-                                                     update_ids.push(package_id);
-                                             },
-                                         })
-                .then(() => {
-                    progress.base = 80;
-                    progress.range = 15;
+        return PK.get_updates(false, progress.progress_reporter).then(updates => {
+            for (const package_id of Object.keys(updates)) {
+                const pkg = package_id.split(";")[0];
+                if (pkg in origin_pkgs)
+                    update_ids.push(package_id);
 
-                    if (update_ids.length > 0)
-                        return PK.update_packages(update_ids, progress.progress_reporter, null);
-                });
+                progress.base = 80;
+                progress.range = 15;
+
+                if (update_ids.length > 0)
+                    return PK.update_packages(update_ids, progress.progress_reporter, null);
+            }
+        });
     };
 
     const ensure_packages = (pkgs, start_progress) => {
@@ -120,7 +118,18 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
             progress.base = start_progress;
             progress.range = 1;
 
-            return PK.install_packages(pkgs, progress.progress_reporter);
+            return PK.is_installed(pkgs, null, progress.progress_reporter).then(installed_pkgs => {
+                const to_install = new Set(pkgs);
+                for (const pkg of installed_pkgs) {
+                    if (to_install.has(pkg))
+                        to_install.delete(pkg);
+                }
+
+                if (to_install.size === 0)
+                    return Promise.resolve();
+                else
+                    return PK.install_packages(Array.from(to_install), progress.progress_reporter);
+            });
         } else {
             return Promise.resolve();
         }

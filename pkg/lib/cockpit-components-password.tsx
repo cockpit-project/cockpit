@@ -46,7 +46,7 @@ export function password_quality(password: string, force?: boolean): Promise<Pas
                 .input(password)
                 .done(function(content) {
                     const quality = parseInt(content, 10);
-                    if (quality === 0)
+                    if (quality === 0 && !force)
                         reject(new Error(_("Password is too weak")));
                     else
                         resolve({ value: quality, message: quality === 100 ? _("Excellent password") : undefined });

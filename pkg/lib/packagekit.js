@@ -405,28 +405,29 @@ export function check_missing_packages(names, progress_cb) {
             .then(get_details);
 }
 
-/* Check a list of packages whether they are installed.
+/**
+ * Check a list of packages whether they are installed.
  *
- * This is a lightweight version of check_missing_packages() which does not
- * refresh, simulates, or retrieves details. It just checks which of the given package
- * names are already installed, and returns a Set of the missing ones.
+ * @param {string[]} names - names of packages which should be installed
+ * @return {Promise<boolean>} true if packages are installed
  */
-export function check_uninstalled_packages(names) {
+export async function is_installed(names, progress_cb) {
     const uninstalled = new Set(names);
 
-    if (names.length === 0)
-        return Promise.resolve(uninstalled);
+    if (uninstalled.size === 0)
+        return true;
 
-    return cancellableTransaction("Resolve",
-                                  [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, names],
-                                  null, // don't need progress, this is fast
-                                  {
-                                      Package: (info, package_id) => {
-                                          const parts = package_id.split(";");
-                                          uninstalled.delete(parts[0]);
-                                      },
-                                  })
-            .then(() => uninstalled);
+    await cancellableTransaction("Resolve",
+                                 [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, names],
+                                 progress_cb,
+                                 {
+                                     Package: (info, package_id) => {
+                                         const parts = package_id.split(";");
+                                         uninstalled.delete(parts[0]);
+                                     },
+                                 });
+
+    return uninstalled.size === 0;
 }
 
 /**

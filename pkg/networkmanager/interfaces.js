@@ -464,11 +464,12 @@ export function NetworkManagerModel() {
     }
 
     function route_from_nm(route) {
+        const metric = route.metric ? utils.ip_metric_to_text(route.metric.v) : "";
         return {
             dest: route.dest.v,
             prefix: utils.ip_prefix_to_text(route.prefix.v),
-            next_hop: route["next-hop"].v,
-            metric: utils.ip_metric_to_text(route.metric.v),
+            next_hop: route["next-hop"]?.v ?? "",
+            metric,
         };
     }
 
@@ -479,16 +480,26 @@ export function NetworkManagerModel() {
             throw cockpit.format(_("Invalid destination address: $0"), route.dest);
         }
 
-        if (!utils.validate_ip(route.next_hop)) {
-            throw cockpit.format(_("Invalid gateway address: $0"), route.next_hop);
-        }
-
-        return {
+        const route_nm = {
             dest: { t: "s", v: route.dest },
             prefix: { t: "u", v: prefix },
-            "next-hop": { t: "s", v: route.next_hop },
-            metric: { t: "u", v: utils.ip_metric_from_text(route.metric) },
         };
+
+        // next-hop is an optional property
+        if (route.next_hop !== "") {
+            if (!utils.validate_ip(route.next_hop)) {
+                throw cockpit.format(_("Invalid gateway address: $0"), route.next_hop);
+            }
+
+            route_nm["next-hop"] = { t: "s", v: route.next_hop };
+        }
+
+        // metric is an optional property
+        if (route.metric !== "") {
+            route_nm.metric = { t: "u", v: utils.ip_metric_from_text(route.metric) };
+        }
+
+        return route_nm;
     }
 
     function settings_from_nm(settings) {

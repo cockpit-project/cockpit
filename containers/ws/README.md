@@ -40,13 +40,18 @@ host's users and their passwords to log in, and Cockpit's branding will adjust
 to the host operating system.
 
 1. Enable password based SSH logins, unless you only use [SSO logins](https://cockpit-project.org/guide/latest/sso.html).
-   To do this, create a config file `/etc/ssh/sshd_config.d/02-enable-passwords.conf` and add the following content:
+   From localhost only:
+   ```bash
+    cat << EOF > /etc/ssh/sshd_config.d/02-enable-passwords.conf
+    # enables Cockpit web login without exposing password auth to network
+    Match Address 127.0.0.1,::1
+      PasswordAuthentication yes
+    EOF
    ```
-   # enables Cockpit web login without exposing password auth to network
-   Match Address 127.0.0.1,::1
-     PasswordAuthentication yes
+   Or from any host:
+   ```bash
+    echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/02-enable-passwords.conf
    ```
-2. Restart SSH:
    ```
    sudo systemctl try-restart sshd
    ```

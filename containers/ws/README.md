@@ -46,6 +46,8 @@ to the host operating system.
    Match Address 127.0.0.1,::1
      PasswordAuthentication yes
    ```
+2. Restart SSH:
+   ```
    sudo systemctl try-restart sshd
    ```
 

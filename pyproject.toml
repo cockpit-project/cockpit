@@ -194,6 +194,10 @@ ignore_decorators = [
    "@pytest.fixture",
    "@pytest.hookimpl",
 ]
+exclude = [
+    "test/pytest/mockdbusservice.py",
+    "test/pytest/mockwebserver.py",
+]
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

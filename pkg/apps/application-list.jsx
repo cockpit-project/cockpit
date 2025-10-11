@@ -167,7 +167,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         : null;
 
     return (
-        <Page id="list-page" data-packages-checked={dataPackagesInstalled !== null} className='no-masthead-sidebar'>
+        <Page id="list-page" data-packages-checked={dataPackagesInstalled !== null} className="pf-m-no-sidebar">
             <PageSection hasBodyWrapper={false}>
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <h2 className="pf-v6-u-font-size-3xl">{_("Applications")}</h2>

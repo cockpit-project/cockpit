@@ -701,7 +701,7 @@ export const NetworkInterfacePage = ({
     return (
         <Page id="network-interface"
               data-test-wait={operationInProgress}
-              className='no-masthead-sidebar'>
+              className="pf-m-no-sidebar">
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to='#/'>

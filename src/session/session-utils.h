@@ -77,3 +77,6 @@ spawn_and_wait (const char **argv,
                 int n_remap_fds,
                 uid_t uid,
                 gid_t gid);
+
+char *
+run_user_command (const char *cmd, const char *rhost, const char *authorization);

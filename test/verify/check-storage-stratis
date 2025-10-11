@@ -58,7 +58,7 @@ def create_legacy_pool(machine, disks, name="pool0", keydesc=None, tang=None):
     machine.execute(f"yes | stratisd-tools stratis-legacy-pool {keydesc_opt} {clevis_opt} {name} {' '.join(disks)}")
 
 
-@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch", "*suse*")
 @testlib.skipImage("stratis not installed", "*-bootc")
 @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
 @testlib.nondestructive
@@ -584,7 +584,7 @@ systemctl restart stratisd
         self.testFilesystemSizes(legacy=True)
 
 
-@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch", "*suse*")
 @testlib.skipImage("stratis not installed", "*-bootc")
 @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
 class TestStorageStratisReboot(storagelib.StorageCase):
@@ -920,7 +920,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         self.testPoolResize(legacy=True)
 
 
-@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch", "*suse*")
 @testlib.skipOstree("no package installation on OSTree")
 class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase):
 
@@ -964,7 +964,7 @@ class TestStoragePackagesStratis(packagelib.PackageCase, storagelib.StorageCase)
             b.wait_not_present(stratis_action)
 
 
-@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch", "*suse*")
 @testlib.skipImage("stratis not installed", "*-bootc")
 @testlib.skipImage("Stratis too old", "rhel-8-*")
 class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):

@@ -27,7 +27,7 @@ import testlib
 
 OSesWithoutTracer = ["debian-*", "ubuntu-*", "fedora-coreos", "centos-10", "rhel-10*"]
 OSesWithDnfRestart = ["centos-10", "rhel-10*"]
-OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*"]
+OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*", "*-tumbleweed"]
 
 
 class NoSubManCase(packagelib.PackageCase):
@@ -265,6 +265,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # Patches should be installed
         m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     @testlib.nondestructive
     @testlib.skipImage("alpm PackageKit backend does not support cancelling", "arch")
     def testBasic(self):
@@ -451,6 +452,8 @@ ExecStart=/usr/local/bin/{package} infinity
 
         return startTime
 
+    @testlib.skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     @testlib.skipImage("tracer not available", *OSesWithoutTracer)
     def testTracer(self):
         b = self.browser
@@ -689,6 +692,7 @@ ExecStart=/usr/local/bin/{package} infinity
 
     @testlib.skipImage("Arch Linux does not start services by default", "arch")
     @testlib.skipImage("tracer not available", *OSesWithoutTracer)
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     @testlib.nondestructive
     def testFailServiceRestart(self):
         b = self.browser
@@ -751,6 +755,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("#restart-services-modal .pf-v6-c-alert")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testInfoSecurity(self):
         b = self.browser
         m = self.machine
@@ -968,6 +973,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     @testlib.nondestructive
     def testSecurityOnly(self):
         b = self.browser
@@ -1008,6 +1014,7 @@ ExecStart=/usr/local/bin/{packageName}
             self.check_nth_update(2, "secnocve", "1-2", "security", desc_matches=["Fix leak"])
 
     @testlib.skipImage("No changelog support in Arch Linux", "arch")
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     @testlib.nondestructive
     def testInfoTruncation(self):
         b = self.browser
@@ -1101,6 +1108,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         self.wait_reboot()
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     @testlib.nondestructive
     def testUpdateError(self):
         b = self.browser
@@ -1136,6 +1144,7 @@ ExecStart=/usr/local/bin/{packageName}
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))
 
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     @testlib.nondestructive
     def testPackageKitCrash(self):
         b = self.browser
@@ -1242,6 +1251,7 @@ ExecStart=/usr/local/bin/{packageName}
 @testlib.skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
 @testlib.skipWsContainer("no cockpit-ws package with cockpit/ws container")
 class TestWsUpdate(NoSubManCase):
+    @testlib.skipImage("TODO: support opensuse-tumbleweed", "*tumbleweed*")
     def testBasic(self):
         # The main case for this is that cockpit-ws itself gets upgraded, which
         # restarts the service and terminates the connection. As we can't
@@ -1783,7 +1793,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
             b.wait_not_present("#settings")
             b.wait_not_present("#autoupdates-settings")
 
-    @testlib.skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch", "opensuse-tumbleweed")
     def testInstall(self):
         b = self.browser
         m = self.machine

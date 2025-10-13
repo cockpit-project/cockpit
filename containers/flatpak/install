@@ -23,6 +23,7 @@ flatpak run \
         "$@" \
         --force-clean \
         --mirror-screenshots-url=https://dl.flathub.org/media \
+        --compose-url-policy=full \
         --install flatpak-build-dir "${MANIFEST}"
 
 flatpak run \

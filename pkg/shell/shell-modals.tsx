@@ -108,7 +108,7 @@ export const LangModal = ({
     dialogResult,
     state
 }: LangModalProps) => {
-    const language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1") || "en-us";
+    const language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1") || navigator.language.toLowerCase() || "en-us";
 
     const [selected, setSelected] = useState(language);
     const [searchInput, setSearchInput] = useState("");

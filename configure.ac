@@ -219,18 +219,12 @@ else
         enable_doc="yes"
         AC_MSG_RESULT($enable_doc)
 
-        AC_PATH_PROG([XSLTPROC], [xsltproc], [no])
-        if test "$XSLTPROC" = "no"; then
-                AC_MSG_ERROR([the xsltproc command was not found $disable_msg])
+        AC_PATH_PROG([ASCIIDOCTOR], [asciidoctor], [no])
+        if test "$ASCIIDOCTOR" = "no"; then
+                AC_MSG_ERROR([the asciidoctor command was not found $disable_msg])
         fi
 
-        AC_PATH_PROG([XMLTO], [xmlto], [no])
-        if test "$XMLTO" = "no"; then
-                AC_MSG_ERROR([the xmlto command was not found $disable_msg])
-        fi
-
-        AC_SUBST(XSLTPROC)
-        AC_SUBST(XMLTO)
+        AC_SUBST(ASCIIDOCTOR)
 fi
 
 AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])

@@ -116,6 +116,44 @@ cmd_verify() {
     fi
 }
 
+cmd_runtime_tar() {
+    if [ -z "${1:-}" ]; then
+        echo "Usage: $0 runtime-tar <tarball-path>" >&2
+        exit 1
+    fi
+    if [ ! -e node_modules/.package-lock.json ]; then
+        echo "Error: This requires a checked out node_modules, run 'tools/node-modules checkout' first" >&2
+        exit 1
+    fi
+    local tar_path="$1"
+
+    # Verify lockfile version
+    local lockfile_version
+    lockfile_version="$(jq -r '.lockfileVersion' node_modules/.package-lock.json)"
+    if [ "$lockfile_version" != "3" ]; then
+        echo "Error: this code is only certified for lockfileVersion 3, got $lockfile_version" >&2
+        exit 1
+    fi
+
+    # Collect runtime packages using jq, excluding esbuild and dev dependencies
+    local runtime_pkgs
+    runtime_pkgs="$(jq -r '
+        .packages | to_entries[] |
+        select(.value.dev != true) |
+        .key |
+        select(test(".*/@?esbuild(/|$)") | not)
+    ' node_modules/.package-lock.json | while read -r pkg; do
+        # Only include if exists and is not empty
+        [ -n "$(ls -A "$pkg" 2>/dev/null)" ] && echo "$pkg"
+    done)"
+
+    # Create tarball
+    {
+        echo "node_modules/.package-lock.json"
+        echo "$runtime_pkgs"
+    } | tar --format=ustar --sort=name --owner=root:0 --group=root:0 --xz -cf "$tar_path" -C . -T -
+}
+
 # called from Makefile.am
 cmd_make_package_lock_json() {
     # Run from make to ensure package-lock.json is up to date
@@ -179,7 +217,7 @@ EOF
 main() {
     if [ $# = 0 ]; then
         # don't list the "private" ones
-        echo 'This command requires a subcommand: remove checkout install push verify'
+        echo 'This command requires a subcommand: remove checkout install push verify runtime-tar'
         exit 1
     fi
 

@@ -102,7 +102,6 @@ BuildRequires: distribution-logos
 BuildRequires: wallpaper-branding
 %else
 BuildRequires: openssh-clients
-BuildRequires: docbook-style-xsl
 %endif
 BuildRequires: krb5-server
 BuildRequires: gdb

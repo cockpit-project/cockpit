@@ -88,7 +88,6 @@ BuildRequires: openssl-devel
 BuildRequires: gnutls-devel >= 3.4.3
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel >= 1.11
-BuildRequires: libxslt-devel
 BuildRequires: glib-networking
 BuildRequires: sed
 
@@ -107,7 +106,7 @@ BuildRequires: krb5-server
 BuildRequires: gdb
 
 # For documentation
-BuildRequires: xmlto
+BuildRequires: rubygem-asciidoctor
 
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-devel

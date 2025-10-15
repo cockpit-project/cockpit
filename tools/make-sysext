@@ -42,11 +42,11 @@ stop() {
     if systemctl is-enabled --quiet cockpit.socket; then
         systemctl disable cockpit.socket
     fi
-    if systemd-sysext --no-legend status | grep -qw "$SYSEXT_NAME"; then
-        systemd-sysext unmerge
-    fi
     if [ -d $SYSEXT_DIR ]; then
         rm -rf "$SYSEXT_DIR"
+    fi
+    if systemd-sysext --no-legend status | grep -qw "$SYSEXT_NAME"; then
+        systemd-sysext refresh
     fi
 }
 
@@ -59,7 +59,7 @@ if [ "${1:-}" = install ]; then
     stop
     mkdir -p "$(dirname $SYSEXT_DIR)"
     cp -r tmp/sysext "$SYSEXT_DIR"
-    systemd-sysext merge
+    systemd-sysext refresh
 
     echo
     systemd-sysext status --no-pager

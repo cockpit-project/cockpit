@@ -89,7 +89,7 @@ else
 fi
 
 if systemd-detect-virt --quiet --container; then
-    flatpak-spawn --host sudo -S "$0" "$arg"
+    flatpak-spawn --host run0 "$0" "$arg"
 else
-    sudo "$0" "$arg"
+    run0 "$0" "$arg"
 fi

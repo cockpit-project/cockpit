@@ -1764,10 +1764,7 @@ export function set_member(model, group_connection, group_settings, member_type,
         /* Turn the main_connection into a member for group.
          */
 
-        const group_iface = group_connection
-            ? group_connection.Interfaces[0].Name
-            : group_settings.connection.interface_name;
-
+        const group_iface = group_settings.connection.interface_name;
         if (!group_iface)
             return false;
 
@@ -1801,10 +1798,12 @@ export function set_member(model, group_connection, group_settings, member_type,
         }
 
         return settings_applier(model, iface.Device, main_connection)(member_settings).then(function () {
-            // If the group already exists, activate or deactivate the member immediately so that
-            // the settings actually apply and the interface becomes a member.  Otherwise we
-            // activate it later when the group is created.
-            if (group_connection) {
+            // If the group already exists (with the correct name),
+            // activate or deactivate the member immediately so that
+            // the settings actually apply and the interface becomes a
+            // member.  Otherwise we activate it later when the group
+            // is created.
+            if (group_connection && group_connection.Interfaces[0].Name == group_iface) {
                 const group_dev = group_connection.Interfaces[0].Device;
                 if (group_dev && group_dev.ActiveConnection)
                     return main_connection.activate(iface.Device);

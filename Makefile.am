@@ -161,6 +161,7 @@ include pkg/Makefile.am
 include po/Makefile.am
 include selinux/Makefile.am
 include src/Makefile.am
+include src/semantic-ui/Makefile.am
 include src/branding/arch/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/debian/Makefile.am

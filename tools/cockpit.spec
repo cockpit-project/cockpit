@@ -88,7 +88,6 @@ BuildRequires: openssl-devel
 BuildRequires: gnutls-devel >= 3.4.3
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel >= 1.11
-BuildRequires: libxslt-devel
 BuildRequires: glib-networking
 BuildRequires: sed
 
@@ -102,13 +101,17 @@ BuildRequires: distribution-logos
 BuildRequires: wallpaper-branding
 %else
 BuildRequires: openssh-clients
-BuildRequires: docbook-style-xsl
 %endif
 BuildRequires: krb5-server
 BuildRequires: gdb
 
 # For documentation
-BuildRequires: xmlto
+%if 0%{?centos}
+# CentOS only has legacy asciidoc-py
+BuildRequires: asciidoc
+%else
+BuildRequires: asciidoctor
+%endif
 
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-devel

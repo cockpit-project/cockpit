@@ -154,9 +154,8 @@ include src/testlib/Makefile.am
 
 include containers/Makefile.am
 include containers/flatpak/Makefile.am
-include doc/Makefile-doc.am
 include doc/guide/Makefile-guide.am
-include doc/man/Makefile-man.am
+include doc/guide/Makefile-man.am
 include pkg/Makefile.am
 include po/Makefile.am
 include selinux/Makefile.am

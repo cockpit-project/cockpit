@@ -219,21 +219,24 @@ else
         enable_doc="yes"
         AC_MSG_RESULT($enable_doc)
 
-        AC_PATH_PROG([XSLTPROC], [xsltproc], [no])
-        if test "$XSLTPROC" = "no"; then
-                AC_MSG_ERROR([the xsltproc command was not found $disable_msg])
+        AC_PATH_PROG([ASCIIDOCTOR], [asciidoctor], [no])
+        if test "$ASCIIDOCTOR" != "no"; then
+          has_asciidoctor="yes"
+          AC_SUBST(ASCIIDOCTOR)
         fi
 
-        AC_PATH_PROG([XMLTO], [xmlto], [no])
-        if test "$XMLTO" = "no"; then
-                AC_MSG_ERROR([the xmlto command was not found $disable_msg])
+        AC_PATH_PROG([ASCIIDOC], [asciidoc], [no])
+        if test "$ASCIIDOCTOR" = "no" && test "$ASCIIDOC" = "no"; then
+                AC_MSG_ERROR([neither asciidoctor or asciidoc command was not found $disable_msg])
+        else
+          has_asciidoc="yes"
+          AC_SUBST(ASCIIDOC)
         fi
 
-        AC_SUBST(XSLTPROC)
-        AC_SUBST(XMLTO)
 fi
 
 AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])
+AM_CONDITIONAL([HAS_ASCIIDOCTOR], [test "$has_asciidoctor" = "yes"])
 
 # Default for AllowMultiHost
 
@@ -333,7 +336,6 @@ AC_SUBST(PAM_LIBS)
 
 AC_CONFIG_FILES([
 Makefile
-doc/guide/version
 src/tls/cockpit-certificate-helper
 src/ws/cockpit-desktop
 ])
@@ -366,6 +368,8 @@ echo "
         cockpit-session PATH:       ${default_session_path}
 
         Building docs:              ${enable_doc}
+        Has asciidoctor:            ${has_asciidoctor}
+
         Debug mode:                 ${debug_status}
         Node environment:           ${NODE_ENV}
         With coverage:              ${enable_coverage}

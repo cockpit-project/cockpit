@@ -2,7 +2,8 @@ Source: cockpit
 Section: admin
 Priority: optional
 Maintainer: Cockpit <cockpit@cockpit-project.org>
-Build-Depends: debhelper-compat (= 13),
+Build-Depends: asciidoctor
+               debhelper-compat (= 13),
                dh-python,
                docbook-xsl,
                gettext (>= 0.21),
@@ -15,15 +16,12 @@ Build-Depends: debhelper-compat (= 13),
                libpam0g-dev,
                libpolkit-agent-1-dev,
                libsystemd-dev (>= 235),
-               libxslt1-dev,
                pkgconf,
                python3,
                python3-pip,
                python3-setuptools,
                python3-wheel,
                systemd-dev | systemd (<< 253-2~),
-               xmlto,
-               xsltproc,
                zlib1g-dev,
                openssh-client <!nocheck>,
                procps <!nocheck>,

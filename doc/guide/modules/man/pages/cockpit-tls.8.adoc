@@ -3,17 +3,14 @@
 :manmanual: cockpit-tls
 :mansource: cockpit
 
-[[cockpit-tls-name]]
 == Name
 
 cockpit-tls - TLS proxy for Cockpit web service
 
-[[cockpit-tls-synopsis]]
 == Synopsis
 
 *cockpit-tls* [*--help*] [*--port* _PORT_] [*--no-tls*] [*--idle-timeout* _SECONDS_]
 
-[[cockpit-tls-description]]
 == Description
 
 The *cockpit-tls* program is a TLS terminating HTTP proxy for
@@ -26,7 +23,6 @@ exploits.
 Users or administrators should never need to start this program as it
 automatically started by *systemd(1)* via socket activation.
 
-[[cockpit-tls-transport]]
 == Transport security
 
 To specify the TLS certificate the web service should use, simply drop a
@@ -72,7 +68,6 @@ KEY_FILE=/etc/cockpit/ws-certs.d/50-certmonger.key
 getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn)
 ....
 
-[[cockpit-tls-options]]
 == Options
 
 *--help*::
@@ -93,7 +88,6 @@ getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn)
   number of seconds, i. e. the server is idle. If not given, the default
   is 90.
 
-[[cockpit-tls-environment]]
 == Environment
 
 The *cockpit-tls* program expects the *RUNTIME_DIRECTORY*
@@ -110,15 +104,12 @@ https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html[XDG
 basedir spec] to find its certificates and the *cockpit.conf(5)*
 configuration file.
 
-[[cockpit-tls-bugs]]
 == Bugs
 include::partials/bugs.adoc[]
 
-[[cockpit-tls-author]]
 == Author
 include::partials/author.adoc[]
 
-[[cockpit-tls-also]]
 == See also
 
 *cockpit-ws(8)* , *cockpit.conf(5)* , *systemd(1)*

@@ -106,7 +106,15 @@ BuildRequires: krb5-server
 BuildRequires: gdb
 
 # For documentation
-BuildRequires: rubygem-asciidoctor
+%if 0%{?rhel} && 0%{?centos} == 0
+# Only has legacy py-asciidoc which can't output to man pages.
+# But it can output to DocBook which we can use to generate man pages.
+BuildRequires: asciidoc
+BuildRequires: libxslt-devel
+BuildRequires: xmlto
+%else
+BuildRequires: asciidoctor
+%endif
 
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-devel

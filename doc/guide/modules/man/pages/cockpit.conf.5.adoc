@@ -3,12 +3,10 @@
 :manmanual: cockpit.conf
 :mansource: cockpit
 
-[[cockpit-conf-name]]
 == Name
 
 cockpit.conf - Cockpit configuration file
 
-[[cockpit-conf-description]]
 == Description
 
 Cockpit can be configured via /etc/cockpit/cockpit.conf. If
@@ -23,7 +21,6 @@ topical groups. See the examples below for details.
 Note: The port that cockpit listens on cannot be changed in this file.
 To change the port change the systemd *cockpit.socket* file.
 
-[[cockpit-conf-webservice]]
 == WebService
 
 *Origins*::
@@ -119,7 +116,6 @@ ForwardedForHeader = X-Forwarded-For
   The relative URL to top level component to display in Cockpit once
   logged in. Defaults to `+/shell/index.html+`
 
-[[cockpit-conf-log]]
 == Log
 
 *Fatal*::
@@ -127,7 +123,6 @@ ForwardedForHeader = X-Forwarded-For
   multiple values with spaces. Relevant values are: *criticals* and
   *warnings*.
 
-[[cockpit-conf-oauth]]
 == OAuth
 
 Cockpit can be configured to support the
@@ -153,7 +148,6 @@ allow *Bearer* tokens.
   the access token. When not provided it will default to
   *access_token*
 
-[[cockpit-conf-session]]
 == Session
 
 *Banner*::
@@ -185,15 +179,12 @@ IdleTimeout=15
 WarnBeforeConnecting=false
 ----
 
-[[cockpit-conf-bugs]]
 == Bugs
 include::partials/bugs.adoc[]
 
-[[cockpit-conf-author]]
 == Author
 include::partials/author.adoc[]
 
-[[cockpit-conf-also]]
 == See also
 
 *cockpit-ws(8)*, *cockpit-tls(8)*

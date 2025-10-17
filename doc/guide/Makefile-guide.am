@@ -66,14 +66,81 @@ dist_noinst_DATA += \
 	$(NULL)
 
 noinst_DATA += \
-	doc/output/html/* \
+	doc/output/html/api-cockpit.html \
+	doc/output/html/api-base1.html \
+	doc/output/html/api-shell.html \
+	doc/output/html/api-system.html \
+	doc/output/html/cockpit-cache.html \
+	doc/output/html/cockpit-channel.html \
+	doc/output/html/cockpit-dbus.html \
+	doc/output/html/cockpit-error.html \
+	doc/output/html/cockpit-file.html \
+	doc/output/html/cockpit-http.html \
+	doc/output/html/cockpit-locale.html \
+	doc/output/html/cockpit-location.html \
+	doc/output/html/cockpit-manifest.html \
+	doc/output/html/cockpit-metrics.html \
+	doc/output/html/cockpit-series.html \
+	doc/output/html/cockpit-session.html \
+	doc/output/html/cockpit-spawn.html \
+	doc/output/html/cockpit-util.html \
+	doc/output/html/multi-host.html \
+	doc/output/html/authentication.html \
+	doc/output/html/embedding.html \
+	doc/output/html/feature-firewall.html \
+	doc/output/html/feature-journal.html \
+	doc/output/html/feature-machines.html \
+	doc/output/html/feature-networkmanager.html \
+	doc/output/html/feature-packagekit.html \
+	doc/output/html/feature-pcp.html \
+	doc/output/html/feature-realmd.html \
+	doc/output/html/feature-selinux.html \
+	doc/output/html/feature-sosreport.html \
+	doc/output/html/feature-storaged.html \
+	doc/output/html/feature-systemd.html \
+	doc/output/html/feature-terminal.html \
+	doc/output/html/feature-tuned.html \
+	doc/output/html/feature-users.html \
+	doc/output/html/packages.html \
+	doc/output/html/privileges.html \
+	doc/output/html/https.html \
+	doc/output/html/index.html \
+	doc/output/html/listen.html \
+	doc/output/html/sso.html \
+	doc/output/html/cert-authentication.html \
+	doc/output/html/startup.html \
+	doc/output/html/urls.html \
+	doc/output/html/cockpit.1.html \
+	doc/output/html/cockpit-bridge.1.html \
+	doc/output/html/cockpit-desktop.1.html \
+	doc/output/html/cockpit-ws.8.html \
+	doc/output/html/cockpit-tls.8.html \
+	doc/output/html/cockpit.conf.5.html \
+	doc/output/html/pam_ssh_add.8.html \
 	$(NULL)
 
+if HAS_ASCIIDOCTOR
+DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOCTOR) -a cockpit-version=$(VERSION) -b html5 -o $@ $<
 render-docs: $(GUIDE_ADOC_FILES) $(GUIDE_MAIN_ADOC_FILE) $(MAN_ADOC_FILES) $(GUIDE_ADOC_FILES)
 	mkdir -p doc/output/html/
 	$(ASCIIDOCTOR) -a cockpit-version=$(VERSION) -b html5 -D doc/output/html $(GUIDE_MAIN_ADOC_FILE) $(GUIDE_ADOC_FILES) $(MAN_ADOC_FILES)
+else !HAS_ASCIIDOCTOR
+DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOC) -a cockpit-version=$(VERSION) -b html5 -o $@ $<
+render-docs:
+	echo "Local doc rendering using asciidoc not implemented, install asciidoctor or use make check"
+endif !HAS_ASCIIDOCTOR
 
-doc/output/html/*: render-docs
+doc/output/html/%.8.html: doc/guide/modules/man/pages/%.8.adoc
+	$(AM_V_GEN) $(DOC_PROC)
+
+doc/output/html/%.1.html: doc/guide/modules/man/pages/%.1.adoc
+	$(AM_V_GEN) $(DOC_PROC)
+
+doc/output/html/%.5.html: doc/guide/modules/man/pages/%.5.adoc
+	$(AM_V_GEN) $(DOC_PROC)
+
+doc/output/html/%.html: doc/guide/modules/ROOT/pages/%.adoc
+	$(AM_V_GEN) $(DOC_PROC)
 
 CLEAN_LOCAL_TARGETS += clean-guide
 clean-guide:

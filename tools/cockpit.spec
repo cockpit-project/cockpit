@@ -106,7 +106,12 @@ BuildRequires: krb5-server
 BuildRequires: gdb
 
 # For documentation
-BuildRequires: rubygem-asciidoctor
+%if 0%{?centos}
+# CentOS only has legacy asciidoc-py
+BuildRequires: asciidoc
+%else
+BuildRequires: asciidoctor
+%endif
 
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-devel

@@ -27,11 +27,16 @@ man_MANS += \
 	$(NULL)
 CLEANFILES += $(MANPAGES)
 
+if HAS_ASCIIDOCTOR
+MAN_PROC = mkdir -p doc/output/man/ && $(ASCIIDOCTOR) -a cockpit-version=$($VERSION) -b manpage -o $@ $<
 render-man:
 	mkdir -p doc/output/man
-	asciidoctor -a cockpit-version=$(COCKPIT_VERSION) -b manpage -D doc/output/man doc/guide/modules/man/pages/*.adoc
-
-MAN_PROC = mkdir -p doc/output/man/ && $(ASCIIDOCTOR) -a cockpit-version=$($VERSION) -b manpage -D doc/output/man/ $<
+	asciidoctor -a cockpit-version=$(VERSION) -b manpage -D doc/output/man doc/guide/modules/man/pages/*.adoc
+else !HAS_ASCIIDOCTOR
+MAN_PROC = mkdir -p doc/output/man/ && $(ASCIIDOC) -a cockpit-version=$($VERSION) -b manpage -o $@ $<
+render-man:
+	echo "Local manpage rendering using asciidoc not implemented, install asciidoctor or use make check"
+endif !HAS_ASCIIDOCTOR
 
 doc/output/man/%: doc/guide/modules/man/pages/%.adoc
 	$(AM_V_GEN) $(MAN_PROC)

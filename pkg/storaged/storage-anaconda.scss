@@ -1,3 +1,5 @@
+@use "global-variables" as *;
+
 // Anaconda mode
 #storage.anaconda {
   .pf-v6-c-page__main-container {
@@ -5,6 +7,13 @@
     margin: 0;
     border: 0;
     max-block-size: 100%;
+  }
+
+  // ignore cockpit override for mobile layout
+  @media screen and (max-width: $pf-v6-global--breakpoint--md) {
+    .pf-v6-c-page__main>section.pf-v6-c-page__main-section:not(.pf-m-padding) {
+      padding-inline: 0;
+    }
   }
 
   .pf-v6-c-page__main {

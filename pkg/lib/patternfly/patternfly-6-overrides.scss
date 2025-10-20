@@ -243,12 +243,12 @@ $phone: 767px;
 }
 
 @media screen and (max-width: $pf-v6-global--breakpoint--md) {
-  // Drop side padding in mobile mode,
+  // Reduce side padding in mobile mode,
   // intended mainly for PF PageSection elements (pf-v6-c-page__main-section).
   // It's similar to adding padding={{ default: 'noPadding', sm: 'padding' }},
   // except this only affects the sides, not the top and bottom.
   .pf-v6-c-page__main>section.pf-v6-c-page__main-section:not(.pf-m-padding) {
-    padding-inline: 0;
+    padding-inline: var(--pf-t--global--spacer--xs);
   }
 }
 

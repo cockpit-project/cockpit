@@ -88,7 +88,6 @@ BuildRequires: openssl-devel
 BuildRequires: gnutls-devel >= 3.4.3
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel >= 1.11
-BuildRequires: libxslt-devel
 BuildRequires: glib-networking
 BuildRequires: sed
 
@@ -102,13 +101,20 @@ BuildRequires: distribution-logos
 BuildRequires: wallpaper-branding
 %else
 BuildRequires: openssh-clients
-BuildRequires: docbook-style-xsl
 %endif
 BuildRequires: krb5-server
 BuildRequires: gdb
 
 # For documentation
+%if 0%{?rhel} && 0%{?centos} == 0
+# Only has legacy py-asciidoc which can't output to man pages.
+# But it can output to DocBook which we can use to generate man pages.
+BuildRequires: asciidoc
+BuildRequires: libxslt-devel
 BuildRequires: xmlto
+%else
+BuildRequires: asciidoctor
+%endif
 
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-devel

@@ -1,0 +1,51 @@
+EXTRA_DIST += \
+	doc/guide/modules/man/pages/cockpit.1.adoc \
+	doc/guide/modules/man/pages/cockpit-bridge.1.adoc \
+	doc/guide/modules/man/pages/cockpit-desktop.1.adoc \
+	doc/guide/modules/man/pages/cockpit-ws.8.adoc \
+	doc/guide/modules/man/pages/cockpit-tls.8.adoc \
+	doc/guide/modules/man/pages/cockpit.conf.5.adoc \
+	doc/guide/modules/man/pages/pam_ssh_add.8.adoc \
+	doc/guide/modules/man/pages/partials/author.adoc \
+	doc/guide/modules/man/pages/partials/bugs.adoc \
+	$(NULL)
+
+if ENABLE_DOC
+
+MANPAGES = \
+	doc/output/man/cockpit.1 \
+	doc/output/man/cockpit-bridge.1 \
+	doc/output/man/cockpit-desktop.1 \
+	doc/output/man/cockpit-ws.8 \
+	doc/output/man/cockpit-tls.8 \
+	doc/output/man/cockpit.conf.5 \
+	doc/output/man/pam_ssh_add.8 \
+	$(NULL)
+
+man_MANS += \
+	$(MANPAGES) \
+	$(NULL)
+CLEANFILES += $(MANPAGES)
+
+if HAS_ASCIIDOCTOR
+MAN_PROC = mkdir -p doc/output/man/ && $(ASCIIDOCTOR) -a cockpit-version=$(VERSION) -b manpage -o $@ $<
+render-man:
+	mkdir -p doc/output/man
+	asciidoctor -a cockpit-version=$(VERSION) -b manpage -D doc/output/man doc/guide/modules/man/pages/*.adoc
+else !HAS_ASCIIDOCTOR
+MAN_PROC = mkdir -p doc/output/man/ \
+	&& $(ASCIIDOC) -a cockpit-version=$(VERSION) -b docbook45 -d manpage -o $@.xml $< \
+	&& $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
+	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $@.xml
+render-man:
+	echo "Local manpage rendering using asciidoc not implemented, install asciidoctor or use make check"
+endif !HAS_ASCIIDOCTOR
+
+doc/output/man/%: doc/guide/modules/man/pages/%.adoc
+	$(AM_V_GEN) $(MAN_PROC)
+
+CLEAN_LOCAL_TARGETS += clean-man
+clean-man:
+	rm -rf doc/output/man
+
+endif ENABLE_DOC

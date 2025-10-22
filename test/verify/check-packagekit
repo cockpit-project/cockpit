@@ -1466,14 +1466,16 @@ class TestAutoUpdates(NoSubManCase):
 
     def setUp(self):
         super().setUp()
-        # not implemented for apt yet, only dnf
-        self.supported_backend = "dnf" in self.backend
+        self.supported_backend = "dnf" in self.backend or self.backend == "apt"
         if self.backend == "dnf5":
             self.timer_unit = "dnf5-automatic"
             self.config = "/etc/dnf/dnf5-plugins/automatic.conf"
         elif self.backend == "dnf4":
             self.timer_unit = "dnf-automatic-install"
             self.config = "/etc/dnf/automatic.conf"
+        elif self.backend == "apt":
+            self.timer_unit = "apt-daily-upgrade"
+            self.config = "/etc/apt/apt.conf.d/52unattended-upgrades-cockpit"
 
     def closeSettings(self, browser: testlib.Browser) -> None:
         browser.click("#automatic-updates-dialog button:contains('Save changes')")
@@ -1524,9 +1526,34 @@ class TestAutoUpdates(NoSubManCase):
             else:
                 self.assertNotIn("ExecStartPost", out)
 
+        def assertTimerApt(hour: str | None, dow: str | None) -> None:
+            out = m.execute(f"systemctl --no-legend list-timers {self.timer_unit}.timer")
+            if hour:
+                # don't test the minutes, due to RandomizedDelaySec=60m
+                self.assertRegex(out, f" {hour}:")
+            else:
+                self.assertEqual(out, "")
+            if dow:
+                self.assertRegex(out, r"^%s\s" % dow)
+            else:
+                # "every day" should not have a "LEFT" time > 1 day
+                self.assertNotIn(" day", out)
+
+            # service should not run right away
+            self.assertEqual(m.execute(f"systemctl is-active {self.timer_unit}.service || true").strip(), "inactive")
+
+            # automatic reboots should be enabled whenever timer is enabled
+            out = m.execute("apt-config dump | grep 'Unattended-Upgrade::Automatic-Reboot \"true\";' || true")
+            if hour:
+                self.assertIn("Reboot", out)
+            else:
+                self.assertNotIn("Reboot", out)
+
         def assertTimer(hour: str | None, dow: str | None = None) -> None:
             if "dnf" in self.backend:
                 assertTimerDnf(hour, dow)
+            elif self.backend == "apt":
+                assertTimerApt(hour, dow)
             else:
                 raise NotImplementedError(self.backend)
 
@@ -1540,9 +1567,29 @@ class TestAutoUpdates(NoSubManCase):
 
             self.assertIn(match, m.execute(f"grep upgrade_type {self.config}"))
 
+        def assertTypeApt(type_: str) -> None:
+            stored_patterns = m.execute(f"grep origin= {self.config}")
+            all_updates_pattern = '"origin=*";'
+
+            if type_ == "all":
+                self.assertIn(all_updates_pattern, stored_patterns)
+            elif type_ == "security":
+                self.assertNotIn(all_updates_pattern, stored_patterns)
+            else:
+                raise ValueError(type_)
+
+            stable_pattern = "origin=Debian,codename=${distro_codename},label=Debian"
+            security_pattern = "origin=Debian,codename=${distro_codename}-security,label=Debian-Security"
+            security_alt_pattern = "origin=Debian,codename=${distro_codename},label=Debian-Security"
+            self.assertIn(stable_pattern, stored_patterns)
+            self.assertIn(security_pattern, stored_patterns)
+            self.assertIn(security_alt_pattern, stored_patterns)
+
         def assertType(type_: str) -> None:
             if "dnf" in self.backend:
                 assertTypeDnf(type_)
+            elif self.backend == "apt":
+                assertTypeApt(type_)
             else:
                 raise NotImplementedError(self.backend)
 
@@ -1620,7 +1667,7 @@ class TestAutoUpdates(NoSubManCase):
         b.wait_in_text("#autoupdates-settings", "Disabled")
         assertTimer(None)
 
-        if "dnf" in self.backend:
+        if "dnf" in self.backend or self.backend == "apt":
             b.click("#autoupdates-settings button:contains('Edit')")
             b.wait_visible("#automatic-updates-dialog")
             b.click("#all-updates")
@@ -1775,7 +1822,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
             b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
         b.click("#ignore")
 
-        if "dnf" in self.backend:
+        if "dnf" in self.backend or self.backend == "apt":
             b.wait_in_text("#autoupdates-settings", "Not set up")
             b.wait_not_present("#settings .pf-v6-c-alert")
             b.click("#autoupdates-settings button:contains('Enable')")
@@ -1821,6 +1868,21 @@ WantedBy=basic.target
             })
         elif self.backend == 'apt':
             m.execute("dpkg -P unattended-upgrades")
+
+            self.createPackage('unattended-upgrades', '1', '1', content={
+                '/etc/apt/apt.conf.d/20auto-upgrades': (
+                    'APT::Periodic::Update-Package-Lists "1";\n'
+                    'APT::Periodic::Unattended-Upgrade "1";\n'
+                ),
+                '/etc/apt/apt.conf.d/50unattended-upgrades': (
+                    'Unattended-Upgrade::Origins-Pattern {\n'
+                    '//      Some Dummy Entries:\n'
+                    '        "origin=Debian,codename=${distro_codename},label=Debian";\n'
+                    '        "origin=Debian,codename=${distro_codename},label=Debian-Security";\n'
+                    '        "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";\n'
+                    '};\n'
+                ),
+            })
 
         self.enableRepo()
 

@@ -191,7 +191,6 @@ export function SimpleSelect<T>({
     <Select
       isOpen={isOpen}
       selected={selected}
-      // @ts-expect-error https://github.com/patternfly/patternfly-react/issues/11361
       onSelect={_onSelect}
       onOpenChange={(isOpen) => {
         onToggle && onToggle(isOpen);

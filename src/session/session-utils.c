@@ -638,3 +638,64 @@ spawn_and_wait (const char **argv, const char **envp,
       return wstatus;
     }
 }
+
+
+char *
+run_user_command (const char *cmd, const char *rhost, const char *authorization)
+{
+  int stdoutfd[2];
+  pid_t child;
+  char *output = NULL;
+  size_t buffer_size = 1024;
+
+  if (pipe(stdoutfd) == -1)
+    abort_with_message("cockpit-session: run_user_command pipe() failed: %m");
+
+  child = fork();
+  if (child == -1)
+    abort_with_message("cockpit-session: run_user_command fork() failed: %m");
+
+  if (child == 0) {
+    /* Child process, set up descriptors and run command */
+    close(stdoutfd[0]);
+    dup2(stdoutfd[1], STDOUT_FILENO);
+    close(stdoutfd[1]);
+
+    dup2(STDERR_FILENO, STDERR_FILENO);
+
+    /* run cmd, with argv[0] as cmd */
+    execlp(cmd, cmd, rhost, authorization, (char *)NULL);
+    abort_with_message("cockpit-session: run_user_command execvp() failed: %m");
+  } else {
+    /* Parent process */
+    /* Close unused write end */
+    close(stdoutfd[1]);
+
+    int status;
+    waitpid(child, &status, 0);
+
+    /* Only process stdout if exit code is 0 */
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+      output = malloc(buffer_size);
+      if (!output) {
+        close(stdoutfd[0]);
+        abort_with_message("cockpit-session: run_user_command malloc() failed: %m");
+      }
+
+      ssize_t n = read(stdoutfd[0], output, buffer_size - 1);
+      if (n > 0) {
+        output[n] = '\0';
+        output[strcspn(output, "\n")] = '\0';
+      } else {
+        free(output);
+        output = NULL;
+      }
+    } else {
+      warnx ("cockpit-session: run_user_command %s failed with exit code %d", cmd, WEXITSTATUS(status));
+    }
+
+    /* close read end */
+    close(stdoutfd[0]);
+    return output;
+  }
+}

@@ -113,7 +113,7 @@ class TestAccounts(testlib.MachineCase):
         m = self.machine
 
         # Clean out the relevant logfiles
-        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /run/utmp")
+        m.execute("truncate -s0 /var/log/{[bw]tmp{.db},lastlog} /run/utmp")
         m.execute("rm -f /var/lib/lastlog/lastlog2.db /var/lib/wtmpdb/wtmp.db")
 
         self.login_and_go("/users")
@@ -461,7 +461,7 @@ class TestAccounts(testlib.MachineCase):
         m = self.machine
 
         # Clean out the relevant logfiles
-        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /run/utmp")
+        m.execute("truncate -s0 /var/log/{[bw]tmp{.db},lastlog} /run/utmp")
         m.execute("rm -f /var/lib/lastlog/lastlog2.db /var/lib/wtmpdb/wtmp.db")
 
         self.login_and_go("/users")
@@ -1135,7 +1135,7 @@ class TestAccounts(testlib.MachineCase):
         m = self.machine
 
         # Clean out the relevant logfiles
-        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /run/utmp")
+        m.execute("truncate -s0 /var/log/{[bw]tmp{.db},lastlog} /run/utmp")
         m.execute("rm -f /var/lib/lastlog/lastlog2.db /var/lib/wtmpdb/wtmp.db")
 
         # First login: no entries yet

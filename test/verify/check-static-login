@@ -256,7 +256,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.start_cockpit()
 
         # Clean out the relevant logfiles
-        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /run/utmp")
+        m.execute("truncate -s0 /var/log/{[bw]tmp{.db},lastlog} /run/utmp")
 
         if m.image == "arch":
             self.sed_file("s/# deny = 3/deny = 4/", "/etc/security/faillock.conf")

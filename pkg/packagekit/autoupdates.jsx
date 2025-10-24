@@ -337,6 +337,144 @@ class Dnf5Impl extends ImplBase {
     }
 }
 
+class AptImpl extends ImplBase {
+    async getConfig() {
+        this.packageName = "unattended-upgrades";
+
+        try {
+            await cockpit.spawn(["dpkg", "-l", this.packageName], { err: "ignore" });
+            this.installed = true;
+        } catch (ex) {
+            this.installed = false;
+            debug("apt getConfig: not installed:", ex);
+            return;
+        }
+
+        try {
+            // Check timer status and configuration
+            const timerOutput = await cockpit.script(
+                "set -eu; " +
+                "if systemctl --quiet is-enabled apt-daily-upgrade.timer 2>/dev/null; then echo enabled; fi; " +
+                "systemctl cat apt-daily-upgrade.timer 2>/dev/null | grep '^OnCalendar=' | tail -n1 || true; ",
+                [], { err: "message" });
+
+            this.enabled = (timerOutput.indexOf("enabled\n") >= 0);
+
+            // Parse timer schedule
+            const calIdx = timerOutput.indexOf("OnCalendar=");
+            if (calIdx >= 0) {
+                const calendarSpec = timerOutput.substring(calIdx).split('\n')[0].split("=")[1];
+                this.parseCalendar(calendarSpec);
+            } else {
+                if (timerOutput.indexOf("InactiveSec=1d\n") >= 0)
+                    this.day = this.time = "";
+                else if (this.installed)
+                    this.supported = false;
+            }
+
+            // Get unattended-upgrades configuration
+            const aptConfigOutput = await cockpit.script('apt-config dump | grep "Unattended-Upgrade"', [], { superuser: "require", err: "message" });
+
+            // Determine upgrades type based on Origins-Pattern
+            const regularUpgrades = aptConfigOutput.includes('Unattended-Upgrade::Origins-Pattern:: "origin=Debian,codename=${distro_codename},label=Debian"');
+            const securityUpgrades = aptConfigOutput.includes('Unattended-Upgrade::Origins-Pattern:: "origin=Debian,codename=${distro_codename},label=Debian-Security"') ||
+                                   aptConfigOutput.includes('Unattended-Upgrade::Origins-Pattern:: "origin=Debian,codename=${distro_codename}-security,label=Debian-Security"');
+
+            if (securityUpgrades && !regularUpgrades) {
+                this.type = "security";
+            } else {
+                this.type = "all"; // Default to all if we have both or regular updates
+            }
+
+            debug(`apt getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}, raw timer output: '${timerOutput}'; raw apt-config output: '${aptConfigOutput}'`);
+        } catch (error) {
+            console.error("AptImpl: getConfig failed:", error);
+            this.supported = false;
+        }
+    }
+
+    async setConfig(enabled, type, day, time) {
+        this.defaultConfigFile = "/etc/apt/apt.conf.d/50unattended-upgrades";
+        this.configFile = "/etc/apt/apt.conf.d/52unattended-upgrades-cockpit";
+
+        const timerConfD = "/etc/systemd/system/apt-daily-upgrade.timer.d";
+        const timerConf = timerConfD + "/time.conf";
+
+        let script = "set -e; ";
+
+        if (type !== null) {
+            // Configure Origins-Pattern based on update type in our override file
+            script += "cat > " + this.configFile + " << 'EOF'\n";
+            script += "// Cockpit managed configuration\n";
+            // Clear Unattended-Upgrade::Origins-Pattern as they get merged otherwise
+            script += "#clear Unattended-Upgrade::Origins-Pattern;\n";
+            script += "Unattended-Upgrade::Origins-Pattern {\n";
+            if (type === "security") {
+                // Only security updates
+                script += '        "origin=Debian,codename=${distro_codename},label=Debian-Security";\n';
+                script += '        "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";\n';
+            } else {
+                // All updates (security + regular)
+                script += '        "origin=Debian,codename=${distro_codename},label=Debian";\n';
+                script += '        "origin=Debian,codename=${distro_codename},label=Debian-Security";\n';
+                script += '        "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";\n';
+            }
+            script += "};\n\n";
+
+            // Enable Automatic reboot (to conform to current dnf implementation)
+            script += "// Enable automatic reboot when required\n";
+            script += 'Unattended-Upgrade::Automatic-Reboot "true";\n';
+            script += "EOF\n";
+        }
+
+        // Configure timer schedule
+        if (time !== null || day !== null) {
+            if (day === "" && time === "") {
+                // Restore defaults
+                script += "rm -f " + timerConf + "; ";
+            } else {
+                if (day == null)
+                    day = this.day;
+                if (time == null)
+                    time = this.time;
+                script += "mkdir -p " + timerConfD + "; ";
+                // Clear existing OnCalendar and set new one (like systemd override pattern)
+                script += "printf '[Timer]\\nOnCalendar=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
+                script += "systemctl daemon-reload; ";
+            }
+        }
+
+        if (enabled !== null) {
+            if (enabled) {
+                script += "systemctl enable --now apt-daily-upgrade.timer; ";
+                script += "systemctl enable --now apt-daily.timer; ";
+            } else {
+                script += "systemctl disable --now apt-daily-upgrade.timer; ";
+                script += "systemctl disable --now apt-daily.timer; ";
+                // Remove our config file
+                script += "rm -f " + this.configFile + "; ";
+            }
+        }
+
+        debug(`apt setConfig(${enabled}, "${type}", "${day}", "${time}"): script "${script}"`);
+
+        try {
+            await cockpit.script(script, [], { superuser: "require" });
+            debug("apt setConfig: configuration updated successfully");
+            if (enabled !== null)
+                this.enabled = enabled;
+            if (type !== null)
+                this.type = type;
+            if (day !== null)
+                this.day = day;
+            if (time !== null)
+                this.time = time;
+        } catch (error) {
+            console.error("apt setConfig failed:", error.toString());
+        }
+    }
+}
+
 // Returns a promise for instantiating "backend"; this will never fail, if
 // automatic updates are not supported, backend will be null.
 export function getBackend(packagekit_backend, forceReinit) {
@@ -354,8 +492,11 @@ export function getBackend(packagekit_backend, forceReinit) {
                             console.error("failed to run dnf --version:", ex);
                             resolve(null);
                         });
+            } else if (packagekit_backend === "apt") {
+                const backend = new AptImpl();
+                backend.getConfig().then(() => resolve(backend));
             } else {
-                // TODO: apt backend
+                // TODO: other backends
                 resolve(null);
             }
         });
@@ -497,7 +638,7 @@ export const AutoUpdates = ({ privileged, packagekit_backend }) => {
                 <Alert isInline
                        variant="info"
                        className="autoupdates-card-error"
-                       title={_("Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install.timer. Please remove custom overrides to configure automatic updates.")} />
+                       title={_("Failed to parse configuration for automatic updates. Please remove custom overrides to configure automatic updates.")} />
             </div>
         );
 

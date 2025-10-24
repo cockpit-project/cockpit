@@ -2144,6 +2144,9 @@ class MachineCase(unittest.TestCase):
 
         # timedatex.service shuts down after timeout, runs into race condition with property watching
         ".*org.freedesktop.timedate1: couldn't get all properties.*Error:org.freedesktop.DBus.Error.NoReply.*",
+
+        # Ubuntu 25.10 triggers systemd-detect-virt apparmor violations
+        '.*apparmor="DENIED" operation="capable" class="cap" profile="systemd-detect-virt".*',
     ]
 
     default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")

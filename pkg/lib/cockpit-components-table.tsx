@@ -65,6 +65,7 @@ const _ = cockpit.gettext;
  * - sortMethod: callback function used for sorting rows. Called with 3 parameters: sortMethod(rows, activeSortDirection, activeSortIndex)
  * - style: object of additional css rules
  * - afterToggle: function to be called when content is toggled
+ * - lazyLoadToggle: stops the expandedContent being rendered by default, so we can offload intensive tasks to when the content is opened
  * - onSelect: function to be called when a checkbox is clicked. Called with 5 parameters:
  *   event, isSelected, rowIndex, rowData, extraData. rowData contains props with an id property of the clicked row.
  * - onHeaderSelect: event, isSelected.
@@ -101,6 +102,7 @@ export interface ListingTableColumnProps {
 export interface ListingTableProps extends Omit<TableProps, 'rows' | 'onSelect'> {
     actions?: React.ReactNode[],
     afterToggle?: (expanded: boolean) => void,
+    lazyLoadToggle?: boolean,
     caption?: string,
     className?: string,
     columns: (string | ListingTableColumnProps)[],
@@ -121,6 +123,7 @@ export interface ListingTableProps extends Omit<TableProps, 'rows' | 'onSelect'>
 export const ListingTable = ({
     actions = [],
     afterToggle,
+    lazyLoadToggle = false,
     caption = '',
     className = '',
     columns: cells = [],
@@ -338,7 +341,7 @@ export const ListingTable = ({
                         );
                     })}
                 </Tr>
-                {row.expandedContent && <Tr id={"expanded-content" + rowIndex} isExpanded={isExpanded}>
+                {row.expandedContent && ((lazyLoadToggle && isExpanded) || !lazyLoadToggle) && <Tr id={"expanded-content" + rowIndex} isExpanded={isExpanded}>
                     <Td noPadding={row.hasPadding !== true} colSpan={row.columns.length + 1 + (onSelect ? 1 : 0)}>
                         <ExpandableRowContent>{row.expandedContent}</ExpandableRowContent>
                     </Td>

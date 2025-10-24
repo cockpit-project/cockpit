@@ -339,6 +339,9 @@ class CommonTests:
         self.allow_journal_messages(".*No authentication agent found.*")
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
+        # FIXME: Something above triggers this apparmor violation
+        if m.image == "ubuntu-stable":
+            self.allow_journal_messages('apparmor="DENIED" operation="capable" class="cap" profile="systemd-detect-virt"')
 
     def checkClientCertAuthentication(self):
         """Common tests for certificate authentication
@@ -853,6 +856,10 @@ ipa-advise enable-admins-sudo | sh -ex
         # FIXME: Something above triggers this error message
         self.allow_journal_messages("Received unexpected TLS connection and no certificate was configured")
 
+        # FIXME: Something above triggers this apparmor violation
+        if m.image == "ubuntu-stable":
+            self.allow_journal_messages('apparmor="DENIED" operation="capable" class="cap" profile="systemd-detect-virt"')
+
 
 @testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*")
 @testlib.no_retry_when_changed
@@ -1134,6 +1141,9 @@ class TestKerberos(testlib.MachineCase):
                             'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 401 Authentication disabled", output)
         self.allow_journal_messages(".*Request ticket server HTTP/x0.cockpit.lan@COCKPIT.LAN not found in keytab.*")
+        # FIXME: Something above triggers this apparmor violation
+        if m.image == "ubuntu-stable":
+            self.allow_journal_messages('apparmor="DENIED" operation="capable" class="cap" profile="systemd-detect-virt"')
 
 
 @testlib.skipImage("No realmd available", "arch")

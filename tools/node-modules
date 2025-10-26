@@ -135,17 +135,32 @@ cmd_runtime_tar() {
         exit 1
     fi
 
-    # Collect runtime packages using jq, excluding esbuild and dev dependencies
+    # Collect runtime packages using jq, excluding:
+    #  - devDependencies
+    #  - esbuild (arch dependent, must use distribution packages)
+    #  - unnecessary binary packages (use JavaScript sass, don't need watcher)
     local runtime_pkgs
     runtime_pkgs="$(jq -r '
         .packages | to_entries[] |
         select(.value.dev != true) |
         .key |
-        select(test(".*/@?esbuild(/|$)") | not)
+        select(test(".*/@?esbuild(/|$)") | not) |
+        select(test("watcher-linux|sass-embedded") | not)
     ' node_modules/.package-lock.json | while read -r pkg; do
         # Only include if exists and is not empty
         [ -n "$(ls -A "$pkg" 2>/dev/null)" ] && echo "$pkg"
     done)"
+
+    # Validate that we only have architecture independent files
+    # special-case node_modules/iconv-lite/encodings/sbcs-data-generated.js, it's JS with binary strings in it
+    # and resolve/test/resolver/cup.coffee which is a single-byte test file
+    for pkg in $runtime_pkgs; do
+        if find "$pkg" -type f -print0 | xargs -0 file --mime |
+           grep -Ev "text/|inode/x-empty|application/(javascript|json)|font/|image/|sbcs-data-generated.js|cup.coffee"; then
+            echo "Error: package '$pkg' contains architecture dependent files, cannot include in runtime tarball" >&2
+            exit 1
+        fi
+    done
 
     # Create tarball
     {

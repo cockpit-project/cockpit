@@ -171,7 +171,7 @@ class AuthorizeResponder(ferny.AskpassHandler):
 
         # FIXME: is this a host key prompt? This should be handled more elegantly,
         # see https://github.com/cockpit-project/cockpit/pull/19668
-        fp_match = re.search(r'\n(\w+) key fingerprint is ([^.]+)\.', prompt)
+        fp_match = re.search(r'\n(\w+) key fingerprint is:? ([^.]+)\.', prompt)
         # let ssh resolve aliases, don't use our original "destination"
         host_match = re.search(r"authenticity of host '([^ ]+) ", prompt)
         args = {}

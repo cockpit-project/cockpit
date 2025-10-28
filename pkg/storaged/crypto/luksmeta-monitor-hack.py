@@ -119,10 +119,16 @@ def monitor(dev):
     # kills us.  It will eventually exit on its own since its stdout
     # will be closed when we exit, but that will only happen when it
     # actually writes something.
+    #
+    # We use a process group to do the killing, since the Rust version
+    # of stdbuf will fork/exec udevadm and we thus need to kill both
+    # the stdbuf process and the udevadm process. (The GNU version of
+    # stdbuf will just exec udevadm and there was only one process to
+    # kill in that case.)
 
     def killmon():
         if mon:
-            mon.terminate()
+            os.killpg(mon.pid, signal.SIGTERM)
 
     def sigexit(_signo, _stack):
         killmon()
@@ -135,7 +141,7 @@ def monitor(dev):
 
     path = subprocess.check_output(["udevadm", "info", "-q", "path", dev]).rstrip(b"\n")
     mon = subprocess.Popen(["stdbuf", "-o", "L", "udevadm", "monitor", "-u", "-s", "block"],
-                           stdout=subprocess.PIPE)
+                           stdout=subprocess.PIPE, preexec_fn=lambda: os.setpgid(0, 0))
 
     old_infos = info(dev)
     sys.stdout.write(json.dumps(old_infos) + "\n")

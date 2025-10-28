@@ -208,7 +208,7 @@ session    optional     pam_ssh_add.so
             "verify/files/ssh/id_ed25519",
             "verify/files/ssh/id_ed25519.pub"
         ], "/home/admin/.ssh/")
-        m.execute("chmod 600 /home/admin/.ssh/*")
+        m.execute("chmod 600 /home/admin/.ssh/id_*")
         m.execute("chown -R admin:admin /home/admin/.ssh")
 
         self.login_and_go()

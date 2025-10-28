@@ -8,9 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-17 03:06+0000\n"
-"PO-Revision-Date: 2025-06-30 10:09+0000\n"
-"Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
+"POT-Creation-Date: 2025-10-28 03:07+0000\n"
+"PO-Revision-Date: 2025-10-28 12:46+0000\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "cockpit/nl/>\n"
 "Language: nl\n"
@@ -18,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 5.13.3\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -46,19 +47,19 @@ msgstr "$0 beschikbaar"
 
 #: pkg/storaged/block/resize.jsx:269
 msgid "$0 can not be made larger"
-msgstr "$0 kunnen niet uitgebreid worden."
+msgstr "$0 kunnen niet worden uitgebreid"
 
 #: pkg/storaged/block/resize.jsx:266
 msgid "$0 can not be made smaller"
-msgstr "$0 kunnen niet verkleind worden."
+msgstr "$0 kunnen niet worden verkleind"
 
 #: pkg/storaged/block/resize.jsx:262
 msgid "$0 can not be resized"
-msgstr "De grootte van $0  kan hier niet gewijzigd worden."
+msgstr "De grootte van $0 kan niet gewijzigd worden"
 
 #: pkg/storaged/block/resize.jsx:258
 msgid "$0 can not be resized here"
-msgstr "De grootte van $0  kan hier niet gewijzigd worden."
+msgstr "De grootte van $0 kan hier niet gewijzigd worden"
 
 #: pkg/storaged/mdraid/mdraid.jsx:269
 msgid "$0 chunk size"
@@ -81,12 +82,10 @@ msgstr[0] "$0 dag"
 msgstr[1] "$0 dagen"
 
 #: pkg/systemd/overview-cards/smart-status.jsx:94
-#, fuzzy
-#| msgid "Disk is failing"
 msgid "$0 disk is failing"
 msgid_plural "$0 disks are failing"
-msgstr[0] "Schijf werkt niet"
-msgstr[1] "Schijf werkt niet"
+msgstr[0] "$0 schijf is defect"
+msgstr[1] "$0 schijven zijn defect"
 
 #: pkg/storaged/mdraid/mdraid.jsx:274 pkg/playground/translate.js:26
 #: pkg/playground/translate.js:29
@@ -112,7 +111,7 @@ msgstr "$0 documentatie"
 
 #: pkg/systemd/terminal.jsx:167
 msgid "$0 does not exist"
-msgstr "$0  bestaat niet."
+msgstr "$0 bestaat niet"
 
 #: pkg/static/login.js:472 pkg/static/login.js:1059
 msgid "$0 error"
@@ -183,7 +182,7 @@ msgstr "$0 is in gebruik"
 
 #: pkg/systemd/terminal.jsx:163
 msgid "$0 is not a directory"
-msgstr "Pad $0  naar de map"
+msgstr "$0 is geen map"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:42
 #: pkg/lib/cockpit-components-install-dialog.jsx:153
@@ -247,7 +246,7 @@ msgstr[1] "$0 pagina's"
 
 #: pkg/storaged/partitions/partition-table.jsx:95
 msgid "$0 partitions"
-msgstr "$0  partities"
+msgstr "$0 partities"
 
 #: pkg/packagekit/updates.jsx:785
 msgid "$0 security fix available"
@@ -956,7 +955,7 @@ msgstr ""
 
 #: pkg/storaged/stratis/pool.jsx:522
 msgid "Adding blockdevices requires unlocking the pool."
-msgstr ""
+msgstr "Om blokapparaten toe te voegen, moet de pool worden ontgrendeld."
 
 #: pkg/networkmanager/firewall.jsx:734
 msgid ""
@@ -1237,6 +1236,8 @@ msgstr "Minimaal één blokapparaat is noodzakelijk."
 #: pkg/storaged/stratis/pool.jsx:326
 msgid "At least one of the non-interactive unlock methods must work."
 msgstr ""
+"Er moet ten minste één van de niet-interactieve ontgrendelingsmethoden "
+"werken."
 
 #: pkg/storaged/btrfs/subvolume.jsx:383
 msgid "At least one subvolume needs to be mounted"
@@ -1408,7 +1409,7 @@ msgstr "Antennebehuizing"
 
 #: pkg/storaged/block/other.jsx:41
 msgid "Block device"
-msgstr "Blokapparaat"
+msgstr "Blokkeer apparaat"
 
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:63
 msgid "Block device for filesystems"
@@ -1914,7 +1915,7 @@ msgstr ""
 #: pkg/storaged/dialog.jsx:1497 pkg/storaged/dialog.jsx:1517
 #: pkg/systemd/timer-dialog.jsx:165
 msgid "Command"
-msgstr "Commando"
+msgstr "Opdracht"
 
 #: pkg/systemd/timer-dialog.jsx:172
 msgid "Command not found"
@@ -2100,10 +2101,8 @@ msgid "Contacted domain"
 msgstr "Gecontacteerd domein"
 
 #: pkg/systemd/service-details.jsx:688
-#, fuzzy
-#| msgid "Container:"
 msgid "Container"
-msgstr "Container:"
+msgstr "Container"
 
 #: pkg/shell/nav.tsx:295
 msgid "Contains:"
@@ -2557,10 +2556,10 @@ msgid ""
 "'now' refers to the current time. Finally, relative times may be specified, "
 "prefixed with '-' or '+'"
 msgstr ""
-"Datumspecificaties moeten het formaat JJJJ-MM-DD uu:mm:ss hebben. Als "
-"alternatief worden de strings 'gisteren', 'vandaag', 'morgen' begrepen. 'nu' "
-"verwijst naar de huidige tijd. Ten slotte kunnen relatieve tijden worden "
-"opgegeven, voorafgegaan door '-' of '+'"
+"Datumspecificaties moeten de notatie JJJJ-MM-DD uu:mm:ss hebben. Als "
+"alternatief worden de strings 'yesterday', 'today' en 'tomorrow' gebruikt. "
+"'now' verwijst naar de huidige tijd. Ten slotte kunnen relatieve tijden "
+"worden opgegeven, voorafgegaan door '-' of '+'"
 
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:43
 #: pkg/storaged/lvm2/block-logical-volume.jsx:161
@@ -2569,10 +2568,8 @@ msgid "Deactivate"
 msgstr "Deactiveren"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:158
-#, fuzzy
-#| msgid "Repair logical volume $0"
 msgid "Deactivate logical volume $0/$1?"
-msgstr "Herstel logische volume $0"
+msgstr "Deactiveer logische volume $0/$1?"
 
 #: pkg/networkmanager/interfaces.js:866
 msgid "Deactivating"
@@ -3145,10 +3142,8 @@ msgid "Encrypted $0"
 msgstr "$0 versleuteld"
 
 #: pkg/storaged/stratis/pool.jsx:572
-#, fuzzy
-#| msgid "Encrypted Stratis pool $0"
 msgid "Encrypted Stratis pool"
-msgstr "Versleutelde Stratis pool $0"
+msgstr "Versleutelde Stratis pool"
 
 #: pkg/storaged/utils.js:360
 msgid "Encrypted logical volume of $0"
@@ -3481,10 +3476,8 @@ msgid "Filesystem name"
 msgstr "Bestandssysteemnaam"
 
 #: pkg/storaged/dialog.jsx:1212
-#, fuzzy
-#| msgid "Creating filesystem on $target"
 msgid "Filesystem outside the target"
-msgstr "Bestandssysteem op $target aanmaken"
+msgstr "Bestandssysteem buiten doel"
 
 #: pkg/storaged/filesystem/utils.jsx:127
 msgid "Filesystems are already mounted below this mountpoint."
@@ -3609,10 +3602,8 @@ msgid "Gateway"
 msgstr "Gateway"
 
 #: pkg/networkmanager/network-interface.jsx:301
-#, fuzzy
-#| msgid "Gateway"
 msgid "Gateway $gateway"
-msgstr "Gateway"
+msgstr "Gateway $gateway"
 
 #: pkg/networkmanager/network-interface.jsx:318
 msgid "General"
@@ -3874,16 +3865,12 @@ msgstr ""
 "bestaande wachtwoordzin voor de pool op."
 
 #: pkg/storaged/stratis/pool.jsx:312
-#, fuzzy
-#| msgid ""
-#| "The disk needs to be unlocked before formatting.  Please provide a "
-#| "existing passphrase."
 msgid ""
 "If none of the non-interactive unlock methods works, you can provide an "
 "existing passphrase."
 msgstr ""
-"De schijf moet worden ontgrendeld voor het formatteren.  Geef een bestaande "
-"wachtzin op."
+"Als geen van de niet-interactieve ontgrendelingsmethoden werkt, kunt u een "
+"bestaande wachtwoordzin opgeven."
 
 #: pkg/static/login.html:102
 msgid ""
@@ -3902,16 +3889,12 @@ msgstr ""
 "Verbind anders niet en neem contact op met je beheerder."
 
 #: pkg/storaged/stratis/pool.jsx:306
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If the keyserver at $0 is not reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"Om een sleutelserver toe te voegen, moet de pool worden ontgrendeld. Geef de "
-"bestaande wachtwoordzin voor de pool op."
+"Als de sleutelserver op $0 niet bereikbaar is, kunt u een bestaande "
+"wachtwoordzin opgeven."
 
 #: pkg/packagekit/updates.jsx:676 pkg/packagekit/updates.jsx:758
 #: pkg/networkmanager/ip-settings.jsx:44
@@ -3941,10 +3924,8 @@ msgstr ""
 "laat je het sleutelwachtwoord leeg."
 
 #: pkg/storaged/drive/smart-details.jsx:40
-#, fuzzy
-#| msgid "Progress: $0"
 msgid "In progress"
-msgstr "Voortgang: $0"
+msgstr "Bezig"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:72
 msgid "In sync"
@@ -4067,10 +4048,8 @@ msgid "Install software"
 msgstr "Installeer software"
 
 #: pkg/kdump/kdump-view.jsx:589
-#, fuzzy
-#| msgid "Please install the $0 package"
 msgid "Install the $0 package."
-msgstr "Installeer het $0 pakket"
+msgstr "Installeer het $0 pakket."
 
 #: pkg/static/login.js:1049
 msgid ""
@@ -4294,10 +4273,8 @@ msgid "Jump to"
 msgstr "Spring naar"
 
 #: pkg/kdump/kdump-view.jsx:587
-#, fuzzy
-#| msgid "Cockpit is not installed"
 msgid "Kdump service is not installed."
-msgstr "Cockpit is niet geïnstalleerd"
+msgstr "Kdump service is niet geïnstalleerd."
 
 #: pkg/kdump/kdump-view.jsx:623
 #, fuzzy
@@ -4415,7 +4392,7 @@ msgstr "LVM2 volumegroep $0"
 
 #: pkg/storaged/btrfs/volume.jsx:187
 msgid "Label"
-msgstr "Label:"
+msgstr "Label"
 
 #: pkg/lib/machine-info.js:68
 msgid "Laptop"
@@ -4560,10 +4537,8 @@ msgstr "Gekoppeld"
 
 #: pkg/storaged/partitions/partition.jsx:126
 #: pkg/storaged/partitions/partition.jsx:133
-#, fuzzy
-#| msgid "Unmount filesystem $0"
 msgid "Linux filesystem data"
-msgstr "Bestandssysteem $0 afkoppelen"
+msgstr "Linux-bestandssysteemgegevens"
 
 #: pkg/storaged/partitions/partition.jsx:125
 #: pkg/storaged/partitions/partition.jsx:132
@@ -4690,10 +4665,8 @@ msgid "Lock $0"
 msgstr "Vergrendel $0"
 
 #: pkg/storaged/crypto/actions.jsx:78
-#, fuzzy
-#| msgid "Lock $0"
 msgid "Lock $0?"
-msgstr "Vergrendel $0"
+msgstr "Vergrendel $0?"
 
 #: pkg/users/accounts-list.js:74
 msgid "Lock account"
@@ -5319,10 +5292,8 @@ msgid "Name cannot contain the character '$0'."
 msgstr "Naam mag het letterteken '$0' niet bevatten."
 
 #: pkg/storaged/btrfs/utils.jsx:89
-#, fuzzy
-#| msgid "Name cannot contain the character '$0'."
 msgid "Name cannot contain the character '/'."
-msgstr "Naam mag het letterteken '$0' niet bevatten."
+msgstr "Naam mag het karakter '/' niet bevatten."
 
 #: pkg/storaged/utils.js:219
 msgid "Name cannot contain whitespace."
@@ -5590,7 +5561,7 @@ msgstr "Geen media geplaatst"
 
 #: pkg/storaged/stratis/pool.jsx:776
 msgid "No more space for passphrases or keyservers."
-msgstr ""
+msgstr "Geen ruimte meer voor wachtwoordzinnen of sleutelservers."
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:58
 msgid "No partitioning"
@@ -5720,10 +5691,8 @@ msgid "Not enough space"
 msgstr "Niet genoeg ruimte"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:183
-#, fuzzy
-#| msgid "Not enough space to grow."
 msgid "Not enough space to grow"
-msgstr "Niet genoeg ruimte om te groeien."
+msgstr "Niet genoeg ruimte om te groeien"
 
 #: pkg/storaged/pages.jsx:285 pkg/storaged/pages.jsx:290
 #: pkg/systemd/services.jsx:223
@@ -6009,6 +5978,9 @@ msgid ""
 "for a virtual machine, the partitions must be managed by the operating "
 "system inside the virtual machine."
 msgstr ""
+"Partities worden niet ondersteund op dit blokapparaat. Als het als schijf "
+"voor een virtuele machine wordt gebruikt, moeten de partities worden beheerd "
+"door het besturingssysteem in de virtuele machine."
 
 #: pkg/networkmanager/team.jsx:50
 msgid "Passive"
@@ -6121,7 +6093,7 @@ msgstr "Padkosten"
 
 #: pkg/networkmanager/network-interface.jsx:529
 msgid "Path cost $path_cost"
-msgstr "Padkosten $0"
+msgstr "Pad kost $path_cost"
 
 #: pkg/storaged/nfs/nfs.jsx:145
 msgid "Path on server"
@@ -6137,7 +6109,7 @@ msgstr "Pad op server moet beginnen met \"/\"."
 
 #: pkg/users/account-create-dialog.js:88
 msgid "Path to directory"
-msgstr "Pad naar de map"
+msgstr "Pad naar map"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:151
 #: pkg/shell/credentials.tsx:80
@@ -6212,10 +6184,8 @@ msgid "Permanently delete $0?"
 msgstr "$0 permanent verwijderen?"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:75
-#, fuzzy
-#| msgid "Permanently delete $0?"
 msgid "Permanently delete logical volume $0/$1?"
-msgstr "$0 permanent verwijderen?"
+msgstr "Logisch volume $0/$1 permanent verwijderen?"
 
 #: pkg/storaged/btrfs/subvolume.jsx:250
 #, fuzzy
@@ -6249,10 +6219,8 @@ msgid "Physical volumes"
 msgstr "Fysieke volumes"
 
 #: pkg/storaged/block/resize.jsx:282
-#, fuzzy
-#| msgid "Physical volumes can not be resized here."
 msgid "Physical volumes can not be resized here"
-msgstr "Fysieke volumes kunnen hier niet aangepast worden."
+msgstr "Fysieke volumes kunnen hier niet aangepast worden"
 
 #: pkg/systemd/timer-dialog.jsx:338 pkg/lib/serverTime.js:595
 #: pkg/lib/cockpit-components-shutdown.jsx:208
@@ -6341,6 +6309,8 @@ msgid ""
 "Pools with metadata format V1 are restricted to at most one passphrase and "
 "at most one keyserver."
 msgstr ""
+"Pools met metadata-indeling V1 zijn beperkt tot maximaal één wachtwoordzin "
+"en maximaal één sleutelserver."
 
 #: pkg/storaged/iscsi/create-dialog.jsx:111 pkg/shell/hosts_dialog.jsx:564
 msgid "Port"
@@ -6568,10 +6538,8 @@ msgid "Read"
 msgstr "Lezen"
 
 #: pkg/shell/hosts_dialog.jsx:276
-#, fuzzy
-#| msgid "Read more..."
 msgid "Read more"
-msgstr "Lees meer..."
+msgstr "Lees meer"
 
 #: pkg/metrics/metrics.jsx:1460 pkg/systemd/hwinfo.jsx:210
 msgid "Read more..."
@@ -6654,7 +6622,7 @@ msgstr "Aanbevolen, veilige instellingen voor huidige dreigingsmodellen."
 
 #: pkg/shell/failures.tsx:91
 msgid "Reconnect"
-msgstr "Opnieuw aansluiten"
+msgstr "Opnieuw verbinden"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:73
 msgid "Recovering"
@@ -6729,10 +6697,8 @@ msgid "Remote over NFS"
 msgstr "Op afstand via NFS"
 
 #: pkg/kdump/kdump-view.jsx:474
-#, fuzzy
-#| msgid "Remote over NFS"
 msgid "Remote over NFS, $0"
-msgstr "Op afstand via NFS"
+msgstr "Op afstand via NFS, $0"
 
 #: pkg/kdump/kdump-view.jsx:485
 msgid "Remote over SFTP"
@@ -6743,10 +6709,8 @@ msgid "Remote over SSH"
 msgstr "Op afstand via SSH"
 
 #: pkg/kdump/kdump-view.jsx:471
-#, fuzzy
-#| msgid "Remote over SSH"
 msgid "Remote over SSH, $0"
-msgstr "Op afstand via SSH"
+msgstr "Op afstand via SSH, $0"
 
 #: pkg/storaged/stratis/pool.jsx:975
 #, fuzzy
@@ -6785,10 +6749,8 @@ msgid "Remove $0?"
 msgstr "$0 verwijderen?"
 
 #: pkg/storaged/stratis/pool.jsx:972
-#, fuzzy
-#| msgid "Remove device"
 msgid "Remove Clevis token?"
-msgstr "Verwijder apparaat"
+msgstr "Clevis-token verwijderen?"
 
 #: pkg/storaged/stratis/pool.jsx:972 pkg/storaged/crypto/keyslots.jsx:663
 msgid "Remove Tang keyserver?"
@@ -7107,10 +7069,8 @@ msgstr "extensie"
 
 #: pkg/lib/cockpit-components-table.tsx:363
 #: pkg/lib/cockpit-components-table.tsx:364
-#, fuzzy
-#| msgid "Select"
 msgid "Row select"
-msgstr "Selecteren"
+msgstr "Selecteer rij"
 
 #: pkg/systemd/timer-dialog.jsx:243 pkg/systemd/timer-dialog.jsx:255
 msgid "Run at"
@@ -7380,10 +7340,8 @@ msgstr ""
 "volume te repareren. Er zijn minimaal $0 nodig."
 
 #: pkg/storaged/drive/smart-details.jsx:162
-#, fuzzy
-#| msgid "SMART self-test of $target"
 msgid "Self-test status"
-msgstr "SMART zelftest van $target"
+msgstr "Zelfteststatus"
 
 #: pkg/networkmanager/network-interface-members.jsx:207
 #: pkg/networkmanager/network-main.jsx:187
@@ -7417,10 +7375,8 @@ msgid "Server cannot be empty."
 msgstr "Server mag niet leeg zijn."
 
 #: pkg/static/login.js:1019
-#, fuzzy
-#| msgid "Server has closed the connection."
 msgid "Server closed connection"
-msgstr "Server heeft de verbinding verbroken."
+msgstr "Server heeft de verbinding verbroken"
 
 #: pkg/lib/cockpit.js:2449
 msgid "Server has closed the connection."
@@ -7548,10 +7504,8 @@ msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
 #: pkg/storaged/pages.jsx:709
-#, fuzzy
-#| msgid "Show all threads"
 msgid "Show all $0 rows"
-msgstr "Toon alle threads"
+msgstr "Toon alle $0 rijen"
 
 #: pkg/lib/cockpit-components-password.tsx:189
 msgid "Show confirmation password"
@@ -7649,7 +7603,7 @@ msgstr "Grootte moet een getal zijn"
 
 #: pkg/storaged/dialog.jsx:1160
 msgid "Size must be at least $0"
-msgstr "Grootte moet tenminste #0 zijn"
+msgstr "Grootte moet tenminste $0 zijn"
 
 #: pkg/shell/shell.tsx:133
 msgid "Skip main navigation"
@@ -7743,7 +7697,7 @@ msgstr "Sommige software moet handmatig opnieuw worden opgestart"
 
 #: pkg/storaged/storage-controls.jsx:89
 msgid "Sorry"
-msgstr "Excuus!"
+msgstr "Excuses"
 
 #: pkg/networkmanager/firewall.jsx:850
 msgid "Sorted from least to most trusted"
@@ -7915,10 +7869,8 @@ msgid "Stored passphrase"
 msgstr "Opgeslagen wachtzin"
 
 #: pkg/storaged/stratis/blockdev.jsx:41
-#, fuzzy
-#| msgid "$0 block device"
 msgid "Stratis block device"
-msgstr "$0 blokapparaat"
+msgstr "Stratis blokapparaat"
 
 #: pkg/storaged/stratis/stopped-pool.jsx:207 pkg/storaged/stratis/pool.jsx:1068
 #, fuzzy
@@ -8003,7 +7955,7 @@ msgstr "Succesvol naar het klembord gekopieerd"
 
 #: pkg/storaged/crypto/tang.jsx:146
 msgid "Successfully copied to clipboard!"
-msgstr "Succesvol naar het klembord gekopieerd!"
+msgstr "Succesvol naar kladblok gekopieerd!"
 
 #: pkg/systemd/timer-dialog.jsx:314 pkg/packagekit/autoupdates.jsx:426
 msgid "Sundays"
@@ -8015,10 +7967,8 @@ msgid "Swap"
 msgstr "Swap"
 
 #: pkg/storaged/block/resize.jsx:295
-#, fuzzy
-#| msgid "$0 filesystems can not be resized here."
 msgid "Swap can not be resized here"
-msgstr "De grootte van bestandssystemen kan hier niet gewijzigd worden."
+msgstr "Seap kan hier niet gewijzigd worden"
 
 #: pkg/metrics/metrics.jsx:134
 msgid "Swap out"
@@ -8208,12 +8158,8 @@ msgid "The MDRAID device is in a degraded state"
 msgstr "De RAID-array bevindt zich in een slechte staat"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:90
-#, fuzzy
-#| msgid "The RAID device must be running in order to remove disks."
 msgid "The MDRAID device must be running"
-msgstr ""
-"Het RAID apparaat moet actief zijn om een extra schijven te kunnen "
-"verwijderen."
+msgstr "Het MDRAID apparaat moet actief zijn"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:430 pkg/shell/hosts_dialog.jsx:1033
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
@@ -8276,15 +8222,11 @@ msgstr ""
 "De momenteel ingelogde gebruiker mag geen informatie over sleutels zien."
 
 #: pkg/storaged/block/format-dialog.jsx:371
-#, fuzzy
-#| msgid ""
-#| "The disk needs to be unlocked before formatting.  Please provide a "
-#| "existing passphrase."
 msgid ""
 "The disk needs to be unlocked before formatting. Please provide an existing "
 "passphrase."
 msgstr ""
-"De schijf moet worden ontgrendeld voor het formatteren.  Geef een bestaande "
+"De schijf moet worden ontgrendeld voor het formatteren. Geef een bestaande "
 "wachtzin op."
 
 #: pkg/sosreport/sosreport.jsx:370
@@ -8406,7 +8348,7 @@ msgstr "De sleutel die je hebt opgegeven, is niet geldig."
 
 #: pkg/storaged/stratis/pool.jsx:320
 msgid "The keyserver at $0 must be reachable."
-msgstr ""
+msgstr "De sleutelserver op $0 moet bereikbaar zijn."
 
 #: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
@@ -8790,6 +8732,9 @@ msgid ""
 "This volume group contains the root filesystem. Renaming it might require "
 "further changes to the bootloader configuration or kernel command line."
 msgstr ""
+"Deze volumegroep bevat het rootbestandssysteem. Het hernoemen ervan vereist "
+"mogelijk verdere wijzigingen in de bootloaderconfiguratie of de "
+"kernelopdrachtregel."
 
 #: pkg/storaged/lvm2/volume-group.jsx:354
 msgid "This volume group is missing some physical volumes."
@@ -8820,11 +8765,6 @@ msgstr ""
 "laatst, enzovoort."
 
 #: pkg/systemd/logs.jsx:345
-#, fuzzy
-#| msgid ""
-#| "This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
-#| "find all possible messages for the given unit. Can contain more units "
-#| "separated by comma. "
 msgid ""
 "This will add match for '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' and 'UNIT=' to "
 "find all possible messages for the given unit. Can contain more units "
@@ -8832,7 +8772,7 @@ msgid ""
 msgstr ""
 "Dit voegt een overeenkomst toe voor '_SYSTEMD_UNIT=', 'COREDUMP_UNIT=' en "
 "'UNIT=' om alle mogelijke berichten voor de gegeven eenheid te vinden. Kan "
-"meer eenheden bevatten, gescheiden door komma's. "
+"meer eenheden bevatten, gescheiden door komma's."
 
 #: pkg/shell/hosts_dialog.jsx:1034
 msgid "This will allow you to log in without password in the future."
@@ -8860,7 +8800,7 @@ msgstr "Tijd"
 
 #: pkg/packagekit/updates.jsx:596
 msgid "Time remaining: "
-msgstr ""
+msgstr "Resterende tijd: "
 
 #: pkg/lib/serverTime.js:574
 msgid "Time zone"
@@ -9051,10 +8991,10 @@ msgid "Type"
 msgstr "Type"
 
 #: pkg/storaged/partitions/partition.jsx:173
-#, fuzzy
-#| msgid "Name cannot contain the character '$0'."
 msgid "Type can only contain the characters 0 to 9, A to F, and \"-\"."
-msgstr "Naam mag het letterteken '$0' niet bevatten."
+msgstr ""
+"Het type mag alleen de tekens 0 tot en met 9, A tot en met F en \"-\" "
+"bevatten."
 
 #: pkg/storaged/partitions/partition.jsx:176
 msgid "Type must be of the form NNNNNNNN-NNNN-NNNN-NNNN-NNNNNNNNNNNN."
@@ -9243,10 +9183,8 @@ msgid "Unknown host name"
 msgstr "Onbekende hostnaam"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:127
-#, fuzzy
-#| msgid "Unknown host key"
 msgid "Unknown host: $0"
-msgstr "Onbekende hostsleutel"
+msgstr "Onbekende host: $0"
 
 #: pkg/networkmanager/firewall.jsx:509
 msgid "Unknown service name"
@@ -9324,10 +9262,8 @@ msgid "Unrecognized data"
 msgstr "Onbekende data"
 
 #: pkg/storaged/block/resize.jsx:309
-#, fuzzy
-#| msgid "Unrecognized data can not be made smaller here."
 msgid "Unrecognized data can not be made smaller here"
-msgstr "Onbekende data kan hier niet kleiner gemaakt worden."
+msgstr "Onbekende data kan hier niet kleiner gemaakt worden"
 
 #: pkg/storaged/block/resize.jsx:196
 msgid "Unrecognized data can not be made smaller here."
@@ -9341,7 +9277,7 @@ msgstr "Niet-ondersteunde volume"
 
 #: pkg/static/login.js:1055
 msgid "Unsupported shell. Check the journal for details."
-msgstr ""
+msgstr "Niet ondersteunde shell. Raadpleeg het journaal voor details."
 
 #: pkg/systemd/logs.jsx:323
 msgid "Until"
@@ -9352,10 +9288,8 @@ msgid "Untrusted host"
 msgstr "Niet vertrouwde host"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:129
-#, fuzzy
-#| msgid "Up since $0"
 msgid "Up since"
-msgstr "Actief sinds $0"
+msgstr "Actief sinds"
 
 #: pkg/shell/hosts_dialog.jsx:556
 msgid "Update"
@@ -9683,10 +9617,8 @@ msgstr "Volumegroep"
 
 #: pkg/storaged/lvm2/volume-group.jsx:225
 #: pkg/storaged/lvm2/physical-volume.jsx:74
-#, fuzzy
-#| msgid "This volume group is missing some physical volumes."
 msgid "Volume group is missing physical volumes"
-msgstr "Bij deze volumegroep ontbreken enkele fysieke volumes."
+msgstr "Volumegroep mist enkele fysieke volumes"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:276
 msgid "Volume size is $0. Content size is $1."
@@ -9871,10 +9803,8 @@ msgid "You will be logged out in $0 seconds."
 msgstr "Je wordt over $0 seconden uitgelogd."
 
 #: pkg/shell/hosts_dialog.jsx:282
-#, fuzzy
-#| msgid "You will be logged out in $0 seconds."
 msgid "You will be reminded once per session."
-msgstr "Je wordt over $0 seconden uitgelogd."
+msgstr "U wordt er één keer per sessie aan herinnerd."
 
 #: pkg/users/accounts-list.js:176
 msgid "Your account"
@@ -10064,7 +9994,7 @@ msgstr "cockpit-podman is niet geïnstalleerd"
 
 #: pkg/systemd/manifest.json:0
 msgid "command"
-msgstr "commando"
+msgstr "opdracht"
 
 #: pkg/systemd/manifest.json:0
 msgid "console"
@@ -10083,10 +10013,8 @@ msgid "crash"
 msgstr "crash"
 
 #: pkg/storaged/stratis/blockdev.jsx:58
-#, fuzzy
-#| msgid "$0 data"
 msgid "data"
-msgstr "$0 data"
+msgstr "data"
 
 #: pkg/systemd/manifest.json:0
 msgid "date"
@@ -10439,10 +10367,8 @@ msgid "more details"
 msgstr "meer details"
 
 #: pkg/storaged/pages.jsx:844
-#, fuzzy
-#| msgid "More info..."
 msgid "more info"
-msgstr "Meer info..."
+msgstr "meer info"
 
 #: pkg/storaged/utils.js:854 pkg/storaged/manifest.json:0
 msgid "mount"
@@ -10452,7 +10378,7 @@ msgstr "aankoppelen"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
 msgid "network"
 msgstr "netwerk"
 
@@ -10693,7 +10619,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "sos rapport mislukte"
 
-#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 

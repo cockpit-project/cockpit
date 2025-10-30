@@ -1477,6 +1477,8 @@ class TestMultiCPU(testlib.MachineCase):
         b.wait(lambda: int(b.text("#current-cpu-usage .pf-v6-c-progress__status").split()[-1].rstrip('%')) >= 38)
         b.wait(lambda: int(b.text("#current-cpu-usage .pf-v6-c-progress__status").split()[-1].rstrip('%')) <= 80)
 
+        self.allow_journal_messages('.*apparmor="DENIED" operation="open" class="file" profile="hostname" name="/proc/sys/net/ipv6/conf/all/disable_ipv6".*')
+
 
 @testlib.skipOstree("no PCP support")
 class TestGrafanaClient(testlib.MachineCase):

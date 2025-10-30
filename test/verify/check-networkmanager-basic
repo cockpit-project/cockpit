@@ -350,6 +350,47 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_visible("#network-ip-settings-dialog")
         b.wait_attr_contains("#network-ip-settings-gateway", "value", "2001:db8:cafe::10")
 
+        b.go("/network")
+        # Create a bridge interface and disable it to test if disabled connections can be modified.
+        # Connection exists, is down and the device itself does not exist as long as the connection is down
+        m.execute("nmcli con add con-name cockpitbr type bridge ifname cockpitbr && nmcli con down cockpitbr")
+        self.addCleanup(m.execute, "nmcli con del cockpitbr")
+        self.wait_for_iface("cockpitbr", active=False)
+        # check that connection exists but interface does not
+        m.execute("nmcli con sh | grep -q 'cockpitbr'")
+        m.execute("ip link sh | grep -q --invert-match 'cockpitbr'")
+
+        self.select_iface("cockpitbr")
+        b.wait_visible("#network-interface")
+        self.wait_for_iface_setting("Status", "Inactive")
+
+        # Configure IPv4 address
+        self.configure_iface_setting("IPv4")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.wait_visible("#network-ip-settings-address-0")
+        b.set_input_text("#network-ip-settings-address-0", "10.0.5.10")
+        b.set_input_text("#network-ip-settings-netmask-0", "24")
+        b.set_input_text("#network-ip-settings-gateway", "10.0.5.1")
+        b.click("#network-ip-settings-save")
+        self.wait_for_iface_setting("IPv4", "Address 10.0.5.10/24Gateway 10.0.5.1")
+        # Configure IPv6 address
+        self.configure_iface_setting("IPv6")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.wait_visible("#network-ip-settings-address-0")
+        b.set_input_text("#network-ip-settings-address-0", "2001:db8::10")
+        b.set_input_text("#network-ip-settings-netmask-0", "64")
+        b.set_input_text("#network-ip-settings-gateway", "2001:db8::1")
+        b.click("#network-ip-settings-save")
+        self.wait_for_iface_setting("IPv6", "Address 2001:db8::10/64Gateway 2001:db8::1")
+
+        # Start the interface and verify new address is set
+        b.click("#interface-switch")
+        self.wait_for_iface_setting("Status", "10.0.5.10/24,")
+        m.execute("ip addr sh cockpitbr | grep -q 'inet 10.0.5.10/24'")
+        m.execute("ip addr sh cockpitbr | grep -q 'inet6 2001:db8::10/64'")
+
     def testIpHelper(self):
         b = self.browser
         m = self.machine

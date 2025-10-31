@@ -85,7 +85,10 @@ QUnit.test("simple request", assert => {
                         },
                         packagemanager: {
                             label: "PackageManager (install dialog)"
-                        }
+                        },
+                        dialog: {
+                            label: "Dialog Implementation Convenience Kit"
+                        },
                     },
                     preload: ["preloaded"],
                     "content-security-policy": "img-src 'self' data:"

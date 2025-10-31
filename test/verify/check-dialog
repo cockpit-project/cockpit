@@ -1,0 +1,299 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+import time
+
+import dialoglib
+import testlib
+
+
+@testlib.nondestructive
+class TestDialog(testlib.MachineCase):
+
+    def test(self):
+        b = self.browser
+        d = dialoglib.DialogHelpers(b)
+
+        # Missing coverage:
+        #
+        # exception in async validation
+
+        def enter_online_validation_mode():
+            # put dialog into online validation mode by triggering a
+            # failed validation
+            d.set_Checkbox("flag", val=True)
+            d.set_TextInput("text", "")
+            b.click(d.apply_button())
+            b.wait_in_text(d.helper_text("text"), "Text can not be empty")
+            d.set_Checkbox("flag", val=False)
+
+        self.login_and_go("/playground/dialog", superuser=False)
+
+        # DialogTextInput with excuse, explanation, warning, and synch
+        # validation failure
+
+        b.click("#open")
+        d.wait_Checkbox("flag", val=False)
+        self.assertFalse(d.get_Checkbox("flag"))
+        b.wait_visible(d.field("text") + ":disabled")
+        b.wait_in_text(d.helper_text("text"), "Disabled")
+
+        d.set_Checkbox("flag", val=True)
+        b.wait_visible(d.field("text") + ":not(:disabled)")
+        b.wait_in_text(d.helper_text("text"), "Explanation")
+
+        d.set_TextInput("text", "warn")
+        self.assertEqual(d.get_TextInput("text"), "warn")
+        b.wait_in_text(d.helper_text("text"), "Warning")
+
+        # Excuse should have priority over Warning
+        d.set_Checkbox("flag", val=False)
+        b.wait_in_text(d.helper_text("text"), "Disabled")
+
+        d.set_Checkbox("flag", val=True)
+        d.set_TextInput("text", "")
+        b.click(d.apply_button())
+        b.wait_in_text(d.helper_text("text"), "Text can not be empty")
+
+        d.set_Checkbox("flag", val=False)
+        b.wait_in_text(d.helper_text("text"), "Disabled")
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.click("#open")
+        d.set_Checkbox("flag", val=True)
+        d.set_TextInput("text", "Text")
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+        b.wait_text("#text", "Text")
+
+        # DialogRadioSelect with explanations and excuses
+
+        b.click("#open")
+        d.wait_RadioSelect("radio", "one")
+        b.wait_in_text(d.id("radio", "one-label"), "One explanation")
+        b.wait_visible(d.id("radio", "two") + ":disabled")
+        b.wait_in_text(d.id("radio", "two-label"), "(disabled)")
+        b.wait_in_text(d.id("radio", "two-label"), "Two explanation")
+        d.set_RadioSelect("radio", "three")
+        self.assertEqual(d.get_RadioSelect("radio"), "three")
+
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.wait_text("#radio", "three")
+
+        # DialogDropdownSelect
+
+        b.click("#open")
+        d.wait_DropdownSelect("dropdown", "one")
+        d.set_DropdownSelect("dropdown", "two")
+        self.assertEqual(d.get_DropdownSelect("dropdown"), "two")
+        b.wait_in_text(d.helper_text("dropdown"), "discount")
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.wait_text("#dropdown", "two")
+
+        # DialogDropdownSelectObject, with update_func
+
+        b.click("#open")
+        d.wait_DropdownSelect("color", "red")
+        self.assertEqual(d.get_TextInput("text"), "")
+        d.set_DropdownSelect("color", "green")
+        self.assertEqual(d.get_DropdownSelect("color"), "green")
+        self.assertEqual(d.get_TextInput("text"), "green")
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.wait_text("#color", "0/1/0")
+
+        # List of DialogTextInputs
+
+        b.click("#open")
+        # make sure the validation machinery is active in the
+        # background while we modify the list.
+        enter_online_validation_mode()
+        b.wait_visible(d.field("list"))
+        b.wait_not_present(d.field("list.0"))
+        b.click(d.id("list", "add"))
+        b.wait_visible(d.field("list.0"))
+        d.set_TextInput("list.0", "foo")
+        b.click(d.id("list", "add"))
+        d.set_TextInput("list.1", "baz")
+        b.click(d.id("list", "add"))
+        d.set_TextInput("list.2", "bar")
+        b.click(d.id("list.1", "remove"))
+        d.wait_TextInput("list.1", "bar")
+        b.wait_not_present(d.field("list.2"))
+        b.click(d.id("list", "add"))
+        d.set_TextInput("list.2", "baz")
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.wait_text("#list", "foo/bar/baz")
+
+        # Debounced and asynchronous validation
+
+        def enter_online_validation_mode():
+            # put dialog into online validation mode by triggering a
+            # failed validation
+            d.set_Checkbox("flag", val=True)
+            d.set_TextInput("text", "")
+            b.click(d.apply_button())
+            b.wait_in_text(d.helper_text("text"), "Text can not be empty")
+            d.set_Checkbox("flag", val=False)
+
+        b.click("#open")
+        enter_online_validation_mode()
+        b.click(d.id("async", "add"))
+        b.focus(d.field("async.0.name"))
+        b.input_text("1")
+        # wait for debounce timeout and validation promise to be done (1 validation)
+        b.wait_in_text(d.helper_text("async.0.name"), "Must have even number")
+        b.input_text("2")
+        # this starts a new timeout and immediately removes the validation error
+        b.wait_not_present(d.helper_text("async.0.name"))
+        # don't wait for the timeout to be over but change again while it is still pending
+        time.sleep(0.5)
+        b.input_text("3")
+        # now wait for the timeout to be over but change while the promise is running
+        time.sleep(2)
+        b.input_text("4")
+        # the promise for validating "123" will finish soon, but it's result must be ignored (2 validations)
+        # let the validation for "1234" play out to completion (3 validations)
+        time.sleep(5)
+        # close dialog
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.wait_text("#async", "1234:4")
+        b.wait_text("#asyncVals", "3")
+
+        b.click("#open")
+        enter_online_validation_mode()
+        b.click(d.id("async", "add"))
+        b.click(d.id("async", "add"))
+        b.focus(d.field("async.1.name"))
+        b.input_text("1")
+        # remove the first entry during the debounce timeout, this
+        # should not disturb anything and the validation for "1"
+        # should finish normally (1 validation)
+        b.wait_not_present(d.helper_text("async.0.name"))
+        b.click(d.id("async.0", "remove"))
+        b.wait_in_text(d.helper_text("async.0.name"), "Must have even number")
+        # remove the failure and close the dialog
+        b.click(d.id("async.0", "remove"))
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.wait_text("#async", "")
+        b.wait_text("#asyncVals", "1")
+
+        # Trigger validation directly via Apply. This will skip the
+        # timeouts.
+
+        b.click("#open")
+        b.click(d.id("async", "add"))
+        d.set_TextInput("async.0.name", "1234")
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.wait_text("#async", "1234:4")
+        b.wait_text("#asyncVals", "1")
+
+        # Trigger validation via Apply when there are timeouts
+        # pending. This will cancel the timeouts.
+
+        b.click("#open")
+        enter_online_validation_mode()
+        b.click(d.id("async", "add"))
+        # now there is a timeout pending, clicking apply will cancel it.
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
+        b.wait_text("#async", ":0")
+        b.wait_text("#asyncVals", "1")
+
+        # Type narrowing with "at()"
+
+        b.click("#open")
+        b.click(d.apply_button())
+        b.wait_text("#alternative", 'false')
+
+        b.click("#open")
+        b.set_checked(d.id("alternative", "checkbox"), val=True)
+        d.set_TextInput("alternative", "1234")
+        b.set_checked(d.id("alternative", "checkbox"), val=False)
+        b.wait_not_present(d.field("alternative"))
+        b.set_checked(d.id("alternative", "checkbox"), val=True)
+        d.wait_TextInput("alternative", "")
+        d.set_TextInput("alternative", "1234")
+        b.click(d.apply_button())
+        b.wait_text("#alternative", '"1234"')
+
+        # DialogError
+
+        b.click("#open")
+
+        d.set_DropdownSelect("error", "custom")
+        b.click(d.apply_button())
+        b.wait_in_text(d.error(), "This is a failure")
+        b.wait_in_text(d.error(), "1234-567-98A")
+
+        d.set_DropdownSelect("error", "from")
+        b.click(d.apply_button())
+        b.wait_in_text(d.error(), "Tool not found")
+        b.wait_in_text(d.error(), "no such file")
+
+        d.set_DropdownSelect("error", "from-random")
+        b.click(d.apply_button())
+        b.wait_in_text(d.error(), "Too random")
+        b.wait_in_text(d.error(), "1,2,3,4")
+
+        d.set_DropdownSelect("error", "message")
+        b.click(d.apply_button())
+        b.wait_in_text(d.error(), "Failed")
+        b.wait_in_text(d.error(), "segmentation fault")
+
+        d.set_DropdownSelect("error", "spawn")
+        b.click(d.apply_button())
+        b.wait_in_text(d.error(), "--no-such-option")
+
+        d.set_DropdownSelect("error", "random")
+        b.click(d.apply_button())
+        b.wait_in_text(d.error(), "1,2,3,4")
+
+        b.click(d.cancel_button())
+        b.wait_not_present("#dialog")
+
+        # init func
+
+        b.click("#open-with-func")
+        d.wait_TextInput("text", "foo")
+        b.click(d.cancel_button())
+        b.wait_not_present("#dialog")
+
+        # useDialogState_async
+
+        b.click("#open-async")
+        d.set_TextInput("text", "1234")
+        b.click(d.apply_button())
+        b.set_input_text(d.field("text"), "", value_check=False)
+        d.wait_TextInput("text", "1234")
+        b.wait_not_present("#dialog")
+
+        b.click("#open-error")
+        b.wait_in_text(d.error(), "Error during initialization")
+        b.wait_in_text(d.error(), "can't get the thing")
+        b.click(d.cancel_button())
+        b.wait_not_present("#dialog")
+
+        b.click("#open-dialog-error")
+        b.wait_in_text(d.error(), "Getting the thing failed")
+        b.wait_in_text(d.error(), "can't get it")
+        b.click(d.cancel_button())
+        b.wait_not_present("#dialog")
+
+
+if __name__ == '__main__':
+    testlib.test_main()

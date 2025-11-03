@@ -353,7 +353,10 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             watcher = getattr(self._loop, quark, None)
 
             if watcher is None:
-                watcher = asyncio.SafeChildWatcher()
+                try:
+                    watcher = asyncio.SafeChildWatcher()  # type: ignore[attr-defined]
+                except AttributeError as e:
+                    raise RuntimeError('pidfd support required on Python 3.14+') from e
                 watcher.attach_loop(self._loop)
                 setattr(self._loop, quark, watcher)
 

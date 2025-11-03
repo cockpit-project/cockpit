@@ -28,8 +28,6 @@ class TestStorageUnused(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/storage")
-
         # The following block devices should not be offered for creating a
         # raid
         #
@@ -42,6 +40,9 @@ class TestStorageUnused(storagelib.StorageCase):
 
         disk1 = self.add_ram_disk()
         disk2 = self.add_loopback_disk()
+
+        self.login_and_go("/storage")
+
         b.wait_visible(self.card_row("Storage", name=disk1))
         b.wait_visible(self.card_row("Storage", name=disk2))
         script = """mktable msdos \

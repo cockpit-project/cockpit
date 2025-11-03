@@ -44,7 +44,8 @@ else:
 
 
 @pytest.fixture
-def event_loop_policy() -> asyncio.AbstractEventLoopPolicy:
+# AbstractEventLoopPolicy is deprecated in 3.14 and will be removed in 3.16
+def event_loop_policy() -> asyncio.AbstractEventLoopPolicy:  # type: ignore[name-defined]
     return EventLoopPolicy()
 
 

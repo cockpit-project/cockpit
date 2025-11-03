@@ -28,16 +28,49 @@ window.querySelectorAllDeep = function(query, element) {
     return result;
 };
 
+window.getQuerySelectorAll = function() {
+    if (window.__querySelectorAllFunction === undefined) {
+        if (window.__haveShadowDom()) {
+            window.__querySelectorAllFunction = function (sel) { return window.querySelectorAllDeep(sel, document) };
+        } else {
+            window.__querySelectorAllFunction = function (sel) { return Array.from(document.querySelectorAll(sel)) };
+        }
+    }
+
+    return window.__querySelectorAllFunction;
+};
+
+function elem_contains_text(elems, text) {
+    return elems.filter(elem => elem && elem.innerText.includes(text));
+}
+
 window.ph_select = function(sel) {
+    const querySelectorAll = window.getQuerySelectorAll();
+
     if (sel.includes(":contains(")) {
         if (!window.Sizzle) {
-            throw new Error("Using ':contains' when window.Sizzle is not available.");
+            // Best effort support `:contains()`
+            const re = /:contains\(([\s\S]*?)\)/g;
+            const matches = re.exec(sel);
+            if (matches === null)
+                throw new Error("Unsupported ':contains' when window.Sizzle is not available.");
+
+            if (matches.length !== 2)
+                throw new Error(`Match not found for builtin :contains ${sel}`);
+
+            if (re.exec(sel) !== null)
+                throw new Error(`Unsupported multiple ':contains' when window.Sizzle is not available`);
+
+            const searchText = matches[1].replace(/^['"]/, '').replace(/['"]$/, '');
+            const base = sel.replace(re, '');
+
+            const elems = querySelectorAll(base);
+            return elem_contains_text(elems, searchText);
+        } else {
+            return window.Sizzle(sel);
         }
-        return window.Sizzle(sel);
-    } else if (window.__haveShadowDom()) {
-        return window.querySelectorAllDeep(sel, document);
     } else {
-        return Array.from(document.querySelectorAll(sel));
+        return querySelectorAll(sel);
     }
 };
 

@@ -456,10 +456,10 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Check that each PV is used exactly once.
         card = self.card("LVM2 logical volume")
-        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
-        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
-        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
-        b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+        b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
+        b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
+        b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
+        b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
 
         b.wait_not_in_text(card, "synchronized")
         b.assert_pixels(card, "raid5-card2")
@@ -696,12 +696,12 @@ class TestStorageLvm2(storagelib.StorageCase):
             self.dialog_wait_close()
 
             card = self.card("LVM2 logical volume")
-            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
-            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
-            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
-            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
-            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk5)}')", 1)
-            b.wait_js_func("ph_count_check", card + f" .storage-stripe-pv-box-dev:contains('{bn(disk6)}')", 1)
+            b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk1)}')", 1)
+            b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk2)}')", 1)
+            b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk3)}')", 1)
+            b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk4)}')", 1)
+            b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk5)}')", 1)
+            b.wait_count(card + f" .storage-stripe-pv-box-dev:contains('{bn(disk6)}')", 1)
 
             b.wait_in_text(self.card_desc("LVM2 logical volume", "Size"), mb(expected_size))
 

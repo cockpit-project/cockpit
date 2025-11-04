@@ -84,11 +84,11 @@ class TestSelinux(testlib.MachineCase):
             b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v6-c-table__toggle')")
             if "No SELinux alerts." in b.text('body'):
                 break
-            num_alerts = b.call_js_func("ph_count", "#selinux-alerts tbody")
+            num_alerts = b.count("#selinux-alerts tbody")
             b.click('tbody:first-of-type input[type=checkbox]')
             b.click(dismiss_sel)
             # wait for the dismissed alert to go away
-            b.wait_js_func("ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
+            b.wait_count("#selinux-alerts tbody", num_alerts - 1)
 
         # wait for Modifications table to initialize
         b.wait_text_matches(".modifications-table", "Allow.*daemons.*core")

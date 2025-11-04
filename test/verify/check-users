@@ -1150,7 +1150,7 @@ class TestAccounts(testlib.MachineCase):
         # second login: one entry from the first one
         self.login_and_go("/users#/admin")
         # Header + one line of logins
-        b.wait_js_func("ph_count_check", "#account-logs tr", 2)
+        b.wait_count("#account-logs tr", 2)
         started = b.text("#account-logs [data-label='Started']")
         ended = b.text("#account-logs [data-label='Ended']")
         self.assertIn(year, started)

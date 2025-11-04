@@ -539,7 +539,7 @@ OnCalendar=daily
         # Filter the available languages
         b.set_input_text('#display-language-modal input[type=search]', "Deutsch")
         b.click('#display-language-modal li[data-value=de-de] button')
-        b.wait_js_func("ph_count_check", "#display-language-modal li", 1)
+        b.wait_count("#display-language-modal li", 1)
         b.set_input_text('#display-language-modal input[type=search]', "")
 
         b.click('#display-language-modal li[data-value=de-de] button')

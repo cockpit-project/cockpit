@@ -50,7 +50,7 @@ window.ph_select = function(sel) {
     if (sel.includes(":contains(")) {
         if (!window.Sizzle) {
             // Best effort support `:contains()`
-            const re = /:contains\(([\s\S]*?)\)/g;
+            const re = /:contains\(((?:[^()]*|\([^()]*\))*)\)/g;
             const matches = re.exec(sel);
             if (matches === null)
                 throw new Error("Unsupported ':contains' when window.Sizzle is not available.");

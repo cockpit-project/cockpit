@@ -82,7 +82,8 @@ class PackageCase(MachineCase):
             self.restore_file("/etc/pacman.d/mirrorlist")
             self.restore_file("/usr/share/libalpm/hooks/90-packagekit-refresh.hook")
 
-            self.machine.execute("rm /etc/pacman.conf /etc/pacman.d/mirrorlist /var/lib/pacman/sync/* "
+            self.machine.execute("rm -r /var/lib/pacman/sync/*")
+            self.machine.execute("rm /etc/pacman.conf /etc/pacman.d/mirrorlist "
                                  "/usr/share/libalpm/hooks/90-packagekit-refresh.hook")
             # Drop alpm state directory as it interferes with running offline
             self.machine.execute("test -d /var/lib/PackageKit/alpm && rm -r /var/lib/PackageKit/alpm || true")

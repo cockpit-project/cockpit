@@ -92,7 +92,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         self.assertLessEqual(valid_start, current_max)
         # page auto-updates every minute
         with self.browser.wait_timeout(90):
-            self.browser.wait_js_func("(exp => ph_count('.metrics-data-cpu.valid-data') == exp)", valid_start + 1)
+            self.browser.wait_count('.metrics-data-cpu.valid-data', valid_start + 1)
 
         # Should never show more then 4 empty leading minutes (block of 5 minutes but always at least one used)
         leading_empty = self.browser.call_js_func("""(function () {
@@ -131,7 +131,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text(".metrics-heading", "CPU")
 
         # only shows current hour
-        b.wait_js_func("ph_count_check", ".metrics-hour", 1)
+        b.wait_count(".metrics-hour", 1)
 
         # VM just started, we don't have 12 hours of data
         b.wait_in_text(".metrics .pf-v6-c-alert", "No data available between")
@@ -145,7 +145,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         # now the gap is > 24 hours, does show date
         b.wait_in_text(".metrics .pf-v6-c-alert", year)
         # still only one hour
-        b.wait_js_func("ph_count_check", ".metrics-hour", 1)
+        b.wait_count(".metrics-hour", 1)
 
         self.waitStream(3)
 

@@ -791,6 +791,14 @@ class Browser:
         """
         return self.call_js_func('ph_count', selector)
 
+    def wait_count(self, selector: str, total: int) -> None:
+        """Wait until the total count matches the selected DOM elements.
+
+        :param selector: the selector
+        :param total: the total amount of elements to wait for
+        """
+        return self.wait_js_func("ph_count_check", selector, total)
+
     @contextlib.contextmanager
     def wait_timeout(self, timeout: int) -> Iterator[None]:
         old_timeout = self.timeout

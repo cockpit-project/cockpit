@@ -784,6 +784,13 @@ class Browser:
         self.wait_not_present(".pf-v6-c-menu")
         self.wait_val(f"{group_identifier} .pf-v6-c-menu-toggle input", location)
 
+    def count(self, selector: str) -> int:
+        """Returns the total count of matches DOM elements.
+
+        :param selector: the selector
+        """
+        return self.call_js_func('ph_count', selector)
+
     @contextlib.contextmanager
     def wait_timeout(self, timeout: int) -> Iterator[None]:
         old_timeout = self.timeout

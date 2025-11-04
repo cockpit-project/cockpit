@@ -50,18 +50,22 @@ window.ph_select = function(sel) {
     if (sel.includes(":contains(")) {
         if (!window.Sizzle) {
             // Best effort support `:contains()`
-            const re = /:contains\(([\s\S]*?)\)/g;
+            // Cockpit supports multiple forms:
+            // - :contains(foo)
+            // - :contains('foo')
+            // - :contains("foo")
+            const re = /:contains\(([\sa-zA-Z0-9]+)\)|:contains\('([^']+)'\)|:contains\("([^"]+)"\)/g;
             const matches = re.exec(sel);
             if (matches === null)
                 throw new Error("Unsupported ':contains' when window.Sizzle is not available.");
 
-            if (matches.length !== 2)
+            if (matches.length !== 4)
                 throw new Error(`Match not found for builtin :contains ${sel}`);
 
             if (re.exec(sel) !== null)
                 throw new Error(`Unsupported multiple ':contains' when window.Sizzle is not available`);
 
-            const searchText = matches[1].replace(/^['"]/, '').replace(/['"]$/, '');
+            const searchText = matches[1] || matches[2] || matches[3];
             const base = sel.replace(re, '');
 
             const elems = querySelectorAll(base);

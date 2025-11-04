@@ -22,10 +22,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-28 03:07+0000\n"
-"PO-Revision-Date: 2025-10-04 14:31+0000\n"
-"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
-"memory@weblate.org>\n"
+"POT-Creation-Date: 2025-11-02 03:09+0000\n"
+"PO-Revision-Date: 2025-11-02 14:18+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German <https://translate.fedoraproject.org/projects/cockpit/"
 "cockpit/de/>\n"
 "Language: de\n"
@@ -33,7 +32,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 5.13.3\n"
+"X-Generator: Weblate 5.14\n"
 
 #: pkg/users/accounts-list.js:231
 msgid "# of users"
@@ -948,18 +947,12 @@ msgstr ""
 "Bereichs."
 
 #: pkg/storaged/stratis/pool.jsx:874
-#, fuzzy
-#| msgid ""
-#| "Saving a new passphrase requires unlocking the disk. Please provide a "
-#| "current disk passphrase."
 msgid "Adding a passphrase requires unlocking the pool."
-msgstr ""
-"Das Speichern eines neuen Passworts erfordert das Entsperren der Festplatte. "
-"Bitte geben Sie ein aktuelles Disk-Passwort an."
+msgstr "Das Hinzufügen einer Passphrase erfordert das Entsperren des Pools."
 
 #: pkg/storaged/stratis/pool.jsx:522
 msgid "Adding blockdevices requires unlocking the pool."
-msgstr ""
+msgstr "Das Hinzufügen von Blockgeräten erfordert das Entsperren des Pools."
 
 #: pkg/networkmanager/firewall.jsx:734
 msgid ""
@@ -1239,6 +1232,7 @@ msgstr "Mindestens ein Schlüsselserver muss erreichbar sein."
 #: pkg/storaged/stratis/pool.jsx:326
 msgid "At least one of the non-interactive unlock methods must work."
 msgstr ""
+"Mindestens eine der nicht-interaktiven Entsperrmethoden muss funktionieren."
 
 #: pkg/storaged/btrfs/subvolume.jsx:383
 msgid "At least one subvolume needs to be mounted"
@@ -2556,10 +2550,9 @@ msgid ""
 "prefixed with '-' or '+'"
 msgstr ""
 "Datumsangaben sollten im Format JJJJ-MM-TT hh:mm:ss sein. Alternativ werden "
-"auch die Begriffe 'yesterday' (gestern), 'today' (heute), "
-"'tomorrow' (morgen) verstanden. 'now' (jetzt) bezieht sich auf die aktuelle "
-"Zeit. Es können mit den Vorzeichen '-' oder '+' auch relative Zeiten "
-"angegeben werden"
+"auch die Begriffe 'yesterday' (gestern), 'today' (heute), 'tomorrow' "
+"(morgen) verstanden. 'now' (jetzt) bezieht sich auf die aktuelle Zeit. Es "
+"können mit den Vorzeichen '-' oder '+' auch relative Zeiten angegeben werden"
 
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:43
 #: pkg/storaged/lvm2/block-logical-volume.jsx:161
@@ -3411,8 +3404,8 @@ msgstr "Laden der Einheit fehlgeschlagen"
 
 #: pkg/packagekit/autoupdates.jsx:500
 msgid ""
-"Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
-"timer. Please remove custom overrides to configure automatic updates."
+"Failed to parse unit files for dnf-automatic.timer or dnf-automatic-"
+"install.timer. Please remove custom overrides to configure automatic updates."
 msgstr ""
 "Das Parsen der Unit-Datein für dnf-automatic.timer oderr dnf-automatic-"
 "install.timer ist fehlgeschlagen. Bitte eigene Überschreibungen in der "
@@ -3826,28 +3819,20 @@ msgstr ""
 "Nummern generiert"
 
 #: pkg/storaged/stratis/pool.jsx:308
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If none of the keyservers is reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"Das Hinzufügen eines neuen Schlüsselserver erfordert das Entsperren des "
-"Bereichs . Bitte geben Sie ein aktuelles Passwort an."
+"Wenn keiner der Schlüsselserver erreichbar ist, können Sie eine vorhandene "
+"Passphrase angeben."
 
 #: pkg/storaged/stratis/pool.jsx:312
-#, fuzzy
-#| msgid ""
-#| "The disk needs to be unlocked before formatting. Please provide an "
-#| "existing passphrase."
 msgid ""
 "If none of the non-interactive unlock methods works, you can provide an "
 "existing passphrase."
 msgstr ""
-"Die Festplatte muss vor dem Formatieren entsperrt werden. Bitte geben Sie "
-"ein bestehendes Passwort an."
+"Wenn keine der nicht-interaktiven Entsperrmethoden funktioniert, können Sie "
+"eine vorhandene Passphrase eingeben."
 
 #: pkg/static/login.html:102
 msgid ""
@@ -3867,16 +3852,12 @@ msgstr ""
 "den Administrator."
 
 #: pkg/storaged/stratis/pool.jsx:306
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid ""
 "If the keyserver at $0 is not reachable, you can provide an existing "
 "passphrase."
 msgstr ""
-"Das Hinzufügen eines neuen Schlüsselserver erfordert das Entsperren des "
-"Bereichs . Bitte geben Sie ein aktuelles Passwort an."
+"Wenn der Schlüsselserver unter $0 nicht erreichbar ist, können Sie eine "
+"vorhandene Passphrase angeben."
 
 #: pkg/packagekit/updates.jsx:676 pkg/packagekit/updates.jsx:758
 #: pkg/networkmanager/ip-settings.jsx:44
@@ -5466,7 +5447,7 @@ msgstr "Keine Medien eingelegt"
 
 #: pkg/storaged/stratis/pool.jsx:776
 msgid "No more space for passphrases or keyservers."
-msgstr ""
+msgstr "Kein Platz mehr für Passphrasen oder Schlüsselserver."
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:58
 msgid "No partitioning"
@@ -5695,8 +5676,8 @@ msgstr "Bei einem Ausfall"
 
 #: src/ws/org.cockpit_project.cockpit.appdata.xml.in:26
 msgid ""
-"Once Cockpit is installed, enable it with \"systemctl enable --now cockpit."
-"socket\"."
+"Once Cockpit is installed, enable it with \"systemctl enable --now "
+"cockpit.socket\"."
 msgstr ""
 "Wenn Cockpit installiert ist, aktivieren Sie es mit \"systemctl enable --now "
 "cockpit.socket\"."
@@ -6019,16 +6000,12 @@ msgid "Peer #$0 has invalid endpoint port. Port must be a number."
 msgstr "Peer #$0 hat ungültigen Endpunkt-Port. Port muss eine Zahl sein."
 
 #: pkg/networkmanager/wireguard.jsx:148
-#, fuzzy
-#| msgid ""
-#| "Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. "
-#| "1.2.3.4:51820 or example.com:51820"
 msgid ""
 "Peer #$0 has invalid endpoint. It must be specified as host:port, e.g. "
 "1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820"
 msgstr ""
 "Peer #$0 hat einen ungültigen Endpunkt. Er muss als Host:Port angegeben "
-"werden, z.B. 1.2.3.4:51820 oder example.com:51820"
+"werden, z. B. 1.2.3.4:51820, [2001:db8::1]:51820 oder example.com:51820"
 
 #: pkg/networkmanager/wireguard.jsx:307
 msgid "Peers"
@@ -6151,14 +6128,8 @@ msgid "Please install the $0 package"
 msgstr "Bitte installieren Sie die $0 Paket"
 
 #: pkg/storaged/stratis/pool.jsx:304
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid "Please provide an existing pool passphrase."
-msgstr ""
-"Das Hinzufügen eines neuen Schlüsselserver erfordert das Entsperren des "
-"Bereichs . Bitte geben Sie ein aktuelles Passwort an."
+msgstr "Bitte geben Sie eine vorhandene Pool-Passphrase an."
 
 #: pkg/packagekit/updates.jsx:1582
 msgid "Please resolve the issue and reload this page."
@@ -6198,6 +6169,8 @@ msgid ""
 "Pools with metadata format V1 are restricted to at most one passphrase and "
 "at most one keyserver."
 msgstr ""
+"Pools mit dem Metadatenformat V1 sind auf maximal eine Passphrase und "
+"maximal einen Schlüsselserver beschränkt."
 
 #: pkg/storaged/iscsi/create-dialog.jsx:111 pkg/shell/hosts_dialog.jsx:564
 msgid "Port"
@@ -6594,11 +6567,8 @@ msgid "Remote over SSH, $0"
 msgstr "Remote über SSH, $0"
 
 #: pkg/storaged/stratis/pool.jsx:975
-#, fuzzy
-#| msgid "Keyserver removal may prevent unlocking $0."
 msgid "Removal may prevent unlocking $0."
-msgstr ""
-"Das Entfernen des Keyservers verhindert möglicherweise das Entsperren $0."
+msgstr "Das Entfernen kann das Entsperren verhindern. $0."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:83
 msgid "Removals:"
@@ -9108,7 +9078,7 @@ msgstr "Nicht unterstütztes logisches Volume"
 
 #: pkg/static/login.js:1055
 msgid "Unsupported shell. Check the journal for details."
-msgstr ""
+msgstr "Nicht unterstützte Shell. Details finden Sie im Journal."
 
 #: pkg/systemd/logs.jsx:323
 msgid "Until"
@@ -10411,7 +10381,7 @@ msgstr "Sos"
 msgid "sos report failed"
 msgstr "SOS-Bericht fehlgeschlagen"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 

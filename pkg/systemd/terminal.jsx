@@ -229,7 +229,7 @@ const _ = cockpit.gettext;
                 <Page className="pf-m-no-sidebar">
                     <PageSection hasShadowBottom>
                         <div className="terminal-group">
-                            <tt className="terminal-title">{this.state.title}</tt>
+                            <code className="terminal-title">{this.state.title}</code>
                             <Toolbar id="toolbar">
                                 <ToolbarContent>
                                     <ToolbarGroup>

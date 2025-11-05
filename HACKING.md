@@ -478,6 +478,37 @@ following commands:
 Then run it with `Ctrl+R` when the browser is showing an empty tab, e.g.
 `about:newtab`. You may need to adjust the positions for your environment.
 
+## Adding a release note in PR
+
+Optional but highly quality of life feature we have relates to automatic
+release blog post generation.
+
+There is an automated release note process for PRs where any PRs that include
+a label `release-note` and contains a release note segment in the description
+will be used when generating the release blog post for https://cockpit-project.org.
+
+To create a release note you need a h2-header at the end of your PR description
+where everything underneath will be taken by the automation for the blog 
+generation. It will also take any images and videos uploaded and add them to
+the blog post PR as well. For example:
+
+```md
+[...truncated PR description...]
+
+## Release note title
+
+Release note text that will be picked up by automation
+
+<img for release note>
+```
+
+You can see this in action in [this cockpit-machines 
+PR](https://github.com/cockpit-project/cockpit-machines/pull/2268) where we
+have an h2-header together with text which in turn was taken by the
+automation and shown inside [the blog 
+post](https://cockpit-project.org/blog/cockpit-347.html) for the release 
+that included it.
+
 ## Debug logging of Cockpit processes
 
 All messages from the various cockpit processes go to the journal and can be

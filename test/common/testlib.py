@@ -840,6 +840,7 @@ class Browser:
                     # chromium
                     "Execution context was destroyed",
                     "Cannot find context",
+                    "Inspected target navigated or closed",
                     # firefox
                     "MessageHandlerFrame' destroyed",
                     # page helpers not yet loaded

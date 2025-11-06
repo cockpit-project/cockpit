@@ -1312,7 +1312,12 @@ class OsUpdates extends React.Component {
                     // data looks like:
                     // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
                     // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
-                const pkgs = { _time: Date.parse(timeSpec) };
+                const _time = Date.parse(timeSpec);
+                if (isNaN(_time)) {
+                    debug(`Transaction has an invalid timespec=${timeSpec}`);
+                    return;
+                }
+                const pkgs = { _time };
                 let empty = true;
                 data.split("\n").forEach(line => {
                     const fields = line.trim().split("\t");

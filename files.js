@@ -132,7 +132,6 @@ const info = {
         "shell/images/server-small.png",
         "shell/images/cockpit-icon.svg",
         "shell/images/cockpit-icon-gray.svg",
-        "shell/images/bg-plain.jpg",
         "shell/index.html",
         "shell/shell.html",
 

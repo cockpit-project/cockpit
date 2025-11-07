@@ -50,7 +50,7 @@ mkpart extended 1 50 \
 mkpart logical ext2 2 24 \
 mkpart logical ext2 24 48"""
         m.execute(f"parted -s {disk1} {script}")
-        m.execute("udevadm settle")
+        m.execute("udevadm trigger; udevadm settle")
         m.execute(f"until udevadm info --query=all {disk1}5 | grep -q ID_PART_TABLE_TYPE=dos; do sleep 0.1; done")
         m.execute(f"mke2fs -q -L TEST {disk1}5")
 

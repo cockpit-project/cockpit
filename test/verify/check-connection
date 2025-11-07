@@ -1236,10 +1236,13 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
 
         # customize branding in /etc/cockpit; overrides package dirs
         if not m.ws_container:
+            m.upload(["verify/files/bg-plain.jpg"], "/etc/cockpit/branding/")
             m.write("/etc/cockpit/branding/branding.css", """
     :root {
         --pf-t--global--color--brand--default: #50FF02;
-    }""")
+    }
+    html body.login-pf { background: url("bg-plain.jpg"); background-size: cover; }
+    """)
             # cockpit-ws only detects branding on startup, and browsers cache; so apply some force
             m.restart_cockpit()
             b.login_and_go("/system", superuser=False)
@@ -1251,6 +1254,8 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
                 "getComputedStyle(document.querySelector('.ct-limited-access-alert button')).backgroundColor")
             self.assertEqual(bgcol, "rgb(80, 255, 2)")
             b.logout()
+            b.wait_visible("#login")
+            b.assert_pixels("body", "login-screen-custom-background")
 
     @testlib.skipOstree("tests cockpit-ws package")
     @testlib.skipWsContainer("tests cockpit-ws package")

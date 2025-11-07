@@ -164,14 +164,17 @@ class TestBonding(netlib.NetworkCase):
         iface = m.execute("cd /sys/class/net; ls -d e* | head -n1").strip()
         b.wait_visible(f"tr[data-interface='{iface}']")
 
-        # Make a simple bond without any members.  This is enough to
-        # test the renaming.
+        iface1 = "cockpit1"
+        self.add_veth(iface1, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
+        self.nm_activate_eth(iface1)
+        self.wait_for_iface(iface1)
 
         b.click("button:contains('Add bond')")
         b.wait_visible("#network-bond-settings-dialog")
         b.select_from_dropdown("#network-bond-settings-link-monitoring-select", "arp")
         b.set_input_text("#network-bond-settings-monitoring-targets-input", "1.1.1.1")
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
+        b.set_checked(f"input[data-iface='{iface1}']", val=True)
         b.click("#network-bond-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-bond-settings-dialog")
 
@@ -180,7 +183,6 @@ class TestBonding(netlib.NetworkCase):
 
         b.click("#networking-interfaces tr[data-interface='tbond'] button")
         self.wait_onoff("#network-interface .pf-v5-c-card__header", val=True)
-        self.wait_for_iface_setting('Status', 'Configuring')
 
         self.configure_iface_setting('Bond')
         b.wait_visible("#network-bond-settings-dialog")
@@ -193,6 +195,10 @@ class TestBonding(netlib.NetworkCase):
         b.click("#network-bond-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bond-settings-dialog")
         b.wait_text("#network-interface-name", "tbond3000")
+
+        # Check that the member is still there and active
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface1}']")
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface1}']", val=True)
 
     def testActive(self):
         b = self.browser

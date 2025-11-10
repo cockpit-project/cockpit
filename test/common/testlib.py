@@ -841,6 +841,7 @@ class Browser:
                     "Execution context was destroyed",
                     "Cannot find context",
                     "Inspected target navigated or closed",
+                    "execution contexts cleared",
                     # firefox
                     "MessageHandlerFrame' destroyed",
                     # page helpers not yet loaded

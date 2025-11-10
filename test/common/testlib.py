@@ -567,7 +567,7 @@ class Browser:
                 return
             except RuntimeError as e:
                 data = e.args[0]
-                if count < 20 and type(data) == dict and "response" in data and data["response"].get("message") in ["Execution context was destroyed.", "Cannot find context with specified id"]:
+                if count < 20 and type(data) == dict and "response" in data and data["response"].get("message") in ["Execution context was destroyed.", "Cannot find context with specified id", "Inspected target navigated or closed", "execution contexts cleared"]:
                     time.sleep(1)
                 else:
                     raise e

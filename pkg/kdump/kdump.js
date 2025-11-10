@@ -105,7 +105,7 @@ const initStore = function(rootElement) {
                     else
                         dataStore.kdumpMemory = value * 1024 * 1024;
                 } else {
-                    dataStore.kdumpMemory = content.trim();
+                    dataStore.kdumpMemory = 0;
                 }
             })
             .catch(() => { dataStore.kdumpMemory = "error" });

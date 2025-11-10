@@ -254,6 +254,23 @@ class TestKdump(KdumpHelpers):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === "#/kdump.service"')
+        # revert breakage and start kdump again
+        m.execute("rm /etc/systemd/system/kdump.service.d/break.conf")
+        m.execute("systemctl daemon-reload; systemctl start kdump")
+
+        # lack of kexec_crash_size does not crash the kdump page
+        tmp_sys_kernel = "/tmp/kernel_sys/"
+        m.execute(f"mkdir {tmp_sys_kernel}")
+        m.execute(f"mount -o bind {tmp_sys_kernel} /sys/kernel")
+        b.go("/kdump")
+        b.reload()
+        b.enter_page("/kdump")
+        b.wait_visible("#app")
+        b.wait_in_text(".pf-v6-c-alert__title", "Kernel did not boot with the crashkernel setting")
+        # no memory detected and no page crash
+        b.wait_in_text(".pf-v6-c-card__body .pf-v6-c-description-list div.pf-v6-c-description-list__group:first-child",
+                       "None")
+        m.execute("umount /sys/kernel")
 
 
 @testlib.skipOstree("kexec-tools not installed")

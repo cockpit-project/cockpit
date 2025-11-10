@@ -407,6 +407,17 @@ firewall.removeService = (zone, service) => {
                                               'removeService', [service]));
 };
 
+firewall.removePort = (zone, port, protocol) => {
+    return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
+                               'org.fedoraproject.FirewallD1.zone',
+                               'removePort', [zone, port, protocol])
+            .then(reply => firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
+                                               'org.fedoraproject.FirewallD1.config',
+                                               'getZoneByName', [zone]))
+            .then(path => firewalld_dbus.call(path[0], 'org.fedoraproject.FirewallD1.config.zone',
+                                              'removePort', [port, protocol]));
+};
+
 /*
  * Create new firewalld service.
  *

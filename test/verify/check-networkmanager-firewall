@@ -213,10 +213,19 @@ class TestFirewall(netlib.NetworkCase):
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='empty']")
 
         m.execute("firewall-cmd --add-port=9998/udp --add-port=9999/udp --add-port=6666/tcp")
-        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(3)", "6666")
-        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(4)", "9998, 9999")
-        m.execute("firewall-cmd --remove-port=9998/udp --remove-port=9999/udp --remove-port=6666/tcp")
-        b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='public-ports']")
+        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-6666-tcp-port']", "6666")
+        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-9998-udp-port']", "9998")
+        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-9999-udp-port']", "9999")
+
+        for (port, ptype) in [(6666, "tcp"), (9998, "udp")]:
+            row_sel = f".zone-section[data-id='public'] tr[data-row-id='public-{port}-{ptype}-port']"
+            b.click(f"{row_sel} button.pf-m-plain")
+            b.click(".pf-v6-c-menu__list-item.pf-m-danger button")
+            b.wait_not_present(row_sel)
+
+        # Also via firewall-cmd
+        m.execute("firewall-cmd --remove-port=9999/udp")
+        b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='public-9999-udp-port']")
 
         # switch service off again
         self.toggle_onoff("#firewall-heading-title-group")
@@ -337,12 +346,12 @@ class TestFirewall(netlib.NetworkCase):
 
         # Test that we show 'Additional ports' even when no service is present
         m.execute("firewall-cmd --add-port=9998/tcp --zone public")
-        b.wait_visible(".zone-section[data-id='public'] td:contains('Additional ports') + td:contains('9998')")
+        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-9998-tcp-port']", "9998")
 
         # test error handling
         m.execute("firewall-cmd --add-service=pop3")
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
-        b.wait_visible(".zone-section[data-id='public'] td:contains('Additional ports') + td:contains('9998')")
+        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-9998-tcp-port']", "9998")
         # remove service in cockpit
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-v6-c-menu-toggle")
         b.click(".pf-v6-c-menu__list-item.pf-m-danger button")

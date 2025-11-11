@@ -431,6 +431,31 @@ export async function is_installed(names, progress_cb) {
 }
 
 /**
+ * Check a list of packages whether they are available.
+ *
+ * @param {string[]} names - names of packages which should be available in the repositories
+ * @return {Promise<boolean>} true if packages are available
+ */
+export async function is_available(names, progress_cb) {
+    const available = new Set();
+
+    if ((names && names.length === 0))
+        return true;
+
+    await cancellableTransaction("Resolve",
+                                 [Enum.FILTER_ARCH | Enum.FILTER_NEWEST | Enum.FILTER_NOT_INSTALLED, names],
+                                 progress_cb,
+                                 {
+                                     Package: (info, package_id) => {
+                                         const pkgname = package_id.split(";")[0];
+                                         available.add(pkgname);
+                                     },
+                                 });
+
+    return available.size === new Set(names).size;
+}
+
+/**
  * Find installed packages that own the given files.
  *
  * @param {string[]} files - the files to resolve to packages

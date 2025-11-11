@@ -1169,15 +1169,8 @@ class OsUpdates extends React.Component {
 
         // check if there is an available version of coreutils; this is a heuristics for unregistered RHEL
         // systems to see if they need a subscription to get "proper" OS updates
-        let have_coreutils = false;
-        PK.cancellableTransaction(
-            "Resolve",
-            [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED, ["coreutils"]],
-            null,
-            {
-                Package: (info, package_id) => { have_coreutils = true }
-            })
-                .then(() => this.setState({ haveOsRepo: have_coreutils }),
+        PK.is_available(["coreutils"], null)
+                .then((have_coreutils) => this.setState({ haveOsRepo: have_coreutils }),
                       ex => console.warn("Resolving coreutils failed:", JSON.stringify(ex)))
                 .then(() => PK.get_updates(true, null).then(updates => {
                     debug("GetUpdates result:", updates);

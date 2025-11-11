@@ -114,14 +114,11 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
     const progress = new ProgressReporter(0, 1, progress_cb);
 
     const search_origin_file_packages = () => {
-        return PK.cancellableTransaction("SearchFiles", [PK.Enum.FILTER_INSTALLED, origin_files],
-                                         progress.progress_reporter,
-                                         {
-                                             Package: (info, package_id) => {
-                                                 const pkg = package_id.split(";")[0];
-                                                 origin_pkgs[pkg] = true;
-                                             },
-                                         });
+        return PK.find_file_packages(origin_files, progress.progress_reporter).then(packages => {
+            for (const pkgname of packages) {
+                origin_pkgs[pkgname] = true;
+            }
+        });
     };
 
     const refresh_cache = () => {

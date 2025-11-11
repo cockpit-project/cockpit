@@ -429,6 +429,27 @@ export function check_uninstalled_packages(names) {
             .then(() => uninstalled);
 }
 
+/**
+ * Find installed packages that own the given files.
+ *
+ * @param {string[]} files - the files to resolve to packages
+ * @return {Promise<string[]>} installed package names
+ */
+export async function find_file_packages(files, progress_cb) {
+    const installed = [];
+    await cancellableTransaction("SearchFiles",
+                                 [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, files],
+                                 progress_cb,
+                                 {
+                                     Package: (info, package_id) => {
+                                         const pkg = package_id.split(";")[0];
+                                         installed.push(pkg);
+                                     },
+                                 });
+
+    return installed;
+}
+
 /* Carry out what check_missing_packages has planned.
  *
  * In addition to the usual "waiting", "percentage", and "cancel"

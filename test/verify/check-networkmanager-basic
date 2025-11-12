@@ -414,14 +414,17 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_visible("#network-ip-settings-address-0")
         # test class A IP
         b.set_input_text("#network-ip-settings-address-0", "10.0.5.1")
-        b.wait_val("#network-ip-settings-netmask-0", "255.0.0.0")
+        b.wait_val("#network-ip-settings-netmask-0", "8")
+        b.set_input_text("#network-ip-settings-netmask-0", "")
 
         # test class B IP
         b.set_input_text("#network-ip-settings-address-0", "172.16.44.2")
-        b.wait_val("#network-ip-settings-netmask-0", "255.255.0.0")
+        b.wait_val("#network-ip-settings-netmask-0", "16")
+        b.set_input_text("#network-ip-settings-netmask-0", "")
         # test class C IP
         b.set_input_text("#network-ip-settings-address-0", "192.168.1.1")
-        b.wait_val("#network-ip-settings-netmask-0", "255.255.255.0")
+        b.wait_val("#network-ip-settings-netmask-0", "24")
+        b.set_input_text("#network-ip-settings-netmask-0", "")
         # others | Need to manually reset fields
         b.set_input_text("#network-ip-settings-netmask-0", "")
         b.set_input_text("#network-ip-settings-gateway", "")
@@ -430,7 +433,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.wait_val("#network-ip-settings-gateway", "")
         # free manual edit & save
         b.set_input_text("#network-ip-settings-address-0", "192.168.1.1")
-        b.set_input_text("#network-ip-settings-netmask-0", "255.255.255.128")
+        b.set_input_text("#network-ip-settings-netmask-0", "25")
         b.set_input_text("#network-ip-settings-gateway", "192.168.1.126")
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
@@ -445,10 +448,140 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.set_input_text("#network-ip-settings-address-0", "10.0.0.5")
         b.wait_val("#network-ip-settings-gateway", "192.168.20.7")
         b.set_input_text("#network-ip-settings-address-0", "192.168.2.5")
+        b.set_input_text("#network-ip-settings-netmask-0", "24")
         b.wait_val("#network-ip-settings-gateway", "192.168.20.7")
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
         self.wait_for_iface_setting("IPv4", "Address 192.168.2.5/24Gateway 192.168.20.7")
+
+        # Test classless gateway prefilling
+        # the gateway is set to the first usable address in subnet
+        # for subnets with prefix smaller than 30
+        b.click("#networking-edit-ipv4:contains('edit')")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.set_input_text("#network-ip-settings-address-0", "10.11.101.240")
+        b.set_input_text("#network-ip-settings-netmask-0", "8")
+        b.wait_val("#network-ip-settings-gateway", "10.0.0.1")
+        # /13
+        b.set_input_text("#network-ip-settings-netmask-0", "255.248.0.0")
+        b.wait_val("#network-ip-settings-gateway", "10.8.0.1")
+
+        b.set_input_text("#network-ip-settings-netmask-0", "15")
+        b.wait_val("#network-ip-settings-gateway", "10.10.0.1")
+        # /23
+        b.set_input_text("#network-ip-settings-netmask-0", "255.255.254.0")
+        b.wait_val("#network-ip-settings-gateway", "10.11.100.1")
+
+        b.set_input_text("#network-ip-settings-netmask-0", "24")
+        b.wait_val("#network-ip-settings-gateway", "10.11.101.1")
+        # /25
+        # first subnet smaller than 255 addresses, first address no longer ends with ".1"
+        b.set_input_text("#network-ip-settings-netmask-0", "255.255.255.128")
+        b.wait_val("#network-ip-settings-gateway", "10.11.101.129")
+
+        b.set_input_text("#network-ip-settings-netmask-0", "27")
+        b.wait_val("#network-ip-settings-gateway", "10.11.101.225")
+        # /28
+        # host address is the same as network address
+        b.set_input_text("#network-ip-settings-netmask-0", "255.255.255.240")
+        b.wait_val("#network-ip-settings-gateway", "")
+
+        # for prefixes 30-32 gateway is not set
+        b.set_input_text("#network-ip-settings-address-0", "10.11.101.244")
+        b.set_input_text("#network-ip-settings-netmask-0", "28")
+        b.wait_val("#network-ip-settings-gateway", "10.11.101.241")
+        # /30
+        b.set_input_text("#network-ip-settings-netmask-0", "255.255.255.252")
+        b.wait_val("#network-ip-settings-gateway", "")
+        b.set_input_text("#network-ip-settings-netmask-0", "28")
+        b.wait_val("#network-ip-settings-gateway", "10.11.101.241")
+        b.set_input_text("#network-ip-settings-netmask-0", "31")
+        b.wait_val("#network-ip-settings-gateway", "")
+        b.set_input_text("#network-ip-settings-netmask-0", "28")
+        b.wait_val("#network-ip-settings-gateway", "10.11.101.241")
+        # /32
+        b.set_input_text("#network-ip-settings-netmask-0", "255.255.255.255")
+        b.wait_val("#network-ip-settings-gateway", "")
+        # wrong prefixes
+        b.set_input_text("#network-ip-settings-netmask-0", "33")
+        b.wait_val("#network-ip-settings-gateway", "")
+        b.set_input_text("#network-ip-settings-netmask-0", "asd23")
+        b.wait_val("#network-ip-settings-gateway", "")
+
+        # Mask does not change after it's been set
+        b.set_input_text("#network-ip-settings-address-0", "10.11.101.244")
+        b.set_input_text("#network-ip-settings-netmask-0", "255.255.254.0")
+        b.set_input_text("#network-ip-settings-address-0", "192.168.88.13")
+        b.wait_val("#network-ip-settings-netmask-0", "255.255.254.0")
+        # but gateway does as it has not been set explicitly
+        b.wait_val("#network-ip-settings-gateway", "192.168.88.1")
+
+        # set gateway, then change host address to different network
+        b.set_input_text("#network-ip-settings-gateway", "192.168.89.254")
+        b.set_input_text("#network-ip-settings-address-0", "172.16.11.12")
+        # both gateway and masks are unchanged
+        b.wait_val("#network-ip-settings-netmask-0", "255.255.254.0")
+        b.wait_val("#network-ip-settings-gateway", "192.168.89.254")
+
+        b.set_input_text("#network-ip-settings-address-0", "192.168.88.13")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting("IPv4", "Address 192.168.88.13/23Gateway 192.168.89.254")
+
+        # IPv6 prefilling
+        b.click("#networking-edit-ipv6:contains('edit')")
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.wait_visible("#network-ip-settings-address-0")
+        # nothing is filled when plain IPv4 is entered
+        b.set_input_text("#network-ip-settings-address-0", "10.11.101.240")
+        b.wait_val("#network-ip-settings-netmask-0", "")
+        b.wait_val("#network-ip-settings-gateway", "")
+        # prefix length does not accept network mask
+        b.set_input_text("#network-ip-settings-netmask-0", "255.255.240.0")
+        b.wait_val("#network-ip-settings-gateway", "")
+        # default prefix is /64
+        b.set_input_text("#network-ip-settings-address-0", "2001:db8:cafe:face:0:0:dcba:a")
+        b.set_input_text("#network-ip-settings-netmask-0", "64")
+        b.wait_val("#network-ip-settings-gateway", "2001:db8:cafe:face::1")
+
+        b.set_input_text("#network-ip-settings-netmask-0", "97")
+        b.wait_val("#network-ip-settings-gateway", "2001:db8:cafe:face::8000:1")
+
+        b.set_input_text("#network-ip-settings-netmask-0", "105")
+        b.wait_val("#network-ip-settings-gateway", "2001:db8:cafe:face::dc80:1")
+        # for prefixes 126-128 gateway is not set
+        b.set_input_text("#network-ip-settings-netmask-0", "126")
+        b.wait_val("#network-ip-settings-gateway", "")
+        b.set_input_text("#network-ip-settings-netmask-0", "105")
+        b.wait_val("#network-ip-settings-gateway", "2001:db8:cafe:face::dc80:1")
+        b.set_input_text("#network-ip-settings-netmask-0", "127")
+        b.wait_val("#network-ip-settings-gateway", "")
+        b.set_input_text("#network-ip-settings-netmask-0", "105")
+        b.wait_val("#network-ip-settings-gateway", "2001:db8:cafe:face::dc80:1")
+        b.set_input_text("#network-ip-settings-netmask-0", "128")
+        b.wait_val("#network-ip-settings-gateway", "")
+        # gateway is not set when host address is network address
+        b.set_input_text("#network-ip-settings-address-0", "2001:db8:0:face:0:0:0:0")
+        b.set_input_text("#network-ip-settings-netmask-0", "66")
+        b.wait_val("#network-ip-settings-gateway", "")
+        # gateway is not set when host address is first address
+        b.set_input_text("#network-ip-settings-address-0", "2001:db8:0:face::1")
+        b.wait_val("#network-ip-settings-gateway", "")
+        # gateway is not changed after it's been set manually
+        b.set_input_text("#network-ip-settings-address-0", "2001:db8:0:face::15")
+        b.set_input_text("#network-ip-settings-netmask-0", "106")
+        b.set_input_text("#network-ip-settings-gateway", "2001:db8:cafe:face::dc80:aaab")
+        b.set_input_text("#network-ip-settings-address-0", "2001:db8:0:face:dead::15")
+        b.wait_val("#network-ip-settings-gateway", "2001:db8:cafe:face::dc80:aaab")
+        # after changing prefix gateway is still unchanged
+        b.set_input_text("#network-ip-settings-netmask-0", "32")
+        b.wait_val("#network-ip-settings-gateway", "2001:db8:cafe:face::dc80:aaab")
+
+        b.set_input_text("#network-ip-settings-address-0", "2001:db8::1")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting("IPv6", "Address 2001:db8::1/32Gateway 2001:db8:cafe:face::dc80:aaab")
 
     def testNoService(self):
         b = self.browser

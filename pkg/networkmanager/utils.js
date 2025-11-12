@@ -56,6 +56,35 @@ export function ip_metric_from_text(text) {
     throw cockpit.format(_("Invalid metric $0"), text);
 }
 
+export function ip_network_address(address, prefix_len) {
+    const addrCIDR = address.toString() + "/" + prefix_len;
+    const ip_obj = address.kind() === "ipv4" ? ipaddr.IPv4 : ipaddr.IPv6;
+
+    try {
+        return ip_obj.networkAddressFromCIDR(addrCIDR).toString();
+    } catch (_e) {
+        return null;
+    }
+}
+
+export function ip_first_usable_address(address, prefix) {
+    try {
+        const addr_cidr = address.toString() + "/" + prefix;
+
+        if (address.kind() === "ipv4") {
+            const netAddr = ipaddr.IPv4.networkAddressFromCIDR(addr_cidr);
+            netAddr.octets[3] += (prefix < 31) ? 1 : 0;
+            return netAddr.toString();
+        } else {
+            const netAddr = ipaddr.IPv6.networkAddressFromCIDR(addr_cidr);
+            netAddr.parts[7] += (prefix < 127) ? 1 : 0;
+            return netAddr.toString();
+        }
+    } catch (_e) {
+        return null;
+    }
+}
+
 function toDec(n) {
     return n.toString(10);
 }
@@ -141,13 +170,14 @@ export function ip4_from_text(text, empty_is_zero) {
 }
 
 export function ip4_prefix_from_text(prefix_mask) {
-    if (/^[0-9]+$/.test(prefix_mask.trim())) {
+    const trimmed_mask = prefix_mask.trim();
+    if (/^[0-9]+$/.test(trimmed_mask)) {
         return parseInt(prefix_mask, 10);
     }
 
     // make sure that mask has 4 octets format
-    if (validate_ipv4(prefix_mask)) {
-        const prefix = ipaddr.IPv4.parse(prefix_mask).prefixLengthFromSubnetMask();
+    if (validate_ipv4(trimmed_mask)) {
+        const prefix = ipaddr.IPv4.parse(trimmed_mask).prefixLengthFromSubnetMask();
         if (prefix !== null) {
             return prefix;
         }

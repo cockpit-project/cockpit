@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
+import json
 import time
 
 import packagelib
@@ -95,8 +96,13 @@ class TestApps(packagelib.PackageCase):
         m.execute("rm -rf /usr/share/metainfo /usr/share/swcatalog /usr/share/app-info /var/cache/app-info")
 
         # instead of the actual distro packages, use our own fake repo data package
-        self.write_file("/etc/cockpit/apps.override.json",
-                        '{ "config": { "appstream_data_packages": [ "appstream-data-test" ] } }')
+        config = {"config": {"appstream_data_packages": ["appstream-data-test"]}}
+        # Debian/Ubuntu have an appstream configuration package which makes apt update fetch appstream data
+        if m.image.startswith("ubuntu") or m.image.startswith("debian"):
+            self.createPackage("appstream-config", "1", "1")
+            config["config"]["appstream_config_packages"] = ["appstream-config"]
+
+        self.write_file("/etc/cockpit/apps.override.json", json.dumps(config))
 
         if urlroot != "":
             m.write("/etc/cockpit/cockpit.conf", f"[WebService]\nUrlRoot={urlroot}")
@@ -118,6 +124,7 @@ class TestApps(packagelib.PackageCase):
         b.click(".pf-v6-c-alert button")
 
         with b.wait_timeout(30):
+            b.wait_visible(".app-list #app-1")
             b.wait_not_present(".pf-v6-c-alert")
             b.click(".app-list #app-1")
 

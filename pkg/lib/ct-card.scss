@@ -10,6 +10,23 @@
   font-size: var(--pf-t--global--font--size--2xl);
 }
 
+/* FIXME: Custom plain PF card modifier to make it look like PF6 without it being a card */
+.pf-v6-c-card.pf-m-plain.ct-pf-card-inline {
+  // Plain PF Cards just remove the border color and background, but we should also make sure that the radius is
+  // removed so that tables etc. don't get weird borders on the first and last cell.
+  // This mostly happens when we're not using card body
+  border-radius: 0;
+
+  .pf-v6-c-card__header, > .pf-v6-c-card__title {
+    padding-inline: 0;
+  }
+
+  .pf-v6-c-card__body.contains-list {
+    padding: 0;
+  }
+}
+
+
 .ct-cards-grid {
   --ct-grid-columns: 2;
   --pf-v6-l-gallery--GridTemplateColumns: repeat(var(--ct-grid-columns), 1fr);

@@ -618,7 +618,7 @@ export class ServiceDetails extends React.Component {
             });
 
         return (
-            <Card isPlain id="service-details-unit" className="ct-card">
+            <Card isPlain id="service-details-unit" className="ct-card ct-pf-card-inline">
                 { this.state.showDeleteDialog &&
                 <DeleteModal
                     name={this.props.unit.Description}

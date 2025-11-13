@@ -214,7 +214,7 @@ function ZoneSection(props) {
         }
     ];
 
-    return <Card isPlain className="zone-section" data-id={props.zone.id}>
+    return <Card isPlain className="zone-section ct-pf-card-inline" data-id={props.zone.id}>
         <CardHeader actions={{ actions }} className="zone-section-heading">
             <Flex alignItems={{ default: 'alignSelfBaseline' }} spaceItems={{ default: 'spaceItemsXl' }}>
                 <CardTitle component="h2">

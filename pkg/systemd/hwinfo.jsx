@@ -314,7 +314,7 @@ const HardwareInfo = ({ info }) => {
             </PageBreadcrumb>
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
-                    <Card isPlain>
+                    <Card isPlain className='ct-pf-card-inline'>
                         <CardHeader>
                             <CardTitle component="h2">{_("System information")}</CardTitle>
                         </CardHeader>
@@ -325,7 +325,7 @@ const HardwareInfo = ({ info }) => {
                                             : undefined } />
                         </CardBody>
                     </Card>
-                    <Card isPlain id="pci-listing">
+                    <Card isPlain id="pci-listing" className='ct-pf-card-inline'>
                         <CardHeader>
                             <CardTitle component="h2">{_("PCI")}</CardTitle>
                         </CardHeader>
@@ -333,7 +333,7 @@ const HardwareInfo = ({ info }) => {
                             { pci }
                         </CardBody>
                     </Card>
-                    <Card isPlain id="memory-listing">
+                    <Card isPlain id="memory-listing" className='ct-pf-card-inline'>
                         <CardHeader>
                             <CardTitle component="h2">{_("Memory")}</CardTitle>
                         </CardHeader>

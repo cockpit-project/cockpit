@@ -443,7 +443,7 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
     );
 
     return (
-        <Card isPlain className="ct-card">
+        <Card isPlain className="ct-card ct-pf-card-inline">
             <CardHeader actions={{ actions: tableToolbar }}>
                 <CardTitle component="h2">{_("Accounts")}</CardTitle>
             </CardHeader>

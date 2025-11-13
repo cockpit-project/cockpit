@@ -299,22 +299,6 @@ $phone: 767px;
   }
 }
 
-/* FIXME: Temporary rework plain cards to make it look like how PF6 is designed, removing the extra padding */
-.pf-v6-c-card.pf-m-plain {
-  // Plain PF Cards just remove the border color and background, but we should also make sure that the radius is
-  // removed so that tables etc. don't get weird borders on the first and last cell.
-  // This mostly happens when we're not using card body
-  border-radius: 0;
-
-  .pf-v6-c-card__header, > .pf-v6-c-card__title {
-    padding-inline: 0;
-  }
-
-  .pf-v6-c-card__body.contains-list {
-    padding: 0;
-  }
-}
-
 // FIXME: Temporary rework table cards in mobile/small view to have row dividers between each row.
 .pf-v6-c-card.ct-small-table-card {
   border-block-start: var(--pf-t--global--border--width--100) solid var(--pf-t--global--border--color--default);

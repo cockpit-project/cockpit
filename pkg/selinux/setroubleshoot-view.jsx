@@ -409,7 +409,7 @@ export class SETroubleshootPage extends React.Component {
                 : null
         );
         const troubleshooting = (
-            <Card isPlain>
+            <Card isPlain className="ct-pf-card-inline">
                 <CardHeader actions={{ actions }}>
                     <CardTitle component="h2">{title}</CardTitle>
                 </CardHeader>

@@ -706,7 +706,7 @@ class ServicesPageBody extends React.Component {
 
         return (
             <PageSection hasBodyWrapper={false}>
-                <Card isPlain isCompact>
+                <Card isPlain isCompact className='ct-pf-card-inline'>
                     <CardHeader id='services-card-header'>
                         <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
                                             fileStateDropdownOptions={fileStateDropdownOptions}

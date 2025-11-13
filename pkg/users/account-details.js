@@ -239,7 +239,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
             </PageBreadcrumb>
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
-                    <Card isPlain className="account-details" id="account-details">
+                    <Card isPlain className="account-details ct-pf-card-inline" id="account-details">
                         <CardHeader actions={{ actions }}>
                             <CardTitle id="account-title" component="h2">{title_name}</CardTitle>
                         </CardHeader>

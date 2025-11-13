@@ -617,7 +617,7 @@ ${enableCrashKernel}
                             {alertDetail}
                         </Alert>
                     }
-                    <Card isPlain>
+                    <Card isPlain className="ct-pf-card-inline">
                         <CardTitle>
                             <Title headingLevel="h4" size="xl">
                                 {_("Kdump settings")}

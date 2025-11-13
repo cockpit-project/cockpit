@@ -1954,7 +1954,7 @@ class MetricsHistory extends React.Component {
                 <PageSection hasBodyWrapper={false} className="metrics-history-section">
                     <>
                         { this.state.hours.length > 0 &&
-                        <Card isPlain>
+                        <Card isPlain className='ct-pf-card-inline'>
                             <CardBody className="metrics-history">
                                 { this.state.hours.map((time, i) => {
                                     const date_time = new Date(time);

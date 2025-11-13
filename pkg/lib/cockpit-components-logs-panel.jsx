@@ -169,7 +169,7 @@ export class LogsPanel extends React.Component {
         const actions = (this.state.logs.length > 0 && this.props.goto_url) && <Button variant="secondary" onClick={e => cockpit.jump(this.props.goto_url)}>{_("View all logs")}</Button>;
 
         return (
-            <Card isPlain className="cockpit-log-panel">
+            <Card isPlain className="cockpit-log-panel ct-pf-card-inline">
                 <CardHeader actions={{ actions }}>
                     <CardTitle>{this.props.title}</CardTitle>
                 </CardHeader>

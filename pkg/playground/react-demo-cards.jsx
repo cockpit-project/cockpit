@@ -26,21 +26,21 @@ import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Ga
 
 const CardsDemo = () => {
     const cards = [
-        <Card isPlain isCompact key="card1">
+        <Card isPlain isCompact key="card1" className="ct-pf-card-inline">
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
-        <Card isPlain isCompact key="card2">
+        <Card isPlain isCompact key="card2" className="ct-pf-card-inline">
             <CardBody>I'm a card in a gallery</CardBody>
             <CardFooter>I have a footer</CardFooter>
         </Card>,
-        <Card isPlain isCompact key="card3">
+        <Card isPlain isCompact key="card3" className="ct-pf-card-inline">
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
-        <Card isPlain isCompact key="card4">
+        <Card isPlain isCompact key="card4" className="ct-pf-card-inline">
             <CardTitle>I have a header too</CardTitle>
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
-        <Card isPlain key="card5">
+        <Card isPlain key="card5" className="ct-pf-card-inline">
             <CardHeader actions={{
                 actions: <><input type="checkbox" />
                     <Button className="btn">click</Button></>,

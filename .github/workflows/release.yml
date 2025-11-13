@@ -94,7 +94,7 @@ jobs:
     needs: source
     environment: flathub
     env:
-      COCKPITUOUS_TOKEN: ${{ secrets.COCKPITUOUS_TOKEN }}
+      COCKPITUOUS_RELEASE_TOKEN: ${{ secrets.COCKPITUOUS_RELEASE_TOKEN }}
     permissions: {}
     runs-on: ubuntu-latest
     steps:
@@ -136,7 +136,7 @@ jobs:
           git show
           git push git@github.com:cockpit-project/org.cockpit_project.CockpitClient HEAD
 
-          echo ${{ env.COCKPITUOUS_TOKEN }} >> auth.txt
+          echo ${{ env.COCKPITUOUS_RELEASE_TOKEN }} >> auth.txt
           gh auth login --with-token < auth.txt
 
           gh pr create \

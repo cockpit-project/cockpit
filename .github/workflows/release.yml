@@ -65,13 +65,13 @@ jobs:
           (
               cd build
               ../source/configure
-              make doc/guide/html/index.html
+              make render-docs
           )
 
       - name: Update the website
         run: |
           rm -rf website/guide/latest
-          mv -Tv build/doc/guide/html website/guide/latest
+          mv -Tv build/doc/output/html website/guide/latest
 
           # Add frontmatter for Jekyll
           find website/guide/latest -name '*.html' -exec sed -i '

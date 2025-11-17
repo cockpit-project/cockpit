@@ -209,31 +209,40 @@ AC_ARG_ENABLE(doc,
              )
 
 if test "$enable_doc" = "no"; then
-        AC_MSG_RESULT($enable_doc)
+  AC_MSG_RESULT($enable_doc)
 
 else
-        if test "$enable_doc" = ""; then
-                disable_msg="(perhaps --disable-doc)"
-        fi
+  if test "$enable_doc" = ""; then
+    disable_msg="(perhaps --disable-doc)"
+  fi
 
-        enable_doc="yes"
-        AC_MSG_RESULT($enable_doc)
+  enable_doc="yes"
+  AC_MSG_RESULT($enable_doc)
 
-        AC_PATH_PROG([XSLTPROC], [xsltproc], [no])
-        if test "$XSLTPROC" = "no"; then
-                AC_MSG_ERROR([the xsltproc command was not found $disable_msg])
-        fi
+  has_asciidoctor="no"
+  AC_MSG_RESULT($has_asciidoctor)
 
-        AC_PATH_PROG([XMLTO], [xmlto], [no])
-        if test "$XMLTO" = "no"; then
-                AC_MSG_ERROR([the xmlto command was not found $disable_msg])
-        fi
+  AC_PATH_PROG([ASCIIDOCTOR], [asciidoctor], [no])
+  if test "$ASCIIDOCTOR" != "no"; then
+    has_asciidoctor="yes"
+    AC_SUBST(ASCIIDOCTOR)
+  else
+    AC_PATH_PROG([ASCIIDOC], [asciidoc], [no])
+    AC_PATH_PROG([A2X], [a2x], [no])
+    if test "$ASCIIDOC" = "no"; then
+      AC_MSG_ERROR([neither asciidoctor nor asciidoc command was not found $disable_msg])
+    fi
+    if test "$A2X" = "no"; then
+      AC_MSG_ERROR([the a2x command was not found, needed for manpage generation $disable_msg])
+    fi
+    AC_SUBST(ASCIIDOC)
+    AC_SUBST(A2X)
+  fi
 
-        AC_SUBST(XSLTPROC)
-        AC_SUBST(XMLTO)
 fi
 
 AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])
+AM_CONDITIONAL([HAS_ASCIIDOCTOR], [test "$has_asciidoctor" = "yes"])
 
 # Default for AllowMultiHost
 
@@ -333,7 +342,6 @@ AC_SUBST(PAM_LIBS)
 
 AC_CONFIG_FILES([
 Makefile
-doc/guide/version
 src/tls/cockpit-certificate-helper
 src/ws/cockpit-desktop
 ])
@@ -366,6 +374,8 @@ echo "
         cockpit-session PATH:       ${default_session_path}
 
         Building docs:              ${enable_doc}
+        Has asciidoctor:            ${has_asciidoctor}
+
         Debug mode:                 ${debug_status}
         Node environment:           ${NODE_ENV}
         With coverage:              ${enable_coverage}

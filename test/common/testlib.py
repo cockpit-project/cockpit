@@ -2662,6 +2662,13 @@ def skipBeiboot(reason: str) -> Callable[[_FT], _FT]:
     return lambda testEntity: testEntity
 
 
+def skipDaily(reason: str) -> Callable[[_FT], _FT]:
+    """Decorator for skipping a test with fedora-*/nightly"""
+    if "daily" in os.getenv("TEST_SCENARIO", ""):
+        return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
+    return lambda testEntity: testEntity
+
+
 def nondestructive(testEntity: _T) -> _T:
     """Tests decorated as nondestructive will all run against the same VM
 

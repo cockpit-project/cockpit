@@ -48,6 +48,8 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
 
 
+# https://github.com/fedora-selinux/selinux-policy/issues/2947
+@testlib.skipDaily("nightly has selinux set to permissive")
 class TestSelinux(testlib.MachineCase):
     provision = {
         "0": {},
@@ -296,6 +298,8 @@ class TestSelinux(testlib.MachineCase):
         b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
 
 
+# https://github.com/fedora-selinux/selinux-policy/issues/2947
+@testlib.skipDaily("nightly has selinux set to permissive")
 @testlib.skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch")
 @testlib.skipOstree("No cockpit-selinux")
 @testlib.nondestructive

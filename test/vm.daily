@@ -16,4 +16,7 @@ echo "https://download.opensuse.org/repositories/system:systemd/${fedora_release
 dnf config-manager addrepo --from-repofile="https://download.opensuse.org/repositories/system:systemd/${fedora_release}/system:systemd.repo"
 dnf -y update --repo=system_systemd --setopt=install_weak_deps=False
 
+# https://github.com/fedora-selinux/selinux-policy/issues/2947
+sed -i 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config
+
 /var/lib/download-package-sets.sh

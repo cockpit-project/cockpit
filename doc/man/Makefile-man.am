@@ -1,36 +1,54 @@
 EXTRA_DIST += \
-	doc/man/cockpit.xml \
-	doc/man/cockpit-bridge.xml \
-	doc/man/cockpit-ws.xml \
-	doc/man/cockpit-tls.xml \
-	doc/man/cockpit-desktop.xml \
-	doc/man/cockpit.conf.xml \
-	doc/man/pam_ssh_add.xml \
+	doc/man/pages/cockpit.1.adoc \
+	doc/man/pages/cockpit-bridge.1.adoc \
+	doc/man/pages/cockpit-desktop.1.adoc \
+	doc/man/pages/cockpit-ws.8.adoc \
+	doc/man/pages/cockpit-tls.8.adoc \
+	doc/man/pages/cockpit.conf.5.adoc \
+	doc/man/pages/pam_ssh_add.8.adoc \
+	doc/man/pages/partials/author.adoc \
+	doc/man/pages/partials/bugs.adoc \
 	$(NULL)
 
 if ENABLE_DOC
 
 MANPAGES = \
-	doc/man/cockpit.1 \
-	doc/man/cockpit-bridge.1 \
-	doc/man/cockpit-desktop.1 \
-	doc/man/cockpit-ws.8 \
-	doc/man/cockpit-tls.8 \
-	doc/man/cockpit.conf.5 \
-	doc/man/pam_ssh_add.8 \
+	doc/output/man/cockpit.1 \
+	doc/output/man/cockpit-bridge.1 \
+	doc/output/man/cockpit-desktop.1 \
+	doc/output/man/cockpit-ws.8 \
+	doc/output/man/cockpit-tls.8 \
+	doc/output/man/cockpit.conf.5 \
+	doc/output/man/pam_ssh_add.8 \
 	$(NULL)
 
-man_MANS += $(MANPAGES)
+man_MANS += \
+	$(MANPAGES) \
+	$(NULL)
 CLEANFILES += $(MANPAGES)
 
-MAN_PROC = mkdir -p doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
-	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+MAN_ASCIIDOC_ARGS = \
+	-a doctype="manpage" \
+	-a manmanual="cockpit" \
+	-a mansource="cockpit" \
+	$(NULL)
 
-%.8: %.xml
+if HAS_ASCIIDOCTOR
+MAN_PROC = mkdir -p doc/output/man/ && $(ASCIIDOCTOR) $(MAN_ASCIIDOC_ARGS) -b manpage -o $@ $<
+render-man:
+	mkdir -p doc/output/man
+	asciidoctor $(MAN_ASCIIDOC_ARGS) -b manpage -D doc/output/man doc/man/pages/*.adoc
+else !HAS_ASCIIDOCTOR
+MAN_PROC = mkdir -p doc/output/man/ && $(A2X) --no-xmllint -d manpage -f manpage $(MAN_ASCIIDOC_ARGS) -D doc/output/man $<
+render-man:
+	echo "Local manpage rendering using asciidoc not implemented, install asciidoctor or use make check"
+endif !HAS_ASCIIDOCTOR
+
+doc/output/man/%: doc/man/pages/%.adoc
 	$(AM_V_GEN) $(MAN_PROC)
-%.1: %.xml
-	$(AM_V_GEN) $(MAN_PROC)
-%.5: %.xml
-	$(AM_V_GEN) $(MAN_PROC)
+
+CLEAN_LOCAL_TARGETS += clean-man
+clean-man:
+	rm -rf doc/output/man
 
 endif ENABLE_DOC

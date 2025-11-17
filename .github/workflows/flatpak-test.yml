@@ -15,7 +15,7 @@ jobs:
           sudo dpkg-reconfigure man-db
 
           sudo apt update
-          sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto gettext flatpak xvfb cockpit-system appstream
+          sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev gettext flatpak xvfb asciidoctor cockpit-system appstream
 
       - name: Configure flathub remote
         run: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

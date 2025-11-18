@@ -39,7 +39,7 @@ distdir: $(DISTFILES)
 	$(srcdir)/tools/fix-spec $(distdir)/tools/cockpit.spec $(VERSION)
 	sed -i "/^pkgver=/ s/0/$(VERSION)/" "$(distdir)/tools/arch/PKGBUILD"
 	sed -i "1 s/0/$(VERSION)/" "$(distdir)/tools/debian/changelog"
-	cp -r "$(srcdir)/dist" "$(distdir)"
+	cp -r "$(srcdir)/dist" "$(srcdir)/runtime-npm-modules.txt" "$(distdir)"
 	$(srcdir)/tools/adjust-distdir-timestamps "$(distdir)"
 	@echo '  DIST     $(DIST_ARCHIVES)'
 

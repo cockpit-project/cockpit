@@ -4,6 +4,7 @@ actions:
   post-upstream-clone:
     # build patched spec
     - tools/node-modules make_package_lock_json
+    - env NODE_ENV=production ./build.js
     - cp tools/cockpit.spec .
     # packit will compute and set the version by itself
     - tools/fix-spec ./cockpit.spec 0

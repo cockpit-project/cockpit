@@ -28,6 +28,7 @@ const pkgOptions = {
         ".py": "text",
         ".sh": "text",
     },
+    metafile: true,
     minify: production,
     nodePaths,
     outbase: './pkg',
@@ -51,12 +52,8 @@ const qunitOptions = {
 const parser = (await import('argparse')).default.ArgumentParser();
 parser.add_argument('-r', '--rsync', { help: "rsync bundles to ssh target after build", metavar: "HOST" });
 parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable watch mode" });
-parser.add_argument('-m', '--metafile', { help: "Enable bund size information file", metavar: "FILE" });
 parser.add_argument('onlydir', { nargs: '?', help: "The pkg/<DIRECTORY> to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
 const args = parser.parse_args();
-
-if (args.metafile)
-    pkgOptions.metafile = true;
 
 if (args.onlydir?.includes('/'))
     parser.error("Directory must not contain '/'");
@@ -222,8 +219,32 @@ async function build() {
 
         try {
             const results = await Promise.all([pkgContext.rebuild(), qunitContext.rebuild()]);
-            if (args.metafile)
-                fs.writeFileSync(args.metafile, JSON.stringify(results[0].metafile));
+            // skip metafile and runtime module calculation in watch and onlydir modes
+            if (!args.watch && !args.onlydir) {
+                fs.writeFileSync('metafile.json', JSON.stringify(results[0].metafile));
+
+                // Extract bundled npm packages for dependency tracking
+                const bundledPackages = new Set();
+                for (const inputPath of Object.keys(results[0].metafile.inputs)) {
+                    // Match paths like node_modules/package-name/ or node_modules/@scope/package-name/
+                    const match = inputPath.match(/^node_modules\/(@[^/]+\/[^/]+|[^/]+)\//);
+                    if (match)
+                        bundledPackages.add(match[1]);
+                }
+
+                // Look up versions from package-lock.json and output simple format
+                const packageLock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+                const deps = [];
+                for (const pkgName of Array.from(bundledPackages).sort()) {
+                    const lockKey = `node_modules/${pkgName}`;
+                    const pkgInfo = packageLock.packages?.[lockKey];
+                    if (pkgInfo?.version)
+                        deps.push(`${pkgName} ${pkgInfo.version}`);
+                    else
+                        console.error(`Warning: Could not find version for ${pkgName}`);
+                }
+                fs.writeFileSync('runtime-npm-modules.txt', deps.join('\n') + '\n');
+            }
         } catch (e) {
             if (!args.watch)
                 process.exit(1);

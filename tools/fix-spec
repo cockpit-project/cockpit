@@ -6,12 +6,8 @@ set -eu
 spec="$1"
 version="$2"
 
-PROVIDES=$(npm ls --omit dev --package-lock-only --depth=Infinity |
-    grep -Eo '[^[:space:]]+@[^[:space:]]+' |
-    sort -u |
-    # only replace the *last* occurrence of @, not e.g. the one in @patternfly/..
-    sed 's/^/Provides: bundled(npm(/; s/\(.*\)@/\1)) = /')
+ROOT_DIR=$(realpath "$(dirname "$0")/..")
 
-
+PROVIDES=$(awk '{print "Provides: bundled(npm(" $1 ")) = " $2}' "${ROOT_DIR}/runtime-npm-modules.txt")
 awk -v p="$PROVIDES" '/Version/ { gsub(/0/, "'$version'") }; gsub(/#NPM_PROVIDES/, p) 1' "$spec" > "$spec".new
 mv -f "$spec".new "$spec"

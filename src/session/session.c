@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include "common/cockpitconf.h"
 #include "common/cockpitframe.h"
 #include "common/cockpitjsonprint.h"
 #include "common/cockpitmemory.h"
@@ -31,6 +32,7 @@
 #include <gssapi/gssapi_generic.h>
 #include <gssapi/gssapi_krb5.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 
 static char *last_txt_msg = NULL;
 static char *last_err_msg = NULL;
@@ -798,6 +800,75 @@ perform_tlscert (const char *rhost,
   return pamh;
 }
 
+static pam_handle_t *
+perform_session_user_command (
+                 const char *command,
+                 const char *rhost,
+                 const char *type,
+                 const char *authorization)
+{
+  struct pam_conv conv = { pam_conv_func_dummy, };
+  pam_handle_t *pamh;
+  int res;
+
+  assert (rhost != NULL);
+  assert (type != NULL);
+  assert (authorization != NULL);
+
+  /* Strip the type from the authorization string */
+  assert (strncmp (authorization, type, strlen (type)) == 0);
+  /* Strip the space (+1) */
+  authorization += strlen (type) + 1;
+
+  debug ("start external authentication (%s) for cockpit-ws %u", type, getppid ());
+
+  /* Create a memfd to capture */
+  int memfd = memfd_create("username-output", MFD_CLOEXEC);
+  if (memfd < 0)
+    err (EX, "memfd_create failed");
+  const char *command_argv[] = { command, rhost, authorization, NULL };
+
+  const int remap_fds[] = { -1, memfd, -1 }; // only remap stdout to memfd
+  int status = spawn_and_wait(command_argv, NULL, remap_fds, 3, getuid(), getgid());
+
+  if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+    close(memfd);
+    errx(EX, "external command failed: %s", command);
+  }
+
+  char username[1025];
+  /* Reset file offset to start */
+  lseek(memfd, 0, SEEK_SET);
+
+  /* Read the output, max of 1024 bytes */
+  ssize_t nread = read(memfd, username, 1024);
+  close(memfd);
+
+  if (nread < 0)
+    err(EX, "read from external memfd failed");
+
+  username[nread] = '\0';
+  username[strcspn(username, "\n")] = '\0'; /* null-terminate at first newline */
+
+  if (username[0] == '\0')
+    errx(EX, "no username provided by external command: %s", command);
+
+  res = pam_start ("cockpit", username, &conv, &pamh);
+  if (res != PAM_SUCCESS)
+    errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
+
+  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
+    errx (EX, "couldn't setup pam rhost");
+
+  res = open_session (pamh);
+
+  /* Our exit code is a PAM code */
+  if (res != PAM_SUCCESS)
+    exit_pam_init_problem (res);
+
+  return pamh;
+}
+
 
 /* Return path of ccache file (including FILE: prefix), clean this up at session end */
 static char *
@@ -992,6 +1063,12 @@ main (int argc,
     pamh = perform_gssapi (rhost, response);
   else if (strcmp (type, "tls-cert") == 0)
     pamh = perform_tlscert (rhost, response);
+  else {
+    const char *command = cockpit_conf_string (type, "SessionUserCommand");
+    if (command != NULL) {
+      pamh = perform_session_user_command (command, rhost, type, response);
+    }
+  }
 
   cockpit_memory_clear (response, -1);
   free (response);

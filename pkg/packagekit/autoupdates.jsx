@@ -90,6 +90,29 @@ class ImplBase {
         else
             this.supported = false;
     }
+
+    // Shared timer configuration logic
+    generateTimerConfigScript(configFile, day, time) {
+        let script = "";
+
+        if (time !== null || day !== null) {
+            if (day === "" && time === "") {
+                // restore defaults
+                script += `rm -f ${configFile}; `;
+            } else {
+                if (day == null) day = this.day;
+                if (time == null) time = this.time;
+
+                const confDir = configFile.substring(0, configFile.lastIndexOf('/'));
+                script += `mkdir -p ${confDir}; `;
+                script += `printf '[Timer]\\nOnBootSec=\\nOnCalendar=${day} ${time}\\n' > ${configFile}; `;
+            }
+
+            script += "systemctl daemon-reload; ";
+        }
+
+        return script;
+    }
 }
 
 class Dnf4Impl extends ImplBase {
@@ -155,20 +178,8 @@ class Dnf4Impl extends ImplBase {
         if (enabled && !this.enabled && !this.time && !this.day)
             time = "6:00";
 
-        if (time !== null || day !== null) {
-            if (day === "" && time === "") {
-                // restore defaults
-                script += "rm -f " + timerConf + "; ";
-            } else {
-                if (day == null)
-                    day = this.day;
-                if (time == null)
-                    time = this.time;
-                script += "mkdir -p /etc/systemd/system/dnf-automatic-install.timer.d; ";
-                script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
-                script += "systemctl daemon-reload; ";
-            }
-        }
+        // Configure timer
+        script += this.generateTimerConfigScript(timerConf, day, time);
 
         if (enabled !== null) {
             const rebootConf = "/etc/systemd/system/dnf-automatic-install.service.d/autoreboot.conf";
@@ -278,20 +289,8 @@ class Dnf5Impl extends ImplBase {
         if (type !== null)
             settings.push(["upgrade_type", (type == "security") ? "security" : "default"]);
 
-        if (time !== null || day !== null) {
-            if (day === "" && time === "") {
-                // restore defaults
-                script += "rm -f " + timerConf + "; ";
-            } else {
-                if (day == null)
-                    day = this.day;
-                if (time == null)
-                    time = this.time;
-                script += "mkdir -p " + timerConfD + "; ";
-                script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
-                script += "systemctl daemon-reload; ";
-            }
-        }
+        // Configure timer
+        script += this.generateTimerConfigScript(timerConf, day, time);
 
         if (enabled !== null) {
             script += "systemctl " + (enabled ? "enable" : "disable") + " --now dnf5-automatic.timer; ";
@@ -439,24 +438,9 @@ class AptImpl extends ImplBase {
             "/etc/systemd/system/apt-daily-upgrade.timer.d/time.conf"
         ];
 
-        if (time !== null || day !== null) {
-            if (day === "" && time === "") {
-                // Restore defaults
-                timerConfigs.forEach(conf => { script += `rm -f ${conf}; ` });
-            } else {
-                if (day == null)
-                    day = this.day;
-                if (time == null)
-                    time = this.time;
-
-                timerConfigs.forEach(conf => {
-                    const confDir = conf.substring(0, conf.lastIndexOf('/'));
-                    script += `mkdir -p ${confDir}; `;
-                    script += `printf '[Timer]\\nOnCalendar=\\nOnCalendar=${day} ${time}\\n' > ${conf}; `;
-                });
-                script += "systemctl daemon-reload; ";
-            }
-        }
+        timerConfigs.forEach(conf => {
+            script += this.generateTimerConfigScript(conf, day, time);
+        });
 
         if (enabled !== null) {
             const action = enabled ? "enable --now" : "disable --now";

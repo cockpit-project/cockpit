@@ -77,7 +77,7 @@ dist_noinst_DATA += \
 
 noinst_DATA += doc/guide/html/index.html
 
-doc/guide/html/%.woff2: dist/static/manifest.json
+doc/guide/html/%.woff2: $(DIST_STAMP)
 	@target='$(dir $@)'; \
 	source='dist/static/fonts/$(notdir $@)'; \
 	printf '  %-8s %s → %s\n' 'COPY' "$${source}" "$${target}"; \

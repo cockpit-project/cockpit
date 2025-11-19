@@ -29,14 +29,14 @@ class ProgressReporter {
     }
 
     progress_reporter(data) {
-        if (data.absolute_percentage >= 0) {
-            const newPercentage = this.base + data.absolute_percentage / 100 * this.range;
+        if (data.percentage >= 0) {
+            const newPercentage = this.base + data.percentage / 100 * this.range;
             // PackageKit with Apt backend reports wrong percentages https://github.com/PackageKit/PackageKit/issues/516
             // Double check here that we have an increasing only progress value
             if (this.percentage == undefined || newPercentage >= this.percentage)
                 this.percentage = newPercentage;
         }
-        this.callback({ percentage: this.percentage, ...data });
+        this.callback({ ...data, percentage: this.percentage });
     }
 }
 

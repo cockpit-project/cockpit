@@ -83,6 +83,11 @@ function dbus_client() {
 // Reconnect when privileges change
 superuser.addEventListener("changed", () => { _dbus_client = null });
 
+function debug() {
+    if (window.debugging == 'all' || window.debugging?.includes('packagekit'))
+        console.debug.apply(console, arguments);
+}
+
 /**
  * Call a PackageKit method
  */
@@ -626,7 +631,7 @@ function loadUpdateDetailsBatch(pkg_ids, update_details, progress_cb) {
                 u.severity = Enum.INFO_SECURITY;
             u.vendor_urls = vendor_urls || [];
             // u.restart = restart; // broken (always "1") at least in Fedora
-            console.debug("UpdateDetail:", u);
+            debug("UpdateDetail:", u);
         }
     });
 }

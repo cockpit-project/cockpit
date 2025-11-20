@@ -49,17 +49,19 @@ def create_machine(image: str) -> Iterator[machine_virtual.VirtMachine]:
         machine.stop()
 
 
-def build_rpms(dist_tar: str, machine: machine_virtual.VirtMachine, *, verbose: bool, quick: bool) -> list[str]:
+def build_rpms(
+    dist_tars: list[str], machine: machine_virtual.VirtMachine, *, verbose: bool, quick: bool
+) -> list[str]:
     """build RPMs from a tarball in an machine
 
     Return local rpm path list.
     """
-    vm_tar = os.path.join("/var/tmp", os.path.basename(dist_tar))
-    machine.upload([dist_tar], vm_tar)
+    machine.upload(dist_tars, "/var/tmp/")
+    main_tar = os.path.join("/var/tmp", os.path.basename(dist_tars[0]))
 
     # build srpm
     machine.execute(fr"""
-        su builder -c 'rpmbuild --define "_topdir /var/tmp/build" -ts "{vm_tar}"'
+        su builder -c 'rpmbuild --define "_topdir /var/tmp/build" -ts "{main_tar}"'
     """)
 
     # build rpms
@@ -89,7 +91,7 @@ def build_rpms(dist_tar: str, machine: machine_virtual.VirtMachine, *, verbose: 
 # Helper functions to build image-customize options for various steps
 #
 
-def build_install_package(dist_tar: str, image: str) -> list[str]:
+def build_install_package(dist_tars: list[str], image: str) -> list[str]:
     """Default rpm/deb/arch package build/install"""
 
     # our images have distro cockpit packages pre-installed, remove them
@@ -113,7 +115,10 @@ def build_install_package(dist_tar: str, image: str) -> list[str]:
             fi
         """)
 
-    args += ["--build", dist_tar]
+    # first in dist_tars is the main release; upload additional ones
+    for extra_tar in dist_tars[1:]:
+        args += ["--upload", extra_tar + ":/var/tmp/"]
+    args += ["--build", dist_tars[0]]
 
     # install the playground
     args += ["--upload", os.path.join(BASE_DIR, "dist/playground") + ":/usr/local/share/cockpit/"]
@@ -147,14 +152,14 @@ def build_install_package(dist_tar: str, image: str) -> list[str]:
     return args
 
 
-def build_install_ostree(dist_tar: str, image: str, *, verbose: bool, quick: bool) -> list[str]:
+def build_install_ostree(dist_tars: list[str], image: str, *, verbose: bool, quick: bool) -> list[str]:
     """Special treatment of build/install on CoreOS
 
     OSTree image can't build packages, build them on corresponding OSes and
     install them into the OSTree and the cockpit/ws container.
     """
     with create_machine(testmap.get_build_image(image)) as machine:
-        rpms = build_rpms(dist_tar, machine, verbose=verbose, quick=quick)
+        rpms = build_rpms(dist_tars, machine, verbose=verbose, quick=quick)
     args: list[str] = []
     for rpm in rpms:
         args += ["--upload", f"{rpm}:/var/tmp/"]
@@ -166,14 +171,14 @@ def build_install_ostree(dist_tar: str, image: str, *, verbose: bool, quick: boo
     return args
 
 
-def build_install_bootc(dist_tar: str, image: str, *, verbose: bool, quick: bool) -> list[str]:
+def build_install_bootc(dist_tars: list[str], image: str, *, verbose: bool, quick: bool) -> list[str]:
     """Special treatment of build/install on Bootc
 
     bootc image can't build packages, build them on corresponding OSes, build a new bootc
     image with the rpms, and deploy it.
     """
     with create_machine(testmap.get_build_image(image)) as machine:
-        rpms = build_rpms(dist_tar, machine, verbose=verbose, quick=quick)
+        rpms = build_rpms(dist_tars, machine, verbose=verbose, quick=quick)
     args = ["--run-command", "mkdir -p /var/tmp/rpms"]
     for rpm in rpms:
         if not any(r in rpm for r in [".src", "debug", "packagekit"]):
@@ -185,7 +190,7 @@ def build_install_bootc(dist_tar: str, image: str, *, verbose: bool, quick: bool
     return args
 
 
-def build_install_container(dist_tar: str, *, verbose: bool, quick: bool) -> list[str]:
+def build_install_container(dist_tars: list[str], *, verbose: bool, quick: bool) -> list[str]:
     """Build VM with cockpit/ws container
 
     This can test an image with beibooting from a cockpit/ws container, without
@@ -201,7 +206,7 @@ def build_install_container(dist_tar: str, *, verbose: bool, quick: bool) -> lis
             raise ValueError("failed to parse Fedora version from ws container")
 
     with create_machine(f"fedora-{fedora_version}") as m:
-        build_rpms(dist_tar, m, verbose=verbose, quick=quick)
+        build_rpms(dist_tars, m, verbose=verbose, quick=quick)
         # copy the rpms and playground where ws-container.install expects them
         m.execute(r"find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm' -exec mv {} /var/tmp/ \;")
         m.execute("mkdir -p /var/tmp/install/usr/share/cockpit/")
@@ -268,16 +273,16 @@ def main() -> int:
     if args.quick:
         customize.append("--quick")
 
-    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
+    dist_tars = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip().splitlines()
 
     if args.image == "fedora-coreos":
-        customize += build_install_ostree(dist_tar, args.image, verbose=args.verbose, quick=args.quick)
+        customize += build_install_ostree(dist_tars, args.image, verbose=args.verbose, quick=args.quick)
     elif args.image.endswith("-bootc"):
-        customize += build_install_bootc(dist_tar, args.image, verbose=args.verbose, quick=args.quick)
+        customize += build_install_bootc(dist_tars, args.image, verbose=args.verbose, quick=args.quick)
     elif args.container:
-        customize += build_install_container(dist_tar, verbose=args.verbose, quick=args.quick)
+        customize += build_install_container(dist_tars, verbose=args.verbose, quick=args.quick)
     else:
-        customize += build_install_package(dist_tar, args.image)
+        customize += build_install_package(dist_tars, args.image)
 
     if not args.quick:
         customize += validate_packages()

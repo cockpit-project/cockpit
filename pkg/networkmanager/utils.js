@@ -140,36 +140,20 @@ export function ip4_from_text(text, empty_is_zero) {
     return num;
 }
 
-const text_to_prefix_bits = {
-    255: 8, 254: 7, 252: 6, 248: 5, 240: 4, 224: 3, 192: 2, 128: 1, 0: 0
-};
-
-export function ip4_prefix_from_text(text) {
-    function invalid() {
-        throw cockpit.format(_("Invalid prefix or netmask $0"), text);
+export function ip4_prefix_from_text(prefix_mask) {
+    if (/^[0-9]+$/.test(prefix_mask.trim())) {
+        return parseInt(prefix_mask, 10);
     }
 
-    if (/^[0-9]+$/.test(text.trim()))
-        return parseInt(text, 10);
-    const parts = text.split('.');
-    if (parts.length != 4)
-        invalid();
-    let prefix = 0;
-    let i;
-    for (i = 0; i < 4; i++) {
-        const p = text_to_prefix_bits[parts[i].trim()];
-        if (p !== undefined) {
-            prefix += p;
-            if (p < 8)
-                break;
-        } else
-            invalid();
+    // make sure that mask has 4 octets format
+    if (validate_ipv4(prefix_mask)) {
+        const prefix = ipaddr.IPv4.parse(prefix_mask).prefixLengthFromSubnetMask();
+        if (prefix !== null) {
+            return prefix;
+        }
     }
-    for (i += 1; i < 4; i++) {
-        if (/^0+$/.test(parts[i].trim()) === false)
-            invalid();
-    }
-    return prefix;
+
+    throw cockpit.format(_("Invalid prefix or netmask $0"), prefix_mask);
 }
 
 // Shorten IPv6 address according to RFC 5952

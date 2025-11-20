@@ -112,6 +112,7 @@ type TransactionItem = [
 ]
 
 type InstallResolveResult = [TransactionItem[], number]
+type RemoveResolveResult = [TransactionItem[], number]
 
 type SignalCB = (_path: string, _iface: string, signal: string, args: unknown[]) => void
 
@@ -402,5 +403,67 @@ export class Dnf5DaemonManager implements PackageManager {
             }
             await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
         }, signal_emitted);
+    }
+
+    async remove_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
+        let last_progress = 0;
+        let total_packages: number;
+
+        function signal_emitted(_path: string, _iface: string, signal: string, args: unknown[]) {
+            switch (signal) {
+            case 'transaction_before_begin':
+                [, total_packages] = args as [string, number];
+                break;
+            case 'transaction_elem_progress': {
+                const [, _last_name, processed,] = args as [string, string, number, number];
+                last_progress = processed / total_packages * 100;
+                break;
+            }
+            }
+
+            if (progress_cb) {
+                progress_cb({
+                    waiting: false,
+                    percentage: last_progress,
+                    cancel: null,
+                });
+            }
+        }
+
+        await this.with_session(async (session) => {
+            await call(session, "org.rpm.dnf.v0.rpm.Rpm", "remove", [pkgnames, {}]);
+            const [_transaction_items, result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as RemoveResolveResult;
+            if (result !== 0) {
+                const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
+                throw new ResolveError(`Resolving remove failed with result=${result}. ${problem}`);
+            }
+            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+        }, signal_emitted);
+    }
+
+    async find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]> {
+        const installed: string[] = [];
+
+        await this.with_session(async (session) => {
+            const package_attrs = ["name"];
+
+            const [results] = await call(session, "org.rpm.dnf.v0.rpm.Rpm", "list", [
+                {
+                    package_attrs: { t: 'as', v: package_attrs },
+                    scope: { t: 's', v: "installed" },
+                    patterns: { t: 'as', v: files },
+                    with_filenames: { t: 'b', v: true },
+                }
+            ]) as ListPackage[][];
+            for (const result of results) {
+                installed.push(result.name.v);
+            }
+
+            // HACK: no usable progress event, but we need to send something to make refresh work.
+            if (progress_cb)
+                progress_cb({ percentage: 100, waiting: false });
+        });
+
+        return installed;
     }
 }

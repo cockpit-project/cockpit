@@ -69,6 +69,7 @@ export interface PackageManager {
   check_missing_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<MissingPackages>;
   install_missing_packages(data: MissingPackages, progress_cb?: InstallProgressCB): Promise<void>;
   refresh(force: boolean, progress_cb?: ProgressCB): Promise<void>;
+  is_installed(pkgnames: string[]): Promise<boolean>;
 }
 
 export class UnsupportedError extends Error {

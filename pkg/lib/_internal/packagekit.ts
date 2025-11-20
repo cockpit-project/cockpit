@@ -55,4 +55,23 @@ export class PackageKitManager implements PackageManager {
     async refresh(force: boolean, progress_cb?: ProgressCB): Promise<void> {
         return PK.refresh(force, progress_cb);
     }
+
+    async is_installed(pkgnames: string[]): Promise<boolean> {
+        const uninstalled = new Set(pkgnames);
+
+        if (uninstalled.size === 0)
+            return true;
+
+        await PK.cancellableTransaction("Resolve",
+                                        [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_INSTALLED, pkgnames],
+                                        null,
+                                        {
+                                            Package: (_info: unknown, package_id: string) => {
+                                                const parts = package_id.split(";");
+                                                uninstalled.delete(parts[0]);
+                                            },
+                                        });
+
+        return uninstalled.size === 0;
+    }
 }

@@ -176,7 +176,8 @@ def main() -> None:
                                              universal_newlines=True)
         except subprocess.CalledProcessError as exc:
             sys.exit(exc.returncode)
-        location = {'path': output.rstrip('\n')}
+        # not using the node tarball here, just the main one
+        location = {'path': output.splitlines()[0]}
 
     elif args.location.startswith('https://'):
         branch = 'stable'

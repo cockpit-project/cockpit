@@ -2,7 +2,7 @@
 
 set -eux
 
-# Produce a Cockpit release tarball.
+# Produce a set of Cockpit release tarballs.
 #
 # This is the script used to create the official releases.
 #
@@ -13,7 +13,7 @@ set -eux
 #
 #   - the version to release, which is also the tag name, eg. '215'.
 #
-# The release tarball contains a number of files that are not directly in
+# The main release tarball contains a number of files that are not directly in
 # version control:
 #   - the usual automake stuff
 #   - several submodules
@@ -24,8 +24,8 @@ set -eux
 # that version. It then does an offline build of the release tarball, which is
 # deterministic.
 #
-# You can use this script to verify the integrity of a particular Cockpit
-# release tarball, or even use it to create the tarball for yourself, as an
+# You can use this script to verify the integrity of a particular set of Cockpit
+# release tarballs, or even use it to create the tarballs for yourself, as an
 # alternative to downloading it.
 #
 # The result of running `./autogen.sh && make dist VERSION=...` on any system
@@ -36,8 +36,8 @@ set -eux
 # reasonably convince themselves about the origin of absolutely everything in a
 # Cockpit source release.
 #
-# If this script produces a tarball with a different checksum than the
-# officially-released one, then please report a bug.
+# If this script produces tarballs with different checksums than the
+# officially-released ones, then please report a bug.
 
 URL="$1"
 VERSION="$2"
@@ -91,5 +91,26 @@ tar -C "${SOURCE}" -c . | \
             ' \
     > cockpit-"${VERSION}".tar.xz
 
+# Build the node modules tarball, also offline.
+tar -C "${SOURCE}" -c . | \
+    podman \
+        run \
+            --rm \
+            --pull=never \
+            --network=none \
+            --log-driver=none \
+            --interactive \
+            "${IMAGE}" \
+            sh -euxc '
+                (
+                    mkdir work
+                    cd work
+                    tar x
+                    tools/node-modules runtime-tar node.tar.xz
+                ) >&2
+                cat work/node.tar.xz
+            ' \
+    > cockpit-node-"${VERSION}".tar.xz
+
 # Show the result.
-sha256sum cockpit-"${VERSION}".tar.xz
+sha256sum cockpit-"${VERSION}".tar.xz cockpit-node-"${VERSION}".tar.xz

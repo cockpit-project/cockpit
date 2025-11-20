@@ -50,7 +50,8 @@ if [ $# -gt 1 ]; then
 fi
 
 if [ -z "${1:-}" ]; then
-    source="$("$mydir/../tools/make-dist")"
+    # only use the main release tarball for now
+    source="$("$mydir/../tools/make-dist" | head -n1)"
 else
     source="$(realpath "$1")"
 fi

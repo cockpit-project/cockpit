@@ -27,8 +27,7 @@ import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/e
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
-import * as PackageKit from "./packagekit.js";
-import { icon_url, launch, ProgressBar, CancelButton, reload_bridge_packages } from "./utils";
+import { icon_url, launch, ProgressBar, CancelButton, reload_bridge_packages, ProgressReporter } from "./utils";
 
 import "./application.scss";
 import { getPackageManager } from "packagemanager.js";
@@ -41,13 +40,23 @@ async function install_package(pkgname, progress_cb) {
     await reload_bridge_packages();
 }
 
+async function remove_package(filename, progress_cb) {
+    const progress = new ProgressReporter(0, 1, progress_cb);
+    const packagemanager = await getPackageManager();
+    const pkgnames = await packagemanager.find_file_packages([filename], progress.progress_reporter);
+    progress.base = 1;
+    progress.range = 99;
+    await packagemanager.remove_packages(pkgnames, progress.progress_reporter);
+    await reload_bridge_packages();
+}
+
 export const ActionButton = ({ comp, progress, action }) => {
     function install(comp) {
         action(install_package, comp.pkgname, _("Installing"), comp.id);
     }
 
     function remove(comp) {
-        action(PackageKit.remove, comp.file, _("Removing"), comp.id);
+        action(remove_package, comp.file, _("Removing"), comp.id);
     }
 
     if (progress) {

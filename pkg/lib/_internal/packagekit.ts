@@ -78,4 +78,22 @@ export class PackageKitManager implements PackageManager {
     async install_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
         return PK.install_packages(pkgnames, progress_cb);
     }
+
+    async remove_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
+        const ids: string[] = [];
+
+        await PK.cancellableTransaction("Resolve", [PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_INSTALLED | PK.Enum.FILTER_NOT_SOURCE, pkgnames], null,
+                                        {
+                                            Package: (_info: unknown, package_id: string) => ids.push(package_id),
+                                        });
+
+        if (ids.length === 0)
+            return Promise.resolve();
+
+        return PK.cancellableTransaction("RemovePackages", [0, ids, true, false], progress_cb);
+    }
+
+    async find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]> {
+        return PK.find_file_packages(files, progress_cb);
+    }
 }

@@ -184,7 +184,7 @@ def build_install_bootc(dist_tar, image, verbose, quick):
     return args
 
 
-def build_install_container(dist_tar, image, verbose, quick):
+def build_install_container(dist_tar, verbose, quick):
     """Build VM with cockpit/ws container
 
     This can test an image with beibooting from a cockpit/ws container, without
@@ -274,7 +274,7 @@ def main():
     elif args.image.endswith("-bootc"):
         customize += build_install_bootc(dist_tar, args.image, args.verbose, args.quick)
     elif args.container:
-        customize += build_install_container(dist_tar, args.image, args.verbose, args.quick)
+        customize += build_install_container(dist_tar, args.verbose, args.quick)
     else:
         customize += build_install_package(dist_tar, args.image)
 

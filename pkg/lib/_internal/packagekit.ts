@@ -74,4 +74,8 @@ export class PackageKitManager implements PackageManager {
 
         return uninstalled.size === 0;
     }
+
+    async install_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
+        return PK.install_packages(pkgnames, progress_cb);
+    }
 }

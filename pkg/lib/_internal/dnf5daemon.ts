@@ -85,6 +85,18 @@ interface ResolvePackage {
     version: { t: "s"; v: string };
 }
 
+interface TransactionProblem {
+    action: { t: "u", v: number };
+    additional_data: { t: "as", "v": string[] };
+    goal_job_settings: { t: "a{vs}", "v": { to_repo_ids: { t: "as", v: string[] } } };
+    problem: { t: "u", v: number };
+    spec: { t: "s", v: "appstream-data" };
+}
+
+enum GoalProblem {
+    ALREADY_INSTALLED = (1 << 12)
+}
+
 // TransactionItemType
 type object_type = "Package" | "Group" | "Environment" | "Module" | "Skipped";
 // TransactionItemAction
@@ -350,5 +362,47 @@ export class Dnf5DaemonManager implements PackageManager {
         });
 
         return uninstalled.size === 0;
+    }
+
+    async install_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
+        let last_progress = 0;
+        let total_packages: number;
+
+        function signal_emitted(_path: string, _iface: string, signal: string, args: unknown[]) {
+            switch (signal) {
+            case 'transaction_before_begin':
+                [, total_packages] = args as [string, number];
+                break;
+            case 'transaction_elem_progress': {
+                const [, _last_name, processed,] = args as [string, string, number, number];
+                last_progress = processed / total_packages * 100;
+                break;
+            }
+            }
+
+            if (progress_cb) {
+                progress_cb({
+                    waiting: false,
+                    percentage: last_progress,
+                    cancel: null,
+                });
+            }
+        }
+
+        await this.with_session(async (session) => {
+            await call(session, "org.rpm.dnf.v0.rpm.Rpm", "install", [pkgnames, {}]);
+            const [_transaction_items, result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as InstallResolveResult;
+            if (result !== 0) {
+                const [problems] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems", []) as TransactionProblem[][];
+                if (problems.every((p: TransactionProblem) => p.problem.v == GoalProblem.ALREADY_INSTALLED)) {
+                    await call(session, "org.rpm.dnf.v0.Goal", "reset", []);
+                    return;
+                }
+
+                const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
+                throw new ResolveError(`Resolving install failed with result=${result}. ${problem}`);
+            }
+            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+        }, signal_emitted);
     }
 }

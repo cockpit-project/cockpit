@@ -151,18 +151,6 @@ export class Dnf5DaemonManager implements PackageManager {
         if (pkgnames.length === 0)
             return data;
 
-        async function refresh(session: string) {
-            // refresh dnf5daemon state
-            await call(session, "org.rpm.dnf.v0.Base", "read_all_repos", []);
-            const [, resolve_result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as [unknown[], number];
-            if (resolve_result !== 0) {
-                const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
-                throw new ResolveError(`Resolving read_all_repos failed with result=${resolve_result} - ${problem}`);
-            }
-
-            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
-        }
-
         async function resolve(session: string) {
             const installed_names = new Set();
             const seen_names = new Set();
@@ -245,9 +233,9 @@ export class Dnf5DaemonManager implements PackageManager {
             }
         }
 
+        await this.refresh(false);
         await this.with_session(async (session) => {
             try {
-                await refresh(session);
                 await resolve(session);
                 await simulate(session);
             } catch (err) {
@@ -324,5 +312,19 @@ export class Dnf5DaemonManager implements PackageManager {
                 console.warn("install error", err);
             }
         }, signal_emitted);
+    }
+
+    async refresh(_force: boolean, _progress_cb?: ProgressCB): Promise<void> {
+        await this.with_session(async (session) => {
+            // refresh dnf5daemon state
+            await call(session, "org.rpm.dnf.v0.Base", "read_all_repos", []);
+            const [, resolve_result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as [unknown[], number];
+            if (resolve_result !== 0) {
+                const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
+                throw new ResolveError(`Resolving read_all_repos failed with result=${resolve_result} - ${problem}`);
+            }
+
+            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+        });
     }
 }

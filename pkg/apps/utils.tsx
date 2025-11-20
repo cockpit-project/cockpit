@@ -92,6 +92,34 @@ export const CancelButton = ({ data }: { data: JobProgress }) => (
         {_("Cancel")}
     </Button>);
 
+type ProgressCallback = (data: JobProgress) => void
+
+export class ProgressReporter {
+    base: number;
+    range: number;
+    percentage: number;
+    callback: ProgressCallback;
+
+    constructor(base: number, range: number, callback: ProgressCallback) {
+        this.base = base;
+        this.range = range;
+        this.callback = callback;
+        this.percentage = 0;
+        this.progress_reporter = this.progress_reporter.bind(this);
+    }
+
+    progress_reporter(data: JobProgress) {
+        if (data.percentage >= 0) {
+            const newPercentage = this.base + data.percentage / 100 * this.range;
+            // PackageKit with Apt backend reports wrong percentages https://github.com/PackageKit/PackageKit/issues/516
+            // Double check here that we have an increasing only progress value
+            if (this.percentage == undefined || newPercentage >= this.percentage)
+                this.percentage = newPercentage;
+        }
+        this.callback({ ...data, percentage: this.percentage });
+    }
+}
+
 // ex is a PackageKit error; requires typing pkg/lib/packagekit.js first
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const show_error = (ex: any) => {
@@ -142,3 +170,7 @@ export const launch = (comp: Component) => {
         }
     }
 };
+
+export function reload_bridge_packages() {
+    return cockpit.dbus(null, { bus: "internal" }).call("/packages", "cockpit.Packages", "Reload", []);
+}

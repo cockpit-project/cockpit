@@ -17,32 +17,8 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import cockpit from "cockpit";
 import * as PK from "packagekit.js";
-
-class ProgressReporter {
-    constructor(base, range, callback) {
-        this.base = base;
-        this.range = range;
-        this.callback = callback;
-        this.progress_reporter = this.progress_reporter.bind(this);
-    }
-
-    progress_reporter(data) {
-        if (data.percentage >= 0) {
-            const newPercentage = this.base + data.percentage / 100 * this.range;
-            // PackageKit with Apt backend reports wrong percentages https://github.com/PackageKit/PackageKit/issues/516
-            // Double check here that we have an increasing only progress value
-            if (this.percentage == undefined || newPercentage >= this.percentage)
-                this.percentage = newPercentage;
-        }
-        this.callback({ ...data, percentage: this.percentage });
-    }
-}
-
-function reload_bridge_packages() {
-    return cockpit.dbus(null, { bus: "internal" }).call("/packages", "cockpit.Packages", "Reload", []);
-}
+import { reload_bridge_packages, ProgressReporter } from "./utils";
 
 export function install(name, progress_cb) {
     const progress = new ProgressReporter(0, 100, progress_cb);

@@ -10,13 +10,15 @@ actions:
     - tools/fix-spec ./cockpit.spec 0
 
   create-archive:
-    - tools/make-dist
+    # temporary hack: not using the -node tarball yet, that requires spec changes; that's the next step
+    - sh -c 'tools/make-dist | grep "cockpit-[1-9].*[.]tar[.]xz"'
 
 srpm_build_deps:
   - automake
   - gcc
   - gettext
   - glib2-devel
+  - jq
   - make
   - nodejs
   - systemd-devel

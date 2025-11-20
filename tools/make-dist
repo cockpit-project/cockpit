@@ -1,7 +1,8 @@
 #!/bin/sh
 
 set -eu
-cd "$(realpath -m "$0"/../..)"
+ROOT_DIR=$(realpath -m "$0"/../..)
+cd "$ROOT_DIR"
 
 message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
 
@@ -50,4 +51,10 @@ fi
 
 # Do the actual build
 make -s -j"$(nproc)" XZ_OPT='-0' VERSION="${VERSION}" "$@" dist >&2
-realpath cockpit-${VERSION}.tar.xz  # (only) result to stdout
+
+"${ROOT_DIR}/tools/node-modules" runtime-tar cockpit-node-"${VERSION}".tar.xz >&2
+
+# Output tarball paths to stdout (only)
+realpath "cockpit-${VERSION}.tar.xz"
+# node-modules changes to project root
+realpath "${ROOT_DIR}/cockpit-node-${VERSION}.tar.xz"

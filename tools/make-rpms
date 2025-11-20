@@ -56,7 +56,8 @@ if [ $# -gt 1 ]; then
 fi
 
 if [ -z "${1-}" ]; then
-    source="$("$base/tools/make-dist")"
+    # only use the main release tarball for now
+    source="$("$base/tools/make-dist" | head -n1)"
 else
     source="$1"
 fi

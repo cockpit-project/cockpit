@@ -18,7 +18,7 @@
 
 set -euf
 
-mydir=$(dirname $(realpath "$0"))
+mydir=$(dirname "$(realpath "$0")")
 
 usage()
 {
@@ -69,7 +69,7 @@ tar --strip-components=1 -xf "$source"
 cp -r tools/debian .
 # plug in our version
 sed -i "1 s/(0-/(${version}-/" debian/changelog
-dpkg-buildpackage -us -uc -b -j$(nproc)
+dpkg-buildpackage -us -uc -b -j"$(nproc)"
 cd -
 
 find "$builddir"/.. -name '*.deb' -printf '%f\n' -exec mv {} . \;

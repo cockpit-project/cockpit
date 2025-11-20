@@ -18,7 +18,7 @@
 
 set -euf
 
-base=$(cd $(dirname $0)/../; pwd -P)
+base=$(cd "$(dirname "$0")/../"; pwd -P)
 
 usage()
 {
@@ -61,11 +61,11 @@ else
     source="$1"
 fi
 
-tmpdir=$(mktemp -d $PWD/rpm-build.XXXXXX)
+tmpdir=$(mktemp -d "$PWD/rpm-build.XXXXXX")
 rpmbuild $check $quiet \
     --define "_topdir $tmpdir" \
     --define "_rpmdir $tmpdir/output" \
     -tb "$source"
 
-find $tmpdir/output -name '*.rpm' -printf '%f\n' -exec mv {} . \;
-rm -r $tmpdir
+find "$tmpdir/output" -name '*.rpm' -printf '%f\n' -exec mv {} . \;
+rm -r "$tmpdir"

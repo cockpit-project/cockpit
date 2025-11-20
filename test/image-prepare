@@ -24,6 +24,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
 
 from lib import testmap
@@ -36,7 +37,7 @@ BOTS_DIR = f'{BASE_DIR}/bots'
 
 
 @contextmanager
-def create_machine(image):
+def create_machine(image: str) -> Iterator[machine_virtual.VirtMachine]:
     subprocess.check_call([os.path.join(BOTS_DIR, "image-download"), image])
     network = machine_virtual.VirtNetwork(image=image)
     machine = machine_virtual.VirtMachine(image=image, networking=network.host(restrict=True))
@@ -48,7 +49,7 @@ def create_machine(image):
         machine.stop()
 
 
-def build_rpms(dist_tar, machine, verbose, quick):
+def build_rpms(dist_tar: str, machine: machine_virtual.VirtMachine, *, verbose: bool, quick: bool) -> list[str]:
     """build RPMs from a tarball in an machine
 
     Return local rpm path list.
@@ -77,7 +78,7 @@ def build_rpms(dist_tar, machine, verbose, quick):
         shutil.rmtree(destdir)
     os.makedirs(destdir)
 
-    rpms = []
+    rpms: list[str] = []
     for rpm in vm_rpms:
         machine.download(rpm, destdir)
         rpms.append(os.path.join(destdir, os.path.basename(rpm)))
@@ -88,7 +89,7 @@ def build_rpms(dist_tar, machine, verbose, quick):
 # Helper functions to build image-customize options for various steps
 #
 
-def build_install_package(dist_tar, image):
+def build_install_package(dist_tar: str, image: str) -> list[str]:
     """Default rpm/deb/arch package build/install"""
 
     # our images have distro cockpit packages pre-installed, remove them
@@ -146,15 +147,15 @@ def build_install_package(dist_tar, image):
     return args
 
 
-def build_install_ostree(dist_tar, image, verbose, quick):
+def build_install_ostree(dist_tar: str, image: str, *, verbose: bool, quick: bool) -> list[str]:
     """Special treatment of build/install on CoreOS
 
     OSTree image can't build packages, build them on corresponding OSes and
     install them into the OSTree and the cockpit/ws container.
     """
     with create_machine(testmap.get_build_image(image)) as machine:
-        rpms = build_rpms(dist_tar, machine, verbose, quick)
-    args = []
+        rpms = build_rpms(dist_tar, machine, verbose=verbose, quick=quick)
+    args: list[str] = []
     for rpm in rpms:
         args += ["--upload", f"{rpm}:/var/tmp/"]
     args += [
@@ -165,14 +166,14 @@ def build_install_ostree(dist_tar, image, verbose, quick):
     return args
 
 
-def build_install_bootc(dist_tar, image, verbose, quick):
+def build_install_bootc(dist_tar: str, image: str, *, verbose: bool, quick: bool) -> list[str]:
     """Special treatment of build/install on Bootc
 
     bootc image can't build packages, build them on corresponding OSes, build a new bootc
     image with the rpms, and deploy it.
     """
     with create_machine(testmap.get_build_image(image)) as machine:
-        rpms = build_rpms(dist_tar, machine, verbose, quick)
+        rpms = build_rpms(dist_tar, machine, verbose=verbose, quick=quick)
     args = ["--run-command", "mkdir -p /var/tmp/rpms"]
     for rpm in rpms:
         if not any(r in rpm for r in [".src", "debug", "packagekit"]):
@@ -184,7 +185,7 @@ def build_install_bootc(dist_tar, image, verbose, quick):
     return args
 
 
-def build_install_container(dist_tar, verbose, quick):
+def build_install_container(dist_tar: str, *, verbose: bool, quick: bool) -> list[str]:
     """Build VM with cockpit/ws container
 
     This can test an image with beibooting from a cockpit/ws container, without
@@ -200,7 +201,7 @@ def build_install_container(dist_tar, verbose, quick):
             raise ValueError("failed to parse Fedora version from ws container")
 
     with create_machine(f"fedora-{fedora_version}") as m:
-        build_rpms(dist_tar, m, verbose, quick)
+        build_rpms(dist_tar, m, verbose=verbose, quick=quick)
         # copy the rpms and playground where ws-container.install expects them
         m.execute(r"find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm' -exec mv {} /var/tmp/ \;")
         m.execute("mkdir -p /var/tmp/install/usr/share/cockpit/")
@@ -222,7 +223,7 @@ def build_install_container(dist_tar, verbose, quick):
     ]
 
 
-def validate_packages():
+def validate_packages() -> list[str]:
     """Post-install package checks"""
 
     # check for files that are shipped by more than one RPM
@@ -239,7 +240,7 @@ def validate_packages():
             """]
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(
         description='Prepare testing environment, download images and build and install cockpit',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -270,11 +271,11 @@ def main():
     dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
 
     if args.image == "fedora-coreos":
-        customize += build_install_ostree(dist_tar, args.image, args.verbose, args.quick)
+        customize += build_install_ostree(dist_tar, args.image, verbose=args.verbose, quick=args.quick)
     elif args.image.endswith("-bootc"):
-        customize += build_install_bootc(dist_tar, args.image, args.verbose, args.quick)
+        customize += build_install_bootc(dist_tar, args.image, verbose=args.verbose, quick=args.quick)
     elif args.container:
-        customize += build_install_container(dist_tar, args.verbose, args.quick)
+        customize += build_install_container(dist_tar, verbose=args.verbose, quick=args.quick)
     else:
         customize += build_install_package(dist_tar, args.image)
 

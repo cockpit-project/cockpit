@@ -101,6 +101,8 @@ type TransactionItem = [
 
 type InstallResolveResult = [TransactionItem[], number]
 
+type SignalCB = (_path: string, _iface: string, signal: string, args: unknown[]) => void
+
 /**
  * Call a dnf5daemon method
  */
@@ -113,6 +115,27 @@ export class Dnf5DaemonManager implements PackageManager {
 
     constructor() {
         this.name = 'dnf5daemon';
+    }
+
+    private async with_session(executor: (session: string) => Promise<void>, signal_handler?: SignalCB): Promise<void> {
+        let session: string | null = null;
+        let subscription: { remove: () => void } | null = null;
+
+        const client = dbus_client();
+        if (signal_handler)
+            subscription = client.subscribe({}, signal_handler);
+
+        try {
+            session = await open_session();
+            await executor(session);
+        } finally {
+            if (session)
+                await close_session(session);
+            if (subscription)
+                subscription.remove();
+
+            client.close();
+        }
     }
 
     async check_missing_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<MissingPackages> {
@@ -222,26 +245,16 @@ export class Dnf5DaemonManager implements PackageManager {
             }
         }
 
-        let session: string | null = null;
-        const client = dbus_client();
-        const subscription = client.subscribe({}, signal_emitted);
-
-        try {
-            session = await open_session();
-            await refresh(session);
-            await resolve(session);
-            await simulate(session);
-        } catch (err) {
-            console.warn(err);
-            throw err;
-        } finally {
-            if (session)
-                await close_session(session);
-        }
-
-        subscription.remove();
-        // HACK: close the client so subscribe matches are actually dropped. https://github.com/cockpit-project/cockpit/issues/21905
-        client.close();
+        await this.with_session(async (session) => {
+            try {
+                await refresh(session);
+                await resolve(session);
+                await simulate(session);
+            } catch (err) {
+                console.warn("check_missing_packages", err);
+                throw err;
+            }
+        }, signal_emitted);
 
         return data;
     }
@@ -297,28 +310,19 @@ export class Dnf5DaemonManager implements PackageManager {
                 });
         }
 
-        const client = dbus_client();
-        const subscription = client.subscribe({}, signal_emitted);
-        let session: string | null = null;
+        await this.with_session(async (session) => {
+            try {
+                await call(session, "org.rpm.dnf.v0.rpm.Rpm", "install", [data.missing_names, {}]);
+                const [, resolve_result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]);
 
-        try {
-            session = await open_session();
-            await call(session, "org.rpm.dnf.v0.rpm.Rpm", "install", [data.missing_names, {}]);
-            const [, resolve_result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]);
-
-            if (resolve_result !== 0) {
-                const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
-                throw new ResolveError(`Resolving install failed with result=${resolve_result} ${problem}`);
+                if (resolve_result !== 0) {
+                    const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
+                    throw new ResolveError(`Resolving install failed with result=${resolve_result} ${problem}`);
+                }
+                await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+            } catch (err) {
+                console.warn("install error", err);
             }
-            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
-        } catch (err) {
-            console.warn("install error", err);
-        } finally {
-            if (session)
-                await close_session(session);
-        }
-
-        subscription.remove();
-        client.close();
+        }, signal_emitted);
     }
 }

@@ -327,4 +327,28 @@ export class Dnf5DaemonManager implements PackageManager {
             await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
         });
     }
+
+    async is_installed(pkgnames: string[]): Promise<boolean> {
+        const uninstalled = new Set(pkgnames);
+
+        await this.with_session(async (session) => {
+            const package_attrs = ["name", "is_installed"];
+
+            const [results] = await call(session, "org.rpm.dnf.v0.rpm.Rpm", "list", [
+                {
+                    package_attrs: { t: 'as', v: package_attrs },
+                    scope: { t: 's', v: "all" },
+                    patterns: { t: 'as', v: pkgnames }
+                }
+            ]) as ListPackage[][];
+
+            for (const pkg of results) {
+                if (pkg.is_installed.v) {
+                    uninstalled.delete(pkg.name.v);
+                }
+            }
+        });
+
+        return uninstalled.size === 0;
+    }
 }

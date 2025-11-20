@@ -534,7 +534,6 @@ export async function remove_packages(pkgnames, progress_cb) {
 
 /**
  * @param {string[]} pkgnames - packages to install
- * @param {?() => void} progress_cb - optional progress callback
  */
 export async function install_packages(pkgnames, progress_cb) {
     const flags = Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST;

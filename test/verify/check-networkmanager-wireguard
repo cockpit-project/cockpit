@@ -33,7 +33,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         iface_name = b.val("#network-wireguard-settings-interface-name-input")
         b.wait_visible("#network-wireguard-settings-save:disabled")
         if m1.image.startswith("rhel-8"):
-            b.wait_visible(".pf-v6-c-alert:contains('wireguard-tools package is not installed')")
+            b.wait_in_text(".pf-v6-c-alert", "wireguard-tools package is not installed")
             b.click("button:contains('Cancel')")
             b.wait_not_present("#network-ip-settings-dialog")
             b.wait_visible("#networking")
@@ -67,7 +67,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.set_input_text("#network-wireguard-settings-private-key-input", "incorrect key")
         b.set_input_text("#network-wireguard-settings-addresses-input", m1_ip4)
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('key must be 32 bytes base64 encoded')")
+        b.wait_in_text(".pf-v6-c-alert", "key must be 32 bytes base64 encoded")
         b.click("#network-wireguard-settings-generated-key")
 
         # check public-key
@@ -77,15 +77,15 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         # check listen-port
         b.set_input_text("#network-wireguard-settings-listen-port-input", "66000")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('out of range')")
+        b.wait_in_text(".pf-v6-c-alert", "out of range")
         b.set_input_text("#network-wireguard-settings-listen-port-input", "sometext")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Listen port must be a number')")
+        b.wait_in_text(".pf-v6-c-alert", "Listen port must be a number")
         b.set_input_text("#network-wireguard-settings-listen-port-input", str(m1_port))
 
         b.set_input_text("#network-wireguard-settings-addresses-input", "10.0.0.1/24/56")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Addresses are not formatted correctly')")
+        b.wait_in_text(".pf-v6-c-alert", "Addresses are not formatted correctly")
         b.set_input_text("#network-wireguard-settings-addresses-input", "10.0.0")
         b.click("#network-wireguard-settings-save")
         b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '10.0.0'")
@@ -97,7 +97,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '10'")
         b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4/")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Invalid prefix or netmask')")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid prefix or netmask")
         # older version of NM discards invalid address and applies correct addresses
         if m1.image != "ubuntu-2204":
             b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4  ,  5.6.7.8  1.2.3.4.5")
@@ -112,10 +112,10 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "   192.168.100.12  ")  # test that the extra spaces are trimmed
         b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"  {m2_ip4}  ")  # test that the extra spaces are trimmed
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Peer #1 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820')")
+        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint. It must be specified as host:port, e.g. 1.2.3.4:51820, [2001:db8::1]:51820 or example.com:51820")
         b.set_input_text("#network-wireguard-settings-endpoint-peer-0", "192.168.100.12:somestring")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Peer #1 has invalid endpoint port. Port must be a number.')")
+        b.wait_in_text(".pf-v6-c-alert", "Peer #1 has invalid endpoint port. Port must be a number.")
         b.click("button:contains('Add peer')")
         b.wait_visible("#network-wireguard-settings-peer-1")
         b.set_input_text("#network-wireguard-settings-publickey-peer-1", m2_pubkey)
@@ -148,7 +148,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
 
         if invalid_props_test:
             b.click("#network-wireguard-settings-save")
-            b.wait_visible(".pf-v6-c-alert:contains('has invalid allowed-ips')")
+            b.wait_in_text(".pf-v6-c-alert", "has invalid allowed-ips")
 
         b.set_input_text("#network-wireguard-settings-allowedips-peer-0", m2_ip4)
         b.click("#network-wireguard-settings-save")
@@ -196,7 +196,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         # test IPv6 validation
         b.set_input_text("#network-wireguard-settings-addresses-input", "2001::1/128/64")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Addresses are not formatted correctly')")
+        b.wait_in_text(".pf-v6-c-alert", "Addresses are not formatted correctly")
         b.set_input_text("#network-wireguard-settings-addresses-input", "2001:1/64")
         b.click("#network-wireguard-settings-save")
         b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '2001:1'")
@@ -205,7 +205,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.wait_in_text(".pf-v6-c-alert", "Invalid IP address 'cafe:face:nope::1'")
         b.set_input_text("#network-wireguard-settings-addresses-input", "2001:db8:cafe::1/64/64")
         b.click("#network-wireguard-settings-save")
-        b.wait_visible(".pf-v6-c-alert:contains('Addresses are not formatted correctly')")
+        b.wait_in_text(".pf-v6-c-alert", "Addresses are not formatted correctly")
 
         # valid IPv6 now
         b.set_input_text("#network-wireguard-settings-addresses-input", f"{m1_ip4}/24, 1.2.3.4/32, {m1_ip6}/64")

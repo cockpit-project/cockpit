@@ -521,7 +521,7 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.edit_hosts()
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
-        b.wait_visible('#hosts_setup_server_dialog .pf-v6-c-modal-box__title:contains("Edit host")')
+        b.wait_text('#hosts_setup_server_dialog .pf-v6-c-modal-box__title', 'Edit host')
         b.set_input_text('#add-machine-user', 'hera')
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         with b.wait_timeout(30):

@@ -379,7 +379,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
             m.execute("mdadm --grow --bitmap=none /dev/md/md0; udevadm trigger /dev/md/md0")
 
         self.assertNotIn("bitmap", m.execute("mdadm --misc -D /dev/md/md0"))
-        b.wait_visible('.pf-v6-c-alert:contains("This MDRAID device has no write-intent bitmap")')
+        b.wait_in_text('.pf-v6-c-alert', 'This MDRAID device has no write-intent bitmap')
         b.click('button:contains("Add a bitmap")')
         b.wait_not_present('.pf-v6-c-alert:contains("This MDRAID device has no write-intent bitmap")')
         self.assertIn("Consistency Policy : bitmap", m.execute("mdadm --misc -D /dev/md/md0"))

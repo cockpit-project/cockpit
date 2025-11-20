@@ -28,15 +28,22 @@ import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import * as PackageKit from "./packagekit.js";
-import { icon_url, launch, ProgressBar, CancelButton } from "./utils";
+import { icon_url, launch, ProgressBar, CancelButton, reload_bridge_packages } from "./utils";
 
 import "./application.scss";
+import { getPackageManager } from "packagemanager.js";
 
 const _ = cockpit.gettext;
 
+async function install_package(pkgname, progress_cb) {
+    const packagemanager = await getPackageManager();
+    await packagemanager.install_packages([pkgname], progress_cb);
+    await reload_bridge_packages();
+}
+
 export const ActionButton = ({ comp, progress, action }) => {
     function install(comp) {
-        action(PackageKit.install, comp.pkgname, _("Installing"), comp.id);
+        action(install_package, comp.pkgname, _("Installing"), comp.id);
     }
 
     function remove(comp) {

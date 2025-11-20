@@ -20,12 +20,6 @@
 import * as PK from "packagekit.js";
 import { reload_bridge_packages, ProgressReporter } from "./utils";
 
-export function install(name, progress_cb) {
-    const progress = new ProgressReporter(0, 100, progress_cb);
-
-    return PK.install_packages([name], progress.progress_reporter).then(reload_bridge_packages);
-}
-
 export async function remove(name, progress_cb) {
     const progress = new ProgressReporter(0, 1, progress_cb);
     const pkgnames = await PK.find_file_packages([name], progress.progress_reporter);

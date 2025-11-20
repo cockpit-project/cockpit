@@ -411,31 +411,6 @@ export function check_missing_packages(names, progress_cb) {
 }
 
 /**
- * Check a list of packages whether they are installed.
- *
- * @param {string[]} names - names of packages which should be installed
- * @return {Promise<boolean>} true if packages are installed
- */
-export async function is_installed(names, progress_cb) {
-    const uninstalled = new Set(names);
-
-    if (uninstalled.size === 0)
-        return true;
-
-    await cancellableTransaction("Resolve",
-                                 [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, names],
-                                 progress_cb,
-                                 {
-                                     Package: (info, package_id) => {
-                                         const parts = package_id.split(";");
-                                         uninstalled.delete(parts[0]);
-                                     },
-                                 });
-
-    return uninstalled.size === 0;
-}
-
-/**
  * Check a list of packages whether they are available.
  *
  * @param {string[]} names - names of packages which should be available in the repositories

@@ -71,6 +71,8 @@ export interface PackageManager {
   refresh(force: boolean, progress_cb?: ProgressCB): Promise<void>;
   is_installed(pkgnames: string[]): Promise<boolean>;
   install_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void>;
+  remove_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void>;
+  find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]>;
 }
 
 export class UnsupportedError extends Error {

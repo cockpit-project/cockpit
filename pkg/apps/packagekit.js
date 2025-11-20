@@ -18,16 +18,7 @@
  */
 
 import * as PK from "packagekit.js";
-import { reload_bridge_packages, ProgressReporter } from "./utils";
-
-export async function remove(name, progress_cb) {
-    const progress = new ProgressReporter(0, 1, progress_cb);
-    const pkgnames = await PK.find_file_packages([name], progress.progress_reporter);
-    progress.base = 1;
-    progress.range = 99;
-    await PK.remove_packages(pkgnames, progress.progress_reporter);
-    await reload_bridge_packages();
-}
+import { ProgressReporter } from "./utils";
 
 export function refresh(origin_files, config_packages, data_packages, progress_cb) {
     const origin_pkgs = { };

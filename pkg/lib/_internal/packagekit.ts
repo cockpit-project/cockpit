@@ -51,4 +51,8 @@ export class PackageKitManager implements PackageManager {
 
         return PK.install_missing_packages(data, convert_progress_cb);
     }
+
+    async refresh(force: boolean, progress_cb?: ProgressCB): Promise<void> {
+        return PK.refresh(force, progress_cb);
+    }
 }

@@ -76,7 +76,7 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
         });
     }
 
-    // Render a description in the form returned by the AppsSream
+    // Render a description in the form returned by the AppStream
     // parser, which is a list of paragraphs and lists.
 
     function render_description(description) {

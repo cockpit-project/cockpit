@@ -392,7 +392,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # finish the package installation
         m.execute(f"touch {install_lockfile}")
 
-        b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+        b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
         # if restart checking is not present, reboot is recommended
         if any(fnmatch.fnmatch(m.image, img) for img in OSesWithoutTracer) and not any(
                 fnmatch.fnmatch(m.image, img) for img in OSesWithDnfRestart):
@@ -498,7 +498,7 @@ ExecStart=/usr/local/bin/{package} infinity
                 b.wait_in_text("#install-all", "Install all updates")
                 b.click("#install-all")
                 with b.wait_timeout(60):
-                    b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+                    b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
 
                 b.wait_visible("#ignore")
                 b.wait_visible(".updates-success-table")
@@ -629,7 +629,7 @@ ExecStart=/usr/local/bin/{package} infinity
 
         b.click("#install-all")
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
 
         # update required only a service restart
         b.wait_text(".update-success-table-title", "1 service needs to be restarted")
@@ -655,7 +655,7 @@ ExecStart=/usr/local/bin/{package} infinity
         b.wait_in_text("#status", "1 update available")
         b.click("#install-all")
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
 
         b.wait_text("#service-row .update-success-table-title", "1 service needs to be restarted")
         b.wait_visible("#manual-row .update-success-table-title")
@@ -729,7 +729,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_in_text("#install-all", "Install all updates")
         b.click("#install-all")
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
 
         b.wait_visible("#ignore")
         b.wait_visible(".updates-success-table")
@@ -883,7 +883,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_not_present("#available-updates button#install-kpatches")
         b.click("#available-updates button#install-security")
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
 
         # history on restart page should show the three security updates
         b.click(".pf-v6-c-expandable-section__toggle button")
@@ -922,7 +922,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # should have succeeded and show restart
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
         b.wait_visible("#ignore")
 
         # history on restart page should show the three non-security updates
@@ -1225,7 +1225,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.click("#available-updates button#install-all")
 
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
         b.click("#ignore")
 
         # should go back to updates overview, nothing pending any more
@@ -1277,7 +1277,7 @@ class TestWsUpdate(NoSubManCase):
         m.execute(f"touch {install_lockfile}")
 
         # should have succeeded and show restart page; cancel
-        b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+        b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
         b.click("#ignore")
         b.wait_in_text("#status", "System is up to date")
 
@@ -1766,7 +1766,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         b.click("#available-updates button#install-all")
         # wait until installation is finished
         with b.wait_timeout(60):
-            b.wait_visible(".pf-v6-c-empty-state__title:contains('Update was successful')")
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
         b.click("#ignore")
 
         if "dnf" in self.backend:

@@ -239,13 +239,13 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
 
         b.click("#journal-follow:contains('Pause')")
-        b.wait_visible("#journal-follow:contains('Resume')")
+        b.wait_in_text("#journal-follow", "Resume")
         m.execute("logger --tag test-stream Message 3")
         time.sleep(3)
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
 
         b.click("#journal-follow:contains('Resume')")
-        b.wait_visible("#journal-follow:contains('Pause')")
+        b.wait_in_text("#journal-follow", "Pause")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
         # This fails if all logs are reloaded
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")

@@ -49,7 +49,7 @@ class TestNetworkingMTU(netlib.NetworkCase):
         b.set_checked('#network-mtu-settings-custom', val=True)
         b.set_input_text("#network-mtu-settings-input", "-1500")
         b.click("button:contains('Save')")
-        b.wait_visible("#network-mtu-settings-error:contains('MTU must be a positive number')")
+        b.wait_in_text("#network-mtu-settings-error", "MTU must be a positive number")
         b.set_input_text('#network-mtu-settings-input', "1400")
         b.click("#network-mtu-settings-save")
         b.wait_not_present("#network-mtu-settings-dialog")

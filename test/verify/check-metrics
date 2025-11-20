@@ -1291,14 +1291,14 @@ BEGIN {{
 
         b.click("[aria-label='Network usage'] [data-interface='lo'] button")
         b.enter_page("/network")
-        b.wait_visible("#network-interface-name:contains('lo')")
+        b.wait_in_text("#network-interface-name", "lo")
         b.wait_in_text(".network-interface-details", "This device cannot be managed here.")
 
         b.go("/metrics")
         b.enter_page("/metrics")
         b.click("[aria-label='Network usage'] [data-interface='cockpittest1'] button")
         b.enter_page("/network")
-        b.wait_visible("#network-interface-name:contains('cockpittest1')")
+        b.wait_in_text("#network-interface-name", "cockpittest1")
         b.wait_in_text(".network-interface-details", "This device cannot be managed here.")
 
 

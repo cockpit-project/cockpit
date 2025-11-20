@@ -507,7 +507,7 @@ machine         : 8561
                     b.click('#hwinfo button:contains(Mitigations)')
 
                 if expect_smt_state is not None:
-                    b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+                    b.wait_in_text('#cpu-mitigations-dialog .nosmt-heading', 'nosmt')
                     b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                                    (":checked" if expect_smt_state else ":not(:checked)"))
 
@@ -581,7 +581,7 @@ fi
         # Switch back nosmt option
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
-        b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+        b.wait_in_text('#cpu-mitigations-dialog .nosmt-heading', 'nosmt')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (':not(:checked)' if self.expect_smt_default else ':checked'))
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
@@ -602,7 +602,7 @@ fi
         self.reboot()
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
-        b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
+        b.wait_in_text('#cpu-mitigations-dialog .nosmt-heading', 'nosmt')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
@@ -630,7 +630,7 @@ fi
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        b.wait_visible('#cpu-mitigations-dialog .pf-v6-c-alert__title:contains(No supported grub update mechanism found)')
+        b.wait_in_text('#cpu-mitigations-dialog .pf-v6-c-alert__title', 'No supported grub update mechanism found')
 
         self.allow_journal_messages('Sourcing file `/etc/default/grub.*',
                                     'Generating grub configuration file.*',
@@ -1103,7 +1103,7 @@ class TestSystemInfoTime(packagelib.PackageCase):
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
         b.click("#system_information_change_systime .pf-v6-c-form__group-label:contains('Set time') + div > .pf-v6-c-menu-toggle")
-        b.wait_visible("#change_systime button:contains('Automatically using NTP')")
+        b.wait_in_text("#change_systime", "Automatically using NTP")
         b.wait_not_present("#change_systime button:contains('Automatically using specific NTP servers')")
         b.wait_not_present("#change_systime button:contains('Automatically using additional NTP servers')")
 

@@ -2,5 +2,7 @@
 cockpit source: source-is-missing *pkg/static/login.html*
 cockpit source: source-is-missing *src/cockpit/data/fail.html*
 cockpit source: source-is-missing *src/common/fail.html*
-# dist/ is (pre-)built from pkg/ and node_modules, see ./build.js
+# upstream release tarballs ship pre-built dist/; package build removes it
 cockpit source: source-is-missing *dist/*
+# vendored build dependencies from orig-node.tar.xz, also contains pre-bundled files
+cockpit source: source-is-missing *node/*

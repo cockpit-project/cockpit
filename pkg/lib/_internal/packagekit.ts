@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, InstallProgressData } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, InstallProgressData, UpdateDetail, Update } from './packagemanager-abstract';
 import * as PK from "packagekit.js";
 
 const InstallProgressMap = {
@@ -95,5 +95,14 @@ export class PackageKitManager implements PackageManager {
 
     async find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]> {
         return PK.find_file_packages(files, progress_cb);
+    }
+
+    async get_updates<T extends boolean>(detail: T, progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]> {
+        const updates = await PK.get_updates(detail, progress_cb);
+        return updates as unknown as T extends true ? UpdateDetail[] : Update[];
+    }
+
+    async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, transaction_path?: string): Promise<void> {
+        return PK.update_packages(updates, progress_cb, transaction_path);
     }
 }

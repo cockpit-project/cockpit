@@ -17,12 +17,10 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import * as PK from "packagekit.js";
 import { ProgressReporter } from "./utils";
+import { getPackageManager } from "packagemanager";
 
-export function refresh(origin_files, config_packages, data_packages, progress_cb) {
-    const origin_pkgs = { };
-
+export async function refresh(origin_files, config_packages, data_packages, progress_cb) {
     /* In addition to refreshing the repository metadata, we also
      * update all packages that contain AppStream collection metadata.
      *
@@ -39,57 +37,41 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
      * repository metadata, and the second list contains packages that
      * contain AppStream data themselves.
      */
+    const packagemanager = await getPackageManager();
     const progress = new ProgressReporter(0, 1, progress_cb);
 
-    const search_origin_file_packages = () => {
-        return PK.find_file_packages(origin_files, progress.progress_reporter).then(packages => {
-            for (const pkgname of packages) {
-                origin_pkgs[pkgname] = true;
-            }
-        });
-    };
-
-    const refresh_cache = () => {
-        progress.base = 6;
-        progress.range = 69;
-
-        return PK.refresh(true, progress.progress_reporter);
-    };
-
-    const maybe_update_origin_file_packages = () => {
-        progress.base = 75;
+    if (config_packages.length > 0) {
+        progress.base = 0;
         progress.range = 5;
 
-        return PK.get_updates(false, progress.progress_reporter).then(updates => {
-            const filtered_updates = [];
+        await packagemanager.install_packages(config_packages, progress.progress_reporter);
+    }
 
-            for (const update of updates) {
-                if (update.name in origin_pkgs)
-                    filtered_updates.push(update);
-            }
+    const origin_pkgs = new Set(await packagemanager.find_file_packages(origin_files, progress.progress_reporter));
 
-            progress.base = 80;
-            progress.range = 15;
+    progress.base = 6;
+    progress.range = 69;
+    await packagemanager.refresh(true, progress.progress_reporter);
 
-            if (filtered_updates.length > 0)
-                return PK.update_packages(filtered_updates, progress.progress_reporter, null);
-        });
-    };
+    progress.base = 75;
+    progress.range = 5;
 
-    const ensure_packages = (pkgs, start_progress) => {
-        if (pkgs.length > 0) {
-            progress.base = start_progress;
-            progress.range = 5;
+    const updates = await packagemanager.get_updates(false, progress.progress_reporter);
+    const filtered_updates = [];
 
-            return PK.install_packages(pkgs, progress.progress_reporter);
-        } else {
-            return Promise.resolve();
-        }
-    };
+    for (const update of updates) {
+        if (origin_pkgs.has(update.name))
+            filtered_updates.push(update);
+    }
 
-    return ensure_packages(config_packages, 0)
-            .then(search_origin_file_packages)
-            .then(refresh_cache)
-            .then(maybe_update_origin_file_packages)
-            .then(() => ensure_packages(data_packages, 95));
+    progress.base = 80;
+    progress.range = 15;
+
+    if (filtered_updates.length > 0)
+        return packagemanager.update_packages(filtered_updates, progress.progress_reporter, null);
+
+    if (data_packages.length > 0) {
+        progress.range = 95;
+        await packagemanager.install_packages(data_packages, progress.progress_reporter);
+    }
 }

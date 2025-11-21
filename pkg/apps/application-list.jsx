@@ -33,12 +33,67 @@ import { read_os_release } from "os-release";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { useInit } from "hooks";
 
-import * as PackageKit from "./packagekit.js";
-import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils";
+import { ProgressReporter, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils";
 import { ActionButton } from "./application.jsx";
 import { getPackageManager } from "packagemanager.js";
 
 const _ = cockpit.gettext;
+
+async function refresh_appstream_metadata(origin_files, config_packages, data_packages, progress_cb) {
+    /* In addition to refreshing the repository metadata, we also
+     * update all packages that contain AppStream collection metadata.
+     *
+     * AppStream collection metadata is arguably part of the
+     * repository metadata and should be updated during a regular
+     * refresh of the repositories.  On some distributions this is
+     * what happens, but on others (such as Fedora), the collection
+     * metadata is delivered in packages.  We find them and update
+     * them explicitly.
+     *
+     * Also, we have two explicit lists of packages, and we make sure
+     * that they are installed.  The first list contains packages that
+     * configure the system to retrieve AppStream data as part of
+     * repository metadata, and the second list contains packages that
+     * contain AppStream data themselves.
+     */
+    const packagemanager = await getPackageManager();
+    const progress = new ProgressReporter(0, 1, progress_cb);
+
+    if (config_packages.length > 0) {
+        progress.base = 0;
+        progress.range = 5;
+
+        await packagemanager.install_packages(config_packages, progress.progress_reporter);
+    }
+
+    const origin_pkgs = new Set(await packagemanager.find_file_packages(origin_files, progress.progress_reporter));
+
+    progress.base = 6;
+    progress.range = 69;
+    await packagemanager.refresh(true, progress.progress_reporter);
+
+    progress.base = 75;
+    progress.range = 5;
+
+    const updates = await packagemanager.get_updates(false, progress.progress_reporter);
+    const filtered_updates = [];
+
+    for (const update of updates) {
+        if (origin_pkgs.has(update.name))
+            filtered_updates.push(update);
+    }
+
+    progress.base = 80;
+    progress.range = 15;
+
+    if (filtered_updates.length > 0)
+        return packagemanager.update_packages(filtered_updates, progress.progress_reporter, null);
+
+    if (data_packages.length > 0) {
+        progress.range = 95;
+        await packagemanager.install_packages(data_packages, progress.progress_reporter);
+    }
+}
 
 const ApplicationRow = ({ comp, progress, progress_title, action }) => {
     const [error, setError] = useState();
@@ -130,10 +185,10 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
     async function refresh() {
         const [configPackages, dataPackages] = await get_packages();
         try {
-            await PackageKit.refresh(metainfo_db.origin_files,
-                                     configPackages,
-                                     dataPackages,
-                                     setProgress);
+            await refresh_appstream_metadata(metainfo_db.origin_files,
+                                             configPackages,
+                                             dataPackages,
+                                             setProgress);
         } catch (e) {
             show_error(e);
         } finally {

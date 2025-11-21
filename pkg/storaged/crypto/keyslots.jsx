@@ -31,7 +31,6 @@ import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { EditIcon, MinusIcon, PlusIcon } from "@patternfly/react-icons";
 import { EmptyState, EmptyStateBody } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 
-import { check_missing_packages, install_missing_packages, Enum as PkEnum } from "packagekit";
 import { fmt_to_fragments } from "utils.jsx";
 import kernelopt_sh from "kernelopt.sh";
 
@@ -50,6 +49,7 @@ import { StorageButton } from "../storage-controls.jsx";
 
 import clevis_luks_passphrase_sh from "./clevis-luks-passphrase.sh";
 import { validate_url, get_tang_adv, TangKeyVerification } from "./tang.jsx";
+import { getPackageManager, InstallProgressType } from "packagemanager.js";
 
 const _ = cockpit.gettext;
 
@@ -253,9 +253,9 @@ function ensure_package_installed(steps, progress, package_name) {
                 text = _("Waiting for other software management operations to finish");
             } else if (p.package) {
                 let fmt;
-                if (p.info == PkEnum.INFO_DOWNLOADING)
+                if (p.info == InstallProgressType.DOWNLOADING)
                     fmt = _("Downloading $0");
-                else if (p.info == PkEnum.INFO_REMOVING)
+                else if (p.info == InstallProgressType.REMOVING)
                     fmt = _("Removing $0");
                 else
                     fmt = _("Installing $0");
@@ -266,33 +266,34 @@ function ensure_package_installed(steps, progress, package_name) {
     }
 
     progress(cockpit.format(_("Checking for $0 package"), package_name), null);
-    return check_missing_packages([package_name], null)
-            .then(data => {
-                progress(null, null);
-                if (data.missing_names.length + data.unavailable_names.length > 0)
-                    steps.push({
-                        title: cockpit.format(_("The $0 package must be installed."), package_name),
-                        func: progress => {
-                            if (data.remove_names.length > 0)
-                                return Promise.reject(cockpit.format(_("Installing $0 would remove $1."), name, data.remove_names[0]));
-                            else if (data.unavailable_names.length > 0)
-                                return Promise.reject(cockpit.format(_("The $0 package is not available from any repository."), name));
-                            else
-                                return install_missing_packages(data, status_callback(progress));
-                        }
-                    });
-            })
+    return getPackageManager().then(pk => {
+        return pk.check_missing_packages([package_name]).then(data => {
+            progress(null, null);
+            if (data.missing_names.length + data.unavailable_names.length > 0)
+                steps.push({
+                    title: cockpit.format(_("The $0 package must be installed."), package_name),
+                    func: progress => {
+                        if (data.remove_names.length > 0)
+                            return Promise.reject(cockpit.format(_("Installing $0 would remove $1."), name, data.remove_names[0]));
+                        else if (data.unavailable_names.length > 0)
+                            return Promise.reject(cockpit.format(_("The $0 package is not available from any repository."), name));
+                        else
+                            return pk.install_missing_packages(data, status_callback(progress));
+                    }
+                });
+        });
+    })
             .catch(error => {
-            // Something wrong with PackageKit, maybe it is not even
+            // Something wrong with PackageKit or dnf5daemon, maybe it is not even
             // installed.  Let's show the error during fixing.
                 progress(null, null);
                 steps.push({
                     title: cockpit.format(_("The $0 package must be installed."), package_name),
                     func: progress => {
                         if (error.problem == "not-found") {
-                            return Promise.reject(cockpit.format(_("Error installing $0: PackageKit is not installed"), package_name));
+                            return Promise.reject(cockpit.format(_("Error installing $0: PackageKit or dnf5daemon-server is not installed"), package_name));
                         } else {
-                            return Promise.reject(cockpit.format(_("Unexpected PackageKit error during installation of $0: $1"), package_name, error.toString())); // not-covered: OS error
+                            return Promise.reject(cockpit.format(_("Unexpected PackageManager error during installation of $0: $1"), package_name, error.toString())); // not-covered: OS error
                         }
                     }
                 });

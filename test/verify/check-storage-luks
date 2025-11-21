@@ -655,6 +655,8 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
             # Break things again, including PackageKit
             m.execute("if type dnf; then dnf remove -y clevis-systemd; else apt-get purge -y clevis-systemd; fi")
             m.execute("systemctl mask --now packagekit")
+            if m.image.startswith("fedora-"):
+                m.execute("systemctl mask --now dnf5daemon-server")
 
         # Add a second key, this should try to fix things again, but
         # we have to help with the package install
@@ -673,7 +675,7 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
                 b.wait_in_text("#dialog", "Add Network Bound Disk Encryption")
                 b.wait_in_text("#dialog", "The clevis-systemd package must be installed")
                 self.dialog_apply()
-                b.wait_in_text("#dialog", "PackageKit is not installed")
+                b.wait_in_text("#dialog", "PackageKit or dnf5daemon-server is not installed")
                 self.dialog_cancel()
                 self.dialog_wait_close()
 

@@ -121,6 +121,20 @@ async function build() {
         }
     })();
 
+    // Check if qunit is available
+    const qunitAvailable = await (async () => {
+        try {
+            await import('qunit');
+            return true;
+        } catch (e) {
+            if (e.code === 'ERR_MODULE_NOT_FOUND') {
+                console.log('qunit not found, skipping test builds');
+                return false;
+            }
+            throw e;
+        }
+    })();
+
     const sassPlugin = (await import('esbuild-sass-plugin')).sassPlugin;
 
     const cleanPlugin = (await import('./pkg/lib/esbuild-cleanup-plugin.js')).cleanPlugin;
@@ -205,17 +219,19 @@ async function build() {
         }
 
         // build all tests in one go, they are small enough
-        console.log("building qunit tests");
-        const context = await esbuild.context({
-            ...qunitOptions,
-            entryPoints: testEntryPoints,
-            plugins: [
-                cockpitTestHtmlPlugin({ testFiles: tests }),
-            ],
-        });
+        if (qunitAvailable) {
+            console.log("building qunit tests");
+            const context = await esbuild.context({
+                ...qunitOptions,
+                entryPoints: testEntryPoints,
+                plugins: [
+                    cockpitTestHtmlPlugin({ testFiles: tests }),
+                ],
+            });
 
-        await context.rebuild();
-        context.dispose();
+            await context.rebuild();
+            context.dispose();
+        }
     } else {
         // with native esbuild, build everything in one go, that's fastest
         const pkgContext = await esbuild.context({
@@ -224,16 +240,18 @@ async function build() {
             plugins: [...pkgFirstPlugins, ...pkgPlugins, ...pkgLastPlugins],
         });
 
-        const qunitContext = await esbuild.context({
-            ...qunitOptions,
-            entryPoints: testEntryPoints,
-            plugins: [
-                cockpitTestHtmlPlugin({ testFiles: tests }),
-            ],
-        });
+        const qunitContext = qunitAvailable
+            ? await esbuild.context({
+                ...qunitOptions,
+                entryPoints: testEntryPoints,
+                plugins: [
+                    cockpitTestHtmlPlugin({ testFiles: tests }),
+                ],
+            })
+            : null;
 
         try {
-            const results = await Promise.all([pkgContext.rebuild(), qunitContext.rebuild()]);
+            const results = await Promise.all([pkgContext.rebuild(), qunitContext?.rebuild()]);
             // skip metafile and runtime module calculation in watch and onlydir modes
             if (!args.watch && !args.onlydir) {
                 fs.writeFileSync('metafile.json', JSON.stringify(results[0].metafile));
@@ -269,9 +287,9 @@ async function build() {
         if (args.watch) {
             const on_change = async path => {
                 console.log("change detected:", path);
-                await Promise.all([pkgContext.cancel(), qunitContext.cancel()]);
+                await Promise.all([pkgContext.cancel(), qunitContext?.cancel()]);
                 try {
-                    await Promise.all([pkgContext.rebuild(), qunitContext.rebuild()]);
+                    await Promise.all([pkgContext.rebuild(), qunitContext?.rebuild()]);
                 } catch (e) {} // ignore in watch mode
             };
 
@@ -281,7 +299,7 @@ async function build() {
         }
 
         pkgContext.dispose();
-        qunitContext.dispose();
+        qunitContext?.dispose();
     }
 }
 

@@ -2,6 +2,7 @@
     "conditions": [
         {"path-exists": "/usr/bin/cockpit-bridge"},
         {"path-exists": "/lib/systemd/system/packagekit.service"},
+        {"any": [{"path-exists": "/lib/systemd/system/packagekit.service"}, {"path-exists": "/lib/systemd/system/dnf5daemon-server.service"}]},
         {"path-not-exists": "/sysroot/ostree"}
     ],
     "tools": {

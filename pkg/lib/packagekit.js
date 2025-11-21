@@ -436,27 +436,6 @@ export async function is_available(names, progress_cb) {
     return available.size === new Set(names).size;
 }
 
-/**
- * Find installed packages that own the given files.
- *
- * @param {string[]} files - the files to resolve to packages
- * @return {Promise<string[]>} installed package names
- */
-export async function find_file_packages(files, progress_cb) {
-    const installed = [];
-    await cancellableTransaction("SearchFiles",
-                                 [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, files],
-                                 progress_cb,
-                                 {
-                                     Package: (info, package_id) => {
-                                         const pkg = package_id.split(";")[0];
-                                         installed.push(pkg);
-                                     },
-                                 });
-
-    return installed;
-}
-
 /* Carry out what check_missing_packages has planned.
  *
  * In addition to the usual "waiting", "percentage", and "cancel"
@@ -511,28 +490,6 @@ export function getBackendName() {
  */
 export function refresh(force = false, progress_cb) {
     return cancellableTransaction("RefreshCache", [force], progress_cb);
-}
-
-/**
- * @param {string[]} pkgnames - packages to install
- */
-export async function install_packages(pkgnames, progress_cb) {
-    const flags = Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST;
-    const ids = [];
-
-    await cancellableTransaction("Resolve", [flags | Enum.FILTER_NOT_INSTALLED, Array.from(pkgnames)], null,
-                                 {
-                                     Package: (_info, package_id) => ids.push(package_id),
-                                 });
-
-    if (ids.length === 0)
-        return Promise.reject(new TransactionError("not-found", "Can't resolve package(s)"));
-    else
-        return cancellableTransaction("InstallPackages", [0, ids], progress_cb)
-                .catch(ex => {
-                    if (ex.code != Enum.ERROR_ALREADY_INSTALLED)
-                        return Promise.reject(ex);
-                });
 }
 
 /**

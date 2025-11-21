@@ -76,7 +76,22 @@ export class PackageKitManager implements PackageManager {
     }
 
     async install_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
-        return PK.install_packages(pkgnames, progress_cb);
+        const flags = PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST;
+        const ids: string[] = [];
+
+        await PK.cancellableTransaction("Resolve", [flags | PK.Enum.FILTER_NOT_INSTALLED, Array.from(pkgnames)], null,
+                                        {
+                                            Package: (_info: unknown, package_id: string) => ids.push(package_id),
+                                        });
+
+        if (ids.length === 0)
+            return Promise.reject(new PK.TransactionError("not-found", "Can't resolve package(s)"));
+        else
+            return PK.cancellableTransaction("InstallPackages", [0, ids], progress_cb)
+                    .catch(ex => {
+                        if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
+                            return Promise.reject(ex);
+                    });
     }
 
     async remove_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
@@ -94,7 +109,18 @@ export class PackageKitManager implements PackageManager {
     }
 
     async find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]> {
-        return PK.find_file_packages(files, progress_cb);
+        const installed: string[] = [];
+        await PK.cancellableTransaction("SearchFiles",
+                                        [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_INSTALLED, files],
+                                        progress_cb,
+                                        {
+                                            Package: (_info: unknown, package_id: string) => {
+                                                const pkg = package_id.split(";")[0];
+                                                installed.push(pkg);
+                                            },
+                                        });
+
+        return installed;
     }
 
     async get_updates<T extends boolean>(detail: T, progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]> {

@@ -2,6 +2,7 @@
 
 import child_process from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -104,7 +105,21 @@ function watch_dirs(dir, on_change) {
 
 async function build() {
     // dynamic imports which need node_modules
-    const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
+    const esbuild = await (async () => {
+        try {
+            // Try node_modules first for installs with devDependencies
+            return (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
+        } catch (e) {
+            if (e.code !== 'ERR_MODULE_NOT_FOUND')
+                throw e;
+
+            // Fall back to distro package (e.g. Debian's /usr/lib/*/nodejs/esbuild)
+            // Use createRequire to leverage Node's module resolution which searches system paths
+            // Use require.resolve to find esbuild in system paths, then import it
+            const require = createRequire(import.meta.url);
+            return (await import(require.resolve('esbuild'))).default;
+        }
+    })();
 
     const sassPlugin = (await import('esbuild-sass-plugin')).sassPlugin;
 

@@ -24,7 +24,7 @@ jobs:
         run: flatpak install --assumeyes --user org.flatpak.Builder
 
       - name: Clone repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           # need this to also fetch tags
           fetch-depth: 0

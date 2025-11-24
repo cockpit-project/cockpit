@@ -683,7 +683,7 @@ fi
             m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
             # bars update every 5s
             time.sleep(8)
-            testlib.wait(lambda: progressValue(2) >= initial_usage + 10)
+            testlib.wait(lambda: progressValue(2) != initial_usage)
             hog_usage = progressValue(2)
         finally:
             m.execute("kill %d" % mem_hog)

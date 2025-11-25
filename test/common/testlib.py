@@ -1200,6 +1200,18 @@ class Browser:
         assert m is not None
         return int(m.group(1))
 
+    def get_raw_pf_progress_value(self, progress_bar_sel: str) -> int:
+        """
+        Get raw numeric value of a PatternFly <ProgressBar> component
+
+        Value from aria-valuenow which is set by PatternFly
+        """
+        sel = progress_bar_sel + " .pf-v6-c-progress__bar"
+        self.wait_visible(f"{sel}[aria-valuenow]")
+        component_value = self.attr(sel, "aria-valuenow")
+        assert component_value is not None
+        return int(component_value)
+
     def start_machine_troubleshoot(
         self,
         new: bool = False,

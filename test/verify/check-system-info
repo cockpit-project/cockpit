@@ -40,6 +40,9 @@ echo 'Core(s) per socket:  4'
 echo 'Socket(s):           1'
 """
 
+# Helper for MB size when handling raw bytes.
+MB = 1024**2
+
 
 def ssh_reconnect(machine, timeout_sec=120):
     start_time = time.time()
@@ -648,27 +651,43 @@ fi
         m.execute("systemctl mask packagekit")
         self.addCleanup(m.execute, "systemctl unmask packagekit")
 
-        def progressValue(number):
+        def progressUsage(number):
             return b.get_pf_progress_value(f".system-usage tr:nth-child({number})")
+
+        def progressUsageRaw(number):
+            return b.get_raw_pf_progress_value(f".system-usage tr:nth-child({number})")
+
+        def cpuUsage(raw: bool = False):
+            if raw:
+                return progressUsageRaw(1)
+            else:
+                return progressUsage(1)
+
+        def memoryUsage(raw: bool = False):
+            if raw:
+                return progressUsageRaw(2)
+            else:
+                return progressUsage(2)
 
         self.login_and_go("/system")
 
         # CPU
         # first wait until system settles down
-        testlib.wait(lambda: progressValue(1) < 20)
+        testlib.wait(lambda: cpuUsage() < 20)
         m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done; touch /tmp/cpu_hog", "cpu_hog.log")
         m.execute("while [ ! -e /tmp/cpu_hog ]; do sleep 1; done")
-        testlib.wait(lambda: progressValue(1) > 75)
+        testlib.wait(lambda: cpuUsage() > 75)
         m.execute("pkill -e -f [c]at.*urandom; rm -f /tmp/cpu_hog")
         # should go back to idle usage
         # HACK: work around pmie CPU usage https://bugzilla.redhat.com/show_bug.cgi?id=2140572
-        testlib.wait(lambda: progressValue(1) < 20, tries=200)
+        testlib.wait(lambda: cpuUsage() < 20, tries=200)
 
         # memory: our test machines should use a reasonable chunk of available memory; MiB or GiB
         b.wait_in_text(".system-usage tr:nth-child(2)", "iB")
-        initial_usage = progressValue(2)
-        self.assertGreater(initial_usage, 10)
-        self.assertLess(initial_usage, 80)
+        initial_usage = memoryUsage(raw=True)
+        max_memory = int(b.attr(".system-usage tr:nth-child(2) .pf-v6-c-progress__bar", "aria-valuemax"))
+        self.assertGreater(initial_usage, 10 * MB)
+        self.assertLess(initial_usage, max_memory * 0.9)
         # allocate an extra 200 MB; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
         #
@@ -683,19 +702,19 @@ fi
             m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
             # bars update every 5s
             time.sleep(8)
-            testlib.wait(lambda: progressValue(2) >= initial_usage + 10)
-            hog_usage = progressValue(2)
+            testlib.wait(lambda: memoryUsage(raw=True) >= initial_usage + 10 * MB)
+            hog_usage = memoryUsage()
         finally:
             m.execute("kill %d" % mem_hog)
         # Should go back to initial_usage, but it doesn't always, for example on fedora.
         # So let's be happy if the usage drops significantly
         try:
-            testlib.wait(lambda: progressValue(2) <= hog_usage - 10)
+            testlib.wait(lambda: memoryUsage() <= hog_usage - 10)
         except testlib.Error:
-            print(f"Memory before hogging: {initial_usage}, after hogging: {hog_usage}, now: {progressValue(2)}")
+            print(f"Memory before hogging: {initial_usage}, after hogging: {hog_usage}, now: {memoryUsage()}")
             raise
 
-        self.assertGreater(progressValue(2), 10)
+        self.assertGreater(memoryUsage(), 10)
 
     @testlib.nondestructive
     def testShutdownStatus(self):

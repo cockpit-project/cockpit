@@ -154,9 +154,10 @@ cmd_runtime_tar() {
     # Validate that we only have architecture independent files
     # special-case node_modules/iconv-lite/encodings/sbcs-data-generated.js, it's JS with binary strings in it
     # and resolve/test/resolver/cup.coffee which is a single-byte test file
+    # Ubuntu 24.04's file (or at least not that in the GitHub actions runner) does not detect *.woff2 file type properly
     for pkg in $runtime_pkgs; do
         if find "$pkg" -type f -print0 | xargs -0 file --mime |
-           grep -Ev "text/|inode/x-empty|application/(javascript|json)|font/|image/|sbcs-data-generated.js|cup.coffee"; then
+           grep -Ev 'text/|inode/x-empty|application/(javascript|json)|font/|image/|sbcs-data-generated.js|cup.coffee|\.woff'; then
             echo "Error: package '$pkg' contains architecture dependent files, cannot include in runtime tarball" >&2
             exit 1
         fi

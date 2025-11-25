@@ -117,6 +117,7 @@ export class UsageCard extends React.Component {
         }
 
         this.setState({ memUsed: this.samples[3], memUsedText: used_text });
+        console.log("this.samples[3]", this.samples[3])
     }
 
     render() {
@@ -145,9 +146,10 @@ export class UsageCard extends React.Component {
                                 <th className="pf-v6-c-table__th" id="system-usage-memory-progress" scope="row">{_("Memory")}</th>
                                 <td className="pf-v6-c-table__td">
                                     <Progress value={this.state.memUsed}
+                                        data-ouia-component-value={this.state.memUsed}
                                         className="pf-m-sm"
                                         min={0} max={this.state.memTotal}
-                                        variant={fraction > 0.9 ? ProgressVariant.danger : null}
+                                        variant={fraction > 0.9 ? ProgressVariant.danger : undefined}
                                         aria-labelledby="system-usage-memory-progress"
                                         label={this.state.memUsedText}
                                         measureLocation={ProgressMeasureLocation.outside} />

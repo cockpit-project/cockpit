@@ -842,7 +842,7 @@ ipa-advise enable-admins-sudo | sh -ex
         # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
         # and there is no ccache.
         b.enter_page("/system", "x0.cockpit.lan")
-        b.wait_in_text(".pf-v6-c-alert", "Web console is running in limited access mode.")
+        b.wait_in_text(".ct-limited-access-alert", "Web console is running in limited access mode.")
         b.wait_not_present("#reboot-button")
 
         # S4U proxy ticket gets cleaned up on logout

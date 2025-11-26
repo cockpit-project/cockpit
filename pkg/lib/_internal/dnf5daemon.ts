@@ -176,7 +176,7 @@ export class Dnf5DaemonManager implements PackageManager {
             if (subscription)
                 subscription.remove();
 
-            client.close();
+            // client.close();
         }
     }
 

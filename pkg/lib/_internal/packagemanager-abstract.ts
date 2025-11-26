@@ -21,7 +21,7 @@ export interface ProgressData {
     // PackageManager waits on a lock or another operation to finish
     waiting: boolean
     // If not null, the operation can be cancelled
-    cancel?: (() => void) | null
+    cancel: (() => void) | null
     // Transaction percentage
     percentage: number
 }

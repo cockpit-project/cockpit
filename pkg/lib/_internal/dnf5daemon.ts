@@ -490,7 +490,7 @@ export class Dnf5DaemonManager implements PackageManager {
 
             // HACK: no usable progress event, but we need to send something to make refresh work.
             if (progress_cb)
-                progress_cb({ percentage: 100, waiting: false });
+                progress_cb({ percentage: 100, waiting: false, cancel: null });
         });
 
         return installed;

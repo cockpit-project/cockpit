@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, InstallProgressData, UpdateDetail, Update } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateDetail, Update, ProgressData } from './packagemanager-abstract';
 import * as PK from "packagekit.js";
 
 const InstallProgressMap = {
@@ -40,16 +40,45 @@ export class PackageKitManager implements PackageManager {
         return PK.check_missing_packages(pkgnames, progress_cb);
     }
 
+    /* Carry out what check_missing_packages has planned.
+     *
+     * In addition to the usual "waiting", "percentage", and "cancel"
+     * fields, the object reported by progress_cb also includes "info" and
+     * "package" from the "Package" signal.
+     */
     async install_missing_packages(data: MissingPackages, progress_cb?: InstallProgressCB): Promise<void> {
-        // Maps PackageKit state to our own PackageManager state temporary
-        // until all pkg/lib/packagekit use cases are supported by the PackageManager abstraction.
-        function convert_progress_cb(data: InstallProgressData) {
-            data.info = InstallProgressMap[data.info];
-            if (progress_cb)
-                progress_cb(data);
+        if (!data || data.missing_ids.length === 0)
+            return;
+
+        let last_progress: ProgressData | null = null;
+        let last_info = 0;
+        let last_name = "";
+
+        function report_progess() {
+            if (progress_cb && last_progress !== null)
+                progress_cb({
+                    waiting: last_progress.waiting,
+                    percentage: last_progress.percentage,
+                    cancel: last_progress.cancel,
+                    info: InstallProgressMap[last_info],
+                    // Maps PackageKit state to our own PackageManager state temporary
+                    // until all pkg/lib/packagekit use cases are supported by the PackageManager abstraction.
+                    package: last_name
+                });
         }
 
-        return PK.install_missing_packages(data, convert_progress_cb);
+        await PK.cancellableTransaction("InstallPackages", [0, data.missing_ids],
+                                        (p: ProgressData) => {
+                                            last_progress = p;
+                                            report_progess();
+                                        },
+                                        {
+                                            Package: (info: number, id: string) => {
+                                                last_info = info;
+                                                last_name = id.split(";")[0];
+                                                report_progess();
+                                            }
+                                        });
     }
 
     async refresh(force: boolean, progress_cb?: ProgressCB): Promise<void> {

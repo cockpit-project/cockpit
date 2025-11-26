@@ -436,45 +436,6 @@ export async function is_available(names, progress_cb) {
     return available.size === new Set(names).size;
 }
 
-/* Carry out what check_missing_packages has planned.
- *
- * In addition to the usual "waiting", "percentage", and "cancel"
- * fields, the object reported by progress_cb also includes "info" and
- * "package" from the "Package" signal.
- */
-
-export function install_missing_packages(data, progress_cb) {
-    if (!data || data.missing_ids.length === 0)
-        return Promise.resolve();
-
-    let last_progress;
-    let last_info;
-    let last_name;
-
-    function report_progess() {
-        progress_cb({
-            waiting: last_progress.waiting,
-            percentage: last_progress.percentage,
-            cancel: last_progress.cancel,
-            info: last_info,
-            package: last_name
-        });
-    }
-
-    return cancellableTransaction("InstallPackages", [0, data.missing_ids],
-                                  p => {
-                                      last_progress = p;
-                                      report_progess();
-                                  },
-                                  {
-                                      Package: (info, id) => {
-                                          last_info = info;
-                                          last_name = id.split(";")[0];
-                                          report_progess();
-                                      }
-                                  });
-}
-
 /**
  * Get the used backendName in PackageKit.
  */

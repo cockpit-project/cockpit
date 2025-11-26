@@ -353,8 +353,10 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.go("/network")
         # Create a bridge interface and disable it to test if disabled connections can be modified.
         # Connection exists, is down and the device itself does not exist as long as the connection is down
-        m.execute("nmcli con add con-name cockpitbr type bridge ifname cockpitbr && nmcli con down cockpitbr")
+        m.execute("nmcli con add con-name cockpitbr type bridge ifname cockpitbr ipv4.meth disab ipv6.meth disab")
         self.addCleanup(m.execute, "nmcli con del cockpitbr")
+        self.wait_for_iface("cockpitbr", prefix="No carrier")
+        m.execute("nmcli con down cockpitbr")
         self.wait_for_iface("cockpitbr", active=False)
         # check that connection exists but interface does not
         m.execute("nmcli con sh | grep -q 'cockpitbr'")

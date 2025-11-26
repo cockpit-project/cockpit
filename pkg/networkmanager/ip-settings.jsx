@@ -155,6 +155,10 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         } else return { ...config, gateway: '' };
     };
 
+    // Prefer device type if the device exists, otherwise fallback to a connection type
+    // of an existing connection that is down in which case the device may not exist.
+    const deviceType = dev?.DeviceType ?? connection?.Settings.connection.type;
+
     return (
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
@@ -174,7 +178,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                             aria-label={_("Select method")}
                                             onChange={(_, val) => setMethod(val)}
                                             value={method}>
-                                    {get_ip_method_choices(topic, dev.DeviceType).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
+                                    {get_ip_method_choices(topic, deviceType).map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                                 </FormSelect>
                                 <Tooltip content={_("Add address")}>
                                     <Button variant="secondary"

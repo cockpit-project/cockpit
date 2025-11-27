@@ -29,7 +29,7 @@ jobs:
   flathub:
     environment: flathub
     env:
-      COCKPITUOUS_TOKEN: ${{ secrets.COCKPITUOUS_TOKEN }}
+      COCKPITUOUS_TOKEN: ${{ secrets.COCKPITUOUS_RELEASE_TOKEN }}
     permissions: {}
     runs-on: ubuntu-latest
     steps:

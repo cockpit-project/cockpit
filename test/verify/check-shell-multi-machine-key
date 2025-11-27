@@ -105,6 +105,10 @@ class TestMultiMachineKeyAuth(testlib.MachineCase):
         # In these tests we actually switch between machines in quick succession which can make things even worse
         if self.is_devel_build():
             self.disable_preload("packagekit", "playground", "systemd", machine=self.machine2)
+        else:
+            # Disable packagekit for RAM constraint
+            self.disable_preload("packagekit", machine=self.machine)
+            self.disable_preload("packagekit", machine=self.machine2)
 
         # enable multi-host
         self.enable_multihost(self.machine)

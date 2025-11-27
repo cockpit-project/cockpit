@@ -9,6 +9,8 @@ on:
 jobs:
   source:
     runs-on: ubuntu-latest
+    outputs:
+      checksum: ${{ steps.publish.outputs.checksum }}
     permissions:
       # create GitHub release
       contents: write
@@ -40,7 +42,7 @@ jobs:
             ${REPO_NAME}-${TAG_VERSION}.tar.xz \
             ${REPO_NAME}-node-${TAG_VERSION}.tar.xz
 
-          # Set outputs for downstream jobs
+          # Set outputs for downstream jobs if they can use it
           {
             echo "filename=${REPO_NAME}-${TAG_VERSION}.tar.xz"
             echo "download=${{ github.server_url }}/${{ github.repository }}/releases/download/${TAG_VERSION}/${REPO_NAME}-${TAG_VERSION}.tar.xz"
@@ -50,108 +52,19 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-    outputs:
-      filename: ${{ steps.publish.outputs.filename }}
-      checksum: ${{ steps.publish.outputs.checksum }}
-      download: ${{ steps.publish.outputs.download }}
-      body: ${{ steps.publish.outputs.body }}
-
   guide:
     needs: source
-    environment: website
-    permissions: {}
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/cockpit-project/tasks:latest
-      options: --user root
-    steps:
-      - name: Checkout website repository
-        uses: actions/checkout@v6
-        with:
-          path: website
-          repository: cockpit-project/cockpit-project.github.io
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Download source release
-        run: curl -L -o '${{ needs.source.outputs.filename }}' '${{ needs.source.outputs.download }}'
-
-      - name: Verify checksum
-        run: echo '${{ needs.source.outputs.checksum }} ${{ needs.source.outputs.filename }}' | sha256sum -c
-
-      - name: Extract guide from release tarball
-        run: |
-          mkdir source
-          tar --directory source --extract --strip-components=1 --file '${{ needs.source.outputs.filename }}'
-
-      - name: Update the website
-        run: |
-          rm -rf website/guide/latest
-          cp -rT source/doc/output/html website/guide/latest
-
-          git config --global user.name "GitHub Workflow"
-          git config --global user.email "cockpituous@cockpit-project.org"
-
-          cd website
-          git add guide/
-          git commit --message='Update guide to version ${{ github.ref_name }}'
-          git show --stat
-          git push origin main
-
+    uses: ./.github/workflows/update-guide.yml
+    with:
+      release_tag: ${{ github.ref_name }}
+      checksum: ${{ needs.source.outputs.checksum }}
 
   flathub:
     needs: source
-    environment: flathub
-    env:
-      COCKPITUOUS_TOKEN: ${{ secrets.COCKPITUOUS_TOKEN }}
-    permissions: {}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source repository
-        uses: actions/checkout@v6
-        with:
-          path: src
-
-      - name: Checkout flathub repository
-        uses: actions/checkout@v6
-        with:
-          path: flathub
-          repository: flathub/org.cockpit_project.CockpitClient
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-          # this is needed so we can push to a different repository
-          fetch-depth: 0
-
-      - name: Update flathub repository
-        env:
-          DOWNLOAD: ${{ needs.source.outputs.download }}
-          CHECKSUM: ${{ needs.source.outputs.checksum }}
-          TAG_BODY: ${{ needs.source.outputs.body }}
-        run: |
-          set -x
-
-          git config --global user.name "GitHub Workflow"
-          git config --global user.email "cockpituous@cockpit-project.org"
-
-          cd flathub
-          git checkout -b "${{ github.ref_name }}"
-          printf '%s\n' "${TAG_BODY}" | ../src/containers/flatpak/add-release \
-             org.cockpit_project.CockpitClient.releases.xml \
-             "${{ github.ref_name }}" \
-             "$(date +%Y-%m-%d)"
-          git add "$(../src/containers/flatpak/prepare --packages=upstream --sha256="${CHECKSUM}" "${DOWNLOAD}")"
-          git add org.cockpit_project.CockpitClient.packages.json
-          git add org.cockpit_project.CockpitClient.releases.xml
-          git commit -m "Update to version ${{ github.ref_name }}"
-          git show
-          git push git@github.com:cockpit-project/org.cockpit_project.CockpitClient HEAD
-
-          echo ${{ env.COCKPITUOUS_TOKEN }} >> auth.txt
-          gh auth login --with-token < auth.txt
-
-          gh pr create \
-            --fill \
-            -H cockpit-project:${{ github.ref_name }} \
-            -R flathub/org.cockpit_project.CockpitClient
-
+    uses: ./.github/workflows/release-flathub.yml
+    with:
+      release_tag: ${{ github.ref_name }}
+      checksum: ${{ needs.source.outputs.checksum }}
 
   node-cache:
     # doesn't depend on it, but let's make sure the build passes before we do this
@@ -183,4 +96,5 @@ jobs:
           # make this idempotent: delete an existing tag
           git push cache :"$TAG" || true
           git push cache tag "$TAG"
+          ssh-add -D
           ssh-add -D

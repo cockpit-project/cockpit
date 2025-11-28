@@ -23,7 +23,7 @@ import cockpit from 'cockpit';
 import { Badge } from '@patternfly/react-core/dist/esm/components/Badge/index.js';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { EmptyState, EmptyStateBody, EmptyStateIcon } from '@patternfly/react-core/dist/esm/components/EmptyState/index.js';
+import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/esm/components/EmptyState/index.js';
 import { Form, FormGroup } from '@patternfly/react-core/dist/esm/components/Form/index.js';
 import { List, ListItem } from '@patternfly/react-core/dist/esm/components/List/index.js';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner/index.js';
@@ -130,7 +130,7 @@ const WiFiNetworkList = ({ accessPoints, onConnect, scanning }) => {
     if (accessPoints.length === 0) {
         return (
             <EmptyState>
-                <EmptyStateIcon icon={WifiIcon} />
+                
                 <EmptyStateBody>{_("No networks found")}</EmptyStateBody>
             </EmptyState>
         );

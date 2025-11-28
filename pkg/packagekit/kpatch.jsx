@@ -46,7 +46,7 @@ const _ = cockpit.gettext;
 
 export class KpatchSettings extends React.Component {
     constructor() {
-        super();
+        super({});
 
         this.state = {
             loaded: false,

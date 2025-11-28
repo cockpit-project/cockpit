@@ -1,17 +1,21 @@
 upstream_project_url: https://github.com/cockpit-project/cockpit
 specfile_path: cockpit.spec
 actions:
+  # create-archive does not work with multiple sources, so do the spec mangling ourselves
   post-upstream-clone:
-    # build patched spec
-    - tools/node-modules make_package_lock_json
-    - env NODE_ENV=production ./build.js
-    - cp tools/cockpit.spec .
-    # packit will compute and set the version by itself
-    - tools/fix-spec ./cockpit.spec 0
+    # we already build a spec file with correct Version, so extract it
+    - |
+      bash -exc '
+      mapfile -t TARBALLS < <(tools/make-dist)
+      # Extract spec file from main tarball (first in array)
+      tar -xJf "${TARBALLS[0]}" --wildcards "*/tools/cockpit.spec" --strip-components=2
+      # Move all tarballs to current directory for packit
+      mv "${TARBALLS[@]}" .
+      '
 
-  create-archive:
-    # temporary hack: not using the -node tarball yet, that requires spec changes; that's the next step
-    - sh -c 'tools/make-dist | grep "cockpit-[1-9].*[.]tar[.]xz"'
+  fix-spec-file:
+    # packit needs local file names, not URLs
+    - sed -i 's|^\(Source[0-9]*:\s*\).*\/|\1|' cockpit.spec
 
 srpm_build_deps:
   - automake
@@ -89,11 +93,11 @@ jobs:
         - cp tools/cockpit.spec .
         # packit will compute and set the version by itself
         - tools/fix-spec ./cockpit.spec 0
-      # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0; this
+      # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0 and Source1; this
       # really should be the default, see https://github.com/packit/packit-service/issues/1505
-      create-archive:
-        - sh -exc "curl -L -O https://github.com/cockpit-project/cockpit/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
-        - sh -exc "ls ${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
+      fix-spec-file:
+        - 'sh -exc "curl -L --fail -O https://github.com/cockpit-project/cockpit/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_PROJECT_NAME_VERSION}.tar.xz"'
+        - 'sh -exc "curl -L --fail -O https://github.com/cockpit-project/cockpit/releases/download/${PACKIT_PROJECT_VERSION}/cockpit-node-${PACKIT_PROJECT_VERSION}.tar.xz"'
 
   - job: propose_downstream
     trigger: release

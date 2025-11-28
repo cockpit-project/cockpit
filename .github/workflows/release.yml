@@ -1,5 +1,6 @@
 name: release
 on:
+  workflow_dispatch:
   push:
     tags:
       # this is a glob, not a regexp
@@ -38,141 +39,17 @@ jobs:
 
   guide:
     needs: source
-    environment: website
-    permissions: {}
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/cockpit-project/tasks:latest
-      options: --user root
-    steps:
-      - name: Checkout website repository
-        uses: actions/checkout@v6
-        with:
-          path: website
-          repository: cockpit-project/cockpit-project.github.io
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Download source release
-        run: curl -L -o '${{ needs.source.outputs.filename }}' '${{ needs.source.outputs.download }}'
-
-      - name: Verify checksum
-        run: echo '${{ needs.source.outputs.checksum }} ${{ needs.source.outputs.filename }}' | sha256sum -c
-
-      - name: Build guide
-        run: |
-          mkdir source build
-          tar --directory source --extract --strip-components=1 --file '${{ needs.source.outputs.filename }}'
-          (
-              cd build
-              ../source/configure
-              make doc/guide/html/index.html
-          )
-
-      - name: Update the website
-        run: |
-          rm -rf website/guide/latest
-          mv -Tv build/doc/guide/html website/guide/latest
-
-          # Add frontmatter for Jekyll
-          find website/guide/latest -name '*.html' -exec sed -i '
-          1i\
-          ---\
-          layout: guide\
-          ---' '{}' ';'
-
-          git config --global user.name "GitHub Workflow"
-          git config --global user.email "cockpituous@cockpit-project.org"
-
-          cd website
-          git add guide/
-          git commit --message='Update guide to version ${{ github.ref_name }}'
-          git show --stat
-          git push origin main
+    uses: ./.github/workflows/update-guide.yml
+    with:
+      release_tag: ${{ github.ref_name }}
 
 
   flathub:
     needs: source
-    environment: flathub
-    env:
-      COCKPITUOUS_TOKEN: ${{ secrets.COCKPITUOUS_TOKEN }}
-    permissions: {}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source repository
-        uses: actions/checkout@v6
-        with:
-          path: src
-
-      - name: Checkout flathub repository
-        uses: actions/checkout@v6
-        with:
-          path: flathub
-          repository: flathub/org.cockpit_project.CockpitClient
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-          # this is needed so we can push to a different repository
-          fetch-depth: 0
-
-      - name: Update flathub repository
-        env:
-          DOWNLOAD: ${{ needs.source.outputs.download }}
-          CHECKSUM: ${{ needs.source.outputs.checksum }}
-          TAG_BODY: ${{ needs.source.outputs.body }}
-        run: |
-          set -x
-
-          git config --global user.name "GitHub Workflow"
-          git config --global user.email "cockpituous@cockpit-project.org"
-
-          cd flathub
-          git checkout -b "${{ github.ref_name }}"
-          printf '%s\n' "${TAG_BODY}" | ../src/containers/flatpak/add-release \
-             org.cockpit_project.CockpitClient.releases.xml \
-             "${{ github.ref_name }}" \
-             "$(date +%Y-%m-%d)"
-          git add "$(../src/containers/flatpak/prepare --packages=upstream --sha256="${CHECKSUM}" "${DOWNLOAD}")"
-          git add org.cockpit_project.CockpitClient.packages.json
-          git add org.cockpit_project.CockpitClient.releases.xml
-          git commit -m "Update to version ${{ github.ref_name }}"
-          git show
-          git push git@github.com:cockpit-project/org.cockpit_project.CockpitClient HEAD
-
-          echo ${{ env.COCKPITUOUS_TOKEN }} >> auth.txt
-          gh auth login --with-token < auth.txt
-
-          gh pr create \
-            --fill \
-            -H cockpit-project:${{ github.ref_name }} \
-            -R flathub/org.cockpit_project.CockpitClient
-
+    uses: ./.github/workflows/release-flathub.yml
+    with:
+      release_tag: ${{ github.ref_name }}
 
   node-cache:
-    # doesn't depend on it, but let's make sure the build passes before we do this
     needs: [source]
-    runs-on: ubuntu-latest
-    environment: node-cache
-    # done via deploy key, token needs no write permissions at all
-    permissions: {}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v6
-
-      - name: Set up git
-        run: |
-            git config user.name "GitHub Workflow"
-            git config user.email "cockpituous@cockpit-project.org"
-
-      - name: Tag node-cache
-        run: |
-          set -eux
-          # this is a shared repo, prefix with project name
-          TAG="${GITHUB_REPOSITORY#*/}-$(basename $GITHUB_REF)"
-          tools/node-modules checkout
-          cd node_modules
-          git tag "$TAG"
-          git remote add cache "ssh://git@github.com/${GITHUB_REPOSITORY%/*}/node-cache"
-          eval $(ssh-agent)
-          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
-          # make this idempotent: delete an existing tag
-          git push cache :"$TAG" || true
-          git push cache tag "$TAG"
-          ssh-add -D
+    uses: ./.github/workflows/node-cache.yml

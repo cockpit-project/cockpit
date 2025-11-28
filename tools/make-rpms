@@ -56,7 +56,8 @@ if [ $# -gt 1 ]; then
 fi
 
 if [ -z "${1-}" ]; then
-    # only use the main release tarball for now
+    # we specify the main tarball that contains the spec file;
+    # the others (-node) have to be next to it in the same directory
     source="$("$base/tools/make-dist" | head -n1)"
 else
     source="$1"

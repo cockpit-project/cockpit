@@ -52,9 +52,9 @@ fi
 # Do the actual build
 make -s -j"$(nproc)" XZ_OPT='-0' VERSION="${VERSION}" "$@" dist >&2
 
-"${ROOT_DIR}/tools/node-modules" runtime-tar cockpit-node-"${VERSION}".tar.xz >&2
+# Create node tarball in same directory as main tarball
+"${ROOT_DIR}/tools/node-modules" runtime-tar "$(realpath .)/cockpit-node-${VERSION}.tar.xz" >&2
 
 # Output tarball paths to stdout (only)
 realpath "cockpit-${VERSION}.tar.xz"
-# node-modules changes to project root
-realpath "${ROOT_DIR}/cockpit-node-${VERSION}.tar.xz"
+realpath "cockpit-node-${VERSION}.tar.xz"

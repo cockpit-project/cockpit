@@ -51,6 +51,11 @@
 %define pamdir %{_libdir}/security
 %endif
 
+# distributions which ship nodejs-esbuild can rebuild the bundle during package build
+%if 0%{?fedora} >= 42
+%define rebuild_bundle 1
+%endif
+
 Name:           cockpit
 Summary:        Web Console for Linux servers
 
@@ -60,6 +65,7 @@ URL:            https://cockpit-project.org/
 Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
+Source1:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-node-%{version}.tar.xz
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
@@ -107,6 +113,11 @@ BuildRequires: docbook-style-xsl
 BuildRequires: krb5-server
 BuildRequires: gdb
 
+%if %{defined rebuild_bundle}
+BuildRequires: nodejs
+BuildRequires: nodejs-esbuild
+%endif
+
 # For documentation
 BuildRequires: xmlto
 
@@ -149,8 +160,20 @@ BuildRequires:  python3-pytest-timeout
 
 %prep
 %setup -q -n cockpit-%{version}
+%if %{defined rebuild_bundle}
+%setup -q -D -T -a 1 -n cockpit-%{version}
+%endif
 
 %build
+%if %{defined rebuild_bundle}
+rm -rf dist
+# HACK: node module packaging is currently broken in Fedora, should be in
+# common location, not major version specific one
+NODE_ENV=production NODE_PATH=$(echo /usr/lib/node_modules_*) ./build.js
+%else
+# Use pre-built bundle on distributions without nodejs-esbuild
+%endif
+
 %configure \
     %{?selinux_configure_arg} \
 %if 0%{?suse_version}

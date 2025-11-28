@@ -178,6 +178,8 @@ export const NetworkInterfacePage = ({
                 desc = _("VLAN");
             } else if (dev.DeviceType == 'bridge') {
                 desc = _("Bridge");
+            } else if (dev.DeviceType == '802-11-wireless') {
+                desc = _("WiFi");
             } else if (dev.Driver == 'wireguard') {
                 desc = "WireGuard";
             } else
@@ -192,6 +194,8 @@ export const NetworkInterfacePage = ({
                 desc = _("VLAN");
             else if (cs.type == "bridge")
                 desc = _("Bridge");
+            else if (cs.type == "802-11-wireless")
+                desc = _("WiFi");
             else if (cs.type == "wireguard")
                 desc = "WireGuard";
             else if (cs.type)
@@ -565,6 +569,25 @@ export const NetworkInterfacePage = ({
             return renderSettingsRow(_("WireGuard"), rows, configure);
         }
 
+        function renderWiFiSettingsRow() {
+            const rows = [];
+            const wifi = settings.wifi;
+
+            if (!wifi) {
+                return null;
+            }
+
+            rows.push({ title: _("SSID"), value: wifi.ssid });
+            if (wifi.mode) {
+                const modeText = wifi.mode === "ap" ? _("Access Point") : _("Client");
+                rows.push({ title: _("Mode"), value: modeText });
+            }
+
+            const configure = <NetworkAction type="wifi" iface={iface} connectionSettings={settings} />;
+
+            return renderSettingsRow(_("WiFi"), rows, configure);
+        }
+
         return [
             render_group(),
             renderAutoconnectRow(),
@@ -578,6 +601,7 @@ export const NetworkInterfacePage = ({
             renderTeamSettingsRow(),
             renderTeamPortSettingsRow(),
             renderWireGuardSettingsRow(),
+            renderWiFiSettingsRow(),
         ];
     }
 

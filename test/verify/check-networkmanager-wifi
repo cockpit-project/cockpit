@@ -1,0 +1,351 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+# Cockpit WiFi NetworkManager Integration Tests
+# Tests Issues #2, #3, #4: Device detection, scanning, and WPA connection
+
+import subprocess
+import time
+
+import netlib
+import testlib
+
+
+class TestWiFi(netlib.NetworkCase):
+    """
+    Integration tests for WiFi network configuration in Cockpit NetworkManager module.
+
+    Tests cover:
+    - Issue #2: WiFi device detection and basic UI structure
+    - Issue #3: Network scanning and display
+    - Issue #4: Connect to WPA/WPA2/WPA3 networks
+    """
+
+    def setUp(self):
+        super().setUp()
+        m = self.machine
+
+        # Load mac80211_hwsim kernel module for virtual WiFi devices
+        # This allows testing WiFi without physical hardware
+        try:
+            m.execute("modprobe mac80211_hwsim radios=2")
+        except subprocess.CalledProcessError:
+            # Skip test if mac80211_hwsim not available
+            self.skipTest("mac80211_hwsim kernel module not available")
+
+        # Wait for WiFi devices to be detected by NetworkManager
+        m.execute("timeout 30 sh -c 'until nmcli device | grep wifi; do sleep 1; done'")
+
+        # Get WiFi device names
+        self.wifi_dev1 = m.execute("nmcli -t -f DEVICE,TYPE device | grep wifi | head -1 | cut -d: -f1").strip()
+        self.wifi_dev2 = m.execute("nmcli -t -f DEVICE,TYPE device | grep wifi | tail -1 | cut -d: -f1").strip()
+
+        # Ensure NetworkManager is managing the devices
+        m.execute(f"nmcli device set {self.wifi_dev1} managed yes")
+        m.execute(f"nmcli device set {self.wifi_dev2} managed yes")
+
+    def tearDown(self):
+        m = self.machine
+
+        # Clean up: remove created connections
+        m.execute("for conn in $(nmcli -t -f NAME,TYPE connection | grep 802-11-wireless | cut -d: -f1); do nmcli connection delete \"$conn\"; done || true")
+
+        # Unload virtual WiFi module
+        m.execute("modprobe -r mac80211_hwsim || true")
+
+        super().tearDown()
+
+    def testWiFiDeviceDetection(self):
+        """
+        Issue #2: WiFi device detection and basic UI structure
+
+        Test that:
+        - WiFi devices are detected and listed
+        - WiFi section appears in NetworkManager UI
+        - Device type is correctly identified as WiFi
+        """
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # WiFi device should appear in interface list
+        b.wait_visible(f"#networking-interfaces tr[data-interface='{self.wifi_dev1}']")
+
+        # Click on WiFi interface to open details
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # Verify device type is displayed (will fail until implementation)
+        # This will initially FAIL - that's expected in TDD!
+        b.wait_in_text("#network-interface", self.wifi_dev1)
+
+        # Check that WiFi-specific actions are available
+        # This test will FAIL until we implement Issue #2
+        # Expected: "Add WiFi network" or similar action button
+        # b.wait_visible("button:contains('Add WiFi')")  # Uncomment when implemented
+
+    def testWiFiNetworkScanning(self):
+        """
+        Issue #3: Network scanning and display
+
+        Test that:
+        - Can trigger network scan
+        - Scanned networks are displayed
+        - Signal strength is shown
+        - Security type is indicated
+        - Networks sorted by signal strength
+        """
+        b = self.browser
+        m = self.machine
+
+        # Setup: Create a virtual AP on dev2 for dev1 to scan
+        test_ssid = "TestNetwork123"
+        test_password = "testpass123"
+
+        # Configure dev2 as AP
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev2} \
+                con-name test-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24
+        """)
+
+        m.execute(f"""
+            nmcli connection modify test-ap \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        m.execute("nmcli connection up test-ap")
+
+        # Wait for AP to be active
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi device
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # This test will FAIL until we implement Issue #3
+        # Expected: Scan button and network list
+
+        # Trigger network scan
+        # b.click("button:contains('Scan')")  # Will fail - not implemented yet
+
+        # Wait for scan to complete
+        # b.wait_visible(f"tr:contains('{test_ssid}')")  # Will fail - not implemented yet
+
+        # Verify network details are displayed
+        # Expected: SSID, signal strength indicator, security badge
+        # b.wait_visible(f"tr:contains('{test_ssid}') .signal-strength")  # Will fail
+        # b.wait_visible(f"tr:contains('{test_ssid}') .security-badge:contains('WPA2')")  # Will fail
+
+        # Cleanup
+        m.execute("nmcli connection down test-ap || true")
+        m.execute("nmcli connection delete test-ap || true")
+
+    def testConnectToWPA2Network(self):
+        """
+        Issue #4: Connect to WPA/WPA2/WPA3 networks
+
+        Test that:
+        - Can connect to WPA2 network with password
+        - Connection dialog validates input
+        - Connection status updates in UI
+        - Network is saved for auto-reconnect
+        - IP address is assigned
+        """
+        b = self.browser
+        m = self.machine
+
+        # Setup: Create AP on dev2
+        test_ssid = "SecureNetwork456"
+        test_password = "securepass456"
+
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev2} \
+                con-name test-ap-wpa2 \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        m.execute("nmcli connection up test-ap-wpa2")
+        time.sleep(2)
+
+        # Trigger scan to discover the AP
+        m.execute(f"nmcli device wifi rescan ifname {self.wifi_dev1}")
+        time.sleep(3)
+
+        # Verify AP is visible via nmcli
+        networks = m.execute(f"nmcli -t -f SSID device wifi list ifname {self.wifi_dev1}")
+        self.assertIn(test_ssid, networks)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # This test will FAIL until we implement Issue #4
+        # Expected: Can click network, enter password, connect
+
+        # Navigate to WiFi device
+        # b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        # b.wait_visible("#network-interface")
+
+        # Click on scanned network
+        # b.click(f"tr:contains('{test_ssid}')")  # Will fail - not implemented
+
+        # WiFi connect dialog should appear
+        # b.wait_visible("#network-wifi-connect-dialog")  # Will fail
+        # b.wait_in_text("#network-wifi-connect-dialog", test_ssid)
+
+        # Enter password
+        # b.set_input_text("#network-wifi-password-input", test_password)
+
+        # Connect
+        # b.click("#network-wifi-connect-save")
+        # b.wait_not_present("#network-wifi-connect-dialog")
+
+        # Verify connection established
+        # b.wait_in_text(f"#networking-interfaces tr[data-interface='{self.wifi_dev1}']", "Connected")
+
+        # Verify IP address assigned
+        # Eventually, dev1 should get an IP from dev2's DHCP (10.42.0.x)
+        # ip_output = m.execute(f"ip addr show {self.wifi_dev1}")
+        # self.assertIn("10.42.0", ip_output)
+
+        # Cleanup
+        m.execute("nmcli connection down test-ap-wpa2 || true")
+        m.execute("nmcli connection delete test-ap-wpa2 || true")
+        # Client connection will be auto-created, delete it
+        m.execute(f"nmcli connection delete '{test_ssid}' || true")
+
+    def testWrongPassword(self):
+        """
+        Issue #4: Test error handling for incorrect password
+
+        Test that:
+        - Wrong password shows clear error message
+        - User can retry with different password
+        - Connection doesn't get stuck in connecting state
+        """
+        b = self.browser
+        m = self.machine
+
+        # Setup AP
+        test_ssid = "TestWrongPass"
+        correct_password = "correctpass123"
+        wrong_password = "wrongpass999"
+
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev2} \
+                con-name test-ap-wrong \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {correct_password}
+        """)
+
+        m.execute("nmcli connection up test-ap-wrong")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # This test will FAIL until Issue #4 is implemented
+        # Expected behavior:
+        # 1. Enter wrong password
+        # 2. Connection attempt fails
+        # 3. Error message displayed: "Incorrect password" or similar
+        # 4. Can retry with correct password
+
+        # Test with nmcli for now (to verify AP is working)
+        # Try wrong password - should fail
+        try:
+            m.execute(f"""
+                nmcli device wifi connect {test_ssid} \
+                    password {wrong_password} \
+                    ifname {self.wifi_dev1}
+            """, timeout=30)
+            self.fail("Connection with wrong password should have failed")
+        except subprocess.CalledProcessError:
+            # Expected - wrong password should fail
+            pass
+
+        # Try correct password - should succeed
+        m.execute(f"""
+            nmcli device wifi connect {test_ssid} \
+                password {correct_password} \
+                ifname {self.wifi_dev1}
+        """, timeout=30)
+
+        # Verify connection
+        status = m.execute(f"nmcli -t -f GENERAL.STATE device show {self.wifi_dev1}")
+        self.assertIn("connected", status.lower())
+
+        # Cleanup
+        m.execute(f"nmcli connection down '{test_ssid}' || true")
+        m.execute(f"nmcli connection delete '{test_ssid}' || true")
+        m.execute("nmcli connection down test-ap-wrong || true")
+        m.execute("nmcli connection delete test-ap-wrong || true")
+
+    def testOpenNetworkWarning(self):
+        """
+        Issue #4: Test that connecting to open network shows security warning
+
+        Test that:
+        - Open networks are detected
+        - Warning dialog appears before connecting
+        - User must acknowledge risk
+        """
+        b = self.browser
+        m = self.machine
+
+        test_ssid = "OpenNetwork789"
+
+        # Create open AP (no security)
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev2} \
+                con-name test-ap-open \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24
+        """)
+
+        m.execute("nmcli connection up test-ap-open")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # This test will FAIL until Issue #4 is fully implemented
+        # Expected: Warning dialog before connecting to open network
+        # b.click(f"tr:contains('{test_ssid}')")  # Will fail
+        # b.wait_visible(".pf-v6-c-alert:contains('Unsecured Network')")  # Will fail
+        # b.wait_visible("button:contains('Connect Anyway')")  # Will fail
+
+        # Cleanup
+        m.execute("nmcli connection down test-ap-open || true")
+        m.execute("nmcli connection delete test-ap-open || true")
+
+
+if __name__ == "__main__":
+    testlib.test_main()

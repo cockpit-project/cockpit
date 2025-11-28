@@ -622,6 +622,22 @@ export function NetworkManagerModel() {
             };
         }
 
+        if (settings["802-11-wireless"]) {
+            result.wifi = {
+                ssid: utils.decode_nm_property(get("802-11-wireless", "ssid", [])),
+                mode: get("802-11-wireless", "mode", "infrastructure"),
+                band: get("802-11-wireless", "band"),
+                hidden: get("802-11-wireless", "hidden", false),
+            };
+        }
+
+        if (settings["802-11-wireless-security"]) {
+            result.wifi_security = {
+                key_mgmt: get("802-11-wireless-security", "key-mgmt"),
+                // Never read password back from NetworkManager
+            };
+        }
+
         return result;
     }
 
@@ -792,6 +808,25 @@ export function NetworkManagerModel() {
             }));
         } else {
             delete result.wireguard;
+        }
+
+        if (settings.wifi) {
+            set("802-11-wireless", "ssid", "ay", utils.encode_nm_property(settings.wifi.ssid));
+            set("802-11-wireless", "mode", "s", settings.wifi.mode);
+            if (settings.wifi.band)
+                set("802-11-wireless", "band", "s", settings.wifi.band);
+            set("802-11-wireless", "hidden", "b", settings.wifi.hidden);
+        } else {
+            delete result["802-11-wireless"];
+        }
+
+        if (settings.wifi_security && settings.wifi_security.psk) {
+            set("802-11-wireless-security", "key-mgmt", "s", settings.wifi_security.key_mgmt || "wpa-psk");
+            set("802-11-wireless-security", "psk", "s", settings.wifi_security.psk);
+            if (settings.wifi_security.auth_alg)
+                set("802-11-wireless-security", "auth-alg", "s", settings.wifi_security.auth_alg);
+        } else if (!settings.wifi_security) {
+            delete result["802-11-wireless-security"];
         }
 
         return result;

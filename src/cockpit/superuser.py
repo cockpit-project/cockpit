@@ -48,7 +48,7 @@ class SuperuserPeer(ConfiguredPeer):
 
     async def do_connect_transport(self) -> None:
         async with contextlib.AsyncExitStack() as context:
-            if 'pkexec' in self.args:
+            if 'pkexec' in self.args or 'run0' in self.args:
                 logger.debug('connecting polkit superuser peer transport %r', self.args)
                 await context.enter_async_context(PolkitAgent(self.responder))
             else:

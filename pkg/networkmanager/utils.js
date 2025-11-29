@@ -266,6 +266,35 @@ export function ip6_from_text(text, empty_is_zero) {
     return cockpit.base64_encode(bytes);
 }
 
+// Convert byte array to string (for SSID, etc.)
+export function decode_nm_property(bytes) {
+    if (!bytes || bytes.length === 0) return "";
+
+    // Check if bytes is a base64 string (Cockpit's D-Bus returns byte arrays as base64)
+    if (typeof bytes === 'string') {
+        // Decode base64 to byte array using Cockpit's built-in function
+        bytes = cockpit.base64_decode(bytes);
+    }
+
+    // Ensure we have a Uint8Array for proper UTF-8 decoding
+    if (!(bytes instanceof Uint8Array)) {
+        bytes = new Uint8Array(bytes);
+    }
+
+    // Decode as UTF-8 (supports all Unicode characters including emoji)
+    const decoder = new TextDecoder('utf-8');
+    return decoder.decode(bytes);
+}
+
+// Convert string to byte array (for SSID, etc.)
+export function encode_nm_property(str) {
+    if (!str) return [];
+
+    // Use TextEncoder for proper UTF-8 encoding (supports all Unicode characters)
+    const encoder = new TextEncoder();
+    return Array.from(encoder.encode(str));
+}
+
 export function list_interfaces() {
     return new Promise((resolve, reject) => {
         const client = cockpit.dbus("org.freedesktop.NetworkManager");

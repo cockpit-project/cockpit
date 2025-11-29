@@ -158,6 +158,7 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
     const model = useContext(ModelContext);
     const idPrefix = "network-wifi-connect";
 
+    const [iface, setIface] = useState(settings.connection.interface_name || (dev && dev.Interface) || "");
     const [ssid, setSSID] = useState(ap ? bytesToString(ap.ssid) : (settings.wifi?.ssid || ""));
     const [password, setPassword] = useState("");
     const [dialogError, setDialogError] = useState("");
@@ -177,6 +178,7 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
                 id: ssid,
                 type: "802-11-wireless",
                 uuid: settings.connection.uuid || uuidv4(),
+                interface_name: iface,
                 autoconnect: true,
             },
             wifi: {
@@ -223,8 +225,8 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
             <Form isHorizontal onSubmit={onSubmit}>
                 <Name
                     idPrefix={idPrefix}
-                    iface={dev}
-                    settings={settings}
+                    iface={iface}
+                    setIface={setIface}
                 />
 
                 <FormGroup label={_("Network name (SSID)")} fieldId={idPrefix + "-ssid-input"}>

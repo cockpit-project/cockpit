@@ -577,10 +577,14 @@ export const NetworkInterfacePage = ({
                 return null;
             }
 
-            rows.push({ title: _("SSID"), value: wifi.ssid });
+            function addRow(fmt, args) {
+                rows.push(cockpit.format(fmt, args));
+            }
+
+            addRow(_("SSID $ssid"), { ssid: wifi.ssid });
             if (wifi.mode) {
                 const modeText = wifi.mode === "ap" ? _("Access Point") : _("Client");
-                rows.push({ title: _("Mode"), value: modeText });
+                addRow(_("Mode $mode"), { mode: modeText });
             }
 
             const configure = <NetworkAction type="wifi" iface={iface} connectionSettings={settings} />;

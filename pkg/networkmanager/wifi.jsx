@@ -561,8 +561,12 @@ function generateDefaultSSID(dev) {
     const mac = getMACAddress(dev);
     if (!mac) return "HALOS-AP";
 
-    // Get last 4 characters of MAC address (without colons)
-    const macSuffix = mac.replace(/:/g, '').slice(-4).toUpperCase();
+    // Clean MAC address (remove colons) and validate length
+    const macClean = mac.replace(/:/g, '').toUpperCase();
+    if (macClean.length < 4) return "HALOS-AP";
+
+    // Get last 4 characters of MAC address
+    const macSuffix = macClean.slice(-4);
     return `HALOS-${macSuffix}`;
 }
 

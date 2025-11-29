@@ -300,7 +300,273 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
     );
 };
 
-// Ghost settings for "Add WiFi" action
+// WiFi Access Point Dialog
+export const WiFiAPDialog = ({ settings, connection, dev }) => {
+    const Dialogs = useDialogs();
+    const model = useContext(ModelContext);
+    const idPrefix = "network-wifi-ap";
+
+    const [iface, setIface] = useState(settings.connection.interface_name || (dev && dev.Interface) || "");
+    const [ssid, setSSID] = useState(settings.wifi?.ssid || generateDefaultSSID(dev));
+    const [password, setPassword] = useState("");
+    const [securityType, setSecurityType] = useState(settings.wifi_security?.key_mgmt || "wpa-psk");
+    const [band, setBand] = useState(settings.wifi?.band || "bg");
+    const [dialogError, setDialogError] = useState("");
+
+    const isCreateDialog = !connection;
+
+    // Validate SSID
+    const validateSSID = (value) => {
+        if (!value || value.trim() === "") {
+            return { valid: false, message: _("SSID cannot be empty") };
+        }
+        // SSID maximum is 32 bytes (UTF-8 encoding may be fewer characters)
+        const bytes = new TextEncoder().encode(value);
+        if (bytes.length > 32) {
+            return { valid: false, message: _("SSID too long (maximum 32 bytes)") };
+        }
+        return { valid: true, message: "" };
+    };
+
+    // Validate password
+    const validatePassword = (value, secType) => {
+        // Open network - no password required
+        if (secType === "none") {
+            return { valid: true, message: "" };
+        }
+
+        // Editing existing connection - empty password keeps existing
+        if (!value && connection) {
+            return { valid: true, message: "" };
+        }
+
+        // WPA/WPA2/WPA3 requirements
+        if (!value || value.length === 0) {
+            return { valid: false, message: _("Password is required for secure Access Point") };
+        }
+        if (value.length < 8) {
+            return { valid: false, message: _("Password must be at least 8 characters") };
+        }
+        if (value.length > 63) {
+            return { valid: false, message: _("Password must not exceed 63 characters") };
+        }
+        return { valid: true, message: "" };
+    };
+
+    const ssidValidation = validateSSID(ssid);
+    const passwordValidation = validatePassword(password, securityType);
+    const isFormValid = ssidValidation.valid && passwordValidation.valid;
+
+    const onSubmit = (ev) => {
+        if (ev) {
+            ev.preventDefault();
+        }
+
+        // Validate all fields
+        if (!isFormValid) {
+            setDialogError(ssidValidation.message || passwordValidation.message);
+            return;
+        }
+
+        // Build Access Point connection settings
+        const apSettings = {
+            ...settings,
+            connection: {
+                ...settings.connection,
+                id: ssid,
+                type: "802-11-wireless",
+                uuid: settings.connection.uuid || uuidv4(),
+                interface_name: iface,
+                autoconnect: false, // Manual activation for AP
+            },
+            wifi: {
+                ssid,
+                mode: "ap",
+                band,
+            },
+            ipv4: {
+                method: "shared", // Enables DHCP server
+                address_data: [{ address: "10.42.0.1", prefix: 24 }],
+            },
+            ipv6: {
+                method: "ignore",
+            },
+        };
+
+        // Add security if not open network
+        if (securityType !== "none") {
+            if (!password && !connection) {
+                setDialogError(_("Password required for secure Access Point"));
+                return;
+            }
+
+            apSettings.wifi_security = {
+                key_mgmt: securityType,
+            };
+
+            // Only set password if provided (for new or when changing)
+            if (password) {
+                apSettings.wifi_security.psk = password;
+            }
+        } else {
+            // Open network - no security
+            apSettings.wifi_security = null;
+        }
+
+        dialogSave({
+            model,
+            dev,
+            connection,
+            settings: apSettings,
+            setDialogError,
+            onClose: () => {
+                // Clear password from memory
+                setPassword("");
+                Dialogs.close();
+            },
+        });
+    };
+
+    return (
+        <NetworkModal
+            id={idPrefix + "-dialog"}
+            title={isCreateDialog ? _("Enable Access Point") : _("Edit Access Point")}
+            dialogError={dialogError}
+            onSubmit={onSubmit}
+            isCreateDialog={isCreateDialog}
+        >
+            <Form isHorizontal onSubmit={onSubmit}>
+                <Name
+                    idPrefix={idPrefix}
+                    iface={iface}
+                    setIface={setIface}
+                />
+
+                <FormGroup label={_("Network name (SSID)")} fieldId={idPrefix + "-ssid-input"} isRequired>
+                    <TextInput
+                        id={idPrefix + "-ssid-input"}
+                        value={ssid}
+                        onChange={(_, val) => setSSID(val)}
+                        validated={ssid && !ssidValidation.valid ? "error" : "default"}
+                        isRequired
+                    />
+                    {ssid && !ssidValidation.valid && (
+                        <FormHelperText>
+                            <HelperText>
+                                <HelperTextItem variant="error">
+                                    {ssidValidation.message}
+                                </HelperTextItem>
+                            </HelperText>
+                        </FormHelperText>
+                    )}
+                    {(!ssid || ssidValidation.valid) && (
+                        <FormHelperText>
+                            <HelperText>
+                                <HelperTextItem>
+                                    {_("Default: HALOS-{last 4 chars of MAC address}")}
+                                </HelperTextItem>
+                            </HelperText>
+                        </FormHelperText>
+                    )}
+                </FormGroup>
+
+                <FormGroup label={_("Security")} fieldId={idPrefix + "-security-select"}>
+                    <select
+                        id={idPrefix + "-security-select"}
+                        className="pf-v6-c-form-control"
+                        value={securityType}
+                        onChange={(e) => setSecurityType(e.target.value)}
+                    >
+                        <option value="wpa-psk">{_("WPA2 (Recommended)")}</option>
+                        <option value="none">{_("Open (No Security)")}</option>
+                    </select>
+                </FormGroup>
+
+                {securityType !== "none" && (
+                    <FormGroup label={_("Password")} fieldId={idPrefix + "-password-input"} isRequired>
+                        <TextInput
+                            id={idPrefix + "-password-input"}
+                            type="password"
+                            value={password}
+                            onChange={(_, val) => setPassword(val)}
+                            placeholder={connection ? _("Leave empty to keep existing password") : _("Enter password")}
+                            validated={password && !passwordValidation.valid ? "error" : "default"}
+                        />
+                        {password && !passwordValidation.valid && (
+                            <FormHelperText>
+                                <HelperText>
+                                    <HelperTextItem variant="error">
+                                        {passwordValidation.message}
+                                    </HelperTextItem>
+                                </HelperText>
+                            </FormHelperText>
+                        )}
+                        {(!password && !connection) && (
+                            <FormHelperText>
+                                <HelperText>
+                                    <HelperTextItem>
+                                        {_("Password must be 8-63 characters for WPA2")}
+                                    </HelperTextItem>
+                                </HelperText>
+                            </FormHelperText>
+                        )}
+                    </FormGroup>
+                )}
+
+                {securityType === "none" && (
+                    <Alert
+                        variant="warning"
+                        isInline
+                        title={_("Security Warning")}
+                    >
+                        <p>
+                            {_("An open Access Point allows anyone to connect without a password.")}
+                        </p>
+                        <p>
+                            {_("This is not recommended for security reasons.")}
+                        </p>
+                    </Alert>
+                )}
+
+                <FormGroup label={_("Frequency Band")} fieldId={idPrefix + "-band-select"}>
+                    <select
+                        id={idPrefix + "-band-select"}
+                        className="pf-v6-c-form-control"
+                        value={band}
+                        onChange={(e) => setBand(e.target.value)}
+                    >
+                        <option value="bg">{_("2.4 GHz")}</option>
+                        <option value="a">{_("5 GHz")}</option>
+                    </select>
+                    <FormHelperText>
+                        <HelperText>
+                            <HelperTextItem>
+                                {_("2.4 GHz provides better range, 5 GHz provides faster speeds")}
+                            </HelperTextItem>
+                        </HelperText>
+                    </FormHelperText>
+                </FormGroup>
+            </Form>
+        </NetworkModal>
+    );
+};
+
+// Helper function to get MAC address from device
+function getMACAddress(dev) {
+    return dev?.HwAddress || "";
+}
+
+// Helper function to generate default SSID for Access Point
+function generateDefaultSSID(dev) {
+    const mac = getMACAddress(dev);
+    if (!mac) return "HALOS-AP";
+
+    // Get last 4 characters of MAC address (without colons)
+    const macSuffix = mac.replace(/:/g, '').slice(-4).toUpperCase();
+    return `HALOS-${macSuffix}`;
+}
+
+// Ghost settings for "Add WiFi" action (Client mode)
 export function getWiFiGhostSettings({ newIfaceName }) {
     return {
         connection: {
@@ -316,6 +582,35 @@ export function getWiFiGhostSettings({ newIfaceName }) {
         },
         ipv4: { method: "auto" },
         ipv6: { method: "auto" },
+    };
+}
+
+// Ghost settings for Access Point mode
+export function getWiFiAPGhostSettings({ newIfaceName, dev }) {
+    return {
+        connection: {
+            id: generateDefaultSSID(dev),
+            type: "802-11-wireless",
+            interface_name: newIfaceName || (dev && dev.Interface) || "",
+            autoconnect: false, // Manual activation for AP
+            uuid: "",
+        },
+        wifi: {
+            ssid: generateDefaultSSID(dev),
+            mode: "ap",
+            band: "bg", // 2.4GHz default
+        },
+        wifi_security: {
+            key_mgmt: "wpa-psk",
+            psk: "", // User must set password
+        },
+        ipv4: {
+            method: "shared", // Enables DHCP server
+            address_data: [{ address: "10.42.0.1", prefix: 24 }],
+        },
+        ipv6: {
+            method: "ignore",
+        },
     };
 }
 
@@ -520,6 +815,12 @@ export const WiFiPage = ({ iface, dev }) => {
         }
     }, [dev, Dialogs]);
 
+    // Enable Access Point
+    const handleEnableAP = useCallback(() => {
+        const settings = getWiFiAPGhostSettings({ newIfaceName: dev.Interface, dev });
+        Dialogs.show(<WiFiAPDialog settings={settings} dev={dev} />);
+    }, [dev, Dialogs]);
+
     // Auto-scan on mount
     useEffect(() => {
         if (dev && dev[" priv"]?.path) {
@@ -531,9 +832,18 @@ export const WiFiPage = ({ iface, dev }) => {
         <Card>
             <CardHeader>
                 <CardTitle>{_("WiFi Networks")}</CardTitle>
-                <Button onClick={handleScan} isDisabled={scanning}>
-                    {scanning ? _("Scanning...") : _("Scan")}
-                </Button>
+                <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                    <FlexItem>
+                        <Button onClick={handleScan} isDisabled={scanning}>
+                            {scanning ? _("Scanning...") : _("Scan")}
+                        </Button>
+                    </FlexItem>
+                    <FlexItem>
+                        <Button variant="secondary" onClick={handleEnableAP}>
+                            {_("Enable Access Point")}
+                        </Button>
+                    </FlexItem>
+                </Flex>
             </CardHeader>
             <CardBody>
                 {error && (

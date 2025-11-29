@@ -38,7 +38,7 @@ import { TeamDialog, getGhostSettings as getTeamGhostSettings } from './team.jsx
 import { TeamPortDialog } from './teamport.jsx';
 import { VlanDialog, getGhostSettings as getVlanGhostSettings } from './vlan.jsx';
 import { WireGuardDialog, getWireGuardGhostSettings } from './wireguard.jsx';
-import { WiFiConnectDialog, getWiFiGhostSettings } from './wifi.jsx';
+import { WiFiConnectDialog, WiFiAPDialog, getWiFiGhostSettings, getWiFiAPGhostSettings } from './wifi.jsx';
 import { MtuDialog } from './mtu.jsx';
 import { MacDialog } from './mac.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -195,6 +195,7 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
         if (type == 'bridge') settings = getBridgeGhostSettings({ newIfaceName });
         if (type == 'wg') settings = getWireGuardGhostSettings({ newIfaceName });
         if (type == 'wifi') settings = getWiFiGhostSettings({ newIfaceName });
+        if (type == 'wifi-ap') settings = getWiFiAPGhostSettings({ newIfaceName, dev });
     }
 
     const properties = { connection: con, dev, settings };
@@ -232,6 +233,8 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
             dlg = <WireGuardDialog {...properties} />;
         else if (type == 'wifi')
             dlg = <WiFiConnectDialog {...properties} />;
+        else if (type == 'wifi-ap')
+            dlg = <WiFiAPDialog {...properties} />;
         else if (type == 'mtu')
             dlg = <MtuDialog {...properties} />;
         else if (type == 'mac')

@@ -276,17 +276,23 @@ export function decode_nm_property(bytes) {
         bytes = cockpit.base64_decode(bytes);
     }
 
-    // Convert byte array to string
-    return String.fromCharCode(...bytes);
+    // Ensure we have a Uint8Array for proper UTF-8 decoding
+    if (!(bytes instanceof Uint8Array)) {
+        bytes = new Uint8Array(bytes);
+    }
+
+    // Decode as UTF-8 (supports all Unicode characters including emoji)
+    const decoder = new TextDecoder('utf-8');
+    return decoder.decode(bytes);
 }
 
 // Convert string to byte array (for SSID, etc.)
 export function encode_nm_property(str) {
-    const bytes = [];
-    for (let i = 0; i < str.length; i++) {
-        bytes.push(str.charCodeAt(i));
-    }
-    return bytes;
+    if (!str) return [];
+
+    // Use TextEncoder for proper UTF-8 encoding (supports all Unicode characters)
+    const encoder = new TextEncoder();
+    return Array.from(encoder.encode(str));
 }
 
 export function list_interfaces() {

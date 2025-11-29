@@ -623,20 +623,8 @@ export function NetworkManagerModel() {
         }
 
         if (settings["802-11-wireless"]) {
-            // Try to get SSID from variant .v property, fallback to direct access
-            let ssid_bytes = get("802-11-wireless", "ssid", []);
-            if (!ssid_bytes || ssid_bytes.length === 0) {
-                // Try direct access if variant extraction failed
-                const ssid_prop = settings["802-11-wireless"]["ssid"];
-                if (ssid_prop && ssid_prop.v) {
-                    ssid_bytes = ssid_prop.v;
-                } else if (Array.isArray(ssid_prop)) {
-                    ssid_bytes = ssid_prop;
-                }
-            }
-
             result.wifi = {
-                ssid: utils.decode_nm_property(ssid_bytes || []),
+                ssid: utils.decode_nm_property(get("802-11-wireless", "ssid", [])),
                 mode: get("802-11-wireless", "mode", "infrastructure"),
                 band: get("802-11-wireless", "band"),
                 hidden: get("802-11-wireless", "hidden", false),

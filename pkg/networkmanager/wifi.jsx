@@ -35,22 +35,9 @@ import { Name, NetworkModal, dialogSave } from "./dialogs-common";
 import { ModelContext } from './model-context';
 import { useDialogs } from 'dialogs.jsx';
 import { v4 as uuidv4 } from 'uuid';
+import { decode_nm_property, encode_nm_property } from './utils';
 
 const _ = cockpit.gettext;
-
-// Helper functions for SSID byte array conversion
-function bytesToString(bytes) {
-    if (!bytes || bytes.length === 0) return "";
-    return String.fromCharCode(...bytes);
-}
-
-function stringToBytes(str) {
-    const bytes = [];
-    for (let i = 0; i < str.length; i++) {
-        bytes.push(str.charCodeAt(i));
-    }
-    return bytes;
-}
 
 // Parse security flags from AccessPoint properties
 function parseSecurityFlags(flags, wpaFlags, rsnFlags) {
@@ -130,17 +117,38 @@ const WiFiNetworkList = ({ accessPoints, onConnect, scanning }) => {
     if (accessPoints.length === 0) {
         return (
             <EmptyState>
-                
+
                 <EmptyStateBody>{_("No networks found")}</EmptyStateBody>
             </EmptyState>
         );
     }
 
-    // Sort by signal strength (strongest first)
-    const sorted = [...accessPoints].sort((a, b) => b.strength - a.strength);
+    // Filter out empty SSIDs (hidden networks) and deduplicate by SSID
+    // Keep only the strongest signal for each unique SSID
+    const uniqueNetworks = new Map();
+    accessPoints
+        .filter(ap => ap.ssid && ap.ssid.trim() !== "") // Filter out empty/hidden SSIDs
+        .forEach(ap => {
+            const existing = uniqueNetworks.get(ap.ssid);
+            if (!existing || ap.strength > existing.strength) {
+                uniqueNetworks.set(ap.ssid, ap);
+            }
+        });
+
+    // Convert back to array and sort by signal strength
+    const sorted = Array.from(uniqueNetworks.values())
+        .sort((a, b) => b.strength - a.strength);
+
+    if (sorted.length === 0) {
+        return (
+            <EmptyState>
+                <EmptyStateBody>{_("No networks found")}</EmptyStateBody>
+            </EmptyState>
+        );
+    }
 
     return (
-        <List>
+        <List isPlain>
             {sorted.map((ap, idx) => (
                 <WiFiNetworkItem
                     key={ap.path || idx}
@@ -159,7 +167,7 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
     const idPrefix = "network-wifi-connect";
 
     const [iface, setIface] = useState(settings.connection.interface_name || (dev && dev.Interface) || "");
-    const [ssid, setSSID] = useState(ap ? bytesToString(ap.ssid) : (settings.wifi?.ssid || ""));
+    const [ssid, setSSID] = useState(ap ? ap.ssid : (settings.wifi?.ssid || ""));
     const [password, setPassword] = useState("");
     const [dialogError, setDialogError] = useState("");
 
@@ -282,18 +290,25 @@ export const WiFiPage = ({ iface, dev }) => {
 
     // Fetch access points from device
     const fetchAccessPoints = async () => {
-        if (!dev || !dev._path) return;
+        const devPath = dev?.[" priv"]?.path;
+        if (!dev || !devPath) {
+            console.warn("fetchAccessPoints: missing dev or devPath", { dev: !!dev, devPath });
+            return;
+        }
 
         try {
-            const apPaths = await model.client.call(
-                dev._path,
-                "org.freedesktop.NetworkManager.Device.Wireless",
-                "GetAccessPoints",
-                []
+            // Get AccessPoints property instead of calling deprecated GetAccessPoints method
+            const apPathsResult = await model.client.call(
+                devPath,
+                "org.freedesktop.DBus.Properties",
+                "Get",
+                ["org.freedesktop.NetworkManager.Device.Wireless", "AccessPoints"]
             );
 
+            const apPaths = apPathsResult[0].v; // Extract array from variant
+
             const aps = await Promise.all(
-                apPaths[0].map(async (apPath) => {
+                apPaths.map(async (apPath) => {
                     const props = await model.client.call(
                         apPath,
                         "org.freedesktop.DBus.Properties",
@@ -302,9 +317,11 @@ export const WiFiPage = ({ iface, dev }) => {
                     );
 
                     const propsObj = props[0];
+                    const ssid = decode_nm_property(propsObj.Ssid.v);
+
                     return {
                         path: apPath,
-                        ssid: bytesToString(propsObj.Ssid.v),
+                        ssid,
                         strength: propsObj.Strength.v,
                         frequency: propsObj.Frequency.v,
                         security: parseSecurityFlags(
@@ -326,19 +343,23 @@ export const WiFiPage = ({ iface, dev }) => {
     const handleScan = async () => {
         setScanning(true);
         try {
-            await model.client.call(
-                dev._path,
-                "org.freedesktop.NetworkManager.Device.Wireless",
-                "RequestScan",
-                [{}]
-            );
-
-            // Wait for scan to complete
-            await new Promise(resolve => setTimeout(resolve, 5000));
-
+            const devPath = dev?.[" priv"]?.path;
+            if (devPath) {
+                // Request an active scan with empty options dict
+                await model.client.call(
+                    devPath,
+                    "org.freedesktop.NetworkManager.Device.Wireless",
+                    "RequestScan",
+                    [{}]
+                );
+                // Wait a moment for scan to complete and APs to populate
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
             await fetchAccessPoints();
         } catch (error) {
-            console.error("Scan failed:", error);
+            console.error("WiFi scan failed:", error);
+            // Still try to fetch APs even if scan failed
+            await fetchAccessPoints();
         } finally {
             setScanning(false);
         }
@@ -357,7 +378,7 @@ export const WiFiPage = ({ iface, dev }) => {
 
     // Auto-scan on mount
     useEffect(() => {
-        if (dev && dev._path) {
+        if (dev && dev[" priv"]?.path) {
             fetchAccessPoints();
         }
     }, [dev]);

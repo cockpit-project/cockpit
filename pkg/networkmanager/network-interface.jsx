@@ -33,6 +33,7 @@ import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { NetworkAction } from './dialogs-common.jsx';
 import { NetworkPlots } from "./plots";
+import { WiFiPage } from './wifi.jsx';
 import { fmt_to_fragments } from 'utils.jsx';
 
 import {
@@ -726,6 +727,14 @@ export const NetworkInterfacePage = ({
     const settingsRows = renderConnectionSettingsRows(iface.MainConnection, connectionSettings)
             .map((component, idx) => <React.Fragment key={idx}>{component}</React.Fragment>);
 
+    function renderWiFiNetworks() {
+        // Only show WiFi networks card for WiFi devices
+        if (!dev || dev.DeviceType !== '802-11-wireless')
+            return null;
+
+        return <WiFiPage iface={iface} dev={dev} />;
+    }
+
     return (
         <Page id="network-interface"
               data-test-wait={operationInProgress}
@@ -780,6 +789,7 @@ export const NetworkInterfacePage = ({
                         }
                     </Card>
                     {renderConnectionMembers(iface.MainConnection)}
+                    {renderWiFiNetworks()}
                 </Gallery>
             </PageSection>
         </Page>

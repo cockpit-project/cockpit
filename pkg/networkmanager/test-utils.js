@@ -315,4 +315,95 @@ QUnit.test("ip6_from_text empty", function (assert) {
     assert.deepEqual(cockpit.base64_decode(utils.ip6_from_text("", true)), zero);
 });
 
+// WiFi SSID encoding/decoding tests
+QUnit.test("decode_nm_property - ASCII SSID", function (assert) {
+    const tests = [
+        // Plain ASCII string
+        { input: "TestNetwork", expected: "TestNetwork" },
+        // SSID with spaces
+        { input: "My Network", expected: "My Network" },
+        // SSID with special chars
+        { input: "Network-5GHz_2.4", expected: "Network-5GHz_2.4" },
+    ];
+
+    tests.forEach(function(t) {
+        const encoded = cockpit.base64_encode(new TextEncoder().encode(t.input));
+        assert.strictEqual(utils.decode_nm_property(encoded), t.expected,
+                         `decode_nm_property('${t.input}') should return '${t.expected}'`);
+    });
+});
+
+QUnit.test("decode_nm_property - UTF-8 SSID", function (assert) {
+    const tests = [
+        // UTF-8 characters
+        { input: "Café WiFi", expected: "Café WiFi" },
+        // Emoji
+        { input: "🏠 Home", expected: "🏠 Home" },
+        // Mixed
+        { input: "Test-网络-123", expected: "Test-网络-123" },
+    ];
+
+    tests.forEach(function(t) {
+        const encoded = cockpit.base64_encode(new TextEncoder().encode(t.input));
+        assert.strictEqual(utils.decode_nm_property(encoded), t.expected,
+                         `decode_nm_property('${t.input}') should return '${t.expected}'`);
+    });
+});
+
+QUnit.test("decode_nm_property - empty and null", function (assert) {
+    assert.strictEqual(utils.decode_nm_property(""), "");
+    assert.strictEqual(utils.decode_nm_property(null), "");
+    assert.strictEqual(utils.decode_nm_property(undefined), "");
+    assert.strictEqual(utils.decode_nm_property(cockpit.base64_encode([])), "");
+});
+
+QUnit.test("encode_nm_property - ASCII SSID", function (assert) {
+    const tests = [
+        { input: "TestNetwork", expected: [84, 101, 115, 116, 78, 101, 116, 119, 111, 114, 107] },
+        { input: "WiFi", expected: [87, 105, 70, 105] },
+    ];
+
+    tests.forEach(function(t) {
+        assert.deepEqual(utils.encode_nm_property(t.input), t.expected,
+                        `encode_nm_property('${t.input}') should return correct byte array`);
+    });
+});
+
+QUnit.test("encode_nm_property - UTF-8 SSID", function (assert) {
+    const tests = [
+        // Café - é is 2 bytes in UTF-8: 0xC3, 0xA9
+        { input: "Café", expected: [67, 97, 102, 195, 169] },
+    ];
+
+    tests.forEach(function(t) {
+        assert.deepEqual(utils.encode_nm_property(t.input), t.expected,
+                        `encode_nm_property('${t.input}') should return correct UTF-8 bytes`);
+    });
+});
+
+QUnit.test("encode_nm_property - empty and null", function (assert) {
+    assert.deepEqual(utils.encode_nm_property(""), []);
+    assert.deepEqual(utils.encode_nm_property(null), []);
+    assert.deepEqual(utils.encode_nm_property(undefined), []);
+});
+
+QUnit.test("encode/decode_nm_property roundtrip", function (assert) {
+    const tests = [
+        "Simple Network",
+        "Stairway to Heaven",
+        "Café WiFi",
+        "🏠 Home Network",
+        "Test-网络-123",
+        "",
+    ];
+
+    tests.forEach(function(original) {
+        const encoded = utils.encode_nm_property(original);
+        const base64 = cockpit.base64_encode(encoded);
+        const decoded = utils.decode_nm_property(base64);
+        assert.strictEqual(decoded, original,
+                         `Roundtrip for '${original}' should preserve the string`);
+    });
+});
+
 QUnit.start();

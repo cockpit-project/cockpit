@@ -17,25 +17,25 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import cockpit from 'cockpit';
 
+import { Alert } from '@patternfly/react-core/dist/esm/components/Alert/index.js';
 import { Badge } from '@patternfly/react-core/dist/esm/components/Badge/index.js';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/esm/components/EmptyState/index.js';
-import { Form, FormGroup } from '@patternfly/react-core/dist/esm/components/Form/index.js';
+import { Form, FormGroup, FormHelperText } from '@patternfly/react-core/dist/esm/components/Form/index.js';
+import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText/index.js';
 import { List, ListItem } from '@patternfly/react-core/dist/esm/components/List/index.js';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner/index.js';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { WifiIcon } from '@patternfly/react-icons';
-
 import { Name, NetworkModal, dialogSave } from "./dialogs-common";
 import { ModelContext } from './model-context';
 import { useDialogs } from 'dialogs.jsx';
 import { v4 as uuidv4 } from 'uuid';
-import { decode_nm_property, encode_nm_property } from './utils';
+import { decode_nm_property } from './utils';
 
 const _ = cockpit.gettext;
 
@@ -127,17 +127,17 @@ const WiFiNetworkList = ({ accessPoints, onConnect, scanning }) => {
     // Keep only the strongest signal for each unique SSID
     const uniqueNetworks = new Map();
     accessPoints
-        .filter(ap => ap.ssid && ap.ssid.trim() !== "") // Filter out empty/hidden SSIDs
-        .forEach(ap => {
-            const existing = uniqueNetworks.get(ap.ssid);
-            if (!existing || ap.strength > existing.strength) {
-                uniqueNetworks.set(ap.ssid, ap);
-            }
-        });
+            .filter(ap => ap.ssid && ap.ssid.trim() !== "") // Filter out empty/hidden SSIDs
+            .forEach(ap => {
+                const existing = uniqueNetworks.get(ap.ssid);
+                if (!existing || ap.strength > existing.strength) {
+                    uniqueNetworks.set(ap.ssid, ap);
+                }
+            });
 
     // Convert back to array and sort by signal strength
     const sorted = Array.from(uniqueNetworks.values())
-        .sort((a, b) => b.strength - a.strength);
+            .sort((a, b) => b.strength - a.strength);
 
     if (sorted.length === 0) {
         return (
@@ -173,9 +173,28 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
 
     const isCreateDialog = !connection;
 
+    // Validate password for WPA/WPA2/WPA3 networks
+    const validatePassword = (pwd, security) => {
+        if (!security || security === "open") return { valid: true, message: "" };
+        if (!pwd && connection) return { valid: true, message: "" }; // Empty password OK for editing (keeps existing)
+        if (pwd.length === 0) return { valid: false, message: _("Password is required for secure networks") };
+        if (pwd.length < 8) return { valid: false, message: _("Password must be at least 8 characters") };
+        if (pwd.length > 63) return { valid: false, message: _("Password must not exceed 63 characters") };
+        return { valid: true, message: "" };
+    };
+
+    const passwordValidation = validatePassword(password, ap?.security);
+    const isPasswordValid = passwordValidation.valid;
+
     const onSubmit = (ev) => {
         if (ev) {
             ev.preventDefault();
+        }
+
+        // Validate password before submitting
+        if (!isPasswordValid) {
+            setDialogError(passwordValidation.message);
+            return;
         }
 
         // Build WiFi connection settings
@@ -254,7 +273,26 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
                             value={password}
                             onChange={(_, val) => setPassword(val)}
                             placeholder={connection ? _("Leave empty to keep existing password") : _("Enter password")}
+                            validated={password && !isPasswordValid ? "error" : "default"}
                         />
+                        {password && !isPasswordValid && (
+                            <FormHelperText>
+                                <HelperText>
+                                    <HelperTextItem variant="error">
+                                        {passwordValidation.message}
+                                    </HelperTextItem>
+                                </HelperText>
+                            </FormHelperText>
+                        )}
+                        {(!password && !connection) && (
+                            <FormHelperText>
+                                <HelperText>
+                                    <HelperTextItem>
+                                        {_("Password must be 8-63 characters")}
+                                    </HelperTextItem>
+                                </HelperText>
+                            </FormHelperText>
+                        )}
                     </FormGroup>
                 )}
             </Form>
@@ -281,20 +319,50 @@ export function getWiFiGhostSettings({ newIfaceName }) {
     };
 }
 
+// Open Network Warning Dialog
+const OpenNetworkWarningDialog = ({ ap, onProceed, onCancel }) => {
+    return (
+        <NetworkModal
+            id="open-network-warning-dialog"
+            title={_("Unsecured Network")}
+            onSubmit={onProceed}
+            submitLabel={_("Connect Anyway")}
+            isCreateDialog
+        >
+            <Alert
+                variant="warning"
+                isInline
+                title={_("Security Warning")}
+            >
+                <p>
+                    {cockpit.format(_("The network \"$0\" is not secured."), ap.ssid)}
+                </p>
+                <p>
+                    {_("Your data will be transmitted unencrypted and could be intercepted by others.")}
+                </p>
+            </Alert>
+        </NetworkModal>
+    );
+};
+
 // WiFi Page Component (for future use with dedicated WiFi management page)
 export const WiFiPage = ({ iface, dev }) => {
     const model = useContext(ModelContext);
     const Dialogs = useDialogs();
     const [scanning, setScanning] = useState(false);
     const [accessPoints, setAccessPoints] = useState([]);
+    const [error, setError] = useState(null);
+    const fetchRequestIdRef = useRef(0); // Track fetch requests to handle race conditions
 
     // Fetch access points from device
-    const fetchAccessPoints = async () => {
+    const fetchAccessPoints = useCallback(async () => {
         const devPath = dev?.[" priv"]?.path;
         if (!dev || !devPath) {
-            console.warn("fetchAccessPoints: missing dev or devPath", { dev: !!dev, devPath });
             return;
         }
+
+        // Increment request ID to track this fetch
+        const requestId = ++fetchRequestIdRef.current;
 
         try {
             // Get AccessPoints property instead of calling deprecated GetAccessPoints method
@@ -304,6 +372,11 @@ export const WiFiPage = ({ iface, dev }) => {
                 "Get",
                 ["org.freedesktop.NetworkManager.Device.Wireless", "AccessPoints"]
             );
+
+            // Check if this request is still valid (not superseded by a newer one)
+            if (requestId !== fetchRequestIdRef.current) {
+                return; // Ignore stale response
+            }
 
             const apPaths = apPathsResult[0].v; // Extract array from variant
 
@@ -333,55 +406,126 @@ export const WiFiPage = ({ iface, dev }) => {
                 })
             );
 
-            setAccessPoints(aps);
-        } catch (error) {
-            console.error("Failed to fetch access points:", error);
+            // Final check before updating state
+            if (requestId === fetchRequestIdRef.current) {
+                setAccessPoints(aps);
+                setError(null);
+            }
+        } catch (err) {
+            // Only update error if this is still the latest request
+            if (requestId === fetchRequestIdRef.current) {
+                console.error("Failed to fetch access points:", err);
+                setError(_("Failed to retrieve WiFi networks. Please try scanning again."));
+            }
         }
-    };
+    }, [dev, model.client]);
+
+    // Wait for scan completion by polling LastScan property
+    const waitForScanCompletion = useCallback(async (devPath, initialLastScan) => {
+        const maxAttempts = 20; // 20 * 500ms = 10 seconds max
+        const pollInterval = 500; // Poll every 500ms
+
+        for (let i = 0; i < maxAttempts; i++) {
+            await new Promise(resolve => setTimeout(resolve, pollInterval));
+
+            try {
+                const lastScanResult = await model.client.call(
+                    devPath,
+                    "org.freedesktop.DBus.Properties",
+                    "Get",
+                    ["org.freedesktop.NetworkManager.Device.Wireless", "LastScan"]
+                );
+
+                const lastScan = lastScanResult[0].v;
+
+                // If LastScan timestamp has changed, scan is complete
+                if (lastScan !== initialLastScan) {
+                    return true;
+                }
+            } catch (err) {
+                console.error("Error polling LastScan:", err);
+                // Continue polling despite error
+            }
+        }
+
+        // Timeout reached
+        return false;
+    }, [model.client]);
 
     // Trigger network scan
-    const handleScan = async () => {
+    const handleScan = useCallback(async () => {
         setScanning(true);
+        setError(null);
+
         try {
             const devPath = dev?.[" priv"]?.path;
-            if (devPath) {
-                // Request an active scan with empty options dict
-                await model.client.call(
-                    devPath,
-                    "org.freedesktop.NetworkManager.Device.Wireless",
-                    "RequestScan",
-                    [{}]
-                );
-                // Wait a moment for scan to complete and APs to populate
-                await new Promise(resolve => setTimeout(resolve, 5000));
+            if (!devPath) {
+                throw new Error("Device path not available");
             }
+
+            // Get current LastScan timestamp before requesting scan
+            const initialLastScanResult = await model.client.call(
+                devPath,
+                "org.freedesktop.DBus.Properties",
+                "Get",
+                ["org.freedesktop.NetworkManager.Device.Wireless", "LastScan"]
+            );
+            const initialLastScan = initialLastScanResult[0].v;
+
+            // Request an active scan with empty options dict
+            await model.client.call(
+                devPath,
+                "org.freedesktop.NetworkManager.Device.Wireless",
+                "RequestScan",
+                [{}]
+            );
+
+            // Wait for scan to complete
+            const scanCompleted = await waitForScanCompletion(devPath, initialLastScan);
+
+            if (!scanCompleted) {
+                console.warn("Scan timeout reached, fetching APs anyway");
+            }
+
+            // Fetch updated access points
             await fetchAccessPoints();
-        } catch (error) {
-            console.error("WiFi scan failed:", error);
+        } catch (err) {
+            console.error("WiFi scan failed:", err);
+            setError(_("WiFi scan failed. Please try again."));
             // Still try to fetch APs even if scan failed
             await fetchAccessPoints();
         } finally {
             setScanning(false);
         }
-    };
+    }, [dev, model.client, waitForScanCompletion, fetchAccessPoints]);
 
     // Connect to network
-    const handleConnect = (ap) => {
+    const handleConnect = useCallback((ap) => {
         if (ap.security === "open") {
-            // TODO: Show warning dialog for open networks
-            console.warn("Connecting to open network:", ap.ssid);
+            // Show warning dialog for open networks
+            Dialogs.show(
+                <OpenNetworkWarningDialog
+                    ap={ap}
+                    onProceed={() => {
+                        Dialogs.close();
+                        const settings = getWiFiGhostSettings({ newIfaceName: dev.Interface });
+                        Dialogs.show(<WiFiConnectDialog settings={settings} dev={dev} ap={ap} />);
+                    }}
+                    onCancel={() => Dialogs.close()}
+                />
+            );
+        } else {
+            const settings = getWiFiGhostSettings({ newIfaceName: dev.Interface });
+            Dialogs.show(<WiFiConnectDialog settings={settings} dev={dev} ap={ap} />);
         }
-
-        const settings = getWiFiGhostSettings({ newIfaceName: dev.Interface });
-        Dialogs.show(<WiFiConnectDialog settings={settings} dev={dev} ap={ap} />);
-    };
+    }, [dev, Dialogs]);
 
     // Auto-scan on mount
     useEffect(() => {
         if (dev && dev[" priv"]?.path) {
             fetchAccessPoints();
         }
-    }, [dev]);
+    }, [dev, fetchAccessPoints]);
 
     return (
         <Card>
@@ -392,6 +536,14 @@ export const WiFiPage = ({ iface, dev }) => {
                 </Button>
             </CardHeader>
             <CardBody>
+                {error && (
+                    <Alert
+                        variant="danger"
+                        isInline
+                        title={error}
+                        style={{ marginBottom: "1rem" }}
+                    />
+                )}
                 <WiFiNetworkList
                     accessPoints={accessPoints}
                     onConnect={handleConnect}

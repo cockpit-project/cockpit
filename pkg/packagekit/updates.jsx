@@ -81,6 +81,7 @@ import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
+import { Severity } from '_internal/packagemanager-abstract';
 
 const _ = cockpit.gettext;
 
@@ -152,7 +153,7 @@ function shortenCockpitWsInstance(list) {
 function count_security_updates(updates) {
     let num_security = 0;
     for (const u of updates)
-        if (u.severity === PK.Enum.INFO_SECURITY)
+        if (u.severity === Severity.CRITICAL)
             ++num_security;
     return num_security;
 }
@@ -170,7 +171,7 @@ function count_kpatch_updates(updates) {
 }
 
 function find_highest_severity(updates) {
-    let max = PK.Enum.INFO_LOW;
+    let max = Severity.LOW;
     for (const u of updates)
         if (u.severity > max)
             max = u.severity;
@@ -180,8 +181,8 @@ function find_highest_severity(updates) {
 /**
  * Get appropriate icon for an update severity
  *
- * info: An Enum.INFO_* level
- * secSeverity: If given, further classification of the severity of Enum.INFO_SECURITY from the vendor_urls;
+ * info: An Severity level
+ * secSeverity: If given, further classification of the severity of Severity.CRITICAL from the vendor_urls;
  *              e. g. "critical", see https://access.redhat.com/security/updates/classification
  * Returns: Icon JSX object
  *
@@ -190,18 +191,18 @@ function getSeverityIcon(info, secSeverity) {
     let classes = "severity-icon";
     if (secSeverity)
         classes += " severity-" + secSeverity;
-    if (info == PK.Enum.INFO_SECURITY)
+    if (info == Severity.CRITICAL)
         return <SecurityIcon aria-label={ secSeverity || _("security") } className={classes} />;
-    else if (info >= PK.Enum.INFO_NORMAL)
+    else if (info >= Severity.IMPORTANT)
         return <BugIcon className={classes} aria-label={ _("bug fix") } />;
     else
         return <EnhancementIcon className={classes} aria-label={ _("enhancement") } />;
 }
 
 function getPageStatusSeverityIcon(severity) {
-    if (severity == PK.Enum.INFO_SECURITY)
+    if (severity == Severity.CRITICAL)
         return "security";
-    else if (severity >= PK.Enum.INFO_NORMAL)
+    else if (severity >= Severity.IMPORTANT)
         return "bug";
     else
         return "enhancement";
@@ -284,7 +285,7 @@ function updateItem(remarkable, info, pkgNames, key) {
     const secSeverity = secSeverityURL ? secSeverityURL.slice(secSeverityURL.indexOf("#") + 1) : null;
     const icon = getSeverityIcon(info.severity, secSeverity);
     let type;
-    if (info.severity === PK.Enum.INFO_SECURITY) {
+    if (info.severity === Severity.CRITICAL) {
         if (secSeverityURL)
             secSeverityURL = <a rel="noopener noreferrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
         type = (
@@ -296,7 +297,7 @@ function updateItem(remarkable, info, pkgNames, key) {
             </Tooltip>
         );
     } else {
-        const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
+        const tip = (info.severity >= Severity.IMPORTANT) ? _("bug fix") : _("enhancement");
         type = (
             <Tooltip id="tip-severity" content={tip}>
                 <span>
@@ -382,7 +383,7 @@ function updateItem(remarkable, info, pkgNames, key) {
         ],
         props: {
             key,
-            className: info.severity === PK.Enum.INFO_SECURITY ? ["error"] : [],
+            className: info.severity === Severity.CRITICAL ? ["error"] : [],
         },
         hasPadding: true,
         expandedContent,
@@ -413,9 +414,9 @@ const UpdatesList = ({ updates }) => {
 
     // sort security first
     combined_updates.sort((a, b) => {
-        if (a.severity === PK.Enum.INFO_SECURITY && b.severity !== PK.Enum.INFO_SECURITY)
+        if (a.severity === Severity.CRITICAL && b.severity !== Severity.CRITICAL)
             return -1;
-        if (a.severity !== PK.Enum.INFO_SECURITY && b.severity === PK.Enum.INFO_SECURITY)
+        if (a.severity !== Severity.CRITICAL && b.severity === Severity.CRITICAL)
             return 1;
         return a.name.localeCompare(b.name);
     });
@@ -1314,7 +1315,7 @@ class OsUpdates extends React.Component {
     applyUpdates(type) {
         let updates = [...this.state.updates];
         if (type === UPDATES.SECURITY)
-            updates = updates.filter(update => update.severity === PK.Enum.INFO_SECURITY);
+            updates = updates.filter(update => update.severity === Severity.CRITICAL);
         if (type === UPDATES.KPATCHES) {
             updates = updates.filter(update => isKpatchPackage(update.name));
         }
@@ -1417,11 +1418,11 @@ class OsUpdates extends React.Component {
             }
 
             let text;
-            if (highest_severity == PK.Enum.INFO_SECURITY)
+            if (highest_severity == Severity.CRITICAL)
                 text = _("Security updates available");
-            else if (highest_severity >= PK.Enum.INFO_NORMAL)
+            else if (highest_severity >= Severity.IMPORTANT)
                 text = _("Bug fix updates available");
-            else if (highest_severity >= PK.Enum.INFO_LOW)
+            else if (highest_severity >= Severity.LOW)
                 text = _("Enhancement updates available");
             else
                 text = _("Updates available");

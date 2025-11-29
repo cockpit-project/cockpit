@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { Severity } from "_internal/packagemanager-abstract";
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
 
@@ -411,31 +412,6 @@ export function check_missing_packages(names, progress_cb) {
 }
 
 /**
- * Check a list of packages whether they are installed.
- *
- * @param {string[]} names - names of packages which should be installed
- * @return {Promise<boolean>} true if packages are installed
- */
-export async function is_installed(names, progress_cb) {
-    const uninstalled = new Set(names);
-
-    if (uninstalled.size === 0)
-        return true;
-
-    await cancellableTransaction("Resolve",
-                                 [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, names],
-                                 progress_cb,
-                                 {
-                                     Package: (info, package_id) => {
-                                         const parts = package_id.split(";");
-                                         uninstalled.delete(parts[0]);
-                                     },
-                                 });
-
-    return uninstalled.size === 0;
-}
-
-/**
  * Check a list of packages whether they are available.
  *
  * @param {string[]} names - names of packages which should be available in the repositories
@@ -461,66 +437,6 @@ export async function is_available(names, progress_cb) {
 }
 
 /**
- * Find installed packages that own the given files.
- *
- * @param {string[]} files - the files to resolve to packages
- * @return {Promise<string[]>} installed package names
- */
-export async function find_file_packages(files, progress_cb) {
-    const installed = [];
-    await cancellableTransaction("SearchFiles",
-                                 [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, files],
-                                 progress_cb,
-                                 {
-                                     Package: (info, package_id) => {
-                                         const pkg = package_id.split(";")[0];
-                                         installed.push(pkg);
-                                     },
-                                 });
-
-    return installed;
-}
-
-/* Carry out what check_missing_packages has planned.
- *
- * In addition to the usual "waiting", "percentage", and "cancel"
- * fields, the object reported by progress_cb also includes "info" and
- * "package" from the "Package" signal.
- */
-
-export function install_missing_packages(data, progress_cb) {
-    if (!data || data.missing_ids.length === 0)
-        return Promise.resolve();
-
-    let last_progress;
-    let last_info;
-    let last_name;
-
-    function report_progess() {
-        progress_cb({
-            waiting: last_progress.waiting,
-            percentage: last_progress.percentage,
-            cancel: last_progress.cancel,
-            info: last_info,
-            package: last_name
-        });
-    }
-
-    return cancellableTransaction("InstallPackages", [0, data.missing_ids],
-                                  p => {
-                                      last_progress = p;
-                                      report_progess();
-                                  },
-                                  {
-                                      Package: (info, id) => {
-                                          last_info = info;
-                                          last_name = id.split(";")[0];
-                                          report_progess();
-                                      }
-                                  });
-}
-
-/**
  * Get the used backendName in PackageKit.
  */
 export function getBackendName() {
@@ -535,49 +451,6 @@ export function getBackendName() {
  */
 export function refresh(force = false, progress_cb) {
     return cancellableTransaction("RefreshCache", [force], progress_cb);
-}
-
-/**
- * Remove packages by their names.
- *
- * @param {?string[] | undefined} pkgnames - packages to remove
- * @param {?() => void} progress_cb - progress callback
- */
-export async function remove_packages(pkgnames, progress_cb) {
-    const ids = [];
-
-    await cancellableTransaction("Resolve", [Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED | Enum.FILTER_NOT_SOURCE, pkgnames], null,
-                                 {
-                                     Package: (_info, package_id) => ids.push(package_id),
-                                 });
-
-    if (ids.length === 0)
-        return Promise.resolve();
-
-    return cancellableTransaction("RemovePackages", [0, ids, true, false], progress_cb);
-}
-
-/**
- * @param {string[]} pkgnames - packages to install
- * @param {?() => void} progress_cb - optional progress callback
- */
-export async function install_packages(pkgnames, progress_cb) {
-    const flags = Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST;
-    const ids = [];
-
-    await cancellableTransaction("Resolve", [flags | Enum.FILTER_NOT_INSTALLED, Array.from(pkgnames)], null,
-                                 {
-                                     Package: (_info, package_id) => ids.push(package_id),
-                                 });
-
-    if (ids.length === 0)
-        return Promise.reject(new TransactionError("not-found", "Can't resolve package(s)"));
-    else
-        return cancellableTransaction("InstallPackages", [0, ids], progress_cb)
-                .catch(ex => {
-                    if (ex.code != Enum.ERROR_ALREADY_INSTALLED)
-                        return Promise.reject(ex);
-                });
 }
 
 /**
@@ -628,7 +501,7 @@ function loadUpdateDetailsBatch(pkg_ids, update_details, progress_cb) {
             // many backends don't support proper severities; parse CVEs from description as a fallback
             u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
             if (u.cve_urls && u.cve_urls.length > 0)
-                u.severity = Enum.INFO_SECURITY;
+                u.severity = Severity.CRITICAL;
             u.vendor_urls = vendor_urls || [];
             // u.restart = restart; // broken (always "1") at least in Fedora
             debug("UpdateDetail:", u);
@@ -657,6 +530,17 @@ export async function get_updates(details, progress_cb) {
                 // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
                 if (info < Enum.INFO_LOW || info > Enum.INFO_SECURITY)
                     info = Enum.INFO_NORMAL;
+
+                if (info == Enum.INFO_LOW)
+                    info = Severity.LOW;
+                else if (info == Enum.INFO_ENHANCEMENT)
+                    info = Severity.MODERATE;
+                else if (info == Enum.INFO_SECURITY)
+                    info = Severity.CRITICAL;
+                else if (info >= Enum.INFO_NORMAL)
+                    info = Severity.IMPORTANT;
+                else
+                    info = Severity.MODERATE;
 
                 updates[packageId] = { id: packageId, name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2], summary };
             }
@@ -709,8 +593,8 @@ export async function get_updates(details, progress_cb) {
  * Update packages
  *
  * @param {any[]} updates - packages to update from get_updates()
- * @param {?() => void} progress_cb - optional progress callback
- * @param {?string} transaction_path - optional transaction_path to re-use an existing transaction
+ * @param {any} progress_cb - optional progress callback
+ * @param {string | undefined} transaction_path - optional transaction_path to re-use an existing transaction
  */
 export function update_packages(updates, progress_cb, transaction_path) {
     const update_ids = updates.map(update => update.id);

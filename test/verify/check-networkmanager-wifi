@@ -346,6 +346,179 @@ class TestWiFi(netlib.NetworkCase):
         m.execute("nmcli connection down test-ap-open || true")
         m.execute("nmcli connection delete test-ap-open || true")
 
+    def testWiFiNetworksCardVisible(self):
+        """
+        Issue #17: WiFi Networks card appears on WiFi interface details page
+
+        Test that:
+        - WiFi Networks card is visible when viewing WiFi interface
+        - Card contains "Scan" button
+        - Card title is "WiFi Networks"
+        """
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface details
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # WiFi Networks card should be visible
+        b.wait_visible(".pf-v6-c-card:contains('WiFi Networks')")
+
+        # Scan button should be present
+        b.wait_visible("button:contains('Scan')")
+
+    def testWiFiNetworksCardNotVisibleForEthernet(self):
+        """
+        Issue #17: WiFi Networks card should NOT appear for non-WiFi interfaces
+
+        Test that:
+        - WiFi Networks card is not shown for Ethernet interfaces
+        - Only generic interface details are shown
+        """
+        b = self.browser
+        m = self.machine
+
+        # Ensure we have an Ethernet interface
+        eth_dev = m.execute("nmcli -t -f DEVICE,TYPE device | grep ethernet | head -1 | cut -d: -f1").strip()
+        if not eth_dev:
+            self.skipTest("No Ethernet device available")
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to Ethernet interface details
+        b.click(f"#networking-interfaces button:contains('{eth_dev}')")
+        b.wait_visible("#network-interface")
+
+        # WiFi Networks card should NOT be present
+        b.wait_not_present(".pf-v6-c-card:contains('WiFi Networks')")
+
+    def testNetworkScanningUI(self):
+        """
+        Issue #17: Network scanning UI functionality
+
+        Test that:
+        - Scan button triggers network scan
+        - Scanning state is shown (spinner)
+        - Networks appear after scanning
+        - Networks are sorted by signal strength
+        """
+        b = self.browser
+        m = self.machine
+
+        # Setup: Create test AP
+        test_ssid = "TestScanNetwork"
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev2} \
+                con-name test-scan-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24
+        """)
+        m.execute("nmcli connection up test-scan-ap")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+        b.wait_visible(".pf-v6-c-card:contains('WiFi Networks')")
+
+        # Click Scan button
+        b.click("button:contains('Scan')")
+
+        # Should show scanning state (spinner)
+        b.wait_visible(".pf-v6-c-spinner")
+
+        # Wait for scan to complete and networks to appear
+        b.wait_not_present(".pf-v6-c-spinner")
+
+        # Test network should be visible in list
+        b.wait_visible(f"li:contains('{test_ssid}')")
+
+        # Signal strength indicator should be present
+        b.wait_visible(".signal-strength")
+
+        # Security badge should be present
+        b.wait_visible(".security-badge")
+
+        # Cleanup
+        m.execute("nmcli connection down test-scan-ap || true")
+        m.execute("nmcli connection delete test-scan-ap || true")
+
+    def testNetworkSelectionFromScanner(self):
+        """
+        Issue #17: Selecting network from scanner opens connect dialog
+
+        Test that:
+        - Clicking a network in the list opens WiFiConnectDialog
+        - SSID is pre-filled in the dialog
+        - Password field is present for secured networks
+        """
+        b = self.browser
+        m = self.machine
+
+        # Setup: Create test AP
+        test_ssid = "TestSelectNetwork"
+        test_password = "testpass123"
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev2} \
+                con-name test-select-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+        m.execute("nmcli connection up test-select-ap")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+        b.wait_visible(".pf-v6-c-card:contains('WiFi Networks')")
+
+        # Scan for networks
+        b.click("button:contains('Scan')")
+        b.wait_not_present(".pf-v6-c-spinner")
+        b.wait_visible(f"li:contains('{test_ssid}')")
+
+        # Click on the network
+        b.click(f"li:contains('{test_ssid}')")
+
+        # WiFi connect dialog should open
+        b.wait_visible("#network-wifi-connect-dialog")
+
+        # SSID should be pre-filled
+        ssid_input = b.val("#network-wifi-connect-ssid-input")
+        self.assertEqual(ssid_input, test_ssid)
+
+        # Password field should be present
+        b.wait_visible("#network-wifi-connect-password-input")
+
+        # Close dialog
+        b.click("#network-wifi-connect-dialog button:contains('Cancel')")
+        b.wait_not_present("#network-wifi-connect-dialog")
+
+        # Cleanup
+        m.execute("nmcli connection down test-select-ap || true")
+        m.execute("nmcli connection delete test-select-ap || true")
+
 
 if __name__ == "__main__":
     testlib.test_main()

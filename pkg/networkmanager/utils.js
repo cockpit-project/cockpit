@@ -56,6 +56,35 @@ export function ip_metric_from_text(text) {
     throw cockpit.format(_("Invalid metric $0"), text);
 }
 
+export function ip_network_address(address, prefix_len) {
+    const addrCIDR = address.toString() + "/" + prefix_len;
+    const ip_obj = address.kind() === "ipv4" ? ipaddr.IPv4 : ipaddr.IPv6;
+
+    try {
+        return ip_obj.networkAddressFromCIDR(addrCIDR).toString();
+    } catch (_e) {
+        return null;
+    }
+}
+
+export function ip_first_usable_address(address, prefix) {
+    try {
+        const addr_cidr = address.toString() + "/" + prefix;
+
+        if (address.kind() === "ipv4") {
+            const netAddr = ipaddr.IPv4.networkAddressFromCIDR(addr_cidr);
+            netAddr.octets[3] += (prefix < 31) ? 1 : 0;
+            return netAddr.toString();
+        } else {
+            const netAddr = ipaddr.IPv6.networkAddressFromCIDR(addr_cidr);
+            netAddr.parts[7] += (prefix < 127) ? 1 : 0;
+            return netAddr.toString();
+        }
+    } catch (_e) {
+        return null;
+    }
+}
+
 function toDec(n) {
     return n.toString(10);
 }
@@ -140,36 +169,21 @@ export function ip4_from_text(text, empty_is_zero) {
     return num;
 }
 
-const text_to_prefix_bits = {
-    255: 8, 254: 7, 252: 6, 248: 5, 240: 4, 224: 3, 192: 2, 128: 1, 0: 0
-};
-
-export function ip4_prefix_from_text(text) {
-    function invalid() {
-        throw cockpit.format(_("Invalid prefix or netmask $0"), text);
+export function ip4_prefix_from_text(prefix_mask) {
+    const trimmed_mask = prefix_mask.trim();
+    if (/^[0-9]+$/.test(trimmed_mask)) {
+        return parseInt(prefix_mask, 10);
     }
 
-    if (/^[0-9]+$/.test(text.trim()))
-        return parseInt(text, 10);
-    const parts = text.split('.');
-    if (parts.length != 4)
-        invalid();
-    let prefix = 0;
-    let i;
-    for (i = 0; i < 4; i++) {
-        const p = text_to_prefix_bits[parts[i].trim()];
-        if (p !== undefined) {
-            prefix += p;
-            if (p < 8)
-                break;
-        } else
-            invalid();
+    // make sure that mask has 4 octets format
+    if (validate_ipv4(trimmed_mask)) {
+        const prefix = ipaddr.IPv4.parse(trimmed_mask).prefixLengthFromSubnetMask();
+        if (prefix !== null) {
+            return prefix;
+        }
     }
-    for (i += 1; i < 4; i++) {
-        if (/^0+$/.test(parts[i].trim()) === false)
-            invalid();
-    }
-    return prefix;
+
+    throw cockpit.format(_("Invalid prefix or netmask $0"), prefix_mask);
 }
 
 // Shorten IPv6 address according to RFC 5952

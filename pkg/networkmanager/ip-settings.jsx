@@ -19,6 +19,7 @@
 
 import React, { useState, useContext, useEffect } from 'react';
 import cockpit from 'cockpit';
+import * as ipaddr from "ipaddr.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { FormFieldGroup, FormFieldGroupHeader, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -33,6 +34,7 @@ import { PlusIcon, TrashIcon } from '@patternfly/react-icons';
 import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 import { useDialogs } from "dialogs.jsx";
+import { ip_first_usable_address, ip_network_address, validate_ip, ip_prefix_from_text, ip4_prefix_from_text } from './utils.js';
 
 const _ = cockpit.gettext;
 
@@ -100,7 +102,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
     useEffect(() => {
         // The manual method needs at least one address
         if (method == 'manual' && addresses.length == 0)
-            setAddresses([{ address: "", netmask: "" }]);
+            setAddresses([{ address: "", prefix: "" }]);
 
         if (!canHaveExtra) {
             setAddresses([]);
@@ -138,27 +140,70 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         });
     };
 
-    const addressIpv4Helper = (address, i) => {
-        const config = { address, prefix: '' };
-        const split = address.split('.');
+    const ipDefaultPrefix = (address) => {
+        if (address.kind() === "ipv6") {
+            return "64";
+        }
 
-        if (split.length !== 4) {
-            if (i === 0 && !gatewaySetExplicitly)
-                setDefaultGateway("");
+        // use classful IPv4 prefixes when only host address is specified
+        const octets = address.octets;
+        if (octets[0] >= 0 && octets[0] <= 127) {
+            return "8";
+        } else if (octets[0] >= 128 && octets[0] <= 191) {
+            return "16";
+        } else if (octets[0] >= 192 && octets[0] <= 223) {
+            return "24";
+        }
+
+        return "";
+    };
+
+    const addressHelper = (address_str, prefix_str, i, prefixField) => {
+        const config = { address: address_str, prefix: prefix_str };
+
+        if (!validate_ip(address_str)) {
             return config;
         }
 
-        if (split[0] >= 0 && split[0] <= 127) {
-            config.prefix = "255.0.0.0";
-        } else if (split[0] >= 128 && split[0] <= 191) {
-            config.prefix = "255.255.0.0";
-        } else if (split[0] <= 192 && split[0] <= 223) {
-            config.prefix = "255.255.255.0";
+        const address = ipaddr.parse(address_str);
+        if (address.kind() !== topic) {
+            return config;
         }
 
-        // pre-fill default gateway based on the first address for classfull prefixes
-        if (i === 0 && config.prefix !== "" && !gatewaySetExplicitly) {
-            setDefaultGateway(`${split[0]}.${split[1]}.${split[2]}.${split[3] === "1" ? "254" : "1"}`);
+        if (prefix_str === "" && !prefixField) {
+            config.prefix = ipDefaultPrefix(address);
+        }
+
+        // prefix_str can contain prefix or IPv4 subnet mask
+        let numericPrefix;
+        try {
+            numericPrefix = (address.kind() === "ipv4") ? ip4_prefix_from_text(config.prefix) : ip_prefix_from_text(config.prefix);
+        } catch (_e) {
+            return config;
+        }
+
+        // do not set gateway for last three prefixes
+        // /30 and /126 only has two usable addresses
+        // /31 and /127 is a point-to-point link with no gateway
+        // /32 and /128 is a single host address
+        const maxPrefix = (address.kind() === "ipv4") ? 30 : 126;
+
+        if (i === 0 && numericPrefix < maxPrefix && !gatewaySetExplicitly) {
+            const netAddr = ip_network_address(address, numericPrefix);
+            const firstAddr = ip_first_usable_address(address, numericPrefix);
+            const addrCompactStr = address.toString();
+
+            // do not set the default gateway automatically if the host address
+            // is the first address in the subnet or network address
+            if (firstAddr !== null && addrCompactStr !== firstAddr &&
+                 netAddr !== null && netAddr !== addrCompactStr) {
+                setDefaultGateway(firstAddr);
+            } else {
+                setDefaultGateway("");
+            }
+        } else if (!gatewaySetExplicitly) {
+            // reset
+            setDefaultGateway("");
         }
 
         return config;
@@ -219,7 +264,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     <TextInput id={idPrefix + "-address-" + i} value={address.address} onChange={(_event, value) => setAddresses(
                                         addresses.map((item, index) =>
                                             i === index
-                                                ? addressIpv4Helper(value, i)
+                                                ? addressHelper(value, item.prefix, i, false)
                                                 : item
                                         ))} />
                                 </FormGroup>
@@ -227,7 +272,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                     <TextInput id={idPrefix + "-netmask-" + i} value={address.prefix} onChange={(_event, value) => setAddresses(
                                         addresses.map((item, index) =>
                                             i === index
-                                                ? { ...item, prefix: value }
+                                                ? addressHelper(item.address, value, i, true)
                                                 : item
                                         ))} />
                                 </FormGroup>

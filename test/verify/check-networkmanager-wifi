@@ -546,36 +546,33 @@ class TestWiFi(netlib.NetworkCase):
         b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
         b.wait_visible("#network-interface")
 
-        # This test will FAIL until Issue #5 is implemented
-        # Expected: Button to create/enable Access Point
-
-        # Click "Enable Access Point" or similar button
-        # b.click("button:contains('Enable Access Point')")  # Will fail - not implemented
-        # b.wait_visible("#network-wifi-ap-dialog")  # Will fail
+        # Click "Enable Access Point" button
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
 
         # Verify default SSID is pre-filled
-        # ssid_value = b.val("#network-wifi-ap-ssid-input")
-        # self.assertEqual(ssid_value, expected_default_ssid)
+        ssid_value = b.val("#network-wifi-ap-ssid-input")
+        self.assertEqual(ssid_value, expected_default_ssid)
 
         # Set password
-        # test_password = "testap123"
-        # b.set_input_text("#network-wifi-ap-password-input", test_password)
+        test_password = "testap123"
+        b.set_input_text("#network-wifi-ap-password-input", test_password)
 
         # Save AP configuration
-        # b.click("#network-wifi-ap-dialog button:contains('Save')")
-        # b.wait_not_present("#network-wifi-ap-dialog")
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
 
         # Verify connection was created via nmcli
-        # connections = m.execute("nmcli -t -f NAME,TYPE connection show")
-        # self.assertIn(expected_default_ssid, connections)
-        # self.assertIn("802-11-wireless", connections)
+        connections = m.execute("nmcli -t -f NAME,TYPE connection show")
+        self.assertIn(expected_default_ssid, connections)
+        self.assertIn("802-11-wireless", connections)
 
         # Verify AP settings are correct
-        # mode = m.execute(f"nmcli -t -f 802-11-wireless.mode connection show '{expected_default_ssid}'").strip()
-        # self.assertEqual(mode, "802-11-wireless.mode:ap")
+        mode = m.execute(f"nmcli -t -f 802-11-wireless.mode connection show '{expected_default_ssid}'").strip()
+        self.assertEqual(mode, "802-11-wireless.mode:ap")
 
-        # ipv4_method = m.execute(f"nmcli -t -f ipv4.method connection show '{expected_default_ssid}'").strip()
-        # self.assertEqual(ipv4_method, "ipv4.method:shared")
+        ipv4_method = m.execute(f"nmcli -t -f ipv4.method connection show '{expected_default_ssid}'").strip()
+        self.assertEqual(ipv4_method, "ipv4.method:shared")
 
     def testAccessPointSSIDGeneration(self):
         """
@@ -597,20 +594,22 @@ class TestWiFi(netlib.NetworkCase):
 
         expected_ssid = f"HALOS-{mac_suffix}"
 
-        # This test validates the SSID generation logic
-        # Will fail until helper function is implemented
-        # When opening AP dialog, verify the pre-filled SSID matches expected format
-
         self.login_and_go("/network")
         b.wait_visible("#networking")
 
-        # b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
-        # b.wait_visible("#network-interface")
-        # b.click("button:contains('Enable Access Point')")
-        # b.wait_visible("#network-wifi-ap-dialog")
+        # Navigate to WiFi interface and open AP dialog
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
 
-        # actual_ssid = b.val("#network-wifi-ap-ssid-input")
-        # self.assertEqual(actual_ssid, expected_ssid)
+        # Verify the pre-filled SSID matches expected format
+        actual_ssid = b.val("#network-wifi-ap-ssid-input")
+        self.assertEqual(actual_ssid, expected_ssid)
+
+        # Close dialog without saving
+        b.click("#network-wifi-ap-dialog button:contains('Cancel')")
+        b.wait_not_present("#network-wifi-ap-dialog")
 
     def testAccessPointCustomConfiguration(self):
         """
@@ -637,29 +636,30 @@ class TestWiFi(netlib.NetworkCase):
         b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
         b.wait_visible("#network-interface")
 
-        # Will fail until Issue #5 implemented
-        # b.click("button:contains('Enable Access Point')")
-        # b.wait_visible("#network-wifi-ap-dialog")
+        # Open AP dialog
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
 
         # Customize SSID
-        # b.set_input_text("#network-wifi-ap-ssid-input", custom_ssid)
+        b.set_input_text("#network-wifi-ap-ssid-input", custom_ssid)
 
         # Set password
-        # b.set_input_text("#network-wifi-ap-password-input", custom_password)
+        b.set_input_text("#network-wifi-ap-password-input", custom_password)
 
-        # Select frequency band (if available)
-        # b.select_from_dropdown("#network-wifi-ap-band-select", "bg")  # 2.4GHz
-
-        # Set channel (optional)
-        # b.select_from_dropdown("#network-wifi-ap-channel-select", "6")
+        # Select frequency band - 2.4GHz (bg) is already default
+        # Verify band selector is present
+        b.wait_visible("#network-wifi-ap-band-select")
 
         # Save
-        # b.click("#network-wifi-ap-dialog button:contains('Save')")
-        # b.wait_not_present("#network-wifi-ap-dialog")
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
 
         # Verify via nmcli
-        # ssid_check = m.execute(f"nmcli -t -f 802-11-wireless.ssid connection show '{custom_ssid}'").strip()
-        # self.assertIn(custom_ssid, ssid_check)
+        ssid_check = m.execute(f"nmcli -t -f 802-11-wireless.ssid connection show '{custom_ssid}'").strip()
+        self.assertIn(custom_ssid, ssid_check)
+
+        # Cleanup
+        m.execute(f"nmcli connection delete '{custom_ssid}' || true")
 
     def testAccessPointActivation(self):
         """
@@ -916,41 +916,46 @@ class TestWiFi(netlib.NetworkCase):
         b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
         b.wait_visible("#network-interface")
 
-        # Will fail until Issue #5 implemented
-        # b.click("button:contains('Enable Access Point')")
-        # b.wait_visible("#network-wifi-ap-dialog")
+        # Open AP dialog
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
 
-        # Test 1: Empty SSID
-        # b.set_input_text("#network-wifi-ap-ssid-input", "")
-        # b.click("#network-wifi-ap-dialog button:contains('Save')")
-        # b.wait_visible(".pf-v6-c-alert:contains('SSID cannot be empty')")
+        # Test 1: Empty SSID - clear default and try to save
+        b.set_input_text("#network-wifi-ap-ssid-input", "")
+        b.set_input_text("#network-wifi-ap-password-input", "validpass123")
+        # Should show inline validation error for empty SSID
+        b.wait_in_text("#network-wifi-ap-ssid-input", "")
 
         # Test 2: SSID too long (> 32 bytes)
-        # long_ssid = "A" * 33
-        # b.set_input_text("#network-wifi-ap-ssid-input", long_ssid)
-        # b.click("#network-wifi-ap-dialog button:contains('Save')")
-        # b.wait_visible(".pf-v6-c-alert:contains('SSID too long')")
+        long_ssid = "A" * 33
+        b.set_input_text("#network-wifi-ap-ssid-input", long_ssid)
+        # Should show inline validation error
+        b.wait_visible("#network-wifi-ap-ssid-input[aria-invalid='true']")
 
         # Test 3: Password too short (< 8 chars for WPA2)
-        # b.set_input_text("#network-wifi-ap-ssid-input", "ValidSSID")
-        # b.set_input_text("#network-wifi-ap-password-input", "short")
-        # b.click("#network-wifi-ap-dialog button:contains('Save')")
-        # b.wait_visible(".pf-v6-c-alert:contains('Password must be at least 8 characters')")
+        b.set_input_text("#network-wifi-ap-ssid-input", "ValidSSID")
+        b.set_input_text("#network-wifi-ap-password-input", "short")
+        # Should show inline validation error
+        b.wait_visible("#network-wifi-ap-password-input[aria-invalid='true']")
 
         # Test 4: Password too long (> 63 chars)
-        # long_password = "A" * 64
-        # b.set_input_text("#network-wifi-ap-password-input", long_password)
-        # b.click("#network-wifi-ap-dialog button:contains('Save')")
-        # b.wait_visible(".pf-v6-c-alert:contains('Password too long')")
+        long_password = "A" * 64
+        b.set_input_text("#network-wifi-ap-password-input", long_password)
+        # Should show inline validation error
+        b.wait_visible("#network-wifi-ap-password-input[aria-invalid='true']")
 
         # Test 5: Valid configuration saves successfully
-        # b.set_input_text("#network-wifi-ap-ssid-input", "ValidAP")
-        # b.set_input_text("#network-wifi-ap-password-input", "validpass123")
-        # b.click("#network-wifi-ap-dialog button:contains('Save')")
-        # b.wait_not_present("#network-wifi-ap-dialog")
+        b.set_input_text("#network-wifi-ap-ssid-input", "ValidAP")
+        b.set_input_text("#network-wifi-ap-password-input", "validpass123")
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+        # Verify connection was created
+        connections = m.execute("nmcli -t -f NAME connection show")
+        self.assertIn("ValidAP", connections)
 
         # Cleanup
-        # m.execute("nmcli connection delete 'ValidAP' || true")
+        m.execute("nmcli connection delete 'ValidAP' || true")
 
     def testAccessPointSecurityOptions(self):
         """

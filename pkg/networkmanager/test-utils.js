@@ -329,7 +329,7 @@ QUnit.test("decode_nm_property - ASCII SSID", function (assert) {
     tests.forEach(function(t) {
         const encoded = cockpit.base64_encode(new TextEncoder().encode(t.input));
         assert.strictEqual(utils.decode_nm_property(encoded), t.expected,
-                         `decode_nm_property('${t.input}') should return '${t.expected}'`);
+                           `decode_nm_property('${t.input}') should return '${t.expected}'`);
     });
 });
 
@@ -346,7 +346,7 @@ QUnit.test("decode_nm_property - UTF-8 SSID", function (assert) {
     tests.forEach(function(t) {
         const encoded = cockpit.base64_encode(new TextEncoder().encode(t.input));
         assert.strictEqual(utils.decode_nm_property(encoded), t.expected,
-                         `decode_nm_property('${t.input}') should return '${t.expected}'`);
+                           `decode_nm_property('${t.input}') should return '${t.expected}'`);
     });
 });
 
@@ -366,7 +366,7 @@ QUnit.test("encode_nm_property - ASCII SSID", function (assert) {
     tests.forEach(function(t) {
         const expected = cockpit.base64_encode(t.bytes);
         assert.strictEqual(utils.encode_nm_property(t.input), expected,
-                        `encode_nm_property('${t.input}') should return correct base64-encoded bytes`);
+                           `encode_nm_property('${t.input}') should return correct base64-encoded bytes`);
     });
 });
 
@@ -379,7 +379,7 @@ QUnit.test("encode_nm_property - UTF-8 SSID", function (assert) {
     tests.forEach(function(t) {
         const expected = cockpit.base64_encode(t.bytes);
         assert.strictEqual(utils.encode_nm_property(t.input), expected,
-                        `encode_nm_property('${t.input}') should return correct base64-encoded UTF-8 bytes`);
+                           `encode_nm_property('${t.input}') should return correct base64-encoded UTF-8 bytes`);
     });
 });
 
@@ -402,9 +402,9 @@ QUnit.test("encode/decode_nm_property roundtrip", function (assert) {
 
     tests.forEach(function(original) {
         const encoded = utils.encode_nm_property(original); // Returns base64 string
-        const decoded = utils.decode_nm_property(encoded);  // Accepts base64 string
+        const decoded = utils.decode_nm_property(encoded); // Accepts base64 string
         assert.strictEqual(decoded, original,
-                         `Roundtrip for '${original}' should preserve the string`);
+                           `Roundtrip for '${original}' should preserve the string`);
     });
 });
 

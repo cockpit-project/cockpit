@@ -311,7 +311,7 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                             // If switching between AP and client mode, deactivate the old connection
                             if (activeMode && newMode && activeMode !== newMode) {
                                 return dev.ActiveConnection.deactivate()
-                                    .then(() => result.activate(dev, null));
+                                        .then(() => result.activate(dev, null));
                             }
                         }
 

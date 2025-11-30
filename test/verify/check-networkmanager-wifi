@@ -64,7 +64,6 @@ class TestWiFi(netlib.NetworkCase):
         - Device type is correctly identified as WiFi
         """
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/network")
         b.wait_visible("#networking")
@@ -356,7 +355,6 @@ class TestWiFi(netlib.NetworkCase):
         - Card title is "WiFi Networks"
         """
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/network")
         b.wait_visible("#networking")
@@ -968,7 +966,6 @@ class TestWiFi(netlib.NetworkCase):
         - Password field hidden for Open networks
         - Warning shown for Open networks
         """
-        b = self.browser
         m = self.machine
 
         test_ssid_open = "TestOpenAP"

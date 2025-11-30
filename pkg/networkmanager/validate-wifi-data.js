@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck
 /*
  * WiFi Data Access Validation Script
  *

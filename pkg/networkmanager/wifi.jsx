@@ -912,11 +912,11 @@ export const WiFiAPConfig = ({ dev, connection, onDisable, onConfigure }) => {
 };
 
 // Helper function to detect WiFi mode
-function getWiFiMode(dev) {
-    const activeConn = dev?.ActiveConnection;
-    if (!activeConn) return "inactive";
+function getWiFiMode(iface) {
+    const mainConn = iface?.MainConnection;
+    if (!mainConn) return "inactive";
 
-    const settings = activeConn.Settings;
+    const settings = mainConn.Settings;
     if (settings?.connection?.type !== "802-11-wireless") return "other";
 
     const mode = settings.wifi?.mode;
@@ -1133,15 +1133,15 @@ export const WiFiPage = ({ iface, dev }) => {
 
     // Detect current WiFi mode
     useEffect(() => {
-        const currentMode = getWiFiMode(dev);
+        const currentMode = getWiFiMode(iface);
         setMode(currentMode);
 
         if (currentMode === "ap") {
-            setAPConnection(dev.ActiveConnection);
+            setAPConnection(iface.MainConnection);
         } else {
             setAPConnection(null);
         }
-    }, [dev, dev?.ActiveConnection]);
+    }, [iface, iface?.MainConnection]);
 
     // Auto-scan on mount (only in client mode)
     useEffect(() => {

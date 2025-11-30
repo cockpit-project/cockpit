@@ -17,29 +17,28 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import cockpit from 'cockpit';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { Alert } from '@patternfly/react-core/dist/esm/components/Alert/index.js';
 import { Badge } from '@patternfly/react-core/dist/esm/components/Badge/index.js';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from '@patternfly/react-core/dist/esm/components/Checkbox/index.js';
-import { DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription } from '@patternfly/react-core/dist/esm/components/DescriptionList/index.js';
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from '@patternfly/react-core/dist/esm/components/DescriptionList/index.js';
 import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/esm/components/EmptyState/index.js';
 import { Form, FormGroup, FormHelperText } from '@patternfly/react-core/dist/esm/components/Form/index.js';
 import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText/index.js';
 import { Label } from '@patternfly/react-core/dist/esm/components/Label/index.js';
 import { List, ListItem } from '@patternfly/react-core/dist/esm/components/List/index.js';
-import { Modal, ModalHeader, ModalBody, ModalFooter } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
-import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner/index.js';
-import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
+import { Modal, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Name, NetworkModal, dialogSave } from "./dialogs-common";
-import { ModelContext } from './model-context';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useDialogs } from 'dialogs.jsx';
 import { v4 as uuidv4 } from 'uuid';
+import { Name, NetworkModal, dialogSave } from "./dialogs-common";
+import { ModelContext } from './model-context';
 import { decode_nm_property } from './utils';
 
 const _ = cockpit.gettext;
@@ -115,11 +114,7 @@ const WiFiNetworkItem = ({ ap, onClick }) => {
 
 // WiFi Network List Component
 const WiFiNetworkList = ({ accessPoints, onConnect, scanning }) => {
-    if (scanning) {
-        return <Spinner />;
-    }
-
-    if (accessPoints.length === 0) {
+    if (accessPoints.length === 0 && !scanning) {
         return (
             <EmptyState>
 
@@ -1097,21 +1092,65 @@ const WiFiAPClientList = ({ iface }) => {
 };
 
 // WiFi AP Configuration Status Component
-export const WiFiAPConfig = ({ dev, connection, onDisable, onConfigure }) => {
+export const WiFiAPConfig = ({ dev, connection }) => {
+    const model = useContext(ModelContext);
+    const Dialogs = useDialogs();
+    const [error, setError] = useState(null);
+
     const settings = connection?.Settings;
     const ssid = settings?.wifi?.ssid || _("Unknown");
     const security = settings?.wifi_security?.key_mgmt ? "WPA2" : _("Open");
     const ipConfig = settings?.ipv4?.address_data?.[0] || { address: "10.42.0.1", prefix: 24 };
+
+    // Disable Access Point (with confirmation)
+    const handleDisable = async () => {
+        // We need the ActiveConnection path for deactivation, not the Connection (profile) path
+        const activeConnection = dev?.ActiveConnection;
+        if (!activeConnection) {
+            setError(_("Cannot disable: Access Point is not active"));
+            return;
+        }
+
+        const doDisable = async () => {
+            try {
+                await model.client.call(
+                    "/org/freedesktop/NetworkManager",
+                    "org.freedesktop.NetworkManager",
+                    "DeactivateConnection",
+                    [activeConnection[" priv"].path]
+                );
+                Dialogs.close();
+            } catch (err) {
+                console.error("Failed to disable AP:", err);
+                setError(_("Failed to disable Access Point: ") + err.message);
+                Dialogs.close();
+            }
+        };
+
+        Dialogs.show(
+            <DisableAPConfirmDialog
+                ssid={ssid}
+                onConfirm={doDisable}
+                onCancel={() => Dialogs.close()}
+            />
+        );
+    };
+
+    // Configure Access Point
+    const handleConfigure = () => {
+        if (!connection) return;
+        Dialogs.show(<WiFiAPDialog settings={connection.Settings} connection={connection} dev={dev} />);
+    };
 
     return (
         <Card>
             <CardHeader actions={{
                 actions: (
                     <>
-                        <Button variant="secondary" onClick={onConfigure}>
+                        <Button variant="secondary" onClick={handleConfigure} style={{ marginRight: "var(--pf-global--spacer--sm)" }}>
                             {_("Configure")}
                         </Button>
-                        <Button variant="danger" onClick={onDisable}>
+                        <Button variant="danger" onClick={handleDisable}>
                             {_("Disable")}
                         </Button>
                     </>
@@ -1120,6 +1159,14 @@ export const WiFiAPConfig = ({ dev, connection, onDisable, onConfigure }) => {
                 <CardTitle>{_("Access Point")}</CardTitle>
             </CardHeader>
             <CardBody>
+                {error && (
+                    <Alert
+                        variant="danger"
+                        isInline
+                        title={error}
+                        style={{ marginBottom: "1rem" }}
+                    />
+                )}
                 <DescriptionList isHorizontal>
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
@@ -1350,43 +1397,6 @@ export const WiFiPage = ({ iface, dev }) => {
         Dialogs.show(<WiFiAPDialog settings={settings} dev={dev} />);
     }, [dev, Dialogs]);
 
-    // Disable Access Point (with confirmation)
-    const handleDisableAP = useCallback(() => {
-        if (!apConnection) return;
-
-        const ssid = apConnection.Settings?.wifi?.ssid || _("Unknown");
-
-        const doDisable = async () => {
-            try {
-                await model.client.call(
-                    "/org/freedesktop/NetworkManager",
-                    "org.freedesktop.NetworkManager",
-                    "DeactivateConnection",
-                    [apConnection[" priv"].path]
-                );
-                Dialogs.close();
-            } catch (err) {
-                console.error("Failed to disable AP:", err);
-                setError(_("Failed to disable Access Point: ") + err.message);
-                Dialogs.close();
-            }
-        };
-
-        Dialogs.show(
-            <DisableAPConfirmDialog
-                ssid={ssid}
-                onConfirm={doDisable}
-                onCancel={() => Dialogs.close()}
-            />
-        );
-    }, [model, apConnection, Dialogs]);
-
-    // Configure Access Point
-    const handleConfigureAP = useCallback(() => {
-        if (!apConnection) return;
-        Dialogs.show(<WiFiAPDialog settings={apConnection.Settings} connection={apConnection} dev={dev} />);
-    }, [apConnection, dev, Dialogs]);
-
     // Disconnect from current network
     const handleDisconnect = useCallback(async () => {
         if (!dev?.ActiveConnection) return;
@@ -1423,9 +1433,22 @@ export const WiFiPage = ({ iface, dev }) => {
     // Auto-scan on mount (only in client mode)
     useEffect(() => {
         if (mode !== "ap" && dev && dev[" priv"]?.path) {
-            fetchAccessPoints();
+            handleScan();
         }
-    }, [dev, fetchAccessPoints, mode]);
+    }, [dev, handleScan, mode]);
+
+    // Poll for access points every 15 seconds (only in client mode)
+    useEffect(() => {
+        if (mode === "ap" || !dev || !dev[" priv"]?.path) return;
+
+        const intervalId = setInterval(() => {
+            if (!scanning) {
+                handleScan();
+            }
+        }, 15000);
+
+        return () => clearInterval(intervalId);
+    }, [mode, dev, scanning, handleScan]);
 
     // Show AP status card if in AP mode
     if (mode === "ap") {
@@ -1433,8 +1456,6 @@ export const WiFiPage = ({ iface, dev }) => {
             <WiFiAPConfig
                 dev={dev}
                 connection={apConnection}
-                onDisable={handleDisableAP}
-                onConfigure={handleConfigureAP}
             />
         );
     }
@@ -1447,9 +1468,9 @@ export const WiFiPage = ({ iface, dev }) => {
             <Card>
                 <CardHeader>
                     <CardTitle>{_("WiFi Networks")}</CardTitle>
-                    <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                    <Flex style={{ gap: "1rem" }}>
                         <FlexItem>
-                            <Button onClick={handleScan} isDisabled={scanning}>
+                            <Button onClick={handleScan} isDisabled={scanning} style={{ minWidth: "7rem" }}>
                                 {scanning ? _("Scanning...") : _("Scan")}
                             </Button>
                         </FlexItem>

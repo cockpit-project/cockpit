@@ -727,7 +727,6 @@ class TestWiFi(netlib.NetworkCase):
         - Client receives IP address from DHCP
         - Client can communicate with AP
         """
-        b = self.browser
         m = self.machine
 
         test_ssid = "TestClientConnect"
@@ -789,7 +788,6 @@ class TestWiFi(netlib.NetworkCase):
         - Gateway is configured
         - DNS is configured
         """
-        b = self.browser
         m = self.machine
 
         test_ssid = "TestDHCP"

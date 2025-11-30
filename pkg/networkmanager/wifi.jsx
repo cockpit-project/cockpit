@@ -317,11 +317,12 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
 
     // Validate SSID
     const validateSSID = (value) => {
-        if (!value || value.trim() === "") {
+        const str = typeof value === 'string' ? value : String(value || '');
+        if (!str || str.trim() === "") {
             return { valid: false, message: _("SSID cannot be empty") };
         }
         // SSID maximum is 32 bytes (UTF-8 encoding may be fewer characters)
-        const bytes = new TextEncoder().encode(value);
+        const bytes = new TextEncoder().encode(str);
         if (bytes.length > 32) {
             return { valid: false, message: _("SSID too long (maximum 32 bytes)") };
         }

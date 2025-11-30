@@ -93,30 +93,27 @@ function runTests() {
     // Test 1: ASCII SSID encode/decode
     console.log("Test 1: ASCII SSID encode/decode");
     const ssid1 = "Stairway to Heaven";
-    const encoded1 = encode_nm_property(ssid1);
-    const base64_1 = cockpit.base64_encode(encoded1);
-    const decoded1 = decode_nm_property(base64_1);
+    const encoded1 = encode_nm_property(ssid1); // Returns base64 string
+    const decoded1 = decode_nm_property(encoded1);
     assertEqual(decoded1, ssid1, "ASCII SSID roundtrip");
 
     // Test 2: UTF-8 SSID with special characters
     console.log("\nTest 2: UTF-8 SSID with special characters");
     const ssid2 = "Café WiFi";
-    const encoded2 = encode_nm_property(ssid2);
-    const base64_2 = cockpit.base64_encode(encoded2);
-    const decoded2 = decode_nm_property(base64_2);
+    const encoded2 = encode_nm_property(ssid2); // Returns base64 string
+    const decoded2 = decode_nm_property(encoded2);
     assertEqual(decoded2, ssid2, "UTF-8 SSID roundtrip");
 
     // Test 3: Emoji in SSID
     console.log("\nTest 3: Emoji in SSID");
     const ssid3 = "🏠 Home Network";
-    const encoded3 = encode_nm_property(ssid3);
-    const base64_3 = cockpit.base64_encode(encoded3);
-    const decoded3 = decode_nm_property(base64_3);
+    const encoded3 = encode_nm_property(ssid3); // Returns base64 string
+    const decoded3 = decode_nm_property(encoded3);
     assertEqual(decoded3, ssid3, "Emoji SSID roundtrip");
 
     // Test 4: Empty SSID
     console.log("\nTest 4: Empty SSID");
-    assertEqual(encode_nm_property(""), [], "Empty string encodes to empty array");
+    assertEqual(encode_nm_property(""), cockpit.base64_encode([]), "Empty string encodes to base64 empty array");
     assertEqual(decode_nm_property(""), "", "Empty string decodes to empty string");
     assertEqual(decode_nm_property(null), "", "null decodes to empty string");
 
@@ -146,9 +143,8 @@ function runTests() {
         "Network-🔒-Secure"
     ];
     realSSIDs.forEach(ssid => {
-        const enc = encode_nm_property(ssid);
-        const b64 = cockpit.base64_encode(enc);
-        const dec = decode_nm_property(b64);
+        const enc = encode_nm_property(ssid); // Returns base64 string
+        const dec = decode_nm_property(enc);
         assertEqual(dec, ssid, `Real SSID: "${ssid}"`);
     });
 

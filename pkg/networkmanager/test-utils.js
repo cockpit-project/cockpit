@@ -359,32 +359,35 @@ QUnit.test("decode_nm_property - empty and null", function (assert) {
 
 QUnit.test("encode_nm_property - ASCII SSID", function (assert) {
     const tests = [
-        { input: "TestNetwork", expected: [84, 101, 115, 116, 78, 101, 116, 119, 111, 114, 107] },
-        { input: "WiFi", expected: [87, 105, 70, 105] },
+        { input: "TestNetwork", bytes: [84, 101, 115, 116, 78, 101, 116, 119, 111, 114, 107] },
+        { input: "WiFi", bytes: [87, 105, 70, 105] },
     ];
 
     tests.forEach(function(t) {
-        assert.deepEqual(utils.encode_nm_property(t.input), t.expected,
-                        `encode_nm_property('${t.input}') should return correct byte array`);
+        const expected = cockpit.base64_encode(t.bytes);
+        assert.strictEqual(utils.encode_nm_property(t.input), expected,
+                        `encode_nm_property('${t.input}') should return correct base64-encoded bytes`);
     });
 });
 
 QUnit.test("encode_nm_property - UTF-8 SSID", function (assert) {
     const tests = [
         // Café - é is 2 bytes in UTF-8: 0xC3, 0xA9
-        { input: "Café", expected: [67, 97, 102, 195, 169] },
+        { input: "Café", bytes: [67, 97, 102, 195, 169] },
     ];
 
     tests.forEach(function(t) {
-        assert.deepEqual(utils.encode_nm_property(t.input), t.expected,
-                        `encode_nm_property('${t.input}') should return correct UTF-8 bytes`);
+        const expected = cockpit.base64_encode(t.bytes);
+        assert.strictEqual(utils.encode_nm_property(t.input), expected,
+                        `encode_nm_property('${t.input}') should return correct base64-encoded UTF-8 bytes`);
     });
 });
 
 QUnit.test("encode_nm_property - empty and null", function (assert) {
-    assert.deepEqual(utils.encode_nm_property(""), []);
-    assert.deepEqual(utils.encode_nm_property(null), []);
-    assert.deepEqual(utils.encode_nm_property(undefined), []);
+    const emptyBase64 = cockpit.base64_encode([]);
+    assert.strictEqual(utils.encode_nm_property(""), emptyBase64);
+    assert.strictEqual(utils.encode_nm_property(null), emptyBase64);
+    assert.strictEqual(utils.encode_nm_property(undefined), emptyBase64);
 });
 
 QUnit.test("encode/decode_nm_property roundtrip", function (assert) {
@@ -398,9 +401,8 @@ QUnit.test("encode/decode_nm_property roundtrip", function (assert) {
     ];
 
     tests.forEach(function(original) {
-        const encoded = utils.encode_nm_property(original);
-        const base64 = cockpit.base64_encode(encoded);
-        const decoded = utils.decode_nm_property(base64);
+        const encoded = utils.encode_nm_property(original); // Returns base64 string
+        const decoded = utils.decode_nm_property(encoded);  // Accepts base64 string
         assert.strictEqual(decoded, original,
                          `Roundtrip for '${original}' should preserve the string`);
     });

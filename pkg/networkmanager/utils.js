@@ -36,8 +36,14 @@ export function ip_prefix_to_text(num) {
 }
 
 export function ip_prefix_from_text(text) {
-    if (/^[0-9]+$/.test(text.trim()))
-        return parseInt(text, 10);
+    // Handle non-string input (convert to string first)
+    if (text === null || text === undefined) {
+        throw cockpit.format(_("Invalid prefix $0"), text);
+    }
+    const str = typeof text === 'string' ? text : String(text);
+
+    if (/^[0-9]+$/.test(str.trim()))
+        return parseInt(str, 10);
 
     throw cockpit.format(_("Invalid prefix $0"), text);
 }
@@ -47,11 +53,17 @@ export function ip_metric_to_text(num) {
 }
 
 export function ip_metric_from_text(text) {
-    if (text === "")
+    // Handle non-string input (convert to string first)
+    if (text === null || text === undefined) {
+        return 0;
+    }
+    const str = typeof text === 'string' ? text : String(text);
+
+    if (str === "")
         return 0;
 
-    if (/^[0-9]+$/.test(text.trim()))
-        return parseInt(text, 10);
+    if (/^[0-9]+$/.test(str.trim()))
+        return parseInt(str, 10);
 
     throw cockpit.format(_("Invalid metric $0"), text);
 }
@@ -145,13 +157,19 @@ const text_to_prefix_bits = {
 };
 
 export function ip4_prefix_from_text(text) {
+    // Handle non-string input (convert to string first)
+    if (text === null || text === undefined) {
+        throw cockpit.format(_("Invalid prefix or netmask $0"), text);
+    }
+    const str = typeof text === 'string' ? text : String(text);
+
     function invalid() {
         throw cockpit.format(_("Invalid prefix or netmask $0"), text);
     }
 
-    if (/^[0-9]+$/.test(text.trim()))
-        return parseInt(text, 10);
-    const parts = text.split('.');
+    if (/^[0-9]+$/.test(str.trim()))
+        return parseInt(str, 10);
+    const parts = str.split('.');
     if (parts.length != 4)
         invalid();
     let prefix = 0;
@@ -287,12 +305,14 @@ export function decode_nm_property(bytes) {
 }
 
 // Convert string to byte array (for SSID, etc.)
+// Returns base64-encoded string for D-Bus compatibility
 export function encode_nm_property(str) {
-    if (!str) return [];
+    if (!str) return cockpit.base64_encode([]);
 
     // Use TextEncoder for proper UTF-8 encoding (supports all Unicode characters)
     const encoder = new TextEncoder();
-    return Array.from(encoder.encode(str));
+    const bytes = Array.from(encoder.encode(str));
+    return cockpit.base64_encode(bytes);
 }
 
 export function list_interfaces() {

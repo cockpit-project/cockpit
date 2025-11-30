@@ -26,15 +26,28 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            libglib2.0-dev \
+            gettext \
+            libsystemd-dev \
+            libpolkit-gobject-1-dev \
+            libpcp3-dev \
+            libjson-glib-dev \
+            libpam0g-dev \
+            libkrb5-dev \
+            libxslt1-dev \
+            libssh-dev \
+            python3 \
             python3-pip \
+            nodejs \
+            npm \
             qemu-system-x86 \
             qemu-kvm \
             virtinst \
             libvirt-daemon-system
 
           # Enable KVM
-          sudo modprobe kvm
-          sudo chmod 666 /dev/kvm
+          sudo modprobe kvm || true
+          sudo chmod 666 /dev/kvm || true
 
       - name: Prepare test environment
         run: |
@@ -46,7 +59,8 @@ jobs:
       - name: Run WiFi integration tests
         run: |
           # Run only WiFi tests
-          test/verify/check-networkmanager-wifi --verbose || true
+          test/verify/check-networkmanager-wifi --verbose --trace 2>&1 | tee wifi-test.log
+        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -54,5 +68,6 @@ jobs:
         with:
           name: test-results
           path: |
+            wifi-test.log
             test/*.log
             test/verify/*.log

@@ -781,7 +781,7 @@ export const NetworkInterfacePage = ({
                         }
                     </Card>
                     {/* Render WiFi AP configuration if this is a WiFi interface in AP mode */}
-                    {dev && dev.DeviceType === '802-11-wireless' && settings && settings.wifi && settings.wifi.mode === 'ap' &&
+                    {dev && dev.DeviceType === '802-11-wireless' && connectionSettings && connectionSettings.wifi && connectionSettings.wifi.mode === 'ap' &&
                         <WiFiAPConfig dev={dev} connection={iface.MainConnection} />
                     }
                     {renderConnectionMembers(iface.MainConnection)}

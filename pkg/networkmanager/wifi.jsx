@@ -24,11 +24,15 @@ import { Alert } from '@patternfly/react-core/dist/esm/components/Alert/index.js
 import { Badge } from '@patternfly/react-core/dist/esm/components/Badge/index.js';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
+import { Checkbox } from '@patternfly/react-core/dist/esm/components/Checkbox/index.js';
+import { DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription } from '@patternfly/react-core/dist/esm/components/DescriptionList/index.js';
 import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/esm/components/EmptyState/index.js';
 import { Form, FormGroup, FormHelperText } from '@patternfly/react-core/dist/esm/components/Form/index.js';
 import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText/index.js';
+import { Label } from '@patternfly/react-core/dist/esm/components/Label/index.js';
 import { List, ListItem } from '@patternfly/react-core/dist/esm/components/List/index.js';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner/index.js';
+import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Name, NetworkModal, dialogSave } from "./dialogs-common";
@@ -311,6 +315,10 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
     const [password, setPassword] = useState("");
     const [securityType, setSecurityType] = useState(settings.wifi_security?.key_mgmt || "wpa-psk");
     const [band, setBand] = useState(settings.wifi?.band || "bg");
+    const [channel, setChannel] = useState(settings.wifi?.channel || 0);
+    const [hidden, setHidden] = useState(settings.wifi?.hidden || false);
+    const [ipAddress, setIPAddress] = useState(settings.ipv4?.address_data?.[0]?.address || "10.42.0.1");
+    const [prefix, setPrefix] = useState(settings.ipv4?.address_data?.[0]?.prefix || 24);
     const [dialogError, setDialogError] = useState("");
 
     const isCreateDialog = !connection;
@@ -354,9 +362,30 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
         return { valid: true, message: "" };
     };
 
+    // Validate IP address
+    const validateIP = (ip) => {
+        if (!ip || ip.trim() === "") {
+            return { valid: false, message: _("IP address cannot be empty") };
+        }
+        // Basic IPv4 validation
+        const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+        if (!ipPattern.test(ip)) {
+            return { valid: false, message: _("Invalid IP address format") };
+        }
+        const parts = ip.split('.');
+        for (const part of parts) {
+            const num = parseInt(part);
+            if (num < 0 || num > 255) {
+                return { valid: false, message: _("IP address octets must be 0-255") };
+            }
+        }
+        return { valid: true, message: "" };
+    };
+
     const ssidValidation = validateSSID(ssid);
     const passwordValidation = validatePassword(password, securityType);
-    const isFormValid = ssidValidation.valid && passwordValidation.valid;
+    const ipValidation = validateIP(ipAddress);
+    const isFormValid = ssidValidation.valid && passwordValidation.valid && ipValidation.valid;
 
     const onSubmit = (ev) => {
         if (ev) {
@@ -365,7 +394,7 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
 
         // Validate all fields
         if (!isFormValid) {
-            setDialogError(ssidValidation.message || passwordValidation.message);
+            setDialogError(ssidValidation.message || passwordValidation.message || ipValidation.message);
             return;
         }
 
@@ -384,10 +413,12 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
                 ssid,
                 mode: "ap",
                 band,
+                ...(channel !== 0 && { channel }), // Only include if not auto
+                ...(hidden && { hidden: true }), // Only include if hidden
             },
             ipv4: {
                 method: "shared", // Enables DHCP server
-                address_data: [{ address: "10.42.0.1", prefix: 24 }],
+                address_data: [{ address: ipAddress, prefix: parseInt(prefix) }],
             },
             ipv6: {
                 method: "ignore",
@@ -547,6 +578,91 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
                         </HelperText>
                     </FormHelperText>
                 </FormGroup>
+
+                <FormGroup label={_("Channel")} fieldId={idPrefix + "-channel-select"}>
+                    <select
+                        id={idPrefix + "-channel-select"}
+                        className="pf-v6-c-form-control"
+                        value={channel}
+                        onChange={(e) => setChannel(parseInt(e.target.value))}
+                    >
+                        <option value="0">{_("Automatic")}</option>
+                        {band === "bg" && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(ch => (
+                            <option key={ch} value={ch}>{ch}</option>
+                        ))}
+                        {band === "a" && [36, 40, 44, 48, 149, 153, 157, 161, 165].map(ch => (
+                            <option key={ch} value={ch}>{ch}</option>
+                        ))}
+                    </select>
+                    <FormHelperText>
+                        <HelperText>
+                            <HelperTextItem>
+                                {_("Leave as Automatic unless experiencing interference")}
+                            </HelperTextItem>
+                        </HelperText>
+                    </FormHelperText>
+                </FormGroup>
+
+                <FormGroup>
+                    <Checkbox
+                        id={idPrefix + "-hidden-checkbox"}
+                        label={_("Hidden network (don't broadcast SSID)")}
+                        isChecked={hidden}
+                        onChange={(_, checked) => setHidden(checked)}
+                    />
+                    <FormHelperText>
+                        <HelperText>
+                            <HelperTextItem>
+                                {_("Clients will need to manually enter the network name")}
+                            </HelperTextItem>
+                        </HelperText>
+                    </FormHelperText>
+                </FormGroup>
+
+                <FormGroup label={_("IP Address")} fieldId={idPrefix + "-ip-input"}>
+                    <TextInput
+                        id={idPrefix + "-ip-input"}
+                        value={ipAddress}
+                        onChange={(_, val) => setIPAddress(val)}
+                        validated={ipAddress && !ipValidation.valid ? "error" : "default"}
+                    />
+                    {ipAddress && !ipValidation.valid && (
+                        <FormHelperText>
+                            <HelperText>
+                                <HelperTextItem variant="error">
+                                    {ipValidation.message}
+                                </HelperTextItem>
+                            </HelperText>
+                        </FormHelperText>
+                    )}
+                    {(!ipAddress || ipValidation.valid) && (
+                        <FormHelperText>
+                            <HelperText>
+                                <HelperTextItem>
+                                    {_("Default: 10.42.0.1")}
+                                </HelperTextItem>
+                            </HelperText>
+                        </FormHelperText>
+                    )}
+                </FormGroup>
+
+                <FormGroup label={_("Subnet Prefix")} fieldId={idPrefix + "-prefix-input"}>
+                    <TextInput
+                        id={idPrefix + "-prefix-input"}
+                        type="number"
+                        value={prefix}
+                        onChange={(_, val) => setPrefix(val)}
+                        min="1"
+                        max="32"
+                    />
+                    <FormHelperText>
+                        <HelperText>
+                            <HelperTextItem>
+                                {_("Default: 24 (255.255.255.0, supports 254 clients)")}
+                            </HelperTextItem>
+                        </HelperText>
+                    </FormHelperText>
+                </FormGroup>
             </Form>
         </NetworkModal>
     );
@@ -645,6 +761,170 @@ const OpenNetworkWarningDialog = ({ ap, onProceed, onCancel }) => {
     );
 };
 
+// WiFi AP Client List Component
+const WiFiAPClientList = ({ iface }) => {
+    const [clients, setClients] = useState([]);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (!iface) return;
+
+        const leasePath = `/var/lib/NetworkManager/dnsmasq-${iface}.leases`;
+        const file = cockpit.file(leasePath, { superuser: "try" });
+
+        const handleContent = (content) => {
+            if (!content || content.trim() === "") {
+                setClients([]);
+                setError(null);
+                return;
+            }
+
+            try {
+                const lines = content.trim().split('\n');
+                const parsed = lines.map(line => {
+                    const parts = line.split(' ');
+                    return {
+                        timestamp: parts[0],
+                        mac: parts[1] || "",
+                        ip: parts[2] || "",
+                        hostname: parts[3] || _("Unknown"),
+                        clientId: parts[4] || "",
+                    };
+                }).filter(client => client.ip); // Filter out invalid entries
+
+                setClients(parsed);
+                setError(null);
+            } catch (err) {
+                console.error("Error parsing DHCP leases:", err);
+                setClients([]);
+                setError(_("Failed to parse client list"));
+            }
+        };
+
+        const handleError = (err) => {
+            // File not existing is not an error - just means no DHCP server running yet
+            if (err.problem === "not-found") {
+                setClients([]);
+                setError(null);
+            } else {
+                console.error("Error reading DHCP leases:", err);
+                setClients([]);
+                setError(_("Unable to read client list"));
+            }
+        };
+
+        file.watch(handleContent, { err: handleError });
+
+        return () => file.close();
+    }, [iface]);
+
+    if (error) {
+        return (
+            <Alert variant="warning" isInline title={error} />
+        );
+    }
+
+    if (clients.length === 0) {
+        return (
+            <EmptyState>
+                <EmptyStateBody>{_("No clients connected")}</EmptyStateBody>
+            </EmptyState>
+        );
+    }
+
+    return (
+        <Table variant="compact">
+            <Thead>
+                <Tr>
+                    <Th>{_("Client")}</Th>
+                    <Th>{_("IP Address")}</Th>
+                    <Th>{_("MAC Address")}</Th>
+                </Tr>
+            </Thead>
+            <Tbody>
+                {clients.map((client, idx) => (
+                    <Tr key={client.mac || idx}>
+                        <Td>{client.hostname}</Td>
+                        <Td>{client.ip}</Td>
+                        <Td>{client.mac}</Td>
+                    </Tr>
+                ))}
+            </Tbody>
+        </Table>
+    );
+};
+
+// WiFi AP Configuration Status Component
+export const WiFiAPConfig = ({ dev, connection, onDisable, onConfigure }) => {
+    const settings = connection?.Settings;
+    const ssid = settings?.wifi?.ssid || _("Unknown");
+    const security = settings?.wifi_security?.key_mgmt ? "WPA2" : _("Open");
+    const ipConfig = settings?.ipv4?.address_data?.[0] || { address: "10.42.0.1", prefix: 24 };
+
+    return (
+        <Card>
+            <CardHeader actions={{
+                actions: (
+                    <>
+                        <Button variant="secondary" onClick={onConfigure}>
+                            {_("Configure")}
+                        </Button>
+                        <Button variant="danger" onClick={onDisable}>
+                            {_("Disable")}
+                        </Button>
+                    </>
+                )
+            }}>
+                <CardTitle>{_("Access Point")}</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <DescriptionList isHorizontal>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <Label color="green">{_("Active")}</Label>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("SSID")}</DescriptionListTerm>
+                        <DescriptionListDescription>{ssid}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Security")}</DescriptionListTerm>
+                        <DescriptionListDescription>{security}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("IP Range")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {ipConfig.address}/{ipConfig.prefix}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Connected Clients")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <WiFiAPClientList iface={dev?.Interface} />
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
+            </CardBody>
+        </Card>
+    );
+};
+
+// Helper function to detect WiFi mode
+function getWiFiMode(dev) {
+    const activeConn = dev?.ActiveConnection;
+    if (!activeConn) return "inactive";
+
+    const settings = activeConn.Settings;
+    if (settings?.connection?.type !== "802-11-wireless") return "other";
+
+    const mode = settings.wifi?.mode;
+    if (mode === "ap") return "ap";
+    if (mode === "infrastructure") return "client";
+    return "unknown";
+}
+
 // WiFi Page Component (for future use with dedicated WiFi management page)
 export const WiFiPage = ({ iface, dev }) => {
     const model = useContext(ModelContext);
@@ -652,6 +932,8 @@ export const WiFiPage = ({ iface, dev }) => {
     const [scanning, setScanning] = useState(false);
     const [accessPoints, setAccessPoints] = useState([]);
     const [error, setError] = useState(null);
+    const [mode, setMode] = useState("inactive");
+    const [apConnection, setAPConnection] = useState(null);
     const fetchRequestIdRef = useRef(0); // Track fetch requests to handle race conditions
 
     // Fetch access points from device
@@ -826,13 +1108,61 @@ export const WiFiPage = ({ iface, dev }) => {
         Dialogs.show(<WiFiAPDialog settings={settings} dev={dev} />);
     }, [dev, Dialogs]);
 
-    // Auto-scan on mount
+    // Disable Access Point
+    const handleDisableAP = useCallback(async () => {
+        if (!apConnection) return;
+
+        try {
+            await model.client.call(
+                "/org/freedesktop/NetworkManager",
+                "org.freedesktop.NetworkManager",
+                "DeactivateConnection",
+                [apConnection[" priv"].path]
+            );
+        } catch (err) {
+            console.error("Failed to disable AP:", err);
+            setError(_("Failed to disable Access Point: ") + err.message);
+        }
+    }, [model, apConnection]);
+
+    // Configure Access Point
+    const handleConfigureAP = useCallback(() => {
+        if (!apConnection) return;
+        Dialogs.show(<WiFiAPDialog settings={apConnection.Settings} connection={apConnection} dev={dev} />);
+    }, [apConnection, dev, Dialogs]);
+
+    // Detect current WiFi mode
     useEffect(() => {
-        if (dev && dev[" priv"]?.path) {
+        const currentMode = getWiFiMode(dev);
+        setMode(currentMode);
+
+        if (currentMode === "ap") {
+            setAPConnection(dev.ActiveConnection);
+        } else {
+            setAPConnection(null);
+        }
+    }, [dev, dev?.ActiveConnection]);
+
+    // Auto-scan on mount (only in client mode)
+    useEffect(() => {
+        if (mode !== "ap" && dev && dev[" priv"]?.path) {
             fetchAccessPoints();
         }
-    }, [dev, fetchAccessPoints]);
+    }, [dev, fetchAccessPoints, mode]);
 
+    // Show AP status card if in AP mode
+    if (mode === "ap") {
+        return (
+            <WiFiAPConfig
+                dev={dev}
+                connection={apConnection}
+                onDisable={handleDisableAP}
+                onConfigure={handleConfigureAP}
+            />
+        );
+    }
+
+    // Show client mode UI (scanning and connecting)
     return (
         <Card>
             <CardHeader>

@@ -31,6 +31,7 @@ import { Form, FormGroup, FormHelperText } from '@patternfly/react-core/dist/esm
 import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText/index.js';
 import { Label } from '@patternfly/react-core/dist/esm/components/Label/index.js';
 import { List, ListItem } from '@patternfly/react-core/dist/esm/components/List/index.js';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner/index.js';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
@@ -761,6 +762,36 @@ const OpenNetworkWarningDialog = ({ ap, onProceed, onCancel }) => {
     );
 };
 
+// Disable AP Confirmation Dialog
+const DisableAPConfirmDialog = ({ ssid, onConfirm, onCancel }) => {
+    return (
+        <Modal
+            id="disable-ap-confirm-dialog"
+            isOpen
+            position="top"
+            variant="medium"
+            onClose={onCancel}
+        >
+            <ModalHeader title={_("Disable Access Point?")} />
+            <ModalBody>
+                <Alert variant="warning" isInline title={_("All connected clients will be disconnected")}>
+                    <p>
+                        {cockpit.format(_("Disabling the access point \"$0\" will disconnect all currently connected clients."), ssid)}
+                    </p>
+                </Alert>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant="danger" onClick={onConfirm}>
+                    {_("Disable")}
+                </Button>
+                <Button variant="link" onClick={onCancel}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
+        </Modal>
+    );
+};
+
 // WiFi AP Client List Component
 const WiFiAPClientList = ({ iface }) => {
     const [clients, setClients] = useState([]);
@@ -783,11 +814,13 @@ const WiFiAPClientList = ({ iface }) => {
                 const lines = content.trim().split('\n');
                 const parsed = lines.map(line => {
                     const parts = line.split(' ');
+                    const mac = parts[1] || "";
+                    const hostname = parts[3] || mac || _("Unknown");
                     return {
                         timestamp: parts[0],
-                        mac: parts[1] || "",
+                        mac,
                         ip: parts[2] || "",
-                        hostname: parts[3] || _("Unknown"),
+                        hostname,
                         clientId: parts[4] || "",
                     };
                 }).filter(client => client.ip); // Filter out invalid entries
@@ -1108,22 +1141,36 @@ export const WiFiPage = ({ iface, dev }) => {
         Dialogs.show(<WiFiAPDialog settings={settings} dev={dev} />);
     }, [dev, Dialogs]);
 
-    // Disable Access Point
-    const handleDisableAP = useCallback(async () => {
+    // Disable Access Point (with confirmation)
+    const handleDisableAP = useCallback(() => {
         if (!apConnection) return;
 
-        try {
-            await model.client.call(
-                "/org/freedesktop/NetworkManager",
-                "org.freedesktop.NetworkManager",
-                "DeactivateConnection",
-                [apConnection[" priv"].path]
-            );
-        } catch (err) {
-            console.error("Failed to disable AP:", err);
-            setError(_("Failed to disable Access Point: ") + err.message);
-        }
-    }, [model, apConnection]);
+        const ssid = apConnection.Settings?.wifi?.ssid || _("Unknown");
+
+        const doDisable = async () => {
+            try {
+                await model.client.call(
+                    "/org/freedesktop/NetworkManager",
+                    "org.freedesktop.NetworkManager",
+                    "DeactivateConnection",
+                    [apConnection[" priv"].path]
+                );
+                Dialogs.close();
+            } catch (err) {
+                console.error("Failed to disable AP:", err);
+                setError(_("Failed to disable Access Point: ") + err.message);
+                Dialogs.close();
+            }
+        };
+
+        Dialogs.show(
+            <DisableAPConfirmDialog
+                ssid={ssid}
+                onConfirm={doDisable}
+                onCancel={() => Dialogs.close()}
+            />
+        );
+    }, [model, apConnection, Dialogs]);
 
     // Configure Access Point
     const handleConfigureAP = useCallback(() => {
@@ -1141,6 +1188,9 @@ export const WiFiPage = ({ iface, dev }) => {
         } else {
             setAPConnection(null);
         }
+
+        // Clear any errors when mode changes
+        setError(null);
     }, [dev, dev?.ActiveConnection]);
 
     // Auto-scan on mount (only in client mode)

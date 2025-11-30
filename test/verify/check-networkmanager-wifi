@@ -1124,8 +1124,7 @@ class TestWiFi(netlib.NetworkCase):
 
         time.sleep(3)
 
-        # Get client MAC and IP for verification
-        client_mac = m.execute(f"nmcli -t -f GENERAL.HWADDR device show {self.wifi_dev2}").strip().split(':')[-1]
+        # Get client IP for verification
         client_ip = m.execute(f"ip -4 addr show {self.wifi_dev2} | grep 'inet ' | awk '{{print $2}}' | cut -d/ -f1").strip()
 
         # Client count should update to 1
@@ -1417,7 +1416,6 @@ class TestWiFi(netlib.NetworkCase):
         test_ssid_original = "OriginalAP"
         test_ssid_new = "ModifiedAP"
         password_original = "original123"
-        password_new = "modified123"
 
         # Create and activate AP
         m.execute(f"""

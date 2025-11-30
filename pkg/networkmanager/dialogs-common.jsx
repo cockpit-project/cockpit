@@ -311,12 +311,20 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                             // If switching between AP and client mode, deactivate the old connection
                             if (activeMode && newMode && activeMode !== newMode) {
                                 return dev.ActiveConnection.deactivate()
-                                        .then(() => result.activate(dev, null));
+                                        .then(() => result.activate(dev, null))
+                                        .catch(err => {
+                                            console.warn("Failed to auto-activate WiFi connection after mode switch:", err);
+                                            // Connection created successfully, user can activate manually
+                                        });
                             }
                         }
 
                         // No conflict, just activate
-                        return result.activate(dev, null);
+                        return result.activate(dev, null)
+                                .catch(err => {
+                                    console.warn("Failed to auto-activate WiFi connection:", err);
+                                    // Connection created successfully, user can activate manually
+                                });
                     }
                 })
                 .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))

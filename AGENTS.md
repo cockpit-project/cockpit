@@ -4,6 +4,50 @@
 
 This document contains important findings and notes for AI-assisted development of the Cockpit NetworkManager module for HaLOS.
 
+## Repository Structure and Branching Strategy
+
+**CRITICAL**: Understanding the repository structure is essential for correct PR and issue management.
+
+### Fork Structure
+
+This repository (`cockpit-src/`) is a **local clone of the hatlabs/cockpit fork** of the upstream Cockpit project:
+
+- **Upstream**: `cockpit-project/cockpit` (original Cockpit project)
+- **Fork**: `hatlabs/cockpit` (HaLOS fork with WiFi features)
+- **Local**: `cockpit-src/` (working directory in this workspace)
+
+### Branching Strategy
+
+**Long-living Feature Branch**: `wifi`
+- All WiFi feature development happens on the `wifi` branch
+- This branch contains all WiFi-related work and serves as the integration branch
+- **All PRs must be based on `wifi`, NOT `main`**
+
+**Creating PRs**:
+```bash
+# ✅ CORRECT - PR against hatlabs/cockpit with base=wifi
+git checkout -b feat/my-feature fork/wifi
+# make changes, commit
+git push fork feat/my-feature
+gh pr create --repo hatlabs/cockpit --base wifi
+
+# ❌ WRONG - Don't base on main
+git checkout -b feat/my-feature fork/main  # ❌
+gh pr create --repo hatlabs/cockpit --base main  # ❌
+```
+
+**Creating Issues**:
+- All issues should be created in the `hatlabs/cockpit` repository
+- Use `gh issue create --repo hatlabs/cockpit`
+
+### Remote Configuration
+
+The local repository has these remotes:
+- `origin`: `cockpit-project/cockpit` (upstream Cockpit project)
+- `fork`: `hatlabs/cockpit` (HaLOS fork - use this for pushing branches and creating PRs)
+
+Always verify the PR base branch and repository before creating PRs!
+
 ## PatternFly Component Import Patterns
 
 **CRITICAL**: This Cockpit fork uses specific PatternFly versions with important import patterns that differ from standard PatternFly documentation.

@@ -16,25 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
-import cockpit from "cockpit";
-import React, { useContext } from "react";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
+import cockpit from "cockpit";
+import React, { useContext } from "react";
 
 import { Privileged } from "cockpit-components-privileged.jsx";
 
+import { fmt_to_fragments } from 'utils.jsx';
+import { NetworkAction } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
-import { NetworkAction } from './dialogs-common.jsx';
 import { NetworkPlots } from "./plots";
-import { fmt_to_fragments } from 'utils.jsx';
+import { WiFiPage } from './wifi.jsx';
 
+import {
+    bond_mode_choices,
+} from './bond.jsx';
 import {
     array_join,
     choice_title,
@@ -52,9 +56,6 @@ import {
     team_runner_choices,
     team_watch_choices,
 } from './team.jsx';
-import {
-    bond_mode_choices,
-} from './bond.jsx';
 
 import { get_ip_method_choices } from './ip-settings.jsx';
 
@@ -779,6 +780,10 @@ export const NetworkInterfacePage = ({
                             : null
                         }
                     </Card>
+                    {/* Render WiFi Page (handles both AP and Client modes) */}
+                    {dev && dev.DeviceType === '802-11-wireless' &&
+                        <WiFiPage dev={dev} iface={iface} />
+                    }
                     {renderConnectionMembers(iface.MainConnection)}
                 </Gallery>
             </PageSection>

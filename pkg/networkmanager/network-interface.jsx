@@ -34,6 +34,7 @@ import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { NetworkAction } from './dialogs-common.jsx';
 import { NetworkPlots } from "./plots";
 import { fmt_to_fragments } from 'utils.jsx';
+import { WiFiAPConfig, WiFiPage } from './wifi.jsx';
 
 import {
     array_join,
@@ -779,6 +780,10 @@ export const NetworkInterfacePage = ({
                             : null
                         }
                     </Card>
+                    {/* Render WiFi AP configuration if this is a WiFi interface in AP mode */}
+                    {dev && dev.DeviceType === '802-11-wireless' && settings && settings.wifi && settings.wifi.mode === 'ap' &&
+                        <WiFiAPConfig dev={dev} connection={iface.MainConnection} />
+                    }
                     {renderConnectionMembers(iface.MainConnection)}
                 </Gallery>
             </PageSection>

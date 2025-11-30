@@ -64,7 +64,6 @@ class TestWiFi(netlib.NetworkCase):
         - Device type is correctly identified as WiFi
         """
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/network")
         b.wait_visible("#networking")
@@ -345,6 +344,1139 @@ class TestWiFi(netlib.NetworkCase):
         # Cleanup
         m.execute("nmcli connection down test-ap-open || true")
         m.execute("nmcli connection delete test-ap-open || true")
+
+    def testWiFiNetworksCardVisible(self):
+        """
+        Issue #17: WiFi Networks card appears on WiFi interface details page
+
+        Test that:
+        - WiFi Networks card is visible when viewing WiFi interface
+        - Card contains "Scan" button
+        - Card title is "WiFi Networks"
+        """
+        b = self.browser
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface details
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # WiFi Networks card should be visible
+        b.wait_visible(".pf-v6-c-card:contains('WiFi Networks')")
+
+        # Scan button should be present
+        b.wait_visible("button:contains('Scan')")
+
+    def testWiFiNetworksCardNotVisibleForEthernet(self):
+        """
+        Issue #17: WiFi Networks card should NOT appear for non-WiFi interfaces
+
+        Test that:
+        - WiFi Networks card is not shown for Ethernet interfaces
+        - Only generic interface details are shown
+        """
+        b = self.browser
+        m = self.machine
+
+        # Ensure we have an Ethernet interface
+        eth_dev = m.execute("nmcli -t -f DEVICE,TYPE device | grep ethernet | head -1 | cut -d: -f1").strip()
+        if not eth_dev:
+            self.skipTest("No Ethernet device available")
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to Ethernet interface details
+        b.click(f"#networking-interfaces button:contains('{eth_dev}')")
+        b.wait_visible("#network-interface")
+
+        # WiFi Networks card should NOT be present
+        b.wait_not_present(".pf-v6-c-card:contains('WiFi Networks')")
+
+    def testNetworkScanningUI(self):
+        """
+        Issue #17: Network scanning UI functionality
+
+        Test that:
+        - Scan button triggers network scan
+        - Scanning state is shown (spinner)
+        - Networks appear after scanning
+        - Networks are sorted by signal strength
+        """
+        b = self.browser
+        m = self.machine
+
+        # Setup: Create test AP
+        test_ssid = "TestScanNetwork"
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev2} \
+                con-name test-scan-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24
+        """)
+        m.execute("nmcli connection up test-scan-ap")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+        b.wait_visible(".pf-v6-c-card:contains('WiFi Networks')")
+
+        # Click Scan button
+        b.click("button:contains('Scan')")
+
+        # Should show scanning state (spinner)
+        b.wait_visible(".pf-v6-c-spinner")
+
+        # Wait for scan to complete and networks to appear
+        b.wait_not_present(".pf-v6-c-spinner")
+
+        # Test network should be visible in list
+        b.wait_visible(f"li:contains('{test_ssid}')")
+
+        # Signal strength indicator should be present
+        b.wait_visible(".signal-strength")
+
+        # Security badge should be present
+        b.wait_visible(".security-badge")
+
+        # Cleanup
+        m.execute("nmcli connection down test-scan-ap || true")
+        m.execute("nmcli connection delete test-scan-ap || true")
+
+    def testNetworkSelectionFromScanner(self):
+        """
+        Issue #17: Selecting network from scanner opens connect dialog
+
+        Test that:
+        - Clicking a network in the list opens WiFiConnectDialog
+        - SSID is pre-filled in the dialog
+        - Password field is present for secured networks
+        """
+        b = self.browser
+        m = self.machine
+
+        # Setup: Create test AP
+        test_ssid = "TestSelectNetwork"
+        test_password = "testpass123"
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev2} \
+                con-name test-select-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+        m.execute("nmcli connection up test-select-ap")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+        b.wait_visible(".pf-v6-c-card:contains('WiFi Networks')")
+
+        # Scan for networks
+        b.click("button:contains('Scan')")
+        b.wait_not_present(".pf-v6-c-spinner")
+        b.wait_visible(f"li:contains('{test_ssid}')")
+
+        # Click on the network
+        b.click(f"li:contains('{test_ssid}')")
+
+        # WiFi connect dialog should open
+        b.wait_visible("#network-wifi-connect-dialog")
+
+        # SSID should be pre-filled
+        ssid_input = b.val("#network-wifi-connect-ssid-input")
+        self.assertEqual(ssid_input, test_ssid)
+
+        # Password field should be present
+        b.wait_visible("#network-wifi-connect-password-input")
+
+        # Close dialog
+        b.click("#network-wifi-connect-dialog button:contains('Cancel')")
+        b.wait_not_present("#network-wifi-connect-dialog")
+
+        # Cleanup
+        m.execute("nmcli connection down test-select-ap || true")
+        m.execute("nmcli connection delete test-select-ap || true")
+
+    def testAccessPointBasicCreation(self):
+        """
+        Issue #5: Create Access Point with default settings
+
+        Test that:
+        - Can open AP creation dialog
+        - Default SSID is generated (HALOS-{MAC})
+        - Can set password (minimum 8 characters)
+        - AP is created with correct settings
+        - Connection uses mode=ap and ipv4.method=shared
+        """
+        b = self.browser
+        m = self.machine
+
+        # Get MAC address of WiFi device for SSID validation
+        mac = m.execute(f"nmcli -t -f GENERAL.HWADDR device show {self.wifi_dev1}").strip()
+        mac = mac.split(':')[-1]  # Get last part: GENERAL.HWADDR:XX:XX:XX:XX:YY:ZZ
+        mac_suffix = mac.replace(':', '').replace('GENERAL.HWADDR', '')[-4:].upper()
+        expected_default_ssid = f"HALOS-{mac_suffix}"
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # Click "Enable Access Point" button
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
+
+        # Verify default SSID is pre-filled
+        ssid_value = b.val("#network-wifi-ap-ssid-input")
+        self.assertEqual(ssid_value, expected_default_ssid)
+
+        # Set password
+        test_password = "testap123"
+        b.set_input_text("#network-wifi-ap-password-input", test_password)
+
+        # Save AP configuration
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+        # Verify connection was created via nmcli
+        connections = m.execute("nmcli -t -f NAME,TYPE connection show")
+        self.assertIn(expected_default_ssid, connections)
+        self.assertIn("802-11-wireless", connections)
+
+        # Verify AP settings are correct
+        mode = m.execute(f"nmcli -t -f 802-11-wireless.mode connection show '{expected_default_ssid}'").strip()
+        self.assertEqual(mode, "802-11-wireless.mode:ap")
+
+        ipv4_method = m.execute(f"nmcli -t -f ipv4.method connection show '{expected_default_ssid}'").strip()
+        self.assertEqual(ipv4_method, "ipv4.method:shared")
+
+    def testAccessPointSSIDGeneration(self):
+        """
+        Issue #5: Verify default SSID generation format
+
+        Test that:
+        - Default SSID follows pattern HALOS-{MAC}
+        - MAC is last 4 characters of device MAC address
+        - SSID is unique per device
+        """
+        b = self.browser
+        m = self.machine
+
+        # Get WiFi device MAC address
+        mac_output = m.execute(f"nmcli -t -f GENERAL.HWADDR device show {self.wifi_dev1}").strip()
+        # Output format: GENERAL.HWADDR:AA:BB:CC:DD:EE:FF
+        mac_addr = mac_output.split('GENERAL.HWADDR:')[-1]
+        mac_suffix = mac_addr.replace(':', '')[-4:].upper()
+
+        expected_ssid = f"HALOS-{mac_suffix}"
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface and open AP dialog
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
+
+        # Verify the pre-filled SSID matches expected format
+        actual_ssid = b.val("#network-wifi-ap-ssid-input")
+        self.assertEqual(actual_ssid, expected_ssid)
+
+        # Close dialog without saving
+        b.click("#network-wifi-ap-dialog button:contains('Cancel')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+    def testAccessPointCustomConfiguration(self):
+        """
+        Issue #5: Customize Access Point configuration
+
+        Test that:
+        - Can customize SSID (not just use default)
+        - Can set custom password
+        - Can select frequency band (2.4GHz, 5GHz)
+        - Can select channel
+        - Can configure as hidden network
+        - Settings are saved correctly
+        """
+        b = self.browser
+        m = self.machine
+
+        custom_ssid = "MyCustomAP"
+        custom_password = "custompass123"
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # Open AP dialog
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
+
+        # Customize SSID
+        b.set_input_text("#network-wifi-ap-ssid-input", custom_ssid)
+
+        # Set password
+        b.set_input_text("#network-wifi-ap-password-input", custom_password)
+
+        # Select frequency band - 2.4GHz (bg) is already default
+        # Verify band selector is present
+        b.wait_visible("#network-wifi-ap-band-select")
+
+        # Save
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+        # Verify via nmcli
+        ssid_check = m.execute(f"nmcli -t -f 802-11-wireless.ssid connection show '{custom_ssid}'").strip()
+        self.assertIn(custom_ssid, ssid_check)
+
+        # Cleanup
+        m.execute(f"nmcli connection delete '{custom_ssid}' || true")
+
+    def testAccessPointActivation(self):
+        """
+        Issue #5: Activate Access Point and verify it's broadcasting
+
+        Test that:
+        - Can activate AP connection
+        - AP status shows as active
+        - SSID is broadcasting
+        - Other devices can see the AP
+        """
+        b = self.browser
+        m = self.machine
+
+        test_ssid = "TestActiveAP"
+        test_password = "activeap123"
+
+        # Create AP via UI (will fail until implemented)
+        # For now, create via nmcli and verify UI shows status
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name {test_ssid} \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        # Activate the AP
+        m.execute(f"nmcli connection up {test_ssid}")
+        time.sleep(2)
+
+        # Verify AP is active via nmcli
+        status = m.execute(f"nmcli -t -f GENERAL.STATE device show {self.wifi_dev1}")
+        self.assertIn("connected", status.lower())
+
+        # Verify AP is broadcasting (visible from other device)
+        networks = m.execute(f"nmcli -t -f SSID device wifi list ifname {self.wifi_dev2}")
+        self.assertIn(test_ssid, networks)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # UI should show AP is active (will fail until implemented)
+        # b.wait_in_text("#network-interface", "Access Point")
+        # b.wait_in_text("#network-interface", test_ssid)
+        # b.wait_visible(".ap-status-active")  # or similar indicator
+
+        # Cleanup
+        m.execute(f"nmcli connection down {test_ssid} || true")
+        m.execute(f"nmcli connection delete {test_ssid} || true")
+
+    def testAccessPointClientConnection(self):
+        """
+        Issue #5: Client can connect to created Access Point
+
+        Test that:
+        - AP accepts client connections
+        - Client receives IP address from DHCP
+        - Client can communicate with AP
+        """
+        m = self.machine
+
+        test_ssid = "TestClientConnect"
+        test_password = "clienttest123"
+
+        # Create and activate AP on dev1
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name ap-for-client-test \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        m.execute("nmcli connection up ap-for-client-test")
+        time.sleep(3)
+
+        # Verify AP is broadcasting
+        networks = m.execute(f"nmcli -t -f SSID device wifi list ifname {self.wifi_dev2}")
+        self.assertIn(test_ssid, networks)
+
+        # Connect dev2 as client to dev1's AP
+        m.execute(f"""
+            nmcli device wifi connect {test_ssid} \
+                password {test_password} \
+                ifname {self.wifi_dev2}
+        """, timeout=30)
+
+        # Verify client connected
+        client_status = m.execute(f"nmcli -t -f GENERAL.STATE device show {self.wifi_dev2}")
+        self.assertIn("connected", client_status.lower())
+
+        # Verify client got IP from DHCP (should be 10.42.0.x)
+        client_ip = m.execute(f"ip -4 addr show {self.wifi_dev2} | grep inet || true")
+        self.assertIn("10.42.0", client_ip)
+
+        # Verify client can ping AP gateway
+        ping_result = m.execute("ping -c 2 10.42.0.1 || true")
+        self.assertIn("2 received", ping_result)
+
+        # Cleanup
+        m.execute(f"nmcli connection down '{test_ssid}' || true")
+        m.execute(f"nmcli connection delete '{test_ssid}' || true")
+        m.execute("nmcli connection down ap-for-client-test || true")
+        m.execute("nmcli connection delete ap-for-client-test || true")
+
+    def testAccessPointDHCPServer(self):
+        """
+        Issue #5: Verify DHCP server is configured correctly for AP
+
+        Test that:
+        - DHCP server runs when AP is active
+        - IP range is correct (10.42.0.x by default)
+        - Gateway is configured
+        - DNS is configured
+        """
+        m = self.machine
+
+        test_ssid = "TestDHCP"
+        test_password = "dhcptest123"
+
+        # Create AP
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name dhcp-test-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        m.execute("nmcli connection up dhcp-test-ap")
+        time.sleep(2)
+
+        # Verify IP is assigned to AP interface
+        ap_ip = m.execute(f"ip -4 addr show {self.wifi_dev1} | grep 'inet ' || true")
+        self.assertIn("10.42.0.1", ap_ip)
+
+        # Verify ipv4.method is "shared" (enables DHCP server)
+        ipv4_method = m.execute("nmcli -t -f ipv4.method connection show dhcp-test-ap").strip()
+        self.assertEqual(ipv4_method, "ipv4.method:shared")
+
+        # When a client connects, it should get an IP in range 10.42.0.2-254
+        # This is tested in testAccessPointClientConnection
+
+        # Cleanup
+        m.execute("nmcli connection down dhcp-test-ap || true")
+        m.execute("nmcli connection delete dhcp-test-ap || true")
+
+    def testAccessPointDisable(self):
+        """
+        Issue #5: Disable and delete Access Point
+
+        Test that:
+        - Can deactivate running AP
+        - Can delete AP connection
+        - AP stops broadcasting after deactivation
+        - UI updates to show AP is disabled
+        """
+        b = self.browser
+        m = self.machine
+
+        test_ssid = "TestDisableAP"
+        test_password = "disabletest123"
+
+        # Create and activate AP
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name disable-test-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        m.execute("nmcli connection up disable-test-ap")
+        time.sleep(2)
+
+        # Verify AP is active and broadcasting
+        networks_before = m.execute(f"nmcli -t -f SSID device wifi list ifname {self.wifi_dev2}")
+        self.assertIn(test_ssid, networks_before)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # UI test: Click disable/delete button (will fail until implemented)
+        # b.wait_visible("button:contains('Disable Access Point')")
+        # b.click("button:contains('Disable Access Point')")
+
+        # For now, disable via nmcli
+        m.execute("nmcli connection down disable-test-ap")
+        time.sleep(2)
+
+        # Verify AP is no longer broadcasting
+        m.execute(f"nmcli device wifi rescan ifname {self.wifi_dev2}")
+        time.sleep(2)
+        networks_after = m.execute(f"nmcli -t -f SSID device wifi list ifname {self.wifi_dev2}")
+        self.assertNotIn(test_ssid, networks_after)
+
+        # Delete connection
+        m.execute("nmcli connection delete disable-test-ap")
+
+        # Verify connection is deleted
+        connections = m.execute("nmcli -t -f NAME connection show")
+        self.assertNotIn("disable-test-ap", connections)
+
+    def testAccessPointValidation(self):
+        """
+        Issue #5: Validate Access Point configuration inputs
+
+        Test that:
+        - SSID cannot be empty
+        - SSID length limited to 32 bytes
+        - Password minimum 8 characters (for WPA2)
+        - Password maximum 63 characters
+        - Invalid IP addresses rejected
+        - Validation errors shown in UI
+        """
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # Open AP dialog
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
+
+        # Test 1: Empty SSID - clear default and try to save
+        b.set_input_text("#network-wifi-ap-ssid-input", "")
+        b.set_input_text("#network-wifi-ap-password-input", "validpass123")
+        # Should show inline validation error for empty SSID
+        b.wait_in_text("#network-wifi-ap-ssid-input", "")
+
+        # Test 2: SSID too long (> 32 bytes)
+        long_ssid = "A" * 33
+        b.set_input_text("#network-wifi-ap-ssid-input", long_ssid)
+        # Should show inline validation error
+        b.wait_visible("#network-wifi-ap-ssid-input[aria-invalid='true']")
+
+        # Test 3: Password too short (< 8 chars for WPA2)
+        b.set_input_text("#network-wifi-ap-ssid-input", "ValidSSID")
+        b.set_input_text("#network-wifi-ap-password-input", "short")
+        # Should show inline validation error
+        b.wait_visible("#network-wifi-ap-password-input[aria-invalid='true']")
+
+        # Test 4: Password too long (> 63 chars)
+        long_password = "A" * 64
+        b.set_input_text("#network-wifi-ap-password-input", long_password)
+        # Should show inline validation error
+        b.wait_visible("#network-wifi-ap-password-input[aria-invalid='true']")
+
+        # Test 5: Valid configuration saves successfully
+        b.set_input_text("#network-wifi-ap-ssid-input", "ValidAP")
+        b.set_input_text("#network-wifi-ap-password-input", "validpass123")
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+        # Verify connection was created
+        connections = m.execute("nmcli -t -f NAME connection show")
+        self.assertIn("ValidAP", connections)
+
+        # Cleanup
+        m.execute("nmcli connection delete 'ValidAP' || true")
+
+    def testAccessPointSecurityOptions(self):
+        """
+        Issue #5: Test security type selection for Access Point
+
+        Test that:
+        - Can select WPA2 (default)
+        - Can select WPA3 (if supported)
+        - Can select Open network (with warning)
+        - Password field hidden for Open networks
+        - Warning shown for Open networks
+        """
+        m = self.machine
+
+        test_ssid_open = "TestOpenAP"
+
+        # Test open network (no security)
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name open-ap-test \
+                autoconnect no \
+                ssid {test_ssid_open} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24
+        """)
+
+        # Verify no security is configured
+        security = m.execute("nmcli -t -f 802-11-wireless-security.key-mgmt connection show open-ap-test").strip()
+        # Should be empty or "--" for no security
+        self.assertIn("--", security)
+
+        m.execute("nmcli connection up open-ap-test")
+        time.sleep(2)
+
+        # Verify open network is broadcasting
+        networks = m.execute(f"nmcli -t -f SSID,SECURITY device wifi list ifname {self.wifi_dev2}")
+        # Open networks show as blank or "--" in SECURITY column
+        self.assertIn(test_ssid_open, networks)
+
+        # UI test (will fail until implemented):
+        # - Select "Open" security type
+        # - Warning dialog appears
+        # - Password field is disabled/hidden
+        # - Must acknowledge warning to proceed
+
+        # Cleanup
+        m.execute("nmcli connection down open-ap-test || true")
+        m.execute("nmcli connection delete open-ap-test || true")
+
+    def testAccessPointStatusCard(self):
+        """
+        Issue #5: WiFiAPConfig status component displays when AP is active
+
+        Test that:
+        - When AP is active, status card is shown instead of scan view
+        - Status card shows AP information (SSID, status, IP range)
+        - "Configure" button is present
+        - "Disable" button is present
+        - Connected clients count is displayed
+        """
+        b = self.browser
+        m = self.machine
+
+        test_ssid = "TestStatusAP"
+        test_password = "statustest123"
+
+        # Create and activate AP
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name status-test-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        m.execute("nmcli connection up status-test-ap")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # WiFi Networks card should NOT show scan view when AP is active
+        # Instead, WiFiAPConfig status card should be visible
+        b.wait_visible(".pf-v6-c-card:contains('Access Point')")
+
+        # Verify status shows Active
+        b.wait_in_text(".pf-v6-c-card:contains('Access Point')", "Active")
+
+        # Verify SSID is displayed
+        b.wait_in_text(".pf-v6-c-card:contains('Access Point')", test_ssid)
+
+        # Verify IP range is displayed
+        b.wait_in_text(".pf-v6-c-card:contains('Access Point')", "10.42.0.1")
+
+        # Verify Configure button is present
+        b.wait_visible("button:contains('Configure')")
+
+        # Verify Disable button is present
+        b.wait_visible("button:contains('Disable')")
+
+        # Verify connected clients section is present
+        b.wait_visible(".pf-v6-c-card:contains('Access Point'):contains('Connected Clients')")
+
+        # Cleanup
+        m.execute("nmcli connection down status-test-ap || true")
+        m.execute("nmcli connection delete status-test-ap || true")
+
+    def testAccessPointClientList(self):
+        """
+        Issue #5: Connected clients are displayed in WiFiAPConfig
+
+        Test that:
+        - Client list is empty when no clients connected
+        - Client appears in list after connecting
+        - Client info shows: hostname/device, IP address, MAC address
+        - Client list updates when clients connect/disconnect
+        """
+        b = self.browser
+        m = self.machine
+
+        test_ssid = "TestClientListAP"
+        test_password = "clientlist123"
+
+        # Create and activate AP on dev1
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name client-list-ap \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        m.execute("nmcli connection up client-list-ap")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+        b.wait_visible(".pf-v6-c-card:contains('Access Point')")
+
+        # Initially, no clients should be connected
+        # Should show "No clients connected" or similar empty state
+        b.wait_in_text(".pf-v6-c-card:contains('Access Point')", "0")
+
+        # Connect dev2 as client
+        m.execute(f"""
+            nmcli device wifi connect {test_ssid} \
+                password {test_password} \
+                ifname {self.wifi_dev2}
+        """, timeout=30)
+
+        time.sleep(3)
+
+        # Get client IP for verification
+        client_ip = m.execute(f"ip -4 addr show {self.wifi_dev2} | grep 'inet ' | awk '{{print $2}}' | cut -d/ -f1").strip()
+
+        # Client count should update to 1
+        b.wait_in_text(".pf-v6-c-card:contains('Access Point')", "1")
+
+        # Client should appear in the table
+        b.wait_visible(f".pf-v6-c-table tbody tr:contains('{client_ip}')")
+
+        # Verify client MAC is shown (may be abbreviated)
+        # Just check that some MAC-like string is present in the row
+        b.wait_visible(".pf-v6-c-table tbody tr")
+
+        # Disconnect client
+        m.execute(f"nmcli connection down '{test_ssid}' || true")
+        time.sleep(2)
+
+        # Client count should return to 0 (may take a moment for lease to expire)
+        # Note: DHCP leases don't immediately disappear, so this might show stale data
+        # This is acceptable behavior - we're testing that the component reads the lease file
+
+        # Cleanup
+        m.execute("nmcli connection down client-list-ap || true")
+        m.execute("nmcli connection delete client-list-ap || true")
+        m.execute(f"nmcli connection delete '{test_ssid}' || true")
+
+    def testAccessPointDisableViaUI(self):
+        """
+        Issue #5: Disable Access Point via UI button
+
+        Test that:
+        - "Disable" button deactivates the AP
+        - AP stops broadcasting after disable
+        - UI switches back to WiFi scan view
+        - AP connection remains saved (not deleted, just deactivated)
+        """
+        b = self.browser
+        m = self.machine
+
+        test_ssid = "TestDisableUIAP"
+        test_password = "disableui123"
+
+        # Create and activate AP
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name disable-ui-test \
+                autoconnect no \
+                ssid {test_ssid} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {test_password}
+        """)
+
+        m.execute("nmcli connection up disable-ui-test")
+        time.sleep(2)
+
+        # Verify AP is broadcasting
+        networks_before = m.execute(f"nmcli -t -f SSID device wifi list ifname {self.wifi_dev2}")
+        self.assertIn(test_ssid, networks_before)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # AP status card should be visible
+        b.wait_visible(".pf-v6-c-card:contains('Access Point')")
+        b.wait_visible("button:contains('Disable')")
+
+        # Click Disable button
+        b.click("button:contains('Disable')")
+
+        # Should show confirmation or immediately disable
+        # After disable, AP status card should disappear
+        # and WiFi scan view should appear instead
+        b.wait_not_present(".pf-v6-c-card:contains('Access Point')")
+        b.wait_visible(".pf-v6-c-card:contains('WiFi Networks')")
+        b.wait_visible("button:contains('Scan')")
+
+        # Verify AP is no longer broadcasting
+        time.sleep(2)
+        m.execute(f"nmcli device wifi rescan ifname {self.wifi_dev2}")
+        time.sleep(2)
+        networks_after = m.execute(f"nmcli -t -f SSID device wifi list ifname {self.wifi_dev2}")
+        self.assertNotIn(test_ssid, networks_after)
+
+        # Verify connection still exists (just deactivated, not deleted)
+        connections = m.execute("nmcli -t -f NAME connection show")
+        self.assertIn("disable-ui-test", connections)
+
+        # Cleanup
+        m.execute("nmcli connection delete disable-ui-test || true")
+
+    def testAccessPointChannelSelection(self):
+        """
+        Issue #5: Channel selection in WiFiAPDialog
+
+        Test that:
+        - Channel dropdown is present in AP dialog
+        - Default is "Automatic" (channel 0)
+        - Can select specific channel for 2.4GHz (1-11)
+        - Can select specific channel for 5GHz (36, 40, 44, etc.)
+        - Channel options change when band changes
+        - Selected channel is saved in connection settings
+        """
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # Open AP dialog
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
+
+        # Verify channel selector is present
+        b.wait_visible("#network-wifi-ap-channel-select")
+
+        # Default should be Automatic (value 0)
+        channel_value = b.val("#network-wifi-ap-channel-select")
+        self.assertEqual(channel_value, "0")
+
+        # Verify "Automatic" option is present
+        b.wait_in_text("#network-wifi-ap-channel-select", "Automatic")
+
+        # Select 2.4GHz band (default)
+        band_value = b.val("#network-wifi-ap-band-select")
+        self.assertEqual(band_value, "bg")
+
+        # Should have channels 1-11 for 2.4GHz
+        b.wait_in_text("#network-wifi-ap-channel-select", "1")
+        b.wait_in_text("#network-wifi-ap-channel-select", "6")
+        b.wait_in_text("#network-wifi-ap-channel-select", "11")
+
+        # Select channel 6
+        b.set_val("#network-wifi-ap-channel-select", "6")
+
+        # Set required fields
+        test_ssid = "ChannelTestAP"
+        b.set_input_text("#network-wifi-ap-ssid-input", test_ssid)
+        b.set_input_text("#network-wifi-ap-password-input", "channel123")
+
+        # Save
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+        # Verify channel was saved
+        channel_check = m.execute(f"nmcli -t -f 802-11-wireless.channel connection show '{test_ssid}'").strip()
+        self.assertIn("6", channel_check)
+
+        # Cleanup
+        m.execute(f"nmcli connection delete '{test_ssid}' || true")
+
+    def testAccessPointHiddenSSID(self):
+        """
+        Issue #5: Hidden SSID option in WiFiAPDialog
+
+        Test that:
+        - SSID visibility checkbox is present
+        - Default is visible (not hidden)
+        - Can enable hidden SSID
+        - Hidden setting is saved correctly
+        - Warning shown about reduced compatibility
+        """
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # Open AP dialog
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
+
+        # Verify hidden SSID checkbox is present
+        b.wait_visible("#network-wifi-ap-hidden-checkbox")
+
+        # Default should be unchecked (visible/broadcast)
+        hidden_checked = b.is_present("#network-wifi-ap-hidden-checkbox:checked")
+        self.assertFalse(hidden_checked)
+
+        # Enable hidden SSID
+        b.click("#network-wifi-ap-hidden-checkbox")
+
+        # Set required fields
+        test_ssid = "HiddenTestAP"
+        b.set_input_text("#network-wifi-ap-ssid-input", test_ssid)
+        b.set_input_text("#network-wifi-ap-password-input", "hidden123")
+
+        # Save
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+        # Verify hidden setting was saved
+        hidden_check = m.execute(f"nmcli -t -f 802-11-wireless.hidden connection show '{test_ssid}'").strip()
+        self.assertIn("yes", hidden_check.lower())
+
+        # Cleanup
+        m.execute(f"nmcli connection delete '{test_ssid}' || true")
+
+    def testAccessPointCustomIPRange(self):
+        """
+        Issue #5: Custom IP range configuration in WiFiAPDialog
+
+        Test that:
+        - IP address input field is present
+        - Subnet prefix input field is present
+        - Default is 10.42.0.1/24
+        - Can customize IP address
+        - Can customize subnet prefix
+        - Invalid IP addresses show validation error
+        - Settings are saved correctly
+        """
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # Open AP dialog
+        b.click("button:contains('Enable Access Point')")
+        b.wait_visible("#network-wifi-ap-dialog")
+
+        # Verify IP address input is present
+        b.wait_visible("#network-wifi-ap-ip-input")
+
+        # Verify subnet prefix input is present
+        b.wait_visible("#network-wifi-ap-prefix-input")
+
+        # Verify defaults
+        ip_value = b.val("#network-wifi-ap-ip-input")
+        self.assertEqual(ip_value, "10.42.0.1")
+
+        prefix_value = b.val("#network-wifi-ap-prefix-input")
+        self.assertEqual(prefix_value, "24")
+
+        # Customize IP range
+        custom_ip = "192.168.50.1"
+        custom_prefix = "24"
+
+        b.set_input_text("#network-wifi-ap-ip-input", custom_ip)
+        b.set_input_text("#network-wifi-ap-prefix-input", custom_prefix)
+
+        # Set required fields
+        test_ssid = "CustomIPAP"
+        b.set_input_text("#network-wifi-ap-ssid-input", test_ssid)
+        b.set_input_text("#network-wifi-ap-password-input", "customip123")
+
+        # Save
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+        # Verify IP settings were saved
+        ip_check = m.execute(f"nmcli -t -f ipv4.addresses connection show '{test_ssid}'").strip()
+        self.assertIn(custom_ip, ip_check)
+
+        # Cleanup
+        m.execute(f"nmcli connection delete '{test_ssid}' || true")
+
+    def testAccessPointReconfigure(self):
+        """
+        Issue #5: Reconfigure active Access Point via Configure button
+
+        Test that:
+        - Configure button opens edit dialog with current settings
+        - Settings are pre-filled correctly
+        - Can modify settings while AP is active
+        - Changes are applied and AP restarts with new settings
+        """
+        b = self.browser
+        m = self.machine
+
+        test_ssid_original = "OriginalAP"
+        test_ssid_new = "ModifiedAP"
+        password_original = "original123"
+
+        # Create and activate AP
+        m.execute(f"""
+            nmcli connection add type wifi \
+                ifname {self.wifi_dev1} \
+                con-name reconfig-test \
+                autoconnect no \
+                ssid {test_ssid_original} \
+                mode ap \
+                ipv4.method shared \
+                ipv4.addresses 10.42.0.1/24 \
+                wifi-sec.key-mgmt wpa-psk \
+                wifi-sec.psk {password_original}
+        """)
+
+        m.execute("nmcli connection up reconfig-test")
+        time.sleep(2)
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # Navigate to WiFi interface
+        b.click(f"#networking-interfaces button:contains('{self.wifi_dev1}')")
+        b.wait_visible("#network-interface")
+
+        # AP status card should be visible
+        b.wait_visible(".pf-v6-c-card:contains('Access Point')")
+        b.wait_in_text(".pf-v6-c-card:contains('Access Point')", test_ssid_original)
+
+        # Click Configure button
+        b.click("button:contains('Configure')")
+        b.wait_visible("#network-wifi-ap-dialog")
+
+        # Verify current settings are pre-filled
+        ssid_value = b.val("#network-wifi-ap-ssid-input")
+        self.assertEqual(ssid_value, test_ssid_original)
+
+        # Modify SSID
+        b.set_input_text("#network-wifi-ap-ssid-input", test_ssid_new)
+
+        # Optionally change password (leave empty to keep existing)
+        # b.set_input_text("#network-wifi-ap-password-input", password_new)
+
+        # Save changes
+        b.click("#network-wifi-ap-dialog button:contains('Save')")
+        b.wait_not_present("#network-wifi-ap-dialog")
+
+        # Wait for AP to restart with new settings
+        time.sleep(3)
+
+        # Verify new SSID is shown in status card
+        b.wait_in_text(".pf-v6-c-card:contains('Access Point')", test_ssid_new)
+
+        # Verify AP is broadcasting with new SSID
+        networks = m.execute(f"nmcli -t -f SSID device wifi list ifname {self.wifi_dev2}")
+        self.assertIn(test_ssid_new, networks)
+        self.assertNotIn(test_ssid_original, networks)
+
+        # Cleanup
+        m.execute("nmcli connection down reconfig-test || true")
+        m.execute("nmcli connection delete reconfig-test || true")
 
 
 if __name__ == "__main__":

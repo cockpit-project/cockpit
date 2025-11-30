@@ -809,16 +809,23 @@ const WiFiHiddenDialog = ({ dev }) => {
             title={_("Connect to Hidden Network")}
             onSubmit={onSubmit}
             isCreateDialog
-            submitDisabled={!ssid || ssid.trim() === ""}
+            submitDisabled={!ssid || ssid.trim() === "" || ssid.length > 32}
         >
             <Form isHorizontal onSubmit={onSubmit}>
-                <FormGroup label={_("Network name (SSID)")} fieldId="wifi-hidden-ssid-input" isRequired>
+                <FormGroup
+                    label={_("Network name (SSID)")}
+                    fieldId="wifi-hidden-ssid-input"
+                    isRequired
+                    helperTextInvalid={ssid.length > 32 ? _("SSID must be 32 characters or less") : ""}
+                    validated={ssid.length > 32 ? "error" : "default"}
+                >
                     <TextInput
                         id="wifi-hidden-ssid-input"
                         value={ssid}
                         onChange={(_, val) => setSSID(val)}
                         placeholder={_("Enter network name")}
                         isRequired
+                        validated={ssid.length > 32 ? "error" : "default"}
                     />
                 </FormGroup>
 
@@ -842,7 +849,6 @@ const WiFiHiddenDialog = ({ dev }) => {
 
 // Saved Networks List Component
 const WiFiSavedNetworks = ({ dev, model }) => {
-    const Dialogs = useDialogs();
     const [savedNetworks, setSavedNetworks] = useState([]);
     const [error, setError] = useState(null);
 
@@ -874,8 +880,8 @@ const WiFiSavedNetworks = ({ dev, model }) => {
         } catch (err) {
             console.error("Failed to connect to saved network:", err);
             setError(cockpit.format(_("Failed to connect to \"$0\": $1"),
-                                   connection.Settings.connection?.id || _("Unknown"),
-                                   err.message));
+                                    connection.Settings.connection?.id || _("Unknown"),
+                                    err.message));
         }
     }, [dev]);
 
@@ -888,8 +894,8 @@ const WiFiSavedNetworks = ({ dev, model }) => {
         } catch (err) {
             console.error("Failed to forget network:", err);
             setError(cockpit.format(_("Failed to forget \"$0\": $1"),
-                                   connection.Settings.connection?.id || _("Unknown"),
-                                   err.message));
+                                    connection.Settings.connection?.id || _("Unknown"),
+                                    err.message));
         }
     }, []);
 
@@ -917,7 +923,7 @@ const WiFiSavedNetworks = ({ dev, model }) => {
                                     connection.Settings["802-11-wireless"]?.ssid?.v ||
                                     connection.Settings.connection?.id ||
                                     _("Unknown");
-                        const isActive = dev?.ActiveConnection?.Connection === connection;
+                        const isActive = dev?.ActiveConnection?.Connection?.[" priv"]?.path === connection[" priv"]?.path;
 
                         return (
                             <ListItem key={connection[" priv"].path}>
@@ -1434,7 +1440,7 @@ export const WiFiPage = ({ iface, dev }) => {
     }
 
     // Show client mode UI (scanning and connecting)
-    const isConnected = dev?.ActiveConnection !== null && dev?.ActiveConnection !== undefined;
+    const isConnected = !!dev?.ActiveConnection;
 
     return (
         <>

@@ -28,7 +28,7 @@ This repository (`cockpit-src/`) is a **local clone of the hatlabs/cockpit fork*
 # ✅ CORRECT - PR against hatlabs/cockpit with base=wifi
 git checkout -b feat/my-feature fork/wifi
 # make changes, commit
-git push origin feat/my-feature
+git push fork feat/my-feature
 gh pr create --repo hatlabs/cockpit --base wifi
 
 # ❌ WRONG - Don't base on main
@@ -42,10 +42,9 @@ gh pr create --repo hatlabs/cockpit --base main  # ❌
 
 ### Remote Configuration
 
-The local repository should have these remotes:
-- `origin`: Your personal fork (for pushing branches)
-- `fork`: `hatlabs/cockpit` (for base branches and PRs)
-- `upstream`: `cockpit-project/cockpit` (for tracking upstream)
+The local repository has these remotes:
+- `origin`: `cockpit-project/cockpit` (upstream Cockpit project)
+- `fork`: `hatlabs/cockpit` (HaLOS fork - use this for pushing branches and creating PRs)
 
 Always verify the PR base branch and repository before creating PRs!
 

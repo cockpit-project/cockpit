@@ -762,6 +762,209 @@ const OpenNetworkWarningDialog = ({ ap, onProceed, onCancel }) => {
     );
 };
 
+// Hidden Network Dialog
+const WiFiHiddenDialog = ({ dev }) => {
+    const Dialogs = useDialogs();
+    const [ssid, setSSID] = useState("");
+    const [security, setSecurity] = useState("wpa2");
+
+    const onSubmit = (ev) => {
+        if (ev) {
+            ev.preventDefault();
+        }
+
+        // Create a synthetic AP object for the hidden network
+        const hiddenAP = {
+            ssid,
+            security,
+            strength: 0,
+            path: null, // No actual AP path for hidden networks
+        };
+
+        // Close this dialog and show the WiFi connect dialog
+        Dialogs.close();
+
+        // Show warning for open networks, otherwise go straight to connect dialog
+        if (security === "open") {
+            Dialogs.show(
+                <OpenNetworkWarningDialog
+                    ap={hiddenAP}
+                    onProceed={() => {
+                        Dialogs.close();
+                        const settings = getWiFiGhostSettings({ newIfaceName: dev.Interface });
+                        Dialogs.show(<WiFiConnectDialog settings={settings} dev={dev} ap={hiddenAP} />);
+                    }}
+                    onCancel={() => Dialogs.close()}
+                />
+            );
+        } else {
+            const settings = getWiFiGhostSettings({ newIfaceName: dev.Interface });
+            Dialogs.show(<WiFiConnectDialog settings={settings} dev={dev} ap={hiddenAP} />);
+        }
+    };
+
+    return (
+        <NetworkModal
+            id="wifi-hidden-network-dialog"
+            title={_("Connect to Hidden Network")}
+            onSubmit={onSubmit}
+            isCreateDialog
+            submitDisabled={!ssid || ssid.trim() === ""}
+        >
+            <Form isHorizontal onSubmit={onSubmit}>
+                <FormGroup label={_("Network name (SSID)")} fieldId="wifi-hidden-ssid-input" isRequired>
+                    <TextInput
+                        id="wifi-hidden-ssid-input"
+                        value={ssid}
+                        onChange={(_, val) => setSSID(val)}
+                        placeholder={_("Enter network name")}
+                        isRequired
+                    />
+                </FormGroup>
+
+                <FormGroup label={_("Security")} fieldId="wifi-hidden-security-select">
+                    <select
+                        id="wifi-hidden-security-select"
+                        className="pf-v6-c-form-control"
+                        value={security}
+                        onChange={(e) => setSecurity(e.target.value)}
+                    >
+                        <option value="wpa3">{_("WPA3")}</option>
+                        <option value="wpa2">{_("WPA2")}</option>
+                        <option value="wpa">{_("WPA")}</option>
+                        <option value="open">{_("Open (No Security)")}</option>
+                    </select>
+                </FormGroup>
+            </Form>
+        </NetworkModal>
+    );
+};
+
+// Saved Networks List Component
+const WiFiSavedNetworks = ({ dev, model }) => {
+    const Dialogs = useDialogs();
+    const [savedNetworks, setSavedNetworks] = useState([]);
+    const [error, setError] = useState(null);
+
+    // Get saved WiFi connections
+    useEffect(() => {
+        if (!model) return;
+
+        const manager = model.get_manager();
+        if (!manager || !manager.Connections) return;
+
+        // Filter for WiFi connections that are not AP mode
+        const wifiConnections = manager.Connections.filter(con => {
+            const settings = con.Settings;
+            if (!settings || settings.connection?.type !== "802-11-wireless") return false;
+            // Exclude AP mode connections
+            const mode = settings.wifi?.mode || settings["802-11-wireless"]?.mode?.v;
+            return mode !== "ap";
+        });
+
+        setSavedNetworks(wifiConnections);
+    }, [model]);
+
+    const handleConnect = useCallback(async (connection) => {
+        if (!dev || !connection) return;
+
+        try {
+            setError(null);
+            await connection.activate(dev, null);
+        } catch (err) {
+            console.error("Failed to connect to saved network:", err);
+            setError(cockpit.format(_("Failed to connect to \"$0\": $1"),
+                                   connection.Settings.connection?.id || _("Unknown"),
+                                   err.message));
+        }
+    }, [dev]);
+
+    const handleForget = useCallback(async (connection) => {
+        if (!connection) return;
+
+        try {
+            setError(null);
+            await connection.delete_();
+        } catch (err) {
+            console.error("Failed to forget network:", err);
+            setError(cockpit.format(_("Failed to forget \"$0\": $1"),
+                                   connection.Settings.connection?.id || _("Unknown"),
+                                   err.message));
+        }
+    }, []);
+
+    if (savedNetworks.length === 0) {
+        return null; // Don't show the card if no saved networks
+    }
+
+    return (
+        <Card style={{ marginTop: "1rem" }}>
+            <CardHeader>
+                <CardTitle>{_("Saved Networks")}</CardTitle>
+            </CardHeader>
+            <CardBody>
+                {error && (
+                    <Alert
+                        variant="danger"
+                        isInline
+                        title={error}
+                        style={{ marginBottom: "1rem" }}
+                    />
+                )}
+                <List isPlain>
+                    {savedNetworks.map((connection) => {
+                        const ssid = connection.Settings.wifi?.ssid ||
+                                    connection.Settings["802-11-wireless"]?.ssid?.v ||
+                                    connection.Settings.connection?.id ||
+                                    _("Unknown");
+                        const isActive = dev?.ActiveConnection?.Connection === connection;
+
+                        return (
+                            <ListItem key={connection[" priv"].path}>
+                                <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                    <FlexItem flex={{ default: 'flex_2' }}>
+                                        <span>{ssid}</span>
+                                        {isActive && (
+                                            <Label color="blue" style={{ marginLeft: "0.5rem" }}>
+                                                {_("Connected")}
+                                            </Label>
+                                        )}
+                                    </FlexItem>
+                                    <FlexItem>
+                                        <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                                            {!isActive && (
+                                                <FlexItem>
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        onClick={() => handleConnect(connection)}
+                                                    >
+                                                        {_("Connect")}
+                                                    </Button>
+                                                </FlexItem>
+                                            )}
+                                            <FlexItem>
+                                                <Button
+                                                    variant="link"
+                                                    isDanger
+                                                    size="sm"
+                                                    onClick={() => handleForget(connection)}
+                                                >
+                                                    {_("Forget")}
+                                                </Button>
+                                            </FlexItem>
+                                        </Flex>
+                                    </FlexItem>
+                                </Flex>
+                            </ListItem>
+                        );
+                    })}
+                </List>
+            </CardBody>
+        </Card>
+    );
+};
+
 // Disable AP Confirmation Dialog
 const DisableAPConfirmDialog = ({ ssid, onConfirm, onCancel }) => {
     return (
@@ -1178,6 +1381,24 @@ export const WiFiPage = ({ iface, dev }) => {
         Dialogs.show(<WiFiAPDialog settings={apConnection.Settings} connection={apConnection} dev={dev} />);
     }, [apConnection, dev, Dialogs]);
 
+    // Disconnect from current network
+    const handleDisconnect = useCallback(async () => {
+        if (!dev?.ActiveConnection) return;
+
+        try {
+            setError(null);
+            await dev.ActiveConnection.deactivate();
+        } catch (err) {
+            console.error("Failed to disconnect:", err);
+            setError(_("Failed to disconnect: ") + err.message);
+        }
+    }, [dev]);
+
+    // Connect to hidden network
+    const handleConnectHidden = useCallback(() => {
+        Dialogs.show(<WiFiHiddenDialog dev={dev} />);
+    }, [dev, Dialogs]);
+
     // Detect current WiFi mode
     useEffect(() => {
         const currentMode = getWiFiMode(dev);
@@ -1213,38 +1434,55 @@ export const WiFiPage = ({ iface, dev }) => {
     }
 
     // Show client mode UI (scanning and connecting)
+    const isConnected = dev?.ActiveConnection !== null && dev?.ActiveConnection !== undefined;
+
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{_("WiFi Networks")}</CardTitle>
-                <Flex spaceItems={{ default: 'spaceItemsSm' }}>
-                    <FlexItem>
-                        <Button onClick={handleScan} isDisabled={scanning}>
-                            {scanning ? _("Scanning...") : _("Scan")}
-                        </Button>
-                    </FlexItem>
-                    <FlexItem>
-                        <Button variant="secondary" onClick={handleEnableAP}>
-                            {_("Enable Access Point")}
-                        </Button>
-                    </FlexItem>
-                </Flex>
-            </CardHeader>
-            <CardBody>
-                {error && (
-                    <Alert
-                        variant="danger"
-                        isInline
-                        title={error}
-                        style={{ marginBottom: "1rem" }}
+        <>
+            <Card>
+                <CardHeader>
+                    <CardTitle>{_("WiFi Networks")}</CardTitle>
+                    <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                        <FlexItem>
+                            <Button onClick={handleScan} isDisabled={scanning}>
+                                {scanning ? _("Scanning...") : _("Scan")}
+                            </Button>
+                        </FlexItem>
+                        {isConnected && (
+                            <FlexItem>
+                                <Button variant="warning" onClick={handleDisconnect}>
+                                    {_("Disconnect")}
+                                </Button>
+                            </FlexItem>
+                        )}
+                        <FlexItem>
+                            <Button variant="secondary" onClick={handleConnectHidden}>
+                                {_("Connect to Hidden Network")}
+                            </Button>
+                        </FlexItem>
+                        <FlexItem>
+                            <Button variant="secondary" onClick={handleEnableAP}>
+                                {_("Enable Access Point")}
+                            </Button>
+                        </FlexItem>
+                    </Flex>
+                </CardHeader>
+                <CardBody>
+                    {error && (
+                        <Alert
+                            variant="danger"
+                            isInline
+                            title={error}
+                            style={{ marginBottom: "1rem" }}
+                        />
+                    )}
+                    <WiFiNetworkList
+                        accessPoints={accessPoints}
+                        onConnect={handleConnect}
+                        scanning={scanning}
                     />
-                )}
-                <WiFiNetworkList
-                    accessPoints={accessPoints}
-                    onConnect={handleConnect}
-                    scanning={scanning}
-                />
-            </CardBody>
-        </Card>
+                </CardBody>
+            </Card>
+            <WiFiSavedNetworks dev={dev} model={model} />
+        </>
     );
 };

@@ -64,6 +64,30 @@ export enum InstallProgressType {
     DOWNGRADING,
 }
 
+export enum Severity {
+    NONE,
+    LOW,
+    MODERATE,
+    IMPORTANT,
+    CRITICAL,
+}
+
+export interface Update {
+    id: string
+    name: string
+    version: string
+    arch: string
+}
+
+export interface UpdateDetail extends Update {
+  severity: Severity
+  description: string
+  markdown: boolean
+  bug_urls: string[]
+  cve_urls: string[]
+  vendor_urls: string[]
+}
+
 export interface PackageManager {
   name: string
   check_missing_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<MissingPackages>;
@@ -73,6 +97,8 @@ export interface PackageManager {
   install_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void>;
   remove_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void>;
   find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]>;
+  get_updates<T extends boolean>(detail: T, progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]>;
+  update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, transaction_path?: string): Promise<void>;
 }
 
 export class UnsupportedError extends Error {

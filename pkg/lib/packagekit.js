@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { Severity } from "_internal/packagemanager-abstract";
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
 
@@ -582,7 +583,7 @@ function loadUpdateDetailsBatch(pkg_ids, update_details, progress_cb) {
             // many backends don't support proper severities; parse CVEs from description as a fallback
             u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
             if (u.cve_urls && u.cve_urls.length > 0)
-                u.severity = Enum.INFO_SECURITY;
+                u.severity = Severity.CRITICAL;
             u.vendor_urls = vendor_urls || [];
             // u.restart = restart; // broken (always "1") at least in Fedora
             debug("UpdateDetail:", u);
@@ -611,6 +612,17 @@ export async function get_updates(details, progress_cb) {
                 // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
                 if (info < Enum.INFO_LOW || info > Enum.INFO_SECURITY)
                     info = Enum.INFO_NORMAL;
+
+                if (info == Enum.INFO_LOW)
+                    info = Severity.LOW;
+                else if (info == Enum.INFO_ENHANCEMENT)
+                    info = Severity.MODERATE;
+                else if (info == Enum.INFO_SECURITY)
+                    info = Severity.CRITICAL;
+                else if (info >= Enum.INFO_NORMAL)
+                    info = Severity.IMPORTANT;
+                else
+                    info = Severity.MODERATE;
 
                 updates[packageId] = { id: packageId, name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2], summary };
             }
@@ -663,8 +675,8 @@ export async function get_updates(details, progress_cb) {
  * Update packages
  *
  * @param {any[]} updates - packages to update from get_updates()
- * @param {?() => void} progress_cb - optional progress callback
- * @param {?string} transaction_path - optional transaction_path to re-use an existing transaction
+ * @param {any} progress_cb - optional progress callback
+ * @param {string | undefined} transaction_path - optional transaction_path to re-use an existing transaction
  */
 export function update_packages(updates, progress_cb, transaction_path) {
     const update_ids = updates.map(update => update.id);

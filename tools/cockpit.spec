@@ -265,6 +265,24 @@ web browser.
 It offers network configuration, log inspection, diagnostic reports, SELinux
 troubleshooting, interactive command-line sessions, and more.
 
+%post
+# set up dynamic motd/issue symlinks on first-time install; don't bring them back on upgrades if admin removed them
+if [ "$1" = 1 ]; then
+    mkdir -p /etc/motd.d /etc/issue.d
+    ln -s ../../run/cockpit/issue /etc/motd.d/cockpit
+    ln -s ../../run/cockpit/issue /etc/issue.d/cockpit.issue
+fi
+
+# on upgrades, adjust motd/issue links to changed target if they still exist (changed in 331)
+if [ "$1" = 2 ]; then
+    if [ "$(readlink /etc/motd.d/cockpit 2>/dev/null)" = "../../run/cockpit/motd" ]; then
+        ln -sfn ../../run/cockpit/issue /etc/motd.d/cockpit
+    fi
+    if [ "$(readlink /etc/issue.d/cockpit.issue 2>/dev/null)" = "../../run/cockpit/motd" ]; then
+        ln -sfn ../../run/cockpit/issue /etc/issue.d/cockpit.issue
+    fi
+fi
+
 %files
 %license COPYING
 %{_docdir}/cockpit/AUTHORS
@@ -273,6 +291,13 @@ troubleshooting, interactive command-line sessions, and more.
 %{_datadir}/metainfo/org.cockpit_project.cockpit.appdata.xml
 %{_datadir}/icons/hicolor/128x128/apps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
+# motd/issue symlinks and related files
+%ghost %{_sysconfdir}/issue.d/cockpit.issue
+%ghost %{_sysconfdir}/motd.d/cockpit
+%dir %{_datadir}/cockpit/issue
+%{_datadir}/cockpit/issue/update-issue
+%{_datadir}/cockpit/issue/inactive.issue
+%{_unitdir}/cockpit-issue.service
 
 
 %package bridge
@@ -377,14 +402,8 @@ authentication via sssd/FreeIPA.
 %config(noreplace) %{pamconfdir}/cockpit
 
 # created in %post, so that users can rm the files
-%ghost %{_sysconfdir}/issue.d/cockpit.issue
-%ghost %{_sysconfdir}/motd.d/cockpit
 %ghost %attr(0644, root, root) %{_sysconfdir}/cockpit/disallowed-users
-%dir %{_datadir}/cockpit/issue
-%{_datadir}/cockpit/issue/update-issue
-%{_datadir}/cockpit/issue/inactive.issue
 %{_unitdir}/cockpit.service
-%{_unitdir}/cockpit-issue.service
 %{_unitdir}/cockpit.socket
 %{_unitdir}/cockpit-session-socket-user.service
 %{_unitdir}/cockpit-session.socket
@@ -412,25 +431,11 @@ authentication via sssd/FreeIPA.
 %{_datadir}/cockpit/branding
 
 %post ws
-# set up dynamic motd/issue symlinks on first-time install; don't bring them back on upgrades if admin removed them
 # disable root login on first-time install; so existing installations aren't changed
 if [ "$1" = 1 ]; then
-    mkdir -p /etc/motd.d /etc/issue.d
-    ln -s ../../run/cockpit/issue /etc/motd.d/cockpit
-    ln -s ../../run/cockpit/issue /etc/issue.d/cockpit.issue
     printf "# List of users which are not allowed to login to Cockpit\n" > /etc/cockpit/disallowed-users
     printf "root\n" >> /etc/cockpit/disallowed-users
     chmod 644 /etc/cockpit/disallowed-users
-fi
-
-# on upgrades, adjust motd/issue links to changed target if they still exist (changed in 331)
-if [ "$1" = 2 ]; then
-    if [ "$(readlink /etc/motd.d/cockpit 2>/dev/null)" = "../../run/cockpit/motd" ]; then
-        ln -sfn ../../run/cockpit/issue /etc/motd.d/cockpit
-    fi
-    if [ "$(readlink /etc/issue.d/cockpit.issue 2>/dev/null)" = "../../run/cockpit/motd" ]; then
-        ln -sfn ../../run/cockpit/issue /etc/issue.d/cockpit.issue
-    fi
 fi
 
 %tmpfiles_create cockpit-ws.conf

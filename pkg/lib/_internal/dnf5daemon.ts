@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -67,6 +67,35 @@ interface ListPackage {
     name: { t: "s"; v: string };
     release: { t: "s"; v: string };
     version: { t: "s"; v: string };
+    nevra?: { t: "s"; v: string };
+}
+
+interface CollectionPackage {
+    // arch
+    a: { t: "s"; v: string };
+    // epoch
+    e: { t: "s"; v: string };
+    // name
+    n: { t: "s"; v: string };
+    nevra: { t: "s"; v: string };
+    // release
+    r: { t: "s"; v: string };
+    // version
+    v: { t: "s"; v: string };
+}
+
+type AdvisoryType = "bugfix" | "enhancement" | "security" | "newpackage";
+
+interface ListAdvisory {
+    advisoryid: { t: "i", v: number };
+    name: { t: "s", v: string };
+    description: { t: "s", v: string };
+    status: { t: "s", v: string };
+    severity: { t: "s", v: Severity };
+    type: { t: "s", v: AdvisoryType };
+    collections: { t: "aa{sv}", v: [ { packages: { t: "aa{sv}", v: CollectionPackage[] } } ] }
+    // Array of id, type, title, url
+    references: { t: "a(ssss)", v: [string, string, string, string] }
 }
 
 interface ResolvePackage {
@@ -75,7 +104,6 @@ interface ResolvePackage {
     epoch: { t: "s"; v: string };
     evr: { t: "s"; v: string };
     from_repo_id: { t: "s"; v: string };
-    full_nevra: { t: "s"; v: string };
     id: { t: "i"; v: number };
     install_size: { t: "t"; v: number };
     name: { t: "s"; v: string };
@@ -113,6 +141,7 @@ type TransactionItem = [
 
 type InstallResolveResult = [TransactionItem[], number]
 type RemoveResolveResult = [TransactionItem[], number]
+type UpgradeResolveResult = [TransactionItem[], number]
 
 type SignalCB = (_path: string, _iface: string, signal: string, args: unknown[]) => void
 
@@ -182,7 +211,7 @@ export class Dnf5DaemonManager implements PackageManager {
                 if (pkg.is_installed.v) {
                     installed_names.add(pkg.name.v);
                 } else {
-                    data.missing_ids.push(pkg.id.v);
+                    data.missing_ids.push(pkg.name.v);
                     data.missing_names.push(pkg.name.v);
                 }
 
@@ -465,5 +494,140 @@ export class Dnf5DaemonManager implements PackageManager {
         });
 
         return installed;
+    }
+
+    async get_updates<T extends boolean>(detail: T, _progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]> {
+        const update_map = new Map<string, Update | UpdateDetail>();
+        const package_attrs = ["name", "version", "arch", "epoch", "nevra"];
+
+        await this.with_session(async (session) => {
+            const pkgnames = [];
+            const [results] = await call(session, "org.rpm.dnf.v0.rpm.Rpm", "list", [
+                {
+                    package_attrs: { t: 'as', v: package_attrs },
+                    scope: { t: 's', v: "upgrades" },
+                }
+            ]) as ListPackage[][];
+
+            for (const result of results) {
+                cockpit.assert(result.nevra, "nevra not set");
+
+                pkgnames.push(result.name.v);
+                update_map.set(result.nevra.v, {
+                    id: result.name.v,
+                    name: result.name.v,
+                    arch: result.arch.v,
+                    version: result.version.v,
+                });
+            }
+
+            if (detail) {
+                const advisory_attrs = ["advisoryid", "name", "title", "type", "severity", "description", "references", "collections", "message"];
+                const [advisories] = await call(session, "org.rpm.dnf.v0.Advisory", "list", [
+                    {
+                        advisory_attrs: { t: 'as', v: advisory_attrs },
+                        availability: { t: 's', v: "upgrades" },
+                        contains_pkgs: { t: 'as', v: pkgnames },
+                    }
+                ]) as ListAdvisory[][];
+
+                for (const advisory of advisories) {
+                    for (const collection of advisory.collections.v) {
+                        for (const pkg of collection.packages.v) {
+                            let update = update_map.get(pkg.nevra.v);
+                            if (!update)
+                                continue;
+
+                            const bug_urls: string[] = [];
+                            const cve_urls: string[] = [];
+                            const vendor_urls: string[] = [];
+
+                            for (const [, type, _title, url] of advisory.references.v) {
+                                switch (type) {
+                                case "bugzilla":
+                                    bug_urls.push(url);
+                                    break;
+                                case "cve":
+                                    cve_urls.push(url);
+                                    break;
+                                case "vendor":
+                                    vendor_urls.push(url);
+                                    break;
+                                }
+                            }
+
+                            // Map the advisory type to the severity which PackageKit uses
+                            // Critical == Security upate
+                            // Important == Bug fix
+                            // Moderate == Enhancement
+                            let severity = Severity.LOW;
+                            switch (advisory.type.v) {
+                            case "bugfix":
+                                severity = Severity.IMPORTANT;
+                                break;
+                            case "enhancement":
+                                severity = Severity.MODERATE;
+                                break;
+                            case "security":
+                                severity = Severity.CRITICAL;
+                                break;
+                            }
+
+                            update = {
+                                ...update,
+                                description: advisory.description.v,
+                                severity,
+                                markdown: false,
+                                bug_urls,
+                                cve_urls,
+                                vendor_urls,
+                            };
+                            update_map.set(pkg.nevra.v, update);
+
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+        return Array.from(update_map.values()) as T extends true ? UpdateDetail[] : Update[];
+    }
+
+    async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, _transaction_path?: string): Promise<void> {
+        const pkgnames = updates.map(update => update.id);
+        let last_progress = 0;
+        let total_packages: number;
+
+        function signal_emitted(_path: string, _iface: string, signal: string, args: unknown[]) {
+            switch (signal) {
+            case 'transaction_before_begin':
+                [, total_packages] = args as [string, number];
+                break;
+            case 'transaction_elem_progress': {
+                const [, _last_name, processed,] = args as [string, string, number, number];
+                last_progress = processed / total_packages * 100;
+                break;
+            }
+            }
+
+            if (progress_cb) {
+                progress_cb({
+                    waiting: false,
+                    percentage: last_progress,
+                    cancel: null,
+                });
+            }
+        }
+
+        await this.with_session(async (session) => {
+            await call(session, "org.rpm.dnf.v0.rpm.Rpm", "upgrade", [pkgnames, {}]);
+            const [_transaction_items, result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as UpgradeResolveResult;
+            if (result !== 0) {
+                const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
+                throw new ResolveError(`Resolving upgrade failed with result=${result}. ${problem}`);
+            }
+            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+        }, signal_emitted);
     }
 }

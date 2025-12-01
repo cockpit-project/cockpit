@@ -40,7 +40,7 @@ export interface MissingPackages {
     // Packages that were requested, are currently not installed, and can be installed
     missing_names: string[]
     // The full package IDs corresponding to missing_names (the ID format is backend specific)
-    missing_ids: number[]
+    missing_ids: string[]
     // Packages that were requested, are currently not installed, but can't be found in any repository
     unavailable_names: string[]
 

@@ -1,5 +1,5 @@
 [[privileges]]
-== Privileges and Permissions
+= Privileges and Permissions
 
 When a user is logged into Cockpit, they are logged into a normal
 session that has exactly the same privileges as if they logged in via
@@ -17,25 +17,25 @@ session, via the "Administrative access" indicator in the top bar. From
 that indicator, the user can drop "root" privileges and regain them. On
 the next login, Cockpit will give the session the same privileges.
 
-Usually a user needs to be in the `wheel` Unix user group for the user
+Usually a user needs to be in the `+wheel+` Unix user group for the user
 to be able to escalate privileges in this way. However both Policy Kit
 and sudo may be configured to use other criteria.
 
 [[privileges-polkit]]
-=== Customizing Polkit Privileges
+== Customizing Polkit Privileges
 
 Services like
 https://www.freedesktop.org/wiki/Software/systemd/[systemd] and
 https://wiki.gnome.org/Projects/NetworkManager[NetworkManager] use
 https://www.freedesktop.org/wiki/Software/polkit/[Polkit] to validate
 and escalate privileges. It is possible to customize these rules with
-files in `/etc/polkit-1/rules.d`.
+files in `+/etc/polkit-1/rules.d+`.
 
 Polkit rules files are
 https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html[javascript
 with specific methods and objects]. For example, placing the following
-polkit rule to `/etc/polkit-1/rules.d/10-operators.rule` allows all
-users in the `operators` group to start, stop, restart and otherwise
+polkit rule to `+/etc/polkit-1/rules.d/10-operators.rule+` allows all
+users in the `+operators+` group to start, stop, restart and otherwise
 manage systemd services:
 
 ....

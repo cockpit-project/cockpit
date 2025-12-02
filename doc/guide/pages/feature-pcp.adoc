@@ -1,5 +1,5 @@
 [[feature-pcp]]
-== PCP Metrics
+= PCP Metrics
 
 If available, Cockpit uses the https://pcp.io/[Performance Co-Pilot]
 framework to gather metrics data about the system. This data is used to
@@ -10,13 +10,13 @@ Cockpit gathers the metrics data itself, but archival features are not
 available.
 
 Whether or not metrics are archived depends on whether the
-https://linux.die.net/man/1/pmlogger[`pmlogger.service`] systemd unit is
-running or not. The "Enable PCP metrics collector" button on the Metrics
-page will enable and start this service.
+https://linux.die.net/man/1/pmlogger[`+pmlogger.service+`] systemd unit
+is running or not. The "Enable PCP metrics collector" button on the
+Metrics page will enable and start this service.
 
 To see similar metrics data from the command line, you can use tools
-like https://linux.die.net/man/1/pmstat[`pmstat`] or
-https://linux.die.net/man/1/pminfo[`pminfo`]:
+like https://linux.die.net/man/1/pmstat[`+pmstat+`] or
+https://linux.die.net/man/1/pminfo[`+pminfo+`]:
 
 ....
 $ pmstat

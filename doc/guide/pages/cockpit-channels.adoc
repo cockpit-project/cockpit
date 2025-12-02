@@ -1,10 +1,8 @@
-cockpit.js: Raw Channels
-
-Raw communication channels
+= cockpit.js: Raw Channels
 
 At a low level Cockpit communicates with the system via messages passed
 through various channels. These are usually exposed via higher level
-APIs, such as the `cockpit.spawn()` function. It is rare to use raw
+APIs, such as the `+cockpit.spawn()+` function. It is rare to use raw
 channels directly.
 
 [[cockpit-channels-channel]]
@@ -15,40 +13,42 @@ channel = cockpit.channel(options)
 ....
 
 This function creates a new channel for communication with the system.
-It returns a new channel object. The `options` argument is a plain
-object. At least the `"payload"` option is required, and based on the
+It returns a new channel object. The `+options+` argument is a plain
+object. At least the `+"payload"+` option is required, and based on the
 payload type, other options may be required.
 
-`"binary"`::
-  Set to `true` to transfer binary payloads. Both messages sent via
-  link:#cockpit-channels-send[`channel.send()`] and those received via
-  link:#cockpit-channels-message[`channel.onmessage`] should be arrays
-  of bytes, either `Uint8Array` or `Array` depending on browser support.
-`"payload"`::
+`+"binary"+`::
+  Set to `+true+` to transfer binary payloads. Both messages sent via
+  link:#cockpit-channels-send[`+channel.send()+`] and those received via
+  link:#cockpit-channels-message[`+channel.onmessage+`] should be arrays
+  of bytes, either `+Uint8Array+` or `+Array+` depending on browser
+  support.
+`+"payload"+`::
   The payload type for the channel. Only specific payload types are
   supported.
-`"superuser"`::
-  Set to `"require"` to open this channel as root. If the currently
-  logged in user is not permitted to become root (eg: via `pkexec`) then
-  the `channel` will immediately be
-  link:#cockpit-channels-close-ev[closed] with a `"access-denied"`
+`+"superuser"+`::
+  Set to `+"require"+` to open this channel as root. If the currently
+  logged in user is not permitted to become root (eg: via `+pkexec+`)
+  then the `+channel+` will immediately be
+  link:#cockpit-channels-close-ev[closed] with a `+"access-denied"+`
   problem code.
   +
-  Set to `"try"` to try to open the channel as root, but if that fails,
-  then fall back to an unprivileged channel.
+  Set to `+"try"+` to try to open the channel as root, but if that
+  fails, then fall back to an unprivileged channel.
 
 The channel object returned has the following fields and methods and
-events. You should call the `channel.close()` method when done with the
-channel.
+events. You should call the `+channel.close()+` method when done with
+the channel.
 
 A valid channel will always be returned and the is ready to
-`channel.send()`. The channel may link:#cockpit-channels-close-ev[close
-shortly afterword] due to a failure.
+`+channel.send()+`. The channel may
+link:#cockpit-channels-close-ev[close shortly afterword] due to a
+failure.
 
 [[cockpit-channels-binary]]
 == channel.binary
 
-Will be `true` for an binary channel. Will be set to `false` if the
+Will be `+true+` for an binary channel. Will be set to `+false+` if the
 channel is textual.
 
 [[cockpit-channels-options]]
@@ -59,7 +59,7 @@ The options used to open this channel. This should not be changed.
 [[cockpit-channels-valid]]
 == channel.valid
 
-Will be `true` for an open channel. Will be set to `false` if the
+Will be `+true+` for an open channel. Will be set to `+false+` if the
 channel closes.
 
 [[cockpit-channels-send]]
@@ -70,9 +70,9 @@ channel.send(data)
 ....
 
 Send a message over the channel. The contents of the message depends on
-the payload type of the channel. If a binary channel, then `data` is
-expected to be an `Array` of bytes or a `Uint8Array`. If not binary,
-then the `data` will be converted to a string if not already a string.
+the payload type of the channel. If a binary channel, then `+data+` is
+expected to be an `+Array+` of bytes or a `+Uint8Array+`. If not binary,
+then the `+data+` will be converted to a string if not already a string.
 
 [[cockpit-channels-control]]
 == channel.control()
@@ -81,13 +81,13 @@ then the `data` will be converted to a string if not already a string.
 channel.control(options)
 ....
 
-Notify the channel to tune certain parameters on the fly. The `options`
-is a plain javascript object, and the contents depend on the `"payload"`
-of the channel.
+Notify the channel to tune certain parameters on the fly. The
+`+options+` is a plain javascript object, and the contents depend on the
+`+"payload"+` of the channel.
 
-One common operation is to set `"command"` to `"done"` in the options
-field. To indicate that no further messages will be sent through the
-channel.
+One common operation is to set `+"command"+` to `+"done"+` in the
+options field. To indicate that no further messages will be sent through
+the channel.
 
 [[cockpit-channels-wait]]
 == channel.wait()
@@ -96,12 +96,12 @@ channel.
 promise = channel.wait([callback])
 ....
 
-Returns a `promise` that is ready when the channel is ready, or fails if
-the client closes. If a `callback` is specified, it is attached to the
-promise. The promise will be rejected or resolved with the contents
-`options` passed to the link:#cockpit-channels-onready[channel.onready]
-and link:#cockpit-channels-close-ev[channel.onclose] events
-respectively.
+Returns a `+promise+` that is ready when the channel is ready, or fails
+if the client closes. If a `+callback+` is specified, it is attached to
+the promise. The promise will be rejected or resolved with the contents
+`+options+` passed to the
+link:#cockpit-channels-onready[channel.onready] and
+link:#cockpit-channels-close-ev[channel.onclose] events respectively.
 
 In general it's not necessary to wait for the channel before starting to
 use the channel.
@@ -115,11 +115,11 @@ channel.close([options])
 
 Close the channel.
 
-If `options` is present it can be a plain javascript object containing
+If `+options+` is present it can be a plain javascript object containing
 additional channel close options to send to the peer. If closing for
-because of a problem, set the `"problem"` field to a
-link:#cockpit-problems[problem code]. If `options` is not an object it
-will be treated as a `"problem"`.
+because of a problem, set the `+"problem"+` field to a
+link:#cockpit-problems[problem code]. If `+options+` is not an object it
+will be treated as a `+"problem"+`.
 
 The link:#cockpit-channels-close-ev[close event] will fire. A channel
 can also be closed by a peer or if the underlying transport closes.
@@ -132,10 +132,10 @@ channel.addEventListener("message", function(event, data) { ... })
 ....
 
 An event triggered when the channel receives a message. The message is
-passed as a string to the handler in the `data`. In the case of binary
-channels `data` is an `Uint8Array` or an `Array` of bytes if the former
-is not supported by the browser. The contents of the message depends on
-the payload type of the channel.
+passed as a string to the handler in the `+data+`. In the case of binary
+channels `+data+` is an `+Uint8Array+` or an `+Array+` of bytes if the
+former is not supported by the browser. The contents of the message
+depends on the payload type of the channel.
 
 [[cockpit-channels-oncontrol]]
 == channel.oncontrol
@@ -145,9 +145,9 @@ channel.addEventListener("control", function(event, options) { ... })
 ....
 
 An event triggered when the channel receives an control message in the
-middle of the flow. One particular use is when the `command` is set to
-`"done"` then no further messages will be received in the channel. The
-exact form of these messages depend on the `"payload"` of the channel.
+middle of the flow. One particular use is when the `+command+` is set to
+`+"done"+` then no further messages will be received in the channel. The
+exact form of these messages depend on the `+"payload"+` of the channel.
 
 [[cockpit-channels-onready]]
 == channel.onready
@@ -172,9 +172,9 @@ because link:#cockpit-channels-close[channel.close()] function was
 called, or if the peer closed the channel, or the underlying transport
 closes.
 
-The `options` will contain various close information, including a
-`"problem"` field which will be set if the channel was closed because of
-a problem.
+The `+options+` will contain various close information, including a
+`+"problem"+` field which will be set if the channel was closed because
+of a problem.
 
 [[cockpit-transport-origin]]
 == cockpit.transport.origin
@@ -185,7 +185,7 @@ cockpit.transport.origin
 
 The HTTP origin that is being used by the underlying channel transport.
 This is read-only, you should not assign a value. If the browser
-supports `window.location.origin` then this will be identical to that
+supports `+window.location.origin+` then this will be identical to that
 value.
 
 [[cockpit-transport-host]]
@@ -200,7 +200,7 @@ read-only, you should not assign a value. If the value is null that
 means that the transport has not been setup yet.
 
 [[cockpit-transport-csrf-token]]
-== cockpit.transport.csrf++_++token
+== cockpit.transport.csrf_token
 
 ....
 cockpit.transport.csrf_token
@@ -226,10 +226,10 @@ These will be empty until connection is properly established.
 cockpit.transport.wait(callback)
 ....
 
-Call the `callback` function once the underlying channel transport is
+Call the `+callback+` function once the underlying channel transport is
 initialized. This will start the initialization if not already in
 progress or completed. If the channel transport is already initialized,
-then `callback` will be called immediately.
+then `+callback+` will be called immediately.
 
 In general it's not necessary to wait for the transport before starting
 to open channels.
@@ -242,8 +242,8 @@ cockpit.transport.close([problem])
 ....
 
 Close the underlying channel transport. All channels open channels will
-close. The `problem` argument should be a problem code string. If not
-specified it will default to `"disconnected"`.
+close. The `+problem+` argument should be a problem code string. If not
+specified it will default to `+"disconnected"+`.
 
 [[cockpit-transport-filter]]
 == cockpit.transport.filter()
@@ -258,14 +258,14 @@ will be passed to each of the filter callbacks that are registered.
 This function is rarely used.
 
 Filter callbacks are called in the order they are registered. If a
-filter callback returns `false` then the message will not be dispatched
-further, whether to other filters, or to channels, etc.
+filter callback returns `+false+` then the message will not be
+dispatched further, whether to other filters, or to channels, etc.
 
-The `message` is the string or array with the raw message including, the
-framing. The `channelid` is the channel identifier or an empty string
-for control messages. If `control` is set then this is a control
-message,d and the `control` argument contains the parsed JSON object of
-the control message.
+The `+message+` is the string or array with the raw message including,
+the framing. The `+channelid+` is the channel identifier or an empty
+string for control messages. If `+control+` is set then this is a
+control message,d and the `+control+` argument contains the parsed JSON
+object of the control message.
 
 [[cockpit-transport-inject]]
 == cockpit.transport.inject()
@@ -274,39 +274,39 @@ the control message.
 cockpit.transport.inject(message, [out])
 ....
 
-Inject a message into the underlying channel transport. The `message`
-should be a `string` or an array of bytes, and should be valid according
-to the Cockpit message protocol. If the `out` argument is equal to
-`false` then the message will be injected as an incoming message as if
-it was received on the underlying channel transport.
+Inject a message into the underlying channel transport. The `+message+`
+should be a `+string+` or an array of bytes, and should be valid
+according to the Cockpit message protocol. If the `+out+` argument is
+equal to `+false+` then the message will be injected as an incoming
+message as if it was received on the underlying channel transport.
 
-This function is rarely used. In general you should only `inject()`
-messages you got from a `filter()`.
+This function is rarely used. In general you should only `+inject()+`
+messages you got from a `+filter()+`.
 
 [[cockpit-base64-encode]]
-== cockpit.base64++_++encode()
+== cockpit.base64_encode()
 
 ....
 string = cockpit.base64_encode(data)
 ....
 
-Encode binary data into a string using the Base64 encoding. The `data`
-argument can either be a `string`, an `Array`, an `ArrayBuffer` or a
-`Uint8Array`. The return value is a string.
+Encode binary data into a string using the Base64 encoding. The `+data+`
+argument can either be a `+string+`, an `+Array+`, an `+ArrayBuffer+` or
+a `+Uint8Array+`. The return value is a string.
 
 [[cockpit-base64-decode]]
-== cockpit.base64++_++decode()
+== cockpit.base64_decode()
 
 ....
 data = cockpit.base64_decode(string, [constructor])
 ....
 
-Decode binary data from a Base64 encoded string. The `string` argument
-should be a javascript string. The returned `data`++>++ will be an array
+Decode binary data from a Base64 encoded string. The `+string+` argument
+should be a javascript string. The returned `+data+`> will be an array
 of bytes.
 
-You can pass `Uint8Array`, `Array` or `String` as an alternate
-`constructor` if you want the decoded data in an alternate form. The
-default is to return an `Array`. Note that if you use a `String` for the
-decoded data, then you must guarantee that the data does not contain
+You can pass `+Uint8Array+`, `+Array+` or `+String+` as an alternate
+`+constructor+` if you want the decoded data in an alternate form. The
+default is to return an `+Array+`. Note that if you use a `+String+` for
+the decoded data, then you must guarantee that the data does not contain
 bytes that would be invalid for a string.

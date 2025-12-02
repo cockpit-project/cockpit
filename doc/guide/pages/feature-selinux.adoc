@@ -1,0 +1,17 @@
+[[feature-selinux]]
+== SELinux Policy
+
+If present on the system Cockpit can set the SELinux mode to enforcing
+or permissive. It can also use `setroubleshootd` to show audit issues
+and apply suggested fixes.
+
+To perform similar tasks from the command line use the `setenforce` and
+`sealert` tools.
+
+To clear out all the information that `setroubleshootd` tracks, you can
+use a commands like:
+
+....
+$ sudo killall setroubleshootd
+$ sudo rm -rf /var/lib/setroubleshoot/*
+....

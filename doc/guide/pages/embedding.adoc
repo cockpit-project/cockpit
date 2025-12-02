@@ -1,0 +1,105 @@
+[[embedding]]
+== Embedding and Integrating Cockpit
+
+Cockpit can be embedded in other web applications either as a whole or
+specific Cockpit components can be integrated. Due to frame security
+policy restrictions, this only works if Cockpit and the web application
+have the _same origin_; this is commonly achieved by running both from a
+common reverse proxy.
+
+[[embedding-full]]
+=== Embedding the Cockpit Interface
+
+Cockpit can be embedded into a larger web page as a frame. To embed the
+entire Cockpit Window use the URI: `https://server.example.com:9090/`
+
+[source,html]
+----
+<html>
+  <head>
+    <title>Embedded Cockpit</title>
+  </head>
+  <body>
+    This is Cockpit.
+    <br/>
+    <iframe width="800px" height="600px"
+            src="https://server.example.com:9090/"/>
+  </body>
+</html>
+----
+
+[[embedding-components]]
+=== Integrating Cockpit Components into Web Applications
+
+Instead of embedding the entirety of Cockpit, you can integrate specific
+components. Only those components explicitly documented as API should be
+integrated. Other components can and will change regularly.
+
+The component will load from the server in question and a WebSocket
+connection will be established with the server to relay the component's
+message stream.
+
+Cockpit components are HTML files contained in link:#packages[packages].
+These can be placed in an iframe or web browser window. Each documented
+and stable component has a well-known URL and these are documented in
+the link:#development[API reference]. Each component URL begins with the
+string `/cockpit/@localhost/` followed a package name, and then the
+component itself.
+
+For example the link:#api-terminal-html[terminal.html] in the
+link:#api-system[system] package, has this URL:
+`/cockpit/@localhost/system/terminal.html`
+
+[source,html]
+----
+<html>
+  <head>
+    <title>Embedded Terminal</title>
+  </head>
+  <body>
+    This is a terminal.
+    <br/>
+    <iframe width="800px" height="600px"
+      src="https://server.example.com:9090/cockpit/@localhost/system/terminal.html"/>
+  </body>
+</html>
+----
+
+[[embedding-deep]]
+=== Deep Integration
+
+Most often link:#embedding-components[simple integration] will be used
+to bring Cockpit components into web applications. However it is also
+possible to do deep integration for embedders who wish to perform
+non-standard authentication with the server, and relay the component's
+message stream to the server themselves.
+
+[WARNING]
+====
+Deep integration capability is in heavy flux and is not yet documented.
+====
+
+[[embedding-cors]]
+=== Pinging Cockpit
+
+When embedding Cockpit or integrating Cockpit components, it may be
+necessary to check whether Cockpit is available on a server before
+proceeding.
+
+To do this perform a `/ping` request to Cockpit. This is a simple HTTP
+GET request. It returns the following:
+
+....
+GET: https://server.example.com:9090/ping
+200 OK: { "service": "cockpit" }
+....
+
+The `/ping` request allows
+https://en.wikipedia.org/wiki/Cross-origin_resource_sharing[Cross Origin
+Resource Sharing] headers and as such can be performed from Javascript
+code with any origin. The request can also be made via plain HTTP
+without SSL. It is by design that no further information is present in
+the response.
+
+A complete example of using `/ping` is available in the Cockpit sources
+in the `/examples/ping-server/` directory.

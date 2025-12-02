@@ -1,0 +1,188 @@
+cockpit.js: Page Location and Jumping
+
+Page location and navigation between components
+
+[[cockpit-location-general]]
+== Page location
+
+....
+location = cockpit.location
+cockpit.location = "/path"
+....
+
+Cockpit components often have different views, without changing the HTML
+file that is being viewed. These are known as pages. `cockpit.location`
+is an object that can be used to read the current page and to navigate
+to a different page location. It works by updating
+`window.location.hash`.
+
+The `cockpit.location` looks like a HTTP path with a possible query
+string:
+
+....
+/path/sub/page?option=value,option2
+....
+
+The link:#cockpit-location-path[`location.path`] and
+link:#cockpit-location-options[`location.options`] contain a parsed form
+of the location. While the location cannot be modified in place, a new
+one can be created by assigning a string to `cockpit.location` or by
+calling the link:#cockpit-location-go[`location.go()`] function.
+
+`cockpit.location` is designed similarly to `window.location` in that
+the location object is preplaced whenever the current page location
+changes. To be aware of when the page location changes listen for the
+link:#cockpit-location-changed[`cockpit.onlocationchanged`] event.
+
+Using the location object as a string will result in the
+link:#cockpit-location-href[`location.href`].
+
+[[cockpit-location-href]]
+=== location.href
+
+The string representation of this page location, including any options.
+
+[[cockpit-location-path]]
+=== location.path
+
+An array of path segments, parsed and decoded appropriately. An empty
+array denotes the root path.
+
+[[cockpit-location-options]]
+=== location.options
+
+A javascript object containing the various options present in the
+location.
+
+If an option appears more than once, its value will be an array.
+
+[[cockpit-location-go]]
+=== location.go()
+
+....
+location.go(path, [options])
+....
+
+Changes the current location to the given `path` and `options`. If the
+`path` argument is a string, it will be parsed into a path. If it is a
+relative path, then the result will be relative to the current
+`location.path`. If the `path` argument is an array of path segments, it
+will be treated as a full parsed absolute path.
+
+Any options found in a `path` will be added to those in the optional
+`options` argument, and used in the result.
+
+The location change will only take effect if the location has not
+changed in the meantime. This can be to good effect by saving a
+`cockpit.location` object and doing a conditional navigation, by calling
+the saved `location.go()` method later. This will only navigate if the
+user or other code has not navigated in the meantime.
+
+[[cockpit-location-replace]]
+=== location.replace()
+
+....
+location.replace(path, [options])
+....
+
+Similar to link:#cockpit-location-go[`location.go()`] except the
+location change will not result in a navigation change in the browser's
+history.
+
+[[cockpit-location-decode]]
+=== location.decode()
+
+....
+path = location.decode(href, [options])
+....
+
+Decode a cockpit href into its `path` array. If the `options` argument
+is specified, then it will be populated with options found in the href.
+
+If href is a relative path it will be resolved relative to
+`location.href`.
+
+[[cockpit-location-encode]]
+=== location.encode()
+
+....
+href = location.encode(path, [options])
+....
+
+Encode the given `path` and `options` into a cockpit href. The `path`
+argument may be an array of path segments, or a string path. If a
+relative path is passed, it will be resolved relative to
+`location.href`.
+
+[[cockpit-location-changed]]
+=== cockpit.onlocationchanged
+
+....
+cockpit.addEventListener("locationchanged", function() { ... })
+....
+
+An event emitted when over the `cockpit.location` changes. Typically a
+component reacts to this event by updating its interface to reflect the
+new link:#cockpit-location-path[`cockpit.location.path`] and
+link:#cockpit-location-options[`cockpit.location.options`].
+
+This event is not triggered immediately during a `location.go()` or
+similar call. It will be triggered asynchronously at a later time.
+
+[[cockpit-jump]]
+== Jumping between components
+
+....
+cockpit.jump("/system/log")
+....
+
+In Cockpit in there multiple components shown. In order to tell Cockpit
+to jump to and show another component and a certain location within that
+component, use the `cockpit.jump()` function. Stable component paths are
+documented. Don't assume you can navigate into paths that are not stable
+API.
+
+[[cockpit-jump-jump]]
+=== cockpit.jump()
+
+....
+cockpit.jump(path, [ host ])
+....
+
+Ask Cockpit to jump to another component. The location of the current
+component will not be affected. The `path` argument can be a string
+path, starting with `/` or an array containing the parts of a path that
+will be joined to create a path. If `host` is not specified, then the
+component on the same host as the caller will be displayed. If host is
+null, then the host portion of the path will be removed, displaying the
+component on the host that cockpit is connected directly to.
+
+If the calling component is not running within Cockpit, or the calling
+component is not currently displayed, then the jump will not happen, and
+this function has no effect.
+
+[[cockpit-jump-hidden]]
+=== cockpit.hidden
+
+A boolean property that indicates if the current component page is
+visible or hidden. When the code or user jumps to another component, the
+prior one remains loaded and initialized but is hidden. Use this
+property together with the
+link:#cockpit-jump-visibilitychange[`cockpit.onvisibilitychange`] event
+to decide whether or not to perform expensive tasks to update the
+interface.
+
+This property is analogous to the `document.hidden` page visibility API,
+but works with the document and frame implementation of Cockpit.
+
+[[cockpit-jump-visibilitychange]]
+=== cockpit.onvisibilitychange
+
+....
+cockpit.onvisibilitychange = function() { ... }
+....
+
+This event is emitted when the
+link:#cockpit-jump-hidden[`cockpit.hidden`] property changes. This event
+is similar to the `document.onvisibilitychange` API, but works with the
+document and frame implementation of Cockpit.

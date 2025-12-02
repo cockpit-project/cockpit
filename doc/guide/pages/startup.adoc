@@ -1,0 +1,41 @@
+[[startup]]
+== Start up
+
+Cockpit's `cockpit-ws` component is what the browser connects to and it
+typically starts on demand via
+https://www.freedesktop.org/wiki/Software/systemd/[`systemd`] socket
+activation.
+
+The actual `cockpit.service` and `cockpit-ws` process will start on
+demand when a browser accesses the `cockpit.socket`,
+link:#listen[usually on port 9090]. Once a user logs in then a
+`cockpit-bridge` process will be started in a Linux user login session.
+
+Only systems that you connect to with your browser need to have the
+`cockpit.socket` enabled. For systems that you add through host switcher
+the bridge is started via SSH on demand.
+
+[[startup-shutdown]]
+=== Process exit
+
+The `cockpit-bridge` process will exit when the user logs out. In
+addition, after 10 minutes of inactivity, the `cockpit-ws` process will
+exit on its own. The browser will automatically disconnect if it fails
+to hear from the `cockpit-ws` process for 30 seconds.
+
+[[startup-boot]]
+=== Boot start up
+
+To make Cockpit available by default after system boot the
+`cockpit.socket` needs to be enabled:
+
+....
+$ sudo systemctl enable cockpit.socket
+....
+
+If you wish to not have Cockpit available by default via a browser, then
+the `cockpit.socket` should be disabled:
+
+....
+$ sudo systemctl disable cockpit.socket
+....

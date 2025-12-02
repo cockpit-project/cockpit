@@ -21,9 +21,12 @@ import contextlib
 import getpass
 import logging
 import os
+import shutil
 import socket
+import subprocess
+from os.path import basename
 from tempfile import TemporaryDirectory
-from typing import List, Optional, Sequence, Tuple
+from typing import Sequence
 
 from cockpit._vendor import ferny
 from cockpit._vendor.bei.bootloader import make_bootloader
@@ -37,6 +40,31 @@ from .polkit import PolkitAgent
 from .router import Router, RoutingError, RoutingRule
 
 logger = logging.getLogger(__name__)
+
+
+def sudo_supports_askpass(sudo_path: str) -> bool:
+    try:
+        # Returns 0 if -A is supported, non-zero if it's not
+        subprocess.run(
+            [sudo_path, '-A', '--help'],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True
+        )
+        return True
+    except (subprocess.CalledProcessError, OSError):
+        return False
+
+
+def is_valid_superuser_config(config: BridgeConfig) -> bool:
+    if not config.privileged:
+        return False
+    if not (spawn_path := shutil.which(config.spawn[0])):
+        return False
+    if basename(spawn_path) == 'sudo' and not sudo_supports_askpass(spawn_path):
+        return False
+    return True
 
 
 class SuperuserPeer(ConfiguredPeer):
@@ -73,7 +101,7 @@ class SuperuserPeer(ConfiguredPeer):
             else:
                 env = self.env
 
-            transport = await self.spawn(self.args, env, stderr=agent, start_new_session=True)
+            transport = await self.spawn(self.args, env, stderr=agent.fileno(), start_new_session=True)
 
             if stage1 is not None:
                 transport.write(stage1)
@@ -87,7 +115,9 @@ class SuperuserPeer(ConfiguredPeer):
 class CockpitResponder(ferny.AskpassHandler):
     commands = ('ferny.askpass', 'cockpit.send-stderr')
 
-    async def do_custom_command(self, command: str, args: Tuple, fds: List[int], stderr: str) -> None:
+    async def do_custom_command(self, command: str, args: 'tuple[str, ...]', fds: 'list[int]', stderr: str) -> None:
+        del args, stderr
+
         if command == 'cockpit.send-stderr':
             with socket.socket(fileno=fds[0]) as sock:
                 fds.pop(0)
@@ -101,6 +131,8 @@ class AuthorizeResponder(CockpitResponder):
         self.authorize_attempted = False
 
     async def do_askpass(self, messages: str, prompt: str, hint: str) -> 'str | None':
+        del messages, prompt, hint
+
         if self.authorize_attempted:
             logger.info("noninteractive authorize during init already attempted, rejecting")
             return None
@@ -114,8 +146,8 @@ class AuthorizeResponder(CockpitResponder):
 
 class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface='cockpit.Superuser'):
     superuser_configs: Sequence[BridgeConfig] = ()
-    pending_prompt: Optional[asyncio.Future]
-    peer: Optional[SuperuserPeer]
+    pending_prompt: 'asyncio.Future[str] | None'
+    peer: 'SuperuserPeer | None'
 
     # D-Bus signals
     prompt = bus.Interface.Signal('s', 's', 's', 'b', 's')  # message, prompt, default, echo, error
@@ -126,7 +158,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
     methods = bus.Interface.Property('a{sv}', value={})
 
     # RoutingRule
-    def apply_rule(self, options: JsonObject) -> Optional[Peer]:
+    def apply_rule(self, options: JsonObject) -> 'Peer | None':
         superuser = options.get('superuser')
 
         if not superuser or self.current == 'root':
@@ -141,7 +173,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             raise RoutingError('access-denied')
 
     # ferny.AskpassHandler
-    async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
+    async def do_askpass(self, messages: str, prompt: str, hint: str) -> 'str | None':
         assert self.pending_prompt is None
         echo = hint == "confirm"
         self.pending_prompt = asyncio.get_running_loop().create_future()
@@ -196,7 +228,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
     def set_configs(self, configs: Sequence[BridgeConfig]):
         logger.debug("set_configs() with %d items", len(configs))
-        configs = [config for config in configs if config.privileged]
+        configs = [config for config in configs if is_valid_superuser_config(config)]
         self.superuser_configs = tuple(configs)
         self.bridges = [config.name for config in self.superuser_configs]
         self.methods = {c.label: Variant({'label': Variant(c.label)}, 'a{sv}') for c in configs if c.label}
@@ -207,7 +239,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         if self.peer is not None:
             if self.peer.config not in self.superuser_configs:
                 logger.debug("  stopping superuser bridge '%s': it disappeared from configs", self.peer.config.name)
-                self.stop()
+                self.shutdown()
 
     def cancel_prompt(self) -> None:
         if self.pending_prompt is not None:

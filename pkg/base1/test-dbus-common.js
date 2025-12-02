@@ -284,13 +284,15 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
 
     QUnit.test("signal unsubscribe", async assert => {
         let received = false;
+        let signals = 0;
         const dbus = cockpit.dbus(bus_name, channel_options);
 
         function on_signal() {
             received = true;
+            signals++;
         }
 
-        const subscription = dbus.subscribe({
+        let subscription = dbus.subscribe({
             interface: "com.redhat.Cockpit.DBusTests.Frobber",
             path: "/otree/frobber"
         }, on_signal);
@@ -302,6 +304,58 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         received = false;
         await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
         assert.equal(received, false, "signal not received");
+        assert.equal(signals, 1, "received exactly one signal");
+
+        subscription = dbus.subscribe({
+            interface: "com.redhat.Cockpit.DBusTests.Frobber",
+            path: "/otree/frobber"
+        }, on_signal);
+        await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
+        assert.equal(signals, 2, "received exactly two signals");
+        subscription.remove();
+        await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
+        assert.equal(signals, 2, "received exactly two signals, watch was removed ");
+        dbus.close();
+    });
+
+    QUnit.test("multiple subscriptions with the same DBus client", async assert => {
+        let dbus1_signals = 0;
+        let dbus2_signals = 0;
+
+        const dbus = cockpit.dbus(bus_name, channel_options);
+
+        function on_dbus1_signal() {
+            dbus1_signals++;
+        }
+
+        function on_dbus2_signal() {
+            dbus2_signals++;
+        }
+
+        const subscription1 = dbus.subscribe({
+            interface: "com.redhat.Cockpit.DBusTests.Frobber",
+            path: "/otree/frobber"
+        }, on_dbus1_signal);
+
+        const subscription2 = dbus.subscribe({
+            interface: "com.redhat.Cockpit.DBusTests.Frobber",
+            path: "/otree/frobber"
+        }, on_dbus2_signal);
+
+        assert.equal(dbus1_signals, 0, "subscription 1, 0 signal received");
+        assert.equal(dbus2_signals, 0, "subscription 2, 0 signal received");
+        await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
+        assert.equal(dbus1_signals, 1, "subscription 1, 1 signal received");
+        assert.equal(dbus2_signals, 1, "subscription 2, 1 signal received");
+
+        subscription2.remove();
+        await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
+        assert.equal(dbus1_signals, 2, "subscription 1, 2 signal received");
+        assert.equal(dbus2_signals, 1, "subscription 2, 1 signal received");
+        subscription1.remove();
+        await dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0]);
+        assert.equal(dbus1_signals, 2, "subscription 1, 2 signal received");
+        assert.equal(dbus2_signals, 1, "subscription 2, 1 signal received");
     });
 
     QUnit.test("with types", assert => {

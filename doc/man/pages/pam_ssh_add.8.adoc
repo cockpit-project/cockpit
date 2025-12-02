@@ -1,24 +1,20 @@
-pam++_++ssh++_++add
+= pam_ssh_add(8)
 
-pam++_++ssh++_++add
+== Name
 
-8
+pam_ssh_add - PAM module to auto load ssh keys into an agent
 
-pam++_++ssh++_++add
+== Description
 
-PAM module to auto load ssh keys into an agent
-
-== DESCRIPTION
-
-pam++_++ssh++_++add provides authentication and session modules that
-allow users to start their session with a running ssh-agent with as many
-ssh keys loaded as possible.
+*pam_ssh_add* provides authentication and session modules that allow users
+to start their session with a running ssh-agent with as many ssh keys
+loaded as possible.
 
 If used, the authentication module simply stores the authentication
 token for later use by the session module. Because this module performs
-no actual authentication it returns PAM++_++CRED++_++INSUFFICIENT on
-success and should always be accompanied by an actual authentication
-module in your pam configuration.
+no actual authentication it returns PAM_CRED_INSUFFICIENT on success and
+should always be accompanied by an actual authentication module in your
+pam configuration.
 
 By default the session module will start a new ssh-agent and run
 ssh-add, loading any keys that exist in the default path for the newly
@@ -28,7 +24,7 @@ password.
 
 == Options
 
-`debug`::
+*debug*::
   This option will turn on debug logging to syslog.
 
 == Examples
@@ -37,16 +33,13 @@ password.
         auth     required  pam_unix.so
         auth     optional  pam_ssh_add.so
         session  optional  pam_ssh_add.so
-      
+
 ....
 
-== AUTHOR
+== Bugs
 
-Cockpit has been written by many
-https://github.com/cockpit-project/cockpit/[contributors].
+include::partials/bugs.adoc[]
 
-== BUGS
+== Author
 
-Please send bug reports to either the distribution bug tracker or the
-https://github.com/cockpit-project/cockpit/issues/new[upstream bug
-tracker].
+include::partials/author.adoc[]

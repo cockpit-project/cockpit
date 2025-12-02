@@ -1,4 +1,4 @@
-cockpit.js: User Session
+= cockpit.js: User Session
 
 User information and login session state
 
@@ -9,8 +9,8 @@ User information and login session state
 cockpit.logout([reload])
 ....
 
-Logout of Cockpit. Unless `reload` is `false` this will also cause the
-page to be reloaded, so that the user can see the logged out state.
+Logout of Cockpit. Unless `+reload+` is `+false+` this will also cause
+the page to be reloaded, so that the user can see the logged out state.
 
 [[cockpit-user]]
 == cockpit.user()
@@ -23,29 +23,29 @@ promise.then(user => { ... });
 This object contains information about the user that's currently logged
 into cockpit. The following fields are defined:
 
-`"id"`::
+`+"id"+`::
   This is unix user id.
-`"gid"`::
+`+"gid"+`::
   This is unix user group id.
-`"name"`::
-  This is the unix user name like `"root"`.
-`"full++_++name"`::
+`+"name"+`::
+  This is the unix user name like `+"root"+`.
+`+"full_name"+`::
   This is a readable name for the user.
-`"groups"`::
+`+"groups"+`::
   This is an array of group names to which the user belongs. Since
   version 318, the first item in this list is the primary group.
-`"home"`::
+`+"home"+`::
   This is user's home directory.
-`"shell"`::
+`+"shell"+`::
   This is unix user shell.
 
 Returns a promise that completes once the user information is available.
 
 [WARNING]
 ====
-`cockpit.user()` is soft-deprecated since Cockpit 336, if your page does
-not need to maintain compatibility with older Cockpit versions you can
-uselink:#cockpit-info[cockpit.info] to obtain the user information.
+`+cockpit.user()+` is soft-deprecated since Cockpit 336, if your page
+does not need to maintain compatibility with older Cockpit versions you
+can uselink:#cockpit-info[cockpit.info] to obtain the user information.
 ====
 
 [[cockpit-permission]]
@@ -63,25 +63,25 @@ permission = cockpit.permission([options])
 ....
 
 Create a new permission object to check if the current user has a
-particular permission specified by `options`:
+particular permission specified by `+options+`:
 
-`admin: true`::
+`+admin: true+`::
   True if the session has superuser privileges, i.e. can run channels as
-  root with `++{++ superuser: "require" }`.
-`group:` _name_::
+  root with `+{ superuser: "require" }+`.
+`+group:+` _name_::
   True if the currently logged user is a member of group _name_.
 
-The permission result is always true for the "root" user. When `options`
-is not given, check if the current user is root.
+The permission result is always true for the "root" user. When
+`+options+` is not given, check if the current user is root.
 
 [[cockpit-permission-allowed]]
 === permission.allowed
 
 A boolean value which indicates if the permission is allowed or not.
-This will be `null` if the permission is unknown, or there was an error
-checking the permission or the permission data has not yet loaded. This
-property will update asynchronously and if you wish to be notified of
-changes connect to the
+This will be `+null+` if the permission is unknown, or there was an
+error checking the permission or the permission data has not yet loaded.
+This property will update asynchronously and if you wish to be notified
+of changes connect to the
 link:#cockpit-permission-changed[permission.onchanged] event.
 
 [[cockpit-permission-changed]]

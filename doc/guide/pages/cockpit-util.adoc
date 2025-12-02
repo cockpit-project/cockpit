@@ -1,4 +1,4 @@
-cockpit.js: Utilities
+= cockpit.js: Utilities
 
 Various utility functions
 
@@ -10,76 +10,79 @@ string = cockpit.format(template, args)
 string = cockpit.format(template, [arg, ...])
 ....
 
-Format a string interpolating `args` into `template` using shell like
-syntax. The `args` may be either an array or javascript object. The
-`template` can contain fields that look like `$name` or `$++{++name}` or
-`$0`. Numeric fields are used with array `args` and start at zero.
+Format a string interpolating `+args+` into `+template+` using shell
+like syntax. The `+args+` may be either an array or javascript object.
+The `+template+` can contain fields that look like `+$name+` or
+`+${name}+` or `+$0+`. Numeric fields are used with array `+args+` and
+start at zero.
 
-In the second form, multiple `arg` arguments may be passed directly, and
-interpolated as as numeric fields in the `template`.
+In the second form, multiple `+arg+` arguments may be passed directly,
+and interpolated as as numeric fields in the `+template+`.
 
-All falsy arguments except the numbers `0` and `0.0`are replaced by an
-empty string.
+All falsy arguments except the numbers `+0+` and `+0.0+`are replaced by
+an empty string.
 
 [[cockpit-format-number]]
-== cockpit.format++_++number()
+== cockpit.format_number()
 
 ....
 string = cockpit.format_number(number, [precision])
 ....
 
-Formats `number` into a displayable `string`. If the number is not an
-integer, it is rounded to the given number of decimal places, defaulting
-to 3. If the number is near zero, but not quite zero it is rounded to
-the smallest non-zero value of the given precision; i.e. ±0.001 for
-default precision 3.
+Formats `+number+` into a displayable `+string+`. If the number is not
+an integer, it is rounded to the given number of decimal places,
+defaulting to 3. If the number is near zero, but not quite zero it is
+rounded to the smallest non-zero value of the given precision; i.e.
+±0.001 for default precision 3.
 
-If `number` is `null` or `undefined` an empty string will be returned.
+If `+number+` is `+null+` or `+undefined+` an empty string will be
+returned.
 
 [[cockpit-format-bytes]]
-== cockpit.format++_++bytes()
+== cockpit.format_bytes()
 
 ....
 string = cockpit.format_bytes(number, [options])
 ....
 
-Formats `number` into a displayable `string` with a suffix, such as _kB_
-or _MB_.
+Formats `+number+` into a displayable `+string+` with a suffix, such as
+_kB_ or _MB_.
 
 By default, SI units are used. IEC units (1024-based) can be requested
-by including `base2: true` in `options`.
+by including `+base2: true+` in `+options+`.
 
 By default, non-integer numbers will be formatted with 3 digits of
-precision. This can be changed with `options.precision`.
+precision. This can be changed with `+options.precision+`.
 
-If `number` is `null` or `undefined` an empty string will be returned.
+If `+number+` is `+null+` or `+undefined+` an empty string will be
+returned.
 
 [[cockpit-format-bytes-per-sec]]
-== cockpit.format++_++bytes++_++per++_++sec()
+== cockpit.format_bytes_per_sec()
 
 ....
 string = cockpit.format_bytes_per_sec(number, [options])
 ....
 
-Format `number` of bytes into a displayable speed `string`.
+Format `+number+` of bytes into a displayable speed `+string+`.
 
-This function is mostly equivalent to `cockpit.format++_++bytes()` but
-the returned value contains a unit like _kB/s_ or _MB/s_.
+This function is mostly equivalent to `+cockpit.format_bytes()+` but the
+returned value contains a unit like _kB/s_ or _MB/s_.
 
 [[cockpit-format-bits-per-sec]]
-== cockpit.format++_++bits++_++per++_++sec()
+== cockpit.format_bits_per_sec()
 
 ....
 string = cockpit.format_bits_per_sec(number, [options])
 ....
 
-Format `number` of bits into a displayable speed `string`.
+Format `+number+` of bits into a displayable speed `+string+`.
 
-This function is mostly equivalent to `cockpit.format++_++bytes()` but
-the returned value contains a unit like _kbps_ or _Mbps_.
+This function is mostly equivalent to `+cockpit.format_bytes()+` but the
+returned value contains a unit like _kbps_ or _Mbps_.
 
-This function does not support IEC units. `base2` may not be passed as
-part of `options`.
+This function does not support IEC units. `+base2+` may not be passed as
+part of `+options+`.
 
 [[cockpit-init]]
 == cockpit.init()
@@ -92,10 +95,11 @@ cockpit.init().then(() => { ... });
 
 Requests initialization of the Cockpit client library. This will ensure
 that the transport is connected and we are ready to create channels. It
-also populates the `cockpit.info` field.
+also populates the `+cockpit.info+` field.
 
 This function returns a promise. Initialization isn't complete until the
-promise has resolved. You can either `await` it or call `.then()` on it.
+promise has resolved. You can either `+await+` it or call `+.then()+` on
+it.
 
 [[cockpit-info]]
 == cockpit.info
@@ -113,46 +117,44 @@ cockpit.info.ws.version
 This object contains information about Cockpit itself. It is only
 available after cockpit.init() has been called and awaited.
 
-`channels`::
+`+channels+`::
   This is a mapping of channel payload types (keys, strings) supported
   by the bridge to capabilities advertised by those channels (values,
   lists of strings). Channels are listed even if they don't advertise
   any capabilities, making this useful as a way to determine which
   channel types are supported by the bridge.
-`os++_++release`::
-  This is the data from the `/etc/os-release` or `/usr/lib/os-release`
-  on the system that the bridge is running on. It is a mapping from the
-  key names to their values. See the
+`+os_release+`::
+  This is the data from the `+/etc/os-release+` or
+  `+/usr/lib/os-release+` on the system that the bridge is running on.
+  It is a mapping from the key names to their values. See the
   https://www.freedesktop.org/software/systemd/man/latest/os-release.html[os-release
   Specification] for information about the available keys.
-`user`::
+`+user+`::
   Contains information about the user we're logged in as.
-  +
-  `uid`;;
+  `+uid+`;;
     This is unix user id as an integer.
-  `gid`;;
+  `+gid+`;;
     This is unix user group id as an integer.
-  `name`;;
-    This is the unix user name like `"root"`.
-  `fullname`;;
+  `+name+`;;
+    This is the unix user name like `+"root"+`.
+  `+fullname+`;;
     This is a readable name for the user, from the GECOS field.
-  `group`;;
+  `+group+`;;
     This is the primary group name of the user.
-  `groups`;;
+  `+groups+`;;
     This is an array of group names to which the user belongs. The first
     item in this list is the primary group.
-  `home`;;
+  `+home+`;;
     This is user's home directory.
-  `shell`;;
+  `+shell+`;;
     This is unix user shell.
-`ws`::
+`+ws+`::
   Contains information about the webserver Cockpit is being served with.
-  +
-  `version`;;
+  `+version+`;;
     The version of the webserver.
 
 [[cockpit-event-target]]
-== cockpit.event++_++target
+== cockpit.event_target
 
 ....
 cockpit.event_target(object, [handlers])
@@ -160,5 +162,5 @@ cockpit.event_target(object, [handlers])
 
 Adds an
 https://developer.mozilla.org/en-US/docs/Web/API/EventTarget[EventTarget]
-implementation to the `object`. Optionally store the handlers in
-`handlers` if its specified.
+implementation to the `+object+`. Optionally store the handlers in
+`+handlers+` if its specified.

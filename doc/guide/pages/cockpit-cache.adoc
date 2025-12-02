@@ -1,0 +1,60 @@
+cockpit.js: Object Cache
+
+Caching and sharing data
+
+If the same information is displayed by multiple components in Cockpit,
+`cockpit.cache()` provides a way to share data between them. The shared
+data should be simple objects, arrays, and values, and not contain
+functions or other objects.
+
+[[cockpit-cache-func]]
+== cockpit.cache()
+
+....
+cache = cockpit.cache(key, provider, consumer)
+....
+
+Create a new cache object. The `key` should be a globally unique string
+that describes the data being cached. This string must describe the
+data, across all machines and all versions of cockpit. It is customary
+to include a version number in the `key` string.
+
+....
+function provider(result, key) {
+    result("myvalue");
+
+    return {
+        close: function() {
+            /* closed */
+        }
+    };
+}
+....
+
+The `provider` is a function that will be invoked to start retrieving
+data for the cache. It will be passed a `result` function as its first
+argument. The `result` should be invoked whenever new data is available.
+The `key` argument matches the key string the cache was created with.
+
+The `provider` can return an object with a `close` method. This method
+will be invoked when the cache no longer needs data from the provider.
+
+....
+function consumer(value, key) {
+    /* ... */
+}
+....
+
+The `consumer` is a function that will be passed new values when they
+are available, whether they come from the `provider` or a source in a
+different component/frame.
+
+[[cockpit-cache-close]]
+== cache.close()
+
+....
+cache.close()
+....
+
+Close a cache and stop calling its `consumer`. If the `provider` was
+invoked, then the `close()` method it returned will be invoked.

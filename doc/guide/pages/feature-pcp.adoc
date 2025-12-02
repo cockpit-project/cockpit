@@ -1,0 +1,43 @@
+[[feature-pcp]]
+== PCP Metrics
+
+If available, Cockpit uses the https://pcp.io/[Performance Co-Pilot]
+framework to gather metrics data about the system. This data is used to
+display the history graphs on the "Metrics and history" page. Cockpit
+can use the PCP logging feature to display archived data about the
+system from a different point in time. If PCP is not available, then
+Cockpit gathers the metrics data itself, but archival features are not
+available.
+
+Whether or not metrics are archived depends on whether the
+https://linux.die.net/man/1/pmlogger[`pmlogger.service`] systemd unit is
+running or not. The "Enable PCP metrics collector" button on the Metrics
+page will enable and start this service.
+
+To see similar metrics data from the command line, you can use tools
+like https://linux.die.net/man/1/pmstat[`pmstat`] or
+https://linux.die.net/man/1/pminfo[`pminfo`]:
+
+....
+$ pmstat
+@ Sat Sep 26 15:30:10 2015
+ loadavg                      memory      swap        io    system         cpu
+   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
+    4.19      0 20710m 605148  6450m    0    0    0 2548 5688  14K  19   3  76
+...
+....
+
+These metrics can also be exposed to other machines on a TCP port with
+https://linux.die.net/man/1/pmproxy[pmproxy] and
+https://redis.io/[Redis] or https://valkey.io/[Valkey]:
+
+....
+systemctl enable --now redis pmproxy
+# if you use firewalld, open port 44322:
+firewall-cmd --permanent --add-service pmproxy
+firewall-cmd --reload
+....
+
+This allows you to gather and visualize PCP metrics from multiple
+machines with https://grafana.com/[Grafana] and the
+https://grafana-pcp.readthedocs.io[PCP Grafana plugin].

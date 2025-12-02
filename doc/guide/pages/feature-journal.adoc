@@ -1,0 +1,15 @@
+[[feature-journal]]
+== Journal
+
+The systemd journal provides Cockpit with indexed log data. This log
+data is found on the Journal page, as well as in various other places
+when configuring services, storage, networking etc.
+
+Cockpit accesses Journal data via the
+https://www.freedesktop.org/software/systemd/man/journalctl.html[`journalctl`]
+command. Similar tasks can be performed at the command line:
+
+....
+$ sudo journalctl -f -u docker
+...
+....

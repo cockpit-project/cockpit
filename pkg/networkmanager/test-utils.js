@@ -315,4 +315,73 @@ QUnit.test("ip6_from_text empty", function (assert) {
     assert.deepEqual(cockpit.base64_decode(utils.ip6_from_text("", true)), zero);
 });
 
+// Tests for WiFi SSID encoding (encode_nm_property / decode_nm_property)
+// These functions are critical for D-Bus communication - 'ay' type requires base64
+
+QUnit.test("encode_nm_property returns base64 string", function (assert) {
+    // encode_nm_property must return a string (base64), not an array
+    // The D-Bus 'ay' type serialization requires base64, not JSON arrays
+    const result = utils.encode_nm_property("HALOS");
+    assert.strictEqual(typeof result, "string", "encode_nm_property should return a string");
+    // "HALOS" in UTF-8 is [72, 65, 76, 79, 83], base64 is "SEFMT1M="
+    assert.strictEqual(result, "SEFMT1M=", "encode_nm_property should return correct base64");
+});
+
+QUnit.test("encode_nm_property handles empty string", function (assert) {
+    const result = utils.encode_nm_property("");
+    assert.strictEqual(typeof result, "string", "empty string should return a string");
+    // Empty byte array in base64 is ""
+    assert.strictEqual(result, "", "empty string should encode to empty base64");
+});
+
+QUnit.test("encode_nm_property handles null/undefined", function (assert) {
+    assert.strictEqual(typeof utils.encode_nm_property(null), "string");
+    assert.strictEqual(typeof utils.encode_nm_property(undefined), "string");
+});
+
+QUnit.test("encode_nm_property handles Unicode", function (assert) {
+    // Test with emoji and non-ASCII characters
+    const result = utils.encode_nm_property("HaLOS🚢");
+    assert.strictEqual(typeof result, "string", "Unicode should return a string");
+    // Verify roundtrip works
+    assert.strictEqual(utils.decode_nm_property(result), "HaLOS🚢", "Unicode roundtrip should work");
+});
+
+QUnit.test("decode_nm_property handles base64 strings", function (assert) {
+    // "HALOS" base64 encoded
+    const result = utils.decode_nm_property("SEFMT1M=");
+    assert.strictEqual(result, "HALOS", "should decode base64 to string");
+});
+
+QUnit.test("decode_nm_property handles byte arrays", function (assert) {
+    // "HALOS" as byte array
+    const bytes = [72, 65, 76, 79, 83];
+    const result = utils.decode_nm_property(bytes);
+    assert.strictEqual(result, "HALOS", "should decode byte array to string");
+});
+
+QUnit.test("decode_nm_property handles empty input", function (assert) {
+    assert.strictEqual(utils.decode_nm_property(""), "", "empty string should return empty");
+    assert.strictEqual(utils.decode_nm_property([]), "", "empty array should return empty");
+    assert.strictEqual(utils.decode_nm_property(null), "", "null should return empty");
+});
+
+QUnit.test("encode/decode roundtrip", function (assert) {
+    const testCases = [
+        "MyNetwork",
+        "HALOS-12345",
+        "Test WiFi Network",
+        "Café Network",
+        "日本語ネットワーク",
+        "🏠 Home WiFi"
+    ];
+
+    assert.expect(testCases.length);
+    testCases.forEach(function(ssid) {
+        const encoded = utils.encode_nm_property(ssid);
+        const decoded = utils.decode_nm_property(encoded);
+        assert.strictEqual(decoded, ssid, "roundtrip should preserve: " + ssid);
+    });
+});
+
 QUnit.start();

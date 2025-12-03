@@ -227,18 +227,33 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
             return;
         }
 
-        dialogSave({
-            model,
-            dev,
-            connection,
-            settings: wifiSettings,
-            setDialogError,
-            onClose: () => {
-                // Clear password from memory
-                setPassword("");
-                Dialogs.close();
-            },
-        });
+        // For new WiFi connections, use AddAndActivateConnection to create AND connect
+        // For existing connections, use dialogSave to update settings
+        if (!connection) {
+            // New connection - use activate_with_settings which calls AddAndActivateConnection
+            model.set_operation_in_progress(true);
+            dev.activate_with_settings(wifiSettings, null)
+                    .then(() => {
+                        setPassword("");
+                        Dialogs.close();
+                    })
+                    .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
+                    .finally(() => model.set_operation_in_progress(false));
+        } else {
+            // Editing existing connection - use dialogSave
+            dialogSave({
+                model,
+                dev,
+                connection,
+                settings: wifiSettings,
+                setDialogError,
+                onClose: () => {
+                    // Clear password from memory
+                    setPassword("");
+                    Dialogs.close();
+                },
+            });
+        }
     };
 
     return (
@@ -414,7 +429,7 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
             },
             ipv4: {
                 method: "shared", // Enables DHCP server
-                address_data: [{ address: ipAddress, prefix: parseInt(prefix) }],
+                address_data: [{ address: ipAddress, prefix: String(prefix) }],
             },
             ipv6: {
                 method: "ignore",
@@ -441,18 +456,33 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
             apSettings.wifi_security = null;
         }
 
-        dialogSave({
-            model,
-            dev,
-            connection,
-            settings: apSettings,
-            setDialogError,
-            onClose: () => {
-                // Clear password from memory
-                setPassword("");
-                Dialogs.close();
-            },
-        });
+        // For new AP connections, use AddAndActivateConnection to create AND activate
+        // For existing connections, use dialogSave to update settings
+        if (!connection) {
+            // New AP - use activate_with_settings which calls AddAndActivateConnection
+            model.set_operation_in_progress(true);
+            dev.activate_with_settings(apSettings, null)
+                    .then(() => {
+                        setPassword("");
+                        Dialogs.close();
+                    })
+                    .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
+                    .finally(() => model.set_operation_in_progress(false));
+        } else {
+            // Editing existing AP - use dialogSave
+            dialogSave({
+                model,
+                dev,
+                connection,
+                settings: apSettings,
+                setDialogError,
+                onClose: () => {
+                    // Clear password from memory
+                    setPassword("");
+                    Dialogs.close();
+                },
+            });
+        }
     };
 
     return (

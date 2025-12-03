@@ -286,13 +286,14 @@ export function decode_nm_property(bytes) {
     return decoder.decode(bytes);
 }
 
-// Convert string to byte array (for SSID, etc.)
+// Convert string to base64 for D-Bus 'ay' type (for SSID, etc.)
+// The Cockpit D-Bus backend expects base64 strings for byte arrays
 export function encode_nm_property(str) {
-    if (!str) return [];
+    if (!str) return cockpit.base64_encode(new Uint8Array(0));
 
     // Use TextEncoder for proper UTF-8 encoding (supports all Unicode characters)
     const encoder = new TextEncoder();
-    return Array.from(encoder.encode(str));
+    return cockpit.base64_encode(encoder.encode(str));
 }
 
 export function list_interfaces() {

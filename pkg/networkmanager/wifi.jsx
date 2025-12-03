@@ -321,15 +321,17 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
     const model = useContext(ModelContext);
     const idPrefix = "network-wifi-ap";
 
-    const [iface, setIface] = useState(settings.connection.interface_name || (dev && dev.Interface) || "");
-    const [ssid, setSSID] = useState(settings.wifi?.ssid || generateDefaultSSID(dev));
+    // Safely access settings with fallbacks
+    const safeSettings = settings || {};
+    const [iface, setIface] = useState(safeSettings.connection?.interface_name || (dev && dev.Interface) || "");
+    const [ssid, setSSID] = useState(safeSettings.wifi?.ssid || generateDefaultSSID(dev));
     const [password, setPassword] = useState("");
-    const [securityType, setSecurityType] = useState(settings.wifi_security?.key_mgmt || "wpa-psk");
-    const [band, setBand] = useState(settings.wifi?.band || "bg");
-    const [channel, setChannel] = useState(settings.wifi?.channel || 0);
-    const [hidden, setHidden] = useState(settings.wifi?.hidden || false);
-    const [ipAddress, setIPAddress] = useState(settings.ipv4?.address_data?.[0]?.address || "10.42.0.1");
-    const [prefix, setPrefix] = useState(settings.ipv4?.address_data?.[0]?.prefix || 24);
+    const [securityType, setSecurityType] = useState(safeSettings.wifi_security?.key_mgmt || "wpa-psk");
+    const [band, setBand] = useState(safeSettings.wifi?.band || "bg");
+    const [channel, setChannel] = useState(safeSettings.wifi?.channel || 0);
+    const [hidden, setHidden] = useState(safeSettings.wifi?.hidden || false);
+    const [ipAddress, setIPAddress] = useState(safeSettings.ipv4?.address_data?.[0]?.address || "10.42.0.1");
+    const [prefix, setPrefix] = useState(safeSettings.ipv4?.address_data?.[0]?.prefix || 24);
     const [dialogError, setDialogError] = useState("");
 
     const isCreateDialog = !connection;
@@ -1230,17 +1232,258 @@ export const WiFiAPConfig = ({ dev, connection }) => {
     );
 };
 
-// Helper function to detect WiFi mode
-function getWiFiMode(dev) {
-    const activeConn = dev?.ActiveConnection;
-    if (!activeConn) return "inactive";
+// Helper function to calculate WiFi channel from frequency
+function getChannelFromFrequency(freq) {
+    if (freq >= 2412 && freq <= 2484) {
+        // 2.4 GHz band
+        if (freq === 2484) return 14;
+        return Math.floor((freq - 2412) / 5) + 1;
+    } else if (freq >= 5170 && freq <= 5825) {
+        // 5 GHz band
+        return Math.floor((freq - 5000) / 5);
+    }
+    return null;
+}
 
-    const settings = activeConn.Settings;
-    if (settings?.connection?.type !== "802-11-wireless") return "other";
+// WiFi Connection Details Component (shows comprehensive info when connected in client mode)
+const WiFiConnectionDetails = ({ dev, model }) => {
+    const [connectionInfo, setConnectionInfo] = useState(null);
+    const [error, setError] = useState(null);
+
+    // Fetch connection details
+    useEffect(() => {
+        const fetchConnectionDetails = async () => {
+            if (!dev || !dev.ActiveConnection) {
+                setConnectionInfo(null);
+                return;
+            }
+
+            const devPath = dev[" priv"]?.path;
+            if (!devPath) return;
+
+            try {
+                // Get ActiveAccessPoint path
+                const apPathResult = await model.client.call(
+                    devPath,
+                    "org.freedesktop.DBus.Properties",
+                    "Get",
+                    ["org.freedesktop.NetworkManager.Device.Wireless", "ActiveAccessPoint"]
+                );
+                const apPath = apPathResult[0].v;
+
+                if (!apPath || apPath === "/") {
+                    setConnectionInfo(null);
+                    return;
+                }
+
+                // Get AccessPoint properties
+                const apProps = await model.client.call(
+                    apPath,
+                    "org.freedesktop.DBus.Properties",
+                    "GetAll",
+                    ["org.freedesktop.NetworkManager.AccessPoint"]
+                );
+
+                // Get IP4Config properties if available
+                const activeConn = dev.ActiveConnection;
+                let ip4Data = null;
+                if (activeConn?.Ip4Config?.[" priv"]?.path) {
+                    try {
+                        const ip4Props = await model.client.call(
+                            activeConn.Ip4Config[" priv"].path,
+                            "org.freedesktop.DBus.Properties",
+                            "GetAll",
+                            ["org.freedesktop.NetworkManager.IP4Config"]
+                        );
+                        ip4Data = ip4Props[0];
+                    } catch (e) {
+                        console.warn("Failed to get IP4Config:", e);
+                    }
+                }
+
+                // Get bitrate
+                let bitrate = 0;
+                try {
+                    const bitrateResult = await model.client.call(
+                        devPath,
+                        "org.freedesktop.DBus.Properties",
+                        "Get",
+                        ["org.freedesktop.NetworkManager.Device.Wireless", "Bitrate"]
+                    );
+                    bitrate = bitrateResult[0].v;
+                } catch (e) {
+                    console.warn("Failed to get Bitrate:", e);
+                }
+
+                const propsObj = apProps[0];
+                const ssid = decode_nm_property(propsObj.Ssid.v);
+                const bssid = propsObj.HwAddress?.v || "";
+                const strength = propsObj.Strength.v;
+                const frequency = propsObj.Frequency.v;
+                const security = parseSecurityFlags(
+                    propsObj.Flags.v,
+                    propsObj.WpaFlags.v,
+                    propsObj.RsnFlags.v
+                );
+
+                // Parse IP info
+                let ipv4 = "";
+                let gateway = "";
+                let dns = [];
+                if (ip4Data) {
+                    if (ip4Data.AddressData?.v?.length > 0) {
+                        const addr = ip4Data.AddressData.v[0];
+                        ipv4 = `${addr.address.v}/${addr.prefix.v}`;
+                    }
+                    gateway = ip4Data.Gateway?.v || "";
+                    // DNS servers are typically uint32 arrays, need to convert
+                    if (ip4Data.NameserverData?.v) {
+                        dns = ip4Data.NameserverData.v.map(ns => ns.address?.v || "").filter(Boolean);
+                    }
+                }
+
+                setConnectionInfo({
+                    ssid,
+                    bssid,
+                    strength,
+                    frequency,
+                    security,
+                    bitrate,
+                    ipv4,
+                    gateway,
+                    dns,
+                    mac: dev.HwAddress,
+                });
+                setError(null);
+            } catch (err) {
+                console.error("Failed to fetch connection details:", err);
+                setError(_("Failed to fetch connection details"));
+            }
+        };
+
+        fetchConnectionDetails();
+
+        // Set up periodic refresh for signal strength (5 seconds)
+        const intervalId = setInterval(fetchConnectionDetails, 5000);
+        return () => clearInterval(intervalId);
+    }, [dev, dev?.ActiveConnection, model.client]);
+
+    // Handle disconnect
+    const handleDisconnect = useCallback(async () => {
+        if (!dev?.ActiveConnection) return;
+
+        try {
+            setError(null);
+            await dev.ActiveConnection.deactivate();
+        } catch (err) {
+            console.error("Failed to disconnect:", err);
+            setError(_("Failed to disconnect: ") + err.message);
+        }
+    }, [dev]);
+
+    if (!connectionInfo) return null;
+
+    const band = connectionInfo.frequency < 3000 ? "2.4 GHz" : "5 GHz";
+    const channel = getChannelFromFrequency(connectionInfo.frequency);
+
+    return (
+        <Card style={{ marginBottom: "1rem" }}>
+            <CardHeader actions={{
+                actions: (
+                    <Button variant="warning" onClick={handleDisconnect}>
+                        {_("Disconnect")}
+                    </Button>
+                )
+            }}>
+                <CardTitle>{_("Connection Details")}</CardTitle>
+            </CardHeader>
+            <CardBody>
+                {error && (
+                    <Alert variant="danger" isInline title={error} style={{ marginBottom: "1rem" }} />
+                )}
+                <DescriptionList isHorizontal>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <Label color="green">{_("Connected")}</Label>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Network")}</DescriptionListTerm>
+                        <DescriptionListDescription>{connectionInfo.ssid}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Signal")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <SignalStrength strength={connectionInfo.strength} />
+                            {" "}{connectionInfo.strength}%
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Security")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <SecurityBadge security={connectionInfo.security} />
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("BSSID")}</DescriptionListTerm>
+                        <DescriptionListDescription>{connectionInfo.bssid}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Frequency")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {band}{channel ? ` (${_("Channel")} ${channel})` : ""}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Link Speed")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {connectionInfo.bitrate ? `${connectionInfo.bitrate / 1000} Mbit/s` : _("Unknown")}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    {connectionInfo.ipv4 && (
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("IPv4 Address")}</DescriptionListTerm>
+                            <DescriptionListDescription>{connectionInfo.ipv4}</DescriptionListDescription>
+                        </DescriptionListGroup>
+                    )}
+                    {connectionInfo.gateway && (
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("Gateway")}</DescriptionListTerm>
+                            <DescriptionListDescription>{connectionInfo.gateway}</DescriptionListDescription>
+                        </DescriptionListGroup>
+                    )}
+                    {connectionInfo.dns.length > 0 && (
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{_("DNS")}</DescriptionListTerm>
+                            <DescriptionListDescription>{connectionInfo.dns.join(", ")}</DescriptionListDescription>
+                        </DescriptionListGroup>
+                    )}
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("MAC Address")}</DescriptionListTerm>
+                        <DescriptionListDescription>{connectionInfo.mac}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
+            </CardBody>
+        </Card>
+    );
+};
+
+// Helper function to detect WiFi mode
+function getWiFiMode(dev, iface) {
+    // Check if there's an active connection
+    if (!dev?.ActiveConnection) return "inactive";
+
+    // Get settings from the MainConnection (the saved connection profile)
+    const settings = iface?.MainConnection?.Settings;
+    if (!settings) return "inactive";
+
+    if (settings.connection?.type !== "802-11-wireless") return "other";
 
     const mode = settings.wifi?.mode;
     if (mode === "ap") return "ap";
-    if (mode === "infrastructure") return "client";
+    // Default to client mode - "infrastructure" is the default when mode is not set
+    if (mode === "infrastructure" || !mode) return "client";
     return "unknown";
 }
 
@@ -1447,7 +1690,7 @@ export const WiFiPage = ({ iface, dev }) => {
 
     // Detect current WiFi mode
     useEffect(() => {
-        const currentMode = getWiFiMode(dev);
+        const currentMode = getWiFiMode(dev, iface);
         setMode(currentMode);
 
         if (currentMode === "ap") {
@@ -1458,7 +1701,7 @@ export const WiFiPage = ({ iface, dev }) => {
 
         // Clear any errors when mode changes
         setError(null);
-    }, [dev, dev?.ActiveConnection]);
+    }, [dev, dev?.ActiveConnection, iface, iface?.MainConnection]);
 
     // Auto-scan on mount (only in client mode)
     useEffect(() => {
@@ -1495,6 +1738,10 @@ export const WiFiPage = ({ iface, dev }) => {
 
     return (
         <>
+            {/* Show connection details when connected */}
+            {isConnected && mode === "client" && (
+                <WiFiConnectionDetails dev={dev} model={model} />
+            )}
             <Card>
                 <CardHeader>
                     <CardTitle>{_("WiFi Networks")}</CardTitle>
@@ -1504,13 +1751,6 @@ export const WiFiPage = ({ iface, dev }) => {
                                 {scanning ? _("Scanning...") : _("Scan")}
                             </Button>
                         </FlexItem>
-                        {isConnected && (
-                            <FlexItem>
-                                <Button variant="warning" onClick={handleDisconnect}>
-                                    {_("Disconnect")}
-                                </Button>
-                            </FlexItem>
-                        )}
                         <FlexItem>
                             <Button variant="secondary" onClick={handleConnectHidden}>
                                 {_("Connect to Hidden Network")}

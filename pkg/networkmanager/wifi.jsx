@@ -1670,19 +1670,6 @@ export const WiFiPage = ({ iface, dev }) => {
         Dialogs.show(<WiFiAPDialog settings={settings} dev={dev} />);
     }, [dev, Dialogs]);
 
-    // Disconnect from current network
-    const handleDisconnect = useCallback(async () => {
-        if (!dev?.ActiveConnection) return;
-
-        try {
-            setError(null);
-            await dev.ActiveConnection.deactivate();
-        } catch (err) {
-            console.error("Failed to disconnect:", err);
-            setError(_("Failed to disconnect: ") + err.message);
-        }
-    }, [dev]);
-
     // Connect to hidden network
     const handleConnectHidden = useCallback(() => {
         Dialogs.show(<WiFiHiddenDialog dev={dev} />);

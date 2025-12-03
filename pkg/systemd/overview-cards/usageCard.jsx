@@ -147,7 +147,7 @@ export class UsageCard extends React.Component {
                                     <Progress value={this.state.memUsed}
                                         className="pf-m-sm"
                                         min={0} max={this.state.memTotal}
-                                        variant={fraction > 0.9 ? ProgressVariant.danger : null}
+                                        variant={fraction > 0.9 ? ProgressVariant.danger : undefined}
                                         aria-labelledby="system-usage-memory-progress"
                                         label={this.state.memUsedText}
                                         measureLocation={ProgressMeasureLocation.outside} />

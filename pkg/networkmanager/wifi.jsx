@@ -414,7 +414,7 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
             },
             ipv4: {
                 method: "shared", // Enables DHCP server
-                address_data: [{ address: ipAddress, prefix: parseInt(prefix) }],
+                address_data: [{ address: ipAddress, prefix: String(prefix) }],
             },
             ipv6: {
                 method: "ignore",

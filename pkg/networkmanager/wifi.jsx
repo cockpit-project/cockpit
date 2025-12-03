@@ -233,12 +233,12 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
             // New connection - use activate_with_settings which calls AddAndActivateConnection
             model.set_operation_in_progress(true);
             dev.activate_with_settings(wifiSettings, null)
-                .then(() => {
-                    setPassword("");
-                    Dialogs.close();
-                })
-                .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
-                .finally(() => model.set_operation_in_progress(false));
+                    .then(() => {
+                        setPassword("");
+                        Dialogs.close();
+                    })
+                    .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
+                    .finally(() => model.set_operation_in_progress(false));
         } else {
             // Editing existing connection - use dialogSave
             dialogSave({
@@ -462,12 +462,12 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
             // New AP - use activate_with_settings which calls AddAndActivateConnection
             model.set_operation_in_progress(true);
             dev.activate_with_settings(apSettings, null)
-                .then(() => {
-                    setPassword("");
-                    Dialogs.close();
-                })
-                .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
-                .finally(() => model.set_operation_in_progress(false));
+                    .then(() => {
+                        setPassword("");
+                        Dialogs.close();
+                    })
+                    .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
+                    .finally(() => model.set_operation_in_progress(false));
         } else {
             // Editing existing AP - use dialogSave
             dialogSave({

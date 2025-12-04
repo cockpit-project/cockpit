@@ -1188,11 +1188,12 @@ class TestPackageInstall(packagelib.PackageCase):
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
+        b.wait_text(".pf-v6-c-modal-box__header", "Install software")
         with b.wait_timeout(30):
-            b.wait_in_text(".pf-v6-c-modal-box:contains('Install software')", "realmd is not available")
-        b.wait_visible(".pf-v6-c-modal-box:contains('Install software') .pf-v6-c-modal-box__footer button:contains(Install):disabled")
-        b.click(".pf-v6-c-modal-box:contains('Install software') .pf-v6-c-modal-box__footer button.cancel")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Install software')")
+            b.wait_in_text(".pf-v6-c-modal-box", "realmd is not available")
+        b.wait_visible(".pf-v6-c-modal-box__footer button.pf-m-primary:disabled")
+        b.click(".pf-v6-c-modal-box .pf-v6-c-modal-box__footer button.cancel")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.logout()
 
         # case 3: provide an available realmd package
@@ -1208,8 +1209,10 @@ class TestPackageInstall(packagelib.PackageCase):
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
-        b.click(".pf-v6-c-modal-box:contains('Install software') .pf-v6-c-modal-box__footer button:contains(Install)")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Install software')")
+        b.click(".pf-v6-c-modal-box .pf-v6-c-modal-box__footer button.pf-m-primary")
+        b.wait_not_in_text(".pf-v6-c-modal-box__header", "Install software")
+        # The dialog changes into a Join Domain dialog
+        b.wait_text(".pf-v6-c-modal-box__header", "Join a domain")
 
         # the stub package doesn't provide a realmd D-Bus service, so the "join
         # domain" dialog won't ever appear; just check that it was installed
@@ -1233,8 +1236,9 @@ class TestPackageInstall(packagelib.PackageCase):
         b.click(self.domain_sel)
         # restore realmd service, to pretend that package install completed
         m.execute("systemctl unmask realmd")
-        b.click(".pf-v6-c-modal-box .pf-v6-c-modal-box__footer button:contains('Install')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Install software')")
+        b.wait_text(".pf-v6-c-modal-box__header", "Install software")
+        b.click(".pf-v6-c-modal-box .pf-v6-c-modal-box__footer button.pf-m-primary")
+        b.wait_not_in_text(".pf-v6-c-modal-box__header", "Install software")
 
         # should continue straight to join dialog
         b.wait_visible("#realms-join-dialog")

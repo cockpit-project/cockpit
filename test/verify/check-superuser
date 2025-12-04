@@ -36,8 +36,9 @@ class TestSuperuser(testlib.MachineCase):
 
         # Drop privileges
         b.open_superuser_dialog()
-        b.click(".pf-v6-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Switch to limited access')")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to limited access")
+        b.click(".pf-v6-c-modal-box button:contains('Limit access')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
 
         b.assert_pixels("#topnav", "topnav-unprivileged")
@@ -66,16 +67,16 @@ class TestSuperuser(testlib.MachineCase):
         # Get the privileges back, this time in the mobile layout
         b.set_layout("mobile")
         b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
         if "ubuntu" not in m.image and "debian" not in m.image:
-            b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')",
-                           "We trust you have received the usual lecture")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "foobar")
+            b.wait_in_text(".pf-v6-c-modal-box", "We trust you have received the usual lecture")
+        b.wait_in_text(".pf-v6-c-modal-box", "Password for admin:")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.focus(".pf-v6-c-modal-box button:contains('Cancel')")
-        b.assert_pixels(".pf-v6-c-modal-box:contains('Switch to administrative access')", "superuser-modal",
+        b.assert_pixels(".pf-v6-c-modal-box", "superuser-modal",
                         chrome_hack_double_shots=True)
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Switch to administrative access')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Administrative access")
         b.set_layout("desktop")
 
@@ -87,8 +88,9 @@ class TestSuperuser(testlib.MachineCase):
         # Test that closing instead of cancelling the dialog keeps the "switch
         # to administrative button"
         b.open_superuser_dialog()
-        b.click(".pf-v6-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Switch to limited access')")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to limited access")
+        b.click(".pf-v6-c-modal-box button:contains('Limit access')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
 
         b.open_superuser_dialog()
@@ -152,15 +154,16 @@ session include system-auth
 """)
 
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Password for admin:")
         # Let the dialog sit there for 45 seconds, to test that this doesn't trigger a D-Bus timeout.
         time.sleep(45)
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "universe and everything")
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "42")
+        b.wait_in_text(".pf-v6-c-modal-box", "universe and everything")
+        b.set_input_text(".pf-v6-c-modal-box input", "42")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Switch to administrative access')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Administrative access")
 
     def testWrongPasswd(self):
@@ -171,20 +174,22 @@ session include system-auth
         b.check_superuser_indicator("Limited access")
 
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "wrong")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Password for admin:")
+        b.set_input_text(".pf-v6-c-modal-box input", "wrong")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Sorry, try again")
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "wronger")
+        b.wait_in_text(".pf-v6-c-modal-box", "Password for admin:")
+        b.wait_in_text(".pf-v6-c-modal-box", "Sorry, try again")
+        b.set_input_text(".pf-v6-c-modal-box input", "wronger")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Sorry, try again")
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "wrongest")
+        b.wait_in_text(".pf-v6-c-modal-box", "Password for admin:")
+        b.wait_in_text(".pf-v6-c-modal-box", "Sorry, try again")
+        b.set_input_text(".pf-v6-c-modal-box input", "wrongest")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Problem becoming administrator')", "Sudo: 3 incorrect password attempts")
-        b.click(".pf-v6-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Problem becoming administrator')")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.wait_in_text(".pf-v6-c-modal-box", "Sudo: 3 incorrect password attempts")
+        b.click(".pf-v6-c-modal-box button:contains('Close')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
 
     def testNotAdmin(self):
@@ -204,11 +209,13 @@ session include system-auth
         b.check_superuser_indicator("Limited access")
 
         b.open_superuser_dialog()
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Problem becoming administrator')", "Admin is not in the sudoers file.")
-        b.click(".pf-v6-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Problem becoming administrator')")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.wait_in_text(".pf-v6-c-modal-box__body", "Admin is not in the sudoers file.")
+        b.click(".pf-v6-c-modal-box button.btn-cancel")
+        b.wait_not_present(".pf-v6-c-modal-box")
 
         # no stray/hanging sudo process
         testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
@@ -268,9 +275,10 @@ session include system-auth
         b.check_superuser_indicator("Limited access")
 
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Problem becoming administrator')", "Sudo: no askpass program specified, try setting SUDO_ASKPASS")
-        b.click(".pf-v6-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Problem becoming administrator')")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.wait_in_text(".pf-v6-c-modal-box__body", "Sudo: no askpass program specified, try setting SUDO_ASKPASS")
+        b.click(".pf-v6-c-modal-box button.btn-cancel")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
 
     @testlib.skipBeiboot("no local overrides/PAM config in beiboot mode")
@@ -327,8 +335,10 @@ session include system-auth
         b.leave_page()
         b.check_superuser_indicator("Limited access")
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Problem becoming administrator')", "Hello from the bash method")
-        b.click(".pf-v6-c-modal-box button:contains('Close')")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.wait_in_text(".pf-v6-c-modal-box__body", "Hello from the bash method")
+        b.click(".pf-v6-c-modal-box button.btn-cancel")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
 
     @testlib.skipBeiboot("no local overrides/PAM config in beiboot mode")
@@ -372,43 +382,47 @@ session include system-auth
 
         # Get admin rights with Polkit method
         b.open_superuser_dialog()
-        b.set_val(".pf-v6-c-modal-box:contains('Switch to administrative access') select", "Polkit")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access') select", "Polkit")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.set_val(".pf-v6-c-modal-box select", "Polkit")
+        b.wait_in_text(".pf-v6-c-modal-box select", "Polkit")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Please authenticate")
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Switch to administrative access')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Administrative access")
 
         # Drop them
         b.open_superuser_dialog()
-        b.click(".pf-v6-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Switch to limited access')")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to limited access")
+        b.click(".pf-v6-c-modal-box button:contains('Limit access')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
 
         # Run the regular sudo method, which should work as always
         b.open_superuser_dialog()
-        b.set_val(".pf-v6-c-modal-box:contains('Switch to administrative access') select", "Sudo")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access') select", "Sudo")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.set_val(".pf-v6-c-modal-box select", "Sudo")
+        b.wait_in_text(".pf-v6-c-modal-box select", "Sudo")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.wait_in_text(".pf-v6-c-modal-box", "Password for admin:")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Switch to administrative access')")
+        b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Administrative access")
 
     def testOverview(self):
         b = self.browser
 
         self.login_and_go("/system", superuser=False)
-        b.wait_visible(".pf-v6-c-alert:contains('Web console is running in limited access mode.')")
-        b.click(".pf-v6-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
-        b.wait_in_text(".pf-v6-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.wait_in_text(".ct-limited-access-alert", "Web console is running in limited access mode.")
+        b.click(".ct-limited-access-alert button")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Password for admin:")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-v6-c-modal-box:contains('Switch to administrative access')")
-        b.wait_not_present(".pf-v6-c-alert:contains('Web console is running in limited access mode.')")
+        b.wait_not_present(".pf-v6-c-modal-box")
+        b.wait_not_present(".ct-limited-access-alert")
 
 
 @testlib.skipBeiboot("host switching disabled in beiboot mode")

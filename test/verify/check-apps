@@ -140,12 +140,12 @@ class TestApps(packagelib.PackageCase):
 
         b.click(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Install')")
         b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Remove')")
-        b.wait_visible(f".app-list .pf-v6-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
+        b.wait_visible(f".app-list .pf-v6-c-data-list__item-row img[alt='icon of app-1'][src^='{urlroot}/cockpit/channel/']")
         m.execute("test -f /stamp-app-1-1.0-1")
 
         b.click(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Remove')")
         b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Install')")
-        b.wait_visible(f".app-list .pf-v6-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
+        b.wait_visible(f".app-list .pf-v6-c-data-list__item-row img[alt='icon of app-1'][src^='{urlroot}/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
     def testWithUrlRoot(self):

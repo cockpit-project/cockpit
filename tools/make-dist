@@ -49,11 +49,8 @@ else
         > /dev/null
 fi
 
-# Do the actual build
+# Do the actual build; dist creates both the main and node runtime tarballs
 make -s -j"$(nproc)" XZ_OPT='-0' VERSION="${VERSION}" "$@" dist >&2
-
-# Create node tarball in same directory as main tarball
-"${ROOT_DIR}/tools/node-modules" runtime-tar "$(realpath .)/cockpit-node-${VERSION}.tar.xz" >&2
 
 # Output tarball paths to stdout (only)
 realpath "cockpit-${VERSION}.tar.xz"

@@ -139,12 +139,12 @@ class TestApps(packagelib.PackageCase):
             b.assert_pixels("#list-page", "list-page")
 
         b.click(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Install')")
-        b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Remove')")
+        b.wait_text(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button", "Remove")
         b.wait_visible(f".app-list .pf-v6-c-data-list__item-row img[alt='icon of app-1'][src^='{urlroot}/cockpit/channel/']")
         m.execute("test -f /stamp-app-1-1.0-1")
 
         b.click(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Remove')")
-        b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Install')")
+        b.wait_text(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button", "Install")
         b.wait_visible(f".app-list .pf-v6-c-data-list__item-row img[alt='icon of app-1'][src^='{urlroot}/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
@@ -244,10 +244,9 @@ class TestApps(packagelib.PackageCase):
   </component>
 </components>""")
 
-        b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='NAME:none'] button:contains('Install')")
+        b.wait_text(".app-list .pf-v6-c-data-list__item-action[rowid='NAME:none'] button", "Install")
         b.click(".app-list .pf-v6-c-data-list__item-row button:contains('NAME:none')")
-
-        b.wait_visible(".app-description:contains('DESCRIPTION:none')")
+        b.wait_text(".app-description", "DESCRIPTION:none")
 
         def set_lang(lang: str) -> None:
             b.switch_to_top()
@@ -261,12 +260,10 @@ class TestApps(packagelib.PackageCase):
             b.enter_page("/apps")
 
         set_lang("de-de")
-        b.wait_visible(".app-description:contains('DESCRIPTION:de')")
-        b.wait_not_present(".app-description:contains('DESCRIPTION:none')")
+        b.wait_text(".app-description", "DESCRIPTION:de")
 
         set_lang("ja-jp")
-        b.wait_visible(".app-description:contains('DESCRIPTION:none')")
-        b.wait_not_present(".app-description:contains('DESCRIPTION:de')")
+        b.wait_text(".app-description", "DESCRIPTION:none")
 
         # like in the general whitelist, but translated
         self.allow_journal_messages("xargs: basename: .*Signal 13.*")

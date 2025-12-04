@@ -54,7 +54,7 @@ interface Method {
 
 export interface SuperuserProxy extends cockpit.DBusProxy {
     Current: string;
-    Bridges: unknown[];
+    Bridges: string[];
     Methods: Record<string, Method>;
 
     Start(method: string): Promise<void>;
@@ -146,10 +146,12 @@ const UnlockDialog = ({
 
     function init() {
         return proxy.Stop().finally(() => {
-            if (proxy.Methods) {
+            if (proxy.Bridges.length === 0) {
+                setError(_("No methods to gain administrative access are available (run0, sudo -A, pkexec)."));
+            } else if (proxy.Methods) {
                 const ids = Object.keys(proxy.Methods);
                 if (ids.length == 0)
-                    start("sudo");
+                    start(proxy.Bridges[0]);
                 else if (ids.length == 1)
                     start(ids[0]);
                 else {
@@ -157,7 +159,7 @@ const UnlockDialog = ({
                     setMethod(ids[0]);
                 }
             } else
-                start("sudo");
+                start(proxy.Bridges[0]);
         });
     }
 
@@ -349,8 +351,7 @@ const SuperuserDialogs = ({
                  }
              });
 
-    const show = (superuser_proxy.Current != "root" && superuser_proxy.Current != "init" &&
-                  (superuser_proxy.Bridges?.length ?? 0) > 0);
+    const show = superuser_proxy.Current != "root" && superuser_proxy.Current != "init";
     const unlocked = superuser_proxy.Current != "none";
 
     function unlock() {

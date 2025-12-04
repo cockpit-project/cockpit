@@ -24,7 +24,7 @@ import testlib
 @testlib.skipOstree("No tuned packaged")
 class TestTuned(testlib.MachineCase):
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -40,7 +40,7 @@ class TestTuned(testlib.MachineCase):
 
         self.login_and_go("/system")
 
-        def check_status_tooltip(expected):
+        def check_status_tooltip(expected: str) -> None:
             b.mouse("#tuned-status-button", "mouseenter")
             b.wait_text("#tuned-status-tooltip", expected)
             # move mouse away again, to let the tooltip disappear and update

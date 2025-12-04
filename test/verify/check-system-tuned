@@ -74,7 +74,7 @@ class TestTuned(testlib.MachineCase):
         b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected .pf-v6-c-label:contains('active')")
 
         b.click(".pf-v6-c-modal-box li[data-value='desktop'] > button")
-        b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected p:contains('desktop')")
+        b.wait_in_text(".pf-v6-c-modal-box li > button.pf-m-selected p", "desktop")
 
         b.click(".pf-v6-c-modal-box button.pf-m-primary")
         b.wait_not_present(".pf-v6-c-modal-box")
@@ -94,7 +94,7 @@ class TestTuned(testlib.MachineCase):
         b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected p")
 
         b.click(".pf-v6-c-modal-box li > button p:contains('None')")
-        b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected p:contains('None')")
+        b.wait_in_text(".pf-v6-c-modal-box li > button.pf-m-selected p", "None")
         b.click(".pf-v6-c-modal-box button.pf-m-primary")
         b.wait_not_present(".pf-v6-c-modal-box")
 

@@ -301,9 +301,17 @@ session include system-auth
         b.enter_page("/playground/pkgs")
         b.click("#reload")
         b.leave_page()
-        b.check_superuser_indicator("")
+        b.check_superuser_indicator("Limited access")
         # superuser bridge goes away
         m.execute("while pgrep -u root -a cockpit-bridge; do sleep 1; done", timeout=5)
+
+        # Try to become superuser - should show error about no methods available
+        b.open_superuser_dialog()
+        b.wait_in_text(".pf-v6-c-modal-box:contains('Problem becoming administrator')",
+                       "No methods to gain administrative access are available")
+        b.click(".pf-v6-c-modal-box button:contains('Close')")
+        b.wait_not_present(".pf-v6-c-modal-box:contains('Problem becoming administrator')")
+        b.check_superuser_indicator("Limited access")
 
         # no banner for "running in limited access mode", there are no bridge configs
         b.go("/system")

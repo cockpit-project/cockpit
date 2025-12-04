@@ -178,6 +178,10 @@ class BridgeConfig(dict, JsonObject):  # type: ignore[type-arg]
     def __init__(self, value: JsonObject):
         super().__init__(value)
 
+        # NB: You almost definitely don't want to access the filesystem here to
+        # check for (for example) if a bridge exists or not.  This code might
+        # be running on the client side of a beiboot setup.
+
         self.label = get_str(self, 'label', None)
 
         self.privileged = get_bool(self, 'privileged', default=False)

@@ -114,7 +114,7 @@ class TestApps(packagelib.PackageCase):
         # still no metadata, but already installed application
         self.createAppStreamPackage("already", "1.0", "1", install=True)
         b.wait_not_present(".pf-v6-c-empty-state")
-        b.wait_visible(".app-list .pf-v6-c-data-list__item-row:contains('already') button:contains('Remove')")
+        b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='already'] button:contains('Remove')")
         b.wait_in_text(".pf-v6-c-alert", "Application information is missing")
 
         self.createAppStreamPackage("app-1", "1.0", "1")
@@ -138,13 +138,13 @@ class TestApps(packagelib.PackageCase):
         if urlroot == "":
             b.assert_pixels("#list-page", "list-page")
 
-        b.click(".app-list .pf-v6-c-data-list__item-row:contains('app-1') button:contains('Install')")
-        b.wait_visible(".app-list .pf-v6-c-data-list__item-row:contains('app-1') button:contains('Remove')")
+        b.click(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Install')")
+        b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Remove')")
         b.wait_visible(f".app-list .pf-v6-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("test -f /stamp-app-1-1.0-1")
 
-        b.click(".app-list .pf-v6-c-data-list__item-row:contains('app-1') button:contains('Remove')")
-        b.wait_visible(".app-list .pf-v6-c-data-list__item-row:contains('app-1') button:contains('Install')")
+        b.click(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Remove')")
+        b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='app-1'] button:contains('Install')")
         b.wait_visible(f".app-list .pf-v6-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
@@ -244,8 +244,8 @@ class TestApps(packagelib.PackageCase):
   </component>
 </components>""")
 
-        b.wait_visible(".app-list .pf-v6-c-data-list__item-row:contains('SUMMARY:none') button:contains('Install')")
-        b.click(".app-list .pf-v6-c-data-list__item-row:contains('SUMMARY:none') .pf-m-inline")
+        b.wait_visible(".app-list .pf-v6-c-data-list__item-action[rowid='NAME:none'] button:contains('Install')")
+        b.click(".app-list .pf-v6-c-data-list__item-row button:contains('NAME:none')")
 
         b.wait_visible(".app-description:contains('DESCRIPTION:none')")
 

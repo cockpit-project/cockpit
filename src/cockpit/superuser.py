@@ -21,6 +21,7 @@ import contextlib
 import getpass
 import logging
 import os
+import shutil
 import socket
 from tempfile import TemporaryDirectory
 from typing import List, Optional, Sequence, Tuple
@@ -37,6 +38,15 @@ from .polkit import PolkitAgent
 from .router import Router, RoutingError, RoutingRule
 
 logger = logging.getLogger(__name__)
+
+
+def is_valid_superuser_config(config: BridgeConfig) -> bool:
+    if not config.privileged:
+        return False
+    command = shutil.which(config.spawn[0])
+    if command is None:
+        return False
+    return True
 
 
 class SuperuserPeer(ConfiguredPeer):
@@ -196,7 +206,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
     def set_configs(self, configs: Sequence[BridgeConfig]):
         logger.debug("set_configs() with %d items", len(configs))
-        configs = [config for config in configs if config.privileged]
+        configs = [config for config in configs if is_valid_superuser_config(config)]
         self.superuser_configs = tuple(configs)
         self.bridges = [config.name for config in self.superuser_configs]
         self.methods = {c.label: Variant({'label': Variant(c.label)}, 'a{sv}') for c in configs if c.label}

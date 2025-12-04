@@ -582,11 +582,12 @@ function ChangeSystimeBody({ state, errors, change }) {
                                      ))} />
                 </Validated>
             </FormGroup>
-            <FormGroup fieldId="change_systime" label={_("Set time")} isStack>
+            <FormGroup fieldId="change_systime_btn" label={_("Set time")} isStack>
                 <SimpleSelect
                     id="change_systime"
                     options={mode_options}
                     selected={mode}
+                    toggleProps={{ id: "change_systime_btn" }}
                     onSelect={value => change("mode", value)} />
                 { mode == "manual_time" &&
                     <Flex spaceItems={{ default: 'spaceItemsSm' }} id="systime-manual-row">

@@ -872,11 +872,11 @@ fi
 
 
 class TestSystemInfoTime(packagelib.PackageCase):
-    def set_change_time_dialog_mode(self, mode):
+    def set_change_time_dialog_mode(self, mode: str) -> None:
         b = self.browser
-        b.click("#system_information_change_systime .pf-v6-c-form__group-label:contains('Set time') + div > .pf-v6-c-menu-toggle")
+        b.click("#change_systime_btn")
         b.click(f"#change_systime button:contains('{mode}')")
-        b.wait_in_text("#system_information_change_systime .pf-v6-c-form__group-label:contains('Set time') + div > .pf-v6-c-menu-toggle", mode)
+        b.wait_in_text("#system_information_change_systime #change_systime_btn", mode)
 
     def testTime(self):
         m = self.machine
@@ -1123,7 +1123,7 @@ class TestSystemInfoTime(packagelib.PackageCase):
 
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
-        b.click("#system_information_change_systime .pf-v6-c-form__group-label:contains('Set time') + div > .pf-v6-c-menu-toggle")
+        b.click("#system_information_change_systime #change_systime_btn")
         b.wait_in_text("#change_systime", "Automatically using NTP")
         b.wait_not_present("#change_systime button:contains('Automatically using specific NTP servers')")
         b.wait_not_present("#change_systime button:contains('Automatically using additional NTP servers')")

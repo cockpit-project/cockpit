@@ -29,7 +29,7 @@ import testlib
 @testlib.nondestructive
 class TestSOS(testlib.MachineCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
         m = self.machine
 
@@ -48,7 +48,7 @@ class TestSOS(testlib.MachineCase):
                   r"-e '/\[report\]/a only-plugins=release,date,host,cgroups,networking' "
                   r"/etc/sos/sos.conf")
 
-    def testBasic(self, urlroot=""):
+    def testBasic(self, urlroot: str = "") -> None:
         b = self.browser
         m = self.machine
 
@@ -126,10 +126,10 @@ exit 1""", perm="755")
         self.allow_browser_errors(
             'error: Failed to call sos report: {"problem":null,"exit_status":1,"exit_signal":null')
 
-    def testWithUrlRoot(self):
+    def testWithUrlRoot(self) -> None:
         self.testBasic(urlroot="/webcon")
 
-    def testVerbose(self):
+    def testVerbose(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -151,7 +151,7 @@ exit 1""", perm="755")
                              "| grep -c 'DEBUG: \\[plugin:release\\]'")
         self.assertGreater(int(messages), 5)
 
-    def testCancel(self):
+    def testCancel(self) -> None:
         m = self.machine
         b = self.browser
 
@@ -167,7 +167,7 @@ exit 1""", perm="755")
         self.assertEqual(m.execute(f"ls {self.report_dir}/sosreport* 2>/dev/null || true"), "")
 
     @testlib.skipBeiboot("apps not available in beiboot mode")
-    def testAppStream(self):
+    def testAppStream(self) -> None:
         b = self.browser
         m = self.machine
 

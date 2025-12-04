@@ -69,9 +69,15 @@ $(NODE_CACHE): $(srcdir)/package-lock.json
 	$(AM_V_GEN) $(srcdir)/tools/node-modules runtime-tar $(CURDIR)/$(NODE_CACHE)
 
 dist-hook: $(distdir)/tools/debian/copyright
-# wildcard gymnastics for distcheck: no node_modules/ in distdir
-$(distdir)/tools/debian/copyright: $(DIST_STAMP) $(if $(wildcard $(srcdir)/node_modules/.package-lock.json),$(NODE_CACHE))
-	$(AM_V_GEN) NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $@
+# when building from a git checkout, we need to generate the copyright file
+# when building from tarball (also separate build tree, dist-git), we can't
+# rely on node_modules, so just copy the existing file
+$(distdir)/tools/debian/copyright: $(srcdir)/tools/debian/copyright.template $(DIST_STAMP) $(if $(wildcard $(srcdir)/node_modules/.package-lock.json),$(NODE_CACHE))
+	@if [ -e "$(srcdir)/node_modules/.package-lock.json" ]; then \
+		$(AM_V_GEN) $(srcdir)/tools/build-debian-copyright $< $(NODE_CACHE) > $@; \
+	else \
+		$(AM_V_GEN) cp "$(srcdir)/tools/debian/copyright" $@; \
+	fi
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only $(EXTRA_DISTCHECK_CONFIGURE_FLAGS)
 

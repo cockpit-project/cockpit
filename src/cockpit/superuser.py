@@ -39,6 +39,14 @@ from .router import Router, RoutingError, RoutingRule
 logger = logging.getLogger(__name__)
 
 
+def is_valid_superuser_config(config: BridgeConfig) -> bool:
+    if not config.privileged:
+        return False
+    if config.which is None:
+        return False
+    return True
+
+
 class SuperuserPeer(ConfiguredPeer):
     responder: ferny.AskpassHandler
 
@@ -196,7 +204,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
     def set_configs(self, configs: Sequence[BridgeConfig]):
         logger.debug("set_configs() with %d items", len(configs))
-        configs = [config for config in configs if config.privileged]
+        configs = [config for config in configs if is_valid_superuser_config(config)]
         self.superuser_configs = tuple(configs)
         self.bridges = [config.name for config in self.superuser_configs]
         self.methods = {c.label: Variant({'label': Variant(c.label)}, 'a{sv}') for c in configs if c.label}

@@ -187,6 +187,7 @@ class BridgeConfig(dict, JsonObject):  # type: ignore[type-arg]
 
         self.environ = get_strv(self, 'environ', ())
         self.spawn = get_strv(self, 'spawn')
+        self.which = shutil.which(self.spawn[0]) if self.spawn else None
         if not self.spawn:
             raise JsonError(value, 'spawn vector must be non-empty')
 

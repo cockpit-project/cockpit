@@ -337,13 +337,10 @@ class Dnf5Impl extends ImplBase {
 }
 
 class AptImpl extends ImplBase {
-    // Define Origins-Patterns for different upgrade types
-    originsPatterns = {
-        all: '"origin=*";',
-        stable: '"origin=Debian,codename=${distro_codename},label=Debian";',
-        security: '"origin=Debian,codename=${distro_codename}-security,label=Debian-Security";',
-        securityAlt: '"origin=Debian,codename=${distro_codename},label=Debian-Security";'
-    };
+    constructor() {
+        super();
+        this.originsPatterns = null;
+    }
 
     async getConfig() {
         this.packageName = "unattended-upgrades";
@@ -358,6 +355,41 @@ class AptImpl extends ImplBase {
         }
 
         try {
+            // Detect distribution
+            const distroOutput = await cockpit.script(
+                "grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '\"'",
+                [], { err: "message" });
+            const distro = distroOutput.trim().toLowerCase();
+
+            // Set patterns based on distribution
+            if (distro === 'ubuntu') {
+                this.originsPatterns = {
+                    configKey: 'Allowed-Origins',
+                    all: '"*:*";',
+                    stable: '"${distro_id}:${distro_codename}";',
+                    security: [
+                        '"${distro_id}:${distro_codename}-security";',
+                        '"${distro_id}ESMApps:${distro_codename}-apps-security";',
+                        '"${distro_id}ESM:${distro_codename}-infra-security";'
+                    ]
+                };
+            } else if (distro === 'debian') {
+                this.originsPatterns = {
+                    configKey: 'Origins-Pattern',
+                    all: '"origin=*";',
+                    stable: '"origin=Debian,codename=${distro_codename},label=Debian";',
+                    security: [
+                        '"origin=Debian,codename=${distro_codename}-security,label=Debian-Security";',
+                        '"origin=Debian,codename=${distro_codename},label=Debian-Security";'
+                    ]
+                };
+            } else {
+                // Unsupported distribution
+                console.error(`AptImpl: Unsupported distribution: ${distro}. Only Ubuntu and Debian are supported.`);
+                this.supported = false;
+                return;
+            }
+
             // Check timer status and configuration
             const timerOutput = await cockpit.script(
                 "set -eu; " +
@@ -381,14 +413,16 @@ class AptImpl extends ImplBase {
 
             // Get unattended-upgrades configuration
             const aptConfigOutput = await cockpit.script(
-                'apt-config dump | grep "Unattended-Upgrade::Origins-Pattern:: "',
+                `apt-config dump | grep "Unattended-Upgrade::${this.originsPatterns.configKey}:: "`,
                 [], { superuser: "require", err: "message" });
 
-            // Determine upgrade type based on Origins-Pattern
+            // Determine upgrade type based on configuration patterns
             const allUpgrades = aptConfigOutput.includes(this.originsPatterns.all);
-            const securityPatterns = [this.originsPatterns.security, this.originsPatterns.securityAlt];
-            const securityUpgrades = aptConfigOutput.includes(this.originsPatterns.stable) &&
-                securityPatterns.some(pattern => aptConfigOutput.includes(pattern));
+            let securityUpgrades = false;
+
+            // Check for stable and security patterns
+            securityUpgrades = aptConfigOutput.includes(this.originsPatterns.stable) &&
+                this.originsPatterns.security.every(pattern => aptConfigOutput.includes(pattern));
 
             if (allUpgrades) {
                 this.type = "all";
@@ -396,7 +430,7 @@ class AptImpl extends ImplBase {
                 this.type = "security";
             }
 
-            debug(`apt getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}, raw timer output: '${timerOutput}'; raw apt-config output: '${aptConfigOutput}'`);
+            debug(`apt getConfig: distro ${distro}, supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}, raw timer output: '${timerOutput}'; raw apt-config output: '${aptConfigOutput}'`);
         } catch (error) {
             console.error("AptImpl: getConfig failed:", error);
             this.supported = false;
@@ -410,19 +444,26 @@ class AptImpl extends ImplBase {
         let script = "set -e; ";
 
         if (type !== null) {
-            // Configure Origins-Pattern based on update type in our override file
+            if (!this.originsPatterns) {
+                console.error("Patterns not initialized");
+                return;
+            }
+
+            // Configure upgrade origins based on update type in our override file
             script += "cat > " + this.configFile + " << 'EOF'\n";
             script += "// Cockpit managed configuration\n";
-            // Clear Unattended-Upgrade::Origins-Pattern as they get merged otherwise
-            script += "#clear Unattended-Upgrade::Origins-Pattern;\n";
-            script += "Unattended-Upgrade::Origins-Pattern {\n";
+            // Clear the configuration as they get merged otherwise
+            script += `#clear Unattended-Upgrade::${this.originsPatterns.configKey};\n`;
+            script += `Unattended-Upgrade::${this.originsPatterns.configKey} {\n`;
+
             if (type === "all") {
                 script += `        ${this.originsPatterns.all}\n`;
             } else {
-                // Only security upgrades
+                // Only security upgrades which includes stable and all security patterns
                 script += `        ${this.originsPatterns.stable}\n`;
-                script += `        ${this.originsPatterns.security}\n`;
-                script += `        ${this.originsPatterns.securityAlt}\n`;
+                this.originsPatterns.security.forEach(securityPattern => {
+                    script += `        ${securityPattern}\n`;
+                });
             }
             script += "};\n\n";
 
@@ -467,7 +508,7 @@ class AptImpl extends ImplBase {
             if (time !== null)
                 this.time = time;
         } catch (error) {
-            console.error("apt setConfig failed:", error.toString());
+            console.error("apt setConfig failed:", error instanceof Error ? error.toString() : String(error));
         }
     }
 }

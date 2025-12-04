@@ -181,9 +181,11 @@ exec "$@"
 
         # not a sudoer
         b.open_superuser_dialog()
-        b.set_input_text(".pf-v6-c-modal-box:contains('Switch to administrative access') input", "barfoo")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "barfoo")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.click(".pf-v6-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.click(".pf-v6-c-modal-box button.btn-cancel")
         b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
 

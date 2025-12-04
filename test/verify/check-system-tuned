@@ -65,21 +65,19 @@ class TestTuned(testlib.MachineCase):
 
         b.wait_text('#tuned-status-button', recommended_profile)
         b.click('#tuned-status-button')
-        title_selector = ".pf-v6-c-modal-box__header:contains('Change performance profile')"
-        b.wait_visible(title_selector)
-        body_selector = ".pf-v6-c-modal-box:contains('Change performance profile')"
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected p")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Change performance profile")
+        b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected p")
 
         # Make sure we see the recommended profile and its badges
-        b.wait_in_text(f"{body_selector} li > button.pf-m-selected p", recommended_profile)
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-v6-c-label:contains('recommended')")
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected .pf-v6-c-label:contains('active')")
+        b.wait_in_text(".pf-v6-c-modal-box li > button.pf-m-selected p", recommended_profile)
+        b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected .pf-v6-c-label:contains('recommended')")
+        b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected .pf-v6-c-label:contains('active')")
 
-        b.click(f"{body_selector} li[data-value='desktop'] > button")
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected p:contains('desktop')")
+        b.click(".pf-v6-c-modal-box li[data-value='desktop'] > button")
+        b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected p:contains('desktop')")
 
-        b.click(f"{body_selector} button.pf-m-primary")
-        b.wait_not_present(title_selector)
+        b.click(".pf-v6-c-modal-box button.pf-m-primary")
+        b.wait_not_present(".pf-v6-c-modal-box")
 
         b.wait_text('#tuned-status-button', "desktop")
         check_status_tooltip("This system is using a custom profile")
@@ -92,13 +90,13 @@ class TestTuned(testlib.MachineCase):
 
         # Now disable tuned
         b.click('#tuned-status-button')
-        b.wait_visible(title_selector)
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected p")
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Change performance profile")
+        b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected p")
 
-        b.click(f"{body_selector} li > button p:contains('None')")
-        b.wait_visible(f"{body_selector} li > button.pf-m-selected p:contains('None')")
-        b.click(f"{body_selector} button.pf-m-primary")
-        b.wait_not_present(title_selector)
+        b.click(".pf-v6-c-modal-box li > button p:contains('None')")
+        b.wait_visible(".pf-v6-c-modal-box li > button.pf-m-selected p:contains('None')")
+        b.click(".pf-v6-c-modal-box button.pf-m-primary")
+        b.wait_not_present(".pf-v6-c-modal-box")
 
         b.wait_text('#tuned-status-button', "none")
 
@@ -110,7 +108,7 @@ class TestTuned(testlib.MachineCase):
 
         # Click on the button again
         b.click('#tuned-status-button')
-        b.wait_visible(title_selector)
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Change performance profile")
 
         # Tuned should still be disabled
         output = m.execute("systemctl status tuned")

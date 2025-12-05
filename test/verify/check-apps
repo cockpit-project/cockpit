@@ -397,14 +397,21 @@ This <is <not XML.
         b.wait_not_present(".pf-v6-c-empty-state")
         b.wait_visible(".app-list .pf-v6-c-data-list__item-row:contains('Summary 2')")
 
-    def testNoPackageKit(self):
+    def testNoPackageManager(self):
         b = self.browser
         m = self.machine
 
-        m.execute("systemctl stop packagekit")
-        system_service = m.execute("systemctl show -p FragmentPath packagekit.service | cut -f2 -d=").strip()
-        m.execute(f"mv {system_service} {system_service}.disabled")
-        self.addCleanup(m.execute, f"mv {system_service}.disabled {system_service}")
+        def disable_service(service_name: str) -> None:
+            m.execute(f"systemctl stop {service_name}")
+            system_service = m.execute(f"systemctl show -p FragmentPath {service_name}.service | cut -f2 -d=").strip()
+            m.execute(f"mv {system_service} {system_service}.disabled")
+            self.addCleanup(m.execute, f"mv {system_service}.disabled {system_service}")
+
+        if m.image.startswith('fedora-'):
+            disable_service("dnf5daemon-server")
+            disable_service("packagekit")
+        else:
+            disable_service("packagekit")
 
         self.assertNotIn("\napps", m.execute("cockpit-bridge --packages"))
         self.login_and_go(None)

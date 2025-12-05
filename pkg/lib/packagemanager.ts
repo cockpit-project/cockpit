@@ -41,26 +41,32 @@ async function is_immutable_os() {
 }
 
 async function detect_dnf5daemon() {
+    const client = cockpit.dbus("org.rpm.dnf.v0", { superuser: "try" });
+    let detected = false;
     try {
-        const client = cockpit.dbus("org.rpm.dnf.v0", { superuser: "try" });
         await client.call("/org/rpm/dnf/v0", "org.freedesktop.DBus.Peer", "Ping", []);
-        return true;
+        detected = true;
     } catch (err) {
         debug("dnf5daemon not supported", err);
-        return false;
     }
+
+    client.close();
+    return detected;
 }
 
 async function detect_packagekit() {
+    const client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try" });
+    let detected = false;
     try {
-        const client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try" });
         await client.call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
                           "Get", ["org.freedesktop.PackageKit", "VersionMajor"]);
-        return true;
+        detected = true;
     } catch (err) {
         debug("PackageKit not supported", err);
-        return false;
     }
+
+    client.close();
+    return detected;
 }
 
 // Cache result for a session

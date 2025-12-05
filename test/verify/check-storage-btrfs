@@ -176,11 +176,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
             b.wait_visible(self.card_row("Storage", name="sda"))
 
         root_sel = self.card_row("Storage", name="sda") + " + tr"
-        b.click(self.dropdown_toggle(root_sel))
-        b.wait_visible(self.dropdown_action("Create subvolume") + "[disabled]")
-        b.wait_text(self.dropdown_description("Create subvolume"),
-                    "At least one subvolume needs to be mounted")
-        b.click(self.dropdown_toggle(root_sel))
+        self.check_dropdown_action_disabled(root_sel, "Create subvolume", "At least one subvolume needs to be mounted")
 
         self.click_dropdown(root_sel, "Mount")
         self.dialog({"mount_point": mount_point})
@@ -392,11 +388,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.confirm()
 
         sel = self.card_row("Storage", location=subvol_mount_point)
-        b.click(self.dropdown_toggle(sel))
-        b.wait_visible(self.dropdown_action("Delete") + "[disabled]")
-        b.wait_text(self.dropdown_description("Delete"),
-                    "The last mounted subvolume can not be deleted")
-        b.click(self.dropdown_toggle(sel))
+        self.check_dropdown_action_disabled(sel, "Delete", "The last mounted subvolume can not be deleted")
 
         subvol2 = "subvol2"
         subvol2_mount_point = "/run/subvol2"

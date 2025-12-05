@@ -69,9 +69,9 @@ class TestSOS(testlib.MachineCase):
 
         b.click("button:contains('Run report')")
         b.wait_visible("#sos-dialog")
-        b.set_input_text("#sos-dialog .pf-v6-c-form__group:contains(Report label) input", "mylabel")
-        b.set_input_text("#sos-dialog .pf-v6-c-form__group:contains(Encryption passphrase) input", "foobar")
-        b.set_checked("#sos-dialog .pf-v6-c-check:contains(Obfuscate) input", val=True)
+        b.set_input_text("#sos-dialog #sos-dialog-ti-1", "mylabel")
+        b.set_input_text("#sos-dialog #sos-dialog-ti-2", "foobar")
+        b.set_checked("#sos-dialog #sos-dialog-cb-1", val=True)
         if urlroot == "":
             b.assert_pixels("#sos-dialog", "dialog")
         b.click("#sos-dialog button:contains(Run report)")
@@ -139,8 +139,8 @@ exit 1""", perm="755")
 
         b.click("button:contains('Run report')")
         b.wait_visible("#sos-dialog")
-        b.set_input_text("#sos-dialog .pf-v6-c-form__group:contains(Report label) input", "mylabel")
-        b.set_checked("#sos-dialog .pf-v6-c-check:contains(Use verbose logging) input", val=True)
+        b.set_input_text("#sos-dialog #sos-dialog-ti-1", "mylabel")
+        b.set_checked("#sos-dialog #sos-dialog-cb-2", val=True)
         b.click("#sos-dialog button:contains(Run report)")
         with b.wait_timeout(120):
             b.wait_not_present("#sos-dialog")

@@ -86,6 +86,17 @@ export class KpatchSettings extends React.Component {
     }
 
     componentDidMount() {
+        this.kpatchService.addEventListener('changed', () => {
+            this.setState(state => {
+                const current = this.current(this.kpatchService.enabled, state.patchInstalled, state.patchUnavailable);
+                return ({
+                    enabled: this.kpatchService.enabled,
+                    justCurrent: current && !state.auto,
+                    applyCheckbox: current,
+                });
+            });
+        });
+
         getPackageManager().then(pk => pk.check_missing_packages(["kpatch", "kpatch-dnf"])
                 .then(d =>
                     this.checkSetup().then(() =>
@@ -97,17 +108,6 @@ export class KpatchSettings extends React.Component {
                     )
                 )
                 .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e))));
-
-        this.kpatchService.addEventListener('changed', () => {
-            this.setState(state => {
-                const current = this.current(this.kpatchService.enabled, state.patchInstalled, state.patchUnavailable);
-                return ({
-                    enabled: this.kpatchService.enabled,
-                    justCurrent: current && !state.auto,
-                    applyCheckbox: current,
-                });
-            });
-        });
     }
 
     checkSetup() {

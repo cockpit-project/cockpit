@@ -82,9 +82,7 @@ class TestStorageLvm2(storagelib.StorageCase):
         b.wait_not_present(self.card_row("LVM2 volume group", name=dev_2))
 
         # The remaining lone disk is not removable
-        b.click(self.dropdown_toggle(self.card_row("LVM2 volume group", name=dev_1)))
-        b.wait_visible(self.dropdown_action("Remove") + "[disabled]")
-        b.wait_text(self.dropdown_description("Remove"), "Last cannot be removed")
+        self.check_dropdown_action_disabled(self.card_row("LVM2 volume group", name=dev_1), "Remove", "Last cannot be removed")
 
         # Thin volumes
         m.execute("lvcreate TEST1 --thinpool pool -L 20m")

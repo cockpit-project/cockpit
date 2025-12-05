@@ -476,11 +476,7 @@ systemctl restart stratisd
 
         # Snapshot should be disabled now
 
-        sel = self.card_row("Stratis filesystems", name="fsys1")
-        b.click(self.dropdown_toggle(sel))
-        b.wait_visible(self.dropdown_action("Snapshot") + "[disabled]")
-        b.wait_text(self.dropdown_description("Snapshot"), "Not enough free space")
-        b.click(self.dropdown_toggle(sel))
+        self.check_dropdown_action_disabled(self.card_row("Stratis filesystems", name="fsys1"), "Snapshot", "Not enough free space")
 
         # Switch overprov on
 

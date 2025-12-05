@@ -1,0 +1,72 @@
+name: Update guide from release
+on:
+  # Trigger for other workflows
+  workflow_call:
+    inputs:
+      release_tag:
+        description: 'What release to take source file from.'
+        required: true
+        type: string
+  # Runs that are triggered manually
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'What release to take source file from.'
+        required: true
+        type: string
+
+jobs:
+  guide:
+    environment: website
+    permissions: {}
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/cockpit-project/tasks:latest
+      options: --user root
+    steps:
+      - name: Checkout website repository
+        uses: actions/checkout@v6
+        with:
+          path: website
+          repository: cockpit-project/cockpit-project.github.io
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - uses: robinraju/release-downloader@v1
+        id: release-asset
+        with:
+          tag: ${{ inputs.release_tag }}
+          # The name of the file to download.
+          # Use this field only to specify filenames other than tarball or zipball, if any.
+          # Supports wildcard pattern (eg: '*', '*.deb', '*.zip' etc..)
+          fileName: 'cockpit-*.tar.xz'
+
+      - name: Build guide
+        run: |
+          mkdir source build
+          tar --directory source --extract --strip-components=1 --file '${{ fromJson(steps.release-asset.outputs.downloaded_files)[0] }}'
+          (
+              cd build
+              ../source/configure
+              make doc/guide/html/index.html
+          )
+
+      - name: Update the website
+        run: |
+          rm -rf website/guide/latest
+          mv -Tv build/doc/guide/html website/guide/latest
+
+          # Add frontmatter for Jekyll
+          find website/guide/latest -name '*.html' -exec sed -i '
+          1i\
+          ---\
+          layout: guide\
+          ---' '{}' ';'
+
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+
+          cd website
+          git add guide/
+          git commit --message='Update guide to version ${{ github.ref_name }}'
+          git show --stat
+          git push origin main

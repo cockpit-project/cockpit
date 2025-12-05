@@ -49,6 +49,14 @@
         {
             "privileged": true,
             "spawn": [
+                "run0",
+                "cockpit-bridge",
+                "--privileged"
+            ]
+        },
+        {
+            "privileged": true,
+            "spawn": [
                 "pkexec",
                 "--disable-internal-agent",
                 "cockpit-bridge",

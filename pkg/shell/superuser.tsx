@@ -54,7 +54,7 @@ interface Method {
 
 export interface SuperuserProxy extends cockpit.DBusProxy {
     Current: string;
-    Bridges: unknown[];
+    Bridges: string[];
     Methods: Record<string, Method>;
 
     Start(method: string): Promise<void>;
@@ -149,7 +149,7 @@ const UnlockDialog = ({
             if (proxy.Methods) {
                 const ids = Object.keys(proxy.Methods);
                 if (ids.length == 0)
-                    start("sudo");
+                    start(proxy.Bridges[0]);
                 else if (ids.length == 1)
                     start(ids[0]);
                 else {
@@ -157,7 +157,7 @@ const UnlockDialog = ({
                     setMethod(ids[0]);
                 }
             } else
-                start("sudo");
+                start(proxy.Bridges[0]);
         });
     }
 

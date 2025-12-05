@@ -85,9 +85,8 @@ export class KpatchSettings extends React.Component {
         return enabled && (installed || unavailable);
     }
 
-    async componentDidMount() {
-        const package_manager = await getPackageManager();
-        package_manager.check_missing_packages(["kpatch", "kpatch-dnf"])
+    componentDidMount() {
+        getPackageManager().then(pk => pk.check_missing_packages(["kpatch", "kpatch-dnf"])
                 .then(d =>
                     this.checkSetup().then(() =>
                         this.setState({
@@ -97,7 +96,7 @@ export class KpatchSettings extends React.Component {
                         })
                     )
                 )
-                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
+                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e))));
 
         this.kpatchService.addEventListener('changed', () => {
             this.setState(state => {

@@ -101,15 +101,15 @@ const KeyDetails = ({ currentKey } : { currentKey: credentials.Key }) => {
         <DescriptionList className="pf-m-horizontal-on-sm">
             <DescriptionListGroup>
                 <DescriptionListTerm>{_("Comment")}</DescriptionListTerm>
-                <DescriptionListDescription>{currentKey.comment}</DescriptionListDescription>
+                <DescriptionListDescription data-name="comment">{currentKey.comment}</DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
                 <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
-                <DescriptionListDescription>{currentKey.type}</DescriptionListDescription>
+                <DescriptionListDescription data-name="type">{currentKey.type}</DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
                 <DescriptionListTerm>{_("Fingerprint")}</DescriptionListTerm>
-                <DescriptionListDescription>{currentKey.fingerprint}</DescriptionListDescription>
+                <DescriptionListDescription data-name="fingerprint">{currentKey.fingerprint}</DescriptionListDescription>
             </DescriptionListGroup>
         </DescriptionList>
     );

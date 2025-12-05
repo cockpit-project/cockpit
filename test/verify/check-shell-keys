@@ -183,11 +183,11 @@ class TestKeys(testlib.MachineCase):
             else:
                 b.wait_not_visible(f"tr[data-name='{identifier}'] + tr")
 
-        def waitKeyDetail(identifier, dtype, value):
-            b.wait_in_text(f"tr[data-name='{identifier}'] + tr dt:contains({dtype}) + dd > div", value)
+        def waitKeyDetail(identifier: str, field: str, value: str) -> None:
+            b.wait_in_text(f"tr[data-name='{identifier}'] + tr .ct-listing-panel-body [data-name='{field}']", value)
 
-        def getKeyDetail(identifier, dtype):
-            return b.text(f"tr[data-name='{identifier}'] + tr dt:contains({dtype}) + dd > div")
+        def getKeyDetail(identifier: str, field: str) -> str:
+            return b.text(f"tr[data-name='{identifier}'] + tr .ct-listing-panel-body [data-name='{field}']")
 
         # Operating systems where auto loading doesn't work
         auto_load = not m.ws_container
@@ -229,10 +229,9 @@ session    optional     pam_ssh_add.so
         toggleExpandedStateKey('id_rsa')
         waitKeyRowExpanded('id_rsa', expanded=True)
         waitTabActive('id_rsa', 'Details')
-        waitKeyDetail('id_rsa', 'Comment', "test@test")
-        waitKeyDetail('id_rsa', 'Type', "RSA")
-        text = b.text("tr[data-name=id_rsa] + tr dt:contains(Fingerprint) + dd > div")
-        self.assertEqual(text, id_rsa[5:])
+        waitKeyDetail('id_rsa', 'comment', "test@test")
+        waitKeyDetail('id_rsa', 'type', "RSA")
+        self.assertEqual(getKeyDetail('id_rsa', 'fingerprint'), id_rsa[5:])
 
         selectTab('id_rsa', 'Public key')
         b.wait_val("tr[data-name=id_rsa] + tr .pf-v6-c-clipboard-copy input",
@@ -333,8 +332,8 @@ session    optional     pam_ssh_add.so
         toggleExpandedStateKey(new_key)
         waitKeyRowExpanded(new_key, expanded=True)
         waitTabActive(new_key, 'Details')
-        waitKeyDetail(new_key, 'Type', 'RSA')
-        self.assertNotEqual(getKeyDetail(new_key, 'Fingerprint'), "")
+        waitKeyDetail(new_key, 'type', 'RSA')
+        self.assertNotEqual(getKeyDetail(new_key, "fingerprint"), "")
         selectTab(new_key, 'Public key')
         self.assertTrue(b.val(f"tr[data-name='{new_key}'] + tr .pf-v6-c-clipboard-copy input").startswith(new_pk))
 

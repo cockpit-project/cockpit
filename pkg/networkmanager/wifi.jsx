@@ -509,7 +509,7 @@ export const WiFiAPDialog = ({ settings, connection, dev, dualMode = false }) =>
             if (dualMode && isAPInterface) {
                 try {
                     // Create new connection with nmcli dynamically
-                    // Connection name uses the SSID (e.g., HALOS-B782)
+                    // Connection name uses the SSID (e.g., hostname-B782)
                     const args = [
                         "connection", "add",
                         "type", "wifi",
@@ -610,7 +610,7 @@ export const WiFiAPDialog = ({ settings, connection, dev, dualMode = false }) =>
                         <FormHelperText>
                             <HelperText>
                                 <HelperTextItem>
-                                    {_("Default: HALOS-{last 4 chars of MAC address}")}
+                                    {_("Default: {hostname}-{last 4 chars of MAC}")}
                                 </HelperTextItem>
                             </HelperText>
                         </FormHelperText>
@@ -789,17 +789,23 @@ function getMACAddress(dev) {
 }
 
 // Helper function to generate default SSID for Access Point
+// Uses system hostname with MAC suffix for uniqueness
 function generateDefaultSSID(dev) {
     const mac = getMACAddress(dev);
-    if (!mac) return "HALOS-AP";
+    // Get hostname, fallback to generic prefix if not available
+    const hostname = cockpit.localStorage.getItem("HostnameOverride") ||
+                     window.location.hostname?.split('.')[0] ||
+                     "WiFi";
+
+    if (!mac) return `${hostname}-AP`;
 
     // Clean MAC address (remove colons) and validate length
     const macClean = mac.replace(/:/g, '').toUpperCase();
-    if (macClean.length < 4) return "HALOS-AP";
+    if (macClean.length < 4) return `${hostname}-AP`;
 
-    // Get last 4 characters of MAC address
+    // Get last 4 characters of MAC address for uniqueness
     const macSuffix = macClean.slice(-4);
-    return `HALOS-${macSuffix}`;
+    return `${hostname}-${macSuffix}`;
 }
 
 // Ghost settings for "Add WiFi" action (Client mode)

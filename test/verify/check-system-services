@@ -63,7 +63,7 @@ class TestServices(testlib.MachineCase):
 
     def do_action(self, action: str):
         self.browser.click(".service-top-panel button.pf-v6-c-menu-toggle")
-        self.browser.click(f"#services-page .pf-v6-c-menu__list-item:contains('{action}') button")
+        self.browser.click(f"#services-page button.pf-v6-c-menu__item:contains('{action}')")
 
     def check_service_details(self, statuses: list[str], actions: list[str],
                               enabled: bool, onoff: bool = True, kebab: bool = True):

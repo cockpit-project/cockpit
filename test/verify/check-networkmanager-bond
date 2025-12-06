@@ -77,7 +77,7 @@ class TestBonding(netlib.NetworkCase):
         b.wait_text_not("#network-interface-mac", "")
 
         # Check that link monitoring is correctly set up
-        b.click("#network-interface-settings dd:contains('Active backup') button")
+        b.click("#network-interface-settings [data-label='Bond'] button")
         b.wait_val("#network-bond-settings-link-monitoring-select", "mii")
         b.click("#network-bond-settings-dialog button:contains('Cancel')")
         b.wait_not_present("#network-bond-settings-dialog")

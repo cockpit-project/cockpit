@@ -37,12 +37,12 @@ def getUserAddDetails(machine):
 def performUserAction(browser, user, action):
     browser.click(f"#accounts-list tbody tr:contains({user}) button.pf-v6-c-menu-toggle")
     browser.wait_visible(f"#accounts-list tbody tr:contains({user}) button.pf-v6-c-menu-toggle[aria-expanded=true]")
-    browser.click(f".pf-v6-c-menu__list-item:contains({action}) button")
+    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains({action})")
 
 
 def performGroupAction(browser, group, action):
     browser.click(f"#groups-list tbody tr:contains({group}) button.pf-v6-c-menu-toggle")
-    browser.click(f"body > .pf-v6-c-menu .pf-v6-c-menu__list-item:contains({action}) button")
+    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains({action})")
 
 
 def createUser(
@@ -308,7 +308,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present("#account-confirm-lock-dialog")
         # lock option is now disabled
         b.click("#accounts-list tbody tr:contains(robert) button.pf-v6-c-menu-toggle")
-        b.wait_in_text(".pf-v6-c-menu__list-item:contains('Lock account').pf-m-disabled", 'Lock account')
+        b.wait_visible(".pf-v6-c-menu__list-item.pf-m-disabled:contains('Lock account')")
         b.click("#accounts-list tbody tr:contains(robert) button.pf-v6-c-menu-toggle")
         # change is visible on details page
         performUserAction(b, 'robert', 'Edit user')

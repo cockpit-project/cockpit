@@ -466,7 +466,7 @@ class TestFirewall(netlib.NetworkCase):
 
         b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] button[aria-label=Details]")
         b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] .pf-v6-c-menu-toggle.pf-m-plain")
-        b.click(".pf-v6-c-menu__list-item:contains(Edit) button")
+        b.click("button.pf-v6-c-menu__item:contains(Edit)")
         b.wait_val("#tcp-ports", "80-82, 7")
         b.wait_val("#udp-ports", "83-123, 161")
         b.wait_val("#service-name", "custom--80-82-echo-83-123-snmp")

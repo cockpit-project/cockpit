@@ -273,17 +273,17 @@ class TestNetworkingBasic(netlib.NetworkCase):
         self.assertEqual(route, "ipv6.routes:2001:db8:face:2::/64 500")
 
         # Disconnect
-        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=True)
-        self.toggle_onoff(f".pf-v6-c-card__header:contains('{iface}')")
+        self.wait_onoff("label[for='interface-switch']", val=True)
+        self.toggle_onoff("label[for='interface-switch']")
         self.wait_for_iface_setting('Status', 'Inactive')
 
         # Reconnect through the UI
-        self.toggle_onoff(f".pf-v6-c-card__header:contains('{iface}')")
+        self.toggle_onoff("label[for='interface-switch']")
         b.wait_in_text(f"#network-interface .pf-v6-c-card:contains('{iface}')", "1.2.3.4/18")
 
         # Disconnect from the CLI, UI reacts
         m.execute(f"nmcli device disconnect {iface}")
-        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=False)
+        self.wait_onoff("label[for='interface-switch']", val=False)
 
         # Switch it back to "auto" from the command line and bring it
         # up again
@@ -680,8 +680,8 @@ class TestNetworkingBasic(netlib.NetworkCase):
         self.select_iface(iface)
         b.wait_visible("#network-interface")
         # On/Off button is disabled, but shows the correct value
-        b.wait_visible(f".pf-v6-c-card__header:contains('{iface}') .pf-v6-c-switch input:disabled")
-        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=True)
+        b.wait_visible("#interface-switch:disabled")
+        self.wait_onoff("label[for='interface-switch']", val=True)
 
         # not editable
         b.wait_visible('#autoreconnect:disabled')
@@ -691,16 +691,16 @@ class TestNetworkingBasic(netlib.NetworkCase):
 
         # unpriv UI reacts to system change
         m.execute(f"nmcli device disconnect {iface}")
-        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=False)
+        self.wait_onoff("label[for='interface-switch']", val=False)
         m.execute(f"nmcli connection up '{con_id}'")
-        self.wait_onoff(f".pf-v6-c-card__header:contains('{iface}')", val=True)
+        self.wait_onoff("label[for='interface-switch']", val=True)
 
         # UI becomes editable when gaining privileges
         b.become_superuser()
         b.wait_visible('#autoreconnect:not(disabled)')
         b.wait_visible("#networking-edit-ipv4")
         b.wait_visible("#networking-edit-mac")
-        b.wait_visible(f".pf-v6-c-card__header:contains('{iface}') .pf-v6-c-switch input:not(disabled)")
+        b.wait_visible("#interface-switch:not(disabled)")
 
 
 if __name__ == '__main__':

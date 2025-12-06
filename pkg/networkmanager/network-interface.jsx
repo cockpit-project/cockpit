@@ -238,7 +238,7 @@ export const NetworkInterfacePage = ({
             return (
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Carrier")}</DescriptionListTerm>
-                    <DescriptionListDescription>
+                    <DescriptionListDescription data-label="Carrier">
                         {dev.Carrier ? (dev.Speed ? cockpit.format_bits_per_sec(dev.Speed * 1e6) : _("Yes")) : _("No")}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
@@ -264,7 +264,7 @@ export const NetworkInterfacePage = ({
         return (
             <DescriptionListGroup>
                 <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
-                <DescriptionListDescription className="networking-interface-status">
+                <DescriptionListDescription data-label="Status" className="networking-interface-status">
                     {[activeConnection, state].filter(val => val).join(", ")}
                 </DescriptionListDescription>
             </DescriptionListGroup>
@@ -316,7 +316,7 @@ export const NetworkInterfacePage = ({
                 return (
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("General")}</DescriptionListTerm>
-                        <DescriptionListDescription>
+                        <DescriptionListDescription data-label="General">
                             <Checkbox id="autoreconnect" isDisabled={!privileged}
                                       onChange={(_event, checked) => {
                                           settings.connection.autoconnect = checked;
@@ -341,7 +341,7 @@ export const NetworkInterfacePage = ({
             return (
                 <DescriptionListGroup>
                     <DescriptionListTerm>{title}</DescriptionListTerm>
-                    <DescriptionListDescription>
+                    <DescriptionListDescription data-label={title}>
                         {link_text.length
                             ? <span className="network-interface-settings-text">
                                 {link_text}
@@ -401,7 +401,7 @@ export const NetworkInterfacePage = ({
                 return (
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Group")}</DescriptionListTerm>
-                        <DescriptionListDescription>
+                        <DescriptionListDescription data-label="Group">
                             {array_join(con.Groups.map(render_connection_link), ", ")}
                         </DescriptionListDescription>
                     </DescriptionListGroup>

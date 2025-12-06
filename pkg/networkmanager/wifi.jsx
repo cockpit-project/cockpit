@@ -316,7 +316,7 @@ export const WiFiConnectDialog = ({ settings, connection, dev, ap }) => {
 };
 
 // WiFi Access Point Dialog
-export const WiFiAPDialog = ({ settings, connection, dev }) => {
+export const WiFiAPDialog = ({ settings, connection, dev, dualMode = false }) => {
     const Dialogs = useDialogs();
     const model = useContext(ModelContext);
     const idPrefix = "network-wifi-ap";
@@ -400,7 +400,37 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
     const ipValidation = validateIP(ipAddress);
     const isFormValid = ssidValidation.valid && passwordValidation.valid && ipValidation.valid;
 
-    const onSubmit = (ev) => {
+    // Helper to create virtual interface for dual mode
+    const createVirtualInterface = async (mainIface, apIface) => {
+        try {
+            // Check if already exists
+            const check = await cockpit.spawn(["ip", "link", "show", apIface], { err: "ignore" });
+            if (check && check.includes(apIface)) {
+                return { success: true };
+            }
+        } catch {
+            // Doesn't exist, create it
+        }
+
+        try {
+            await cockpit.spawn(
+                ["/usr/sbin/iw", "dev", mainIface, "interface", "add", apIface, "type", "__ap"],
+                { superuser: "require", err: "message" }
+            );
+            await cockpit.spawn(
+                ["ip", "link", "set", apIface, "up"],
+                { superuser: "require", err: "message" }
+            );
+            // Wait for NetworkManager to detect the new interface
+            // This is critical - NM needs ~3 seconds to see the new interface
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            return { success: true };
+        } catch (err) {
+            return { success: false, error: err.message || String(err) };
+        }
+    };
+
+    const onSubmit = async (ev) => {
         if (ev) {
             ev.preventDefault();
         }
@@ -409,6 +439,18 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
         if (!isFormValid) {
             setDialogError(ssidValidation.message || passwordValidation.message || ipValidation.message);
             return;
+        }
+
+        // For dual mode, create the virtual interface right before activation
+        // Detect AP interface by checking if it ends with "ap" (e.g., wlan0ap)
+        const isAPInterface = iface.endsWith("ap");
+        if (dualMode && isAPInterface) {
+            const mainIface = dev.Interface;
+            const result = await createVirtualInterface(mainIface, iface);
+            if (!result.success) {
+                setDialogError(_("Failed to create virtual interface: ") + result.error);
+                return;
+            }
         }
 
         // Build Access Point connection settings
@@ -461,15 +503,60 @@ export const WiFiAPDialog = ({ settings, connection, dev }) => {
         // For new AP connections, use AddAndActivateConnection to create AND activate
         // For existing connections, use dialogSave to update settings
         if (!connection) {
-            // New AP - use activate_with_settings which calls AddAndActivateConnection
             model.set_operation_in_progress(true);
-            dev.activate_with_settings(apSettings, null)
-                    .then(() => {
-                        setPassword("");
-                        Dialogs.close();
-                    })
-                    .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
-                    .finally(() => model.set_operation_in_progress(false));
+
+            // For dual mode, we need to use nmcli directly since we're activating on a different interface
+            if (dualMode && isAPInterface) {
+                try {
+                    // Create new connection with nmcli dynamically
+                    // Connection name uses the SSID (e.g., HALOS-B782)
+                    const args = [
+                        "connection", "add",
+                        "type", "wifi",
+                        "ifname", iface,
+                        "con-name", ssid,
+                        "autoconnect", "no",
+                        "ssid", ssid,
+                        "mode", "ap",
+                        "ipv4.method", "shared",
+                        "ipv4.addresses", `${ipAddress}/${prefix}`,
+                        "wifi.band", band,
+                    ];
+
+                    if (channel !== 0) {
+                        args.push("wifi.channel", String(channel));
+                    }
+
+                    if (securityType !== "none" && password) {
+                        args.push("wifi-sec.key-mgmt", securityType);
+                        args.push("wifi-sec.psk", password);
+                    }
+
+                    await cockpit.spawn(["nmcli", ...args], { superuser: "require", err: "message" });
+
+                    // Activate the connection on the specific AP interface
+                    await cockpit.spawn(
+                        ["nmcli", "connection", "up", ssid, "ifname", iface],
+                        { superuser: "require", err: "message" }
+                    );
+
+                    setPassword("");
+                    Dialogs.close();
+                } catch (ex) {
+                    setDialogError(typeof ex === 'string' ? ex : ex.message);
+                } finally {
+                    model.set_operation_in_progress(false);
+                }
+            } else {
+                // Normal single-mode: use activate_with_settings
+                dev.activate_with_settings(apSettings, null)
+                        .then(() => {
+                            setPassword("");
+                            Dialogs.close();
+                        })
+                        .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
+                        .finally(() => model.set_operation_in_progress(false));
+            }
         } else {
             // Editing existing AP - use dialogSave
             dialogSave({
@@ -1037,7 +1124,7 @@ const WiFiAPClientList = ({ iface }) => {
         if (!iface) return;
 
         const leasePath = `/var/lib/NetworkManager/dnsmasq-${iface}.leases`;
-        const file = cockpit.file(leasePath, { superuser: "try" });
+        const file = cockpit.file(leasePath, { superuser: "require" });
 
         const handleContent = (content) => {
             if (!content || content.trim() === "") {
@@ -1124,7 +1211,7 @@ const WiFiAPClientList = ({ iface }) => {
 };
 
 // WiFi AP Configuration Status Component
-export const WiFiAPConfig = ({ dev, connection }) => {
+export const WiFiAPConfig = ({ dev, connection, activeConnection }) => {
     const model = useContext(ModelContext);
     const Dialogs = useDialogs();
     const [error, setError] = useState(null);
@@ -1134,11 +1221,14 @@ export const WiFiAPConfig = ({ dev, connection }) => {
     const security = settings?.wifi_security?.key_mgmt ? "WPA2" : _("Open");
     const ipConfig = settings?.ipv4?.address_data?.[0] || { address: "10.42.0.1", prefix: 24 };
 
+    // Get the actual AP interface from connection settings (interface-name), or fall back to dev
+    const apInterface = settings?.connection?.interface_name || dev?.Interface;
+
     // Disable Access Point (with confirmation)
     const handleDisable = async () => {
-        // We need the ActiveConnection path for deactivation, not the Connection (profile) path
-        const activeConnection = dev?.ActiveConnection;
-        if (!activeConnection) {
+        // Use the passed activeConnection, or fall back to dev.ActiveConnection for single-mode
+        const apActiveConnection = activeConnection || dev?.ActiveConnection;
+        if (!apActiveConnection) {
             setError(_("Cannot disable: Access Point is not active"));
             return;
         }
@@ -1149,7 +1239,7 @@ export const WiFiAPConfig = ({ dev, connection }) => {
                     "/org/freedesktop/NetworkManager",
                     "org.freedesktop.NetworkManager",
                     "DeactivateConnection",
-                    [activeConnection[" priv"].path]
+                    [apActiveConnection[" priv"].path]
                 );
                 Dialogs.close();
             } catch (err) {
@@ -1223,7 +1313,7 @@ export const WiFiAPConfig = ({ dev, connection }) => {
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Connected Clients")}</DescriptionListTerm>
                         <DescriptionListDescription>
-                            <WiFiAPClientList iface={dev?.Interface} />
+                            <WiFiAPClientList iface={apInterface} />
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                 </DescriptionList>
@@ -1469,22 +1559,88 @@ const WiFiConnectionDetails = ({ dev, model }) => {
     );
 };
 
-// Helper function to detect WiFi mode
-function getWiFiMode(dev, iface) {
-    // Check if there's an active connection
-    if (!dev?.ActiveConnection) return "inactive";
+// NetworkManager WirelessCapabilities flags
+const NM_WIFI_DEVICE_CAP = {
+    NONE: 0x0,
+    CIPHER_WEP40: 0x1,
+    CIPHER_WEP104: 0x2,
+    CIPHER_TKIP: 0x4,
+    CIPHER_CCMP: 0x8,
+    WPA: 0x10,
+    RSN: 0x20,
+    AP: 0x40,
+    ADHOC: 0x80,
+    FREQ_VALID: 0x100,
+    FREQ_2GHZ: 0x200,
+    FREQ_5GHZ: 0x400,
+};
 
-    // Get settings from the MainConnection (the saved connection profile)
-    const settings = iface?.MainConnection?.Settings;
-    if (!settings) return "inactive";
+// Helper function to parse WiFi device capabilities
+function parseWiFiCapabilities(capFlags) {
+    return {
+        supportsAP: (capFlags & NM_WIFI_DEVICE_CAP.AP) !== 0,
+        supportsAdHoc: (capFlags & NM_WIFI_DEVICE_CAP.ADHOC) !== 0,
+        supports2GHz: (capFlags & NM_WIFI_DEVICE_CAP.FREQ_2GHZ) !== 0,
+        supports5GHz: (capFlags & NM_WIFI_DEVICE_CAP.FREQ_5GHZ) !== 0,
+        supportsWPA: (capFlags & NM_WIFI_DEVICE_CAP.WPA) !== 0,
+        supportsRSN: (capFlags & NM_WIFI_DEVICE_CAP.RSN) !== 0,
+        raw: capFlags,
+    };
+}
 
-    if (settings.connection?.type !== "802-11-wireless") return "other";
+// Detect current WiFi connection states
+// Returns object with both client and AP states (for dual mode support)
+function getWiFiConnectionStates(dev, model) {
+    const result = {
+        clientActive: false,
+        apActive: false,
+        clientConnection: null,
+        apConnection: null,
+    };
 
-    const mode = settings.wifi?.mode;
-    if (mode === "ap") return "ap";
-    // Default to client mode - "infrastructure" is the default when mode is not set
-    if (mode === "infrastructure" || !mode) return "client";
-    return "unknown";
+    if (!dev) return result;
+
+    // Check the device's direct ActiveConnection first (works for single mode)
+    const activeConn = dev.ActiveConnection;
+    if (activeConn) {
+        const connection = activeConn.Connection;
+        const settings = connection?.Settings;
+        if (settings && settings.connection?.type === "802-11-wireless") {
+            const mode = settings.wifi?.mode;
+            if (mode === "ap") {
+                result.apActive = true;
+                result.apConnection = activeConn;
+            } else if (mode === "infrastructure" || !mode) {
+                result.clientActive = true;
+                result.clientConnection = activeConn;
+            }
+        }
+    }
+
+    // For dual mode, also check all active connections from the manager
+    // This handles the case where we have separate interfaces (wlan0 + ap0)
+    if (model) {
+        const manager = model.get_manager();
+        if (manager?.ActiveConnections) {
+            for (const ac of manager.ActiveConnections) {
+                const connection = ac.Connection;
+                const settings = connection?.Settings;
+                if (!settings || settings.connection?.type !== "802-11-wireless") continue;
+
+                // Check if this is a WiFi connection we care about
+                const mode = settings.wifi?.mode;
+                if (mode === "ap" && !result.apActive) {
+                    result.apActive = true;
+                    result.apConnection = ac;
+                } else if ((mode === "infrastructure" || !mode) && !result.clientActive) {
+                    result.clientActive = true;
+                    result.clientConnection = ac;
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 // WiFi Page Component (for future use with dedicated WiFi management page)
@@ -1494,9 +1650,52 @@ export const WiFiPage = ({ iface, dev }) => {
     const [scanning, setScanning] = useState(false);
     const [accessPoints, setAccessPoints] = useState([]);
     const [error, setError] = useState(null);
-    const [mode, setMode] = useState("inactive");
-    const [apConnection, setAPConnection] = useState(null);
+    // Dual-mode state: track both client and AP connections independently
+    const [connectionStates, setConnectionStates] = useState({
+        clientActive: false,
+        apActive: false,
+        clientConnection: null,
+        apConnection: null,
+    });
+    // Hardware capabilities
+    const [capabilities, setCapabilities] = useState(null);
+    const [capabilitiesError, setCapabilitiesError] = useState(null);
     const fetchRequestIdRef = useRef(0); // Track fetch requests to handle race conditions
+
+    // Fetch device capabilities on mount
+    useEffect(() => {
+        const fetchCapabilities = async () => {
+            const devPath = dev?.[" priv"]?.path;
+            if (!devPath || !model?.client) return;
+
+            try {
+                const capsResult = await model.client.call(
+                    devPath,
+                    "org.freedesktop.DBus.Properties",
+                    "Get",
+                    ["org.freedesktop.NetworkManager.Device.Wireless", "WirelessCapabilities"]
+                );
+                const capsFlags = capsResult[0].v;
+                setCapabilities(parseWiFiCapabilities(capsFlags));
+                setCapabilitiesError(null);
+            } catch (err) {
+                console.error("Failed to fetch WiFi capabilities:", err);
+                setCapabilitiesError(_("Failed to detect WiFi capabilities"));
+                // Set default capabilities (assume basic support)
+                setCapabilities({
+                    supportsAP: false,
+                    supportsAdHoc: false,
+                    supports2GHz: true,
+                    supports5GHz: false,
+                    supportsWPA: true,
+                    supportsRSN: true,
+                    raw: 0,
+                });
+            }
+        };
+
+        fetchCapabilities();
+    }, [dev, model?.client]);
 
     // Fetch access points from device
     const fetchAccessPoints = useCallback(async () => {
@@ -1664,42 +1863,99 @@ export const WiFiPage = ({ iface, dev }) => {
         }
     }, [dev, Dialogs]);
 
+    // Get current channel from client connection
+    const getClientChannel = useCallback(async () => {
+        const mainIface = dev.Interface;
+        try {
+            // Get current frequency from iw (use full path)
+            const result = await cockpit.spawn(
+                ["/usr/sbin/iw", "dev", mainIface, "info"],
+                { err: "ignore" }
+            );
+            // Parse frequency from output like "channel 6 (2437 MHz)"
+            const channelMatch = result.match(/channel\s+(\d+)/);
+            if (channelMatch) {
+                return parseInt(channelMatch[1], 10);
+            }
+        } catch (err) {
+            console.error("Failed to get client channel:", err);
+        }
+        return 0; // Auto channel if we can't detect
+    }, [dev]);
+
     // Enable Access Point
-    const handleEnableAP = useCallback(() => {
-        const settings = getWiFiAPGhostSettings({ newIfaceName: dev.Interface, dev });
-        Dialogs.show(<WiFiAPDialog settings={settings} dev={dev} />);
-    }, [dev, Dialogs]);
+    const handleEnableAP = useCallback(async () => {
+        const { clientActive } = connectionStates;
+
+        let targetInterface = dev.Interface;
+        let recommendedChannel = 0;
+
+        // If client is already connected, we need dual-mode setup
+        if (clientActive) {
+            setError(null);
+
+            // Get the current channel from the client connection
+            recommendedChannel = await getClientChannel();
+
+            // Use <iface>ap naming for the virtual AP interface (e.g., wlan0ap)
+            // This clearly indicates the relationship to the parent interface
+            targetInterface = dev.Interface + "ap";
+        }
+
+        // Create settings with the appropriate interface and channel
+        const settings = getWiFiAPGhostSettings({ newIfaceName: targetInterface, dev });
+
+        // If we have a recommended channel (same as client), set it
+        if (recommendedChannel > 0) {
+            settings.wifi = settings.wifi || {};
+            settings.wifi.channel = recommendedChannel;
+            // Set band based on channel
+            settings.wifi.band = recommendedChannel > 14 ? "a" : "bg";
+        }
+
+        Dialogs.show(<WiFiAPDialog settings={settings} dev={dev} dualMode={clientActive} />);
+    }, [dev, Dialogs, connectionStates, getClientChannel]);
 
     // Connect to hidden network
     const handleConnectHidden = useCallback(() => {
         Dialogs.show(<WiFiHiddenDialog dev={dev} />);
     }, [dev, Dialogs]);
 
-    // Detect current WiFi mode
+    // Detect current WiFi connection states (supports dual mode)
+    // Subscribe to model changes to properly detect when connections on other interfaces activate
     useEffect(() => {
-        const currentMode = getWiFiMode(dev, iface);
-        setMode(currentMode);
+        const updateConnectionStates = () => {
+            const states = getWiFiConnectionStates(dev, model);
+            setConnectionStates(states);
+            // Clear any errors when connection state changes
+            setError(null);
+        };
 
-        if (currentMode === "ap") {
-            setAPConnection(dev.ActiveConnection);
-        } else {
-            setAPConnection(null);
+        // Initial update
+        updateConnectionStates();
+
+        // Subscribe to model changes (important for dual-mode detection)
+        if (model) {
+            model.addEventListener("changed", updateConnectionStates);
+            return () => {
+                model.removeEventListener("changed", updateConnectionStates);
+            };
         }
+    }, [dev, model]);
 
-        // Clear any errors when mode changes
-        setError(null);
-    }, [dev, dev?.ActiveConnection, iface, iface?.MainConnection]);
-
-    // Auto-scan on mount (only in client mode)
+    // Auto-scan on mount (scan unless in AP-only mode)
     useEffect(() => {
-        if (mode !== "ap" && dev && dev[" priv"]?.path) {
+        // Only skip scanning if ONLY AP is active (no client mode)
+        const isAPOnly = connectionStates.apActive && !connectionStates.clientActive;
+        if (!isAPOnly && dev && dev[" priv"]?.path) {
             handleScan();
         }
-    }, [dev, handleScan, mode]);
+    }, [dev, handleScan, connectionStates.apActive, connectionStates.clientActive]);
 
-    // Poll for access points every 15 seconds (only in client mode)
+    // Poll for access points every 15 seconds (unless in AP-only mode)
     useEffect(() => {
-        if (mode === "ap" || !dev || !dev[" priv"]?.path) return;
+        const isAPOnly = connectionStates.apActive && !connectionStates.clientActive;
+        if (isAPOnly || !dev || !dev[" priv"]?.path) return;
 
         const intervalId = setInterval(() => {
             if (!scanning) {
@@ -1708,27 +1964,46 @@ export const WiFiPage = ({ iface, dev }) => {
         }, 15000);
 
         return () => clearInterval(intervalId);
-    }, [mode, dev, scanning, handleScan]);
+    }, [connectionStates.apActive, connectionStates.clientActive, dev, scanning, handleScan]);
 
-    // Show AP status card if in AP mode
-    if (mode === "ap") {
-        return (
-            <WiFiAPConfig
-                dev={dev}
-                connection={apConnection}
-            />
-        );
-    }
+    // Dual mode rendering: show both AP and client sections as needed
+    const { clientActive, apActive, apConnection } = connectionStates;
+    const isDualMode = clientActive && apActive;
 
-    // Show client mode UI (scanning and connecting)
-    const isConnected = !!dev?.ActiveConnection;
+    // Determine if AP button should be disabled (no AP support)
+    const canEnableAP = capabilities?.supportsAP !== false;
 
     return (
         <>
-            {/* Show connection details when connected */}
-            {isConnected && mode === "client" && (
+            {/* Dual mode indicator */}
+            {isDualMode && (
+                <Alert
+                    variant="info"
+                    isInline
+                    title={_("Dual Mode Active")}
+                    style={{ marginBottom: "1rem" }}
+                >
+                    {_("Both Access Point and Client modes are running simultaneously.")}
+                </Alert>
+            )}
+
+            {/* Show AP status card when AP is active */}
+            {apActive && (
+                <div style={{ marginBottom: "1rem" }}>
+                    <WiFiAPConfig
+                        dev={dev}
+                        connection={apConnection?.Connection}
+                        activeConnection={apConnection}
+                    />
+                </div>
+            )}
+
+            {/* Show client connection details when connected as client */}
+            {clientActive && (
                 <WiFiConnectionDetails dev={dev} model={model} />
             )}
+
+            {/* Show client mode UI (network list and controls) */}
             <Card>
                 <CardHeader>
                     <CardTitle>{_("WiFi Networks")}</CardTitle>
@@ -1743,11 +2018,18 @@ export const WiFiPage = ({ iface, dev }) => {
                                 {_("Connect to Hidden Network")}
                             </Button>
                         </FlexItem>
-                        <FlexItem>
-                            <Button variant="secondary" onClick={handleEnableAP}>
-                                {_("Enable Access Point")}
-                            </Button>
-                        </FlexItem>
+                        {!apActive && (
+                            <FlexItem>
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleEnableAP}
+                                    isDisabled={!canEnableAP}
+                                    title={!canEnableAP ? _("This device does not support Access Point mode") : undefined}
+                                >
+                                    {_("Enable Access Point")}
+                                </Button>
+                            </FlexItem>
+                        )}
                     </Flex>
                 </CardHeader>
                 <CardBody>
@@ -1758,6 +2040,24 @@ export const WiFiPage = ({ iface, dev }) => {
                             title={error}
                             style={{ marginBottom: "1rem" }}
                         />
+                    )}
+                    {capabilitiesError && (
+                        <Alert
+                            variant="warning"
+                            isInline
+                            title={capabilitiesError}
+                            style={{ marginBottom: "1rem" }}
+                        />
+                    )}
+                    {!canEnableAP && !apActive && (
+                        <Alert
+                            variant="info"
+                            isInline
+                            title={_("Access Point mode not supported")}
+                            style={{ marginBottom: "1rem" }}
+                        >
+                            {_("This WiFi adapter does not support Access Point mode.")}
+                        </Alert>
                     )}
                     <WiFiNetworkList
                         accessPoints={accessPoints}

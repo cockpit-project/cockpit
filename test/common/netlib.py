@@ -190,11 +190,11 @@ class NetworkCase(NetworkHelpers):
 
     def wait_for_iface_setting(self, setting_title: str, setting_value: str) -> None:
         b = self.browser
-        b.wait_in_text(f"dt:contains('{setting_title}') + dd", setting_value)
+        b.wait_in_text(f"[data-label='{setting_title}']", setting_value)
 
     def configure_iface_setting(self, setting_title: str) -> None:
         b = self.browser
-        b.click(f"dt:contains('{setting_title}') + dd button")
+        b.click(f"[data-label='{setting_title}'] button")
 
     def ensure_nm_uses_dhclient(self) -> None:
         m = self.machine

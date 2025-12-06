@@ -93,10 +93,10 @@ class TestBonding(netlib.NetworkCase):
 
         # Deactivate the bond and make sure it is still there after a
         # reload.
-        self.wait_onoff(".pf-v6-c-card__header:contains('tbond')", val=True)
-        self.toggle_onoff(".pf-v6-c-card__header:contains('tbond')")
+        self.wait_onoff("label[for='interface-switch']", val=True)
+        self.toggle_onoff("label[for='interface-switch']")
         self.wait_for_iface_setting('Status', 'Inactive')
-        b.wait_not_present(".pf-v6-c-card__header:contains('tbond') input[type=checkbox]:disabled")
+        b.wait_not_present("#interface-switch:disabled")
 
         b.reload()
         b.enter_page("/network")

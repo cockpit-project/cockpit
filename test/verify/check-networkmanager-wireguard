@@ -129,7 +129,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
                                 "#network-wireguard-settings-publickey-peer-0"])
         b.click("#network-wireguard-settings-save")
         b.wait_not_present("#network-wireguard-settings-dialog")
-        b.wait_in_text(f"#networking-interfaces th:contains('{iface_name}') + td", f"1.2.3.4/32, {m1_ip4}/24")
+        b.wait_in_text(f"#networking-interfaces tr[data-row-id='{iface_name}'] td[data-label='IP address']", f"1.2.3.4/32, {m1_ip4}/24")
 
         # if some wg properties are not valid, for example, if it was changed by some external tool, don't crash
         # this doesn't work on Ubuntu as the config is done through netplan; but this is just testing
@@ -163,7 +163,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_ip4}/32")
         b2.click("#network-wireguard-settings-save")
         b2.wait_not_present("#network-wireguard-settings-dialog")
-        b2.wait_in_text(f"#networking-interfaces th:contains('{m2_iface_name}') + td", f"{m2_ip4}/24")
+        b2.wait_in_text(f"#networking-interfaces tr[data-row-id='{m2_iface_name}'] td[data-label='IP address']", f"{m2_ip4}/24")
 
         # check connection over ipv4
         try:
@@ -306,7 +306,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m2_wg1_ipv6}/128")
         b.click("#network-wireguard-settings-save")
         b.wait_not_present("#network-wireguard-settings-dialog")
-        b.wait_in_text(f"#networking-interfaces th:contains('{wg1_iface}') + td", f"{m1_wg1_ipv6}/64")
+        b.wait_in_text(f"#networking-interfaces tr[data-row-id='{wg1_iface}'] td[data-label='IP address']", f"{m1_wg1_ipv6}/64")
 
         m1.execute(f"until wg show wg1 | grep -q 'allowed ips.*{m2_wg1_ipv6}/128'; do sleep 1; done")
         m1.execute(f"until ip a show dev {wg1_iface} | grep -q 'inet6 {m1_wg1_ipv6}/64 scope global'; do sleep 0.3; done", timeout=10)
@@ -321,7 +321,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_wg1_ipv6}/128")
         b2.click("#network-wireguard-settings-save")
         b2.wait_not_present("#network-wireguard-settings-dialog")
-        b2.wait_in_text(f"#networking-interfaces th:contains('{wg1_iface}') + td", f"{m2_wg1_ipv6}/64")
+        b2.wait_in_text(f"#networking-interfaces tr[data-row-id='{wg1_iface}'] td[data-label='IP address']", f"{m2_wg1_ipv6}/64")
 
         m2.execute(f"until wg show wg1 | grep -q 'allowed ips.*{m1_wg1_ipv6}/128'; do sleep 1; done")
         m2.execute(f"until ip a show dev {wg1_iface} | grep -q 'inet6 {m2_wg1_ipv6}/64 scope global'; do sleep 0.3; done", timeout=10)

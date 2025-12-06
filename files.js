@@ -86,6 +86,7 @@ const info = {
         "kdump/test-config-client.js",
 
         "networkmanager/test-utils.js",
+        "networkmanager/test-wifi-hooks.js",
 
         "shell/machines/test-machines.js",
 

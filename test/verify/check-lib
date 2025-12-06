@@ -170,7 +170,7 @@ class TestLib(testlib.MachineCase):
 
         # Remove one
 
-        b.click("#demo-multi-typeahead .pf-v6-c-label:contains(Strawberry Cheesecake) button")
+        b.click("#demo-multi-typeahead button[aria-label='Close Strawberry Cheesecake']")
         b.wait_text("#multi-value", "[32]")
         b.wait_text("#multi-toggles", "4")
         b.wait_text("#multi-changes", "0")

@@ -43,11 +43,15 @@ import { Tooltip } from '@patternfly/react-core/dist/esm/components/Tooltip/inde
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { LockIcon, WifiIcon, OutlinedQuestionCircleIcon, AngleUpIcon, AngleDownIcon } from '@patternfly/react-icons';
 
+import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+
 import {
     useWiFiScan,
     useWiFiSavedNetworks,
     useWiFiConnectionState,
     useWiFiCapabilities,
+    useWiFiConnectionDetails,
+    useWiFiAPInfo,
     ConnectionState,
 } from './wifi-hooks';
 
@@ -69,6 +73,27 @@ export function strengthToBars(strength) {
     if (strength <= 75) return 3;
     return 4;
 }
+
+/**
+ * Text Signal Strength Component (matches wifi.jsx Connection Details style)
+ *
+ * Displays signal strength as text bar characters followed by percentage.
+ *
+ * @param {Object} props
+ * @param {number} props.strength - Signal strength 0-100
+ */
+export const TextSignalStrength = ({ strength }) => {
+    // Convert 0-100 strength to 0-5 bars
+    const bars = Math.ceil(strength / 20);
+    const barChars = ['▁', '▂', '▃', '▅', '▇'];
+
+    return (
+        <span>
+            {barChars.slice(0, Math.max(1, bars)).join('')}
+            {" "}{strength}%
+        </span>
+    );
+};
 
 /**
  * Get descriptive text for signal strength
@@ -744,6 +769,157 @@ export const WiFiOverview = ({
 
                 {/* Child content (e.g., WiFiScanList) */}
                 {children}
+            </CardBody>
+        </Card>
+    );
+};
+
+// ============================================================================
+// WiFi Card Component (for main networking page)
+// ============================================================================
+
+/**
+ * InfoRow Component
+ *
+ * Displays a row of labeled values in a compact horizontal layout.
+ * Uses PatternFly Flex and Stack with utility classes for consistent styling.
+ *
+ * @param {Object} props
+ * @param {Array<{label: string, value: string|React.ReactNode}>} props.items - Items to display
+ */
+const InfoRow = ({ items }) => (
+    <Flex columnGap={{ default: 'columnGapLg' }} wrap={{ default: 'nowrap' }}>
+        {items.map((item, i) => (
+            <FlexItem key={i}>
+                <Stack hasGutter={false}>
+                    <StackItem className="pf-v6-u-font-size-sm pf-v6-u-color-200 pf-v6-u-font-weight-bold">
+                        {item.label}
+                    </StackItem>
+                    <StackItem>
+                        {item.value}
+                    </StackItem>
+                </Stack>
+            </FlexItem>
+        ))}
+    </Flex>
+);
+
+/**
+ * WiFi Card Component
+ *
+ * Compact card for displaying WiFi interface status on the main networking page.
+ * Shows client connection details and/or AP status. Clicking the title navigates
+ * to the interface details page.
+ *
+ * @param {Object} props
+ * @param {Object} props.device - WiFi device object
+ * @param {string} props.interfaceName - Interface name (e.g., "wlan0")
+ */
+export const WiFiCard = ({ device, interfaceName }) => {
+    const { state, ssid, clientActive, apActive, isDualMode } = useWiFiConnectionState(device);
+    const { details } = useWiFiConnectionDetails(device);
+    const { apInfo } = useWiFiAPInfo(device);
+
+    const navigateToDetails = () => {
+        cockpit.location.go([interfaceName]);
+    };
+
+    // Security type labels
+    const securityLabels = {
+        open: _("Open"),
+        wpa: _("WPA"),
+        wpa2: _("WPA2"),
+        wpa3: _("WPA3"),
+    };
+
+    // Build client info row items
+    const clientItems = [];
+    if (clientActive && details) {
+        clientItems.push(
+            { label: _("Network"), value: details.ssid || ssid || "—" },
+            { label: _("Signal"), value: <TextSignalStrength strength={details.signal} /> },
+            { label: _("Band"), value: details.band || "—" },
+            { label: _("Channel"), value: details.channel || "—" },
+            { label: _("Speed"), value: details.speed ? `${details.speed} Mbps` : "—" },
+            { label: _("Security"), value: securityLabels[details.security] || details.security || "—" }
+        );
+    } else if (clientActive && ssid) {
+        clientItems.push(
+            { label: _("Network"), value: ssid },
+            { label: _("Status"), value: <ConnectionStatusLabel state={state} /> }
+        );
+    }
+
+    // Build AP info row items
+    // In dual mode (STA+AP), band/channel are shared with client connection
+    const apItems = [];
+    if (apActive && apInfo) {
+        apItems.push(
+            { label: _("SSID"), value: apInfo.ssid || "—" }
+        );
+        // Only show band/channel for AP-only mode (not dual mode)
+        // In dual mode, the AP uses the same band/channel as the client
+        if (!isDualMode) {
+            apItems.push(
+                { label: _("Band"), value: apInfo.band || "—" },
+                { label: _("Channel"), value: apInfo.channel || "—" }
+            );
+        }
+        apItems.push(
+            { label: _("Clients"), value: apInfo.clientCount || "—" },
+            { label: _("Security"), value: apInfo.security || "—" }
+        );
+    }
+
+    return (
+        <Card isPlain id={`wifi-card-${interfaceName}`}>
+            <CardHeader>
+                <CardTitle component="h2">
+                    <Button variant="link" isInline onClick={navigateToDetails}>
+                        {cockpit.format(_("WiFi ($0)"), interfaceName)}
+                    </Button>
+                    {isDualMode && (
+                        <Label color="purple" className="pf-v6-u-ml-sm">{_("Dual Mode")}</Label>
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                {/* Show status if not connected */}
+                {!clientActive && !apActive && (
+                    <ConnectionStatusLabel state={state} />
+                )}
+
+                {/* Client connection section */}
+                {clientActive && (
+                    <div className="pf-v6-u-mb-md">
+                        {apActive && (
+                            <div className="pf-v6-u-font-size-sm pf-v6-u-color-200 pf-v6-u-mb-sm">
+                                {_("Client")}
+                            </div>
+                        )}
+                        {clientItems.length > 0 ? (
+                            <InfoRow items={clientItems} />
+                        ) : (
+                            <ConnectionStatusLabel state={state} ssid={ssid} />
+                        )}
+                    </div>
+                )}
+
+                {/* AP section */}
+                {apActive && (
+                    <div>
+                        {clientActive && (
+                            <div className="pf-v6-u-font-size-sm pf-v6-u-color-200 pf-v6-u-mb-sm">
+                                {_("Access Point")}
+                            </div>
+                        )}
+                        {apItems.length > 0 ? (
+                            <InfoRow items={apItems} />
+                        ) : (
+                            <Label color="green">{_("AP Active")}</Label>
+                        )}
+                    </div>
+                )}
             </CardBody>
         </Card>
     );

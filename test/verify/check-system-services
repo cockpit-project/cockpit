@@ -1296,7 +1296,7 @@ Where=/fail
         self.assertIn("owner=system", url)
 
         # Mass remove active state filters and check the URL
-        b.click(".pf-v6-c-label-group:contains('Active state') .pf-v6-c-label__actions > button")
+        b.click(".pf-v6-c-label-group button[aria-label='Close Running']")
         b.wait_js_cond('window.location.hash == "#/?filestate=%5B%22Disabled%22%2C%22Enabled%22%5D&name=test&type=service&owner=system"')
 
         b.click(".pf-v6-c-toolbar__content .pf-v6-c-toolbar__item > button:contains('Clear all filters')")

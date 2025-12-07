@@ -141,7 +141,7 @@ const getGroupRow = (group, accounts) => {
         );
     }
 
-    return { columns, props: { key: group.name } };
+    return { columns, props: { "data-row-id": group.name, key: group.name } };
 };
 
 const getAccountRow = (account, current, groups) => {
@@ -206,7 +206,7 @@ const getAccountRow = (account, current, groups) => {
         },
     ];
 
-    return { columns, props: { key: account.name } };
+    return { columns, props: { "data-row-id": account.name, key: account.name } };
 };
 
 const mapGroupsToAccount = (accounts, groups) => {

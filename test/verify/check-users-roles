@@ -64,7 +64,7 @@ class TestRoles(testlib.MachineCase):
 
         # Check permissions for admin account
         b.go("/users")
-        b.wait_visible("#accounts-list tbody tr:contains('admin') td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains('admin')")
+        b.wait_visible("#accounts-list tbody tr[data-row-id='admin'] td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains(admin)")
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
         b.wait_visible("#account-locked")

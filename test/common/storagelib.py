@@ -215,7 +215,7 @@ class StorageHelpers(MachineCase):
                                              })""")
 
     def dialog_is_present(self, field: str, label: str) -> bool:
-        return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}") input')
+        return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}")')
 
     def dialog_wait_val(self, field: str, val: str | bool, unit: str | None = None) -> None:
         if unit is None:

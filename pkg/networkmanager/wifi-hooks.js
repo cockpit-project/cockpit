@@ -29,8 +29,12 @@
 
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
+import cockpit from 'cockpit';
+
 import { ModelContext } from './model-context';
 import { decode_nm_property } from './utils';
+
+const _ = cockpit.gettext;
 
 /**
  * Parse security flags from AccessPoint properties
@@ -774,4 +778,269 @@ export function useWiFiCapabilities(device) {
     }, [device, model?.client]);
 
     return { capabilities, loading, error };
+}
+
+/**
+ * Hook to get detailed WiFi connection information.
+ *
+ * Provides rich details about the current client connection including
+ * signal strength, band, channel, speed, and security type.
+ *
+ * @param {Object | null} device - The WiFi device to get details for
+ * @returns {{
+ *   details: Object | null,
+ *   loading: boolean,
+ *   error: string | null
+ * }} Object containing connection details
+ *
+ * @example
+ * const { details } = useWiFiConnectionDetails(device);
+ * // details: { ssid, signal, band, channel, speed, security, bssid }
+ */
+export function useWiFiConnectionDetails(device) {
+    const model = useContext(ModelContext);
+    const [details, setDetails] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (!device || !model?.client) {
+            setDetails(null);
+            setLoading(false);
+            return;
+        }
+
+        const fetchDetails = async () => {
+            const devPath = device[" priv"]?.path;
+            if (!devPath) {
+                setLoading(false);
+                return;
+            }
+
+            // Only fetch if connected
+            if (device.State !== 100) {
+                setDetails(null);
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // Get ActiveAccessPoint path
+                const apPathResult = await model.client.call(
+                    devPath,
+                    "org.freedesktop.DBus.Properties",
+                    "Get",
+                    ["org.freedesktop.NetworkManager.Device.Wireless", "ActiveAccessPoint"]
+                );
+                const apPath = apPathResult[0].v;
+
+                if (!apPath || apPath === "/") {
+                    setDetails(null);
+                    setLoading(false);
+                    return;
+                }
+
+                // Get AP properties
+                const apProps = await model.client.call(
+                    apPath,
+                    "org.freedesktop.DBus.Properties",
+                    "GetAll",
+                    ["org.freedesktop.NetworkManager.AccessPoint"]
+                );
+                const props = apProps[0];
+
+                // Get bitrate from device
+                const bitrateResult = await model.client.call(
+                    devPath,
+                    "org.freedesktop.DBus.Properties",
+                    "Get",
+                    ["org.freedesktop.NetworkManager.Device.Wireless", "Bitrate"]
+                );
+                const bitrate = bitrateResult[0].v; // in Kbit/s
+
+                // Parse frequency to band/channel
+                const frequency = props.Frequency.v; // in MHz
+                const band = frequency >= 5000 ? "5 GHz" : "2.4 GHz";
+                const channel = frequencyToChannel(frequency);
+
+                // Parse security
+                const security = parseSecurityFlags(
+                    props.Flags.v,
+                    props.WpaFlags.v,
+                    props.RsnFlags.v
+                );
+
+                setDetails({
+                    ssid: decode_nm_property(props.Ssid.v),
+                    signal: props.Strength.v,
+                    band,
+                    channel,
+                    frequency,
+                    speed: Math.round(bitrate / 1000), // Mbit/s
+                    security,
+                    bssid: props.HwAddress?.v || "",
+                });
+                setError(null);
+            } catch (err) {
+                console.error("Failed to fetch WiFi connection details:", err);
+                setError("Failed to fetch connection details");
+                setDetails(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        setLoading(true);
+        fetchDetails();
+
+        // Re-fetch on model changes
+        const handleChange = () => fetchDetails();
+        model.addEventListener("changed", handleChange);
+        return () => model.removeEventListener("changed", handleChange);
+    }, [device, model?.client, model]);
+
+    return { details, loading, error };
+}
+
+/**
+ * Convert WiFi frequency (MHz) to channel number
+ * @param {number} frequency - Frequency in MHz
+ * @returns {number} Channel number
+ */
+function frequencyToChannel(frequency) {
+    if (frequency >= 2412 && frequency <= 2484) {
+        // 2.4 GHz band
+        if (frequency === 2484) return 14;
+        return Math.round((frequency - 2407) / 5);
+    } else if (frequency >= 5170 && frequency <= 5825) {
+        // 5 GHz band
+        return Math.round((frequency - 5000) / 5);
+    }
+    return 0;
+}
+
+/**
+ * Hook to get Access Point mode information.
+ *
+ * Provides details about the device's AP mode including SSID, band,
+ * channel, connected clients count, and IP range.
+ *
+ * @param {Object | null} device - The WiFi device to get AP info for
+ * @returns {{
+ *   apInfo: Object | null,
+ *   loading: boolean,
+ *   error: string | null
+ * }} Object containing AP information
+ *
+ * @example
+ * const { apInfo } = useWiFiAPInfo(device);
+ * // apInfo: { ssid, band, channel, clientCount, ipRange, security }
+ */
+export function useWiFiAPInfo(device) {
+    const model = useContext(ModelContext);
+    const [apInfo, setApInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (!model) {
+            setApInfo(null);
+            setLoading(false);
+            return;
+        }
+
+        const updateAPInfo = () => {
+            try {
+                const manager = model.get_manager();
+                if (!manager?.ActiveConnections) {
+                    setApInfo(null);
+                    setLoading(false);
+                    return;
+                }
+
+                // Find active AP connection
+                let apConnection = null;
+                for (const ac of manager.ActiveConnections) {
+                    const connection = ac.Connection;
+                    const settings = connection?.Settings;
+                    if (settings?.connection?.type === "802-11-wireless" &&
+                        settings?.wifi?.mode === "ap") {
+                        apConnection = ac;
+                        break;
+                    }
+                }
+
+                if (!apConnection) {
+                    setApInfo(null);
+                    setLoading(false);
+                    return;
+                }
+
+                const settings = apConnection.Connection.Settings;
+                const wifiSettings = settings.wifi || settings["802-11-wireless"] || {};
+                const ipv4Settings = settings.ipv4 || {};
+
+                // Parse band/channel from settings
+                const band = wifiSettings.band === "a" ? "5 GHz" : "2.4 GHz";
+                const channel = wifiSettings.channel || "Auto";
+
+                // Parse security - check key_mgmt in wifi_security (underscore notation)
+                // This matches how WiFiAPConfig in wifi.jsx does it
+                const wifiSecurity = settings.wifi_security || {};
+                let security = "Open";
+                // Check key_mgmt (underscore) - used by cockpit's model
+                // Differentiate between WPA2, WPA3, and Enterprise security
+                if (wifiSecurity.key_mgmt) {
+                    const keyMgmt = wifiSecurity.key_mgmt;
+                    if (keyMgmt.includes('sae')) {
+                        security = 'WPA3';
+                    } else if (keyMgmt.includes('wpa-eap')) {
+                        security = 'WPA2 Enterprise';
+                    } else if (keyMgmt.includes('wpa-psk')) {
+                        security = 'WPA2';
+                    } else {
+                        security = 'WPA2'; // fallback for other key_mgmt values
+                    }
+                }
+
+                // IP range from ipv4 settings
+                const ipRange = ipv4Settings.method === "shared" ? "10.42.0.x" : "N/A";
+
+                // Get SSID
+                let ssid = wifiSettings.ssid;
+                if (ssid?.v) ssid = ssid.v;
+                if (Array.isArray(ssid)) ssid = decode_nm_property(ssid);
+
+                // Client count - would need to query hostapd or DHCP leases
+                // For now, just indicate AP is active
+                const clientCount = "—"; // Not easily available via NM
+
+                setApInfo({
+                    ssid: ssid || _("Access Point"),
+                    band,
+                    channel,
+                    clientCount,
+                    ipRange,
+                    security,
+                    connectionPath: apConnection[" priv"]?.path,
+                });
+                setError(null);
+            } catch (err) {
+                console.error("Error fetching AP info:", err);
+                setError("Failed to fetch AP information");
+                setApInfo(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Initial update
+        updateAPInfo();
+
+        // Subscribe to model changes
+        model.addEventListener("changed", updateAPInfo);
+        return () => model.removeEventListener("changed", updateAPInfo);
+    }, [model]);
+
+    return { apInfo, loading, error };
 }

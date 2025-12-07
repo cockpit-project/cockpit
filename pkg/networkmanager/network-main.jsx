@@ -32,6 +32,7 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { NetworkAction } from "./dialogs-common.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
 import { NetworkPlots } from "./plots";
+import { WiFiCard } from "./wifi-components.jsx";
 
 import firewall from './firewall-client.js';
 import {
@@ -48,6 +49,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
 
     const managed = [];
     const unmanaged = [];
+    const wifiInterfaces = [];
     const plot_ifaces = [];
 
     interfaces.forEach(iface => {
@@ -69,6 +71,20 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
             return;
 
         const dev = iface.Device;
+
+        // Collect WiFi interfaces separately - they get their own cards
+        // Only include physical interfaces (skip virtual AP interfaces like wlan0ap)
+        if (dev && dev.DeviceType === '802-11-wireless') {
+            // Virtual AP interfaces typically have names ending in "ap" or similar patterns
+            const isVirtualAP = /ap\d*$/.test(iface.Name);
+            if (!isVirtualAP) {
+                wifiInterfaces.push({ iface, device: dev });
+            }
+            // Still track for plots
+            plot_ifaces.push(iface.Name);
+            usage_monitor.add(iface.Name);
+            return;
+        }
         const show_traffic = (dev && (dev.State == 100 || dev.State == 10) && dev.Carrier === true);
 
         plot_ifaces.push(iface.Name);
@@ -176,6 +192,14 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                             </Button>
                         </CardBody>
                     </Card>}
+                    {/* WiFi interface cards */}
+                    {wifiInterfaces.map(({ iface, device }) => (
+                        <WiFiCard
+                            key={iface.Name}
+                            device={device}
+                            interfaceName={iface.Name}
+                        />
+                    ))}
                     <Card isPlain id="networking-interfaces">
                         <CardHeader actions={{ actions }}>
                             <CardTitle component="h2">{_("Interfaces")}</CardTitle>

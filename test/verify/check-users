@@ -35,14 +35,14 @@ def getUserAddDetails(machine):
 
 
 def performUserAction(browser, user, action):
-    browser.click(f"#accounts-list tbody tr:contains('{user}') button.pf-v6-c-menu-toggle")
-    browser.wait_visible(f"#accounts-list tbody tr:contains('{user}') button.pf-v6-c-menu-toggle[aria-expanded=true]")
-    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains('{action}')")
+    browser.click(f"#accounts-list tr[data-row-id='{user}'] button.pf-v6-c-menu-toggle")
+    browser.wait_visible(f"#accounts-list tr[data-row-id='{user}'] button.pf-v6-c-menu-toggle[aria-expanded=true]")
+    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains({action})")
 
 
 def performGroupAction(browser, group, action):
-    browser.click(f"#groups-list tbody tr:contains('{group}') button.pf-v6-c-menu-toggle")
-    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains('{action}')")
+    browser.click(f"#groups-list tbody tr[data-row-id='{group}'] button.pf-v6-c-menu-toggle")
+    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains({action})")
 
 
 def createUser(
@@ -307,9 +307,9 @@ class TestAccounts(testlib.MachineCase):
         b.click("#account-confirm-lock-dialog footer .pf-m-danger.apply")
         b.wait_not_present("#account-confirm-lock-dialog")
         # lock option is now disabled
-        b.click("#accounts-list tbody tr:contains('robert') button.pf-v6-c-menu-toggle")
+        b.click("#accounts-list tbody tr[data-row-id='robert'] button.pf-v6-c-menu-toggle")
         b.wait_visible(".pf-v6-c-menu__list-item.pf-m-disabled:contains('Lock account')")
-        b.click("#accounts-list tbody tr:contains('robert') button.pf-v6-c-menu-toggle")
+        b.click("#accounts-list tbody tr[data-row-id='robert'] button.pf-v6-c-menu-toggle")
         # change is visible on details page
         performUserAction(b, 'robert', 'Edit user')
         b.wait_in_text('#account-title', 'Robert Robertson')
@@ -374,14 +374,14 @@ class TestAccounts(testlib.MachineCase):
         )
 
         # Check Robert's groups
-        b.wait_not_present("#accounts-list tbody tr:contains('robert') td[data-label='Group'] .pf-v6-c-label:contains('users')")
+        b.wait_not_present("#accounts-list tbody tr[data-row-id='robert'] td[data-label='Group'] .pf-v6-c-label:contains('users')")
         if not m.ostree_image:  # Users group does not exist in coreos image
             m.execute("/usr/bin/gpasswd -a robert users")
-            b.wait_in_text("#accounts-list tbody tr:contains('robert') td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains('users')", "users")
+            b.wait_in_text("#accounts-list tbody tr[data-row-id='robert'] td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains('users')", "users")
         m.execute(f"/usr/bin/gpasswd -a robert {m.get_admin_group()}")
-        b.wait_in_text("#accounts-list tbody tr:contains('robert') td[data-label='Group'] .pf-v6-c-label.pf-m-yellow", m.get_admin_group())
+        b.wait_in_text("#accounts-list tbody tr[data-row-id='robert'] td[data-label='Group'] .pf-v6-c-label.pf-m-yellow", m.get_admin_group())
         m.execute(f"/usr/bin/gpasswd -d robert {m.get_admin_group()}")
-        b.wait_not_present("#accounts-list tbody tr:contains('robert') td[data-label='Group'] .pf-v6-c-label.pf-m-yellow")
+        b.wait_not_present("#accounts-list tbody tr[data-row-id='robert'] td[data-label='Group'] .pf-v6-c-label.pf-m-yellow")
 
         # test filters
         b.set_input_text("#accounts-filter input", "root")
@@ -708,7 +708,7 @@ class TestAccounts(testlib.MachineCase):
         # login in second window to check if last login is updated in accounts list
         if not m.ws_container:  # User is not shown as logged in when logged in through Cockpit
             b2.login_and_go("/users")
-            b2.wait_in_text("#accounts-list tbody tr:contains('robert') td[data-label='Last active']", "Never logged in")
+            b2.wait_in_text("#accounts-list tbody tr[data-row-id='robert'] td[data-label='Last active']", "Never logged in")
 
         # With the ws container this happens over ssh and we need
         # ChallengeResponseAuthentication (or
@@ -760,7 +760,7 @@ class TestAccounts(testlib.MachineCase):
             uid="1500",
             verify_created=True,
         )
-        b.wait_visible("#accounts-list td[data-label='Username']:contains('bob') + td + td:contains('1500')")
+        b.wait_text("#accounts-list tr[data-row-id='bob'] td[data-label='ID']", "1500")
 
         # Test dialog correctly predicts the next available UID
         createUser(
@@ -774,7 +774,7 @@ class TestAccounts(testlib.MachineCase):
             expected_uid="1501",
             verify_created=True,
         )
-        b.wait_visible("#accounts-list td[data-label='Username']:contains('john') + td + td:contains('1501')")
+        b.wait_text("#accounts-list tr[data-row-id='john'] td[data-label='ID']", "1501")
 
         # Test creation of users with the same UID
         createUser(
@@ -794,8 +794,8 @@ class TestAccounts(testlib.MachineCase):
         b.click("button:contains('Create account with non-unique UID')")
         b.wait_not_present("#accounts-create-dialog")
         b.wait_in_text("#accounts-list", "Jack Jackson")
-        b.wait_visible("#accounts-list td[data-label='Username']:contains('jack') + td + td:contains('1501')")
-        b.wait_visible("#accounts-list td[data-label='Username']:contains('john') + td + td:contains('1501')")
+        b.wait_text("#accounts-list tr[data-row-id='jack'] td[data-label='ID']", "1501")
+        b.wait_text("#accounts-list tr[data-row-id='john'] td[data-label='ID']", "1501")
 
         # No UID specified -> useradd chooses UID for us
         createUser(
@@ -1273,7 +1273,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_val("#groups-create-id", "")
         b.click("#groups-create-dialog button.pf-m-primary")
         b.wait_not_present("#groups-create-dialog")
-        b.wait_visible('#groups-list td[data-label="Group name"]:contains("titan")')
+        b.wait_visible('#groups-list tr[data-row-id="titan"]')
 
         # Validation check for duplicate group name and id
         b.click("#groups-create")
@@ -1318,7 +1318,7 @@ class TestAccounts(testlib.MachineCase):
 
         self.login_and_go("/users")
         b.click("button:contains('more...')")
-        b.wait_visible('#groups-list td[data-label="Group name"]:contains("titan")')
+        b.wait_visible('#groups-list tr[data-row-id="titan"]')
         performGroupAction(b, "titan", "Rename group")
 
         b.set_input_text("#group-confirm-rename-dialog #group-name", "phoebe")
@@ -1328,7 +1328,7 @@ class TestAccounts(testlib.MachineCase):
         self.assertNotIn("titan", m.execute("getent group"))
 
         # Rename and delete actions are available only for user created groups
-        b.wait_not_present(f"#groups-list tbody tr:contains('{m.get_admin_group()}') button.pf-v6-c-menu-toggle")
+        b.wait_not_present(f"#groups-list tbody tr[data-row-id='{m.get_admin_group()}'] button.pf-v6-c-menu-toggle")
 
     def testChangeShell(self):
         b = self.browser

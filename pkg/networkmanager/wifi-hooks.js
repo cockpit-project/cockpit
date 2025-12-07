@@ -29,8 +29,12 @@
 
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
+import cockpit from 'cockpit';
+
 import { ModelContext } from './model-context';
 import { decode_nm_property } from './utils';
+
+const _ = cockpit.gettext;
 
 /**
  * Parse security flags from AccessPoint properties
@@ -985,8 +989,18 @@ export function useWiFiAPInfo(device) {
                 const wifiSecurity = settings.wifi_security || {};
                 let security = "Open";
                 // Check key_mgmt (underscore) - used by cockpit's model
+                // Differentiate between WPA2, WPA3, and Enterprise security
                 if (wifiSecurity.key_mgmt) {
-                    security = "WPA2";
+                    const keyMgmt = wifiSecurity.key_mgmt;
+                    if (keyMgmt.includes('sae')) {
+                        security = 'WPA3';
+                    } else if (keyMgmt.includes('wpa-eap')) {
+                        security = 'WPA2 Enterprise';
+                    } else if (keyMgmt.includes('wpa-psk')) {
+                        security = 'WPA2';
+                    } else {
+                        security = 'WPA2'; // fallback for other key_mgmt values
+                    }
                 }
 
                 // IP range from ipv4 settings

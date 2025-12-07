@@ -897,11 +897,13 @@ export const WiFiCard = ({ device, interfaceName }) => {
                                 {_("Client")}
                             </div>
                         )}
-                        {clientItems.length > 0 ? (
-                            <InfoRow items={clientItems} />
-                        ) : (
-                            <ConnectionStatusLabel state={state} ssid={ssid} />
-                        )}
+                        {clientItems.length > 0
+                            ? (
+                                <InfoRow items={clientItems} />
+                            )
+                            : (
+                                <ConnectionStatusLabel state={state} ssid={ssid} />
+                            )}
                     </div>
                 )}
 
@@ -913,11 +915,13 @@ export const WiFiCard = ({ device, interfaceName }) => {
                                 {_("Access Point")}
                             </div>
                         )}
-                        {apItems.length > 0 ? (
-                            <InfoRow items={apItems} />
-                        ) : (
-                            <Label color="green">{_("AP Active")}</Label>
-                        )}
+                        {apItems.length > 0
+                            ? (
+                                <InfoRow items={apItems} />
+                            )
+                            : (
+                                <Label color="green">{_("AP Active")}</Label>
+                            )}
                     </div>
                 )}
             </CardBody>

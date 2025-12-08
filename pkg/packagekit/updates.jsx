@@ -1625,7 +1625,6 @@ class OsUpdates extends React.Component {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.title = cockpit.gettext(document.title);
     init();
     const root = createRoot(document.getElementById('app'));
     root.render(<OsUpdates />);

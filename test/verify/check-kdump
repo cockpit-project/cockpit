@@ -117,10 +117,10 @@ class TestKdump(KdumpHelpers):
             b.wait_not_present(".pf-v6-c-switch__input")
 
             # disabled "Test configuration" button should have a tooltip
-            b.wait_visible("button:contains(Test configuration)[aria-disabled=true]")
-            b.mouse("button:contains(Test configuration)", "mouseenter")
+            b.wait_visible("button:contains('Test configuration')[aria-disabled=true]")
+            b.mouse("button:contains('Test configuration')", "mouseenter")
             b.wait_in_text(".pf-v6-c-tooltip", "kdump service")
-            b.mouse("button:contains(Test configuration)", "mouseleave")
+            b.mouse("button:contains('Test configuration')", "mouseleave")
 
             # enable it
             self.enableKdump()

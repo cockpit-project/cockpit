@@ -35,14 +35,14 @@ def getUserAddDetails(machine):
 
 
 def performUserAction(browser, user, action):
-    browser.click(f"#accounts-list tbody tr:contains({user}) button.pf-v6-c-menu-toggle")
-    browser.wait_visible(f"#accounts-list tbody tr:contains({user}) button.pf-v6-c-menu-toggle[aria-expanded=true]")
-    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains({action})")
+    browser.click(f"#accounts-list tbody tr:contains('{user}') button.pf-v6-c-menu-toggle")
+    browser.wait_visible(f"#accounts-list tbody tr:contains('{user}') button.pf-v6-c-menu-toggle[aria-expanded=true]")
+    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains('{action}')")
 
 
 def performGroupAction(browser, group, action):
-    browser.click(f"#groups-list tbody tr:contains({group}) button.pf-v6-c-menu-toggle")
-    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains({action})")
+    browser.click(f"#groups-list tbody tr:contains('{group}') button.pf-v6-c-menu-toggle")
+    browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains('{action}')")
 
 
 def createUser(
@@ -307,9 +307,9 @@ class TestAccounts(testlib.MachineCase):
         b.click("#account-confirm-lock-dialog footer .pf-m-danger.apply")
         b.wait_not_present("#account-confirm-lock-dialog")
         # lock option is now disabled
-        b.click("#accounts-list tbody tr:contains(robert) button.pf-v6-c-menu-toggle")
+        b.click("#accounts-list tbody tr:contains('robert') button.pf-v6-c-menu-toggle")
         b.wait_visible(".pf-v6-c-menu__list-item.pf-m-disabled:contains('Lock account')")
-        b.click("#accounts-list tbody tr:contains(robert) button.pf-v6-c-menu-toggle")
+        b.click("#accounts-list tbody tr:contains('robert') button.pf-v6-c-menu-toggle")
         # change is visible on details page
         performUserAction(b, 'robert', 'Edit user')
         b.wait_in_text('#account-title', 'Robert Robertson')
@@ -374,14 +374,14 @@ class TestAccounts(testlib.MachineCase):
         )
 
         # Check Robert's groups
-        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label:contains(users)")
+        b.wait_not_present("#accounts-list tbody tr:contains('robert') td[data-label='Group'] .pf-v6-c-label:contains('users')")
         if not m.ostree_image:  # Users group does not exist in coreos image
             m.execute("/usr/bin/gpasswd -a robert users")
-            b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains(users)", "users")
+            b.wait_in_text("#accounts-list tbody tr:contains('robert') td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains('users')", "users")
         m.execute(f"/usr/bin/gpasswd -a robert {m.get_admin_group()}")
-        b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-yellow", m.get_admin_group())
+        b.wait_in_text("#accounts-list tbody tr:contains('robert') td[data-label='Group'] .pf-v6-c-label.pf-m-yellow", m.get_admin_group())
         m.execute(f"/usr/bin/gpasswd -d robert {m.get_admin_group()}")
-        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-v6-c-label.pf-m-yellow")
+        b.wait_not_present("#accounts-list tbody tr:contains('robert') td[data-label='Group'] .pf-v6-c-label.pf-m-yellow")
 
         # test filters
         b.set_input_text("#accounts-filter input", "root")
@@ -573,9 +573,9 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible("#account-locked:checked")
         b.set_checked('#account-locked', val=False)
         b.wait(lambda: not is_locked())
-        b.wait_not_present(admin_role_sel + f" .pf-v6-c-label:contains(:{m.get_admin_group()})")
+        b.wait_not_present(admin_role_sel + f" .pf-v6-c-label:contains(':{m.get_admin_group()}')")
         b.click("#account-groups > button")
-        b.click(f"body .pf-v6-c-menu li:contains({m.get_admin_group()}) > button")
+        b.click(f"body .pf-v6-c-menu li:contains('{m.get_admin_group()}') > button")
         b.wait(is_admin)
         b.wait_not_present("#account-groups-helper")
 
@@ -593,23 +593,23 @@ class TestAccounts(testlib.MachineCase):
         # Use [x] button on the group label to remove the account from group
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
-        b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains({m.get_admin_group()})")
+        b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains('{m.get_admin_group()}')")
         b.wait_not_present("#account-groups-helper")
-        b.click(f".pf-v6-c-label-group__list .pf-v6-c-label:contains({m.get_admin_group()}) .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']")
+        b.click(f".pf-v6-c-label-group__list .pf-v6-c-label:contains('{m.get_admin_group()}') .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']")
         b.wait(lambda: not is_admin())
-        b.wait_not_present(admin_role_sel + f" .pf-v6-c-label:contains({m.get_admin_group()})")
+        b.wait_not_present(admin_role_sel + f" .pf-v6-c-label:contains('{m.get_admin_group()}')")
         if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
             b.wait_visible("#account-groups-helper")
         m.execute(f"/usr/bin/gpasswd -a jussi {m.get_admin_group()}")
         with b.wait_timeout(20):
-            b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains({m.get_admin_group()})")
+            b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains('{m.get_admin_group()}')")
 
         # Cannot lock the current account
         b.wait_visible("#account-locked[disabled]")
 
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
-        b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains({m.get_admin_group()})")
+        b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains('{m.get_admin_group()}')")
         b.wait_not_present("#account-groups-helper")
         b.logout()
         b.login_and_go("/users")
@@ -708,7 +708,7 @@ class TestAccounts(testlib.MachineCase):
         # login in second window to check if last login is updated in accounts list
         if not m.ws_container:  # User is not shown as logged in when logged in through Cockpit
             b2.login_and_go("/users")
-            b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", "Never logged in")
+            b2.wait_in_text("#accounts-list tbody tr:contains('robert') td[data-label='Last active']", "Never logged in")
 
         # With the ws container this happens over ssh and we need
         # ChallengeResponseAuthentication (or
@@ -774,7 +774,7 @@ class TestAccounts(testlib.MachineCase):
             expected_uid="1501",
             verify_created=True,
         )
-        b.wait_visible("#accounts-list td[data-label='Username']:contains(john) + td + td:contains(1501)")
+        b.wait_visible("#accounts-list td[data-label='Username']:contains('john') + td + td:contains('1501')")
 
         # Test creation of users with the same UID
         createUser(
@@ -794,8 +794,8 @@ class TestAccounts(testlib.MachineCase):
         b.click("button:contains('Create account with non-unique UID')")
         b.wait_not_present("#accounts-create-dialog")
         b.wait_in_text("#accounts-list", "Jack Jackson")
-        b.wait_visible("#accounts-list td[data-label='Username']:contains(jack) + td + td:contains(1501)")
-        b.wait_visible("#accounts-list td[data-label='Username']:contains(john) + td + td:contains(1501)")
+        b.wait_visible("#accounts-list td[data-label='Username']:contains('jack') + td + td:contains('1501')")
+        b.wait_visible("#accounts-list td[data-label='Username']:contains('john') + td + td:contains('1501')")
 
         # No UID specified -> useradd chooses UID for us
         createUser(
@@ -1053,13 +1053,13 @@ class TestAccounts(testlib.MachineCase):
 
         # Try an invalid date
         b.set_input_text("#account-expiration-input input", "blah")
-        b.click("#account-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
+        b.click("#account-expiration .pf-v6-c-modal-box__footer button:contains('Change')")
         b.wait_text("#account-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
         when = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)
         b.set_input_text("#account-expiration-input input", when.isoformat().split("T")[0])
-        b.click("#account-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
+        b.click("#account-expiration .pf-v6-c-modal-box__footer button:contains('Change')")
         b.wait_not_present("#account-expiration")
         b.wait_in_text("#account-expiration-text", "Expire account on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
@@ -1068,7 +1068,7 @@ class TestAccounts(testlib.MachineCase):
         b.click("#account-expiration-button")
         b.wait_visible("#account-expiration")
         b.click("#account-expiration-never")
-        b.click("#account-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
+        b.click("#account-expiration .pf-v6-c-modal-box__footer button:contains('Change')")
         b.wait_not_present("#account-expiration")
         b.wait_text("#account-expiration-text", "Never expire account")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
@@ -1082,12 +1082,12 @@ class TestAccounts(testlib.MachineCase):
 
         # Try an invalid number
         b.set_input_text("#password-expiration-input", "-3")
-        b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
+        b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains('Change')")
         b.wait_text("#password-expiration .pf-v6-c-form__helper-text .pf-m-error", "Invalid number of days")
 
         # Expire password every 30 days
         b.set_input_text("#password-expiration-input", "30")
-        b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
+        b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains('Change')")
         b.wait_not_present("#password-expiration")
         b.wait_in_text("#password-expiration-text", "Require password change on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
@@ -1096,7 +1096,7 @@ class TestAccounts(testlib.MachineCase):
         b.click("#password-expiration-button")
         b.wait_visible("#password-expiration")
         b.click("#password-expiration-never")
-        b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
+        b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains('Change')")
         b.wait_not_present("#password-expiration")
         b.wait_text("#password-expiration-text", "Never expire password")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
@@ -1106,7 +1106,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible("#password-expiration")
         b.click("#password-expiration-expires")
         b.set_input_text("#password-expiration-input", "30")
-        b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains(Change)")
+        b.click("#password-expiration .pf-v6-c-modal-box__footer button:contains('Change')")
         b.wait_not_present("#password-expiration")
 
         b.logout()
@@ -1124,7 +1124,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_text("#account-user-name", "scruffy")
         b.click("#password-reset-button")
         b.wait_visible("#password-reset")
-        b.click("#password-reset .pf-v6-c-modal-box__footer button:contains(Reset)")
+        b.click("#password-reset .pf-v6-c-modal-box__footer button:contains('Reset')")
         b.wait_not_present("password-reset")
         b.wait_in_text("#password-expiration-text", "Password must be changed")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
@@ -1171,14 +1171,14 @@ class TestAccounts(testlib.MachineCase):
 
             b.wait_not_present(".pf-v6-c-menu")
             b.click("#account-groups > button")
-            b.click(f".pf-v6-c-menu li:contains({group}) button")
+            b.click(f".pf-v6-c-menu li:contains('{group}') button")
             if enabled:
                 b.wait_in_text(".pf-v6-c-label-group__list", group)
-                b.wait_not_present(f".pf-v6-c-select__menu li:contains({group}) button")
+                b.wait_not_present(f".pf-v6-c-select__menu li:contains('{group}') button")
                 testlib.wait(lambda: "testgroup0" in m.execute("groups admin"))
             else:
                 b.wait_not_in_text(".pf-v6-c-label-group__list", group)
-                b.wait_not_present(f".pf-v6-c-select__menu li:contains({group}) button")
+                b.wait_not_present(f".pf-v6-c-select__menu li:contains('{group}') button")
                 testlib.wait(lambda: "testgroup0" not in m.execute("groups admin"))
 
         m.execute("groupadd testgroup0")
@@ -1200,7 +1200,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("testgroup0")')
 
         # FIXME: rtl test was flaky, debug it and remove the skip
-        b.assert_pixels("#groups-list tr:contains(testgroup0)", "group-row", skip_layouts=["rtl"])
+        b.assert_pixels("#groups-list tr:contains('testgroup0')", "group-row", skip_layouts=["rtl"])
 
         # Delete it
         performGroupAction(b, 'testgroup0', 'Delete group')
@@ -1228,14 +1228,14 @@ class TestAccounts(testlib.MachineCase):
         b.wait_in_text(".pf-v6-c-label-group__list", m.get_admin_group())
 
         # Primary group cannot be remove but others have a remove button
-        b.wait_visible(".pf-v6-c-label-group__list .pf-v6-c-label__content:contains(admin)")
-        b.wait_not_present(".pf-v6-c-label-group__list .pf-v6-c-label__content:contains(admin) + span > button")
-        close_button = f".pf-v6-c-label-group__list .pf-v6-c-label:contains({m.get_admin_group()}) .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']"
+        b.wait_visible(".pf-v6-c-label-group__list .pf-v6-c-label__content:contains('admin')")
+        b.wait_not_present(".pf-v6-c-label-group__list .pf-v6-c-label__content:contains('admin') + span > button")
+        close_button = f".pf-v6-c-label-group__list .pf-v6-c-label:contains('{m.get_admin_group()}') .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']"
         b.wait_visible(close_button)
 
         # Clicking on the close button removes the group
         b.click(close_button)
-        b.wait_not_present(f".pf-v6-c-label-group__list .pf-v6-c-label__content:contains({m.get_admin_group()})")
+        b.wait_not_present(f".pf-v6-c-label-group__list .pf-v6-c-label__content:contains('{m.get_admin_group()}')")
         b.wait_not_present(".pf-v6-c-select__menu")
 
         # Add admin to the testgroup0 group
@@ -1328,7 +1328,7 @@ class TestAccounts(testlib.MachineCase):
         self.assertNotIn("titan", m.execute("getent group"))
 
         # Rename and delete actions are available only for user created groups
-        b.wait_not_present(f"#groups-list tbody tr:contains({m.get_admin_group()}) button.pf-v6-c-menu-toggle")
+        b.wait_not_present(f"#groups-list tbody tr:contains('{m.get_admin_group()}') button.pf-v6-c-menu-toggle")
 
     def testChangeShell(self):
         b = self.browser

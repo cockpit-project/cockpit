@@ -151,23 +151,23 @@ class TestHistoryMetrics(testlib.MachineCase):
 
         # Graphs are by default all visible
         b.click("button[aria-label='Graph visibility options menu']")
-        b.wait_visible(".pf-v6-c-menu__list-item:contains(CPU)")
-        b.wait_visible(".pf-v6-c-menu__list-item:contains(CPU) input")
-        b.wait_visible(".pf-v6-c-menu__list-item:contains(CPU) input:checked")
-        b.wait_visible(".metrics-label-graph:contains(CPU)")
-        b.wait_visible(".pf-v6-c-menu__list-item:contains(Memory) input:checked")
-        b.wait_visible(".metrics-label-graph:contains(Memory)")
-        b.wait_visible(".pf-v6-c-menu__list-item:contains(Disk I/O) input:checked")
-        b.wait_visible(".metrics-label-graph:contains(Disk I/O)")
-        b.wait_visible(".pf-v6-c-menu__list-item:contains(Network) input:checked")
-        b.wait_visible(".metrics-label-graph:contains(Network)")
+        b.wait_visible(".pf-v6-c-menu__list-item:contains('CPU')")
+        b.wait_visible(".pf-v6-c-menu__list-item:contains('CPU') input")
+        b.wait_visible(".pf-v6-c-menu__list-item:contains('CPU') input:checked")
+        b.wait_visible(".metrics-label-graph:contains('CPU')")
+        b.wait_visible(".pf-v6-c-menu__list-item:contains('Memory') input:checked")
+        b.wait_visible(".metrics-label-graph:contains('Memory')")
+        b.wait_visible(".pf-v6-c-menu__list-item:contains('Disk I/O') input:checked")
+        b.wait_visible(".metrics-label-graph:contains('Disk I/O')")
+        b.wait_visible(".pf-v6-c-menu__list-item:contains('Network') input:checked")
+        b.wait_visible(".metrics-label-graph:contains('Network')")
 
         # Change graph visibility
         b.wait_visible(".metrics-events:contains('Network I/O')")
-        b.set_checked(".pf-v6-c-menu__list-item:contains(Network) input", val=False)
+        b.set_checked(".pf-v6-c-menu__list-item:contains('Network') input", val=False)
         b.wait_not_present(".metrics-events:contains('Network I/O')")
-        b.wait_not_present(".metrics-label-graph:contains(Network)")
-        b.set_checked(".pf-v6-c-menu__list-item:contains(Network) input", val=True)
+        b.wait_not_present(".metrics-label-graph:contains('Network')")
+        b.set_checked(".pf-v6-c-menu__list-item:contains('Network') input", val=True)
 
         # Change date to yesterday, should be empty
         b.click("#date-picker-select-toggle")
@@ -627,9 +627,9 @@ class TestHistoryMetrics(testlib.MachineCase):
             b.wait_visible('#switch-pmproxy:checked')
             applySettings(b, self.pcp_dialog_selector)
             if firewalld_alert:
-                b.wait_visible(".pf-v6-c-alert:contains(pmproxy)")
+                b.wait_visible(".pf-v6-c-alert:contains('pmproxy')")
             else:
-                b.wait_not_present(".pf-v6-c-alert:contains(pmproxy)")
+                b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
             m.execute('while [ $(systemctl is-active pmproxy) = activating ]; do sleep 1; done')
             self.assertEqual(m.execute("systemctl is-active pmproxy").strip(), "active")
             self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
@@ -645,7 +645,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             b.wait_visible("#switch-pmproxy:not(:checked)")
             applySettings(b, self.pcp_dialog_selector)
             # always clears the firewalld alert
-            b.wait_not_present(".pf-v6-c-alert:contains(pmproxy)")
+            b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
             self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
             self.assertEqual(m.execute("! systemctl is-enabled pmproxy").strip(), "disabled")
             # keeps redis running, it's a shared service
@@ -673,7 +673,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         applySettings(b, self.pcp_dialog_selector)
         m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
         self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
-        b.wait_not_present(".pf-v6-c-alert:contains(pmproxy)")
+        b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
 
         checkEnable(firewalld_alert=True)
         checkDisable()
@@ -708,7 +708,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         default_zone = m.execute("firewall-cmd --get-default-zone").strip()
         b.wait_text("#firewalld-request-pmproxy", default_zone)
         b.click(".pf-v6-c-alert button.pf-m-primary")
-        b.wait_not_present(".pf-v6-c-alert:contains(pmproxy)")
+        b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
         self.assertIn("pmproxy", m.execute("firewall-cmd --list-services").strip())
         self.assertIn("pmproxy", m.execute("firewall-cmd --list-services --permanent").strip())
 
@@ -721,7 +721,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         m.execute("firewall-cmd --remove-service pmproxy")
         checkEnable(firewalld_alert=True)
         b.click(".pf-v6-c-alert button.pf-m-primary")
-        b.wait_not_present(".pf-v6-c-alert:contains(pmproxy)")
+        b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
         self.assertIn("pmproxy", m.execute("firewall-cmd --list-services").strip())
 
         # error during zone addition: zone disappears underneath us
@@ -745,7 +745,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text(".pf-v6-c-alert.pf-m-warning", "INVALID_ZONE: comeandgo")
         # close warning
         b.click(".pf-v6-c-alert.pf-m-warning button.pf-m-plain")
-        b.wait_not_present(".pf-v6-c-alert:contains(pmproxy)")
+        b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
 
         # reacts to service changes from outside; this is asynchronous and the dialog deliberately
         # does not update automatically, so retry a few times
@@ -1020,7 +1020,7 @@ class TestCurrentMetrics(testlib.MachineCase):
             m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest -p CPUQuota=60% --unit cpu-userhog dd if=/dev/urandom of=/dev/null'")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
             b.wait_in_text("table[aria-label='Top 5 CPU services'] tbody", "cpu-userhog")
-            b.click("table[aria-label='Top 5 CPU services'] tbody tr:contains(cpu-userhog) td[data-label='Service'] a")
+            b.click("table[aria-label='Top 5 CPU services'] tbody tr:contains('cpu-userhog') td[data-label='Service'] a")
             b.enter_page("/system/services")
             b.wait_in_text(".service-name", "/usr/bin/dd if=/dev/urandom of=/dev/null")
 
@@ -1133,7 +1133,7 @@ BEGIN {{
             m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
             b.wait_in_text("table[aria-label='Top 5 memory services'] tbody", "mem-userhog")
-            b.click("table[aria-label='Top 5 memory services'] tbody tr:contains(mem-userhog) td[data-label='Service'] a")
+            b.click("table[aria-label='Top 5 memory services'] tbody tr:contains('mem-userhog') td[data-label='Service'] a")
             b.enter_page("/system/services")
             b.wait_in_text(".service-name", "memhog.sh")
 

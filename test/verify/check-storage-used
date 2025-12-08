@@ -69,12 +69,12 @@ ExecStart=/usr/bin/sleep infinity
         self.click_card_dropdown("ext2 filesystem", "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
-        b.click("#dialog button:contains(Currently in use)")
+        b.click("#dialog button:contains('Currently in use')")
         b.wait_in_text(".pf-v6-c-popover", str(sleep_pid))
         b.wait_in_text(".pf-v6-c-popover", "keep-mnt-busy")
         b.assert_pixels(".pf-v6-c-popover", "popover",
                         mock={".pf-v6-c-popover__body ul:nth-of-type(2) li": "process (user: root, pid: 1234)"},
-                        scroll_into_view="#dialog button:contains(Currently in use)")
+                        scroll_into_view="#dialog button:contains('Currently in use')")
         b.click(".pf-v6-c-popover button")
         b.assert_pixels('#dialog', "format", wait_after_layout_change=True, chrome_hack_double_shots=True)
         self.dialog_cancel()
@@ -82,7 +82,7 @@ ExecStart=/usr/bin/sleep infinity
 
         self.click_card_dropdown("Partition", "Delete")
         self.dialog_wait_open()
-        b.wait_visible("#dialog button:contains(Currently in use)")
+        b.wait_visible("#dialog button:contains('Currently in use')")
         b.assert_pixels('#dialog', "delete")
         self.dialog_cancel()
         self.dialog_wait_close()
@@ -98,7 +98,7 @@ ExecStart=/usr/bin/sleep infinity
 
         def first_setup():
             self.dialog_set_val("type", "empty")
-            b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
+            b.wait_visible("#dialog tbody:first-of-type button:contains('Currently in use')")
             b.assert_pixels('#dialog', "format-disk")
 
         def retry_setup():
@@ -178,7 +178,7 @@ ExecStart=/usr/bin/sleep infinity
 
         self.click_card_dropdown("Solid State Drive", "Create partition table")
         self.dialog_wait_open()
-        b.wait_visible("#dialog tbody:first-of-type button:contains(Currently in use)")
+        b.wait_visible("#dialog tbody:first-of-type button:contains('Currently in use')")
         self.dialog_wait_apply_enabled()
         m.spawn(f"cd {self.mnt_dir}; sleep infinity; true", "sleep")
         self.dialog_apply()
@@ -189,7 +189,7 @@ ExecStart=/usr/bin/sleep infinity
 
         self.click_card_dropdown("Solid State Drive", "Create partition table")
         self.dialog_wait_open()
-        b.wait_visible("#dialog button:contains(Currently in use)")
+        b.wait_visible("#dialog button:contains('Currently in use')")
         self.dialog_apply()
         self.dialog_wait_close()
 

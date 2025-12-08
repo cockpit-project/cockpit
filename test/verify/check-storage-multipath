@@ -89,9 +89,9 @@ class TestStorageMultipath(storagelib.StorageCase):
 
         # Switch on multipathd.  A primary device should appear.
 
-        b.wait_visible('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
-        b.click('button:contains(Start multipath)')
-        b.wait_not_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
+        b.wait_visible(".pf-m-danger:contains('There are devices with multiple paths on the system, but')")
+        b.click("button:contains('Start multipath')")
+        b.wait_not_present(".pf-m-danger:contains('There are devices with multiple paths on the system, but')")
         b.wait_visible(self.card_row("Storage", name="/dev/mapper/mpatha"))
 
         # Check that (exactly) the primary device is offered as free

@@ -52,7 +52,7 @@ class TestRoles(testlib.MachineCase):
         b.go("/users#/user")
         b.enter_page("/users")
 
-        admin_role_sel = f'.pf-v6-c-label:contains({m.get_admin_group()})'
+        admin_role_sel = f".pf-v6-c-label:contains('{m.get_admin_group()}')"
 
         b.wait_text("#account-user-name", "user")
         b.wait_visible("#account-locked[disabled]")
@@ -60,11 +60,11 @@ class TestRoles(testlib.MachineCase):
         b.wait_visible("#account-set-password:not([disabled])")
         b.wait_not_present("#account-delete")
         b.wait_not_present("#account-logout")
-        b.wait_not_present(admin_role_sel + f" > button:contains(Close {m.get_admin_group()})")
+        b.wait_not_present(admin_role_sel + f" > button:contains('Close {m.get_admin_group()}')")
 
         # Check permissions for admin account
         b.go("/users")
-        b.wait_visible("#accounts-list tbody tr:contains(admin) td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains(admin)")
+        b.wait_visible("#accounts-list tbody tr:contains('admin') td[data-label='Group'] .pf-v6-c-label.pf-m-blue:contains('admin')")
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
         b.wait_visible("#account-locked")

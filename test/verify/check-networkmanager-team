@@ -122,7 +122,7 @@ class TestTeam(netlib.NetworkCase):
         b.wait_in_text("#network-interface .pf-v6-c-card:contains('tteam')", "10.111")
 
         # Check team port
-        b.click("#network-interface-members button:contains(cockpit1)")
+        b.click("#network-interface-members button:contains('cockpit1')")
         b.click("#networking-edit-teamport")
         b.wait_visible("#network-team-port-settings-dialog")
         b.set_input_text("#network-team-port-settings-activebackup-prio-input", "10")

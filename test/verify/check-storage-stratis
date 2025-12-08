@@ -672,8 +672,8 @@ class TestStorageStratisReboot(storagelib.StorageCase):
 
         # Change the passphrase
         if v1_pool:
-            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Remove):disabled")
-            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Change)")
+            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains('Remove'):disabled")
+            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains('Change')")
         else:
             self.click_dropdown(self.card_row("Encryption tokens", index=1), "Change")
         self.dialog({'old_passphrase': passphrase,
@@ -682,7 +682,7 @@ class TestStorageStratisReboot(storagelib.StorageCase):
         # do it again, with the old passphrase in the keyring
         create_pool_key(m, "pool0", "boodeefoodeebar")
         if v1_pool:
-            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Change)")
+            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains('Change')")
         else:
             self.click_dropdown(self.card_row("Encryption tokens", index=1), "Change")
         self.dialog({'new_passphrase': passphrase,
@@ -1031,14 +1031,14 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
 
         if not legacy:
             b.assert_pixels(self.card("Encrypted Stratis pool"), "header",
-                            ignore=['.pf-v6-c-description-list__group:contains(UUID)'])
+                            ignore=['.pf-v6-c-description-list__group:contains("UUID")'])
 
         # Remove passphrase
         if v1_pool:
-            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Remove)")
+            b.click(self.card_desc("Encryption tokens", "Passphrase") + " button:contains('Remove')")
             self.confirm()
-            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Add passphrase)")
-            b.wait_visible(self.card_desc("Encryption tokens", "Keyserver") + " button:contains(Remove):disabled")
+            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains('Add passphrase')")
+            b.wait_visible(self.card_desc("Encryption tokens", "Keyserver") + " button:contains('Remove'):disabled")
         else:
             self.click_dropdown(self.card_row("Encryption tokens", index=1), "Remove")
             self.confirm()
@@ -1074,7 +1074,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         self.dialog({'passphrase': "foodeeboodeebar",
                      'passphrase2': "foodeeboodeebar"})
         if v1_pool:
-            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains(Remove):not(:disabled)")
+            b.wait_visible(self.card_desc("Encryption tokens", "Passphrase") + " button:contains('Remove'):not(:disabled)")
         else:
             b.wait_visible(self.card_row("Encryption tokens", location="passphrase"))
             b.click(self.dropdown_toggle(row))
@@ -1105,7 +1105,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         # Remove the keyserver and add it back
 
         if v1_pool:
-            b.click(self.card_desc("Encryption tokens", "Keyserver") + " button:contains(Remove)")
+            b.click(self.card_desc("Encryption tokens", "Keyserver") + " button:contains('Remove')")
         else:
             self.click_dropdown(self.card_row("Encryption tokens", location="10.111.112.5"), "Remove")
         self.confirm()
@@ -1135,7 +1135,7 @@ class TestStorageStratisNBDE(packagelib.PackageCase, storagelib.StorageCase):
         # first with the wrong passphrase already in the keyring
 
         if v1_pool:
-            b.click(self.card_desc("Encryption tokens", "Keyserver") + " button:contains(Remove)")
+            b.click(self.card_desc("Encryption tokens", "Keyserver") + " button:contains('Remove')")
         else:
             self.click_dropdown(self.card_row("Encryption tokens", location="10.111.112.5"), "Remove")
         self.confirm()

@@ -364,7 +364,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_text(line_sel(2), "Terminal 1")
 
         # Switch to Terminal 2
-        b.click('.pf-v6-c-toggle-group__button:contains(Terminal 2)')
+        b.click('.pf-v6-c-toggle-group__button:contains("Terminal 2")')
         b.wait_text('.pf-v6-c-toggle-group__button.pf-m-selected', "Terminal 2")
         b.wait_not_in_text(".terminal .xterm-accessibility-tree", "Terminal 1")
 
@@ -374,7 +374,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_text(line_sel(2), "Terminal 2")
 
         # Switch back to Terminal 1, old output should still be there
-        b.click('.pf-v6-c-toggle-group__button:contains(Terminal 1)')
+        b.click('.pf-v6-c-toggle-group__button:contains("Terminal 1")')
         b.wait_text('.pf-v6-c-toggle-group__button.pf-m-selected', "Terminal 1")
         b.wait_text(line_sel(2), "Terminal 1")
 
@@ -385,7 +385,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_in_text(line_sel(5), "admin@local")
         old_pid = b.text(line_sel(4))
 
-        b.click('button:contains(Reset)')
+        b.click('button:contains("Reset")')
         b.click(".terminal")  # Focus the terminal again
         b.wait_in_text(line_sel(1), "disconnected")
         b.wait_in_text(line_sel(2), "admin@local")
@@ -407,7 +407,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Remove all terminals, this closes all channels and kills all bash processes
 
-        b.click("label:contains(Show terminals)")
+        b.click("label:contains('Show terminals')")
         b.wait_not_present(".terminal")
 
         testlib.wait(lambda: count_admin_bashes() == 0)

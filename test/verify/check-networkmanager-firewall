@@ -307,7 +307,7 @@ class TestFirewall(netlib.NetworkCase):
         b.click(
             f'.zone-section[data-id="public"] tr[data-row-id="{freeipa}"] [data-ouia-component-id="toggle-{freeipa}"]'
         )
-        b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-v6-c-table__expandable-row:contains(Included Services)")
+        b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-v6-c-table__expandable-row:contains('Included Services')")
         b.click(
             f'.zone-section[data-id="public"] tr[data-row-id="{freeipa}"] [data-ouia-component-id="toggle-{freeipa}"]'
         )
@@ -381,10 +381,10 @@ class TestFirewall(netlib.NetworkCase):
             b.wait_val("#service-name", expected)
 
         def check_error(text):
-            b.wait_visible(f".pf-v6-c-form__helper-text .pf-m-error:contains({text})")
+            b.wait_visible(f".pf-v6-c-form__helper-text .pf-m-error:contains('{text}')")
 
         def save(identifier, tcp, udp, desc="", submit_text="Add ports"):
-            b.click(f"button:contains({submit_text})")
+            b.click(f"button:contains('{submit_text}')")
             b.wait_not_present("#add-services-dialog")
             # expand-togglecustom--80-82-echo-83-123-snmp
             print(identifier)
@@ -466,7 +466,7 @@ class TestFirewall(netlib.NetworkCase):
 
         b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] button[aria-label=Details]")
         b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] .pf-v6-c-menu-toggle.pf-m-plain")
-        b.click("button.pf-v6-c-menu__item:contains(Edit)")
+        b.click("button.pf-v6-c-menu__item:contains('Edit')")
         b.wait_val("#tcp-ports", "80-82, 7")
         b.wait_val("#udp-ports", "83-123, 161")
         b.wait_val("#service-name", "custom--80-82-echo-83-123-snmp")

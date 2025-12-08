@@ -1335,16 +1335,16 @@ Command={self.libexecdir}/cockpit-session
     }
 }""")
         self.login_and_go(None)
-        b.wait_visible("#nav-system li:contains(Hackices)")
-        self.assertFalse(b.is_present("#nav-system li:contains(Services)"))
+        b.wait_visible("#nav-system li:contains('Hackices')")
+        self.assertFalse(b.is_present("#nav-system li:contains('Services')"))
         b.logout()
 
         # still starts with a broken config (no section headers)
         m.write("/etc/test-xdg/cockpit/cockpit.conf", "LoginTitle=NoNoNO\n")
         m.execute("systemctl stop cockpit")
         self.login_and_go(None)
-        b.wait_visible("#nav-system li:contains(Hackices)")
-        self.assertFalse(b.is_present("#nav-system li:contains(Services)"))
+        b.wait_visible("#nav-system li:contains('Hackices')")
+        self.assertFalse(b.is_present("#nav-system li:contains('Services')"))
         b.logout()
         # message from cockpit-ws
         self.allow_journal_messages(".*cockpit.conf: key=val line not in any section.*")

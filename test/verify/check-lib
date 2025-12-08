@@ -43,7 +43,7 @@ class TestLib(testlib.MachineCase):
 
         # Select from menu (with mouse)
 
-        b.click("#typeahead-widget .pf-v6-c-menu__item:contains(Hawaii)")
+        b.click("#typeahead-widget .pf-v6-c-menu__item:contains('Hawaii')")
         b.wait_not_present("#typeahead-widget")
         b.assert_pixels("#demo-typeahead .pf-v6-c-menu-toggle", "input")
         b.wait_text("#value", "HI")
@@ -114,7 +114,7 @@ class TestLib(testlib.MachineCase):
         b.set_input_text("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Flori")
         b.wait_visible("#typeahead-widget")
         b.assert_pixels("#typeahead-widget", "search")
-        b.click("#typeahead-widget .pf-v6-c-menu__item:contains(Florida)")
+        b.click("#typeahead-widget .pf-v6-c-menu__item:contains('Florida')")
         b.wait_not_present("#typeahead-widget")
         b.wait_text("#value", "FL")
         b.wait_text("#toggles", "12")
@@ -124,7 +124,7 @@ class TestLib(testlib.MachineCase):
 
         b.set_checked("#isCreatable", val=True)
         b.set_input_text("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Flori")
-        b.click("#typeahead-widget .pf-v6-c-menu__item:contains(Create Flori)")
+        b.click("#typeahead-widget .pf-v6-c-menu__item:contains('Create Flori')")
         b.wait_not_present("#typeahead-widget")
         b.wait_text("#value", "Flori")
         b.wait_val("#demo-typeahead .pf-v6-c-text-input-group__text-input", "Flori")
@@ -151,7 +151,7 @@ class TestLib(testlib.MachineCase):
 
         # Select from menu (with mouse)
 
-        b.click("#multi-typeahead-widget .pf-v6-c-menu__item:contains(Strawberry Cheesecake)")
+        b.click("#multi-typeahead-widget .pf-v6-c-menu__item:contains('Strawberry Cheesecake')")
         b.wait_not_present("#multi-typeahead-widget")
         b.assert_pixels("#demo-multi-typeahead .pf-v6-c-menu-toggle", "input")
         b.wait_text("#multi-value", "[76]")
@@ -162,7 +162,7 @@ class TestLib(testlib.MachineCase):
 
         b.click("#demo-multi-typeahead .pf-v6-c-menu-toggle__button")
         b.wait_visible("#multi-typeahead-widget")
-        b.click("#multi-typeahead-widget .pf-v6-c-menu__item:contains(Coconut Chip)")
+        b.click("#multi-typeahead-widget .pf-v6-c-menu__item:contains('Coconut Chip')")
         b.wait_not_present("#multi-typeahead-widget")
         b.wait_text("#multi-value", "[76,32]")
         b.wait_text("#multi-toggles", "4")
@@ -202,8 +202,8 @@ class TestLib(testlib.MachineCase):
         b.wait_text("#multi-toggles", "8")
         b.wait_text("#multi-changes", "0")
 
-        b.wait_visible("#demo-multi-typeahead .pf-v6-c-label:contains(Coconut Chip)")
-        b.wait_visible("#demo-multi-typeahead .pf-v6-c-label:contains(Autumn Delight)")
+        b.wait_visible("#demo-multi-typeahead .pf-v6-c-label:contains('Coconut Chip')")
+        b.wait_visible("#demo-multi-typeahead .pf-v6-c-label:contains('Autumn Delight')")
 
         # Search for non-existent
 

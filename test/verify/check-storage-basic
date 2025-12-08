@@ -63,7 +63,7 @@ class TestStorageBasic(storagelib.StorageCase):
         self.click_card_row("GPT partitions", 1)
         b.wait_text(self.card_desc("Partition", "Name"), "primary")
         b.assert_pixels(self.card("Partition"), "partition",
-                        mock={"dt:contains(UUID) + dd": "a12978a1-5d6e-f24f-93de-11789977acde"})
+                        mock={"dt:contains('UUID') + dd": "a12978a1-5d6e-f24f-93de-11789977acde"})
         b.assert_pixels(self.card("ext2 filesystem"), "filesystem")
 
         b.go("#/")

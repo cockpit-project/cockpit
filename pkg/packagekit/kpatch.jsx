@@ -40,7 +40,6 @@ import cockpit from "cockpit";
 import { proxy as serviceProxy } from "service";
 import { check_missing_packages } from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import { read_os_release } from "os-release.js";
 
 const _ = cockpit.gettext;
 
@@ -50,7 +49,6 @@ export class KpatchSettings extends React.Component {
 
         this.state = {
             loaded: false,
-            showLoading: null, // true: show spinner during initialization; false: hide
             auto: null, // `dnf kpatch` is set to `auto`
             enabled: null, // kpatch.service is enabled
             missing: [], // missing packages from `kpatch`, `kpatch-dnf`
@@ -83,34 +81,27 @@ export class KpatchSettings extends React.Component {
     }
 
     componentDidMount() {
-        // Only show a spinner during loading on RHEL (the only place where we expect this to work)
-        read_os_release().then(os_release => {
-            const showLoading = os_release && os_release.ID == 'rhel';
-            this.setState({ showLoading });
-            if (showLoading) {
-                check_missing_packages(["kpatch", "kpatch-dnf"])
-                        .then(d =>
-                            this.checkSetup().then(() =>
-                                this.setState({
-                                    loaded: true,
-                                    unavailable: d.unavailable_names || [],
-                                    missing: d.missing_names || [],
-                                })
-                            )
-                        )
-                        .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
+        check_missing_packages(["kpatch", "kpatch-dnf"])
+                .then(d =>
+                    this.checkSetup().then(() =>
+                        this.setState({
+                            loaded: true,
+                            unavailable: d.unavailable_names || [],
+                            missing: d.missing_names || [],
+                        })
+                    )
+                )
+                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
 
-                this.kpatchService.addEventListener('changed', () => {
-                    this.setState(state => {
-                        const current = this.current(this.kpatchService.enabled, state.patchInstalled, state.patchUnavailable);
-                        return ({
-                            enabled: this.kpatchService.enabled,
-                            justCurrent: current && !state.auto,
-                            applyCheckbox: current,
-                        });
-                    });
+        this.kpatchService.addEventListener('changed', () => {
+            this.setState(state => {
+                const current = this.current(this.kpatchService.enabled, state.patchInstalled, state.patchUnavailable);
+                return ({
+                    enabled: this.kpatchService.enabled,
+                    justCurrent: current && !state.auto,
+                    applyCheckbox: current,
                 });
-            }
+            });
         });
     }
 
@@ -230,13 +221,6 @@ export class KpatchSettings extends React.Component {
     }
 
     render() {
-        // don't show anything during initial detection
-        if ((this.state.loaded === false || this.state.patchName === null) && !this.state.showLoading)
-            return null;
-
-        // Not supported on this system
-        if (this.state.unavailable.length > 0 && !this.state.showLoading)
-            return null;
         let state;
         let actionText = _("Edit");
         let action = () => this.setState({ showModal: true });

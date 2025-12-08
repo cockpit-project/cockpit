@@ -98,8 +98,8 @@ class TestStorageLuks(storagelib.StorageCase):
                        f"Last modified: {date_no_mins}:")
 
         b.assert_pixels(self.card("Encryption"), "card",
-                        ignore=["dt:contains(Stored passphrase) + dd",
-                                "dt:contains(Cleartext device) + dd"])
+                        ignore=["dt:contains('Stored passphrase') + dd",
+                                "dt:contains('Cleartext device') + dd"])
 
         # Unmount. This locks it
         b.click(self.card_button("ext4 filesystem", "Unmount"))

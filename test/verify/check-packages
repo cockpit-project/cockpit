@@ -65,9 +65,9 @@ class TestPackages(testlib.MachineCase):
         def check_nav_entry(label, present):
             b.switch_to_top()
             if present:
-                b.wait_visible(f"#nav-system li:contains({label})")
+                b.wait_visible(f"#nav-system li:contains('{label}')")
             else:
-                b.wait_not_present(f"#nav-system li:contains({label})")
+                b.wait_not_present(f"#nav-system li:contains('{label}')")
 
         self.login_and_go("/playground/pkgs")
 
@@ -78,7 +78,7 @@ class TestPackages(testlib.MachineCase):
         reload_packages()
 
         b.switch_to_top()
-        b.click("#nav-system a:contains(Test)")
+        b.click("#nav-system a:contains('Test')")
 
         b.enter_page("/test/test")
         b.wait_text("h1", "Test")

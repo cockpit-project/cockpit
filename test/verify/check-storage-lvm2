@@ -515,7 +515,7 @@ class TestStorageLvm2(storagelib.StorageCase):
 
         # Dismiss alert, this will delete the volume
 
-        b.click(".pf-v6-c-alert button:contains(Dismiss)")
+        b.click(".pf-v6-c-alert button:contains('Dismiss')")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "vgroup0/lvol0")
         self.dialog_apply()
@@ -982,7 +982,7 @@ class TestStorageLvm2Destructive(storagelib.StorageCase):
         b.wait_visible(self.card_row("LVM2 logical volumes", name="lvol0"))
         b.wait_not_present(self.card_row("LVM2 logical volumes", name="lvol0") + ' .ct-icon-exclamation-triangle')
 
-        b.click(".pf-v6-c-alert button:contains(Dismiss)")
+        b.click(".pf-v6-c-alert button:contains('Dismiss')")
         self.dialog({})
         b.wait_not_present(".pf-v6-c-alert")
 

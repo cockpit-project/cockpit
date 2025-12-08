@@ -59,13 +59,13 @@ def fix_bridge(m):
 
 def check_failed_state(b, expected_title):
     b.wait_in_text('#hosts_setup_server_dialog h1', expected_title)
-    b.click("#hosts_setup_server_dialog button:contains(Close)")
+    b.click("#hosts_setup_server_dialog button:contains('Close')")
     b.wait_not_present('#hosts_setup_server_dialog')
 
 
 def fail_login(b):
-    b.click('#hosts_setup_server_dialog button:contains(Log in)')
-    b.wait_visible('#hosts_setup_server_dialog button:contains(Log in):not([disabled])')
+    b.click('#hosts_setup_server_dialog button:contains("Log in")')
+    b.wait_visible('#hosts_setup_server_dialog button:contains("Log in"):not([disabled])')
     b.wait_in_text("#hosts_setup_server_dialog .pf-v6-c-alert", "Login failed")
 
 
@@ -581,7 +581,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.start_machine_troubleshoot(expect_curtain=False, password="foobar",
                                      expect_closed_dialog=False, expect_warning=False)
         b.wait_in_text("#hosts_setup_server_dialog .pf-v6-c-alert", "Login failed")
-        b.click("#hosts_setup_server_dialog button:contains(Cancel)")
+        b.click("#hosts_setup_server_dialog button:contains('Cancel')")
 
         # wait for system to load
         b.go("/system")
@@ -689,7 +689,7 @@ class TestMultiMachine(testlib.MachineCase):
         break_hostkey(m1, "10.111.113.2")
         b.start_machine_troubleshoot(new=True, known_host=True, expect_closed_dialog=False)
         b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
-        b.click("#hosts_setup_server_dialog button:contains(Cancel)")
+        b.click("#hosts_setup_server_dialog button:contains('Cancel')")
         b.wait_not_present('#hosts_setup_server_dialog')
         fix_hostkey(m1)
 
@@ -699,7 +699,7 @@ class TestMultiMachine(testlib.MachineCase):
 
         b.start_machine_troubleshoot(new=True, known_host=True, expect_closed_dialog=False, expect_warning=False)
         b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
-        b.click("#hosts_setup_server_dialog button:contains(Cancel)")
+        b.click("#hosts_setup_server_dialog button:contains('Cancel')")
         fix_hostkey(m1)
 
         # Bad cockpit
@@ -832,7 +832,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_in_text('#hosts_setup_server_dialog', "new host")
         b.set_input_text('#add-machine-user', "fred")
-        b.click('#hosts_setup_server_dialog button:contains(Add)')
+        b.click('#hosts_setup_server_dialog button:contains("Add")')
         b.wait_visible('#hosts_connect_server_dialog')
         b.click("#hosts_connect_server_dialog button.pf-m-warning")
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
@@ -851,7 +851,7 @@ class TestMultiMachine(testlib.MachineCase):
         if not m1.ostree_image:
             b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
             b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password2', "foobar")
-        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.click('#hosts_setup_server_dialog button:contains("Log in")')
         with b.wait_timeout(30):
             b.wait_not_present('#hosts_setup_server_dialog')
 
@@ -876,7 +876,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_in_text("#hosts_setup_server_dialog", "Authorize SSH key")
         b.set_checked("#login-setup-keys", val=True)
         b.set_input_text('#login-custom-password', "foobar")
-        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.click('#hosts_setup_server_dialog button:contains("Log in")')
         b.wait_not_present('#hosts_setup_server_dialog')
         b.enter_page("/system", host="fred@10.111.113.2")
         self.assertEqual(m1.execute("cat /home/admin/.ssh/id_rsa.pub"),
@@ -895,7 +895,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.set_checked("#login-setup-keys", val=True)
         b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
         b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password2', "foobar")
-        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.click('#hosts_setup_server_dialog button:contains("Log in")')
         b.wait_not_present('#hosts_setup_server_dialog')
         b.enter_page("/system", host="fred@10.111.113.2")
 
@@ -936,9 +936,9 @@ class TestMultiMachine(testlib.MachineCase):
         b.go("/@10.111.113.2")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
-        b.click('#hosts_setup_server_dialog button:contains(Add)')
+        b.click('#hosts_setup_server_dialog button:contains("Add")')
         b.wait_visible('#hosts_connect_server_dialog')
-        b.click('#hosts_connect_server_dialog button:contains(Connect)')
+        b.click('#hosts_connect_server_dialog button:contains("Connect")')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
         b.click("#hosts_setup_server_dialog button:contains('Trust and add host')")
         b.wait_in_text('#hosts_setup_server_dialog', "The SSH key")

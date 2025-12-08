@@ -813,7 +813,7 @@ OnCalendar=daily
         assert_location("/users#/root")
 
         b.enter_page("/users")
-        b.click("nav a:contains(Accounts)")
+        b.click("nav a:contains('Accounts')")
         b.wait_visible("button:contains('Create new account')")
         b.switch_to_top()
         assert_location("/users")
@@ -864,7 +864,7 @@ OnCalendar=daily
         if not self.machine.ws_container:
 
             b.enter_page("/system")
-            b.click("button:contains(View login history)")
+            b.click("button:contains('View login history')")
             b.enter_page("/users")
             b.wait_text("#account-title", "Administrator")
             b.switch_to_top()

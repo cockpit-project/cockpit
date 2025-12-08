@@ -545,7 +545,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.login_and_go("/system/logs#/?tag=check-journal&since=@" + self.test_start_time)
 
-        journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
+        journal_line_selector = "#journal-box .cockpit-logline:has(span:contains('{0}'))"
 
         b.select_PF("#journal-prio-menu", "Only emergency")
         b.wait_visible(journal_line_selector.format("EMERGENCY_MESSAGE"))

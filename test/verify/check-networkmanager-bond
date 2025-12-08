@@ -88,7 +88,7 @@ class TestBonding(netlib.NetworkCase):
         b.wait_in_text("#network-interface-settings", "MTU")
         b.wait_not_in_text("#network-interface-settings", "IPv4")
         b.wait_not_in_text("#network-interface-settings", "IPv6")
-        b.click("#network-interface-settings button:contains(tbond)")
+        b.click("#network-interface-settings button:contains('tbond')")
         b.wait_in_text("#network-interface-name", "tbond")
 
         # Deactivate the bond and make sure it is still there after a

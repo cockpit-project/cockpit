@@ -1281,7 +1281,7 @@ Where=/fail
         b.wait_in_text(".pf-v6-c-label-group:contains('File state')", "Disabled")
         b.wait_in_text(".pf-v6-c-label-group:contains('File state')", "Enabled")
         b.wait_visible(".services-text-filter input[value=test]")
-        b.wait_visible(".pf-v6-c-nav__list a.pf-m-current:contains(Services)")
+        b.wait_visible(".pf-v6-c-nav__list a.pf-m-current:contains('Services')")
         b.wait_visible("#user.pf-m-selected")
         # there is no running "test" service
         self.browser.wait_in_text(".pf-v6-c-empty-state", "No matching results")

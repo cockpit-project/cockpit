@@ -217,8 +217,8 @@ class TestSelinux(testlib.MachineCase):
 
         b.grant_permissions("clipboard-read", "clipboard-write")
 
-        b.wait_visible(".pf-v6-c-data-list__cell:contains(daemons to)")
-        b.wait_visible(".pf-v6-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
+        b.wait_visible(".pf-v6-c-data-list__cell:contains(\"daemons to\")")
+        b.wait_visible(".pf-v6-c-data-list__cell:contains(\"fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'\")")
         b.click("button:contains('View automation script')")
         ansible_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(2) textarea"
         shell_script_sel = ".automation-script-modal .pf-v6-c-modal-box__body section:nth-child(3) textarea"
@@ -257,7 +257,7 @@ class TestSelinux(testlib.MachineCase):
         b.reload()
         b.enter_page("/selinux")
         with b.wait_timeout(30):
-            b.wait_text_matches(".pf-v6-c-data-list__cell:contains(daemons)", "Disallow.*daemons.*core")
+            b.wait_text_matches(".pf-v6-c-data-list__cell:contains(\"daemons\")", "Disallow.*daemons.*core")
         b.click("button:contains('View automation script')")
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
         se_before = se_after

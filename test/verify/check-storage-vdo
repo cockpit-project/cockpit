@@ -228,7 +228,7 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
 
         # Grow logical
 
-        b.click(detail(3) + " button:contains(Grow)")
+        b.click(detail(3) + " button:contains('Grow')")
         self.dialog({"lsize": 10000})
         b.wait_in_text(detail(3), "used of 10.0 GB")
         b.wait_in_text(self.card_desc("xfs filesystem", "Usage"), "/ 10 GB")
@@ -409,7 +409,7 @@ class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
         m.execute("vgcreate vdo_vgroup /dev/sda")
 
         self.click_card_row("Storage", name="vdo_vgroup")
-        b.click("button:contains(Create new logical volume)")
+        b.click("button:contains('Create new logical volume')")
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
         # no package installation helper text

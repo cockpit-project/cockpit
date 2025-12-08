@@ -74,7 +74,7 @@ class TestSOS(testlib.MachineCase):
         b.set_checked("#sos-dialog #sos-dialog-cb-1", val=True)
         if urlroot == "":
             b.assert_pixels("#sos-dialog", "dialog")
-        b.click("#sos-dialog button:contains(Run report)")
+        b.click("#sos-dialog button:contains('Run report')")
         with b.wait_timeout(120):
             b.wait_not_present("#sos-dialog")
 
@@ -84,7 +84,7 @@ class TestSOS(testlib.MachineCase):
         def downloaded_sosreports():
             return [str(p) for p in b.driver.download_dir.glob("*sosreport-*.xz.gpg")]
 
-        b.click("tr button:contains(Download)")
+        b.click("tr button:contains('Download')")
         # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done
         testlib.wait(lambda: len(downloaded_sosreports()) > 0)
         report_gpg = downloaded_sosreports()[0]
@@ -105,8 +105,8 @@ class TestSOS(testlib.MachineCase):
             tar.getmember(os.path.join(topdir, "etc/os-release"))
 
         b.click("tr button.pf-v6-c-menu-toggle")
-        b.click(".pf-v6-c-menu__list-item:contains(Delete)")
-        b.click("#sos-remove-dialog button:contains(Delete)")
+        b.click(".pf-v6-c-menu__list-item:contains('Delete')")
+        b.click("#sos-remove-dialog button:contains('Delete')")
         # ensure it removes the report itself, and auxiliary files like .gpg
         m.execute(f"while ls {self.report_dir}/{base_report}*; do sleep 1; done", stdout=None, timeout=10)
 
@@ -116,10 +116,10 @@ echo "EssOhEss is kaputt" >&2
 exit 1""", perm="755")
         b.click("button:contains('Run report')")
         b.wait_visible("#sos-dialog")
-        b.click("#sos-dialog button:contains(Run report)")
+        b.click("#sos-dialog button:contains('Run report')")
         b.wait_in_text("#sos-dialog .pf-v6-c-alert", "sos report failed")
         b.wait_in_text("#sos-dialog .pf-v6-c-alert", "EssOhEss is kaputt")
-        b.click("#sos-dialog button:contains(Cancel)")
+        b.click("#sos-dialog button:contains('Cancel')")
         b.wait_not_present("#sos-dialog")
 
         self.allow_journal_messages('.*comm="sosreport".*')
@@ -141,7 +141,7 @@ exit 1""", perm="755")
         b.wait_visible("#sos-dialog")
         b.set_input_text("#sos-dialog #sos-dialog-ti-1", "mylabel")
         b.set_checked("#sos-dialog #sos-dialog-cb-2", val=True)
-        b.click("#sos-dialog button:contains(Run report)")
+        b.click("#sos-dialog button:contains('Run report')")
         with b.wait_timeout(120):
             b.wait_not_present("#sos-dialog")
 
@@ -157,7 +157,7 @@ exit 1""", perm="755")
 
         self.login_and_go("/sosreport")
         b.click("button:contains('Run report')")
-        b.click("#sos-dialog button:contains(Run report)")
+        b.click("#sos-dialog button:contains('Run report')")
         m.execute("until pgrep -x sos >/dev/null; do sleep 1; done")
 
         b.click("button:contains('Stop report')")

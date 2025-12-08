@@ -144,7 +144,7 @@ class TestSystemInfo(testlib.MachineCase):
         b.wait_not_in_text("#system_information_ssh_keys .pf-v6-c-list", new_alt)
         b.wait_in_text("#system_information_ssh_keys .pf-v6-c-list", old_alt)
 
-        b.click('#system_information_ssh_keys button:contains("Close")')
+        b.click("#system_information_ssh_keys button:contains('Close')")
         b.wait_not_present("#system_information_ssh_keys")
 
         # Change ssh config and restart
@@ -165,7 +165,7 @@ class TestSystemInfo(testlib.MachineCase):
         b.wait_in_text('#system_information_os_text',
                        "Foobar Adventure Linux Server 2.0 (Day of Doom)")
 
-        b.click('#system_information_ssh_keys button:contains("Close")')
+        b.click("#system_information_ssh_keys button:contains('Close')")
         b.wait_not_present("#system_information_ssh_keys")
 
         m.execute("hostnamectl set-hostname --static --pretty 'Adventure Box'")
@@ -507,7 +507,7 @@ machine         : 8561
                     b.wait_in_text('#hwinfo-system-info-list', "CPU")
                     b.wait_not_in_text('#hwinfo-system-info-list', "CPU security")
                 else:
-                    b.click('#hwinfo button:contains(Mitigations)')
+                    b.click('#hwinfo button:contains("Mitigations")')
 
                 if expect_smt_state is not None:
                     b.wait_in_text('#cpu-mitigations-dialog .nosmt-heading', 'nosmt')
@@ -540,11 +540,11 @@ machine         : 8561
 
         # Switch nosmt option
         self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#hwinfo button:contains("Mitigations")')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (':not(:checked)' if self.expect_smt_default else ':checked'))
-        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        b.click('#cpu-mitigations-dialog Button:contains("Save and reboot")')
 
         self.wait_reboot()
         if self.expect_smt_default:
@@ -583,14 +583,14 @@ fi
 
         # Switch back nosmt option
         self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#hwinfo button:contains("Mitigations")')
         b.wait_in_text('#cpu-mitigations-dialog .nosmt-heading', 'nosmt')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (':not(:checked)' if self.expect_smt_default else ':checked'))
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (':checked' if self.expect_smt_default else ':not(:checked)'))
-        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        b.click('#cpu-mitigations-dialog Button:contains("Save and reboot")')
         self.wait_reboot()
         if self.expect_smt_default:
             self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
@@ -604,12 +604,12 @@ fi
         m.execute("/tmp/kernelopt.sh set mitigations=auto,nosmt")
         self.reboot()
         self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#hwinfo button:contains("Mitigations")')
         b.wait_in_text('#cpu-mitigations-dialog .nosmt-heading', 'nosmt')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
-        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        b.click('#cpu-mitigations-dialog Button:contains("Save and reboot")')
         self.wait_reboot()
         self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
         self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
@@ -629,10 +629,10 @@ fi
         m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
         m.execute('systemctl stop rpm-ostreed.service || true; systemctl mask rpm-ostreed.service')
         self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#hwinfo button:contains("Mitigations")')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:checked')
-        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        b.click("#cpu-mitigations-dialog Button:contains('Save and reboot')")
         b.wait_in_text('#cpu-mitigations-dialog .pf-v6-c-alert__title', 'No supported grub update mechanism found')
 
         self.allow_journal_messages('Sourcing file `/etc/default/grub.*',

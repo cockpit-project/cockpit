@@ -52,7 +52,7 @@ class TestRoles(testlib.MachineCase):
         b.go("/users#/user")
         b.enter_page("/users")
 
-        admin_role_sel = f".pf-v6-c-label:contains('{m.get_admin_group()}')"
+        admin_rol_sel = "#account-groups-form-group .pf-v6-c-label-group"
 
         b.wait_text("#account-user-name", "user")
         b.wait_visible("#account-locked[disabled]")
@@ -60,7 +60,7 @@ class TestRoles(testlib.MachineCase):
         b.wait_visible("#account-set-password:not([disabled])")
         b.wait_not_present("#account-delete")
         b.wait_not_present("#account-logout")
-        b.wait_not_present(admin_role_sel + f" > button:contains('Close {m.get_admin_group()}')")
+        b.wait_not_in_text(admin_rol_sel, m.get_admin_group())
 
         # Check permissions for admin account
         b.go("/users")
@@ -73,15 +73,15 @@ class TestRoles(testlib.MachineCase):
         b.wait_not_present("#account-delete")
         b.wait_not_present("#account-logout")
         b.wait_not_present("#account-groups")
-        b.wait_visible(admin_role_sel)
+        b.wait_in_text(admin_rol_sel, m.get_admin_group())
 
         # Add admin role from the outside (and wait for it to stick)
         b.go("#/user")
         b.wait_text("#account-user-name", "user")
 
-        b.wait_not_present(admin_role_sel)
+        b.wait_not_in_text(admin_rol_sel, m.get_admin_group())
         m.execute(f"usermod -a -G {m.get_admin_group()} user")
-        b.wait_visible(admin_role_sel)
+        b.wait_in_text(admin_rol_sel, m.get_admin_group())
 
         b.relogin("/users", "user", superuser=True)
         b.wait_text("#account-user-name", "user")
@@ -95,7 +95,7 @@ class TestRoles(testlib.MachineCase):
         b.wait_visible("#account-delete:not([disabled])")
         # admin is not logged in, thus still disabled
         b.wait_visible("#account-logout[disabled]")
-        b.wait_visible(admin_role_sel)
+        b.wait_in_text(admin_rol_sel, m.get_admin_group())
         b.wait_visible("#account-groups")
 
     @testlib.nondestructive

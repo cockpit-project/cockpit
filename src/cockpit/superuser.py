@@ -23,6 +23,8 @@ import logging
 import os
 import shutil
 import socket
+import subprocess
+from os.path import basename
 from tempfile import TemporaryDirectory
 from typing import List, Optional, Sequence, Tuple
 
@@ -40,11 +42,28 @@ from .router import Router, RoutingError, RoutingRule
 logger = logging.getLogger(__name__)
 
 
+def sudo_supports_askpass(sudo_path: str) -> bool:
+    try:
+        # Returns 0 if -A is supported, non-zero if it's not
+        subprocess.run(
+            [sudo_path, '-A', '--help'],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True
+        )
+        return True
+    except (subprocess.CalledProcessError, OSError):
+        return False
+
+
 def is_valid_superuser_config(config: BridgeConfig) -> bool:
     if not config.privileged:
         return False
     command = shutil.which(config.spawn[0])
     if command is None:
+        return False
+    if basename(command) == 'sudo' and not sudo_supports_askpass(command):
         return False
     return True
 

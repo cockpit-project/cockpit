@@ -75,9 +75,6 @@ export class KpatchSettings extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.onClose = this.onClose.bind(this);
         this.handleInstall = this.handleInstall.bind(this);
-
-        // only show a spinner during loading on RHEL (the only place where we expect this to work)
-        read_os_release().then(os_release => this.setState({ showLoading: os_release && os_release.ID == 'rhel' }));
     }
 
     // Only current patches or also future ones
@@ -86,27 +83,34 @@ export class KpatchSettings extends React.Component {
     }
 
     componentDidMount() {
-        check_missing_packages(["kpatch", "kpatch-dnf"])
-                .then(d =>
-                    this.checkSetup().then(() =>
-                        this.setState({
-                            loaded: true,
-                            unavailable: d.unavailable_names || [],
-                            missing: d.missing_names || [],
-                        })
-                    )
-                )
-                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
+        // Only show a spinner during loading on RHEL (the only place where we expect this to work)
+        read_os_release().then(os_release => {
+            const showLoading = os_release && os_release.ID == 'rhel';
+            this.setState({ showLoading });
+            if (showLoading) {
+                check_missing_packages(["kpatch", "kpatch-dnf"])
+                        .then(d =>
+                            this.checkSetup().then(() =>
+                                this.setState({
+                                    loaded: true,
+                                    unavailable: d.unavailable_names || [],
+                                    missing: d.missing_names || [],
+                                })
+                            )
+                        )
+                        .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
 
-        this.kpatchService.addEventListener('changed', () => {
-            this.setState(state => {
-                const current = this.current(this.kpatchService.enabled, state.patchInstalled, state.patchUnavailable);
-                return ({
-                    enabled: this.kpatchService.enabled,
-                    justCurrent: current && !state.auto,
-                    applyCheckbox: current,
+                this.kpatchService.addEventListener('changed', () => {
+                    this.setState(state => {
+                        const current = this.current(this.kpatchService.enabled, state.patchInstalled, state.patchUnavailable);
+                        return ({
+                            enabled: this.kpatchService.enabled,
+                            justCurrent: current && !state.auto,
+                            applyCheckbox: current,
+                        });
+                    });
                 });
-            });
+            }
         });
     }
 

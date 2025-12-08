@@ -77,6 +77,7 @@ import * as python from "python.js";
 import * as timeformat from "timeformat";
 
 import { debug, watchRedHatSubscription } from './utils';
+import { read_os_release } from "os-release.js";
 import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
@@ -882,7 +883,9 @@ class CardsPage extends React.Component {
         if (this.state.autoupdates_backend) {
             settingsContent = <Stack hasGutter>
                 <AutoUpdates privileged={this.props.privileged} packagekit_backend={this.props.backend} initial_backend={this.state.autoupdates_backend} />
+                {cockpit.info.os_release && cockpit.info.os_release?.ID === "rhel" &&
                 <KpatchSettings privileged={this.props.privileged} />
+                }
             </Stack>;
         }
 
@@ -1625,8 +1628,19 @@ class OsUpdates extends React.Component {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     init();
+
+    try {
+        await cockpit.init();
+    } catch (exp) {
+        /* Remove this when every beiboot scenario has Cockpit 336 */
+        if (exp.problem === 'not-supported') {
+            const os_release = await read_os_release();
+            cockpit.info.os_release = os_release;
+        }
+    }
+
     const root = createRoot(document.getElementById('app'));
     root.render(<OsUpdates />);
 });

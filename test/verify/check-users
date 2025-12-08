@@ -593,23 +593,23 @@ class TestAccounts(testlib.MachineCase):
         # Use [x] button on the group label to remove the account from group
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
-        b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains('{m.get_admin_group()}')")
+        b.wait_in_text(f"{admin_role_sel} #account-groups .pf-v6-c-label-group", m.get_admin_group())
         b.wait_not_present("#account-groups-helper")
-        b.click(f".pf-v6-c-label-group__list .pf-v6-c-label:contains('{m.get_admin_group()}') .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']")
+        b.click(f"#account-groups .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']")
         b.wait(lambda: not is_admin())
-        b.wait_not_present(admin_role_sel + f" .pf-v6-c-label:contains('{m.get_admin_group()}')")
+        b.wait_not_in_text(f"{admin_role_sel} #account-groups .pf-v6-c-label-group", m.get_admin_group())
         if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
             b.wait_visible("#account-groups-helper")
         m.execute(f"/usr/bin/gpasswd -a jussi {m.get_admin_group()}")
         with b.wait_timeout(20):
-            b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains('{m.get_admin_group()}')")
+            b.wait_in_text(f"{admin_role_sel} #account-groups .pf-v6-c-label-group", m.get_admin_group())
 
         # Cannot lock the current account
         b.wait_visible("#account-locked[disabled]")
 
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
-        b.wait_visible(admin_role_sel + f" .pf-v6-c-label:contains('{m.get_admin_group()}')")
+        b.wait_in_text(f"{admin_role_sel} #account-groups .pf-v6-c-label-group", m.get_admin_group())
         b.wait_not_present("#account-groups-helper")
         b.logout()
         b.login_and_go("/users")
@@ -1228,14 +1228,14 @@ class TestAccounts(testlib.MachineCase):
         b.wait_in_text(".pf-v6-c-label-group__list", m.get_admin_group())
 
         # Primary group cannot be remove but others have a remove button
-        b.wait_visible(".pf-v6-c-label-group__list .pf-v6-c-label__content:contains('admin')")
-        b.wait_not_present(".pf-v6-c-label-group__list .pf-v6-c-label__content:contains('admin') + span > button")
-        close_button = f".pf-v6-c-label-group__list .pf-v6-c-label:contains('{m.get_admin_group()}') .pf-v6-c-label__actions button[aria-label='Close {m.get_admin_group()}']"
+        b.wait_in_text("#account-groups .pf-v6-c-label-group", "admin")
+        b.wait_not_present("#account-groups button[aria-label='Close user']")
+        close_button = f"#account-groups button[aria-label='Close {m.get_admin_group()}']"
         b.wait_visible(close_button)
 
         # Clicking on the close button removes the group
         b.click(close_button)
-        b.wait_not_present(f".pf-v6-c-label-group__list .pf-v6-c-label__content:contains('{m.get_admin_group()}')")
+        b.wait_not_in_text("#account-groups .pf-v6-c-label-group", m.get_admin_group())
         b.wait_not_present(".pf-v6-c-select__menu")
 
         # Add admin to the testgroup0 group

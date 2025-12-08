@@ -465,6 +465,72 @@ session include system-auth
         b.wait_not_present(".pf-v6-c-modal-box")
         b.wait_not_present(".ct-limited-access-alert")
 
+    def start_transient_unit_common(self):
+        b = self.browser
+        m = self.machine
+
+        # Log in with limited access
+        self.login_and_go(superuser=False)
+        b.check_superuser_indicator("Limited access")
+
+        if m.image.startswith('rhel-8-'):  # SELINUX-5411
+            self.addCleanup(m.execute, ("setenforce", "1"))
+            m.execute(("setenforce", "0"))
+
+        # Open the superuser dialog and enter wrong password
+        b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate to gain administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "wrong")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+
+        # StartTransientUnit only prompts once, so we expect Permission denied
+        # after one wrong attempt
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.wait_in_text(".pf-v6-c-modal-box", "Permission denied")
+        b.click(".pf-v6-c-modal-box button:contains('Close')")
+
+        # There is a strange issue with AsyncExitStack in the polkit agent code
+        # in the bridge that seems to only impact Python 3.6, resulting in the
+        # agent not being unregistered after the first attempt.  We're planning
+        # to move to Python 3.9 on RHEL 8 soon, but until we do that, we can
+        # workaround by logging out and logging back in.
+        if m.image.startswith('rhel-8-'):
+            b.logout()
+            b.login_and_go(superuser=False)
+
+        # Open the superuser dialog and use the right password this time
+        b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate to gain administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-v6-c-modal-box")
+        b.check_superuser_indicator("Administrative access")
+
+        # Verify that neither sudo nor pkexec are being used
+        self.assertEqual(m.execute(["pgrep", "-a", "sudo"], check=False).strip(), "")
+        self.assertEqual(m.execute(["pgrep", "-a", "pkexec"], check=False).strip(), "")
+
+    @testlib.skipOstree("can't delete sudo")
+    def testStartTransientUnitNoSudo(self):
+        # Break sudo to force StartTransientUnit to be used
+        self.restore_file("/usr/bin/sudo")
+        self.machine.execute(["rm", "-f", "/usr/bin/sudo"])
+        self.start_transient_unit_common()
+
+    @testlib.skipOstree("can't replace sudo")
+    def testStartTransientUnitNoAskpass(self):
+        # sudo doesn't support -A: StartTransientUnit must be used
+        # we need to be a bit more explicit here because it might be a symlink
+        self.restore_file("/usr/bin/sudo")
+        self.machine.execute(["rm", "-f", "/usr/bin/sudo"])
+        self.machine.write("/usr/bin/sudo", """#!/bin/sh
+echo "no -A support!" >&2
+exit 1
+""", perm="0755")
+        self.start_transient_unit_common()
+
 
 @testlib.skipBeiboot("host switching disabled in beiboot mode")
 class TestSuperuserDashboard(testlib.MachineCase):

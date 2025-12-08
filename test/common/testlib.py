@@ -278,18 +278,6 @@ class Browser:
         test_functions = "if (window.ph_select) return; " + test_functions
         self.bidi("script.addPreloadScript", quiet=True, functionDeclaration=f"() => {{ {test_functions} }}")
 
-        try:
-            sizzle_js = (Path(__file__).parent.parent.parent / "node_modules/sizzle/dist/sizzle.js").read_text()
-            # HACK: injecting sizzle fails on missing `document` in assert()
-            sizzle_js = sizzle_js.replace('function assert( fn ) {',
-                                          'function assert( fn ) { if (true) return true; else ')
-            # HACK: sizzle tracks document and when we switch frames, it sees the old document
-            # although we execute it in different context.
-            sizzle_js = sizzle_js.replace('context = context || document;', 'context = context || window.document;')
-            self.bidi("script.addPreloadScript", quiet=True, functionDeclaration=f"() => {{ {sizzle_js} }}")
-        except FileNotFoundError:
-            pass
-
         if coverage_label:
             self.cdp_command("Profiler.enable")
             self.cdp_command("Profiler.startPreciseCoverage", callCount=False, detailed=True)

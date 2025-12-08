@@ -880,7 +880,7 @@ class CardsPage extends React.Component {
 
         if (this.state.autoupdates_backend) {
             settingsContent = <Stack hasGutter>
-                <AutoUpdates privileged={this.props.privileged} packagekit_backend={this.props.backend} />
+                <AutoUpdates privileged={this.props.privileged} packagekit_backend={this.props.backend} initial_backend={this.state.autoupdates_backend} />
                 <KpatchSettings privileged={this.props.privileged} />
             </Stack>;
         }

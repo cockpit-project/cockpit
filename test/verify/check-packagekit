@@ -152,6 +152,9 @@ class TestUpdates(NoSubManCase):
 
         self.login_and_go("/updates")
 
+        # on supported systems we show a spinner
+        b.wait_visible("#kpatch-settings svg.pf-v6-c-spinner")
+
         # Enable and install kpatch
         with b.wait_timeout(30):
             b.wait_in_text("#kpatch-settings", "Disabled")

@@ -456,6 +456,83 @@ session include system-auth
         b.wait_not_present(".pf-v6-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
+    def test_run0_no_sudo(self):
+        b = self.browser
+        m = self.machine
+
+        # Break sudo to force run0 to be used
+        self.restore_file("/usr/bin/sudo")
+        m.execute(["rm", "/usr/bin/sudo"])
+
+        # Log in with limited access
+        self.login_and_go(superuser=False)
+        b.check_superuser_indicator("Limited access")
+
+        # Open the superuser dialog and authenticate with run0
+        b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate to gain administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-v6-c-modal-box")
+        b.check_superuser_indicator("Administrative access")
+
+        # Verify run0 is being used and not sudo or pkexec
+        self.assertIn("run0", m.execute(["pgrep", "-a", "run0"]))
+        self.assertEqual(m.execute(["pgrep", "-a", "sudo"], check=False).strip(), "")
+        self.assertEqual(m.execute(["pgrep", "-a", "pkexec"], check=False).strip(), "")
+
+    def test_run0_broken_sudo(self):
+        b = self.browser
+        m = self.machine
+
+        # Replace sudo with a broken script to force run0 to be used
+        self.write_file("/usr/bin/sudo", """#!/bin/sh
+echo "no -A support!" >&2
+exit 1
+""", perm="755")
+
+        # Log in with limited access
+        self.login_and_go(superuser=False)
+        b.check_superuser_indicator("Limited access")
+
+        # Open the superuser dialog and authenticate with run0
+        b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate to gain administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-v6-c-modal-box")
+        b.check_superuser_indicator("Administrative access")
+
+        # Verify run0 is being used and not sudo or pkexec
+        self.assertIn("run0", m.execute(["pgrep", "-a", "run0"]))
+        self.assertEqual(m.execute(["pgrep", "-a", "sudo"], check=False).strip(), "")
+        self.assertEqual(m.execute(["pgrep", "-a", "pkexec"], check=False).strip(), "")
+
+    def test_run0_wrong_password(self):
+        b = self.browser
+        m = self.machine
+
+        # Break sudo to force run0 to be used
+        self.restore_file("/usr/bin/sudo")
+        m.execute(["rm", "/usr/bin/sudo"])
+
+        # Log in with limited access
+        self.login_and_go(superuser=False)
+        b.check_superuser_indicator("Limited access")
+
+        # Open the superuser dialog and enter wrong password
+        b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate to gain administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "wrong")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+
+        # run0 only prompts once, so we expect Access denied after one wrong attempt
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.wait_in_text(".pf-v6-c-modal-box", "Access denied")
+
 
 @testlib.skipBeiboot("host switching disabled in beiboot mode")
 class TestSuperuserDashboard(testlib.MachineCase):

@@ -694,6 +694,7 @@ function debug(...args) {
         hosts.forEach(host => {
             const wrapper = document.createElement("div");
             wrapper.classList.add("host-line");
+            wrapper.setAttribute("data-host-id", host);
 
             const b1 = document.createElement("button");
             b1.textContent = host;

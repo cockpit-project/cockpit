@@ -213,7 +213,7 @@ exec "$@"
         b.wait_in_text("#recent-hosts-list", "user@10.111.113.2:22")
 
         # remove that recent hosts entry, this also avoids ambiguous selectors further down
-        b.click("#recent-hosts-list .host-line:contains('user@10.111.113.2:22') button.host-remove")
+        b.click("#recent-hosts-list .host-line[data-host-id='user@10.111.113.2:22'] button.host-remove")
         b.wait_not_in_text("#recent-hosts-list", "user@10.111.113.2:22")
 
         # unreachable host
@@ -235,7 +235,7 @@ exec "$@"
         self.m_client.execute("runuser -u admin -- ssh-keygen -t rsa -N '' -f ~admin/.ssh/id_rsa")
         pubkey = self.m_client.execute("cat ~admin/.ssh/id_rsa.pub")
         self.m_target.write("/home/user/.ssh/authorized_keys", pubkey, owner="user:user", perm="600")
-        b.click("#recent-hosts-list .host-line:contains('user@10.111.113.2') button.host-name")
+        b.click("#recent-hosts-list .host-line[data-host-id='user@10.111.113.2'] button.host-name")
         self.check_login("user@target")
         self.logout()
 

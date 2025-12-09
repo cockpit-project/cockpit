@@ -66,12 +66,13 @@ class TestKeys(testlib.MachineCase):
 
         # add good
         add_key(KEY, FP_SHA256, "test-name")
+        b.wait_count("#account-authorized-keys-list tr", 1)
 
         # remove key on mobile, on mobile we show a kebab menu
         b.set_layout("mobile")
         b.click("#account-authorized-keys button.pf-v6-c-menu-toggle")
         b.click("button.pf-v6-c-menu__item")
-        b.wait_count("#account-authorized-keys-list tr", 1)
+        b.wait_count("#account-authorized-keys-list tr", 0)
         b.set_layout("desktop")
 
         # add good

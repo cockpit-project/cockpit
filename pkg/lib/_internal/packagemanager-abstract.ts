@@ -99,6 +99,7 @@ export interface PackageManager {
   find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]>;
   get_updates<T extends boolean>(detail: T, progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]>;
   update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, transaction_path?: string): Promise<void>;
+  get_backend(): Promise<string>;
 }
 
 export class UnsupportedError extends Error {

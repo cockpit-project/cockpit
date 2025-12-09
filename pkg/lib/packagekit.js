@@ -316,14 +316,6 @@ export async function is_available(names, progress_cb) {
 }
 
 /**
- * Get the used backendName in PackageKit.
- */
-export function getBackendName() {
-    return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
-                "Get", ["org.freedesktop.PackageKit", "BackendName"]);
-}
-
-/**
  * Refresh PackageKit Cache
  * @param {boolean} force - force refresh the cache (expensive)
  * @param {*} progress_cb - progress callback

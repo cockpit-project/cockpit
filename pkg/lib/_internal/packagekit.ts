@@ -257,4 +257,11 @@ export class PackageKitManager implements PackageManager {
     async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, transaction_path?: string): Promise<void> {
         return PK.update_packages(updates, progress_cb, transaction_path);
     }
+
+    async get_backend(): Promise<string> {
+        const [result] = await PK.call("/org/freedesktop/PackageKit",
+                                       "org.freedesktop.DBus.Properties",
+                                       "Get", ["org.freedesktop.PackageKit", "BackendName"]) as [{ v: string, t: string }];
+        return result.v;
+    }
 }

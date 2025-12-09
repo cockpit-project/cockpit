@@ -83,6 +83,7 @@ import callTracerScript from './callTracer.py';
 import "./updates.scss";
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
 import { Severity } from '_internal/packagemanager-abstract';
+import { getPackageManager } from 'packagemanager';
 
 const _ = cockpit.gettext;
 
@@ -987,6 +988,7 @@ class OsUpdates extends React.Component {
             showRebootSystemDialog: false,
             backend: "",
             rebootAfterSuccess: false,
+            packageManager: null,
         };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
@@ -999,13 +1001,16 @@ class OsUpdates extends React.Component {
         this.setState({ [key]: value });
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         this._mounted = true;
         this.checkNeedsRestart();
 
         superuser.addEventListener("changed", this.handleSuperUserChange);
 
-        PK.getBackendName().then(([prop]) => this.setState({ backend: prop.v }));
+        // HACK: force usage of PackageKit backend
+        const packageManager = await getPackageManager(true);
+        const backend = await packageManager.get_backend();
+        this.setState({ packageManager, backend });
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
@@ -1605,7 +1610,7 @@ class OsUpdates extends React.Component {
 
     handleRefresh() {
         this.setState({ state: "refreshing", loadPercent: null });
-        PK.refresh(true, data => this.setState({ loadPercent: data.percentage }))
+        this.state.packageManager.refresh(true, data => this.setState({ loadPercent: data.percentage }))
                 .then(() => {
                     if (this._mounted === false)
                         return;

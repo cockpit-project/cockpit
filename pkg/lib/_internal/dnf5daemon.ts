@@ -630,4 +630,9 @@ export class Dnf5DaemonManager implements PackageManager {
             await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
         }, signal_emitted);
     }
+
+    async get_backend(): Promise<string> {
+        // TODO: return dnf5?
+        return "dnf";
+    }
 }

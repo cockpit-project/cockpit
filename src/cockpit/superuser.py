@@ -21,7 +21,10 @@ import contextlib
 import getpass
 import logging
 import os
+import shutil
 import socket
+import subprocess
+from os.path import basename
 from tempfile import TemporaryDirectory
 from typing import List, Optional, Sequence, Tuple
 
@@ -39,6 +42,31 @@ from .router import Router, RoutingError, RoutingRule
 logger = logging.getLogger(__name__)
 
 
+def sudo_supports_askpass(sudo_path: str) -> bool:
+    try:
+        # Returns 0 if -A is supported, non-zero if it's not
+        subprocess.run(
+            [sudo_path, '-A', '--help'],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True
+        )
+        return True
+    except (subprocess.CalledProcessError, OSError):
+        return False
+
+
+def is_valid_superuser_config(config: BridgeConfig) -> bool:
+    if not config.privileged:
+        return False
+    if not (spawn_path := shutil.which(config.spawn[0])):
+        return False
+    if basename(spawn_path) == 'sudo' and not sudo_supports_askpass(spawn_path):
+        return False
+    return True
+
+
 class SuperuserPeer(ConfiguredPeer):
     responder: ferny.AskpassHandler
 
@@ -48,7 +76,7 @@ class SuperuserPeer(ConfiguredPeer):
 
     async def do_connect_transport(self) -> None:
         async with contextlib.AsyncExitStack() as context:
-            if 'pkexec' in self.args:
+            if 'pkexec' in self.args or 'run0' in self.args:
                 logger.debug('connecting polkit superuser peer transport %r', self.args)
                 await context.enter_async_context(PolkitAgent(self.responder))
             else:
@@ -196,7 +224,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
     def set_configs(self, configs: Sequence[BridgeConfig]):
         logger.debug("set_configs() with %d items", len(configs))
-        configs = [config for config in configs if config.privileged]
+        configs = [config for config in configs if is_valid_superuser_config(config)]
         self.superuser_configs = tuple(configs)
         self.bridges = [config.name for config in self.superuser_configs]
         self.methods = {c.label: Variant({'label': Variant(c.label)}, 'a{sv}') for c in configs if c.label}

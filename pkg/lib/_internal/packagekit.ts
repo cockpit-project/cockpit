@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateDetail, Update, ProgressData } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateDetail, Update, ProgressData, History } from './packagemanager-abstract';
 import * as PK from "packagekit.js";
 
 const InstallProgressMap = {
@@ -268,5 +268,42 @@ export class PackageKitManager implements PackageManager {
     async get_last_refresh_time(): Promise<number> {
         const [seconds] = await PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction", [PK.Enum.ROLE_REFRESH_CACHE]);
         return seconds;
+    }
+
+    async get_history(): Promise<History[]> {
+        const history = [] as History[];
+
+        // would be nice to filter only for "update-packages" role, but can't here
+        await PK.transaction("GetOldTransactions", [0], {
+            Transaction: (_objPath: string, timeSpec: string, _succeeded: string, role: number, _duration: string, data: string) => {
+                if (role !== PK.Enum.ROLE_UPDATE_PACKAGES)
+                    return;
+
+                // data looks like:
+                // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
+                // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
+                const timestamp = Date.parse(timeSpec);
+                if (isNaN(timestamp)) {
+                    console.debug(`Transaction has an invalid timespec=${timeSpec}`);
+                    return;
+                }
+
+                const pkgs = { timestamp, packages: {} } as History;
+                let empty = true;
+                data.split("\n").forEach(line => {
+                    const fields = line.trim().split("\t");
+                    if (fields.length >= 2) {
+                        const pkgId = fields[1].split(";");
+                        pkgs.packages[pkgId[0]] = pkgId[1];
+                        empty = false;
+                    }
+                });
+
+                if (!empty)
+                    history.unshift(pkgs); // PK reports in time-ascending order, but we want the latest first
+            },
+        });
+
+        return history;
     }
 }

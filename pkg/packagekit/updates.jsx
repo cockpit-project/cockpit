@@ -655,7 +655,7 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
     if (!checkRestartAvailable) {
         /* tracer is not available any more in RHEL 10; as a special case, if only kpatch and kernel were
          * updated, don't reboot (as that's their whole raison d'être) */
-        const pkgs = Object.keys(history[0] ?? {}).filter(p => p != "_time");
+        const pkgs = Object.keys(history[0].packages ?? {});
         const only_kpatch = pkgs.filter(p => p.startsWith("kpatch")).length > 0 &&
                             pkgs.filter(p => !p.startsWith("kernel") && !p.startsWith("kpatch")).length == 0;
 
@@ -675,7 +675,7 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
                              secondary={actions} />
             <div className="flow-list-blank-slate">
                 <ExpandableSection toggleText={_("Package information")}>
-                    <PackageList packages={history[0]} />
+                    <PackageList packages={history[0].packages} />
                 </ExpandableSection>
             </div>
         </>);
@@ -1203,43 +1203,9 @@ class OsUpdates extends React.Component {
                 .catch(this.handleLoadError);
     }
 
-    loadHistory() {
-        const history = [];
-
-        // would be nice to filter only for "update-packages" role, but can't here
-        PK.transaction("GetOldTransactions", [0], {
-            Transaction: (objPath, timeSpec, succeeded, role, duration, data) => {
-                if (role !== PK.Enum.ROLE_UPDATE_PACKAGES)
-                    return;
-                    // data looks like:
-                    // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
-                    // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
-                const _time = Date.parse(timeSpec);
-                if (isNaN(_time)) {
-                    debug(`Transaction has an invalid timespec=${timeSpec}`);
-                    return;
-                }
-                const pkgs = { _time };
-                let empty = true;
-                data.split("\n").forEach(line => {
-                    const fields = line.trim().split("\t");
-                    if (fields.length >= 2) {
-                        const pkgId = fields[1].split(";");
-                        pkgs[pkgId[0]] = pkgId[1];
-                        empty = false;
-                    }
-                });
-                if (!empty)
-                    history.unshift(pkgs); // PK reports in time-ascending order, but we want the latest first
-            },
-
-            // only update the state once to avoid flicker
-            Finished: () => {
-                if (history.length > 0)
-                    this.setState({ history });
-            }
-        })
-                .catch(ex => console.warn("Failed to load old transactions:", ex));
+    async loadHistory() {
+        const history = await this.state.packageManager.get_history();
+        this.setState({ history });
     }
 
     initialLoadOrRefresh() {

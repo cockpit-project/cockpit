@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -653,5 +653,9 @@ export class Dnf5DaemonManager implements PackageManager {
 
         const now = parseInt(await cockpit.spawn(["date", "+%s"]), 10);
         return now - last_time;
+    }
+
+    async get_history(): Promise<History[]> {
+        return [];
     }
 }

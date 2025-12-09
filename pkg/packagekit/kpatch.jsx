@@ -38,9 +38,9 @@ import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
 import cockpit from "cockpit";
 import { proxy as serviceProxy } from "service";
-import { check_missing_packages } from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { read_os_release } from "os-release.js";
+import { getPackageManager } from "packagemanager";
 
 const _ = cockpit.gettext;
 
@@ -86,18 +86,6 @@ export class KpatchSettings extends React.Component {
     }
 
     componentDidMount() {
-        check_missing_packages(["kpatch", "kpatch-dnf"])
-                .then(d =>
-                    this.checkSetup().then(() =>
-                        this.setState({
-                            loaded: true,
-                            unavailable: d.unavailable_names || [],
-                            missing: d.missing_names || [],
-                        })
-                    )
-                )
-                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
-
         this.kpatchService.addEventListener('changed', () => {
             this.setState(state => {
                 const current = this.current(this.kpatchService.enabled, state.patchInstalled, state.patchUnavailable);
@@ -108,6 +96,18 @@ export class KpatchSettings extends React.Component {
                 });
             });
         });
+
+        getPackageManager().then(pk => pk.check_missing_packages(["kpatch", "kpatch-dnf"])
+                .then(d =>
+                    this.checkSetup().then(() =>
+                        this.setState({
+                            loaded: true,
+                            unavailable: d.unavailable_names || [],
+                            missing: d.missing_names || [],
+                        })
+                    )
+                )
+                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e))));
     }
 
     checkSetup() {
@@ -139,22 +139,24 @@ export class KpatchSettings extends React.Component {
                     release = release.slice(0, release.length - 2); // remove el8.x86_64
                     const kpp_kernel_release = release.join("_");
                     const patch_name = ["kpatch-patch", kpp_kernel_version, kpp_kernel_release].join("-");
-                    return check_missing_packages([patch_name])
-                            .then(d =>
-                                this.setState((state, _) => {
-                                    const installed = (d.unavailable_names || []).length === 0 && (d.missing_names || []).length === 0;
-                                    const unavailable = (d.unavailable_names || []).length > 0;
-                                    const current = this.current(state.enabled, installed, unavailable);
-                                    return ({
-                                        kernelName: data,
-                                        patchName: patch_name,
-                                        patchInstalled: installed,
-                                        patchUnavailable: unavailable,
-                                        justCurrent: current && !state.auto,
-                                        applyCheckbox: current,
-                                    });
-                                })
-                            );
+                    return getPackageManager().then(pk => {
+                        pk.check_missing_packages([patch_name])
+                                .then(d =>
+                                    this.setState((state, _) => {
+                                        const installed = (d.unavailable_names || []).length === 0 && (d.missing_names || []).length === 0;
+                                        const unavailable = (d.unavailable_names || []).length > 0;
+                                        const current = this.current(state.enabled, installed, unavailable);
+                                        return ({
+                                            kernelName: data,
+                                            patchName: patch_name,
+                                            patchInstalled: installed,
+                                            patchUnavailable: unavailable,
+                                            justCurrent: current && !state.auto,
+                                            applyCheckbox: current,
+                                        });
+                                    })
+                                );
+                    });
                 })
                 .catch(err => console.error("Could not determine kpatch packages:", JSON.stringify(err))); // not-covered: OS error
 

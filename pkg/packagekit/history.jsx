@@ -30,7 +30,7 @@ import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
 function formatPkgs(pkgs) {
-    const names = Object.keys(pkgs).filter(i => i != "_time");
+    const names = Object.keys(pkgs);
     names.sort();
     return names.map(n => (
         <li key={n}>
@@ -57,15 +57,15 @@ export class History extends React.Component {
         let prevPackages;
 
         for (let i = 0; i < this.props.packagekit.length; ++i) {
-            const packages = Object.keys(this.props.packagekit[i]).filter(i => i != "_time");
-            const time = this.props.packagekit[i]._time;
+            const packages = Object.keys(this.props.packagekit[i].packages);
+            const time = this.props.packagekit[i].timestamp;
             packages.sort();
 
             if (prevTime && (time - prevTime) <= 600000 /* 10 mins */ &&
                 prevPackages.toString() == packages.toString())
                 history.pop();
 
-            history.push({ time, packages: this.props.packagekit[i], num_packages: packages.length });
+            history.push({ time, packages: this.props.packagekit[i].packages, num_packages: packages.length });
 
             if (history.length === 3)
                 break;

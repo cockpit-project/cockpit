@@ -264,4 +264,9 @@ export class PackageKitManager implements PackageManager {
                                        "Get", ["org.freedesktop.PackageKit", "BackendName"]) as [{ v: string, t: string }];
         return result.v;
     }
+
+    async get_last_refresh_time(): Promise<number> {
+        const [seconds] = await PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction", [PK.Enum.ROLE_REFRESH_CACHE]);
+        return seconds;
+    }
 }

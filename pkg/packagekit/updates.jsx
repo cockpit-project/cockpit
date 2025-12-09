@@ -1257,19 +1257,19 @@ class OsUpdates extends React.Component {
             this.loadUpdates();
     }
 
-    loadOrRefresh(always_load) {
-        PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
-                [PK.Enum.ROLE_REFRESH_CACHE])
-                .then(([seconds]) => {
-                    this.setState({ timeSinceRefresh: seconds });
+    async loadOrRefresh(always_load) {
+        try {
+            const seconds = await this.state.packageManager.get_last_refresh_time();
+            this.setState({ timeSinceRefresh: seconds });
 
-                    // automatically trigger refresh for ≥ 1 day or if never refreshed
-                    if (seconds >= 24 * 3600 || seconds < 0)
-                        this.handleRefresh();
-                    else if (always_load)
-                        this.loadUpdates();
-                })
-                .catch(this.handleLoadError);
+            // automatically trigger refresh for ≥ 1 day or if never refreshed
+            if (seconds >= 24 * 3600 || seconds < 0)
+                this.handleRefresh();
+            else if (always_load)
+                this.loadUpdates();
+        } catch (exc) {
+            this.handleLoadError(exc);
+        }
     }
 
     watchUpdates(transactionPath) {

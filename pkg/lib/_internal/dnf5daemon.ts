@@ -121,6 +121,10 @@ interface TransactionProblem {
     spec: { t: "s", v: "appstream-data" };
 }
 
+interface RepoListResult {
+    cache_updated: { t: "x", "v": number };
+}
+
 enum GoalProblem {
     ALREADY_INSTALLED = (1 << 12)
 }
@@ -633,5 +637,20 @@ export class Dnf5DaemonManager implements PackageManager {
 
     async get_backend(): Promise<string> {
         return "dnf5";
+    }
+
+    async get_last_refresh_time(): Promise<number> {
+        let last_time = 0;
+        await this.with_session(async (session) => {
+            // Bug? Does this need load repo? As the result was somehow -1 at one point.
+            const [results] = await call(session, "org.rpm.dnf.v0.rpm.Repo", "list", [{ repo_attrs: { t: 'as', v: ['cache_updated'] } }]) as RepoListResult[][];
+            for (const result of results) {
+                if (result.cache_updated.v > last_time)
+                    last_time = result.cache_updated.v;
+            }
+        });
+
+        const now = parseInt(await cockpit.spawn(["date", "+%s"]), 10);
+        return now - last_time;
     }
 }

@@ -65,6 +65,7 @@ const _ = cockpit.gettext;
  * - sortMethod: callback function used for sorting rows. Called with 3 parameters: sortMethod(rows, activeSortDirection, activeSortIndex)
  * - style: object of additional css rules
  * - afterToggle: function to be called when content is toggled
+ * - onExpand: function to be called when content is expanded
  * - onSelect: function to be called when a checkbox is clicked. Called with 5 parameters:
  *   event, isSelected, rowIndex, rowData, extraData. rowData contains props with an id property of the clicked row.
  * - onHeaderSelect: event, isSelected.
@@ -98,9 +99,12 @@ export interface ListingTableColumnProps {
     props?: ThProps;
 }
 
+export type RowRecord = Record<string | number, boolean>;
+
 export interface ListingTableProps extends Omit<TableProps, 'rows' | 'onSelect'> {
     actions?: React.ReactNode[],
     afterToggle?: (expanded: boolean) => void,
+    onExpand?: (rows: RowRecord) => void,
     caption?: string,
     className?: string,
     columns: (string | ListingTableColumnProps)[],
@@ -121,6 +125,7 @@ export interface ListingTableProps extends Omit<TableProps, 'rows' | 'onSelect'>
 export const ListingTable = ({
     actions = [],
     afterToggle,
+    onExpand,
     caption = '',
     className = '',
     columns: cells = [],
@@ -139,7 +144,7 @@ export const ListingTable = ({
     ...extraProps
 } : ListingTableProps) => {
     let rows = [...tableRows];
-    const [expanded, setExpanded] = useState<Record<string | number, boolean>>({});
+    const [expanded, setExpanded] = useState<RowRecord>({});
     const [newItems, setNewItems] = useState<React.Key[]>([]);
     const [currentRowsKeys, setCurrentRowsKeys] = useState<React.Key[]>([]);
     const [activeSortIndex, setActiveSortIndex] = useState(sortBy?.index ?? 0);
@@ -164,6 +169,11 @@ export const ListingTable = ({
 
         setCurrentRowsKeys(crk => [...new Set([...crk, ..._rowKeys])]);
     }, [currentRowsKeysStr, rowKeysStr]);
+
+    useEffect(() => {
+        if (onExpand)
+            onExpand(expanded);
+    }, [expanded, onExpand]);
 
     const isSortable = cells.some(col => typeof col != "string" && col.sortable);
     const isExpandable = rows.some(row => row.expandedContent);

@@ -1895,6 +1895,7 @@ class MetricsHistory extends React.Component {
             return {
                 value: itm[0],
                 content: itm[1],
+                "data-label": itm[0],
             };
         });
         const selections = (

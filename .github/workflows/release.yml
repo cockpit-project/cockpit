@@ -12,6 +12,8 @@ jobs:
     permissions:
       # create GitHub release
       contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v6
@@ -24,11 +26,18 @@ jobs:
       - name: Build release
         run: tools/release '${{ github.server_url }}/${{ github.repository }}' '${{ github.ref_name }}'
 
-      - id: publish
-        name: Publish GitHub release
-        uses: cockpit-project/action-release@7d2e2657382e8d34f88a24b5987f2b81ea165785
-        with:
-          filename: "cockpit-${{ github.ref_name }}.tar.xz"
+      - name: Create a release
+        run: |
+          set -x
+
+          TAG_VERSION="$(git describe --tags)"
+          git tag -l --format='%(contents:body)' ${TAG_VERSION} > release-note.txt
+
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          gh release create --title ${TAG_VERSION} --notes-file release-note.txt  \
+            ${TAG_VERSION} \
+            ${REPO_NAME}-${TAG_VERSION}.tar.xz \
+            ${REPO_NAME}-node-${TAG_VERSION}.tar.xz
 
     outputs:
       filename: ${{ steps.publish.outputs.filename }}

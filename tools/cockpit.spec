@@ -496,7 +496,7 @@ SELinux policy module for the cockpit-ws package.
 %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 %{_mandir}/man8/%{name}_session_selinux.8cockpit.*
 %{_mandir}/man8/%{name}_ws_selinux.8cockpit.*
-%ghost %{_selinux_store_path}/%{selinuxtype}/active/modules/200/%{name} 
+%ghost %{_selinux_store_path}/%{selinuxtype}/active/modules/200/%{name}
 
 %pre ws-selinux
 %selinux_relabel_pre -s %{selinuxtype}

@@ -295,7 +295,7 @@ export function useObject<T, D extends Tuple>(create: () => T, destroy: ((value:
  * arguments of the event.
  */
 
-export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: cockpit.EventSource<EM>, event: E, handler?: cockpit.EventListener<EM[E]>) {
+export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: cockpit.EventSource<EM> | null, event: E, handler?: cockpit.EventListener<EM[E]>) {
     // We increase a (otherwise unused) state variable whenever the event
     // happens.  That reliably triggers a re-render.
 
@@ -315,7 +315,7 @@ export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: c
 
 /* Same as useEvent, but for our own EventEmitter.
  */
-export function useOn<EM extends { [E in keyof EM]: (...args: never[]) => void }, E extends keyof EM>(object: EventEmitter<EM>, event: E): void {
+export function useOn<EM extends { [E in keyof EM]: (...args: never[]) => void }, E extends keyof EM>(object: EventEmitter<EM> | null, event: E): void {
     const [, forceUpdate] = useReducer(x => x + 1, 0);
 
     useEffect(() => {

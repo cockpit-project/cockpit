@@ -157,7 +157,7 @@ class SELinuxEventDetails extends React.Component {
 
             return (
                 <StackItem key={itm.analysisId + (itm.ifText || "") + (itm.doText || "")}>
-                    <div className="selinux-details">
+                    <div className="selinux-details" data-solution-id={itmIdx}>
                         <div>
                             <div>
                                 <span>{itm.ifText}</span>
@@ -381,8 +381,9 @@ export class SETroubleshootPage extends React.Component {
                 } else {
                     columns.push({ title: <span />, props: { className: "pf-v6-c-table__action" } });
                 }
+                const rowId = itm.details ? itm.details.localId : index;
                 return ({
-                    props: { key: itm.details ? itm.details.localId : index },
+                    props: { key: rowId, "data-row-id": rowId },
                     selected: self.state.selected[itm.details ? itm.details.localId : index],
                     disableSelection: !itm.details,
                     columns,

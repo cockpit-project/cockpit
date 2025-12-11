@@ -106,11 +106,14 @@ class TestSelinux(testlib.MachineCase):
         # and the fallback "report a bug" ausearch one, which cannot be applied automatically
         self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
 
-        row_selector = "tbody:contains('ls from read access on the directory')"
+        row_selector = "#selinux-alerts tbody"
 
         # wait for the alert to appear
+        b.wait_count(row_selector, 0)
         with b.wait_timeout(60):
-            b.wait_visible(row_selector)
+            b.wait_count(row_selector, 1)
+
+        b.wait_in_text("#selinux-alerts tbody", "ls from read access on the directory")
 
         # expand it to see details
         toggle_selector = row_selector + " .pf-v6-c-table__toggle button"
@@ -127,7 +130,8 @@ class TestSelinux(testlib.MachineCase):
         b.wait_in_text(relabel_selector, "Unable to apply this solution automatically")
 
         # an automatic solution is present for sebool
-        sebool_selector1 = panel_selector + " .selinux-details:contains('httpd_enable_homedirs')"
+        solution_id = b.attr(".selinux-details:contains('httpd_enable_homedirs')", "data-solution-id")
+        sebool_selector1 = panel_selector + f" .selinux-details[data-solution-id='{solution_id}']"
         b.wait_in_text(sebool_selector1, "by enabling the 'httpd_enable_homedirs' boolean.")
 
         # sabotage the solution command to test failure alerts
@@ -162,7 +166,8 @@ class TestSelinux(testlib.MachineCase):
         b.wait_text_matches(".modifications-table", "Allow httpd to .* home ?dir")
 
         # Second sebool solution can still be applied separately
-        sebool_selector2 = panel_selector + " .selinux-details:contains('httpd_unified')"
+        solution_id = b.attr(".selinux-details:contains('httpd_unified')", "data-solution-id")
+        sebool_selector2 = panel_selector + f" .selinux-details[data-solution-id='{solution_id}']"
         b.wait_text(sebool_selector2 + " button" + self.default_btn_class, "Apply this solution")
 
         # now dismiss the alert
@@ -177,29 +182,30 @@ class TestSelinux(testlib.MachineCase):
             # trigger a fixable restorecon alert
             self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)
 
-            row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
-
             # wait for the alert to appear
             with b.wait_timeout(60):
-                b.wait_visible(row_selector)
+                b.wait_in_text("#selinux-alerts", "read access on the file /root/.ssh/authorized_keys")
 
+            row_id = b.attr("#selinux-alerts tr:contains('read access on the file /root/.ssh/authorized_keys')", "data-row-id")
+            row_selector = f"#selinux-alerts tr[data-row-id='{row_id}']"
             # expand it to see details
             toggle_selector = row_selector + " .pf-v6-c-table__toggle button"
             b.click(toggle_selector)
 
             try:
                 # a solution is present
-                b.wait_in_text(row_selector + " tr.pf-m-expanded .ct-listing-panel-body", "you can run restorecon")
+                b.wait_in_text(row_selector + " + tr.pf-m-expanded .ct-listing-panel-body", "you can run restorecon")
 
                 # and it can be applied
-                btn_sel = f"{row_selector} .selinux-details:contains('you can run restorecon') button{self.default_btn_class}"
+                solution_id = b.attr(".selinux-details:contains('you can run restorecon')", "data-solution-id")
+                btn_sel = panel_selector + f" .selinux-details[data-solution-id='{solution_id}'] button{self.default_btn_class}"
                 b.click(btn_sel)
 
                 # the button should disappear
                 b.wait_not_present(btn_sel)
 
                 # the fix should be applied
-                b.wait_in_text(row_selector + " .pf-v6-c-alert__title", "Solution applied successfully")
+                b.wait_in_text(row_selector + "+ tr .selinux-details .pf-v6-c-alert__title", "Solution applied successfully")
 
                 # and the button should not come back
                 b.wait_not_present(btn_sel)

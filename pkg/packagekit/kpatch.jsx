@@ -40,7 +40,6 @@ import cockpit from "cockpit";
 import { proxy as serviceProxy } from "service";
 import { check_missing_packages } from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import { read_os_release } from "os-release.js";
 
 const _ = cockpit.gettext;
 
@@ -50,7 +49,6 @@ export class KpatchSettings extends React.Component {
 
         this.state = {
             loaded: false,
-            showLoading: null, // true: show spinner during initialization; false: hide
             auto: null, // `dnf kpatch` is set to `auto`
             enabled: null, // kpatch.service is enabled
             missing: [], // missing packages from `kpatch`, `kpatch-dnf`
@@ -75,9 +73,6 @@ export class KpatchSettings extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.onClose = this.onClose.bind(this);
         this.handleInstall = this.handleInstall.bind(this);
-
-        // only show a spinner during loading on RHEL (the only place where we expect this to work)
-        read_os_release().then(os_release => this.setState({ showLoading: os_release && os_release.ID == 'rhel' }));
     }
 
     // Only current patches or also future ones
@@ -226,13 +221,6 @@ export class KpatchSettings extends React.Component {
     }
 
     render() {
-        // don't show anything during initial detection
-        if ((this.state.loaded === false || this.state.patchName === null) && !this.state.showLoading)
-            return null;
-
-        // Not supported on this system
-        if (this.state.unavailable.length > 0 && !this.state.showLoading)
-            return null;
         let state;
         let actionText = _("Edit");
         let action = () => this.setState({ showModal: true });

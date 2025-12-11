@@ -32,7 +32,6 @@ import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicke
 
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { useDialogs } from "dialogs.jsx";
-import { useInit } from "hooks";
 
 import { debug } from "./utils";
 
@@ -456,10 +455,9 @@ const AutoUpdatesDialog = ({ backend }) => {
         </Modal>);
 };
 
-export const AutoUpdates = ({ privileged, packagekit_backend }) => {
+export const AutoUpdates = ({ privileged, packagekit_backend, initial_backend }) => {
     const Dialogs = useDialogs();
-    const [backend, setBackend] = useState(null);
-    useInit(() => getBackend(packagekit_backend).then(setBackend));
+    const [backend, setBackend] = useState(initial_backend);
 
     if (!backend)
         return null;

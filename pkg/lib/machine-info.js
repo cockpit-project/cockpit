@@ -44,6 +44,8 @@ export const cpu_ram_info = () =>
                     model_match = text.match(/^cpu\s*:\s*(.*)$/m); // PowerPC
                 if (!model_match)
                     model_match = text.match(/^vendor_id\s*:\s*(.*)$/m); // s390x
+                if (!model_match)
+                    model_match = text.match(/^Model Name\s*:\s*(.*)$/m); // LoongArch
                 if (model_match)
                     info.cpu_model = model_match[1];
 

@@ -139,6 +139,7 @@ const info = {
         "sosreport/sosreport.png",
 
         "static/login.html",
+        "static/theme.css",
 
         "storaged/index.html",
 

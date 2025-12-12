@@ -222,12 +222,12 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.assert_pixels(".pf-v6-c-panel", "logs-filter-panel", skip_layouts=["mobile"])
 
-        b.click(".pf-v6-c-form__group:contains('Since') button")
+        b.click("label[for='since_0'] button.log-text-filter-popover-button")
         b.wait_text(".pf-v6-c-popover__title-text", "Start showing entries on or newer than the specified date.")
         # FIXME: Closing the popover with the X button also closes the whole search form (just not with ph_mouse)
         # b.click(".pf-v6-c-popover__close button")
         # Thus close the popover the same way as we opened it, with the (i) icon
-        b.click(".pf-v6-c-form__group:contains('Since') button")
+        b.click("label[for='since_0'] button.log-text-filter-popover-button")
         b.wait_not_present(".pf-v6-c-popover")
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")

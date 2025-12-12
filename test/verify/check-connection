@@ -20,6 +20,7 @@
 import base64
 import json
 import os
+import re
 import subprocess
 import time
 
@@ -1180,7 +1181,8 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
             # branding.css undergoes variable substitution based on the content of
             # /usr/lib/os-release.  Perform the substitution for ourselves for
             # validation.  envsubst comes from gettext.
-            os_release_vars = m.execute("cat /usr/lib/os-release").replace('\n', ' ')
+            os_release_vars = m.execute("cat /usr/lib/os-release")
+            os_release_vars = re.sub(r"#.*\n", '', os_release_vars, flags=re.MULTILINE).replace('\n', ' ')
             m.execute(f'{os_release_vars} envsubst < {branddir}/branding.css > /tmp/branding.ref')
             self.addCleanup(m.execute, "rm /tmp/branding.ref")
 
@@ -1201,9 +1203,12 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
             if not m.ws_container:
                 m.execute(f'cmp /tmp/{name} {reference}')
 
-        # some brands miss the images, but the OSes we CI have them all
+        # some brands miss the images, but the OSes we CI have them all except in opensuse which is missing logo.png
         curl_and_compare('branding.css', 'text/css', reference='/tmp/branding.ref')
-        curl_and_compare('logo.png', 'image/png')
+        if "opensuse" in m.image:
+            curl_and_compare('default.png', 'image/png')
+        else:
+            curl_and_compare('logo.png', 'image/png')
         curl_and_compare('favicon.ico')
 
         # do a pixel test to make sure everything looks like we expect

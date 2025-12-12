@@ -1,0 +1,46 @@
+= cockpit-bridge(1)
+
+== Name
+
+cockpit-bridge - Cockpit Host Bridge
+
+== Synopsis
+
+*cockpit-bridge* [*--help*] [*--packages*]
+
+== Description
+
+The *cockpit-bridge* program is used by Cockpit to relay messages and
+commands from the Web front end to the server. Among other things it
+relays DBus, and spawns processes on behalf of the Web user interface.
+
+This program is not routinely run by users or administrators. It is in
+the *$PATH* so that Cockpit can find it when connecting between hosts.
+However there are some diagnostics available when running from the
+command line.
+
+== Options
+
+*--help*::
+  Show help options.
+*--interact*=_boundary_::
+  Interact with the raw cockpit1 protocol. Useful for debugging and
+  testing. Specify a _boundary_ which should be on an empty line
+  between messages.
+*--packages*::
+  List all available Cockpit packages and exit. Note this includes
+  packages available to the user running this command.
+*--version*::
+  Show Cockpit version information.
+
+== Bugs
+
+include::partials/bugs.adoc[]
+
+== Author
+
+include::partials/author.adoc[]
+
+== See also
+
+*cockpit-ws(8)*

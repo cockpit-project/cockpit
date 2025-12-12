@@ -1,115 +1,193 @@
 if ENABLE_DOC
 
-GUIDE_DOCBOOK = doc/guide/cockpit-guide.xml
+GUIDE_MAIN_ADOC_FILE = doc/guide/cockpit-guide.adoc
 
-GUIDE_INCLUDES = \
-	doc/guide/api-cockpit.xml \
-	doc/guide/api-base1.xml \
-	doc/guide/api-shell.xml \
-	doc/guide/api-system.xml \
-	doc/guide/cockpit-cache.xml \
-	doc/guide/cockpit-channel.xml \
-	doc/guide/cockpit-dbus.xml \
-	doc/guide/cockpit-error.xml \
-	doc/guide/cockpit-file.xml \
-	doc/guide/cockpit-http.xml \
-	doc/guide/cockpit-locale.xml \
-	doc/guide/cockpit-location.xml \
-	doc/guide/cockpit-manifest.xml \
-	doc/guide/cockpit-metrics.xml \
-	doc/guide/cockpit-series.xml \
-	doc/guide/cockpit-session.xml \
-	doc/guide/cockpit-spawn.xml \
-	doc/guide/cockpit-util.xml \
-	doc/guide/multi-host.xml \
-	doc/guide/authentication.xml \
-	doc/guide/embedding.xml \
-	doc/guide/feature-firewall.xml \
-	doc/guide/feature-journal.xml \
-	doc/guide/feature-machines.xml \
-	doc/guide/feature-networkmanager.xml \
-	doc/guide/feature-packagekit.xml \
-	doc/guide/feature-pcp.xml \
-	doc/guide/feature-realmd.xml \
-	doc/guide/feature-selinux.xml \
-	doc/guide/feature-sosreport.xml \
-	doc/guide/feature-storaged.xml \
-	doc/guide/feature-systemd.xml \
-	doc/guide/feature-terminal.xml \
-	doc/guide/feature-tuned.xml \
-	doc/guide/feature-users.xml \
-	doc/guide/packages.xml \
-	doc/guide/privileges.xml \
-	doc/guide/https.xml \
-	doc/guide/listen.xml \
-	doc/guide/sso.xml \
-	doc/guide/cert-authentication.xml \
-	doc/guide/startup.xml \
-	doc/guide/urls.xml \
+GUIDE_ADOC_FILES = \
+	doc/guide/pages/api-base1.adoc \
+	doc/guide/pages/api-cockpit.adoc \
+	doc/guide/pages/api-logs-html.adoc \
+	doc/guide/pages/api-shell-html.adoc \
+	doc/guide/pages/api-shell.adoc \
+	doc/guide/pages/api-system.adoc \
+	doc/guide/pages/api-terminal-html.adoc \
+	doc/guide/pages/authentication.adoc \
+	doc/guide/pages/cert-authentication.adoc \
+	doc/guide/pages/cockpit-cache.adoc \
+	doc/guide/pages/cockpit-channels.adoc \
+	doc/guide/pages/cockpit-dbus.adoc \
+	doc/guide/pages/cockpit-error.adoc \
+	doc/guide/pages/cockpit-file.adoc \
+	doc/guide/pages/cockpit-http.adoc \
+	doc/guide/pages/cockpit-locale.adoc \
+	doc/guide/pages/cockpit-location.adoc \
+	doc/guide/pages/cockpit-login.adoc \
+	doc/guide/pages/cockpit-manifest.adoc \
+	doc/guide/pages/cockpit-manual.adoc \
+	doc/guide/pages/cockpit-metrics.adoc \
+	doc/guide/pages/cockpit-series-data.adoc \
+	doc/guide/pages/cockpit-spawn.adoc \
+	doc/guide/pages/cockpit-util.adoc \
+	doc/guide/pages/development.adoc \
+	doc/guide/pages/embedding.adoc \
+	doc/guide/pages/feature-firewall.adoc \
+	doc/guide/pages/feature-journal.adoc \
+	doc/guide/pages/feature-machines.adoc \
+	doc/guide/pages/feature-networkmanager.adoc \
+	doc/guide/pages/feature-packagekit.adoc \
+	doc/guide/pages/feature-pcp.adoc \
+	doc/guide/pages/feature-realmd.adoc \
+	doc/guide/pages/feature-selinux.adoc \
+	doc/guide/pages/feature-sosreport.adoc \
+	doc/guide/pages/feature-storaged.adoc \
+	doc/guide/pages/feature-systemd.adoc \
+	doc/guide/pages/feature-terminal.adoc \
+	doc/guide/pages/feature-tuned.adoc \
+	doc/guide/pages/feature-users.adoc \
+	doc/guide/pages/features.adoc \
+	doc/guide/pages/guide.adoc \
+	doc/guide/pages/https.adoc \
+	doc/guide/pages/listen.adoc \
+	doc/guide/pages/multi-host.adoc \
+	doc/guide/pages/packages.adoc \
+	doc/guide/pages/privileges.adoc \
+	doc/guide/pages/sso.adoc \
+	doc/guide/pages/startup.adoc \
+	doc/guide/pages/urls.adoc \
 	$(NULL)
 
-GUIDE_STATIC = \
-	doc/guide/static/home.png \
-	doc/guide/static/gtk-doc.css \
-	doc/guide/static/left.png \
-	doc/guide/static/right.png \
-	doc/guide/static/style.css \
-	doc/guide/static/up.png \
-	$(NULL)
-
-GUIDE_XSLT = \
-	doc/guide/gtk-doc.xsl \
-	doc/guide/version-greater-or-equal.xsl \
-	$(NULL)
-
-# keep in sync with doc/guide/static/style.css
-GUIDE_FONTS = \
-	doc/guide/html/RedHatText-Regular.woff2 \
-	doc/guide/html/RedHatText-Medium.woff2 \
+MAN_ADOC_FILES = \
+	doc/man/pages/cockpit.1.adoc \
+	doc/man/pages/cockpit-bridge.1.adoc \
+	doc/man/pages/cockpit-desktop.1.adoc \
+	doc/man/pages/cockpit-ws.8.adoc \
+	doc/man/pages/cockpit-tls.8.adoc \
+	doc/man/pages/cockpit.conf.5.adoc \
+	doc/man/pages/pam_ssh_add.8.adoc \
 	$(NULL)
 
 dist_noinst_DATA += \
-	$(GUIDE_DOCBOOK) \
-	$(GUIDE_INCLUDES) \
-	$(GUIDE_XSLT) \
-	$(GUIDE_STATIC) \
+	$(GUIDE_MAIN_ADOC_FILE) \
+	$(MAN_ADOC_FILES) \
+	$(GUIDE_ADOC_FILES) \
 	$(NULL)
 
-noinst_DATA += doc/guide/html/index.html
+GUIDE_MAN_PAGES = \
+	doc/output/html/cockpit-bridge.1.html \
+	doc/output/html/cockpit-desktop.1.html \
+	doc/output/html/cockpit-ws.8.html \
+	doc/output/html/cockpit-tls.8.html \
+	doc/output/html/cockpit.1.html \
+	doc/output/html/cockpit.conf.5.html \
+	doc/output/html/pam_ssh_add.8.html \
+	$(NULL)
 
-doc/guide/html/%.woff2: $(DIST_STAMP)
-	@target='$(dir $@)'; \
-	source='dist/static/fonts/$(notdir $@)'; \
-	printf '  %-8s %s → %s\n' 'COPY' "$${source}" "$${target}"; \
-	mkdir -p "$${target}" && \
-	cp "$(top_srcdir)/$${source}" "$${target}"
+GUIDE_PAGES = \
+	doc/output/html/api-base1.html \
+	doc/output/html/api-cockpit.html \
+	doc/output/html/api-logs-html.html \
+	doc/output/html/api-shell-html.html \
+	doc/output/html/api-shell.html \
+	doc/output/html/api-system.html \
+	doc/output/html/api-terminal-html.html \
+	doc/output/html/authentication.html \
+	doc/output/html/cert-authentication.html \
+	doc/output/html/cockpit-cache.html \
+	doc/output/html/cockpit-channels.html \
+	doc/output/html/cockpit-dbus.html \
+	doc/output/html/cockpit-error.html \
+	doc/output/html/cockpit-file.html \
+	doc/output/html/cockpit-http.html \
+	doc/output/html/cockpit-locale.html \
+	doc/output/html/cockpit-location.html \
+	doc/output/html/cockpit-login.html \
+	doc/output/html/cockpit-manifest.html \
+	doc/output/html/cockpit-manual.html \
+	doc/output/html/cockpit-metrics.html \
+	doc/output/html/cockpit-series-data.html \
+	doc/output/html/cockpit-spawn.html \
+	doc/output/html/cockpit-util.html \
+	doc/output/html/embedding.html \
+	doc/output/html/feature-firewall.html \
+	doc/output/html/feature-journal.html \
+	doc/output/html/feature-machines.html \
+	doc/output/html/feature-networkmanager.html \
+	doc/output/html/feature-packagekit.html \
+	doc/output/html/feature-pcp.html \
+	doc/output/html/feature-realmd.html \
+	doc/output/html/feature-selinux.html \
+	doc/output/html/feature-sosreport.html \
+	doc/output/html/feature-storaged.html \
+	doc/output/html/feature-systemd.html \
+	doc/output/html/feature-terminal.html \
+	doc/output/html/feature-tuned.html \
+	doc/output/html/feature-users.html \
+	doc/output/html/features.html \
+	doc/output/html/https.html \
+	doc/output/html/listen.html \
+	doc/output/html/multi-host.html \
+	doc/output/html/packages.html \
+	doc/output/html/privileges.html \
+	doc/output/html/sso.html \
+	doc/output/html/startup.html \
+	doc/output/html/urls.html \
+	doc/output/html/guide.html \
+	doc/output/html/development.html \
+	$(NULL)
 
-doc/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
-	$(AM_V_GEN) mkdir -p doc/guide/html/ && \
-	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) doc/guide/html/ && \
-	LANG=C.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o doc/guide/html/ \
-		--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
-		$(srcdir)/$(GUIDE_DOCBOOK) && \
-	rm -f doc/guide/html/cockpit-guide.proc
+GUIDE_PAGES_INST = \
+	$(GUIDE_MAN_PAGES) \
+	$(GUIDE_PAGES) \
+	doc/output/html/index.html \
+	$(NULL)
+
+noinst_DATA += $(GUIDE_PAGES_INST)
+
+GUIDE_ASCIIDOC_ARGS = \
+	-a toc=left \
+	-a toclevels=3 \
+	-a webfonts! \
+	-b html5 \
+	$(NULL)
+
+if HAS_ASCIIDOCTOR
+DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o $@ $<
+render-docs: $(GUIDE_ADOC_FILES) $(GUIDE_MAIN_ADOC_FILE) $(MAN_ADOC_FILES)
+	mkdir -p doc/output/html/
+	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o doc/output/html/index.html $(GUIDE_MAIN_ADOC_FILE)
+	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -D doc/output/html $(GUIDE_ADOC_FILES) $(MAN_ADOC_FILES)
+else !HAS_ASCIIDOCTOR
+DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOC) $(GUIDE_ASCIIDOC_ARGS) -o $@ $<
+render-docs:
+	echo "Local doc rendering using asciidoc not implemented, install asciidoctor or use make check"
+endif !HAS_ASCIIDOCTOR
+
+doc/output/html/%.8.html: doc/man/pages/%.8.adoc
+	$(AM_V_GEN) $(DOC_PROC)
+
+doc/output/html/%.1.html: doc/man/pages/%.1.adoc
+	$(AM_V_GEN) $(DOC_PROC)
+
+doc/output/html/%.5.html: doc/man/pages/%.5.adoc
+	$(AM_V_GEN) $(DOC_PROC)
+
+# HACK: $(DIST_STAMP) is required here in this order for docs to work. Automake rules needs refactoring.
+doc/output/html/index.html: doc/guide/cockpit-guide.adoc $(DIST_STAMP)
+	$(AM_V_GEN) $(DOC_PROC)
+
+doc/output/html/%.html: doc/guide/pages/%.adoc
+	$(AM_V_GEN) $(DOC_PROC)
 
 CLEAN_LOCAL_TARGETS += clean-guide
 clean-guide:
-	rm -rf doc/guide/html
-
-CHECK_LOCAL_TARGETS += check-guide
-check-guide:
-	if grep -n -r 'name="id' doc/guide/html >&2; then \
-		echo "Unexpected generated id in the documentation" >&2; \
-		exit 1; \
-	fi
+	rm -rf doc/output/html
 
 INSTALL_DATA_LOCAL_TARGETS += install-guide
 install-guide:
 	mkdir -p $(DESTDIR)$(htmldir)
-	$(INSTALL_DATA) doc/guide/html/* $(DESTDIR)$(htmldir)
+	$(INSTALL_DATA) doc/output/html/* $(DESTDIR)$(htmldir)
 
 UNINSTALL_LOCAL_TARGETS += uninstall-guide
 uninstall-guide:
 	rm -rf $(DESTDIR)$(htmldir)
 
-endif
+endif ENABLE_DOC

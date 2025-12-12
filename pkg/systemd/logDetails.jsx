@@ -64,7 +64,7 @@ const LogDetails = ({ entry }) => {
                         { general.map(key =>
                             <DescriptionListGroup key={key}>
                                 <DescriptionListTerm>{key}</DescriptionListTerm>
-                                <DescriptionListDescription>{journal.printable(entry[key], key)}</DescriptionListDescription>
+                                <DescriptionListDescription data-label={key}>{journal.printable(entry[key], key)}</DescriptionListDescription>
                             </DescriptionListGroup>
                         )}
                     </DescriptionList>

@@ -505,8 +505,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         bin_data_short = {"MSG": "Hello \01 World", "BIN": "a\01b\02c\03"}
 
         def wait_field(name, value):
-            row_sel = "dt:contains('" + name + "')"
-            b.wait_visible(row_sel + "+ dd:contains('" + value + "')")
+            b.wait_text(f"#log-details dd[data-label='{name}']", value)
 
         def check_entry(msg, bin_msg):
             b.click(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")

@@ -1583,8 +1583,11 @@ class TestGrafanaClient(testlib.MachineCase):
             # Switch to "Dashboards" tab, import "Host Overview"
             bgclick("a[href$='/dashboards'][role=tab]")
             testlib.wait(lambda: "Loading" not in bg.text("body"))
-            bgclick("tr:contains('PCP Redis: Host Overview') button:contains('Import')")
-            bgwait_present("tr:contains('PCP Redis: Host Overview') button:contains('Re-import')")
+            # Assert that PCP Redis: Host overview is the first row.
+            bgwait_present(".filter-table tr:first-of-type:contains('PCP Redis: Host Overview')")
+            bgclick("tr:first-of-type button:contains('Import')")
+            bgwait_present(".filter-table tr:first-of-type:contains('PCP Redis: Host Overview')")
+            bgwait_present("tr:first-of-type button:contains('Re-import')")
 
             # .. and the dashboard name becomes clickable
             bgclick("a:contains('PCP Redis: Host Overview')")

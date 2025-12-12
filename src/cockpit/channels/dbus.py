@@ -266,7 +266,7 @@ class DBusChannel(Channel):
         else:
             self.ready()
 
-    def add_signal_handler(self, handler, **kwargs):
+    def get_r(self, **kwargs):
         r = dict(**kwargs)
         r['type'] = 'signal'
         if 'sender' not in r and self.name is not None:
@@ -275,6 +275,14 @@ class DBusChannel(Channel):
         # path_namespace='/' in a rule does not work.
         if r.get('path_namespace') == "/":
             del r['path_namespace']
+
+        return r
+
+    def get_r_string(self, r):
+        return ','.join(f"{key}='{value}'" for key, value in r.items())
+
+    def add_signal_handler(self, handler, **kwargs):
+        r = self.get_r(**kwargs)
 
         def filter_owner(message):
             if self.owner is not None and self.owner == message.get_sender():
@@ -285,6 +293,7 @@ class DBusChannel(Channel):
         else:
             func = handler
         r_string = ','.join(f"{key}='{value}'" for key, value in r.items())
+        logger.debug("r_string %s", r_string)
         if not self.is_closing():
             # this gets an EINTR very often especially on RHEL 8
             while True:
@@ -294,7 +303,7 @@ class DBusChannel(Channel):
                 except InterruptedError:
                     pass
 
-            self.matches.append(match)
+            self.matches.append((r_string, match))
 
     def add_async_signal_handler(self, handler, **kwargs):
         def sync_handler(message):
@@ -363,7 +372,7 @@ class DBusChannel(Channel):
         logger.debug('adding match %s', add_match)
 
         async def match_hit(message):
-            logger.debug('got match')
+            logger.debug('got match %s', message)
             async with self.watch_processing_lock:
                 self.send_json(signal=[
                     message.get_path(),
@@ -373,6 +382,19 @@ class DBusChannel(Channel):
                 ])
 
         self.add_async_signal_handler(match_hit, **add_match)
+
+    async def do_remove_match(self, message):
+        remove_match = message['remove-match']
+        logger.debug('remove match %s', remove_match)
+        r = self.get_r(**remove_match)
+        r_string = self.get_r_string(r)
+        for index, (r_key, slot) in enumerate(self.matches):
+            if r_key == r_string:
+                logger.debug('got match %s %d', self.matches, index)
+                slot.cancel()
+                del self.matches[index]
+                logger.debug('removed match %s %d', self.matches, index)
+                break
 
     async def setup_objectmanager_watch(self, path, interface_name, meta, notify):
         # Watch the objects managed by the ObjectManager at "path".
@@ -505,6 +527,8 @@ class DBusChannel(Channel):
             self.create_task(self.do_call(message))
         elif 'add-match' in message:
             self.create_task(self.do_add_match(message))
+        elif 'remove-match' in message:
+            self.create_task(self.do_remove_match(message))
         elif 'watch' in message:
             self.create_task(self.do_watch(message))
         elif 'meta' in message:
@@ -514,7 +538,7 @@ class DBusChannel(Channel):
             return
 
     def do_close(self):
-        for slot in self.matches:
+        for (_, slot) in self.matches:
             slot.cancel()
         self.matches = []
         self.close()

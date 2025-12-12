@@ -661,8 +661,11 @@ class TestConnection(testlib.MachineCase):
         m.execute("passwd -d admin")
         m.execute("passwd -d bob")
 
-        self.sed_file('$ a\\\nPermitEmptyPasswords yes', '/etc/ssh/sshd_config',
-                      self.restart_sshd)
+        if "opensuse" in m.image:
+            self.write_file("/etc/ssh/sshd_config", "PermitEmptyPasswords yes")
+            m.execute(self.restart_sshd)
+        else:
+            self.sed_file('$ a\\\nPermitEmptyPasswords yes', '/etc/ssh/sshd_config', self.restart_sshd)
 
         def assertInOrNot(string: str, result: str, *, expected: bool) -> None:
             if expected:
@@ -683,8 +686,10 @@ class TestConnection(testlib.MachineCase):
 
             # check motd as 'root' (via cat) and 'admin' and 'bob' (via ssh)
             assertInOrNot(string, m.execute("cat /etc/motd.d/cockpit"), expected=expected)
-            checkMotdForUser(string, expected=expected, user='admin')
-            checkMotdForUser(string, expected=old_pam and expected, user='bob')
+            # opensuse has permissions that block non root users from reading /etc/issue.d and motd.d
+            if "opensuse" not in m.image:
+                checkMotdForUser(string, expected=expected, user='admin')
+                checkMotdForUser(string, expected=old_pam and expected, user='bob')
 
         m.stop_cockpit()
         checkMotdContent('systemctl')

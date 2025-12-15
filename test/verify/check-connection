@@ -218,8 +218,8 @@ class TestConnection(testlib.MachineCase):
                 expect_active(f"cockpit-wsinstance-{instance}.service", instance in http_instances)
             # number of https instances
             expect_active("cockpit-wsinstance-https-factory.socket", instance_sockets)
-            for _type in ["service", "socket"]:
-                out = m.execute(f"systemctl --no-legend -t {_type} list-units cockpit-wsinstance-https@*")
+            for unit_type in ["service", "socket"]:
+                out = m.execute(f"systemctl --no-legend -t {unit_type} list-units cockpit-wsinstance-https@*")
                 count = len(out.strip().splitlines())
                 self.assertEqual(count, https_instances, out)
             # instance sockets get cleaned up when stopping cockpit.socket or the instances

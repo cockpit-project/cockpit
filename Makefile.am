@@ -63,10 +63,10 @@ $(distdir)/configure: $(distdir)/version.m4
 
 # Various downstream packaging assets
 
-NODE_CACHE = cockpit-node-$(VERSION).tar.xz
+NODE_CACHE = $(CURDIR)/cockpit-node-$(VERSION).tar.xz
 
 $(NODE_CACHE): $(srcdir)/package-lock.json
-	$(AM_V_GEN) $(srcdir)/tools/node-modules runtime-tar $(CURDIR)/$(NODE_CACHE)
+	$(AM_V_GEN) $(srcdir)/tools/node-modules runtime-tar $(NODE_CACHE)
 
 dist-hook: $(distdir)/tools/debian/copyright
 # when building from a git checkout, we need to generate the copyright file

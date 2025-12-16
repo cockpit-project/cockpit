@@ -143,6 +143,7 @@ GUIDE_PAGES_INST = \
 noinst_DATA += $(GUIDE_PAGES_INST)
 
 GUIDE_ASCIIDOC_ARGS = \
+	-a cockpit-version=$(VERSION) \
 	-a toc=left \
 	-a toclevels=3 \
 	-a webfonts! \

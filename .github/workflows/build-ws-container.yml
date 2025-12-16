@@ -84,7 +84,7 @@ jobs:
         run: podman login -u ${{ secrets.QUAY_BOTUSER }} -p ${{ secrets.QUAY_TOKEN }} $(echo ${{ env.registry_repo }} | cut -d/ -f1)
 
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
 
       - name: Load images into Podman
         run: |

@@ -4,5 +4,7 @@ cockpit source: source-is-missing *src/cockpit/data/fail.html*
 cockpit source: source-is-missing *src/common/fail.html*
 # upstream release tarballs ship pre-built dist/; package build removes it
 cockpit source: source-is-missing *dist/*
+# upstream release tarballs ship pre-built asciidoc output; package build removes it
+cockpit source: source-is-missing *doc/output/*
 # vendored build dependencies from orig-node.tar.xz, also contains pre-bundled files
 cockpit source: source-is-missing *node/*

@@ -142,6 +142,9 @@ GUIDE_PAGES_INST = \
 
 noinst_DATA += $(GUIDE_PAGES_INST)
 
+# Some distros don't have asciidoctor and we need to prebundle the docs, e.g. RHEL & CentOS
+EXTRA_DIST += $(GUIDE_PAGES_INST)
+
 GUIDE_ASCIIDOC_ARGS = \
 	-a cockpit-version=$(VERSION) \
 	-a toc=left \

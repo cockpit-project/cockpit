@@ -56,6 +56,11 @@
 %define rebuild_bundle 1
 %endif
 
+# to avoid using asciidoc-py in RHEL and CentOS we use the prebuilt docs
+%if 0%{?rhel}
+%define bundle_docs 1
+%endif
+
 Name:           cockpit
 Summary:        Web Console for Linux servers
 
@@ -116,12 +121,7 @@ BuildRequires: nodejs
 BuildRequires: nodejs-esbuild
 %endif
 
-# For documentation
-%if 0%{?rhel} || 0%{?centos}
-# Only has legacy asciidoc-py and not asciidoctor.
-# asciidoc-py includes a2x package which can generate man-pages.
-BuildRequires: asciidoc
-%else
+%if !%{defined bundle_docs}
 BuildRequires: asciidoctor
 %endif
 
@@ -187,6 +187,9 @@ NODE_ENV=production NODE_PATH=/usr/lib/node_modules:$(echo /usr/lib/node_modules
 %if %{enable_multihost}
     --enable-multihost \
 %endif
+%if %{defined bundle_docs}
+    --disable-doc \
+%endif
 
 %make_build
 
@@ -209,6 +212,22 @@ install -p -m 644 %{pamconfig} $RPM_BUILD_ROOT%{pamconfdir}/cockpit
 
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
+
+# We install the upstream pre-built docs as we can't build them
+%if %{defined bundle_docs}
+%define docbundledir %{_builddir}/%{name}-%{version}/doc/output/html
+install -d %{buildroot}%{_docdir}/cockpit/guide
+cp -rp %{docbundledir}/* %{buildroot}%{_docdir}/cockpit/guide/
+# Install pre-built man pages
+%define manbundledir %{_builddir}/%{name}-%{version}/doc/output/man
+install -D -p -m 644 %{manbundledir}/cockpit.1 %{buildroot}%{_mandir}/man1/cockpit.1
+install -D -p -m 644 %{manbundledir}/cockpit-bridge.1 %{buildroot}%{_mandir}/man1/cockpit-bridge.1
+install -D -p -m 644 %{manbundledir}/cockpit-desktop.1 %{buildroot}%{_mandir}/man1/cockpit-desktop.1
+install -D -p -m 644 %{manbundledir}/cockpit.conf.5 %{buildroot}%{_mandir}/man5/cockpit.conf.5
+install -D -p -m 644 %{manbundledir}/cockpit-ws.8 %{buildroot}%{_mandir}/man8/cockpit-ws.8
+install -D -p -m 644 %{manbundledir}/cockpit-tls.8 %{buildroot}%{_mandir}/man8/cockpit-tls.8
+install -D -p -m 644 %{manbundledir}/pam_ssh_add.8 %{buildroot}%{_mandir}/man8/pam_ssh_add.8
+%endif
 
 # Build the package lists for resource packages
 # cockpit-bridge is the basic dependency for all cockpit-* packages, so centrally own the page directory

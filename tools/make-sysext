@@ -73,7 +73,7 @@ fi
 case "$ID" in
     # rolling release, no $VERSION_ID
     arch) PAMFILE=tools/arch/cockpit.pam; VERSION_ID=latest ;;
-    fedora|centos|rhel) PAMFILE=tools/cockpit.pam ;;
+    fedora|centos|rhel|bazzite) PAMFILE=tools/cockpit.pam ;;
     debian|ubuntu) PAMFILE=tools/cockpit.debian.pam ;;
     *) echo "Unsupported distribution: $ID"; exit 1 ;;
 esac

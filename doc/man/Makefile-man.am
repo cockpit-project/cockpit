@@ -10,8 +10,6 @@ EXTRA_DIST += \
 	doc/man/pages/partials/bugs.adoc \
 	$(NULL)
 
-if ENABLE_DOC
-
 MANPAGES = \
 	doc/output/man/cockpit.1 \
 	doc/output/man/cockpit-bridge.1 \
@@ -22,10 +20,15 @@ MANPAGES = \
 	doc/output/man/pam_ssh_add.8 \
 	$(NULL)
 
+if ENABLE_DOC
+
 man_MANS += \
 	$(MANPAGES) \
 	$(NULL)
 CLEANFILES += $(MANPAGES)
+
+# Some distros don't have asciidoctor and we need to prebundle the man pages
+EXTRA_DIST += $(MANPAGES)
 
 MAN_ASCIIDOC_ARGS = \
 	-a doctype="manpage" \

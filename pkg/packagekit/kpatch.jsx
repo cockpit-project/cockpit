@@ -38,8 +38,8 @@ import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
 import cockpit from "cockpit";
 import { proxy as serviceProxy } from "service";
-import { check_missing_packages } from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { getPackageManager } from "packagemanager";
 
 const _ = cockpit.gettext;
 
@@ -65,6 +65,8 @@ export class KpatchSettings extends React.Component {
             patchName: null, // kpatch-patch name
             patchInstalled: null, // kpatch-patch installed
             patchUnavailable: null, // kpatch-patch available
+
+            packageManager: null,
         };
 
         this.kpatchService = serviceProxy("kpatch");
@@ -80,19 +82,7 @@ export class KpatchSettings extends React.Component {
         return enabled && (installed || unavailable);
     }
 
-    componentDidMount() {
-        check_missing_packages(["kpatch", "kpatch-dnf"])
-                .then(d =>
-                    this.checkSetup().then(() =>
-                        this.setState({
-                            loaded: true,
-                            unavailable: d.unavailable_names || [],
-                            missing: d.missing_names || [],
-                        })
-                    )
-                )
-                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
-
+    async componentDidMount() {
         this.kpatchService.addEventListener('changed', () => {
             this.setState(state => {
                 const current = this.current(this.kpatchService.enabled, state.patchInstalled, state.patchUnavailable);
@@ -103,6 +93,20 @@ export class KpatchSettings extends React.Component {
                 });
             });
         });
+
+        const packageManager = await getPackageManager();
+        this.setState({ packageManager });
+        packageManager.check_missing_packages(["kpatch", "kpatch-dnf"])
+                .then(d =>
+                    this.checkSetup().then(() =>
+                        this.setState({
+                            loaded: true,
+                            unavailable: d.unavailable_names || [],
+                            missing: d.missing_names || [],
+                        })
+                    )
+                )
+                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
     }
 
     checkSetup() {
@@ -134,7 +138,7 @@ export class KpatchSettings extends React.Component {
                     release = release.slice(0, release.length - 2); // remove el8.x86_64
                     const kpp_kernel_release = release.join("_");
                     const patch_name = ["kpatch-patch", kpp_kernel_version, kpp_kernel_release].join("-");
-                    return check_missing_packages([patch_name])
+                    return this.state.packageManager.check_missing_packages([patch_name])
                             .then(d =>
                                 this.setState((state, _) => {
                                     const installed = (d.unavailable_names || []).length === 0 && (d.missing_names || []).length === 0;

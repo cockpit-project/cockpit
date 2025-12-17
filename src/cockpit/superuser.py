@@ -26,7 +26,7 @@ import socket
 import subprocess
 from os.path import basename
 from tempfile import TemporaryDirectory
-from typing import List, Optional, Sequence, Tuple
+from typing import Sequence
 
 from cockpit._vendor import ferny
 from cockpit._vendor.bei.bootloader import make_bootloader
@@ -116,7 +116,9 @@ class SuperuserPeer(ConfiguredPeer):
 class CockpitResponder(ferny.AskpassHandler):
     commands = ('ferny.askpass', 'cockpit.send-stderr')
 
-    async def do_custom_command(self, command: str, args: Tuple, fds: List[int], stderr: str) -> None:
+    async def do_custom_command(
+        self, command: str, args: 'tuple[object, ...]', fds: 'list[int]', stderr: str
+    ) -> None:
         if command == 'cockpit.send-stderr':
             with socket.socket(fileno=fds[0]) as sock:
                 fds.pop(0)
@@ -143,8 +145,8 @@ class AuthorizeResponder(CockpitResponder):
 
 class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface='cockpit.Superuser'):
     superuser_configs: Sequence[BridgeConfig] = ()
-    pending_prompt: Optional[asyncio.Future]
-    peer: Optional[SuperuserPeer]
+    pending_prompt: 'asyncio.Future[str] | None'
+    peer: 'SuperuserPeer | None'
 
     # D-Bus signals
     prompt = bus.Interface.Signal('s', 's', 's', 'b', 's')  # message, prompt, default, echo, error
@@ -155,7 +157,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
     methods = bus.Interface.Property('a{sv}', value={})
 
     # RoutingRule
-    def apply_rule(self, options: JsonObject) -> Optional[Peer]:
+    def apply_rule(self, options: JsonObject) -> 'Peer | None':
         superuser = options.get('superuser')
 
         if not superuser or self.current == 'root':
@@ -170,7 +172,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             raise RoutingError('access-denied')
 
     # ferny.AskpassHandler
-    async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
+    async def do_askpass(self, messages: str, prompt: str, hint: str) -> 'str | None':
         assert self.pending_prompt is None
         echo = hint == "confirm"
         self.pending_prompt = asyncio.get_running_loop().create_future()
@@ -223,7 +225,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
         self.current = self.peer.config.name
 
-    def set_configs(self, configs: Sequence[BridgeConfig]):
+    def set_configs(self, configs: Sequence[BridgeConfig]) -> None:
         logger.debug("set_configs() with %d items", len(configs))
         configs = [config for config in configs if is_valid_superuser_config(config)]
         self.superuser_configs = tuple(configs)
@@ -236,7 +238,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         if self.peer is not None:
             if self.peer.config not in self.superuser_configs:
                 logger.debug("  stopping superuser bridge '%s': it disappeared from configs", self.peer.config.name)
-                self.stop()
+                self.shutdown()
 
     def cancel_prompt(self) -> None:
         if self.pending_prompt is not None:
@@ -265,15 +267,15 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         del self._init_task
 
     # D-Bus methods
-    @bus.Interface.Method(in_types=['s'])
+    @bus.Interface.Method(in_types=['s'])  # type: ignore[misc]
     async def start(self, name: str) -> None:
         await self.go(name, self)
 
-    @bus.Interface.Method()
+    @bus.Interface.Method()  # type: ignore[misc]
     def stop(self) -> None:
         self.shutdown()
 
-    @bus.Interface.Method(in_types=['s'])
+    @bus.Interface.Method(in_types=['s'])  # type: ignore[misc]
     def answer(self, reply: str) -> None:
         if self.pending_prompt is not None:
             logger.debug('responding to pending prompt')

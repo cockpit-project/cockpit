@@ -603,6 +603,9 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
+        # Disable pre-loading packagekit, otherwise udisks oom's.
+        self.disable_preload("packagekit")
+
         self.login_and_go("/storage")
 
         # Add a disk and make two partitions on it, one on self.mnt_dir/foo

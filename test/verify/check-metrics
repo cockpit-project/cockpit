@@ -416,7 +416,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_text("#date-picker-select-toggle .pf-v6-c-menu-toggle__text", "Wednesday, September 16, 2020")
 
         b.click("#date-picker-select-toggle")
-        b.click(".pf-v6-c-menu__list-item:contains('Today') button")
+        b.click(".pf-v6-c-menu__list-item button:contains('Today')")
         b.wait_text("#date-picker-select-toggle .pf-v6-c-menu-toggle__text", "Today")
         # self.waitStream(4) # FIXME: wait for new data - pcp does not handle time change greatly
 
@@ -486,7 +486,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         b.wait_in_text(".cockpit-log-panel", "load-hog")
         action = "Stopping" if load_minute == 39 else "Started"
         b.wait_in_text(".cockpit-log-panel", f"{action} /usr/bin/sh -ec for i in `seq 500`")
-        b.click(f".cockpit-logline:contains('{action} /usr/bin/sh -ec for i in `seq 500`') .cockpit-log-message")
+        b.click(f".cockpit-log-message:contains('{action} /usr/bin/sh -ec for i in `seq 500`')")
         b.enter_page("/system/logs")
         b.wait_in_text(".pf-v6-c-card__header", "load-hog.service")
         b.wait_in_text(".pf-v6-c-card__title", "/usr/bin/sh -ec")

@@ -625,9 +625,9 @@ class TestHistoryMetrics(testlib.MachineCase):
             b.wait_visible('#switch-pmproxy:checked')
             applySettings(b, self.pcp_dialog_selector)
             if firewalld_alert:
-                b.wait_visible(".pf-v6-c-alert:contains('pmproxy')")
+                b.wait_in_text("#firewalld-request-alert", "pmproxy")
             else:
-                b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
+                b.wait_not_present("#firewalld-request-alert")
             m.execute('while [ $(systemctl is-active pmproxy) = activating ]; do sleep 1; done')
             self.assertEqual(m.execute("systemctl is-active pmproxy").strip(), "active")
             self.assertEqual(m.execute(f"systemctl is-active {redis}").strip(), "active")
@@ -643,7 +643,7 @@ class TestHistoryMetrics(testlib.MachineCase):
             b.wait_visible("#switch-pmproxy:not(:checked)")
             applySettings(b, self.pcp_dialog_selector)
             # always clears the firewalld alert
-            b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
+            b.wait_not_present("#firewalld-request-alert")
             self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
             self.assertEqual(m.execute("! systemctl is-enabled pmproxy").strip(), "disabled")
             # keeps redis running, it's a shared service
@@ -671,7 +671,7 @@ class TestHistoryMetrics(testlib.MachineCase):
         applySettings(b, self.pcp_dialog_selector)
         m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
         self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
-        b.wait_not_present(".pf-v6-c-alert:contains('pmproxy')")
+        b.wait_not_present("#firewalld-request-alert")
 
         checkEnable(firewalld_alert=True)
         checkDisable()

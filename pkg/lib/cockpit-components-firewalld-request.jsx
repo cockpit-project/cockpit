@@ -125,7 +125,7 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
         return null;
     } else {
         alert = (
-            <Alert isInline variant="info" title={title} className="pf-v6-u-box-shadow-sm">
+            <Alert id="firewalld-request-alert" isInline variant="info" title={title} className="pf-v6-u-box-shadow-sm">
                 <Toolbar>
                     <ToolbarContent>
                         <ToolbarGroup>

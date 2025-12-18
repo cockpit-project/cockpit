@@ -638,9 +638,6 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults $luks_karg
     def dropdown_action(self, title: str) -> str:
         return f".pf-v6-c-menu button:contains('{title}')"
 
-    def dropdown_description(self, title: str) -> str:
-        return f".pf-v6-c-menu button:contains('{title}') .pf-v6-c-menu__item-description"
-
     def click_dropdown(self, parent: str, title: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
         self.browser.click(self.dropdown_action(title))
@@ -654,7 +651,7 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults $luks_karg
     def check_dropdown_action_disabled(self, parent: str, title: str, expected_text: str) -> None:
         self.browser.click(self.dropdown_toggle(parent))
         self.browser.wait_visible(self.dropdown_action(title) + "[disabled]")
-        self.browser.wait_text(self.dropdown_description(title), expected_text)
+        self.browser.wait_in_text(self.dropdown_action(title) + "[disabled]", expected_text)
         self.browser.click(self.dropdown_toggle(parent))
 
     def wait_mounted(self, card_title: str) -> None:

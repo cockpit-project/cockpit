@@ -39,13 +39,24 @@ Privileged mode provides tight integration with the host: You can use the
 host's users and their passwords to log in, and Cockpit's branding will adjust
 to the host operating system.
 
-1. Enable password based SSH logins, unless you only use [SSO logins](https://cockpit-project.org/guide/latest/sso.html):
+1. Enable password based SSH logins, unless you only use [SSO logins](https://cockpit-project.org/guide/latest/sso.html).
+   From localhost only:
+   ```bash
+    cat << EOF > /etc/ssh/sshd_config.d/02-enable-passwords.conf
+    # enables Cockpit web login without exposing password auth to network
+    Match Address 127.0.0.1,::1
+      PasswordAuthentication yes
+    EOF
    ```
-   echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/02-enable-passwords.conf
+   Or from any host:
+   ```bash
+    echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/02-enable-passwords.conf
+   ```
+   ```
    sudo systemctl try-restart sshd
    ```
 
-2. Run the Cockpit web service with a privileged container (as root):
+3. Run the Cockpit web service with a privileged container (as root):
    ```
    podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws
    ```
@@ -61,7 +72,7 @@ to the host operating system.
    podman container runlabel --display RUN quay.io/cockpit/ws
    ```
 
-3. Make Cockpit start on boot:
+4. Make Cockpit start on boot:
    ```
    podman container runlabel INSTALL quay.io/cockpit/ws
    systemctl enable cockpit.service

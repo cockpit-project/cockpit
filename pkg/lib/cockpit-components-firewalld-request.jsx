@@ -126,7 +126,7 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
     } else {
         alert = (
             <Alert isInline variant="info" title={title} className="pf-v6-u-box-shadow-sm">
-                <Toolbar className="ct-alert-toolbar">
+                <Toolbar>
                     <ToolbarContent>
                         <ToolbarGroup>
                             <ToolbarItem variant="label">{ _("Zone") }</ToolbarItem>

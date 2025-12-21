@@ -507,6 +507,10 @@ class TestHistoryMetrics(testlib.MachineCase):
         except AssertionError:
             self.assertIn(f"until=2021-3-8%2010%3A{load_minute + 1}%3A", url)
 
+        # Workaround journald crash? on ubuntu 2404.
+        if m.image == "ubuntu-2404":
+            b.logout()
+
     @testlib.nondestructive
     def testNoDataEnable(self):
         b = self.browser

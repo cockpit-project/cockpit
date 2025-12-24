@@ -507,6 +507,10 @@ class TestHistoryMetrics(testlib.MachineCase):
         except AssertionError:
             self.assertIn(f"until=2021-3-8%2010%3A{load_minute + 1}%3A", url)
 
+        # Explicitly start systemd-journald; this seems to be required
+        # when varlink is involved.
+        m.execute("systemctl start systemd-journald")
+
     @testlib.nondestructive
     def testNoDataEnable(self):
         b = self.browser

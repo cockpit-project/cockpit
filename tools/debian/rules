@@ -7,9 +7,15 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # we need an apparmor profile for >= 4.0; this does not yet exist in Ubuntu 22.04
 PRE4AA = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.04)
 
-# Ubuntu 22.04 LTS's node.js version 12 is too old to understand our source, so
-# keep the pre-built dist/ for that release only
+# Ubuntu 22.04 LTS's node.js version 12 is too old to understand our source.
+# Also, esbuild/nodejs are not available on all Debian architectures.
+# Keep the pre-built dist/ for Ubuntu 22.04 and when nodejs is not available.
 KEEP_DIST = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.04)
+ifeq ($(KEEP_DIST),)
+    ifeq ($(shell command -v nodejs 2>/dev/null),)
+        KEEP_DIST = no-nodejs
+    endif
+endif
 
 # keep the host switcher on in currently supported stable releases
 STABLE = $(filter $(shell . /etc/os-release; echo $${VERSION_CODENAME}),bookworm jammy noble)

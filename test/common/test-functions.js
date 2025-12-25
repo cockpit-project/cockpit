@@ -50,7 +50,7 @@ window.ph_select = function(sel) {
     if (sel.includes(":contains(")) {
         if (!window.Sizzle) {
             // Best effort support `:contains()`
-            const re = /:contains\(([\s\S]*?)\)/g;
+            const re = /:contains\(((?:[^()]*|\([^()]*\))*)\)/g;
             const matches = re.exec(sel);
             if (matches === null)
                 throw new Error("Unsupported ':contains' when window.Sizzle is not available.");
@@ -62,10 +62,20 @@ window.ph_select = function(sel) {
                 throw new Error(`Unsupported multiple ':contains' when window.Sizzle is not available`);
 
             const searchText = matches[1].replace(/^['"]/, '').replace(/['"]$/, '');
-            const base = sel.replace(re, '');
+            // everything after :contains()
+            const leftover = sel.substring(matches.index + matches[1].length + ":contains()".length, sel.length).trim();
+            const base = sel.replace(re, '').replace(leftover, '');
 
-            const elems = querySelectorAll(base);
-            return elem_contains_text(elems, searchText);
+            // If there is nothing leftover or if there is a CSS selector it is a simple querySelector,
+            // otherwise there is another element we need to query.
+            if (leftover.trim() === "" || leftover.startsWith(":")) {
+                return elem_contains_text(querySelectorAll(base + leftover), searchText);
+            } else {
+                const contains_elems = elem_contains_text(querySelectorAll(base), searchText);
+                return contains_elems.map(elem => {
+                    return Array.from(elem.querySelectorAll(leftover));
+                }).flat();
+            }
         } else {
             return window.Sizzle(sel);
         }

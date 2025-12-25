@@ -25,6 +25,8 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 import { useDialogs } from "dialogs.jsx";
+import { FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/index.js';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
 
@@ -36,11 +38,28 @@ export const MtuDialog = ({ connection, dev, settings }) => {
     const [dialogError, setDialogError] = useState(undefined);
     const [mode, setMode] = useState(!settings.ethernet.mtu ? "auto" : "custom");
     const [mtu, setMtu] = useState(settings.ethernet.mtu ? settings.ethernet.mtu : '');
+    const [mtuValidation, setMtuValidation] = useState("");
 
-    const onSubmit = (ev) => {
-        const mtuNew = mode == 'auto' ? 0 : parseInt(mtu, 10);
+    const handleMtuChange = (_event, mtuChange) => {
+        const mtuNew = parseInt(mtuChange, 10);
         if (isNaN(mtuNew) || mtuNew < 0) {
-            setDialogError(_("MTU must be a positive number"));
+            setMtuValidation(_("MTU must be a positive number"));
+        } else {
+            setMtuValidation("");
+        }
+        if (mtuChange !== "" && mode === "auto") {
+            setMode("custom");
+        } else if (mtuChange === "" && mode === "custom") {
+            setMode("auto");
+        }
+
+        setMtu(mtuChange);
+    };
+
+    const onSubmit = (_ev) => {
+        const mtuNew = mode === 'auto' ? 0 : parseInt(mtu, 10);
+        if (mtuValidation !== "" && mode === "custom") {
+            setDialogError(mtuValidation);
             return;
         }
         const createSettingsObj = () => ({
@@ -83,10 +102,23 @@ export const MtuDialog = ({ connection, dev, settings }) => {
                 <Radio id={idPrefix + "-custom"}
                        isChecked={mode == "custom"}
                        className="ct-align-center"
-                       label={
+                       label={_("Set to")}
+                       body={
                            <>
-                               <span>{_("Set to")}</span>
-                               <TextInput id={idPrefix + "-input"} value={mtu} onChange={(_event, value) => setMtu(value)} className="mtu-label-input" />
+                               <TextInput id={idPrefix + "-input"}
+                                   value={mtu}
+                                   onChange={handleMtuChange}
+                                   className="mtu-label-input"
+                               />
+                               {mtuValidation !== "" && mode === "custom" && (
+                                   <FormHelperText>
+                                       <HelperText>
+                                           <HelperTextItem icon={<ExclamationCircleIcon />} variant="error">
+                                               {mtuValidation}
+                                           </HelperTextItem>
+                                       </HelperText>
+                                   </FormHelperText>
+                               )}
                            </>
                        }
                        name="mtu-mode"

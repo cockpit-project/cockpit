@@ -24,16 +24,20 @@ import readline  # noqa: F401, side-effecting import
 import shlex
 import sys
 import time
-from typing import Any, BinaryIO, Iterable, Optional
+from typing import Any, BinaryIO, Iterable, Literal, Optional
+
+ViewType = Literal['compact', 'pretty']
 
 
 class Printer:
     output: BinaryIO
+    view_type: ViewType
     last_channel: int
 
-    def __init__(self, output=None):
+    def __init__(self, output: Any = None, view_type: ViewType = "compact"):
         self.last_channel = 0
         self.output = output or sys.stdout.buffer
+        self.view_type = view_type
 
     def data(self, channel: str, /, data: bytes) -> None:
         """Send raw data (byte string) on a channel"""
@@ -42,9 +46,18 @@ class Printer:
         self.output.write(frame)
         self.output.flush()
 
-    def json(self, channel: str, /, **kwargs: object) -> None:
+    def json(
+        self, channel: str, /, **kwargs: object
+    ) -> None:
         """Send a json message (built from **kwargs) on a channel"""
-        self.data(channel, json.dumps(kwargs, indent=2).encode() + b'\n')
+        # Cockpit's `session-utils.c#get_authorize_key` expect JSON to be compact
+        # otherwise parsed values will be broken.
+        params: Any = {"separators": None, "indent": None}
+        if self.view_type == "compact":
+            params["separators"] = (',', ':')
+        elif self.view_type == "pretty":
+            params["indent"] = 4
+        self.data(channel, json.dumps(kwargs, **params).encode() + b'\n')
 
     def control(self, command: str, **kwargs: Any) -> None:
         """Send a control message, build from **kwargs"""
@@ -192,6 +205,7 @@ def main() -> None:
                         help="Don't for [Enter] after printing, before exit")
     parser.add_argument('--no-init', action='store_true',
                         help="Don't send an init message")
+    parser.add_argument('--pretty-json', action='store_true', help="Enable pretty printing for JSON output.")
     parser.add_argument('command', nargs='*', default=['-'],
                         help="The command to invoke: try 'help'")
     args = parser.parse_args()
@@ -203,7 +217,8 @@ def main() -> None:
     output = open(os.dup(1), 'wb')
     os.dup2(os.open('/dev/tty', os.O_WRONLY), 1)
 
-    printer = Printer(output)
+    view_type = "pretty" if args.pretty_json else "compact"
+    printer = Printer(output=output, view_type=view_type)
 
     need_init = not args.no_init
 

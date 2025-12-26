@@ -583,6 +583,12 @@ ${enableCrashKernel}
                         </>
                     );
                 }
+            } else if (this.state.os_release.NAME?.includes('Arch')) {
+                alertMessage = _("kdump is not supported on Arch Linux.");
+                alertDetail = fmt_to_fragments(
+                    _("kexec is not supported on Arch. $0 provides more information."),
+                    <a href="https://github.com/cockpit-project/cockpit/issues/21006#issuecomment-2350036816">GitHub issue #21006</a>,
+                );
             } else {
                 alertMessage = _("Kdump service is not installed.");
                 alertDetail = fmt_to_fragments(

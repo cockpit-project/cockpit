@@ -171,9 +171,9 @@ BuildRequires:  python3-pytest-timeout
 %build
 %if %{defined rebuild_bundle}
 rm -rf dist
-# HACK: node module packaging is currently broken in Fedora, should be in
+# HACK: node module packaging is broken in Fedora ≤ 43; should be in
 # common location, not major version specific one
-NODE_ENV=production NODE_PATH=$(echo /usr/lib/node_modules_*) ./build.js
+NODE_ENV=production NODE_PATH=/usr/lib/node_modules:$(echo /usr/lib/node_modules_*) ./build.js
 %else
 # Use pre-built bundle on distributions without nodejs-esbuild
 %endif

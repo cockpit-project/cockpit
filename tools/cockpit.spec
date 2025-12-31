@@ -56,6 +56,12 @@
 %define rebuild_bundle 1
 %endif
 
+# to avoid using asciidoc-py in RHEL and CentOS we prebuild it
+%if 0%{?rhel} || 0%{?centos}
+%define rebuild_docs 1
+%define docbundledir doc/output/html
+%endif
+
 Name:           cockpit
 Summary:        Web Console for Linux servers
 
@@ -117,11 +123,7 @@ BuildRequires: nodejs-esbuild
 %endif
 
 # For documentation
-%if 0%{?rhel} || 0%{?centos}
-# Only has legacy asciidoc-py and not asciidoctor.
-# asciidoc-py includes a2x package which can generate man-pages.
-BuildRequires: asciidoc
-%else
+%if !%{defined rebuild_docs}
 BuildRequires: asciidoctor
 %endif
 
@@ -187,6 +189,9 @@ NODE_ENV=production NODE_PATH=/usr/lib/node_modules:$(echo /usr/lib/node_modules
 %if %{enable_multihost}
     --enable-multihost \
 %endif
+%if %{defined rebuild_docs}
+    --disable-doc \
+%endif
 
 %make_build
 
@@ -209,6 +214,10 @@ install -p -m 644 %{pamconfig} $RPM_BUILD_ROOT%{pamconfdir}/cockpit
 
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
+
+%if 0%{?rhel} || 0%{?centos}
+install -D -p -m 644 %{docbundledir} %{buildroot}%{_docdir}/cockpit/
+%endif
 
 # Build the package lists for resource packages
 # cockpit-bridge is the basic dependency for all cockpit-* packages, so centrally own the page directory
@@ -297,6 +306,7 @@ troubleshooting, interactive command-line sessions, and more.
 %{_docdir}/cockpit/AUTHORS
 %{_docdir}/cockpit/COPYING
 %{_docdir}/cockpit/README.md
+%{_docdir}/cockpit/*.html
 %{_datadir}/metainfo/org.cockpit_project.cockpit.appdata.xml
 %{_datadir}/icons/hicolor/128x128/apps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
@@ -331,6 +341,7 @@ embed or extend Cockpit.
 %exclude %{_docdir}/cockpit/AUTHORS
 %exclude %{_docdir}/cockpit/COPYING
 %exclude %{_docdir}/cockpit/README.md
+%exclude %{_docdir}/cockpit/*.html
 %{_docdir}/cockpit
 
 %package system

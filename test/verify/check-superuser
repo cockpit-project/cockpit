@@ -301,9 +301,17 @@ session include system-auth
         b.enter_page("/playground/pkgs")
         b.click("#reload")
         b.leave_page()
-        b.check_superuser_indicator("")
+        b.check_superuser_indicator("Limited access")
         # superuser bridge goes away
         m.execute("while pgrep -u root -a cockpit-bridge; do sleep 1; done", timeout=5)
+
+        # Try to become superuser - should show error about no methods available
+        b.open_superuser_dialog()
+        b.wait_in_text(".pf-v6-c-modal-box:contains('Problem becoming administrator')",
+                       "No methods to gain administrative access are available")
+        b.click(".pf-v6-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
+        b.wait_not_present(".pf-v6-c-modal-box:contains('Problem becoming administrator')")
+        b.check_superuser_indicator("Limited access")
 
         # no banner for "running in limited access mode", there are no bridge configs
         b.go("/system")
@@ -423,6 +431,58 @@ session include system-auth
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v6-c-modal-box")
         b.wait_not_present(".ct-limited-access-alert")
+
+    def start_transient_unit_common(self):
+        b = self.browser
+        m = self.machine
+
+        # Log in with limited access
+        self.login_and_go(superuser=False)
+        b.check_superuser_indicator("Limited access")
+
+        if m.image.startswith('rhel-8-'):  # SELINUX-5411
+            self.addCleanup(m.execute, ("setenforce", "1"))
+            m.execute(("setenforce", "0"))
+
+        # Open the superuser dialog and enter wrong password
+        b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate to gain administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "wrong")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+
+        # StartTransientUnit only prompts once, so we expect Permission denied
+        # after one wrong attempt
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.wait_in_text(".pf-v6-c-modal-box", "Permission denied")
+        b.click(".pf-v6-c-modal-box button:contains('Close')")
+
+        # Open the superuser dialog and use the right password this time
+        b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate to gain administrative access")
+        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-v6-c-modal-box")
+        b.check_superuser_indicator("Administrative access")
+
+        # Verify that neither sudo nor pkexec are being used
+        self.assertEqual(m.execute(["pgrep", "-a", "sudo"], check=False).strip(), "")
+        self.assertEqual(m.execute(["pgrep", "-a", "pkexec"], check=False).strip(), "")
+
+    def testStartTransientUnitNoSudo(self):
+        # Break sudo to force StartTransientUnit to be used
+        self.restore_file("/usr/bin/sudo")
+        self.machine.execute(["rm", "/usr/bin/sudo"])
+        self.start_transient_unit_common()
+
+    def testStartTransientUnitNoAskpass(self):
+        # sudo doesn't support -A: StartTransientUnit must be used
+        self.write_file("/usr/bin/sudo", """#!/bin/sh
+echo "no -A support!" >&2
+exit 1
+""", perm="755")
+        self.start_transient_unit_common()
 
 
 @testlib.skipBeiboot("host switching disabled in beiboot mode")

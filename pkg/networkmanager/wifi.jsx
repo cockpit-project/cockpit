@@ -43,6 +43,9 @@ import { decode_nm_property } from './utils';
 
 const _ = cockpit.gettext;
 
+// NetworkManager device state constants
+const NM_DEVICE_STATE_UNAVAILABLE = 20;
+
 // Parse security flags from AccessPoint properties
 function parseSecurityFlags(flags, wpaFlags, rsnFlags) {
     // No security
@@ -1667,6 +1670,10 @@ export const WiFiPage = ({ iface, dev }) => {
     const [capabilities, setCapabilities] = useState(null);
     const [capabilitiesError, setCapabilitiesError] = useState(null);
     const fetchRequestIdRef = useRef(0); // Track fetch requests to handle race conditions
+    // Device availability state (for rfkill handling)
+    const [deviceUnavailable, setDeviceUnavailable] = useState(false);
+    const [rfkillBlocked, setRfkillBlocked] = useState(false);
+    const [enablingWifi, setEnablingWifi] = useState(false);
 
     // Fetch device capabilities on mount
     useEffect(() => {
@@ -1702,6 +1709,68 @@ export const WiFiPage = ({ iface, dev }) => {
 
         fetchCapabilities();
     }, [dev, model?.client]);
+
+    // Check device availability and rfkill status
+    useEffect(() => {
+        const checkDeviceAvailability = async () => {
+            if (!dev) {
+                setDeviceUnavailable(false);
+                setRfkillBlocked(false);
+                return;
+            }
+
+            const isUnavailable = dev.State === NM_DEVICE_STATE_UNAVAILABLE;
+            setDeviceUnavailable(isUnavailable);
+
+            if (isUnavailable) {
+                // Check rfkill status for wlan
+                try {
+                    const result = await cockpit.spawn(
+                        ["rfkill", "list", "wlan"],
+                        { err: "ignore" }
+                    );
+                    // Check if soft blocked (output contains "Soft blocked: yes")
+                    const softBlocked = result.includes("Soft blocked: yes");
+                    setRfkillBlocked(softBlocked);
+                } catch (err) {
+                    console.warn("Failed to check rfkill status:", err);
+                    setRfkillBlocked(false);
+                }
+            } else {
+                setRfkillBlocked(false);
+            }
+        };
+
+        checkDeviceAvailability();
+
+        // Re-check when model changes (device state may have changed)
+        if (model) {
+            model.addEventListener("changed", checkDeviceAvailability);
+            return () => model.removeEventListener("changed", checkDeviceAvailability);
+        }
+    }, [dev, model]);
+
+    // Enable WiFi (unblock rfkill)
+    const handleEnableWifi = useCallback(async () => {
+        setEnablingWifi(true);
+        setError(null);
+
+        try {
+            // Use rfkill command to unblock wlan
+            await cockpit.spawn(
+                ["rfkill", "unblock", "wlan"],
+                { superuser: "require", err: "message" }
+            );
+            // Wait a moment for NetworkManager to notice the change
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            // The model change event should update our state
+        } catch (err) {
+            console.error("Failed to enable WiFi:", err);
+            setError(_("Failed to enable WiFi: ") + (err.message || String(err)));
+        } finally {
+            setEnablingWifi(false);
+        }
+    }, []);
 
     // Fetch access points from device
     const fetchAccessPoints = useCallback(async () => {
@@ -1979,8 +2048,38 @@ export const WiFiPage = ({ iface, dev }) => {
     // Determine if AP button should be disabled (no AP support)
     const canEnableAP = capabilities?.supportsAP !== false;
 
+    // Action links for WiFi unavailable alert (only show enable button if rfkill blocked)
+    const wifiUnavailableActionLinks = rfkillBlocked
+        ? (
+            <Button
+                variant="link"
+                isInline
+                onClick={handleEnableWifi}
+                isLoading={enablingWifi}
+                isDisabled={enablingWifi}
+            >
+                {enablingWifi ? _("Enabling...") : _("Enable WiFi")}
+            </Button>
+        )
+        : undefined;
+
     return (
         <>
+            {/* WiFi disabled/unavailable warning */}
+            {deviceUnavailable && (
+                <Alert
+                    variant="warning"
+                    isInline
+                    title={rfkillBlocked ? _("WiFi is disabled") : _("WiFi adapter unavailable")}
+                    style={{ marginBottom: "1rem" }}
+                    actionLinks={wifiUnavailableActionLinks}
+                >
+                    {rfkillBlocked
+                        ? _("WiFi has been disabled via software. Click 'Enable WiFi' to turn it back on. If this doesn't work, the WLAN regulatory domain (country) may need to be configured via system settings.")
+                        : _("The WiFi adapter is not available. This may be due to missing WLAN country/regulatory configuration, a hardware issue, or missing drivers. Check system settings to configure the WLAN country.")}
+                </Alert>
+            )}
+
             {/* Dual mode indicator */}
             {isDualMode && (
                 <Alert
@@ -2015,12 +2114,12 @@ export const WiFiPage = ({ iface, dev }) => {
                     <CardTitle>{_("WiFi Networks")}</CardTitle>
                     <Flex style={{ gap: "1rem" }}>
                         <FlexItem>
-                            <Button onClick={handleScan} isDisabled={scanning} style={{ minWidth: "7rem" }}>
+                            <Button onClick={handleScan} isDisabled={scanning || deviceUnavailable} style={{ minWidth: "7rem" }}>
                                 {scanning ? _("Scanning...") : _("Scan")}
                             </Button>
                         </FlexItem>
                         <FlexItem>
-                            <Button variant="secondary" onClick={handleConnectHidden}>
+                            <Button variant="secondary" onClick={handleConnectHidden} isDisabled={deviceUnavailable}>
                                 {_("Connect to Hidden Network")}
                             </Button>
                         </FlexItem>
@@ -2029,7 +2128,7 @@ export const WiFiPage = ({ iface, dev }) => {
                                 <Button
                                     variant="secondary"
                                     onClick={handleEnableAP}
-                                    isDisabled={!canEnableAP}
+                                    isDisabled={!canEnableAP || deviceUnavailable}
                                     title={!canEnableAP ? _("This device does not support Access Point mode") : undefined}
                                 >
                                     {_("Enable Access Point")}

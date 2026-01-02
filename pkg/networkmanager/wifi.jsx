@@ -43,6 +43,9 @@ import { decode_nm_property } from './utils';
 
 const _ = cockpit.gettext;
 
+// NetworkManager device state constants
+const NM_DEVICE_STATE_UNAVAILABLE = 20;
+
 // Parse security flags from AccessPoint properties
 function parseSecurityFlags(flags, wpaFlags, rsnFlags) {
     // No security
@@ -1716,19 +1719,18 @@ export const WiFiPage = ({ iface, dev }) => {
                 return;
             }
 
-            // NM_DEVICE_STATE_UNAVAILABLE = 20
-            const isUnavailable = dev.State === 20;
+            const isUnavailable = dev.State === NM_DEVICE_STATE_UNAVAILABLE;
             setDeviceUnavailable(isUnavailable);
 
             if (isUnavailable) {
                 // Check rfkill status for wlan
                 try {
                     const result = await cockpit.spawn(
-                        ["sh", "-c", "for i in /sys/class/rfkill/rfkill*; do if [ \"$(cat $i/type 2>/dev/null)\" = \"wlan\" ]; then cat $i/soft 2>/dev/null; fi; done"],
+                        ["rfkill", "list", "wlan"],
                         { err: "ignore" }
                     );
-                    // If any wlan rfkill shows soft=1, it's blocked
-                    const softBlocked = result.trim().split('\n').some(val => val === '1');
+                    // Check if soft blocked (output contains "Soft blocked: yes")
+                    const softBlocked = result.includes("Soft blocked: yes");
                     setRfkillBlocked(softBlocked);
                 } catch (err) {
                     console.warn("Failed to check rfkill status:", err);
@@ -2046,6 +2048,21 @@ export const WiFiPage = ({ iface, dev }) => {
     // Determine if AP button should be disabled (no AP support)
     const canEnableAP = capabilities?.supportsAP !== false;
 
+    // Action links for WiFi unavailable alert (only show enable button if rfkill blocked)
+    const wifiUnavailableActionLinks = rfkillBlocked
+        ? (
+            <Button
+                variant="link"
+                isInline
+                onClick={handleEnableWifi}
+                isLoading={enablingWifi}
+                isDisabled={enablingWifi}
+            >
+                {enablingWifi ? _("Enabling...") : _("Enable WiFi")}
+            </Button>
+        )
+        : undefined;
+
     return (
         <>
             {/* WiFi disabled/unavailable warning */}
@@ -2055,17 +2072,7 @@ export const WiFiPage = ({ iface, dev }) => {
                     isInline
                     title={rfkillBlocked ? _("WiFi is disabled") : _("WiFi adapter unavailable")}
                     style={{ marginBottom: "1rem" }}
-                    actionLinks={rfkillBlocked ? (
-                        <Button
-                            variant="link"
-                            isInline
-                            onClick={handleEnableWifi}
-                            isLoading={enablingWifi}
-                            isDisabled={enablingWifi}
-                        >
-                            {enablingWifi ? _("Enabling...") : _("Enable WiFi")}
-                        </Button>
-                    ) : undefined}
+                    actionLinks={wifiUnavailableActionLinks}
                 >
                     {rfkillBlocked
                         ? _("WiFi has been disabled via software. Click 'Enable WiFi' to turn it back on. If this doesn't work, the WLAN regulatory domain (country) may need to be configured via system settings.")

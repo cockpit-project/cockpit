@@ -76,7 +76,7 @@ regcompx (regex_t *preg, const char *regex, int cflags)
 /* For optimization, this modifies string; the returned array has pointers into string
  * The array itself gets allocated and must be freed after use. */
 static const char **
-strsplit (char *string, char delimiter)
+strsplit (char *string, char delimiter, unsigned *len_out)
 {
   const char ** parts = reallocarrayx (NULL, 2, sizeof (char*));
   char *cur = string;
@@ -104,6 +104,10 @@ strsplit (char *string, char delimiter)
     }
 
   parts[len] = NULL;
+
+  if (len_out)
+    *len_out = len;
+
   return parts;
 }
 
@@ -299,9 +303,21 @@ cockpit_conf_get_dirs (void)
       env = getenv ("XDG_CONFIG_DIRS");
       if (env && env[0])
         {
+          unsigned len_out;
+
+          const char ** xdg_config_dirs = NULL;
+          unsigned len = sizeof (cockpit_config_dirs) / sizeof (char*);
+          system_config_dirs = reallocarrayx (NULL, len, sizeof (char*));
+          memcpy (system_config_dirs, cockpit_config_dirs, sizeof (cockpit_config_dirs));
+
           /* strsplit() modifies the string inline, so copy and keep a ref */
           env = strdup (env);
-          system_config_dirs = strsplit (env, ':');
+          xdg_config_dirs = strsplit (env, ':', &len_out);
+
+          system_config_dirs = reallocarrayx (system_config_dirs, len + len_out + 1, sizeof (char*));
+          memcpy (system_config_dirs + (len-1), xdg_config_dirs, len_out * sizeof (char*));
+          system_config_dirs[len - 1 + len_out] = NULL;
+          free (xdg_config_dirs);
         }
     }
 
@@ -348,7 +364,7 @@ cockpit_conf_strv (const char *section,
       entry->strv_value = strdupx (entry->value);
       for (char *c = entry->strv_value + strlen (entry->strv_value) - 1; c >= entry->strv_value && isspace (*c); --c)
         *c = '\0';
-      entry->strv_cache = strsplit (entry->strv_value, delimiter);
+      entry->strv_cache = strsplit (entry->strv_value, delimiter, NULL);
       entry->strv_delimiter = delimiter;
     }
 

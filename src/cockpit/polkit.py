@@ -25,6 +25,10 @@ from typing import Dict, List, Sequence, Tuple
 from cockpit._vendor.ferny import AskpassHandler
 from cockpit._vendor.systemd_ctypes import Variant, bus
 
+# polkit ≥ 127 (Dec 2025) uses a socket-activated helper
+HELPER_SOCKET = '/run/polkit/agent-helper.socket'
+
+# older versions use a setuid helper binary;
 # that path is valid on at least Debian, Fedora/RHEL, and Arch
 HELPER_PATH = '/usr/lib/polkit-1/polkit-agent-helper-1'
 
@@ -65,25 +69,57 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
             return
 
         user_name = pwd.getpwuid(my_uid).pw_name
+
+        # Try socket-activated helper first (polkit >= 127), fall back to legacy setuid helper
+        try:
+            await self._authenticate_socket(user_name, cookie)
+        except OSError:
+            # Socket not available, fall back to legacy setuid helper
+            logger.debug('Socket helper not available, falling back to legacy helper')
+            await self._authenticate_suid_helper(user_name, cookie)
+
+    async def _authenticate_suid_helper(self, user_name: str, cookie: str) -> None:
+        """Authenticate using legacy setuid helper binary"""
+        logger.debug('Trying legacy polkit helper at %s', HELPER_PATH)
         process = await asyncio.create_subprocess_exec(HELPER_PATH, user_name, cookie,
                                                        stdin=asyncio.subprocess.PIPE,
                                                        stdout=asyncio.subprocess.PIPE)
+        assert process.stdin is not None
+        assert process.stdout is not None
+
         try:
-            await self._communicate(process)
+            await self._communicate(process.stdin, process.stdout)
         except asyncio.CancelledError:
             logger.debug('Cancelled authentication')
-            process.terminate()
         finally:
+            try:
+                process.terminate()
+            except ProcessLookupError:
+                pass  # process already exited and was reaped
             res = await process.wait()
             logger.debug('helper exited with code %i', res)
 
-    async def _communicate(self, process: asyncio.subprocess.Process) -> None:
-        assert process.stdin
-        assert process.stdout
+    async def _authenticate_socket(self, user_name: str, cookie: str) -> None:
+        """Authenticate using socket-activated helper (polkit >= 127)"""
+        logger.debug('Trying socket-activated polkit helper at %s', HELPER_SOCKET)
+        reader, writer = await asyncio.open_unix_connection(HELPER_SOCKET)
+        try:
+            # Send username and cookie followed by newline
+            writer.write(f'{user_name}\n{cookie}\n'.encode())
+            await writer.drain()
 
+            await self._communicate(writer, reader)
+        except asyncio.CancelledError:
+            logger.debug('Cancelled authentication')
+        finally:
+            writer.close()
+            await writer.wait_closed()
+            logger.debug('socket connection closed')
+
+    async def _communicate(self, stdin: asyncio.StreamWriter, stdout: asyncio.StreamReader) -> None:
         messages: List[str] = []
 
-        async for line in process.stdout:
+        async for line in stdout:
             logger.debug('Read line from helper: %s', line)
             command, _, value = line.strip().decode().partition(' ')
 
@@ -101,10 +137,10 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
                     logger.debug('got PAM_PROMPT %s, but do_askpass returned None', value)
                     raise asyncio.CancelledError('no password given')
                 logger.debug('got PAM_PROMPT %s, do_askpass returned a password', value)
-                process.stdin.write(passwd.encode())
-                process.stdin.write(b'\n')
+                stdin.write(passwd.encode())
+                stdin.write(b'\n')
                 del passwd  # don't keep this around longer than necessary
-                await process.stdin.drain()
+                await stdin.drain()
                 logger.debug('got PAM_PROMPT, wrote password to helper')
             elif command in ('PAM_TEXT_INFO', 'PAM_ERROR'):
                 messages.append(value)
@@ -116,7 +152,6 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
                 break
             else:
                 logger.warning('Unknown line from helper, aborting: %s', line)
-                process.terminate()
                 break
 
 

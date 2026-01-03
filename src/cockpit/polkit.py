@@ -20,11 +20,18 @@ import locale
 import logging
 import os
 import pwd
-from typing import Dict, List, Sequence, Tuple
+from typing import TYPE_CHECKING, Dict, List, Sequence, Tuple
+
+if TYPE_CHECKING:
+    from typing import Protocol
 
 from cockpit._vendor.ferny import AskpassHandler
 from cockpit._vendor.systemd_ctypes import Variant, bus
 
+# polkit ≥ 127 uses a socket-activated helper
+HELPER_SOCKET = '/run/polkit/agent-helper.socket'
+
+# older versions use a setuid helper binary;
 # that path is valid on at least Debian, Fedora/RHEL, and Arch
 HELPER_PATH = '/usr/lib/polkit-1/polkit-agent-helper-1'
 
@@ -33,6 +40,16 @@ AGENT_DBUS_PATH = '/PolkitAgent'
 logger = logging.getLogger(__name__)
 
 Identity = Tuple[str, Dict[str, Variant]]
+
+
+if TYPE_CHECKING:
+    class CommunicationProcess(Protocol):
+        """Protocol for objects that can be used with _communicate()"""
+        stdin: asyncio.StreamWriter
+        stdout: asyncio.StreamReader
+
+        def terminate(self) -> None:
+            ...
 
 
 # https://www.freedesktop.org/software/polkit/docs/latest/eggdbus-interface-org.freedesktop.PolicyKit1.AuthenticationAgent.html
@@ -65,11 +82,40 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
             return
 
         user_name = pwd.getpwuid(my_uid).pw_name
+
+        # Check if socket-activated helper is available (polkit >= 127)
+        if os.path.exists(HELPER_SOCKET):
+            logger.debug('Using socket-activated polkit helper at %s', HELPER_SOCKET)
+            await self._authenticate_socket(user_name, cookie)
+        else:
+            logger.debug('Using legacy polkit helper at %s', HELPER_PATH)
+            await self._authenticate_legacy(user_name, cookie)
+
+    async def _authenticate_legacy(self, user_name: str, cookie: str) -> None:
+        """Authenticate using legacy setuid helper binary"""
         process = await asyncio.create_subprocess_exec(HELPER_PATH, user_name, cookie,
                                                        stdin=asyncio.subprocess.PIPE,
                                                        stdout=asyncio.subprocess.PIPE)
+        assert process.stdin is not None
+        assert process.stdout is not None
+
+        # Wrap subprocess to match CommunicationProcess protocol
+        class SubprocessWrapper:
+            stdin: asyncio.StreamWriter
+            stdout: asyncio.StreamReader
+
+            def __init__(self, proc: asyncio.subprocess.Process) -> None:
+                assert proc.stdin is not None
+                assert proc.stdout is not None
+                self.stdin = proc.stdin
+                self.stdout = proc.stdout
+                self._process = proc
+
+            def terminate(self) -> None:
+                self._process.terminate()
+
         try:
-            await self._communicate(process)
+            await self._communicate(SubprocessWrapper(process))
         except asyncio.CancelledError:
             logger.debug('Cancelled authentication')
             process.terminate()
@@ -77,10 +123,35 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
             res = await process.wait()
             logger.debug('helper exited with code %i', res)
 
-    async def _communicate(self, process: asyncio.subprocess.Process) -> None:
-        assert process.stdin
-        assert process.stdout
+    async def _authenticate_socket(self, user_name: str, cookie: str) -> None:
+        """Authenticate using socket-activated helper (polkit >= 127)"""
+        reader, writer = await asyncio.open_unix_connection(HELPER_SOCKET)
+        try:
+            # Send username and cookie followed by newline
+            writer.write(f'{user_name}\n{cookie}\n'.encode())
+            await writer.drain()
 
+            # Create a simple wrapper to make the socket look like a process
+            class SocketProcess:
+                stdin: asyncio.StreamWriter
+                stdout: asyncio.StreamReader
+
+                def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+                    self.stdin = writer
+                    self.stdout = reader
+
+                def terminate(self) -> None:
+                    pass  # socket will be closed in finally block
+
+            await self._communicate(SocketProcess(reader, writer))
+        except asyncio.CancelledError:
+            logger.debug('Cancelled authentication')
+        finally:
+            writer.close()
+            await writer.wait_closed()
+            logger.debug('socket connection closed')
+
+    async def _communicate(self, process: 'CommunicationProcess') -> None:
         messages: List[str] = []
 
         async for line in process.stdout:

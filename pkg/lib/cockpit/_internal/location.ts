@@ -124,7 +124,7 @@ export class Location {
 
         const query: string[] = [];
         if (options) {
-            for (const opt in options) {
+            for (const opt of Object.keys(options).sort()) {
                 let value = options[opt];
                 if (!Array.isArray(value))
                     value = [value];
@@ -176,8 +176,20 @@ export class Location {
     go(path: Path, options?: Options) {
         if (this.#hash_changed)
             return;
-        const href = this.#href_for_go_or_replace(path, options);
-        window.location.hash = '#' + href;
+        const hash = '#' + this.#href_for_go_or_replace(path, options);
+
+        // At least Firefox 146 and 147 will (sometimes) trigger a
+        // full force reload of the page when setting
+        // window.location.hash, even if it hasn't actually
+        // changed. If a page accidentally navigates to the current
+        // location on initial render, this can lead to a loop. Even
+        // if that is a bug in that page, let's protect us against
+        // this.  Firefox 148 does not do that anymore.
+        //
+        // See https://bugzilla.redhat.com/show_bug.cgi?id=2422331
+        //
+        if (window.location.hash != hash)
+            window.location.hash = hash;
     }
 
     invalidate() {

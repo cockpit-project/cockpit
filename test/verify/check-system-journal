@@ -259,7 +259,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.input_text("1")
         b.click("#journal-grep button[aria-label=Search]")
 
-        b.wait_js_cond('window.location.hash === "#/?priority=notice&tag=test-stream&grep=1"')
+        b.wait_js_cond('window.location.hash === "#/?grep=1&priority=notice&tag=test-stream"')
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")

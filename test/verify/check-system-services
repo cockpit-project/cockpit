@@ -1299,10 +1299,10 @@ Where=/fail
 
         # Mass remove active state filters and check the URL
         b.click(".pf-v6-c-label-group button[aria-label='Close Running']")
-        b.wait_js_cond('window.location.hash == "#/?filestate=%5B%22Disabled%22%2C%22Enabled%22%5D&name=test&type=service&owner=system"')
+        b.wait_js_cond('window.location.hash == "#/?filestate=%5B%22Disabled%22%2C%22Enabled%22%5D&name=test&owner=system&type=service"')
 
         b.click(".pf-v6-c-toolbar__content .pf-v6-c-toolbar__item > button:contains('Clear all filters')")
-        b.wait_js_cond('window.location.hash == "#/?type=service&owner=system"')
+        b.wait_js_cond('window.location.hash == "#/?owner=system&type=service"')
 
         # Test text input clear button
         b.go('/system/services#/?name=test')

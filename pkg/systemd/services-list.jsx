@@ -32,7 +32,7 @@ import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
 
-export const ServicesList = ({ units, isTimer, filtersRef }) => {
+export const ServicesList = ({ units, isTimer, onClearAllFilters }) => {
     let columns;
     if (!isTimer) {
         columns = [
@@ -55,7 +55,7 @@ export const ServicesList = ({ units, isTimer, filtersRef }) => {
                       rows={ units.map(unit => getServicesRow({ key: unit[0], isTimer, shortId: unit[0], ...unit[1] })) }
                       emptyComponent={<EmptyStatePanel icon={SearchIcon}
                                                        paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
-                                                       action={<Button id="clear-all-filters" onClick={() => { filtersRef.current() }} isInline variant='link'>{_("Clear all filters")}</Button>}
+                                                       action={<Button id="clear-all-filters" onClick={onClearAllFilters} isInline variant='link'>{_("Clear all filters")}</Button>}
                                                        title={_("No matching results")} /> }
                       className="services-list" />
     );

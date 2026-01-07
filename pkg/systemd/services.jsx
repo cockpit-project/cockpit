@@ -21,7 +21,7 @@ import '../lib/patternfly/patternfly-6-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { createRoot } from 'react-dom/client';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
@@ -213,8 +213,6 @@ class ServicesPageBody extends React.Component {
         this.seenUnitFileStates = new Set();
         this.reloading = false;
 
-        this.filtersRef = React.createRef();
-
         // Possible LoadState values: stub, loaded, not-found, bad-setting, error, merged, masked
         // See: typedef enum UnitLoadStateState https://github.com/systemd/systemd/blob/main/src/basic/unit-def.h
         this.loadState = {
@@ -276,7 +274,7 @@ class ServicesPageBody extends React.Component {
         if (!currentOptions.name)
             delete currentOptions.name;
 
-        cockpit.location.go(cockpit.location.path, currentOptions);
+        cockpit.location.replace(cockpit.location.path, currentOptions);
     }
 
     componentDidMount() {
@@ -704,13 +702,21 @@ class ServicesPageBody extends React.Component {
         });
         const activeTab = this.props.activeTab;
 
+        const onClearAllFilters = () => {
+            this.onOptionsChanged({
+                name: '',
+                activestate: '[]',
+                filestate: '[]',
+            });
+        };
+
         return (
             <PageSection hasBodyWrapper={false}>
                 <Card isPlain isCompact>
                     <CardHeader id='services-card-header'>
                         <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
                                             fileStateDropdownOptions={fileStateDropdownOptions}
-                                            filtersRef={this.filtersRef}
+                                            onClearAllFilters={onClearAllFilters}
                                             loadingUnits={this.props.isLoading}
                                             options={cockpit.location.options}
                                             onOptionsChanged={this.onOptionsChanged}
@@ -718,7 +724,7 @@ class ServicesPageBody extends React.Component {
                     </CardHeader>
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
                                   isTimer={activeTab == 'timer'}
-                                  filtersRef={this.filtersRef}
+                                  onClearAllFilters={onClearAllFilters}
                                   units={this.computeSelectedUnits()} />
                 </Card>
             </PageSection>
@@ -729,34 +735,29 @@ class ServicesPageBody extends React.Component {
 const ServicesPageFilters = ({
     activeStateDropdownOptions,
     fileStateDropdownOptions,
-    filtersRef,
     loadingUnits,
     options,
     onOptionsChanged,
+    onClearAllFilters,
 }) => {
     const { activestate, filestate, name } = options;
-    const [currentTextFilter, setCurrentTextFilter] = useState(decodeURIComponent(name || ""));
-    const [filters, setFilters] = useState({
+
+    const currentTextFilter = decodeURIComponent(name || "");
+    const setCurrentTextFilter = val => {
+        onOptionsChanged({ name: encodeURIComponent(val) });
+    };
+
+    const filters = {
         activeState: JSON.parse(activestate || '[]'),
         fileState: JSON.parse(filestate || '[]'),
-    });
+    };
 
-    useEffect(() => {
-        const _filters = { activeState: JSON.parse(options.activestate || '[]'), fileState: JSON.parse(options.filestate || '[]') };
-
-        setCurrentTextFilter(decodeURIComponent(options.name || ""));
-        setFilters(_filters);
-    }, [options, setCurrentTextFilter, setFilters]);
-
-    useEffect(() => {
-        const _options = {};
-
-        _options.activestate = JSON.stringify(filters.activeState);
-        _options.filestate = JSON.stringify(filters.fileState);
-        _options.name = encodeURIComponent(currentTextFilter);
-
-        onOptionsChanged(_options);
-    }, [filters, currentTextFilter, onOptionsChanged]);
+    const setFilters = val => {
+        onOptionsChanged({
+            activestate: JSON.stringify(val.activeState),
+            filestate: JSON.stringify(val.fileState),
+        });
+    };
 
     const onSelect = (type, checked, selection) => {
         setFilters({ ...filters, [type]: checked ? [...filters[type], selection] : filters[type].filter(value => value !== selection) });
@@ -777,7 +778,7 @@ const ServicesPageFilters = ({
             return 'fileState';
     };
 
-    const onDeleteChip = useCallback((typeLabel = '', id = '') => {
+    const onDeleteChip = (typeLabel = '', id = '') => {
         const type = getFilterLabelKey(typeLabel);
 
         if (type) {
@@ -788,7 +789,7 @@ const ServicesPageFilters = ({
                 fileState: []
             });
         }
-    }, [filters]);
+    };
 
     const onDeleteChipGroup = (typeLabel) => {
         const type = getFilterLabelKey(typeLabel);
@@ -802,19 +803,9 @@ const ServicesPageFilters = ({
             });
     };
 
-    const onClearAllFilters = useCallback(() => {
-        setCurrentTextFilter('');
-        onDeleteChip();
-    }, [setCurrentTextFilter, onDeleteChip]);
-
     const onTextFilterChanged = textFilter => {
         setCurrentTextFilter(textFilter);
     };
-
-    /* Make onClearAllFilters global so at to let it be used by the parent component */
-    useEffect(() => {
-        filtersRef.current = onClearAllFilters;
-    }, [filtersRef, onClearAllFilters]);
 
     const toolbarItems =
         <ToolbarToggleGroup toggleIcon={<><span className="pf-v6-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"

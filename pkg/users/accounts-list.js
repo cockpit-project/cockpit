@@ -18,7 +18,7 @@
  */
 
 import cockpit from 'cockpit';
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { superuser } from "superuser";
 
 import { admins } from './users.js';
@@ -224,13 +224,17 @@ const mapGroupsToAccount = (accounts, groups) => {
 
 const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_gid }) => {
     const { options } = usePageLocation();
-    const [currentTextFilter, setCurrentTextFilter] = useState(options.group || '');
-    const columns = [
-        { title: _("Group name"), sortable: true },
-        { title: _("ID"), sortable: true },
-        { title: _("# of users"), sortable: true },
-        { title: _("Accounts") },
-    ];
+
+    const currentTextFilter = typeof options.group == "string" ? options.group : '';
+    const setCurrentTextFilter = val => {
+        const newOptions = { ...cockpit.location.options };
+        if (val)
+            newOptions.group = val;
+        else
+            delete newOptions.group;
+        cockpit.location.replace(cockpit.location.path, newOptions);
+    };
+
     const filtered_groups = groups.filter(group => {
         if (currentTextFilter !== "" &&
             (group.name.toLowerCase().indexOf(currentTextFilter.toLowerCase()) === -1) &&
@@ -239,22 +243,13 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
 
         return true;
     });
-    const ref = useRef();
 
-    useEffect(() => {
-        if (ref.current != currentTextFilter) {
-            ref.current = currentTextFilter;
-            const newOptions = { ...options };
-            if (currentTextFilter) {
-                newOptions.group = currentTextFilter;
-            } else {
-                delete newOptions.group;
-            }
-            cockpit.location.go([], newOptions);
-        } else {
-            setCurrentTextFilter(options.group || "");
-        }
-    }, [currentTextFilter, options]);
+    const columns = [
+        { title: _("Group name"), sortable: true },
+        { title: _("ID"), sortable: true },
+        { title: _("# of users"), sortable: true },
+        { title: _("Accounts") },
+    ];
 
     const sortRows = (rows, direction, idx) => {
         // GID and members columns are numeric
@@ -348,7 +343,17 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
 
 const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells }) => {
     const { options } = usePageLocation();
-    const [currentTextFilter, setCurrentTextFilter] = useState(options.user || '');
+
+    const currentTextFilter = typeof options.user == "string" ? options.user : '';
+    const setCurrentTextFilter = val => {
+        const newOptions = { ...cockpit.location.options };
+        if (val)
+            newOptions.user = val;
+        else
+            delete newOptions.user;
+        cockpit.location.replace(cockpit.location.path, newOptions);
+    };
+
     const filtered_accounts = accounts.filter(account => {
         if (currentTextFilter !== "" &&
             (account.name.toLowerCase().indexOf(currentTextFilter.toLowerCase()) === -1) &&
@@ -359,22 +364,6 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
 
         return true;
     });
-    const ref = useRef();
-
-    useEffect(() => {
-        if (ref.current != currentTextFilter) {
-            ref.current = currentTextFilter;
-            const newOptions = { ...options };
-            if (currentTextFilter) {
-                newOptions.user = currentTextFilter;
-            } else {
-                delete newOptions.user;
-            }
-            cockpit.location.go([], newOptions);
-        } else {
-            setCurrentTextFilter(options.user || "");
-        }
-    }, [currentTextFilter, options]);
 
     const columns = [
         { title: _("Username"), sortable: true },

@@ -26,7 +26,8 @@ jobs:
       - name: Build release
         run: tools/release '${{ github.server_url }}/${{ github.repository }}' '${{ github.ref_name }}'
 
-      - name: Create a release
+      - id: publish
+        name: Create a release
         run: |
           set -x
 
@@ -38,6 +39,16 @@ jobs:
             ${TAG_VERSION} \
             ${REPO_NAME}-${TAG_VERSION}.tar.xz \
             ${REPO_NAME}-node-${TAG_VERSION}.tar.xz
+
+          # Set outputs for downstream jobs
+          {
+            echo "filename=${REPO_NAME}-${TAG_VERSION}.tar.xz"
+            echo "download=${{ github.server_url }}/${{ github.repository }}/releases/download/${TAG_VERSION}/${REPO_NAME}-${TAG_VERSION}.tar.xz"
+            echo "checksum=$(sha256sum ${REPO_NAME}-${TAG_VERSION}.tar.xz | cut -d ' ' -f 1)"
+            echo "body<<EOF"
+            cat release-note.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
     outputs:
       filename: ${{ steps.publish.outputs.filename }}

@@ -118,6 +118,7 @@ BuildRequires: gdb
 
 %if %{defined rebuild_bundle}
 BuildRequires: nodejs
+BuildRequires: nodejs-devel
 BuildRequires: nodejs-esbuild
 %endif
 

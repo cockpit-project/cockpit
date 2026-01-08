@@ -78,20 +78,15 @@ jobs:
       - name: Verify checksum
         run: echo '${{ needs.source.outputs.checksum }} ${{ needs.source.outputs.filename }}' | sha256sum -c
 
-      - name: Build guide
+      - name: Extract guide from release tarball
         run: |
-          mkdir source build
+          mkdir source
           tar --directory source --extract --strip-components=1 --file '${{ needs.source.outputs.filename }}'
-          (
-              cd build
-              ../source/configure
-              make render-docs
-          )
 
       - name: Update the website
         run: |
           rm -rf website/guide/latest
-          mv -Tv build/doc/output/html website/guide/latest
+          cp -rT source/doc/output/html website/guide/latest
 
           # Add frontmatter for Jekyll
           find website/guide/latest -name '*.html' -exec sed -i '

@@ -885,6 +885,14 @@ OnCalendar=daily
             b.click(f"#nav-system .nav-item a[href='{href}']")
             b.wait_visible(f"iframe.container-frame[name='cockpit1:localhost{href}'][data-loaded]")
 
+        # Same skips as in test/verify/check-kdump
+        img = self.machine.image
+        expect_kdump = (img != "arch" and
+                        not img.startswith("debian") and
+                        not img.startswith("ubuntu") and
+                        "coreos" not in img)  # does show up on bootc
+        self.check_system_menu("Kernel dump", present=expect_kdump)
+
         # logging out too fast, some D-Bus services get disconnected
         self.allow_restart_journal_messages()
 

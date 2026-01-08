@@ -1,6 +1,7 @@
 {
     "conditions": [
-        {"path-exists": "/usr/sbin/kexec"}
+        {"path-exists": "/usr/sbin/kexec"},
+        {"path-not-exists": "/etc/arch-release"}
     ],
     "tools": {
         "index": {

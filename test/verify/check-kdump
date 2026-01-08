@@ -94,6 +94,7 @@ class KdumpHelpers(testlib.MachineCase):
 
 
 @testlib.skipOstree("kexec-tools not installed")
+# Kdump page is hidden on Arch as it lacks the necessary kdump packages and grub infra
 @testlib.skipImage("kexec-tools not installed", "debian-*", "ubuntu-*", "arch")
 @testlib.skipImage("kdump not compatible with separate /var btrfs subvolume https://bugzilla.redhat.com/show_bug.cgi?id=2270423", "fedora-*")
 @testlib.timeout(900)

@@ -70,6 +70,10 @@ package_cockpit() {
          "$pkgdir"/usr/lib/cockpit/cockpit-pcp \
          "$pkgdir"/var/lib/pcp
 
+  # Arch lacks the necessary kdump packages and grub infra
+  rm -rf "$pkgdir"/usr/share/cockpit/kdump \
+         "$pkgdir"/usr/share/metainfo/org.cockpit_project.cockpit_kdump.metainfo.xml
+
   # Disallow root login by default
   printf "# List of users which are not allowed to login to Cockpit\nroot\n" > "$pkgdir"/etc/cockpit/disallowed-users
   chmod 644 "$pkgdir"/etc/cockpit/disallowed-users

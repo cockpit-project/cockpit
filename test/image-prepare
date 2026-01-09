@@ -148,7 +148,7 @@ def build_install_package(dist_tars: list[str], image: str) -> list[str]:
         args.append(fr"""
             cd /var/tmp/build;
             runuser -u admin -- \
-                lintian --fail-on warning,error \
+                env TMPDIR=/var/tmp lintian --fail-on warning,error \
                 --tag-display-limit 0 --display-info \
                 --suppress-tags {','.join(suppress)} \
                 cockpit*.changes >&2""")

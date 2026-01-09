@@ -1,5 +1,12 @@
-version=4
-opts="searchmode=plain, \
-filenamemangle=s/.+\/@PACKAGE@-@ANY_VERSION@.tar.gz/@PACKAGE@-$1\.tar\.xz/" \
-https://api.github.com/repos/cockpit-project/@PACKAGE@/releases \
-https://github.com/cockpit-project/@PACKAGE@/releases/download/\d[\.\d]*/@PACKAGE@-@ANY_VERSION@.tar.xz
+Version: 5
+
+Source: https://api.github.com/repos/cockpit-project/@PACKAGE@/releases
+Matching-Pattern: https://github.com/cockpit-project/@PACKAGE@/releases/download/\d[\.\d]*/@PACKAGE@-@ANY_VERSION@.tar.xz
+Filenamemangle: s/.+\/@PACKAGE@-@ANY_VERSION@.tar.gz/@PACKAGE@-$1\.tar\.xz/
+Searchmode: plain
+
+Component: node
+Source: https://api.github.com/repos/cockpit-project/@PACKAGE@/releases
+Matching-Pattern: https://github.com/cockpit-project/@PACKAGE@/releases/download/\d[\.\d]*/@PACKAGE@-node-@ANY_VERSION@.tar.xz
+Filenamemangle: s/.+\/@PACKAGE@-node-@ANY_VERSION@.tar.gz/@PACKAGE@-$1\.tar\.xz/
+Searchmode: plain

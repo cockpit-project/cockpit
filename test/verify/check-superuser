@@ -344,6 +344,7 @@ session include system-auth
     @testlib.skipBeiboot("no local overrides/PAM config in beiboot mode")
     def testMultipleBridgeConfig(self):
         b = self.browser
+        m = self.machine
 
         self.write_file("/etc/cockpit/shell.override.json", """
 {
@@ -398,6 +399,19 @@ session include system-auth
         b.click(".pf-v6-c-modal-box button:contains('Limit access')")
         b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
+
+        # On "new" OSes we expect the socket-based agent helper
+        if m.image == "debian-testing":
+            m.execute("test -S /run/polkit/agent-helper.socket")
+            # not suid
+            self.assertEqual(m.execute("stat -c %A /usr/lib/polkit-1/polkit-agent-helper-1").strip(),
+                             "-rwxr-xr-x")
+        # reminder for ourselves in the distant past to remove the legacy path in the bridge
+        elif m.image.startswith("rhel-10"):
+            m.execute("! test -e /run/polkit/agent-helper.socket")
+            # suid root helper
+            self.assertEqual(m.execute("stat -c %A /usr/lib/polkit-1/polkit-agent-helper-1").strip(),
+                             "-rwsr-xr-x")
 
         # Run the regular sudo method, which should work as always
         b.open_superuser_dialog()

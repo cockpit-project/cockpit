@@ -122,7 +122,11 @@ BuildRequires: nodejs-esbuild
 %endif
 
 %if !%{defined bundle_docs}
+%if 0%{?suse_version}
+BuildRequires: ruby3.4-rubygem-asciidoctor
+%else
 BuildRequires: asciidoctor
+%endif
 %endif
 
 BuildRequires:  selinux-policy

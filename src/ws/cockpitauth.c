@@ -1094,6 +1094,7 @@ cockpit_session_launch (CockpitAuth *self,
 
   const gchar *command = cockpit_conf_string (section, "Command");
   const gchar *unix_path = cockpit_conf_string (section, "UnixPath");
+  const gchar *session_user_command = cockpit_conf_string (section, "SessionUserCommand");
 
   gboolean capture_stderr = FALSE;
   if (g_str_equal (section, COCKPIT_CONF_SSH_SECTION))
@@ -1115,7 +1116,8 @@ cockpit_session_launch (CockpitAuth *self,
     }
   else if (g_str_equal (type, "basic") ||
            g_str_equal (type, "negotiate") ||
-           g_str_equal (type, "tls-cert"))
+           g_str_equal (type, "tls-cert") ||
+           session_user_command != NULL)
     {
       if (command == NULL && unix_path == NULL)
         {

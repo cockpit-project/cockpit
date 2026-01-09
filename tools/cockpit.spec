@@ -220,13 +220,11 @@ install -d %{buildroot}%{_docdir}/cockpit/guide
 cp -rp %{docbundledir}/* %{buildroot}%{_docdir}/cockpit/guide/
 # Install pre-built man pages
 %define manbundledir %{_builddir}/%{name}-%{version}/doc/output/man
-install -D -p -m 644 %{manbundledir}/cockpit.1 %{buildroot}%{_mandir}/man1/cockpit.1
-install -D -p -m 644 %{manbundledir}/cockpit-bridge.1 %{buildroot}%{_mandir}/man1/cockpit-bridge.1
-install -D -p -m 644 %{manbundledir}/cockpit-desktop.1 %{buildroot}%{_mandir}/man1/cockpit-desktop.1
-install -D -p -m 644 %{manbundledir}/cockpit.conf.5 %{buildroot}%{_mandir}/man5/cockpit.conf.5
-install -D -p -m 644 %{manbundledir}/cockpit-ws.8 %{buildroot}%{_mandir}/man8/cockpit-ws.8
-install -D -p -m 644 %{manbundledir}/cockpit-tls.8 %{buildroot}%{_mandir}/man8/cockpit-tls.8
-install -D -p -m 644 %{manbundledir}/pam_ssh_add.8 %{buildroot}%{_mandir}/man8/pam_ssh_add.8
+for section in 1 5 8; do
+  for manpage in %{manbundledir}/*.${section}; do
+    install -D -p -m 644 "$manpage" %{buildroot}%{_mandir}/man${section}/$(basename "$manpage")
+  done
+done
 %endif
 
 # Build the package lists for resource packages

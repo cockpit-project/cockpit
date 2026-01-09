@@ -27,6 +27,7 @@ import shlex
 import socket
 import stat
 import subprocess
+import sys
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Type
 
 from cockpit._vendor.ferny import interaction_client
@@ -89,6 +90,12 @@ class Bridge(Router, PackagesListener):
                     "privileged": True,
                     "spawn": ["sudo", "-k", "-A", "python3", "-ic", "# cockpit-bridge", "--privileged"],
                     "environ": ["SUDO_ASKPASS=ferny-askpass"],
+                }),
+                BridgeConfig({
+                    "privileged": True,
+                    "polkit": True,
+                    "method": "StartTransientUnit",
+                    "spawn": [sys.executable, "-ic", "# cockpit-bridge", "--privileged"],
                 }),
             ))
             self.packages = None

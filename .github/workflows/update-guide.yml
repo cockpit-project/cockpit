@@ -7,6 +7,10 @@ on:
         description: 'What release to take source file from.'
         required: true
         type: string
+      checksum:
+        description: 'Checksum to verify against'
+        required: false
+        type: string
   # Runs that are triggered manually
   workflow_dispatch:
     inputs:
@@ -14,11 +18,14 @@ on:
         description: 'What release to take source file from.'
         required: true
         type: string
+      checksum:
+        description: 'Checksum to verify against'
+        required: false
+        type: string
 
 jobs:
   guide:
     environment: website
-    permissions: {}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/cockpit-project/tasks:latest
@@ -31,19 +38,26 @@ jobs:
           repository: cockpit-project/cockpit-project.github.io
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1
-        id: release-asset
+      - name: Checkout Cockpit repository
+        uses: actions/checkout@v6
         with:
-          tag: ${{ inputs.release_tag }}
-          # The name of the file to download.
-          # Use this field only to specify filenames other than tarball or zipball, if any.
-          # Supports wildcard pattern (eg: '*', '*.deb', '*.zip' etc..)
-          fileName: 'cockpit-*.tar.xz'
+          path: src
+          fetch-depth: 0
+
+      - name: Get release assets
+        id: release_assets
+        uses: ./src/.github/actions/get-release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          path: src
+          release: ${{ inputs.release_tag }}
+          checksum: ${{ inputs.checksum }}
 
       - name: Extract guide from release tarball
         run: |
           mkdir source
-          tar --directory source --extract --strip-components=1 --file '${{ fromJson(steps.release-asset.outputs.downloaded_files)[0] }}'
+          tar --directory source --extract --strip-components=1 --file 'src/${{ steps.release_assets.outputs.tarball }}'
 
       - name: Update the website
         run: |

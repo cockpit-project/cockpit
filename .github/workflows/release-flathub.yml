@@ -12,6 +12,10 @@ on:
         required: false
         type: boolean
         default: false
+      checksum:
+        description: 'Checksum to verify against'
+        required: false
+        type: string
   # Runs that are triggered manually
   workflow_dispatch:
     inputs:
@@ -24,13 +28,16 @@ on:
         required: false
         type: boolean
         default: false
+      checksum:
+        description: 'Checksum to verify against'
+        required: false
+        type: string
 
 jobs:
   flathub:
     environment: flathub
     env:
       COCKPITUOUS_TOKEN: ${{ secrets.COCKPITUOUS_RELEASE_TOKEN }}
-    permissions: {}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source repository
@@ -38,6 +45,16 @@ jobs:
         with:
           path: src
           fetch-depth: 0
+
+      - name: Get release assets
+        id: release_assets
+        uses: ./src/.github/actions/get-release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          path: src
+          release: ${{ inputs.release_tag }}
+          checksum: ${{ inputs.checksum }}
 
       - name: Checkout flathub repository
         uses: actions/checkout@v6
@@ -47,24 +64,6 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
           # this is needed so we can push to a different repository
           fetch-depth: 0
-
-      - uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1
-        id: release-asset
-        with:
-          tag: ${{ inputs.release_tag }}
-          # The name of the file to download.
-          # Use this field only to specify filenames other than tarball or zipball, if any.
-          # Supports wildcard pattern (eg: '*', '*.deb', '*.zip' etc..)
-          fileName: 'cockpit-*.tar.xz'
-
-      - name: Get release digest
-        id: digest
-        env:
-          FILE: ${{ fromJson(steps.release-asset.outputs.downloaded_files)[0] }}
-        run: |
-          set -x
-          echo "shasum=$(sha256sum ${FILE} | awk '{ print $1 }' )" >> "$GITHUB_OUTPUT"
-
       - name: Get tag body
         id: tag
         run: |
@@ -86,7 +85,7 @@ jobs:
         env:
           # Construct the download URL
           DOWNLOAD: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/cockpit-${{ inputs.release_tag }}.tar.xz
-          CHECKSUM: ${{ steps.digest.outputs.shasum }}
+          CHECKSUM: ${{ steps.release_assets.outputs.tarball_checksum }}
           TAG_BODY: ${{ fromJson(steps.tag.outputs.body) }}
         run: |
           set -x

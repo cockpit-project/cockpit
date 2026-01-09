@@ -1,6 +1,5 @@
 name: release
 on:
-  workflow_dispatch:
   push:
     tags:
       # this is a glob, not a regexp
@@ -10,6 +9,8 @@ on:
 jobs:
   source:
     runs-on: ubuntu-latest
+    outputs:
+      checksum: ${{ steps.publish.outputs.checksum }}
     permissions:
       # create GitHub release
       contents: write
@@ -41,7 +42,7 @@ jobs:
             ${REPO_NAME}-${TAG_VERSION}.tar.xz \
             ${REPO_NAME}-node-${TAG_VERSION}.tar.xz
 
-          # Set outputs for downstream jobs
+          # Set outputs for downstream jobs if they can use it
           {
             echo "filename=${REPO_NAME}-${TAG_VERSION}.tar.xz"
             echo "download=${{ github.server_url }}/${{ github.repository }}/releases/download/${TAG_VERSION}/${REPO_NAME}-${TAG_VERSION}.tar.xz"
@@ -51,24 +52,49 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-    outputs:
-      filename: ${{ steps.publish.outputs.filename }}
-      checksum: ${{ steps.publish.outputs.checksum }}
-      download: ${{ steps.publish.outputs.download }}
-      body: ${{ steps.publish.outputs.body }}
-
   guide:
     needs: source
     uses: ./.github/workflows/update-guide.yml
     with:
       release_tag: ${{ github.ref_name }}
+      checksum: ${{ needs.source.outputs.checksum }}
 
   flathub:
     needs: source
     uses: ./.github/workflows/release-flathub.yml
     with:
       release_tag: ${{ github.ref_name }}
+      checksum: ${{ needs.source.outputs.checksum }}
 
   node-cache:
+    # doesn't depend on it, but let's make sure the build passes before we do this
     needs: [source]
-    uses: ./.github/workflows/node-cache.yml
+    runs-on: ubuntu-latest
+    environment: node-cache
+    # done via deploy key, token needs no write permissions at all
+    permissions: {}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+
+      - name: Set up git
+        run: |
+            git config user.name "GitHub Workflow"
+            git config user.email "cockpituous@cockpit-project.org"
+
+      - name: Tag node-cache
+        run: |
+          set -eux
+          # this is a shared repo, prefix with project name
+          TAG="${GITHUB_REPOSITORY#*/}-$(basename $GITHUB_REF)"
+          tools/node-modules checkout
+          cd node_modules
+          git tag "$TAG"
+          git remote add cache "ssh://git@github.com/${GITHUB_REPOSITORY%/*}/node-cache"
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
+          # make this idempotent: delete an existing tag
+          git push cache :"$TAG" || true
+          git push cache tag "$TAG"
+          ssh-add -D
+          ssh-add -D

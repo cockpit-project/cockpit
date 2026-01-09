@@ -54,7 +54,6 @@ static bool cockpit_conf_loaded = false;
 static Entry *cockpit_conf = NULL;
 
 const char *cockpit_config_file = "cockpit.conf";
-const char *cockpit_config_dirs[] = { PACKAGE_SYSCONF_DIR, NULL };
 
 /*
  * some helper functions for safe memory allocation
@@ -288,24 +287,24 @@ cockpit_conf_cleanup (void)
 const char * const *
 cockpit_conf_get_dirs (void)
 {
-  static const char ** system_config_dirs = NULL;
+  static const char * const * system_config_dirs = NULL;
   static bool initialized = false;
 
   if (!initialized)
     {
-      static char *env;
 
       initialized = true;
-      env = getenv ("XDG_CONFIG_DIRS");
-      if (env && env[0])
-        {
-          /* strsplit() modifies the string inline, so copy and keep a ref */
-          env = strdup (env);
-          system_config_dirs = strsplit (env, ':');
-        }
+      const char *env = getenv ("XDG_CONFIG_DIRS");
+
+      /* prepend PACKAGE_SYSCONF_DIR; we read all config files, so XDG_CONFIG_DIRS files override/win */
+      char *dirs_string;
+      asprintfx (&dirs_string, "%s%s%s", PACKAGE_SYSCONF_DIR,
+                 (env && env[0]) ? ":" : "",
+                 (env && env[0]) ? env : "");
+      system_config_dirs = strsplit (dirs_string, ':');
     }
 
-  return (const char * const *) system_config_dirs ?: cockpit_config_dirs;
+  return system_config_dirs;
 }
 
 const char *

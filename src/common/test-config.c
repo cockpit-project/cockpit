@@ -135,11 +135,20 @@ test_get_strvs (void)
 static void
 test_load_dir (void)
 {
+  const char * const *dirs;
+
   cockpit_setenv_check("XDG_CONFIG_DIRS", "/does-not-exist:" SRCDIR "/src/ws/mock-config", TRUE);
   cockpit_config_file = "cockpit.conf";
 
   g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"), ==, "string");
-  g_assert_cmpstr (cockpit_conf_get_dirs ()[1], ==, SRCDIR "/src/ws/mock-config");
+
+  dirs = cockpit_conf_get_dirs ();
+  /* PACKAGE_SYSCONF_DIR is always first, even when XDG_CONFIG_DIRS is set */
+  g_assert_cmpstr (dirs[0], ==, PACKAGE_SYSCONF_DIR);
+  g_assert_cmpstr (dirs[1], ==, "/does-not-exist");
+  g_assert_cmpstr (dirs[2], ==, SRCDIR "/src/ws/mock-config");
+  g_assert_null (dirs[3]);
+
   cockpit_conf_cleanup ();
 }
 

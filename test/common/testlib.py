@@ -94,7 +94,6 @@ opts.trace = False
 opts.attachments = None
 opts.revision = None
 opts.address = None
-opts.jobs = 1
 opts.fetch = True
 opts.coverage = False
 

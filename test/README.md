@@ -52,9 +52,9 @@ The cockpit and SSH addresses of the test instance will be printed:
 
     test/verify/check-session -st
 
-You can also run *all* the tests, with some parallelism:
+You can also run *all* the tests, with automatic parallelism:
 
-    test/common/run-tests --test-dir test/verify --jobs 2
+    test/common/run-tests --test-dir test/verify
 
 However, this will take *really* long. You can specify a subset of tests (see
 `--help`); but usually it's better to run individual tests locally, and let the

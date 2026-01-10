@@ -52,7 +52,6 @@ class CliOpts(testlib.TestlibArgs):
     base: str
     browser: str | None
     exclude: Sequence[str]
-    jobs: int
     machine: str | None
     no_retry_fail: bool
     nondestructive: bool
@@ -523,19 +522,17 @@ def run(opts: CliOpts, image: str) -> int:
         # Create appropriate number of nondestructive machines; prioritize the nondestructive tests, to get
         # them out of the way as fast as possible, then let the destructive ones start as soon as
         # a given nondestructive runner is done.
-        # Limit by both test count (opts.jobs) and available RAM
+        # Limit by available RAM
         available_ram_gb = get_available_memory_gb()
         # Each global machine uses: VM memory + QEMU overhead + browser
         global_machine_memory_mb = opts.nondestructive_memory_mb or 1400
         global_machine_cost_gb = (global_machine_memory_mb + QEMU_OVERHEAD_MB + BROWSER_MEMORY_MB) / 1024.0
         max_global_by_ram = int((available_ram_gb - SYSTEM_RESERVE_GB) / global_machine_cost_gb)
-        num_global = min(nondestructive_tests_len, opts.jobs, max_global_by_ram)
-        if num_global < opts.jobs and nondestructive_tests_len > 0:
-            logging.warning(
-                "Limiting nondestructive parallelism to %d (from -j %d) "
-                "due to available RAM: %.1f GB available, %.1f GB per test slot",
-                num_global, opts.jobs, available_ram_gb, global_machine_cost_gb
-            )
+        num_global = min(nondestructive_tests_len, max_global_by_ram)
+        logging.info(
+            "Starting %d nondestructive test machines (%.1f GB available, %.1f GB per test slot)",
+            num_global, available_ram_gb, global_machine_cost_gb
+        )
 
         for _ in range(num_global):
             global_machines.append(
@@ -583,6 +580,7 @@ def run(opts: CliOpts, image: str) -> int:
                         destructive_tests.insert(0, test)
 
         if opts.machine and opts.browser:
+            # Static machine mode: run one test at a time on the provided machine
             if not running_tests and nondestructive_tests:
                 test = nondestructive_tests.pop(0)
                 logging.debug("Static machine is free, assigning next test %s", test)
@@ -612,24 +610,18 @@ def run(opts: CliOpts, image: str) -> int:
         def running_cost() -> float:
             return sum(test.cost for test in running_tests)
 
-        # Start destructive tests if we have capacity: both by test count and available RAM
+        # Start destructive tests if we have capacity based on available RAM
         while destructive_tests:
             available_ram_gb = get_available_memory_gb()
             next_test = destructive_tests[0]
-            # Check both limits: max concurrent tests and available RAM
-            if len(running_tests) >= opts.jobs:
-                logging.debug(
-                    "Not starting test %s: already at max concurrent tests (%d/%d)",
-                    next_test, len(running_tests), opts.jobs
-                )
-                break
+            # Check available RAM
             if running_cost() + next_test.cost > available_ram_gb - SYSTEM_RESERVE_GB:
                 logging.debug(
                     "Not starting test %s: insufficient RAM (need %.1f GB, have %.1f GB available, using %.1f GB)",
                     next_test, next_test.cost, available_ram_gb - SYSTEM_RESERVE_GB, running_cost()
                 )
                 break
-            # Both checks passed, start the test
+            # RAM check passed, start the test
             test = destructive_tests.pop(0)
             logging.debug(
                 "%d running tests with total cost %.1f GB, starting next destructive test %s (cost %.1f GB)",
@@ -680,9 +672,6 @@ def run(opts: CliOpts, image: str) -> int:
 
 def main() -> int:
     parser = testlib.arg_parser(enable_sit=False)
-    parser.add_argument(
-        "-j", "--jobs", type=int, default=int(os.environ.get("TEST_JOBS", "1")), help="Number of concurrent tests (default: 1)"
-    )
     parser.add_argument("--thorough", action="store_true", help="Thorough mode, no skipping known issues")
     parser.add_argument("-n", "--nondestructive", action="store_true", help="Only consider @nondestructive tests")
     parser.add_argument(
@@ -733,8 +722,6 @@ def main() -> int:
     opts = CliOpts(**vars(parser.parse_args()))
 
     if opts.machine:
-        if opts.jobs > 1:
-            parser.error("--machine cannot be used with concurrent jobs")
         if not opts.browser:
             parser.error("--browser must be specified together with --machine")
         opts.nondestructive = True

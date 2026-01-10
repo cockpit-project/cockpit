@@ -30,8 +30,9 @@ AMPLIFY_TEST_COUNT = 10
 
 # Memory usage constants for cost calculation; measured 2026-01 on Fedora 43 x86_64 with Chromium 143 and Firefox 146
 QEMU_OVERHEAD_MB = 100  # QEMU process overhead per VM (typically 50 MB)
-BROWSER_MEMORY_MB = 1000  # ~ 285 MB code/libs shared mem plus per-process: Firefox: 470 MB/Chromium: 319 MB)
-SYSTEM_RESERVE_GB = 1.0  # OS services, buffers, etc.
+BROWSER_FIXED_OVERHEAD_MB = 350  # browser infrastructure (code/libs etc.) (285 MB measured + 20% margin)
+BROWSER_MEMORY_MB = 550  # Incremental per process (Firefox: 470 MB, Chromium: 319 MB; + margin)
+SYSTEM_RESERVE_GB = 1.0 + BROWSER_FIXED_OVERHEAD_MB / 1024.0  # OS/podman + browser shared overhead
 
 
 def get_available_memory_gb() -> float:
@@ -612,8 +613,8 @@ def run(opts: CliOpts, image: str) -> int:
             return sum(test.cost for test in running_tests)
 
         # Start destructive tests if we have capacity: both by test count and available RAM
-        available_ram_gb = get_available_memory_gb()
         while destructive_tests:
+            available_ram_gb = get_available_memory_gb()
             next_test = destructive_tests[0]
             # Check both limits: max concurrent tests and available RAM
             if len(running_tests) >= opts.jobs:

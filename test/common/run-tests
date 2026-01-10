@@ -529,12 +529,10 @@ def run(opts: CliOpts, image: str) -> int:
         global_machine_cost_gb = (global_machine_memory_mb + QEMU_OVERHEAD_MB + BROWSER_MEMORY_MB) / 1024.0
         max_global_by_ram = int((available_ram_gb - SYSTEM_RESERVE_GB) / global_machine_cost_gb)
         num_global = min(nondestructive_tests_len, max_global_by_ram)
-        logging.info(
-            "Nondestructive capacity: %.1f GB total, %.1f GB reserved, %.1f GB usable, "
-            "%.1f GB per slot → max %d slots, starting %d for %d tests",
-            available_ram_gb, SYSTEM_RESERVE_GB, available_ram_gb - SYSTEM_RESERVE_GB,
-            global_machine_cost_gb, max_global_by_ram, num_global, nondestructive_tests_len
-        )
+        logging.info("ND capacity: %.1f GB avail, %.1f GB reserved, %.1f GB usable, %.1f GB/slot, "
+                     "max %d by RAM, %d tests → starting %d slots",
+                     available_ram_gb, SYSTEM_RESERVE_GB, available_ram_gb - SYSTEM_RESERVE_GB,
+                     global_machine_cost_gb, max_global_by_ram, nondestructive_tests_len, num_global)
 
         for _ in range(num_global):
             global_machines.append(
@@ -560,7 +558,11 @@ def run(opts: CliOpts, image: str) -> int:
                 test_machine = test.machine_id  # test_finish() resets it
                 retry_reason, test_result = test.finish(changed_tests, opts)
                 fail_count += test_result
-                logging.debug("test %s finished; result %s retry reason %s", test, test_result, retry_reason)
+                if test.nondestructive:
+                    logging.debug("Test %s finished (ND); result %s retry %s", test, test_result, retry_reason)
+                else:
+                    logging.info("Test %s COMPLETED (%.1f GB freed); result %s, retry %s, %d tests still running",
+                                test, test.cost, test_result, retry_reason, len(running_tests))
 
                 if test_machine is not None and not opts.machine:
                     # unassign from global machine
@@ -612,29 +614,34 @@ def run(opts: CliOpts, image: str) -> int:
         def running_cost() -> float:
             return sum(test.cost for test in running_tests)
 
+        def count_running_vms() -> int:
+            """Count total VMs from running destructive tests"""
+            return sum(len(getattr(t.__class__, "provision", None) or {"machine": {}})
+                      for t in running_tests if not t.nondestructive)
+
         # Start destructive tests if we have capacity based on available RAM
         while destructive_tests:
             available_ram_gb = get_available_memory_gb()
             next_test = destructive_tests[0]
             current_cost = running_cost()
-            usable_ram_gb = available_ram_gb - SYSTEM_RESERVE_GB
+            usable_ram = available_ram_gb - SYSTEM_RESERVE_GB
+            free_ram = usable_ram - current_cost
+            num_vms = count_running_vms()
+
+            logging.info("Scheduler: %.1f GB avail, %.1f GB reserved, %.1f GB usable, %.1f GB used by %d tests, "
+                        "%.1f GB free, %d VMs running, next test %s needs %.1f GB",
+                        available_ram_gb, SYSTEM_RESERVE_GB, usable_ram, current_cost,
+                        len(running_tests), free_ram, num_vms, next_test, next_test.cost)
+
             # Check available RAM
-            if current_cost + next_test.cost > usable_ram_gb:
-                logging.info(
-                    "Destructive capacity: %.1f GB total, %.1f GB reserved, %.1f GB usable, "
-                    "%.1f GB in use, %.1f GB free; cannot start %s (needs %.1f GB)",
-                    available_ram_gb, SYSTEM_RESERVE_GB, usable_ram_gb,
-                    current_cost, usable_ram_gb - current_cost, next_test, next_test.cost
-                )
+            if current_cost + next_test.cost > usable_ram:
+                logging.info("NOT starting %s: insufficient RAM (would use %.1f GB, only %.1f GB usable)",
+                            next_test, current_cost + next_test.cost, usable_ram)
                 break
             # RAM check passed, start the test
             test = destructive_tests.pop(0)
-            logging.info(
-                "Destructive capacity: %.1f GB total, %.1f GB reserved, %.1f GB usable, "
-                "%.1f GB in use by %d tests, %.1f GB free; starting %s (%.1f GB)",
-                available_ram_gb, SYSTEM_RESERVE_GB, usable_ram_gb,
-                current_cost, len(running_tests), usable_ram_gb - current_cost, test, test.cost
-            )
+            logging.info("STARTING %s (%.1f GB), will have %d tests using %.1f GB total",
+                        test, test.cost, len(running_tests) + 1, current_cost + test.cost)
             test.start()
             running_tests.append(test)
             made_progress = True

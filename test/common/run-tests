@@ -499,6 +499,14 @@ def run(opts: CliOpts, image: str) -> int:
     # Safety check: ensure all tests can fit in available RAM
     available_ram_gb = get_available_memory_gb()
     usable_ram_gb = available_ram_gb - SYSTEM_RESERVE_GB
+    cpu_count = os.cpu_count()
+    if cpu_count is None:
+        raise RuntimeError("Cannot determine CPU count (os.cpu_count() returned None)")
+    max_load = cpu_count * 1.0
+    current_load = os.getloadavg()[0]
+    logging.info("System: %d CPUs, load %.2f, %.1f GB RAM total, %.1f GB reserved, %.1f GB usable, %d ND tests, %d destructive tests",
+                 cpu_count, current_load, available_ram_gb, SYSTEM_RESERVE_GB, usable_ram_gb,
+                 nondestructive_tests_len, destructive_tests_len)
     all_tests = nondestructive_tests + destructive_tests
     if all_tests:
         max_test_cost = max(t.cost for t in all_tests)
@@ -619,26 +627,31 @@ def run(opts: CliOpts, image: str) -> int:
             return sum(len(getattr(t.__class__, "provision", None) or {"machine": {}})
                       for t in running_tests if not t.nondestructive)
 
-        # Start destructive tests if we have capacity based on available RAM
+        # Start destructive tests if we have capacity based on available RAM and system load
         while destructive_tests:
             available_ram_gb = get_available_memory_gb()
+            current_load = os.getloadavg()[0]
             next_test = destructive_tests[0]
             current_cost = running_cost()
             usable_ram = available_ram_gb - SYSTEM_RESERVE_GB
             free_ram = usable_ram - current_cost
             num_vms = count_running_vms()
 
-            logging.info("Scheduler: %.1f GB avail, %.1f GB reserved, %.1f GB usable, %.1f GB used by %d tests, "
-                        "%.1f GB free, %d VMs running, next test %s needs %.1f GB",
-                        available_ram_gb, SYSTEM_RESERVE_GB, usable_ram, current_cost,
+            logging.info("Scheduler: load %.2f (max %.1f), %.1f GB avail, %.1f GB reserved, %.1f GB usable, "
+                        "%.1f GB used by %d tests, %.1f GB free, %d VMs running, next test %s needs %.1f GB",
+                        current_load, max_load, available_ram_gb, SYSTEM_RESERVE_GB, usable_ram, current_cost,
                         len(running_tests), free_ram, num_vms, next_test, next_test.cost)
 
+            # Check system load first - high load means CPU starvation
+            if current_load > max_load:
+                logging.info("NOT starting %s: high load (%.2f > %.1f max)", next_test, current_load, max_load)
+                break
             # Check available RAM
             if current_cost + next_test.cost > usable_ram:
                 logging.info("NOT starting %s: insufficient RAM (would use %.1f GB, only %.1f GB usable)",
                             next_test, current_cost + next_test.cost, usable_ram)
                 break
-            # RAM check passed, start the test
+            # Load and RAM checks passed, start the test
             test = destructive_tests.pop(0)
             logging.info("STARTING %s (%.1f GB), will have %d tests using %.1f GB total",
                         test, test.cost, len(running_tests) + 1, current_cost + test.cost)

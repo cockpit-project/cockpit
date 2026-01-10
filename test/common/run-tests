@@ -656,7 +656,7 @@ def run(opts: CliOpts, image: str) -> int:
 
         # Sleep if we didn't make progress
         if not made_progress:
-            time.sleep(0.5)
+            time.sleep(5)
 
     # Create coverage report
     if opts.coverage:

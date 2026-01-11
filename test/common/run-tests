@@ -6,7 +6,6 @@ import glob
 import importlib.machinery
 import importlib.util
 import logging
-import math
 import os
 import socket
 import string
@@ -29,6 +28,23 @@ os.environ["PYTHONUNBUFFERED"] = "1"
 # Amount of times a test is re-run to find flakes / race conditions
 AMPLIFY_TEST_COUNT = 10
 
+# Memory usage constants for cost calculation; measured 2026-01 on Fedora 43 x86_64 with Chromium 143 and Firefox 146
+QEMU_OVERHEAD_MB = 100  # QEMU process overhead per VM (typically 50 MB)
+BROWSER_FIXED_OVERHEAD_MB = 350  # browser infrastructure (code/libs etc.) (285 MB measured + 20% margin)
+BROWSER_MEMORY_MB = 550  # Incremental per process (Firefox: 470 MB, Chromium: 319 MB; + margin)
+SYSTEM_RESERVE_GB = 1.0 + BROWSER_FIXED_OVERHEAD_MB / 1024.0  # OS/podman + browser shared overhead
+
+
+def get_available_memory_gb() -> float:
+    """Parse /proc/meminfo to get available memory in GB"""
+    with open('/proc/meminfo', 'r') as f:
+        for line in f:
+            if line.startswith('MemAvailable:'):
+                # Format: "MemAvailable:    12345678 kB"
+                kb = int(line.split()[1])
+                return kb / (1024 * 1024)  # Convert kB to GB
+    raise RuntimeError("MemAvailable not found in /proc/meminfo")
+
 
 @dataclass
 class CliOpts(testlib.TestlibArgs):
@@ -36,7 +52,6 @@ class CliOpts(testlib.TestlibArgs):
     base: str
     browser: str | None
     exclude: Sequence[str]
-    jobs: int
     machine: str | None
     no_retry_fail: bool
     nondestructive: bool
@@ -67,7 +82,8 @@ class Test:
         nondestructive: bool,
         retry_when_affected: bool,
         todo: str | None,
-        cost: int = 1,
+        cost: float,
+        num_vms: int,
     ) -> None:
         self.process: subprocess.Popen[bytes] | None = None
         self.retries = 0
@@ -79,6 +95,7 @@ class Test:
         self.retry_when_affected = retry_when_affected
         self.todo = todo
         self.cost = cost
+        self.num_vms = num_vms
         self.returncode: int | None = None
 
     def assign_machine(self, machine_id: int, ssh_address: str, web_address: str) -> None:
@@ -204,7 +221,7 @@ class Test:
     # internal methods
 
     def __str__(self) -> str:
-        cost = "" if self.cost == 1 else f" ${self.cost}"
+        cost = "" if self.nondestructive else f" ({self.cost:.1f}GB)"
         nd = f" [ND@{self.machine_id}]" if self.nondestructive else ""
         return f"{self.test_id} {self.command[0]} {self.command[-1]}{cost}{nd}"
 
@@ -413,14 +430,26 @@ def detect_tests(
                 nd = testlib.get_decorator(test_method, test, "nondestructive")
                 rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
                 todo = testlib.get_decorator(test_method, test, "todo")
-                if provision := getattr(test.__class__, "provision", None):
-                    # each additionally provisioned VM memory costs destructive test capacity
-                    total_memory = sum(
+                # Calculate actual RAM cost in GB: VM memory + QEMU overhead + browser
+                # Default to single VM if no provision specified
+                provision = getattr(test.__class__, "provision", None) or {"machine": {}}
+                num_vms = len(provision)
+                # For nondestructive tests, use the global machine memory size
+                # For destructive tests, use the provision-specified memory or default
+                if nd:
+                    # Nondestructive tests run on global machines
+                    vm_memory_mb = opts.nondestructive_memory_mb or 1400
+                    total_vm_memory_mb = vm_memory_mb
+                    total_qemu_overhead_mb = QEMU_OVERHEAD_MB
+                    test_num_vms = 1  # Nondestructive tests share a single global machine
+                else:
+                    # Destructive tests use their provision settings
+                    total_vm_memory_mb = sum(
                         config.get("memory_mb", DEFAULT_MACHINE_MEMORY_MB) for config in provision.values()
                     )
-                    cost = math.ceil(total_memory / DEFAULT_MACHINE_MEMORY_MB)
-                else:
-                    cost = 1
+                    total_qemu_overhead_mb = num_vms * QEMU_OVERHEAD_MB
+                    test_num_vms = num_vms
+                cost = (total_vm_memory_mb + total_qemu_overhead_mb + BROWSER_MEMORY_MB) / 1024.0
                 tst = Test(
                     test_id,
                     command=build_command(filename, test_str, opts),
@@ -429,6 +458,7 @@ def detect_tests(
                     retry_when_affected=rwa,
                     todo=todo,
                     cost=cost,
+                    num_vms=test_num_vms,
                 )
                 if nd:
                     for _ in range(AMPLIFY_TEST_COUNT if opts.amplify == test_str else 1):
@@ -471,6 +501,30 @@ def run(opts: CliOpts, image: str) -> int:
     if opts.machine:
         assert not destructive_tests
 
+    # Safety check: ensure all tests can fit in available RAM
+    available_ram_gb = get_available_memory_gb()
+    usable_ram_gb = available_ram_gb - SYSTEM_RESERVE_GB
+    cpu_count = os.cpu_count()
+    if cpu_count is None:
+        raise RuntimeError("Cannot determine CPU count (os.cpu_count() returned None)")
+    max_load = cpu_count * 1.0
+    current_load = os.getloadavg()[0]
+    logging.info("System: %d CPUs, load %.2f, %.1f GB RAM total, %.1f GB reserved, %.1f GB usable, %d ND tests, %d destructive tests",
+                 cpu_count, current_load, available_ram_gb, SYSTEM_RESERVE_GB, usable_ram_gb,
+                 nondestructive_tests_len, destructive_tests_len)
+    all_tests = nondestructive_tests + destructive_tests
+    if all_tests:
+        max_test_cost = max(t.cost for t in all_tests)
+        if max_test_cost > usable_ram_gb:
+            max_test = next(t for t in all_tests if t.cost == max_test_cost)
+            sys.stderr.write(
+                f"\nERROR: Test {max_test} requires {max_test_cost:.1f} GB RAM, "
+                f"but only {usable_ram_gb:.1f} GB available (of {available_ram_gb:.1f} GB total, "
+                f"reserving {SYSTEM_RESERVE_GB:.1f} GB for system).\n"
+                f"This test cannot be scheduled on this machine.\n"
+            )
+            return 1
+
     print(f"1..{nondestructive_tests_len + destructive_tests_len}")
     flush_stdout()
 
@@ -481,7 +535,18 @@ def run(opts: CliOpts, image: str) -> int:
         # Create appropriate number of nondestructive machines; prioritize the nondestructive tests, to get
         # them out of the way as fast as possible, then let the destructive ones start as soon as
         # a given nondestructive runner is done.
-        num_global = min(nondestructive_tests_len, opts.jobs)
+        # Limit by available RAM
+        available_ram_gb = get_available_memory_gb()
+        # Each global machine uses: VM memory + QEMU overhead + browser
+        global_machine_memory_mb = opts.nondestructive_memory_mb or 1400
+        global_machine_cost_gb = (global_machine_memory_mb + QEMU_OVERHEAD_MB + BROWSER_MEMORY_MB) / 1024.0
+        max_global_by_ram = int((available_ram_gb - SYSTEM_RESERVE_GB) / global_machine_cost_gb)
+        max_global_by_cpu = cpu_count // 2
+        num_global = min(nondestructive_tests_len, max_global_by_ram, max_global_by_cpu)
+        logging.info("ND capacity: %.1f GB avail, %.1f GB reserved, %.1f GB usable, %.1f GB/slot, "
+                     "max %d by RAM, max %d by CPU (nproc/2), %d tests → starting %d slots",
+                     available_ram_gb, SYSTEM_RESERVE_GB, available_ram_gb - SYSTEM_RESERVE_GB,
+                     global_machine_cost_gb, max_global_by_ram, max_global_by_cpu, nondestructive_tests_len, num_global)
 
         for _ in range(num_global):
             global_machines.append(
@@ -507,7 +572,11 @@ def run(opts: CliOpts, image: str) -> int:
                 test_machine = test.machine_id  # test_finish() resets it
                 retry_reason, test_result = test.finish(changed_tests, opts)
                 fail_count += test_result
-                logging.debug("test %s finished; result %s retry reason %s", test, test_result, retry_reason)
+                if test.nondestructive:
+                    logging.debug("Test %s finished (ND); result %s retry %s", test, test_result, retry_reason)
+                else:
+                    logging.info("Test %s COMPLETED (%.1f GB freed); result %s, retry %s, %d tests still running",
+                                test, test.cost, test_result, retry_reason, len(running_tests))
 
                 if test_machine is not None and not opts.machine:
                     # unassign from global machine
@@ -529,6 +598,7 @@ def run(opts: CliOpts, image: str) -> int:
                         destructive_tests.insert(0, test)
 
         if opts.machine and opts.browser:
+            # Static machine mode: run one test at a time on the provided machine
             if not running_tests and nondestructive_tests:
                 test = nondestructive_tests.pop(0)
                 logging.debug("Static machine is free, assigning next test %s", test)
@@ -555,20 +625,46 @@ def run(opts: CliOpts, image: str) -> int:
 
                     made_progress = True
 
-        def running_cost() -> int:
+        def running_cost() -> float:
             return sum(test.cost for test in running_tests)
 
-        # fill the remaining available job slots with destructive tests; run tests with a cost higher than #jobs by themselves
-        while destructive_tests and (
-            running_cost() + destructive_tests[0].cost <= opts.jobs or len(running_tests) == 0
-        ):
+        def count_running_vms() -> int:
+            """Count total VMs from running destructive tests"""
+            return sum(len(getattr(t.__class__, "provision", None) or {"machine": {}})
+                      for t in running_tests if not t.nondestructive)
+
+        # Start destructive tests if we have capacity based on available RAM and system load
+        while destructive_tests:
+            available_ram_gb = get_available_memory_gb()
+            current_load = os.getloadavg()[0]
+            next_test = destructive_tests[0]
+            current_cost = running_cost()
+            usable_ram = available_ram_gb - SYSTEM_RESERVE_GB
+            free_ram = usable_ram - current_cost
+            num_vms = count_running_vms()
+
+            # Reserve headroom for VMs and browser we're about to start
+            load_threshold = max_load - next_test.num_vms - 1  # VMs + browser
+
+            logging.info("Scheduler: load %.2f (threshold %.1f = %.1f max - %d VMs - 1 browser), %.1f GB avail, %.1f GB reserved, %.1f GB usable, "
+                        "%.1f GB used by %d tests, %.1f GB free, %d VMs running, next test %s needs %.1f GB, %d VMs",
+                        current_load, load_threshold, max_load, next_test.num_vms, available_ram_gb, SYSTEM_RESERVE_GB, usable_ram,
+                        current_cost, len(running_tests), free_ram, num_vms, next_test, next_test.cost, next_test.num_vms)
+
+            # Check system load first - reserve CPU headroom for VMs and browser we're starting
+            if current_load > load_threshold:
+                logging.info("NOT starting %s: high load (%.2f > %.1f threshold for %d VMs + browser)",
+                            next_test, current_load, load_threshold, next_test.num_vms)
+                break
+            # Check available RAM
+            if current_cost + next_test.cost > usable_ram:
+                logging.info("NOT starting %s: insufficient RAM (would use %.1f GB, only %.1f GB usable)",
+                            next_test, current_cost + next_test.cost, usable_ram)
+                break
+            # Load and RAM checks passed, start the test
             test = destructive_tests.pop(0)
-            logging.debug(
-                "%d running tests with total cost %d, starting next destructive test %s",
-                len(running_tests),
-                running_cost(),
-                test,
-            )
+            logging.info("STARTING %s (%.1f GB), will have %d tests using %.1f GB total",
+                        test, test.cost, len(running_tests) + 1, current_cost + test.cost)
             test.start()
             running_tests.append(test)
             made_progress = True
@@ -583,7 +679,7 @@ def run(opts: CliOpts, image: str) -> int:
 
         # Sleep if we didn't make progress
         if not made_progress:
-            time.sleep(0.5)
+            time.sleep(5)
 
     # Create coverage report
     if opts.coverage:
@@ -611,9 +707,6 @@ def run(opts: CliOpts, image: str) -> int:
 
 def main() -> int:
     parser = testlib.arg_parser(enable_sit=False)
-    parser.add_argument(
-        "-j", "--jobs", type=int, default=int(os.environ.get("TEST_JOBS", 1)), help="Number of concurrent jobs"
-    )
     parser.add_argument("--thorough", action="store_true", help="Thorough mode, no skipping known issues")
     parser.add_argument("-n", "--nondestructive", action="store_true", help="Only consider @nondestructive tests")
     parser.add_argument(
@@ -664,8 +757,6 @@ def main() -> int:
     opts = CliOpts(**vars(parser.parse_args()))
 
     if opts.machine:
-        if opts.jobs > 1:
-            parser.error("--machine cannot be used with concurrent jobs")
         if not opts.browser:
             parser.error("--browser must be specified together with --machine")
         opts.nondestructive = True
@@ -693,5 +784,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s:run-tests:%(message)s')
     sys.exit(main())

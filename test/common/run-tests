@@ -83,6 +83,7 @@ class Test:
         retry_when_affected: bool,
         todo: str | None,
         cost: float,
+        num_vms: int,
     ) -> None:
         self.process: subprocess.Popen[bytes] | None = None
         self.retries = 0
@@ -94,6 +95,7 @@ class Test:
         self.retry_when_affected = retry_when_affected
         self.todo = todo
         self.cost = cost
+        self.num_vms = num_vms
         self.returncode: int | None = None
 
     def assign_machine(self, machine_id: int, ssh_address: str, web_address: str) -> None:
@@ -439,12 +441,14 @@ def detect_tests(
                     vm_memory_mb = opts.nondestructive_memory_mb or 1400
                     total_vm_memory_mb = vm_memory_mb
                     total_qemu_overhead_mb = QEMU_OVERHEAD_MB
+                    test_num_vms = 1  # Nondestructive tests share a single global machine
                 else:
                     # Destructive tests use their provision settings
                     total_vm_memory_mb = sum(
                         config.get("memory_mb", DEFAULT_MACHINE_MEMORY_MB) for config in provision.values()
                     )
                     total_qemu_overhead_mb = num_vms * QEMU_OVERHEAD_MB
+                    test_num_vms = num_vms
                 cost = (total_vm_memory_mb + total_qemu_overhead_mb + BROWSER_MEMORY_MB) / 1024.0
                 tst = Test(
                     test_id,
@@ -454,6 +458,7 @@ def detect_tests(
                     retry_when_affected=rwa,
                     todo=todo,
                     cost=cost,
+                    num_vms=test_num_vms,
                 )
                 if nd:
                     for _ in range(AMPLIFY_TEST_COUNT if opts.amplify == test_str else 1):
@@ -536,11 +541,12 @@ def run(opts: CliOpts, image: str) -> int:
         global_machine_memory_mb = opts.nondestructive_memory_mb or 1400
         global_machine_cost_gb = (global_machine_memory_mb + QEMU_OVERHEAD_MB + BROWSER_MEMORY_MB) / 1024.0
         max_global_by_ram = int((available_ram_gb - SYSTEM_RESERVE_GB) / global_machine_cost_gb)
-        num_global = min(nondestructive_tests_len, max_global_by_ram)
+        max_global_by_cpu = cpu_count // 2
+        num_global = min(nondestructive_tests_len, max_global_by_ram, max_global_by_cpu)
         logging.info("ND capacity: %.1f GB avail, %.1f GB reserved, %.1f GB usable, %.1f GB/slot, "
-                     "max %d by RAM, %d tests → starting %d slots",
+                     "max %d by RAM, max %d by CPU (nproc/2), %d tests → starting %d slots",
                      available_ram_gb, SYSTEM_RESERVE_GB, available_ram_gb - SYSTEM_RESERVE_GB,
-                     global_machine_cost_gb, max_global_by_ram, nondestructive_tests_len, num_global)
+                     global_machine_cost_gb, max_global_by_ram, max_global_by_cpu, nondestructive_tests_len, num_global)
 
         for _ in range(num_global):
             global_machines.append(
@@ -637,14 +643,18 @@ def run(opts: CliOpts, image: str) -> int:
             free_ram = usable_ram - current_cost
             num_vms = count_running_vms()
 
-            logging.info("Scheduler: load %.2f (max %.1f), %.1f GB avail, %.1f GB reserved, %.1f GB usable, "
-                        "%.1f GB used by %d tests, %.1f GB free, %d VMs running, next test %s needs %.1f GB",
-                        current_load, max_load, available_ram_gb, SYSTEM_RESERVE_GB, usable_ram, current_cost,
-                        len(running_tests), free_ram, num_vms, next_test, next_test.cost)
+            # Reserve headroom for VMs and browser we're about to start
+            load_threshold = max_load - next_test.num_vms - 1  # VMs + browser
 
-            # Check system load first - high load means CPU starvation
-            if current_load > max_load:
-                logging.info("NOT starting %s: high load (%.2f > %.1f max)", next_test, current_load, max_load)
+            logging.info("Scheduler: load %.2f (threshold %.1f = %.1f max - %d VMs - 1 browser), %.1f GB avail, %.1f GB reserved, %.1f GB usable, "
+                        "%.1f GB used by %d tests, %.1f GB free, %d VMs running, next test %s needs %.1f GB, %d VMs",
+                        current_load, load_threshold, max_load, next_test.num_vms, available_ram_gb, SYSTEM_RESERVE_GB, usable_ram,
+                        current_cost, len(running_tests), free_ram, num_vms, next_test, next_test.cost, next_test.num_vms)
+
+            # Check system load first - reserve CPU headroom for VMs and browser we're starting
+            if current_load > load_threshold:
+                logging.info("NOT starting %s: high load (%.2f > %.1f threshold for %d VMs + browser)",
+                            next_test, current_load, load_threshold, next_test.num_vms)
                 break
             # Check available RAM
             if current_cost + next_test.cost > usable_ram:

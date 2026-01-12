@@ -215,6 +215,32 @@ class TestNetworkingSettings(netlib.NetworkCase):
         b.click('#network-ip-settings-cancel')
         b.wait_not_present("#network-ip-settings-dialog")
 
+        # Test editing connection without a hardcoded interface
+        iface = self.add_iface(activate=False)
+        con_name = "cockpit-test-con"
+        b.go("/network")
+        b.wait_visible("#networking")
+
+        m.execute(f"""
+            nmcli con add con-name {con_name} connection.type 802-3-ethernet connection.autoconnect no \
+                ipv4.meth auto ipv6.meth auto ipv6.addr-gen-mode eui64
+            nmcli con sh | grep -q '{con_name}'
+            nmcli con up {con_name} ifname {iface}
+            # check that no connection.interface-name is configured
+            [ -z "$(nmcli --get connection.interface-name con sh {con_name})" ]
+        """)
+        self.addCleanup(m.execute, f"nmcli con del {con_name}")
+
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+        self.configure_iface_setting('IPv4')
+        b.click("#network-ip-settings-dns-add")
+        b.set_input_text('#network-ip-settings-dns-server-0', "8.8.8.8")
+        b.click("#network-ip-settings-save")
+        # page should still display interface detail page after saving
+        b.wait_visible("#network-interface")
+        self.wait_for_iface_setting("IPv4", "AutomaticAdditional DNS 8.8.8.8")
+
 
 if __name__ == '__main__':
     testlib.test_main()

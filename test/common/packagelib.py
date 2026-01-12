@@ -101,6 +101,7 @@ class PackageCase(MachineCase):
 [options]
 Architecture = auto
 HoldPkg     = pacman glibc
+SigLevel = Never
 
 [empty]
 SigLevel = Never

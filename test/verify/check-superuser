@@ -406,7 +406,7 @@ session include system-auth
             # not suid
             self.assertEqual(m.execute("stat -c %A /usr/lib/polkit-1/polkit-agent-helper-1").strip(),
                              "-rwxr-xr-x")
-        # reminder for ourselves in the distant past to remove the legacy path in the bridge
+        # reminder for ourselves in the distant future to remove the legacy path in the bridge
         elif m.image.startswith("rhel-10"):
             m.execute("! test -e /run/polkit/agent-helper.socket")
             # suid root helper

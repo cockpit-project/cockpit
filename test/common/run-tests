@@ -186,6 +186,12 @@ class Test:
                 if ex.errno != errno.ENOENT:
                     sys.stderr.write(f"\nCouldn't run test-failure-policy: {ex!s}\n")
 
+        # Always retry test harness failures
+        if retry_reason and "test harness" in retry_reason:
+            self.retries += 1
+            self._print_test(retry_reason=f"# RETRY {self.retries} ({retry_reason})")
+            return retry_reason, 0
+
         # HACK: many tests are unstable, always retry them 3 times unless affected
         if not affected and not retry_reason and not opts.no_retry_fail:
             retry_reason = "be robust against unstable tests"

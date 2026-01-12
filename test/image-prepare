@@ -278,6 +278,10 @@ def main() -> int:
 
     dist_tars = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip().splitlines()
 
+    # Don't rebuild bundle if built with NODE_ENV=development
+    if os.environ.get('NODE_ENV') == 'development':
+        customize += ["--build-options", '--define "rebuild_bundle 0"']
+
     if args.image == "fedora-coreos":
         customize += build_install_ostree(dist_tars, args.image, verbose=args.verbose, quick=args.quick)
     elif args.image.endswith("-bootc"):

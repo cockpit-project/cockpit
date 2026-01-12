@@ -52,8 +52,9 @@
 %endif
 
 # distributions which ship nodejs-esbuild can rebuild the bundle during package build
+# allow override from command line (e.g. for development builds)
 %if 0%{?fedora} >= 42
-%define rebuild_bundle 1
+%{!?rebuild_bundle: %define rebuild_bundle 1}
 %endif
 
 # to avoid using asciidoc-py in RHEL and CentOS we use the prebuilt docs
@@ -116,7 +117,7 @@ BuildRequires: openssh-clients
 BuildRequires: krb5-server
 BuildRequires: gdb
 
-%if %{defined rebuild_bundle}
+%if 0%{?rebuild_bundle}
 BuildRequires: nodejs
 BuildRequires: nodejs-esbuild
 %endif
@@ -168,12 +169,12 @@ BuildRequires:  python3-pytest-timeout
 
 %prep
 %setup -q -n cockpit-%{version}
-%if %{defined rebuild_bundle}
+%if 0%{?rebuild_bundle}
 %setup -q -D -T -a 1 -n cockpit-%{version}
 %endif
 
 %build
-%if %{defined rebuild_bundle}
+%if 0%{?rebuild_bundle}
 rm -rf dist
 # HACK: node module packaging is currently broken in Fedora ≤ 43, should be in
 # common location, not major version specific one

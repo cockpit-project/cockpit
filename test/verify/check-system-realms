@@ -718,6 +718,7 @@ class TestIPA(TestRealms, CommonTests):
         self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*",
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
+    @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
     @testlib.timeout(900)
     def testClientCertAuthentication(self):
         m = self.machine
@@ -1036,6 +1037,7 @@ class TestKerberos(testlib.MachineCase):
         self.machine.execute(JOIN_SCRIPT % args, timeout=1800)
         self.machine.execute(WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
+    @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
     def testNegotiate(self):
         self.allow_hostkey_messages()
         b = self.browser

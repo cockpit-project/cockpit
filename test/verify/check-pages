@@ -262,7 +262,10 @@ OnCalendar=daily
         def line_sel(i):
             return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
-        pages = ["/system", "/system/logs", "/network", "/users", "/system/services", "/system/terminal"]
+        pages = ["/system", "/system/logs", "/network", "/users", "/system/services"]
+        # WebGL2 is not supported in firefox headless mode, terminal page will not load
+        if b.browser == "chromium":
+            pages.append("/system/terminal")
 
         self.login_and_go('/system')
         b.wait_visible('#overview')
@@ -844,16 +847,18 @@ OnCalendar=daily
         b.switch_to_top()
         assert_location("/users")
 
-        b.click('#nav-system a[href="/system/terminal"]')
-        b.enter_page("/system/terminal")
-        b.switch_to_top()
-        assert_location("/system/terminal")
+        # WebGL2 is not supported in firefox headless mode, terminal page will not load
+        if b.browser != "firefox":
+            b.click('#nav-system a[href="/system/terminal"]')
+            b.enter_page("/system/terminal")
+            b.switch_to_top()
+            assert_location("/system/terminal")
 
-        b.eval_js("window.history.back()")
-        b.enter_page("/users")
-        b.wait_visible("button:contains('Create new account')")
-        b.switch_to_top()
-        assert_location("/users")
+            b.eval_js("window.history.back()")
+            b.enter_page("/users")
+            b.wait_visible("button:contains('Create new account')")
+            b.switch_to_top()
+            assert_location("/users")
 
         b.eval_js("window.history.back()")
         b.enter_page("/system")
@@ -882,6 +887,10 @@ OnCalendar=daily
         # the <a> links should be unique by their href= attributes, so get these
         hrefs = b.eval_js("[...document.querySelectorAll('#nav-system .nav-item a')].map(el => el.getAttribute('href'))")
         for href in hrefs:
+            # WebGL2 is not supported in firefox headless mode, terminal page will not load
+            if (b.browser == "firefox" and href == "/system/terminal"):
+                continue
+
             b.click(f"#nav-system .nav-item a[href='{href}']")
             b.wait_visible(f"iframe.container-frame[name='cockpit1:localhost{href}'][data-loaded]")
 

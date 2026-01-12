@@ -23,7 +23,7 @@ import {
 } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { MenuList, MenuItem } from "@patternfly/react-core/dist/esm/components/Menu";
-import { CanvasAddon } from '@xterm/addon-canvas';
+import { WebglAddon } from '@xterm/addon-webgl';
 import { Terminal as Term } from "@xterm/xterm";
 
 import { ContextMenu } from "cockpit-components-context-menu.jsx";
@@ -140,7 +140,7 @@ export class TerminalState {
             fontFamily: 'Menlo, Monaco, Consolas, monospace',
             screenReaderMode: true,
         });
-        this.terminal.loadAddon(new CanvasAddon());
+        this.terminal.loadAddon(new WebglAddon());
         this.wrapper_element = document.createElement("div");
         this.channel = channel;
         this.#connectChannel(channel);

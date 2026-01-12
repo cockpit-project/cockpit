@@ -511,6 +511,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
 
+    @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
     def testExternalPage(self):
         b = self.browser
         m1 = self.machine

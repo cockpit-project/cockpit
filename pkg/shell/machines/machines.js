@@ -1,6 +1,7 @@
 import cockpit from "cockpit";
 import { import_Manifests } from "../manifests";
 import { validate } from "import-json";
+import { host_superuser_storage_key } from "superuser-dialogs";
 
 import ssh_add_key_sh from "../../lib/ssh-add-key.sh";
 
@@ -26,21 +27,6 @@ const session_prefix = cockpit.sessionStorage.prefixedKey("v1-session-machine");
 
 function generate_session_key(host) {
     return session_prefix + "/" + host;
-}
-
-export function host_superuser_storage_key(host) {
-    if (!host)
-        host = cockpit.transport.host;
-
-    const local_key = window.localStorage.getItem("superuser-key");
-    if (host == "localhost")
-        return local_key;
-    else if (host.indexOf("@") >= 0)
-        return "superuser:" + host;
-    else if (local_key)
-        return local_key + "@" + host;
-    else
-        return null;
 }
 
 export function get_init_superuser_for_options(options) {

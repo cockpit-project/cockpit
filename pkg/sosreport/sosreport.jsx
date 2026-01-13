@@ -50,7 +50,7 @@ import { superuser } from "superuser";
 import * as python from "python";
 import { FsInfoClient } from "cockpit/fsinfo";
 
-import { SuperuserButton } from "../shell/superuser.jsx";
+import { SuperuserButton } from "superuser-dialogs";
 
 import { fmt_to_fragments } from "utils.jsx";
 import * as timeformat from "timeformat";

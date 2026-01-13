@@ -25,7 +25,7 @@ import { PageSection } from "@patternfly/react-core/dist/esm/components/Page/ind
 
 import { LockIcon } from '@patternfly/react-icons';
 
-import { SuperuserButton } from "../shell/superuser.jsx";
+import { SuperuserButton } from "superuser-dialogs";
 import { superuser } from "superuser.js";
 
 const _ = cockpit.gettext;

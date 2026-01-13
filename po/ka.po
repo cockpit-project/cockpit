@@ -1017,7 +1017,7 @@ msgstr "მისამართის ფორმატი არასწო�
 msgid "Administration with Cockpit Web Console"
 msgstr "Cockput ვებ კონსოლით ადმინისტრირება"
 
-#: pkg/shell/superuser.tsx:215 pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
 msgid "Administrative access"
 msgstr "ადმინისტრატიული წვდომა"
 
@@ -1246,7 +1246,7 @@ msgstr "ჩავარდნილი ატრიბუტები"
 msgid "Audit log"
 msgstr "აუდიტის ჟურნალი"
 
-#: pkg/shell/superuser.tsx:208 pkg/shell/superuser.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
 msgid "Authenticate"
 msgstr "ავთენტიკაცია"
 
@@ -1534,8 +1534,8 @@ msgstr ""
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/shell/superuser.tsx:211 pkg/shell/superuser.tsx:248
-#: pkg/shell/superuser.tsx:304 pkg/shell/active-pages-modal.tsx:126
+#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
+#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
 #: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
 #: pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
@@ -1788,7 +1788,7 @@ msgstr "კლიენტი პროგრამა"
 #: pkg/lib/cockpit-components-modifications.jsx:79
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/shell/superuser.tsx:219 pkg/shell/superuser.tsx:227
+#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "დახურვა"
@@ -4363,7 +4363,7 @@ msgstr "ლიცენზირებულია GNU LGPL -ის ვერს
 msgid "Light"
 msgstr "ღია"
 
-#: pkg/shell/superuser.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:301
 msgid "Limit access"
 msgstr "წვდომის შეზღუდვა"
 
@@ -4375,11 +4375,11 @@ msgstr "ლიმიტის ზომა"
 msgid "Limit virtual filesystem size"
 msgstr "ფაილური სისტემის ზომის ლიმიტი"
 
-#: pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:385
 msgid "Limited access"
 msgstr "შეზღუდული წვდომა"
 
-#: pkg/shell/superuser.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:318
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4863,7 +4863,7 @@ msgstr "მეტამონაცემების ფორმატი"
 msgid "Metadata used"
 msgstr "გამოყენებული მეტამონაცემები"
 
-#: pkg/shell/superuser.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:234
 msgid "Method"
 msgstr "მეთოდი"
 
@@ -5840,7 +5840,7 @@ msgstr "საკვანძო ფრაზები ერთმანეთ�
 #: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
 #: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/shell/superuser.tsx:174 pkg/users/account-details.js:297
+#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "პაროლი"
@@ -6051,7 +6051,7 @@ msgstr "მიჭიკარტებული"
 msgid "Pizza box"
 msgstr "პიცისყუთი"
 
-#: pkg/shell/superuser.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:173
 msgid "Please authenticate to gain administrative access"
 msgstr "ადმინისტრატორი წვდომის მისაღებად გთხოვთ გაიაროთ ავთენტიკაცია"
 
@@ -6174,7 +6174,7 @@ msgstr "$priority პრიორიტეტი"
 msgid "Private key"
 msgstr "პირადი გასაღები"
 
-#: pkg/shell/superuser.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:223
 msgid "Problem becoming administrator"
 msgstr "ადმინისტრატორად გახდომის შეცდომა"
 
@@ -7722,11 +7722,11 @@ msgstr "$0-ის გამორთვა"
 msgid "Switch on $0"
 msgstr "$0-ის ჩართვა"
 
-#: pkg/shell/superuser.tsx:183 pkg/shell/superuser.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
 msgid "Switch to administrative access"
 msgstr "ადმინისტრატორის წვდომაზე გადართვა"
 
-#: pkg/shell/superuser.tsx:313 pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
 msgid "Switch to limited access"
 msgstr "შეზღუდულ წვდომებზე გადართვა"
 
@@ -8675,7 +8675,7 @@ msgstr "Tuned-ი გაშვებული არაა"
 msgid "Tuned is off"
 msgstr "Tuned გამორთულია"
 
-#: pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:404
 msgid "Turn on administrative access"
 msgstr "ადმინისტრატორის წვდომების ჩართვა"
 
@@ -9458,7 +9458,7 @@ msgstr "ავტომატურად შესაცვლელად შ�
 msgid "You must wait longer to change your password"
 msgstr "პაროლის შესაცვლელად უფრო მეტხანს უნდა მოითმინოთ"
 
-#: pkg/shell/superuser.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:130
 msgid "You now have administrative access."
 msgstr "ახლა გაქვთ ადმინისტრატორის წვდომა."
 
@@ -9482,7 +9482,7 @@ msgstr ""
 "თქვენს ბრაუზერს არ გააჩნია კონტექსტური მენიუდან ჩასმის მხარდაჭერა. სცადეთ "
 "დააჭიროთ Shift+Insert-ს."
 
-#: pkg/shell/superuser.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:319
 msgid "Your browser will remember your access level across sessions."
 msgstr "თქვენი ბრაუზერი თქვენი წვდომის დონეებს სესიებს შორისაც დაიმახსოვრებს."
 

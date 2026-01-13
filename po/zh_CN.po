@@ -977,7 +977,7 @@ msgstr "地址格式不正确"
 msgid "Administration with Cockpit Web Console"
 msgstr "使用 Cockpit 网页控制台管理系统"
 
-#: pkg/shell/superuser.tsx:215 pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
 msgid "Administrative access"
 msgstr "管理员模式"
 
@@ -1201,7 +1201,7 @@ msgstr "属性失败"
 msgid "Audit log"
 msgstr "审计日志"
 
-#: pkg/shell/superuser.tsx:208 pkg/shell/superuser.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
 msgid "Authenticate"
 msgstr "认证"
 
@@ -1483,8 +1483,8 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/shell/superuser.tsx:211 pkg/shell/superuser.tsx:248
-#: pkg/shell/superuser.tsx:304 pkg/shell/active-pages-modal.tsx:126
+#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
+#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
 #: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
 #: pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
@@ -1730,7 +1730,7 @@ msgstr "客户端软件"
 #: pkg/lib/cockpit-components-modifications.jsx:79
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/shell/superuser.tsx:219 pkg/shell/superuser.tsx:227
+#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "关闭"
@@ -4254,7 +4254,7 @@ msgstr "根据 GNU LGPL 版本 2.1 获得版权"
 msgid "Light"
 msgstr "亮色"
 
-#: pkg/shell/superuser.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:301
 msgid "Limit access"
 msgstr "限制访问"
 
@@ -4266,11 +4266,11 @@ msgstr "限制大小"
 msgid "Limit virtual filesystem size"
 msgstr "限制虚拟文件系统大小"
 
-#: pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:385
 msgid "Limited access"
 msgstr "被限制的访问"
 
-#: pkg/shell/superuser.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:318
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4749,7 +4749,7 @@ msgstr "元数据格式"
 msgid "Metadata used"
 msgstr "已使用的元数据"
 
-#: pkg/shell/superuser.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:234
 msgid "Method"
 msgstr "模式"
 
@@ -5720,7 +5720,7 @@ msgstr "密码不匹配"
 #: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
 #: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/shell/superuser.tsx:174 pkg/users/account-details.js:297
+#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "密码"
@@ -5927,7 +5927,7 @@ msgstr "固定单元"
 msgid "Pizza box"
 msgstr "披萨盒"
 
-#: pkg/shell/superuser.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:173
 msgid "Please authenticate to gain administrative access"
 msgstr "请认证以获得管理员权限"
 
@@ -6048,7 +6048,7 @@ msgstr "优先级 $priority"
 msgid "Private key"
 msgstr "私钥"
 
-#: pkg/shell/superuser.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:223
 msgid "Problem becoming administrator"
 msgstr "成为管理员时出现问题"
 
@@ -7567,11 +7567,11 @@ msgstr "关掉 $0"
 msgid "Switch on $0"
 msgstr "打开 $0"
 
-#: pkg/shell/superuser.tsx:183 pkg/shell/superuser.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
 msgid "Switch to administrative access"
 msgstr "切换到管理权限"
 
-#: pkg/shell/superuser.tsx:313 pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
 msgid "Switch to limited access"
 msgstr "切换到限制权限"
 
@@ -8451,7 +8451,7 @@ msgstr "Tuned 未运行"
 msgid "Tuned is off"
 msgstr "Tuned 已关闭"
 
-#: pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:404
 msgid "Turn on administrative access"
 msgstr "开启管理员权限"
 
@@ -9228,7 +9228,7 @@ msgstr "您可能需要更改自动登录的密钥密码。"
 msgid "You must wait longer to change your password"
 msgstr "您需要等待更长时间来修改您的密码"
 
-#: pkg/shell/superuser.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:130
 msgid "You now have administrative access."
 msgstr "您已经获取了管理员权限。"
 
@@ -9250,7 +9250,7 @@ msgid ""
 "Shift+Insert."
 msgstr "您的浏览器不允许从上下文菜单中进行粘贴，您可以使用 Shift+Insert。"
 
-#: pkg/shell/superuser.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:319
 msgid "Your browser will remember your access level across sessions."
 msgstr "您的浏览器将会在不同会话之间记住您的访问级别。"
 

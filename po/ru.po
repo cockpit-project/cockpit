@@ -1039,7 +1039,7 @@ msgstr "Адреса имеют некорректный формат"
 msgid "Administration with Cockpit Web Console"
 msgstr "Администрирование с помощью веб-панели управления Cockpit"
 
-#: pkg/shell/superuser.tsx:215 pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
 msgid "Administrative access"
 msgstr "Административный доступ"
 
@@ -1272,7 +1272,7 @@ msgstr "Дающие сбой атрибуты"
 msgid "Audit log"
 msgstr "Журнал аудита"
 
-#: pkg/shell/superuser.tsx:208 pkg/shell/superuser.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
 msgid "Authenticate"
 msgstr "Проверка подлинности"
 
@@ -1562,8 +1562,8 @@ msgstr "Не удается найти журналы на основе теку
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/shell/superuser.tsx:211 pkg/shell/superuser.tsx:248
-#: pkg/shell/superuser.tsx:304 pkg/shell/active-pages-modal.tsx:126
+#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
+#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
 #: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
 #: pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
@@ -1816,7 +1816,7 @@ msgstr "Клиентское программное обеспечение"
 #: pkg/lib/cockpit-components-modifications.jsx:79
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/shell/superuser.tsx:219 pkg/shell/superuser.tsx:227
+#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "Закрыть"
@@ -4415,7 +4415,7 @@ msgstr "Распространяется на условиях лицензии 
 msgid "Light"
 msgstr "Светлый"
 
-#: pkg/shell/superuser.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:301
 msgid "Limit access"
 msgstr "Ограничить доступ"
 
@@ -4427,11 +4427,11 @@ msgstr "Ограничение размера"
 msgid "Limit virtual filesystem size"
 msgstr "Ограничение размера вирт. файловой системы"
 
-#: pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:385
 msgid "Limited access"
 msgstr "Ограниченный доступ"
 
-#: pkg/shell/superuser.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:318
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4925,7 +4925,7 @@ msgstr "Формат метаданных"
 msgid "Metadata used"
 msgstr "Используемые метаданные"
 
-#: pkg/shell/superuser.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:234
 msgid "Method"
 msgstr "Метод"
 
@@ -5921,7 +5921,7 @@ msgstr "Парольные фразы не совпадают"
 #: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
 #: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/shell/superuser.tsx:174 pkg/users/account-details.js:297
+#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "Пароль"
@@ -6133,7 +6133,7 @@ msgstr "Закреплённый юнит"
 msgid "Pizza box"
 msgstr "Ультратонкий корпус"
 
-#: pkg/shell/superuser.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:173
 msgid "Please authenticate to gain administrative access"
 msgstr "Пройдите проверку подлинности для получения прав администратора"
 
@@ -6256,7 +6256,7 @@ msgstr "Приоритет $priority"
 msgid "Private key"
 msgstr "Закрытый ключ"
 
-#: pkg/shell/superuser.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:223
 msgid "Problem becoming administrator"
 msgstr "При получении прав администратора возникли проблемы"
 
@@ -7826,11 +7826,11 @@ msgstr "Отключить $0"
 msgid "Switch on $0"
 msgstr "Включить $0"
 
-#: pkg/shell/superuser.tsx:183 pkg/shell/superuser.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
 msgid "Switch to administrative access"
 msgstr "Переключиться на доступ с правами администратора"
 
-#: pkg/shell/superuser.tsx:313 pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
 msgid "Switch to limited access"
 msgstr "Переключится на ограниченный доступ"
 
@@ -8801,7 +8801,7 @@ msgstr "Демон tuned не запущен"
 msgid "Tuned is off"
 msgstr "Демон tuned отключен"
 
-#: pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:404
 msgid "Turn on administrative access"
 msgstr "Включить доступ с правами администратора"
 
@@ -9603,7 +9603,7 @@ msgstr "Может потребоваться смена пароля ключа
 msgid "You must wait longer to change your password"
 msgstr "Для изменения пароля необходимо подождать"
 
-#: pkg/shell/superuser.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:130
 msgid "You now have administrative access."
 msgstr "Получены права администратора."
 
@@ -9627,7 +9627,7 @@ msgstr ""
 "В данном браузере отсутствует возможность вставки с помощью контекстного "
 "меню. Можно использовать комбинацию Shift+Insert."
 
-#: pkg/shell/superuser.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:319
 msgid "Your browser will remember your access level across sessions."
 msgstr "Браузер запоминает уровень доступа от сеанса к сеансу."
 

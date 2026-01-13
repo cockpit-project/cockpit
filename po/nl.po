@@ -1033,7 +1033,7 @@ msgstr "Adressen zijn niet correct geformatteerd"
 msgid "Administration with Cockpit Web Console"
 msgstr "Beheer met Cockpit Web Console"
 
-#: pkg/shell/superuser.tsx:215 pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
 msgid "Administrative access"
 msgstr "Administratieve toegang"
 
@@ -1269,7 +1269,7 @@ msgstr "Attributen falen"
 msgid "Audit log"
 msgstr "Audit-logboek"
 
-#: pkg/shell/superuser.tsx:208 pkg/shell/superuser.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
 msgid "Authenticate"
 msgstr "Authenticatie uitvoeren"
 
@@ -1556,8 +1556,8 @@ msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/shell/superuser.tsx:211 pkg/shell/superuser.tsx:248
-#: pkg/shell/superuser.tsx:304 pkg/shell/active-pages-modal.tsx:126
+#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
+#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
 #: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
 #: pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
@@ -1816,7 +1816,7 @@ msgstr "Cliënt software"
 #: pkg/lib/cockpit-components-modifications.jsx:79
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/shell/superuser.tsx:219 pkg/shell/superuser.tsx:227
+#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "Sluiten"
@@ -4484,7 +4484,7 @@ msgstr "Licentie onder GNU LGPL versie 2.1"
 msgid "Light"
 msgstr "Licht"
 
-#: pkg/shell/superuser.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:301
 msgid "Limit access"
 msgstr "Beperk toegang"
 
@@ -4500,11 +4500,11 @@ msgstr "Grenzen"
 msgid "Limit virtual filesystem size"
 msgstr "Beheer bestandssysteemgroottes"
 
-#: pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:385
 msgid "Limited access"
 msgstr "Beperkte toegang"
 
-#: pkg/shell/superuser.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:318
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -5020,7 +5020,7 @@ msgstr "Ongeldige datum"
 msgid "Metadata used"
 msgstr "Gebruikte metadata"
 
-#: pkg/shell/superuser.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:234
 msgid "Method"
 msgstr "Methode"
 
@@ -6035,7 +6035,7 @@ msgstr "Wachtzinnen komen niet overeen"
 #: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
 #: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/shell/superuser.tsx:174 pkg/users/account-details.js:297
+#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "Wachtwoord"
@@ -6253,7 +6253,7 @@ msgstr "Vastgezette eenheid"
 msgid "Pizza box"
 msgstr "Pizzadoos"
 
-#: pkg/shell/superuser.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:173
 msgid "Please authenticate to gain administrative access"
 msgstr "Authenticeer om administratieve toegang te krijgen"
 
@@ -6386,7 +6386,7 @@ msgstr "Prioriteit $priority"
 msgid "Private key"
 msgstr "Privé sleutel"
 
-#: pkg/shell/superuser.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:223
 msgid "Problem becoming administrator"
 msgstr "Probleem om beheerder te worden"
 
@@ -7990,11 +7990,11 @@ msgstr "Schakel $0 uit"
 msgid "Switch on $0"
 msgstr "Schakel $0 in"
 
-#: pkg/shell/superuser.tsx:183 pkg/shell/superuser.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
 msgid "Switch to administrative access"
 msgstr "Schakel om naar beheerderstoegang"
 
-#: pkg/shell/superuser.tsx:313 pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
 msgid "Switch to limited access"
 msgstr "Schakel over naar beperkte toegang"
 
@@ -8982,7 +8982,7 @@ msgstr "Tuned is niet actief"
 msgid "Tuned is off"
 msgstr "Tuned is uitgeschakeld"
 
-#: pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:404
 msgid "Turn on administrative access"
 msgstr "Schakel beheerderstoegang in"
 
@@ -9808,7 +9808,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Je moet langer wachten om je wachtwoord te wijzigen"
 
-#: pkg/shell/superuser.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:130
 msgid "You now have administrative access."
 msgstr "Je hebt nu administratieve toegang."
 
@@ -9832,7 +9832,7 @@ msgstr ""
 "Je browser staat plakken vanuit het contextmenu niet toe. Je kunt "
 "Shift+Insert gebruiken."
 
-#: pkg/shell/superuser.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:319
 msgid "Your browser will remember your access level across sessions."
 msgstr "Je browser onthoudt je toegangsniveau tijdens sessies."
 

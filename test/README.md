@@ -188,7 +188,7 @@ You can set these environment variables to configure the test suite:
    browser is run in headless mode. When set to "pixels", the browser will be
    resized to the exact dimensions that are used for pixel tests.
 
- * `TEST_TIMEOUT_FACTOR`: Scale normal timeouts by given integer. Useful for
+ * `TEST_TIMEOUT_FACTOR`: Scale normal timeouts by given float value. Useful for
    slow/busy testbeds or architectures.
 
 See the [bots documentation](https://github.com/cockpit-project/bots/blob/main/README.md)

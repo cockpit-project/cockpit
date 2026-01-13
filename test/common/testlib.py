@@ -295,7 +295,7 @@ class Browser:
             self.cdp_command("Profiler.startPreciseCoverage", callCount=False, detailed=True)
 
         self.password = "foobar"
-        self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
+        self.timeout_factor = float(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
         self.timeout = 15
         self.failed_pixel_tests = 0
         self.allow_oops = False
@@ -807,7 +807,7 @@ class Browser:
         self.timeout = old_timeout
 
     def wait(self, predicate: Callable[[], _T | None]) -> _T:
-        for _ in range(self.timeout * self.timeout_factor * 5):
+        for _ in range(int(self.timeout * self.timeout_factor * 5)):
             val = predicate()
             if val:
                 return val

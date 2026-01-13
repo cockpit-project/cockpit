@@ -118,11 +118,11 @@ class TestRunTest(testlib.MachineCase):
         process = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "TestExample.testFail", "TestExample.testSkip"],
                                  env=env, capture_output=True)
         stdout = process.stdout
-        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail # RETRY 1 \(be robust against unstable tests\)\n")
-        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail # RETRY 2 \(be robust against unstable tests\)\n")
-        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail\n")
+        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail \(1\.7GB\) # RETRY 1 \(be robust against unstable tests\)\n")
+        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail \(1\.7GB\) # RETRY 2 \(be robust against unstable tests\)\n")
+        self.assertRegex(stdout, rb"\nnot ok 1 .*test\/example\/check-example TestExample.testFail \(1\.7GB\)\n")
         self.assertNotRegex(stdout, b"RETRY 3")
-        self.assertRegex(stdout, rb"\nok 2 .*test\/example\/check-example TestExample.testSkip # SKIP testSkip \(__main__\.TestExample")
+        self.assertRegex(stdout, rb"\nok 2 .*test\/example\/check-example TestExample.testSkip \(1\.7GB\) # SKIP testSkip \(__main__\.TestExample")
         self.assertRegex(stdout, rb"# 1 TESTS FAILED \[\d*s on .*, 2 destructive tests, 0 nondestructive tests: \]")
 
         # Check retry logic for changed tests
@@ -148,17 +148,17 @@ class TestRunTest(testlib.MachineCase):
         stdout = process.stdout
 
         # Changed test need to succeed 3 times
-        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic\n")
+        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic \(1\.7GB\) # RETRY 1 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic \(1\.7GB\) # RETRY 2 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok 1 .*test\/example\/check-retry TestRetryExample.testBasic \(1\.7GB\)\n")
         self.assertNotRegex(stdout, b"RETRY 3")
 
         # Changed test is never retried
-        self.assertRegex(stdout, rb"\nnot ok 2 .*test\/example\/check-retry TestRetryExample.testFail\n")
+        self.assertRegex(stdout, rb"\nnot ok 2 .*test\/example\/check-retry TestRetryExample.testFail \(1\.7GB\)\n")
         self.assertNotRegex(stdout, b"testFail # RETRY")
 
         # Using @no_retry_when_changed prevents this retry logic
-        self.assertRegex(stdout, rb"\nok 3 .*test\/example\/check-retry TestRetryExample.testNoRetry\n")
+        self.assertRegex(stdout, rb"\nok 3 .*test\/example\/check-retry TestRetryExample.testNoRetry \(1\.7GB\)\n")
         self.assertNotRegex(stdout, b"testNoRetry # RETRY")
 
         # Check retry logic for changed source
@@ -181,11 +181,11 @@ class TestRunTest(testlib.MachineCase):
                                   "TestShell.testBasic", "TestShell.testNoRetry"],
                                  env=env, capture_output=True)
         stdout = process.stdout
-        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic\n")
+        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic \(1\.7GB\) # RETRY 1 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic \(1\.7GB\) # RETRY 2 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic \(1\.7GB\)\n")
         self.assertNotRegex(stdout, b"RETRY 3")
-        self.assertRegex(stdout, b"\nok .* TestShell.testNoRetry\n")
+        self.assertRegex(stdout, b"\nok .* TestShell.testNoRetry \\(1\\.7GB\\)\n")
         self.assertNotRegex(stdout, b"TestShell.testNoRetry # RETRY")
 
         # Check that just .css changes do no affect retry logic
@@ -211,7 +211,7 @@ class TestSystemd(unittest.TestCase):
         process = subprocess.run([run_tests, "--test-dir", EXAMPLE_DIR, "TestSystemd.testBasic"],
                                  env=env, capture_output=True)
         stdout = process.stdout
-        self.assertRegex(stdout, rb"\nok .* TestSystemd.testBasic\n")
+        self.assertRegex(stdout, rb"\nok .* TestSystemd.testBasic \(1\.7GB\)\n")
         self.assertNotRegex(stdout, b"RETRY")
 
     def testTodo(self):
@@ -227,10 +227,10 @@ class TestSystemd(unittest.TestCase):
         stdout = process.stdout
 
         # A @todo test which fails should write 'not ok ... # TODO ...'
-        self.assertRegex(stdout, rb"\nnot ok . .*test/example/check-example TestTodo.testTodoFail # TODO 2 is not yet sufficiently large\n")
+        self.assertRegex(stdout, rb"\nnot ok . .*test/example/check-example TestTodo.testTodoFail \(1\.7GB\) # TODO 2 is not yet sufficiently large\n")
 
         # A @todo test which passes should write 'not ok ... # expected failure ...' and hard fail
-        self.assertRegex(stdout, rb"\nnot ok . .*test/example/check-example TestTodo.testTodoPass # expected failure: 2 is not yet sufficiently large\n")
+        self.assertRegex(stdout, rb"\nnot ok . .*test/example/check-example TestTodo.testTodoPass \(1\.7GB\) # expected failure: 2 is not yet sufficiently large\n")
 
         # There should have been 2 cases, one fail
         self.assertEqual(process.returncode, 1)

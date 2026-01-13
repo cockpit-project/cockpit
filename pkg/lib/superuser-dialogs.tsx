@@ -31,10 +31,24 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { host_superuser_storage_key } from './machines/machines';
 import { LockIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
+
+export function host_superuser_storage_key(host: string | undefined) {
+    if (!host)
+        host = cockpit.transport.host;
+
+    const local_key = window.localStorage.getItem("superuser-key");
+    if (host == "localhost")
+        return local_key;
+    else if (host.indexOf("@") >= 0)
+        return "superuser:" + host;
+    else if (local_key)
+        return local_key + "@" + host;
+    else
+        return null;
+}
 
 function sudo_polish(msg: string): string;
 function sudo_polish(msg: null): null;

@@ -1048,7 +1048,7 @@ msgstr "Adresy nemají správný formát"
 msgid "Administration with Cockpit Web Console"
 msgstr "Správa pomocí webové konzole Cockpit"
 
-#: pkg/shell/superuser.tsx:215 pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
 msgid "Administrative access"
 msgstr "Přístup na úrovni správce"
 
@@ -1280,7 +1280,7 @@ msgstr "Selhávající atributy"
 msgid "Audit log"
 msgstr "Záznam auditu"
 
-#: pkg/shell/superuser.tsx:208 pkg/shell/superuser.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
 msgid "Authenticate"
 msgstr "Ověřit se"
 
@@ -1583,8 +1583,8 @@ msgstr ""
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/shell/superuser.tsx:211 pkg/shell/superuser.tsx:248
-#: pkg/shell/superuser.tsx:304 pkg/shell/active-pages-modal.tsx:126
+#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
+#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
 #: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
 #: pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
@@ -1844,7 +1844,7 @@ msgstr "Klientský software"
 #: pkg/lib/cockpit-components-modifications.jsx:79
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/shell/superuser.tsx:219 pkg/shell/superuser.tsx:227
+#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "Zavřít"
@@ -4574,7 +4574,7 @@ msgstr "Licencováno pod GNU LGPL verze 2.1"
 msgid "Light"
 msgstr "Světlý"
 
-#: pkg/shell/superuser.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:301
 msgid "Limit access"
 msgstr "Omezit přístup"
 
@@ -4588,11 +4588,11 @@ msgstr "Omezit velikost"
 msgid "Limit virtual filesystem size"
 msgstr "Omezit virtuální velikost souborového systému"
 
-#: pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:385
 msgid "Limited access"
 msgstr "Omezený přístup"
 
-#: pkg/shell/superuser.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:318
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -5105,7 +5105,7 @@ msgstr "Formát metadat"
 msgid "Metadata used"
 msgstr "Využito metadat"
 
-#: pkg/shell/superuser.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:234
 msgid "Method"
 msgstr "Metoda"
 
@@ -6143,7 +6143,7 @@ msgstr "Zadání heslové fráze se neshodují"
 #: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
 #: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/shell/superuser.tsx:174 pkg/users/account-details.js:297
+#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "Heslo"
@@ -6372,7 +6372,7 @@ msgstr "Připnutá jednotka"
 msgid "Pizza box"
 msgstr "Velikost „krabice od pizzy“"
 
-#: pkg/shell/superuser.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:173
 msgid "Please authenticate to gain administrative access"
 msgstr "Pro získání přístupu na úrovni správce se prosím ověřte"
 
@@ -6510,7 +6510,7 @@ msgstr "Priorita $priority"
 msgid "Private key"
 msgstr "Soukromý klíč"
 
-#: pkg/shell/superuser.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:223
 msgid "Problem becoming administrator"
 msgstr "Problém s tím, stát se správcem"
 
@@ -8109,11 +8109,11 @@ msgstr "Vypnout $0"
 msgid "Switch on $0"
 msgstr "Zapnout $0"
 
-#: pkg/shell/superuser.tsx:183 pkg/shell/superuser.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
 msgid "Switch to administrative access"
 msgstr "Přepnout na přístup správce"
 
-#: pkg/shell/superuser.tsx:313 pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
 msgid "Switch to limited access"
 msgstr "Přepnout na omezený přístup"
 
@@ -9075,7 +9075,7 @@ msgstr "Tuned není spuštěné"
 msgid "Tuned is off"
 msgstr "Tuned je vypnuté"
 
-#: pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:404
 msgid "Turn on administrative access"
 msgstr "Zapnout přístup na úrovni správce"
 
@@ -9908,7 +9908,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Pro změnu hesla je třeba vyčkat déle"
 
-#: pkg/shell/superuser.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:130
 msgid "You now have administrative access."
 msgstr "Nyní máte přístup na úrovni správy systému."
 
@@ -9932,7 +9932,7 @@ msgstr ""
 "Vámi využívaný prohlížeč neumožňuje vkládání z kontextové nabídky. Náhradně "
 "je možné použít Shift+Insert."
 
-#: pkg/shell/superuser.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:319
 msgid "Your browser will remember your access level across sessions."
 msgstr "Váš prohlížeč si bude úroveň přístupu pamatovat i pro příště."
 

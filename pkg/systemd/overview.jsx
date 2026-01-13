@@ -37,7 +37,7 @@ import { HealthCard } from './overview-cards/healthCard.jsx';
 import { MotdCard } from './overview-cards/motdCard.jsx';
 import { UsageCard } from './overview-cards/usageCard.jsx';
 import { SuperuserAlert } from './superuser-alert.jsx';
-import { superuser_proxy, SuperuserIndicator } from "../shell/superuser.jsx";
+import { superuser_proxy, SuperuserIndicator } from "superuser-dialogs";
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 import { WithDialogs, DialogsContext } from "dialogs.jsx";
 

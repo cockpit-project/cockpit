@@ -35,7 +35,7 @@ import { ManifestDocs, ManifestParentSection } from "./manifests";
 import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { CredentialsModal } from './credentials.jsx';
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
-import { superuser_proxy, SuperuserProxy, SuperuserIndicator } from "./superuser.jsx";
+import { superuser_proxy, SuperuserProxy, SuperuserIndicator } from "superuser-dialogs";
 import { read_os_release } from "os-release.js";
 import { DialogsContext } from "dialogs.jsx";
 

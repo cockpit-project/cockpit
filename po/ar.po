@@ -1123,7 +1123,7 @@ msgstr "تنسيق العناوين غير صحيح"
 msgid "Administration with Cockpit Web Console"
 msgstr "الإدارة عبر وحدة تحكم الويب Cockpit"
 
-#: pkg/shell/superuser.tsx:215 pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
 msgid "Administrative access"
 msgstr "صلاحيات المسؤول"
 
@@ -1354,7 +1354,7 @@ msgstr "سمات معطوبة"
 msgid "Audit log"
 msgstr "سجل التدقيق"
 
-#: pkg/shell/superuser.tsx:208 pkg/shell/superuser.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
 msgid "Authenticate"
 msgstr "مصادقة"
 
@@ -1636,8 +1636,8 @@ msgstr "لا يمكن العثور على أي سجلات عبر مجموعة ا
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/shell/superuser.tsx:211 pkg/shell/superuser.tsx:248
-#: pkg/shell/superuser.tsx:304 pkg/shell/active-pages-modal.tsx:126
+#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
+#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
 #: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
 #: pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
@@ -1886,7 +1886,7 @@ msgstr "برنامج العميل"
 #: pkg/lib/cockpit-components-modifications.jsx:79
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/shell/superuser.tsx:219 pkg/shell/superuser.tsx:227
+#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "أغلق"
@@ -4446,7 +4446,7 @@ msgstr "‎مرخص بموجب GNU LGPL الإصدار 2.1"
 msgid "Light"
 msgstr "فاتح"
 
-#: pkg/shell/superuser.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:301
 msgid "Limit access"
 msgstr "تقييد الوصول"
 
@@ -4458,11 +4458,11 @@ msgstr "حجم القيد"
 msgid "Limit virtual filesystem size"
 msgstr "تقييد حجم نظام الملفات الافتراضي"
 
-#: pkg/shell/superuser.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:385
 msgid "Limited access"
 msgstr "وصول مقيَّد"
 
-#: pkg/shell/superuser.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:318
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4943,7 +4943,7 @@ msgstr "تنسيق البيانات الوصفية"
 msgid "Metadata used"
 msgstr "البيانات الوصفية المستخدمة"
 
-#: pkg/shell/superuser.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:234
 msgid "Method"
 msgstr "الطريقة"
 
@@ -5918,7 +5918,7 @@ msgstr "عبارتا المرور غير متطابقتين"
 #: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
 #: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
 #: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/shell/superuser.tsx:174 pkg/users/account-details.js:297
+#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "كلمة السر"
@@ -6126,7 +6126,7 @@ msgstr "الوحدة المعلَّقة"
 msgid "Pizza box"
 msgstr "صندوق البيتزا"
 
-#: pkg/shell/superuser.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:173
 msgid "Please authenticate to gain administrative access"
 msgstr "الرجاء المصادقة للحصول على صلاحيات إدارية"
 
@@ -6249,7 +6249,7 @@ msgstr "الألولوية $priority"
 msgid "Private key"
 msgstr "المفتاح الخاص"
 
-#: pkg/shell/superuser.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:223
 msgid "Problem becoming administrator"
 msgstr "مشكلة في الحصول على صلاحيات المسؤول"
 
@@ -7788,11 +7788,11 @@ msgstr "إيقاف تشغيل $0"
 msgid "Switch on $0"
 msgstr "تشغيل $0"
 
-#: pkg/shell/superuser.tsx:183 pkg/shell/superuser.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
 msgid "Switch to administrative access"
 msgstr "التبديل إلى الوصول الإداري"
 
-#: pkg/shell/superuser.tsx:313 pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
 msgid "Switch to limited access"
 msgstr "التبديل إلى الوصول محدود الصلاحيات"
 
@@ -8727,7 +8727,7 @@ msgstr "Tuned ليس قيد التشغيل"
 msgid "Tuned is off"
 msgstr "Tuned مطفئ"
 
-#: pkg/shell/superuser.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:404
 msgid "Turn on administrative access"
 msgstr "فعّل الوصول الإداري"
 
@@ -9507,7 +9507,7 @@ msgstr "قد ترغب في تغيير كلمة سر المفتاح لتسجيل 
 msgid "You must wait longer to change your password"
 msgstr "يجب عليك الانتظار أكثر لتغيير كلمة السر الخاصة بك"
 
-#: pkg/shell/superuser.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:130
 msgid "You now have administrative access."
 msgstr "لديك الآن حق الوصول الإداري."
 
@@ -9529,7 +9529,7 @@ msgid ""
 "Shift+Insert."
 msgstr "لا يسمح متصفحك باللصق من قائمة السياق. يمكنك استخدام Shift+Insert."
 
-#: pkg/shell/superuser.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:319
 msgid "Your browser will remember your access level across sessions."
 msgstr "سيتذكر متصفحك مستوى وصولك عبر الجلسات."
 

@@ -572,8 +572,9 @@ def run(opts: CliOpts, image: str) -> int:
         job_capacity_gb = (DEFAULT_MACHINE_MEMORY_MB + BROWSER_MEMORY_MB) / 1024.0
         total_capacity_gb = opts.jobs * job_capacity_gb
 
-        # fill the remaining available job slots with destructive tests; run tests with ram higher than total capacity by themselves
-        while destructive_tests and (
+        # Start destructive tests one at a time to avoid VM boot storms
+        # Only start if we have capacity based on RAM (or if idle to avoid deadlock)
+        if destructive_tests and (
             running_ram_gb() + destructive_tests[0].ram_gb <= total_capacity_gb or len(running_tests) == 0
         ):
             test = destructive_tests.pop(0)
@@ -586,6 +587,8 @@ def run(opts: CliOpts, image: str) -> int:
             test.start()
             running_tests.append(test)
             made_progress = True
+            # Avoid VM boot storms; unreliable especially with nested KVM. This should be enough time to let VMs boot
+            time.sleep(15)
 
         # are we done?
         if not running_tests:
@@ -595,9 +598,9 @@ def run(opts: CliOpts, image: str) -> int:
             assert not destructive_tests, f"destructive_tests should be empty: {[str(t) for t in destructive_tests]}"
             break
 
-        # Sleep if we didn't make progress
+        # Sleep if we didn't make progress, give running tests some breathing room
         if not made_progress:
-            time.sleep(0.5)
+            time.sleep(5)
 
     # Create coverage report
     if opts.coverage:

@@ -116,7 +116,7 @@ class TestSystemInfo(testlib.MachineCase):
             ".system-health .pf-v6-c-card__body",
             "#system_uptime",
             # #system_information_systime_button is not enough, need to grab the icon as well
-            "tr:contains('System time') td",
+            "td[data-label='system-time']",
             # CPU/memory metrics
             "#system-usage-cpu-progress + td",
             "#system-usage-memory-progress + td",

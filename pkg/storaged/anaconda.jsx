@@ -31,6 +31,7 @@ function parse_parent_from_options(options) {
 }
 
 function uuid_equal(a, b) {
+    console.log('test test');
     return a.replace("-", "").toUpperCase() == b.replace("-", "").toUpperCase();
 }
 

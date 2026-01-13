@@ -1022,7 +1022,7 @@ class TestCurrentMetrics(testlib.MachineCase):
             m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest -p CPUQuota=60% --unit cpu-userhog dd if=/dev/urandom of=/dev/null'")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
             b.wait_in_text("table[aria-label='Top 5 CPU services'] tbody", "cpu-userhog")
-            b.click("table[aria-label='Top 5 CPU services'] tbody tr:contains('cpu-userhog') td[data-label='Service'] a")
+            b.click("table[aria-label='Top 5 CPU services'] tbody td[data-label='Service'] a:contains('cpu-userhog')")
             b.enter_page("/system/services")
             b.wait_in_text(".service-name", "/usr/bin/dd if=/dev/urandom of=/dev/null")
 
@@ -1135,7 +1135,7 @@ BEGIN {{
             m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
             b.wait_in_text("table[aria-label='Top 5 memory services'] tbody", "mem-userhog")
-            b.click("table[aria-label='Top 5 memory services'] tbody tr:contains('mem-userhog') td[data-label='Service'] a")
+            b.click("table[aria-label='Top 5 memory services'] tbody td[data-label='Service'] a:contains('mem-userhog')")
             b.enter_page("/system/services")
             b.wait_in_text(".service-name", "memhog.sh")
 

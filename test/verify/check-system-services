@@ -523,10 +523,10 @@ WantedBy=default.target
         self.select_active_state("Not running")
         self.select_active_state("Running")
         self.wait_service_present("test.service")
-        b.click(".pf-v6-c-label-group:contains('Active state') .pf-v6-c-label-group__list li:contains('Not running') button")
+        b.click(".pf-v6-c-label-group button[aria-label='Close Not running']")
         b.wait_not_in_text(".pf-v6-c-label-group:contains('Active state')", "Not running")
         self.wait_service_not_present("test.service")
-        b.click(".pf-v6-c-label-group:contains('Active state') .pf-v6-c-label__actions > button")
+        b.click(".pf-v6-c-label-group button[aria-label='Close Running']")
         b.wait_not_present(".pf-v6-c-label-group")
 
     @testlib.nondestructive

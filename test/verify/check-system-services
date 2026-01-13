@@ -116,7 +116,7 @@ class TestServices(testlib.MachineCase):
 
         self.browser.click("#services-dropdown-file-state")
         for state in states:
-            self.browser.set_checked(f".pf-v6-c-menu__item:contains('{state}') input", val=True)
+            self.browser.set_checked(f".pf-v6-c-menu__list-item[data-label='{state}'] input", val=True)
         self.browser.click("#services-dropdown-file-state")
         for state in states:
             self.browser.wait_in_text(".pf-v6-c-label-group:contains('File state')", state)
@@ -127,7 +127,7 @@ class TestServices(testlib.MachineCase):
 
         self.browser.click("#services-dropdown-active-state")
         for state in states:
-            self.browser.set_checked(f".pf-v6-c-menu__item:contains('{state}') input", val=True)
+            self.browser.set_checked(f".pf-v6-c-menu__list-item[data-label='{state}'] input", val=True)
         self.browser.click("#services-dropdown-active-state")
         for state in states:
             self.browser.wait_in_text(".pf-v6-c-label-group:contains('Active state')", state)

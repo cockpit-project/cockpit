@@ -834,6 +834,7 @@ const ServicesPageFilters = ({
                         return {
                             value: option.label, // sic
                             content: option.label,
+                            "data-label": option.label,
                         };
                     })} />
             </ToolbarFilter>
@@ -853,6 +854,7 @@ const ServicesPageFilters = ({
                         return {
                             value: option.label, // sic
                             content: option.label,
+                            "data-label": option.label,
                         };
                     })} />
             </ToolbarFilter>

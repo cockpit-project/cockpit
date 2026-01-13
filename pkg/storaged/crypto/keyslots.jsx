@@ -729,7 +729,7 @@ export class CryptoKeyslots extends React.Component {
 
             const add_row = (slot, type, desc, edit, edit_excuse, remove) => {
                 rows.push(
-                    <Tr key={slot}>
+                    <Tr key={slot} data-row-slot={slot}>
                         <Td>{type}</Td>
                         <Td>{desc}</Td>
                         <Td>{cockpit.format(_("Slot $0"), slot)}</Td>

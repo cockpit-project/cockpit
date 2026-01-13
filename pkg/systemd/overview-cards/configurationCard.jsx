@@ -74,7 +74,7 @@ export const ConfigurationCard = ({ hostname }) => {
 
                         <tr className="pf-v6-c-table__tr">
                             <th className="pf-v6-c-table__th" scope="row">{_("System time")}</th>
-                            <td className="pf-v6-c-table__td"><ServerTimeConfig /></td>
+                            <td className="pf-v6-c-table__td" data-label="system-time"><ServerTimeConfig /></td>
                         </tr>
 
                         <tr className="pf-v6-c-table__tr">

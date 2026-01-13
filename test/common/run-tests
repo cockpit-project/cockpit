@@ -515,7 +515,7 @@ def run(opts: CliOpts, image: str) -> int:
 
                     # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
-                    if not opts.machine and (poll_result == 124 or (retry_reason and "test harness" in retry_reason)):
+                    if poll_result == 124 or (retry_reason and "test harness" in retry_reason):
                         # try hard to keep the test output consistent
                         sys.stderr.write("\nRestarting global machine %s\n" % test_machine)
                         sys.stderr.flush()

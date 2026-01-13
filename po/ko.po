@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-21 13:37+0000\n"
+"POT-Creation-Date: 2026-01-07 14:33+0000\n"
 "PO-Revision-Date: 2025-12-25 18:09+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
@@ -23,7 +23,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0\n"
 "X-Generator: Weblate 5.15.1\n"
 
-#: pkg/users/accounts-list.js:231
+#: pkg/users/accounts-list.js:250
 msgid "# of users"
 msgstr "# 사용자"
 
@@ -129,7 +129,7 @@ msgstr[0] "$0 로그인 시도 실패"
 msgid "$0 filesystem"
 msgstr "$0 파일 시스템"
 
-#: pkg/systemd/services.jsx:876
+#: pkg/systemd/services.jsx:867
 msgid "$0 filters applied"
 msgstr "$0 필터가 적용됨"
 
@@ -207,7 +207,7 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 달"
 
-#: pkg/users/accounts-list.js:330
+#: pkg/users/accounts-list.js:325
 msgid "$0 more..."
 msgstr "$0 더 알아보기..."
 
@@ -235,7 +235,7 @@ msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "사용 가능한 $0 보안 수정"
 
-#: pkg/systemd/services.jsx:601
+#: pkg/systemd/services.jsx:599
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 서비스 실패"
@@ -659,8 +659,8 @@ msgstr "계정 만료"
 msgid "Account not available or cannot be edited."
 msgstr "계정을 사용할 수 없거나 편집 할 수 없습니다."
 
-#: pkg/users/account-details.js:236 pkg/users/accounts-list.js:232
-#: pkg/users/accounts-list.js:448 pkg/users/manifest.json:0
+#: pkg/users/account-details.js:236 pkg/users/accounts-list.js:251
+#: pkg/users/accounts-list.js:437 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "계정"
 
@@ -670,7 +670,7 @@ msgstr "동작"
 
 #: pkg/storaged/drive/smart-details.jsx:106 pkg/storaged/pages.jsx:730
 #: pkg/apps/application-list.jsx:146 pkg/networkmanager/firewall.jsx:212
-#: pkg/users/accounts-list.js:385
+#: pkg/users/accounts-list.js:374
 msgid "Actions"
 msgstr "동작"
 
@@ -703,8 +703,8 @@ msgstr "활성 페이지"
 msgid "Active since "
 msgstr "이후 활성화 "
 
-#: pkg/systemd/services.jsx:833 pkg/systemd/services.jsx:837
-#: pkg/systemd/services.jsx:839
+#: pkg/systemd/services.jsx:824 pkg/systemd/services.jsx:828
+#: pkg/systemd/services.jsx:830
 msgid "Active state"
 msgstr "활성화 상태"
 
@@ -1016,7 +1016,7 @@ msgstr "주의"
 msgid "Alert and above"
 msgstr "경고 이상의 수준"
 
-#: pkg/systemd/services.jsx:250
+#: pkg/systemd/services.jsx:248
 msgid "Alias"
 msgstr "별명"
 
@@ -1306,11 +1306,11 @@ msgstr "바이오스 버전"
 msgid "Back to accounts"
 msgstr "계정으로 돌아가기"
 
-#: pkg/systemd/services.jsx:258
+#: pkg/systemd/services.jsx:256
 msgid "Bad"
 msgstr "나쁨"
 
-#: pkg/systemd/services.jsx:224
+#: pkg/systemd/services.jsx:222
 msgid "Bad setting"
 msgstr "잘못된 설정"
 
@@ -1704,7 +1704,7 @@ msgstr "‘시작 실패’ 지우기"
 msgid "Clear all filters"
 msgstr "모든 필터 지우기"
 
-#: pkg/users/accounts-list.js:341 pkg/users/accounts-list.js:456
+#: pkg/users/accounts-list.js:336 pkg/users/accounts-list.js:445
 msgid "Clear filter"
 msgstr "필터 지우기"
 
@@ -1983,7 +1983,7 @@ msgstr ""
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "SETroubleshoot 데몬에 연결 중..."
 
-#: pkg/systemd/services.jsx:292
+#: pkg/systemd/services.jsx:290
 msgid "Connecting to dbus failed: $0"
 msgstr "dbus에 연결하는 데 실패했습니다: $0"
 
@@ -2157,7 +2157,7 @@ msgstr "만들기"
 msgid "Create logical volume"
 msgstr "논리 볼륨 만들기"
 
-#: pkg/users/account-create-dialog.js:466 pkg/users/accounts-list.js:436
+#: pkg/users/account-create-dialog.js:466 pkg/users/accounts-list.js:425
 msgid "Create new account"
 msgstr "신규 계정 만들기"
 
@@ -2165,7 +2165,7 @@ msgstr "신규 계정 만들기"
 msgid "Create new filesystem"
 msgstr "신규 파일 시스템 생성"
 
-#: pkg/users/group-create-dialog.js:134 pkg/users/accounts-list.js:297
+#: pkg/users/group-create-dialog.js:134 pkg/users/accounts-list.js:292
 msgid "Create new group"
 msgstr "신규 그룹 만들기"
 
@@ -2700,8 +2700,8 @@ msgstr "방화벽 비활성화"
 msgid "Disable tuned"
 msgstr "tuned 비활성화"
 
-#: pkg/systemd/service-details.jsx:444 pkg/systemd/services.jsx:247
-#: pkg/systemd/services.jsx:688 pkg/packagekit/autoupdates.jsx:467
+#: pkg/systemd/service-details.jsx:444 pkg/systemd/services.jsx:245
+#: pkg/systemd/services.jsx:686 pkg/packagekit/autoupdates.jsx:467
 #: pkg/packagekit/kpatch.jsx:246 pkg/kdump/kdump-view.jsx:558
 #: pkg/networkmanager/ip-settings.jsx:48
 #: pkg/networkmanager/firewall-switch.jsx:64
@@ -2999,8 +2999,8 @@ msgstr "서비스 활성화"
 msgid "Enable the firewall"
 msgstr "방화벽 활성화"
 
-#: pkg/systemd/services.jsx:245 pkg/systemd/services.jsx:246
-#: pkg/systemd/services.jsx:687 pkg/packagekit/kpatch.jsx:249
+#: pkg/systemd/services.jsx:243 pkg/systemd/services.jsx:244
+#: pkg/systemd/services.jsx:685 pkg/packagekit/kpatch.jsx:249
 #: pkg/kdump/kdump-view.jsx:558 pkg/networkmanager/firewall-switch.jsx:64
 #: pkg/networkmanager/firewall-switch.jsx:74
 msgid "Enabled"
@@ -3106,7 +3106,7 @@ msgstr "에라타"
 
 #: pkg/storaged/multipath.jsx:60 pkg/storaged/storage-controls.jsx:106
 #: pkg/storaged/storage-controls.jsx:159 pkg/storaged/overview/overview.jsx:94
-#: pkg/systemd/service-details.jsx:277 pkg/systemd/services.jsx:225
+#: pkg/systemd/service-details.jsx:277 pkg/systemd/services.jsx:223
 #: pkg/apps/utils.tsx:134 pkg/sosreport/sosreport.jsx:399
 msgid "Error"
 msgstr "오류"
@@ -3320,7 +3320,7 @@ msgstr "/etc/motd에 변경 사항을 저장하지 못했습니다"
 msgid "Failed to save settings"
 msgstr "설정을 저장하는데 실패함"
 
-#: pkg/systemd/service-details.jsx:455 pkg/systemd/services.jsx:236
+#: pkg/systemd/service-details.jsx:455 pkg/systemd/services.jsx:234
 msgid "Failed to start"
 msgstr "시작하지 못했습니다"
 
@@ -3328,8 +3328,8 @@ msgstr "시작하지 못했습니다"
 msgid "Failed to switch profile"
 msgstr "프로파일 전환에 실패했습니다"
 
-#: pkg/systemd/services.jsx:852 pkg/systemd/services.jsx:856
-#: pkg/systemd/services.jsx:858
+#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
+#: pkg/systemd/services.jsx:849
 msgid "File state"
 msgstr "파일 상태"
 
@@ -3357,7 +3357,7 @@ msgstr "대상 외부의 파일시스템"
 msgid "Filesystems are already mounted below this mountpoint."
 msgstr "파일 시스템은 이미 이 적재지점 아래에 적재되어 있습니다."
 
-#: pkg/systemd/services.jsx:825
+#: pkg/systemd/services.jsx:816
 msgid "Filter by name or description"
 msgstr "이름 또는 설명에 따라 필터링"
 
@@ -3461,7 +3461,7 @@ msgid "From"
 msgstr "에서"
 
 #: pkg/users/account-details.js:248 pkg/users/account-create-dialog.js:68
-#: pkg/users/accounts-list.js:381
+#: pkg/users/accounts-list.js:370
 msgid "Full name"
 msgstr "성명"
 
@@ -3482,7 +3482,7 @@ msgstr "게이트웨이 $gateway"
 msgid "General"
 msgstr "일반"
 
-#: pkg/systemd/services.jsx:256 pkg/networkmanager/wireguard.jsx:253
+#: pkg/systemd/services.jsx:254 pkg/networkmanager/wireguard.jsx:253
 msgid "Generated"
 msgstr "생성됨"
 
@@ -3506,16 +3506,16 @@ msgstr "그래프 가시성"
 msgid "Graph visibility options menu"
 msgstr "그래프 가시성 옵션 메뉴"
 
-#: pkg/networkmanager/network-interface.jsx:403 pkg/users/accounts-list.js:384
+#: pkg/networkmanager/network-interface.jsx:403 pkg/users/accounts-list.js:373
 msgid "Group"
 msgstr "그룹"
 
-#: pkg/users/accounts-list.js:229
+#: pkg/users/accounts-list.js:248
 msgid "Group name"
 msgstr "그룹 이름"
 
-#: pkg/users/account-details.js:426 pkg/users/accounts-list.js:313
-#: pkg/users/accounts-list.js:317
+#: pkg/users/account-details.js:426 pkg/users/accounts-list.js:308
+#: pkg/users/accounts-list.js:312
 msgid "Groups"
 msgstr "그룹"
 
@@ -3652,8 +3652,8 @@ msgstr "이 자료를 영구히 버리고자 확인합니다"
 
 #: pkg/storaged/btrfs/subvolume.jsx:471 pkg/storaged/pages.jsx:726
 #: pkg/systemd/hwinfo.jsx:295 pkg/networkmanager/firewall.jsx:718
-#: pkg/users/group-create-dialog.js:47 pkg/users/accounts-list.js:230
-#: pkg/users/accounts-list.js:382
+#: pkg/users/group-create-dialog.js:47 pkg/users/accounts-list.js:249
+#: pkg/users/accounts-list.js:371
 msgid "ID"
 msgstr "ID"
 
@@ -3817,7 +3817,7 @@ msgstr "1 씩 증가"
 msgid "Index memory"
 msgstr "인덱스 메모리"
 
-#: pkg/systemd/services.jsx:255
+#: pkg/systemd/services.jsx:253
 msgid "Indirect"
 msgstr "간접"
 
@@ -3963,7 +3963,7 @@ msgstr "내부 통신규약 오류"
 msgid "Interrupted"
 msgstr "중단됨"
 
-#: pkg/systemd/services.jsx:254
+#: pkg/systemd/services.jsx:252
 msgid "Invalid"
 msgstr "유효하지 않음"
 
@@ -4232,7 +4232,7 @@ msgstr "지난 24 시간"
 msgid "Last 7 days"
 msgstr "지난 7일"
 
-#: pkg/users/accounts-list.js:383
+#: pkg/users/accounts-list.js:372
 msgid "Last active"
 msgstr "최근 활성"
 
@@ -4347,7 +4347,7 @@ msgstr "연결 동작 지연"
 msgid "Link watch"
 msgstr "연결 보기"
 
-#: pkg/systemd/services.jsx:248 pkg/systemd/services.jsx:249
+#: pkg/systemd/services.jsx:246 pkg/systemd/services.jsx:247
 msgid "Linked"
 msgstr "연결됨"
 
@@ -4373,11 +4373,11 @@ msgstr "수신 포트"
 msgid "Listen port must be a number"
 msgstr "수신 포트는 숫자여야 합니다"
 
-#: pkg/systemd/services.jsx:684
+#: pkg/systemd/services.jsx:682
 msgid "Listing units"
 msgstr "단위 나열"
 
-#: pkg/systemd/services.jsx:504
+#: pkg/systemd/services.jsx:502
 msgid "Listing units failed: $0"
 msgstr "단위 나열에 실패함: $0"
 
@@ -4416,7 +4416,7 @@ msgstr "키 적재 중..."
 msgid "Loading of SSH keys failed"
 msgstr "SSH 키 적재 중 실패함"
 
-#: pkg/systemd/services.jsx:665
+#: pkg/systemd/services.jsx:663
 msgid "Loading of units failed"
 msgstr "단위 적재 중 실패함"
 
@@ -4438,10 +4438,10 @@ msgstr "장치 적재에 실패함"
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
 #: pkg/metrics/metrics.jsx:1983 pkg/storaged/storaged.jsx:66
 #: pkg/systemd/logsJournal.jsx:268 pkg/systemd/service.jsx:132
-#: pkg/systemd/services.jsx:684 pkg/systemd/logDetails.jsx:172
+#: pkg/systemd/services.jsx:682 pkg/systemd/logDetails.jsx:172
 #: pkg/kdump/kdump-view.jsx:456 pkg/users/account-details.js:193
-#: pkg/users/accounts-list.js:318 pkg/users/accounts-list.js:339
-#: pkg/users/accounts-list.js:454
+#: pkg/users/accounts-list.js:313 pkg/users/accounts-list.js:334
+#: pkg/users/accounts-list.js:443
 msgid "Loading..."
 msgstr "적재 중..."
 
@@ -4659,7 +4659,7 @@ msgstr "장비 SSH 키 지문"
 msgid "Main server chassis"
 msgstr "메인 서버 섀시"
 
-#: pkg/systemd/services.jsx:239
+#: pkg/systemd/services.jsx:237
 msgid "Maintenance"
 msgstr "유지 관리"
 
@@ -4747,8 +4747,8 @@ msgstr "$target 를 오류가 있는 것으로 표시"
 msgid "Mask service"
 msgstr "마스크 서비스"
 
-#: pkg/systemd/service-details.jsx:432 pkg/systemd/services.jsx:251
-#: pkg/systemd/services.jsx:252
+#: pkg/systemd/service-details.jsx:432 pkg/systemd/services.jsx:249
+#: pkg/systemd/services.jsx:250
 msgid "Masked"
 msgstr "마스크 설정되었습니다"
 
@@ -4788,7 +4788,7 @@ msgstr "메모리 사용량"
 msgid "Memory usage/swap"
 msgstr "메모리 사용량/스왑"
 
-#: pkg/systemd/services.jsx:226
+#: pkg/systemd/services.jsx:224
 msgid "Merged"
 msgstr "병합됨"
 
@@ -5326,8 +5326,8 @@ msgstr "논리 볼륨 없음"
 msgid "No logs found"
 msgstr "기록을 찾을 수 없음"
 
-#: pkg/systemd/services-list.jsx:59 pkg/users/accounts-list.js:341
-#: pkg/users/accounts-list.js:456
+#: pkg/systemd/services-list.jsx:59 pkg/users/accounts-list.js:336
+#: pkg/users/accounts-list.js:445
 msgid "No matching results"
 msgstr "일치하는 결과를 찾을 수 없습니다"
 
@@ -5459,7 +5459,7 @@ msgid "Not enough space to grow"
 msgstr "확장 공간이 부족합니다"
 
 #: pkg/storaged/pages.jsx:285 pkg/storaged/pages.jsx:290
-#: pkg/systemd/services.jsx:223
+#: pkg/systemd/services.jsx:221
 msgid "Not found"
 msgstr "찾을 수 없습니다"
 
@@ -5490,8 +5490,8 @@ msgid "Not registered"
 msgstr "등록되지 않음"
 
 #: pkg/storaged/mdraid/mdraid.jsx:304 pkg/systemd/service-details.jsx:480
-#: pkg/systemd/services.jsx:235 pkg/systemd/services.jsx:238
-#: pkg/systemd/services.jsx:698
+#: pkg/systemd/services.jsx:233 pkg/systemd/services.jsx:236
+#: pkg/systemd/services.jsx:696
 msgid "Not running"
 msgstr "미동작"
 
@@ -6417,7 +6417,7 @@ msgstr "다시읽기"
 msgid "Reload propagated from"
 msgstr "전달 소스를 다시 로드"
 
-#: pkg/systemd/services.jsx:234
+#: pkg/systemd/services.jsx:232
 msgid "Reloading"
 msgstr "다시 적재 중"
 
@@ -6838,8 +6838,8 @@ msgid "Runner"
 msgstr "실행자"
 
 #: pkg/storaged/mdraid/mdraid.jsx:304 pkg/systemd/service-details.jsx:470
-#: pkg/systemd/services.jsx:233 pkg/systemd/services.jsx:237
-#: pkg/systemd/services.jsx:697
+#: pkg/systemd/services.jsx:231 pkg/systemd/services.jsx:235
+#: pkg/systemd/services.jsx:695
 msgid "Running"
 msgstr "작동중"
 
@@ -6996,11 +6996,11 @@ msgstr "검색"
 msgid "Search domain"
 msgstr "검색 도메인"
 
-#: pkg/users/accounts-list.js:287
+#: pkg/users/accounts-list.js:282
 msgid "Search for name or ID"
 msgstr "이름 또는 ID 검색"
 
-#: pkg/users/accounts-list.js:426
+#: pkg/users/accounts-list.js:415
 msgid "Search for name, group or ID"
 msgstr "이름, 그룹 또는 ID 검색"
 
@@ -7488,8 +7488,8 @@ msgstr "스왑공간 $target 시작 중"
 msgid "State"
 msgstr "상태"
 
-#: pkg/systemd/service-details.jsx:492 pkg/systemd/services.jsx:253
-#: pkg/systemd/services.jsx:689
+#: pkg/systemd/service-details.jsx:492 pkg/systemd/services.jsx:251
+#: pkg/systemd/services.jsx:687
 msgid "Static"
 msgstr "정적"
 
@@ -7617,7 +7617,7 @@ msgstr "스트라이프"
 msgid "Strong password"
 msgstr "강력한 비밀번호"
 
-#: pkg/systemd/services.jsx:221
+#: pkg/systemd/services.jsx:219
 msgid "Stub"
 msgstr "스텁"
 
@@ -7633,7 +7633,7 @@ msgstr "서브 섀시"
 msgid "Sub-Notebook"
 msgstr "서브 노트북"
 
-#: pkg/systemd/services.jsx:289
+#: pkg/systemd/services.jsx:287
 msgid "Subscribing to systemd signals failed: $0"
 msgstr "systemd 신호 구독에 실패했습니다. $0"
 
@@ -7717,7 +7717,7 @@ msgstr "MD레이드 장치 $target 동기화 중"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/systemd/services.jsx:924 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
+#: pkg/systemd/services.jsx:915 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
 msgid "System"
 msgstr "시스템"
 
@@ -8497,7 +8497,7 @@ msgstr "전환"
 msgid "Toggle date picker"
 msgstr "날짜 선택기 전환"
 
-#: pkg/systemd/services.jsx:820 pkg/systemd/logs.jsx:188
+#: pkg/systemd/services.jsx:811 pkg/systemd/logs.jsx:188
 msgid "Toggle filters"
 msgstr "필터 전환"
 
@@ -8529,7 +8529,7 @@ msgstr "전체 크기: $0"
 msgid "Tower"
 msgstr "타워"
 
-#: pkg/systemd/services.jsx:257
+#: pkg/systemd/services.jsx:255
 msgid "Transient"
 msgstr "과도현상"
 
@@ -9026,7 +9026,7 @@ msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr "선택적이거나 상호 작용이 필요한 적재에 유용함 (암호문과 같은 경우)"
 
-#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:928
+#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:919
 msgid "User"
 msgstr "사용자"
 
@@ -9060,7 +9060,7 @@ msgid "User name cannot be empty"
 msgstr "사용자 이름을 입력하셔야 합니다"
 
 #: pkg/storaged/iscsi/create-dialog.jsx:33
-#: pkg/storaged/iscsi/create-dialog.jsx:138 pkg/users/accounts-list.js:380
+#: pkg/storaged/iscsi/create-dialog.jsx:138 pkg/users/accounts-list.js:369
 msgid "Username"
 msgstr "사용자 이름"
 
@@ -10262,8 +10262,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "단위"
 
-#: pkg/systemd/hw-detect.js:129 pkg/systemd/services.jsx:556
-#: pkg/systemd/services.jsx:566
+#: pkg/systemd/hw-detect.js:129 pkg/systemd/services.jsx:554
+#: pkg/systemd/services.jsx:564
 msgid "unknown"
 msgstr "알 수 없음"
 

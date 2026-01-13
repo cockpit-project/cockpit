@@ -35,6 +35,7 @@ class CliOpts(testlib.TestlibArgs):
     amplify: str | None
     base: str
     browser: str | None
+    debug: bool
     exclude: Sequence[str]
     jobs: int
     machine: str | None
@@ -614,6 +615,7 @@ def main() -> int:
     parser.add_argument(
         "-j", "--jobs", type=int, default=int(os.environ.get("TEST_JOBS", 1)), help="Number of concurrent jobs"
     )
+    parser.add_argument("--debug", action="store_true", help="Enable verbose debug logging")
     parser.add_argument("--thorough", action="store_true", help="Thorough mode, no skipping known issues")
     parser.add_argument("-n", "--nondestructive", action="store_true", help="Only consider @nondestructive tests")
     parser.add_argument(
@@ -663,6 +665,10 @@ def main() -> int:
     parser.add_argument("--amplify", type=str, default=None, help="Run the given tests multiple times in a row")
     opts = CliOpts(**vars(parser.parse_args()))
 
+    # Set up logging
+    if opts.debug:
+        logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:run-tests:%(message)s')
+
     if opts.machine:
         if opts.jobs > 1:
             parser.error("--machine cannot be used with concurrent jobs")
@@ -693,5 +699,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # logging.basicConfig(level=logging.DEBUG)
     sys.exit(main())

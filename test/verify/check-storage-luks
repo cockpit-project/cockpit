@@ -718,9 +718,9 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
 
         # Remove one key on client
         #
-        b.click(panel + 'tr:contains("Slot 1") button[aria-label="Remove"]')
+        b.click(panel + 'tr[data-row-slot="1"] button[aria-label="Remove"]')
         self.confirm()
-        b.wait_not_present(panel + 'tr:contains("Slot 1")')
+        b.wait_not_present(panel + 'tr[data-row-slot="1"]')
 
     @testlib.skipImage("TODO: don't know how to encrypt the rootfs", "debian-*", "ubuntu-*", "arch")
     # this doesn't work in ostree either, but we don't run storage tests there

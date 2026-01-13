@@ -103,10 +103,6 @@ clean-local::
 node_modules/%: $(srcdir)/package-lock.json
 	@true
 
-EXTRA_DIST += \
-	node_modules/sizzle \
-	$(NULL)
-
 check: export VERBOSE=1
 
 TEST_EXTENSIONS = .sh

@@ -6,7 +6,6 @@ import glob
 import importlib.machinery
 import importlib.util
 import logging
-import math
 import os
 import socket
 import string
@@ -28,6 +27,9 @@ os.environ["PYTHONUNBUFFERED"] = "1"
 
 # Amount of times a test is re-run to find flakes / race conditions
 AMPLIFY_TEST_COUNT = 10
+
+# Memory usage constants; measured 2026-01 on Fedora 43 x86_64 with Chromium 143 and Firefox 146
+BROWSER_MEMORY_MB = 550  # Incremental per process (Firefox: 470 MB, Chromium: 319 MB; + margin)
 
 
 @dataclass
@@ -68,7 +70,7 @@ class Test:
         nondestructive: bool,
         retry_when_affected: bool,
         todo: str | None,
-        cost: int = 1,
+        ram_gb: float,
     ) -> None:
         self.process: subprocess.Popen[bytes] | None = None
         self.retries = 0
@@ -79,7 +81,7 @@ class Test:
         self.machine_id: int | None = None
         self.retry_when_affected = retry_when_affected
         self.todo = todo
-        self.cost = cost
+        self.ram_gb = ram_gb
         self.returncode: int | None = None
 
     def assign_machine(self, machine_id: int, ssh_address: str, web_address: str) -> None:
@@ -211,9 +213,9 @@ class Test:
     # internal methods
 
     def __str__(self) -> str:
-        cost = "" if self.cost == 1 else f" ${self.cost}"
+        ram = "" if self.nondestructive else f" ({self.ram_gb:.1f}GB)"
         nd = f" [ND@{self.machine_id}]" if self.nondestructive else ""
-        return f"{self.test_id} {self.command[0]} {self.command[-1]}{cost}{nd}"
+        return f"{self.test_id} {self.command[0]} {self.command[-1]}{ram}{nd}"
 
     def _print_test(
         self, *, print_tap: bool = True, retry_reason: str = "", skip_reason: str = "", todo_reason: str = ""
@@ -418,14 +420,17 @@ def detect_tests(
                 nd = testlib.get_decorator(test_method, test, "nondestructive")
                 rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
                 todo = testlib.get_decorator(test_method, test, "todo")
-                if provision := getattr(test.__class__, "provision", None):
-                    # each additionally provisioned VM memory costs destructive test capacity
-                    total_memory = sum(
+
+                # Calculate test's RAM requirement (VM memory + browser)
+                if nd:
+                    total_vm_memory_mb = opts.nondestructive_memory_mb
+                else:
+                    provision = getattr(test.__class__, "provision", None) or {"machine": {}}
+                    total_vm_memory_mb = sum(
                         config.get("memory_mb", DEFAULT_MACHINE_MEMORY_MB) for config in provision.values()
                     )
-                    cost = math.ceil(total_memory / DEFAULT_MACHINE_MEMORY_MB)
-                else:
-                    cost = 1
+                ram_gb = (total_vm_memory_mb + BROWSER_MEMORY_MB) / 1024.0
+
                 tst = Test(
                     test_id,
                     command=build_command(filename, test_str, opts),
@@ -433,7 +438,7 @@ def detect_tests(
                     nondestructive=nd,
                     retry_when_affected=rwa,
                     todo=todo,
-                    cost=cost,
+                    ram_gb=ram_gb,
                 )
                 if nd:
                     for _ in range(AMPLIFY_TEST_COUNT if opts.amplify == test_str else 1):
@@ -560,18 +565,22 @@ def run(opts: CliOpts, image: str) -> int:
 
                     made_progress = True
 
-        def running_cost() -> int:
-            return sum(test.cost for test in running_tests)
+        def running_ram_gb() -> float:
+            return sum(test.ram_gb for test in running_tests)
 
-        # fill the remaining available job slots with destructive tests; run tests with a cost higher than #jobs by themselves
+        # Each "job" represents capacity for one VM + browser
+        job_capacity_gb = (DEFAULT_MACHINE_MEMORY_MB + BROWSER_MEMORY_MB) / 1024.0
+        total_capacity_gb = opts.jobs * job_capacity_gb
+
+        # fill the remaining available job slots with destructive tests; run tests with ram higher than total capacity by themselves
         while destructive_tests and (
-            running_cost() + destructive_tests[0].cost <= opts.jobs or len(running_tests) == 0
+            running_ram_gb() + destructive_tests[0].ram_gb <= total_capacity_gb or len(running_tests) == 0
         ):
             test = destructive_tests.pop(0)
             logging.debug(
-                "%d running tests with total cost %d, starting next destructive test %s",
+                "%d running tests using %.1f GB, starting next destructive test %s",
                 len(running_tests),
-                running_cost(),
+                running_ram_gb(),
                 test,
             )
             test.start()

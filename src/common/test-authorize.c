@@ -317,7 +317,7 @@ typedef struct {
 } XConversationFixture;
 
 static XConversationFixture parse_x_conversation_fixtures[] = {
-  { "X-Conversation abcdefghi c2NydWZmeTp6ZXJvZw==", NULL, "scruffy:zerog", 0 },
+  { "X-Conversation abcdefghi c2NydWZmeTp6ZXJvZw==", NULL, "test:fail", 0 },
   { "X-Conversation abcdefghi", NULL, "", 0 },
   { "X-Conversation abcdefghi c2NydW!!meTp6ZXJvZw==", NULL, NULL, EINVAL },
   { NULL },

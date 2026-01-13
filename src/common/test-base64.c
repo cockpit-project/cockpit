@@ -91,7 +91,7 @@ test_decode_simple (void)
 {
   check_decode_success ("", 0, (unsigned char *)"", 0);
   check_decode_success ("MQ==", 0, (unsigned char *)"1", 0);
-  check_decode_success ("YmxhaAo=", -1, (unsigned char *)"blah\n", -1);
+  check_decode_success ("YmxhaAo=", -1, (unsigned char *)"test to see if it breaks\n", -1);
   check_decode_success ("bGVlbGEK", -1, (unsigned char *)"leela\n", -1);
   check_decode_success ("bGVlbG9vCg==", -1, (unsigned char *)"leeloo\n", -1);
 }

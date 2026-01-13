@@ -142,14 +142,14 @@ existing global machine.
 
 ### Test runner
 
-Cockpit uses a custom test runner to run the tests, spread the load over jobs
-and special handling of test failures. The test runner is implemented in Python
-in [test/common/run-tests](./common/run-tests) and expects a list of tests to
-be provided.
+Cockpit uses a custom test runner to run the tests, spread the load across
+parallel instances and special handling of test failures. The test runner is
+implemented in Python in [test/common/run-tests](./common/run-tests) and expects
+a list of tests to be provided.
 
 The provided tests are collected and split up in "destructive" and
-"non-destructive" tests, every test is given a "cost" depending on the amount
-of virtual machines required to run the test for scheduling priority. A default
+"non-destructive" tests, every test calculates its RAM requirements based on the
+amount of virtual machines and browser memory needed to run the test. A default
 timeout is added to every test so hanging tests get killed over time, tests
 which take longer can set a custom timeout using a test decorator.
 
@@ -161,9 +161,9 @@ refactors won't retry a lot of tests.
 
 Having collected the "destructive", "non-destructive" and affected tests a
 scheduling loop is started, if a machine was provided it is used for the
-"non-destructive" tests, "destructive" tests will always spawn a new machine. If no
-machine is provided a pool of global machines is created based on the provided
-`--jobs` and "non-destructive" tests. The test runner will first try to assign all
+"non-destructive" tests, "destructive" tests will always spawn a new machine.
+If no machine is provided a pool of global machines for "non-destructive" tests
+depending on available CPUs and RAM. The test runner will first try to assign all
 "non-destructive" tests on the available global machines and start the tests. 
 
 The scheduling loop periodically inspects all running tests and polls if the

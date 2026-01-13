@@ -30,6 +30,17 @@ AMPLIFY_TEST_COUNT = 10
 
 # Memory usage constants; measured 2026-01 on Fedora 43 x86_64 with Chromium 143 and Firefox 146
 BROWSER_MEMORY_MB = 550  # Incremental per process (Firefox: 470 MB, Chromium: 319 MB; + margin)
+# browser code/libs shared memory (285 MB measured), and leave some breathing room for OS/buffers
+SYSTEM_RESERVE_GB = 1.0
+
+
+def get_available_memory_gb() -> float:
+    # Format: "MemAvailable:    12345678 kB"
+    with open('/proc/meminfo', 'r') as f:
+        for line in f:
+            if line.startswith('MemAvailable:'):
+                return int(line.split()[1]) / (1024 * 1024)
+    raise RuntimeError("MemAvailable not found in /proc/meminfo")
 
 
 @dataclass
@@ -39,7 +50,6 @@ class CliOpts(testlib.TestlibArgs):
     browser: str | None
     debug: bool
     exclude: Sequence[str]
-    jobs: int
     machine: str | None
     no_retry_fail: bool
     nondestructive: bool
@@ -486,12 +496,26 @@ def run(opts: CliOpts, image: str) -> int:
 
     running_tests: list[Test] = []
     global_machines: list[GlobalMachine] = []
+    test_slots: int = 0  # how many tests can we run in parallel
 
     if not opts.machine:
         # Create appropriate number of nondestructive machines; prioritize the nondestructive tests, to get
         # them out of the way as fast as possible, then let the destructive ones start as soon as
-        # a given nondestructive runner is done.
-        num_global = min(nondestructive_tests_len, opts.jobs)
+        # a given nondestructive runner is done. Limit by available RAM and CPU.
+        available_ram_gb = get_available_memory_gb() - SYSTEM_RESERVE_GB
+        global_machine_ram_gb = (opts.nondestructive_memory_mb + BROWSER_MEMORY_MB) / 1024.0
+        max_global_by_ram = int(available_ram_gb / global_machine_ram_gb)
+        if max_global_by_ram == 0:
+            sys.exit(f"Need {global_machine_ram_gb:.1f} GB per test, but only {available_ram_gb:.1f} GB available")
+
+        max_global_by_cpu = max((os.cpu_count() or 0) // 2, 1)
+        test_slots = min(max_global_by_ram, max_global_by_cpu)
+
+        num_global = min(nondestructive_tests_len, test_slots)
+        logging.debug("ND capacity: %.1f GB available, %.1f GB/slot, "
+                      "max %d by RAM, max %d by CPU, %d tests → starting %d slots",
+                      available_ram_gb, global_machine_ram_gb,
+                      max_global_by_ram, max_global_by_cpu, nondestructive_tests_len, num_global)
 
         for _ in range(num_global):
             global_machines.append(
@@ -565,30 +589,33 @@ def run(opts: CliOpts, image: str) -> int:
 
                     made_progress = True
 
-        def running_ram_gb() -> float:
-            return sum(test.ram_gb for test in running_tests)
-
-        # Each "job" represents capacity for one VM + browser
-        job_capacity_gb = (DEFAULT_MACHINE_MEMORY_MB + BROWSER_MEMORY_MB) / 1024.0
-        total_capacity_gb = opts.jobs * job_capacity_gb
+        # Schedule destructive tests if we have enough RAM, and also don't exceed the parallelism capacity
+        running_destructive_tests = len([t for t in running_tests if not t.nondestructive])
+        available_ram_gb = get_available_memory_gb() - SYSTEM_RESERVE_GB
 
         # Start destructive tests one at a time to avoid VM boot storms
-        # Only start if we have capacity based on RAM (or if idle to avoid deadlock)
-        if destructive_tests and (
-            running_ram_gb() + destructive_tests[0].ram_gb <= total_capacity_gb or len(running_tests) == 0
-        ):
-            test = destructive_tests.pop(0)
-            logging.debug(
-                "%d running tests using %.1f GB, starting next destructive test %s",
-                len(running_tests),
-                running_ram_gb(),
-                test,
-            )
-            test.start()
-            running_tests.append(test)
-            made_progress = True
-            # Avoid VM boot storms; unreliable especially with nested KVM. This should be enough time to let VMs boot
-            time.sleep(15)
+        if destructive_tests:
+            next_test = destructive_tests[0]
+
+            # Check if we have a free slot
+            running_global_machines = len([m for m in global_machines if m.machine is not None])
+            assert test_slots
+            max_destructive = test_slots - running_global_machines
+            if running_destructive_tests >= max_destructive:
+                logging.debug("NOT starting %s: no free slots (max %d), already running %d destructive and %d global ND machines",
+                              next_test, max_destructive, running_destructive_tests, running_global_machines)
+            # Check available RAM
+            elif next_test.ram_gb > available_ram_gb:
+                logging.debug("NOT starting %s: insufficient RAM (needs %.1f GB, only %.1f GB available)",
+                              next_test, next_test.ram_gb, available_ram_gb)
+            else:
+                test = destructive_tests.pop(0)
+                logging.debug("starting %s", test)
+                test.start()
+                running_tests.append(test)
+                made_progress = True
+                # Avoid VM boot storms; unreliable especially with nested KVM. This should be enough time to let VMs boot
+                time.sleep(15)
 
         # are we done?
         if not running_tests:
@@ -628,9 +655,6 @@ def run(opts: CliOpts, image: str) -> int:
 
 def main() -> int:
     parser = testlib.arg_parser(enable_sit=False)
-    parser.add_argument(
-        "-j", "--jobs", type=int, default=int(os.environ.get("TEST_JOBS", 1)), help="Number of concurrent jobs"
-    )
     parser.add_argument("--debug", action="store_true", help="Enable verbose debug logging")
     parser.add_argument("--thorough", action="store_true", help="Thorough mode, no skipping known issues")
     parser.add_argument("-n", "--nondestructive", action="store_true", help="Only consider @nondestructive tests")
@@ -688,8 +712,6 @@ def main() -> int:
         logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:run-tests:%(message)s')
 
     if opts.machine:
-        if opts.jobs > 1:
-            parser.error("--machine cannot be used with concurrent jobs")
         if not opts.browser:
             parser.error("--browser must be specified together with --machine")
         opts.nondestructive = True

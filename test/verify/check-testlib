@@ -87,13 +87,6 @@ class TestRunTest(testlib.MachineCase):
         self.assertRegex(out, b"\nok .* TestNondestructiveExample.testTwo")
         self.assertIn(b"TESTS PASSED", out)
 
-        # can't be called with concurrency
-        p = subprocess.Popen([run_tests, "--test-dir", EXAMPLE_DIR, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67", "-j2"],
-                             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-        (out, err) = p.communicate()
-        self.assertGreaterEqual(p.returncode, 1)
-        self.assertIn(b"--machine cannot be used with concurrent jobs", err)
-
         # implies --nondestructive
         out = subprocess.check_output([run_tests, "--test-dir", EXAMPLE_DIR, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67",
                                        "TestExample.testBasic"], env=env)

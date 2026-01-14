@@ -21,11 +21,10 @@
 
 #include "pam-ssh-add.h"
 
-#include "testlib/retest.h"
+#include "testlib/cockpittest.h"
 
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/queue.h>
 
 #include <err.h>
 #include <errno.h>
@@ -48,7 +47,7 @@ static const char *env_names[] = {
 
 
 /* Holds environment values to set in pam context */
-static char *env_saved[N_ELEMENTS (env_names)] = { NULL, };
+static char *env_saved[G_N_ELEMENTS (env_names)] = { NULL, };
 
 /* Dummy PAM handle for testing purposes; pam_handle_t is opaque */
 static char dummy_pamh_buf[256];
@@ -61,38 +60,31 @@ typedef struct {
   const char *ssh_agent_arg;
   const char *password;
   struct passwd *pw;
+  GQueue *expected_messages;
 } Fixture;
 
-struct _ExpectedMessage {
-  const char *line;
-  TAILQ_ENTRY (_ExpectedMessage) messages;
-};
-
-TAILQ_HEAD (ExpectedList, _ExpectedMessage) el_head;
-
-typedef struct _ExpectedMessage ExpectedMessage;
-
 static void
-expect_message (const char *msg)
+expect_message (Fixture *fix,
+                const char *msg)
 {
-  ExpectedMessage *em = NULL;
-  em = (ExpectedMessage *) malloc(sizeof(ExpectedMessage));
-  if (em == NULL)
-    assert_not_reached ("expected message allocation failed");
-  em->line = msg;
-  TAILQ_INSERT_TAIL (&el_head, em, messages);
+  g_queue_push_tail (fix->expected_messages, g_strdup (msg));
 }
 
 static void
 test_logger (int level, const char *msg)
 {
-  assert (msg != NULL);
-  if (el_head.tqh_first != NULL)
+  Fixture *fix = NULL;
+  g_assert_nonnull (msg);
+
+  /* We need to access the current fixture, stored in a global for this callback */
+  extern Fixture *current_fixture;
+  fix = current_fixture;
+
+  if (fix && !g_queue_is_empty (fix->expected_messages))
     {
-      ExpectedMessage *em = el_head.tqh_first;
-      assert_str_contains (msg, em->line);
-      TAILQ_REMOVE (&el_head, el_head.tqh_first, messages);
-      free (em);
+      gchar *expected = g_queue_pop_head (fix->expected_messages);
+      g_assert_nonnull (strstr (msg, expected));
+      g_free (expected);
     }
   else
     {
@@ -100,6 +92,9 @@ test_logger (int level, const char *msg)
       unexpected_message = 1;
     }
 }
+
+/* Global pointer to current fixture for logger callback */
+Fixture *current_fixture = NULL;
 
 static void
 save_environment (void)
@@ -124,10 +119,24 @@ restore_environment (void)
 }
 
 static void
-setup (void *arg)
+setup (Fixture *fix,
+       gconstpointer user_data)
 {
-  Fixture *fix = arg;
+  const Fixture *template = user_data;
+
   unexpected_message = 0;
+  fix->expected_messages = g_queue_new ();
+  current_fixture = fix;
+
+  if (template)
+    {
+      fix->ssh_add = template->ssh_add;
+      fix->ssh_add_arg = template->ssh_add_arg;
+      fix->ssh_agent = template->ssh_agent;
+      fix->ssh_agent_arg = template->ssh_agent_arg;
+      fix->password = template->password;
+    }
+
   if (!fix->ssh_add)
     fix->ssh_add = SRCDIR "/src/pam-ssh-add/mock-ssh-add";
 
@@ -142,28 +151,31 @@ setup (void *arg)
 }
 
 static void
-teardown (void *arg)
+teardown (Fixture *fix,
+          gconstpointer user_data)
 {
+  gchar *msg;
   int missed = 0;
 
-  // restore original environment
+  /* restore original environment */
   restore_environment ();
 
-  while (el_head.tqh_first != NULL)
+  while (!g_queue_is_empty (fix->expected_messages))
     {
-      ExpectedMessage *em = el_head.tqh_first;
-      warnx ("message didn't get logged: %s", em->line);
-      TAILQ_REMOVE (&el_head, el_head.tqh_first, messages);
-      free (em);
+      msg = g_queue_pop_head (fix->expected_messages);
+      warnx ("message didn't get logged: %s", msg);
+      g_free (msg);
       missed = 1;
     }
 
+  g_queue_free (fix->expected_messages);
+  current_fixture = NULL;
+
   if (missed)
-    assert_not_reached ("expected messages didn't get logged");
+    g_assert_not_reached ();
 
   if (unexpected_message)
-    assert_not_reached ("got unexpected messages");
-
+    g_assert_not_reached ();
 }
 
 static Fixture default_fixture = {
@@ -175,14 +187,13 @@ static Fixture environment_fixture = {
 };
 
 static void
-run_test_agent_environment (void *data,
+run_test_agent_environment (Fixture *fix,
                             const char *xdg_runtime,
                             const char *xdg_runtime_expect)
 {
-  Fixture *fix = data;
   int ret;
-  char *xdg_expect = NULL;
-  char *home_expect = NULL;
+  g_autofree char *xdg_expect = NULL;
+  g_autofree char *home_expect = NULL;
 
   if (xdg_runtime_expect)
     {
@@ -198,32 +209,31 @@ run_test_agent_environment (void *data,
   if (asprintf (&home_expect, "HOME=%s", fix->pw->pw_dir) < 0)
     warnx ("Couldn't allocate HOME expect variable");
 
-  expect_message (xdg_expect);
-  expect_message (home_expect);
+  expect_message (fix, xdg_expect);
+  expect_message (fix, home_expect);
 
-  expect_message ("PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
-  expect_message ("LC_ALL=C");
-  expect_message ("NO OTHER");
+  expect_message (fix, "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
+  expect_message (fix, "LC_ALL=C");
+  expect_message (fix, "NO OTHER");
 
-  expect_message ("NO SSH_AUTH_SOCK");
-  expect_message ("Failed to start ssh-agent");
+  expect_message (fix, "NO SSH_AUTH_SOCK");
+  expect_message (fix, "Failed to start ssh-agent");
 
   ret = pam_ssh_add_start_agent (dummy_pamh, fix->pw, xdg_runtime, NULL, NULL);
 
-  assert_num_eq (0, ret);
-
-  free (xdg_expect);
-  free (home_expect);
+  g_assert_cmpint (ret, ==, 0);
 }
 
 static void
-test_environment (void *data)
+test_environment (Fixture *fix,
+                  gconstpointer user_data)
 {
-  run_test_agent_environment (data, NULL, getenv ("XDG_RUNTIME_DIR"));
+  run_test_agent_environment (fix, NULL, getenv ("XDG_RUNTIME_DIR"));
 }
 
 static void
-test_environment_env_overides (void *data)
+test_environment_env_overides (Fixture *fix,
+                               gconstpointer user_data)
 {
   setenv ("PATH", "bad", 1);
   setenv ("LC_ALL", "bad", 1);
@@ -232,34 +242,32 @@ test_environment_env_overides (void *data)
   setenv ("SSH_AUTH_SOCK", "bad", 1);
   setenv ("OTHER", "bad", 1);
 
-  run_test_agent_environment (data, NULL, "");
+  run_test_agent_environment (fix, NULL, "");
 }
 
 static void
-test_environment_overides (void *data)
+test_environment_overides (Fixture *fix,
+                           gconstpointer user_data)
 {
   setenv ("XDG_RUNTIME_DIR", "bad", 1);
-  run_test_agent_environment (data, "xdgover", "xdgover");
+  run_test_agent_environment (fix, "xdgover", "xdgover");
 }
 
 static void
-test_failed_agent (void *data)
+test_failed_agent (Fixture *fix,
+                   gconstpointer user_data)
 {
-  Fixture *fix = data;
-  char *sock = NULL;
-  char *pid = NULL;
+  g_autofree char *sock = NULL;
+  g_autofree char *pid = NULL;
   int ret;
 
-  expect_message ("Bad things");
-  expect_message ("Failed to start ssh-agent");
+  expect_message (fix, "Bad things");
+  expect_message (fix, "Failed to start ssh-agent");
   ret = pam_ssh_add_start_agent (dummy_pamh, fix->pw, NULL, &sock, &pid);
 
-  assert_num_eq (0, ret);
-  assert_ptr_eq (sock, NULL);
-  assert_ptr_eq (pid, NULL);
-
-  free (sock);
-  free (pid);
+  g_assert_cmpint (ret, ==, 0);
+  g_assert_null (sock);
+  g_assert_null (pid);
 }
 
 static Fixture bad_agent_fixture = {
@@ -267,22 +275,19 @@ static Fixture bad_agent_fixture = {
 };
 
 static void
-test_bad_agent_vars (void *data)
+test_bad_agent_vars (Fixture *fix,
+                     gconstpointer user_data)
 {
-  Fixture *fix = data;
-  char *sock = NULL;
-  char *pid = NULL;
+  g_autofree char *sock = NULL;
+  g_autofree char *pid = NULL;
   int ret;
 
-  expect_message ("Expected agent environment variables not found");
+  expect_message (fix, "Expected agent environment variables not found");
   ret = pam_ssh_add_start_agent (dummy_pamh, fix->pw, NULL, &sock, &pid);
 
-  assert_num_eq (0, ret);
-  assert_ptr_eq (sock, NULL);
-  assert_ptr_eq (pid, NULL);
-
-  free (sock);
-  free (pid);
+  g_assert_cmpint (ret, ==, 0);
+  g_assert_null (sock);
+  g_assert_null (pid);
 }
 
 static Fixture good_agent_fixture = {
@@ -290,21 +295,18 @@ static Fixture good_agent_fixture = {
 };
 
 static void
-test_good_agent_vars (void *data)
+test_good_agent_vars (Fixture *fix,
+                      gconstpointer user_data)
 {
-  Fixture *fix = data;
-  char *sock = NULL;
-  char *pid = NULL;
+  g_autofree char *sock = NULL;
+  g_autofree char *pid = NULL;
   int ret;
 
   ret = pam_ssh_add_start_agent (dummy_pamh, fix->pw, NULL, &sock, &pid);
 
-  assert_num_eq (1, ret);
-  assert_str_cmp (sock, ==, "SSH_AUTH_SOCKET=socket");
-  assert_str_cmp (pid, ==, "SSH_AGENT_PID=100");
-
-  free (sock);
-  free (pid);
+  g_assert_cmpint (ret, ==, 1);
+  g_assert_cmpstr (sock, ==, "SSH_AUTH_SOCKET=socket");
+  g_assert_cmpstr (pid, ==, "SSH_AGENT_PID=100");
 }
 
 static Fixture keys_password_fixture = {
@@ -323,11 +325,11 @@ static Fixture keys_bad_password_fixture = {
 };
 
 static void
-test_keys (void *data)
+test_keys (Fixture *fix,
+           gconstpointer user_data)
 {
   int ret;
   int expect = 1;
-  Fixture *fix = data;
   const char *key_add_result;
 
   if (fix->password == NULL)
@@ -344,13 +346,13 @@ test_keys (void *data)
       key_add_result = "Correct password 0, bad password 3, password_blanks 3";
     }
 
-  expect_message (key_add_result);
+  expect_message (fix, key_add_result);
   if (expect)
-    expect_message ("Failed adding some keys");
+    expect_message (fix, "Failed adding some keys");
 
   ret = pam_ssh_add_load (dummy_pamh, fix->pw, "mock-socket", fix->password);
 
-  assert_num_eq (1, ret);
+  g_assert_cmpint (ret, ==, 1);
 }
 
 static Fixture keys_environment_fixture = {
@@ -359,34 +361,32 @@ static Fixture keys_environment_fixture = {
 };
 
 static void
-test_key_environment (void *data)
+test_key_environment (Fixture *fix,
+                      gconstpointer user_data)
 {
-  Fixture *fix = data;
   int ret;
-  char *home_expect = NULL;
+  g_autofree char *home_expect = NULL;
 
-  expect_message ("ssh-add requires an agent socket");
+  expect_message (fix, "ssh-add requires an agent socket");
   ret = pam_ssh_add_load (dummy_pamh, fix->pw, NULL, NULL);
-  assert_num_eq (0, ret);
+  g_assert_cmpint (ret, ==, 0);
 
   if (asprintf (&home_expect, "HOME=%s", fix->pw->pw_dir) < 0)
     warnx ("Couldn't allocate HOME expect variable");
 
-  expect_message ("NO XDG_RUNTIME_DIR");
-  expect_message (home_expect);
+  expect_message (fix, "NO XDG_RUNTIME_DIR");
+  expect_message (fix, home_expect);
 
-  expect_message ("PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
-  expect_message ("LC_ALL=C");
-  expect_message ("NO OTHER");
+  expect_message (fix, "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
+  expect_message (fix, "LC_ALL=C");
+  expect_message (fix, "NO OTHER");
 
-  expect_message ("SSH_AUTH_SOCK=mock-socket");
-  expect_message ("Failed adding some keys");
+  expect_message (fix, "SSH_AUTH_SOCK=mock-socket");
+  expect_message (fix, "Failed adding some keys");
 
   ret = pam_ssh_add_load (dummy_pamh, fix->pw, "mock-socket", NULL);
 
-  assert_num_eq (1, ret);
-
-  free (home_expect);
+  g_assert_cmpint (ret, ==, 1);
 }
 
 int
@@ -395,36 +395,34 @@ main (int argc,
 {
   signal (SIGPIPE, SIG_IGN);
 
-  TAILQ_INIT(&el_head);
-
   save_environment ();
-
-  re_fixture (setup, teardown);
 
   pam_ssh_add_log_handler = &test_logger;
   pam_ssh_add_verbose_mode = 0;
 
-  re_testx (test_key_environment, &keys_environment_fixture,
-            "/pam-ssh-add/add-key-environment");
-  re_testx (test_keys, &keys_no_password_fixture,
-            "/pam-ssh-add/add-key-no-password");
-  re_testx (test_keys, &keys_bad_password_fixture,
-            "/pam-ssh-add/add-key-bad-password");
-  re_testx (test_keys, &keys_password_fixture,
-            "/pam-ssh-add/add-key-password");
+  cockpit_test_init (&argc, &argv);
 
-  re_testx (test_environment, &environment_fixture,
-            "/pam-ssh-add/environment");
-  re_testx (test_environment_env_overides, &environment_fixture,
-            "/pam-ssh-add/environment-env-overides");
-  re_testx (test_environment_overides, &environment_fixture,
-            "/pam-ssh-add/environment-overides");
-  re_testx (test_good_agent_vars, &good_agent_fixture,
-            "/pam-ssh-add/good-agent-vars");
-  re_testx (test_bad_agent_vars, &bad_agent_fixture,
-            "/pam-ssh-add/bad-agent-vars");
-  re_testx (test_failed_agent, &default_fixture,
-            "/pam-ssh-add/test-failed-agent");
+  g_test_add ("/pam-ssh-add/add-key-environment", Fixture, &keys_environment_fixture,
+              setup, test_key_environment, teardown);
+  g_test_add ("/pam-ssh-add/add-key-no-password", Fixture, &keys_no_password_fixture,
+              setup, test_keys, teardown);
+  g_test_add ("/pam-ssh-add/add-key-bad-password", Fixture, &keys_bad_password_fixture,
+              setup, test_keys, teardown);
+  g_test_add ("/pam-ssh-add/add-key-password", Fixture, &keys_password_fixture,
+              setup, test_keys, teardown);
 
-  return re_test_run (argc, argv);
+  g_test_add ("/pam-ssh-add/environment", Fixture, &environment_fixture,
+              setup, test_environment, teardown);
+  g_test_add ("/pam-ssh-add/environment-env-overides", Fixture, &environment_fixture,
+              setup, test_environment_env_overides, teardown);
+  g_test_add ("/pam-ssh-add/environment-overides", Fixture, &environment_fixture,
+              setup, test_environment_overides, teardown);
+  g_test_add ("/pam-ssh-add/good-agent-vars", Fixture, &good_agent_fixture,
+              setup, test_good_agent_vars, teardown);
+  g_test_add ("/pam-ssh-add/bad-agent-vars", Fixture, &bad_agent_fixture,
+              setup, test_bad_agent_vars, teardown);
+  g_test_add ("/pam-ssh-add/test-failed-agent", Fixture, &default_fixture,
+              setup, test_failed_agent, teardown);
+
+  return g_test_run ();
 }

@@ -33,23 +33,19 @@
  */
 
 #include "config.h"
-#include "testlib/retest.h"
 
 #include "cockpitbase64.h"
+#include "testlib/cockpittest.h"
 
-#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 static void
-check_decode_msg (const char *file,
-                  int line,
-                  const char *function,
-                  const char *input,
-                  ssize_t input_len,
-                  const unsigned char *expected,
-                  ssize_t expected_len)
+check_decode_success (const char *input,
+                      ssize_t input_len,
+                      const unsigned char *expected,
+                      ssize_t expected_len)
 {
   unsigned char decoded[8192];
   int length;
@@ -60,31 +56,24 @@ check_decode_msg (const char *file,
     expected_len = strlen ((char *)expected);
   length = cockpit_base64_pton (input, input_len, decoded, sizeof (decoded));
 
-  if (expected == NULL)
-    {
-      if (length >= 0)
-        re_test_fail (file, line, function, "decoding should have failed");
-
-    }
-  else
-    {
-      if (length < 0)
-        re_test_fail (file, line, function, "decoding failed");
-      if (expected_len != length)
-        {
-          re_test_fail (file, line, function, "wrong length: (%lu != %lu)",
-                        (unsigned long)expected_len, (unsigned long)length);
-        }
-      if (memcmp (decoded, expected, length) != 0)
-        re_test_fail (file, line, function, "decoded wrong");
-    }
+  g_assert_cmpint (length, >=, 0);
+  g_assert_cmpint (length, ==, expected_len);
+  g_assert_cmpint (memcmp (decoded, expected, length), ==, 0);
 }
 
-#define check_decode_success(input, input_len, expected, expected_len) \
-  check_decode_msg (__FILE__, __LINE__, __FUNCTION__, input, input_len, expected, expected_len)
+static void
+check_decode_failure (const char *input,
+                      ssize_t input_len)
+{
+  unsigned char decoded[8192];
+  int length;
 
-#define check_decode_failure(input, input_len) \
-  check_decode_msg (__FILE__, __LINE__, __FUNCTION__, input, input_len, NULL, 0)
+  if (input_len < 0)
+    input_len = strlen (input);
+  length = cockpit_base64_pton (input, input_len, decoded, sizeof (decoded));
+
+  g_assert_cmpint (length, <, 0);
+}
 
 static void
 test_decode_simple (void)
@@ -94,6 +83,10 @@ test_decode_simple (void)
   check_decode_success ("YmxhaAo=", -1, (unsigned char *)"blah\n", -1);
   check_decode_success ("bGVlbGEK", -1, (unsigned char *)"leela\n", -1);
   check_decode_success ("bGVlbG9vCg==", -1, (unsigned char *)"leeloo\n", -1);
+
+  /* Test failure cases with invalid base64 */
+  check_decode_failure ("!!!invalid!!!", -1);
+  check_decode_failure ("invalid", -1);
 }
 
 static void
@@ -201,7 +194,10 @@ int
 main (int argc,
       char *argv[])
 {
-  re_test (test_decode_simple, "/base64/decode-simple");
-  re_test (test_decode_thawte, "/base64/decode-thawte");
-  return re_test_run (argc, argv);
+  cockpit_test_init (&argc, &argv);
+
+  g_test_add_func ("/base64/decode-simple", test_decode_simple);
+  g_test_add_func ("/base64/decode-thawte", test_decode_thawte);
+
+  return g_test_run ();
 }

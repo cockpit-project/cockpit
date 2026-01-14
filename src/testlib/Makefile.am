@@ -55,6 +55,4 @@ libcockpit_test_a_SOURCES = \
 	src/testlib/mock-pressure.h \
 	src/testlib/mock-transport.c \
 	src/testlib/mock-transport.h \
-	src/testlib/retest.c \
-	src/testlib/retest.h \
 	$(NULL)

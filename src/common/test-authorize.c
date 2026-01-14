@@ -171,7 +171,6 @@ static ChallengeFixture basic_fixtures[] = {
   { "Basic!c2NydWZmeTp6ZXJvZw==", NULL, NULL, EINVAL },
   { "Basic c2NydWZ!!eXplcm9n", NULL, NULL, EINVAL },
   { "Basic c2NydWZmeXplcm9n", NULL, NULL, EINVAL },
-  { "Basic!c2NydWZmeTp6ZXJvZw==", NULL, NULL, EINVAL },
   { "Basic", NULL, "", 0 },
   { NULL },
 };
@@ -233,7 +232,6 @@ static NegotiateFixture parse_negotiate_fixtures[] = {
   { "Negotiate c2NydWZmeTp6ZXJvZw==", 13, "scruffy:zerog", 0 },
   { "Negotiate!c2NydWZmeTp6ZXJvZw==", 0, NULL, EINVAL },
   { "Negotiate c2Nyd!!ZmeTp6ZXJvZw==", 0, NULL, EINVAL },
-  { "Negotiate!c2NydWZmeTp6ZXJvZw==", 0, NULL, EINVAL },
   { "Negotiate", 0, "", 0 },
   { NULL },
 };

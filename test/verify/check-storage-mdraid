@@ -81,12 +81,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Add four disks and make a RAID out of three of them
-        # HACK: on CentOS 9 aarch64 (only!), scsi_debug doesn't like being part of a RAID
-        # see https://github.com/cockpit-project/cockpit/pull/22143
-        if m.image.startswith('centos-9') and m.execute("uname -m").strip() == "aarch64":
-            disk1 = self.add_loopback_disk(name="loop4")
-        else:
-            disk1 = self.add_ram_disk()
+        disk1 = self.add_loopback_disk(name="loop4")
         b.wait_visible(self.card_row("Storage", name=disk1))
         disk2 = self.add_loopback_disk(name="loop5")
         b.wait_visible(self.card_row("Storage", name=disk2))
@@ -154,6 +149,11 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.wait_states({disk1: "Failed"})
         self.raid_remove_disk(disk1)
         b.wait_not_present(self.card_row("Disks", name=disk1))
+
+        # HACK - an additional udev trigger seems necessary for
+        #        reliability.
+        #
+        m.execute("udevadm trigger; udevadm settle")
 
         self.raid_add_disk(disk1)
         self.wait_states({disk1: "In sync",
@@ -279,12 +279,7 @@ class TestStorageMdRaid(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        # HACK: on CentOS 9 aarch64 (only!), scsi_debug doesn't like being part of a RAID
-        # see https://github.com/cockpit-project/cockpit/pull/22143
-        if m.image.startswith('centos-9') and m.execute("uname -m").strip() == "aarch64":
-            disk1 = self.add_loopback_disk()
-        else:
-            disk1 = self.add_ram_disk()
+        disk1 = self.add_loopback_disk()
         b.wait_visible(self.card_row("Storage", name=disk1))
         disk2 = self.add_loopback_disk()
         b.wait_visible(self.card_row("Storage", name=disk2))

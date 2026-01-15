@@ -34,19 +34,17 @@ jobs:
       # Naïvely this should wait for github.event.pull_request.head.sha, but
       # that breaks on non-current branches, which packit merges to main with
       # an unpredictable SHA; so instead, wait until COPR has a build which is
-      # newer than the PR push time. This assumes that this workflow always runs earlier
-      # than the COPR srpm build finishes.
+      # newer than the PR push time.
       - name: Wait for packit COPR build
         run: |
           set -ex
-          PUSH_TIME=$(date --utc +%Y%m%d%H%M%S -d '${{ github.event.pull_request.head.repo.pushed_at }}')
+          PUSH_TIME=$(date --utc +%s -d '${{ github.event.pull_request.head.repo.pushed_at }}')
           COPR_NAME="${{ github.event.pull_request.base.user.login }}-${{ github.event.pull_request.base.repo.name }}-${{ github.event.number }}"
           for _ in $(seq 60); do
               sleep 60;
               if dnf copr enable -y packit/$COPR_NAME &&
-                 out=$(dnf repoquery --refresh --repo='copr:*cockpit*' --queryformat '%{release}\n' --recent cockpit-bridge) &&
-                 stamp=$(echo "$out" | tail -n 1 | awk '{ split($0, v, "."); print substr(v[2], 0, 14)}') &&
-                 [ "$stamp" -gt "$PUSH_TIME" ]; then
+                 buildtime=$(dnf repoquery --quiet --refresh --repo='copr:*cockpit*' --queryformat '%{buildtime}\n' cockpit-bridge 2>/dev/null | sort -n | tail -n 1) &&
+                 [ -n "$buildtime" ] && [ "$buildtime" -gt "$PUSH_TIME" ]; then
                   exit 0
               fi
           done

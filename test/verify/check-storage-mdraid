@@ -32,10 +32,15 @@ class TestStorageMdRaid(storagelib.StorageCase):
                 self.browser.wait_in_text(self.card_row("MDRAID device", name=s), states[s])
 
     def raid_add_disk(self, name: str):
+        def check():
+            res = self.dialog_is_present('disks', name)
+            print("CHECK", name, res)
+            return res
         self.dialog_open_with_retry(trigger=lambda: self.browser.click(self.card_button("MDRAID device", "Add disk")),
-                                    expect=lambda: self.dialog_is_present('disks', name))
+                                    expect=check)
         self.dialog_set_val("disks", {name: True})
         self.dialog_apply_with_retry()
+        print("DONE")
 
     def raid_remove_disk(self, name: str):
         self.click_dropdown(self.card_row("MDRAID device", name=name), "Remove")
@@ -150,7 +155,14 @@ class TestStorageMdRaid(storagelib.StorageCase):
         self.raid_remove_disk(disk1)
         b.wait_not_present(self.card_row("Disks", name=disk1))
 
-        self.raid_add_disk(disk1)
+        print("ADD")
+        with b.wait_timeout(60):
+            try:
+                self.raid_add_disk(disk1)
+            except Exception:
+                print("FAILED")
+                print(m.execute(f"udevadm info {disk1}"))
+                raise
         self.wait_states({disk1: "In sync",
                           disk2: "In sync",
                           disk3: "In sync"})

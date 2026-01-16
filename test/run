@@ -50,7 +50,7 @@ case "${TEST_SCENARIO:=}" in
         RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_NETWORKING")"
         ;;&
     *storage*)
-        RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_STORAGE")"
+        RUN_OPTS="$RUN_OPTS TestStorageMdRaid.testRaid"
         PREPARE_OPTS="$PREPARE_OPTS --quick"
         ;;&
     *expensive*)

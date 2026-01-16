@@ -151,6 +151,8 @@ class TestUpdates(NoSubManCase):
         m.execute("systemctl disable --now kpatch")
 
         self.login_and_go("/updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#status")
 
         # on supported systems we show a spinner
         b.wait_visible("#kpatch-settings svg.pf-v6-c-spinner")
@@ -1598,6 +1600,9 @@ class TestAutoUpdates(NoSubManCase):
         b.logout()
         b.login_and_go("/updates")
         with b.wait_timeout(30):
+            b.wait_visible("#status")
+
+        with b.wait_timeout(30):
             b.wait_in_text("#autoupdates-settings", "Updates will be applied every Thursday at 21:00")
 
         # change back to daily
@@ -1723,6 +1728,8 @@ class TestAutoUpdates(NoSubManCase):
 
         if not self.supported_backend:
             return
+
+        b.wait_in_text("#status", "System is up to date")
 
         # detecting auto updates configuration works unprivileged, but changing does not
         with b.wait_timeout(30):

@@ -690,10 +690,9 @@ def main() -> int:
     parser.add_argument(
         "--nondestructive-cpus", type=int, default=None, help="Number of CPUs for nondestructive test global machines"
     )
-    # provide enough RAM for cryptsetup's PBKDF, as long as that is not configurable:
-    # https://bugzilla.redhat.com/show_bug.cgi?id=1881829
     parser.add_argument(
-        "--nondestructive-memory-mb", type=int, default=1400, help="RAM size for nondestructive test global machines"
+        "--nondestructive-memory-mb", type=int, default=DEFAULT_MACHINE_MEMORY_MB,
+        help="RAM size for nondestructive test global machines (default: %(default)s MB)",
     )
     parser.add_argument(
         "--base",

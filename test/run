@@ -45,9 +45,9 @@ case "${TEST_SCENARIO:=}" in
         ;;&
 
     # split tests into roughly equal scenarios for more parallelism
+    # one of them needs to run the unit tests and lintian (on Debian/Ubuntu), pick the fastest one (networking)
     *networking*)
         RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_NETWORKING")"
-        PREPARE_OPTS="$PREPARE_OPTS --quick"
         ;;&
     *storage*)
         RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -E "$RE_STORAGE")"
@@ -59,6 +59,7 @@ case "${TEST_SCENARIO:=}" in
         ;;&
     *other*)
         RUN_OPTS="$RUN_OPTS $(echo "$ALL_TESTS" | grep -Ev "$RE_NETWORKING|$RE_STORAGE|$RE_EXPENSIVE")"
+        PREPARE_OPTS="$PREPARE_OPTS --quick"
         ;;&
     *ws-container*)
         PREPARE_OPTS="$PREPARE_OPTS --quick --container"

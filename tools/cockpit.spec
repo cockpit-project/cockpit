@@ -124,7 +124,7 @@ BuildRequires: nodejs-esbuild
 
 %if !%{defined bundle_docs}
 %if 0%{?suse_version}
-BuildRequires: ruby3.4-rubygem-asciidoctor
+BuildRequires: ruby4.0-rubygem-asciidoctor
 %else
 BuildRequires: asciidoctor
 %endif

@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
 
 import json
+import os
 import subprocess
 
 import packagelib
@@ -349,9 +350,10 @@ class TestStorageLuks(storagelib.StorageCase):
 
 class TestStorageLuksDestructive(storagelib.StorageCase):
 
-    # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
+    # on RHEL 8, provide enough RAM for cryptsetup's PBKDF (https://issues.redhat.com/browse/RHEL-8258)
+    # On any newer OS, cryptsetup gets along with less RAM
     provision = {
-        "0": {"memory_mb": 1536}
+        "0": {"memory_mb": 1400 if os.environ.get("TEST_OS", "").startswith("rhel-8-") else None}
     }
 
     def testLuks1Slots(self):

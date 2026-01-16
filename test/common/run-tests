@@ -691,10 +691,9 @@ def main() -> int:
     parser.add_argument(
         "--nondestructive-cpus", type=int, default=None, help="Number of CPUs for nondestructive test global machines"
     )
-    # provide enough RAM for cryptsetup's PBKDF, as long as that is not configurable:
-    # https://bugzilla.redhat.com/show_bug.cgi?id=1881829
     parser.add_argument(
-        "--nondestructive-memory-mb", type=int, default=1400, help="RAM size for nondestructive test global machines"
+        "--nondestructive-memory-mb", type=int, default=DEFAULT_MACHINE_MEMORY_MB,
+        help="RAM size for nondestructive test global machines (default: %(default)s MB)",
     )
     parser.add_argument(
         "--base",
@@ -728,6 +727,11 @@ def main() -> int:
     image = testvm.DEFAULT_IMAGE
     testvm.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
+
+    # on RHEL 8, provide enough RAM for cryptsetup's PBKDF (https://issues.redhat.com/browse/RHEL-8258)
+    # On any newer OS, cryptsetup gets along with less RAM
+    if image.startswith("rhel-8") and opts.nondestructive_memory_mb == DEFAULT_MACHINE_MEMORY_MB:
+        opts.nondestructive_memory_mb = 1400
 
     # Make sure tests can make relative imports
     sys.path.append(os.path.realpath(opts.test_dir))

@@ -271,7 +271,7 @@ function reactivateConnection({ con, dev }) {
 
 export const dialogSave = ({ model, dev, connection, members, membersInit, settings, setDialogError, onClose }) => {
     const apply_settings = settings_applier(model, dev, connection);
-    const iface = settings.connection.interface_name;
+    const iface = settings.connection.interface_name ?? dev?.Interface;
     const type = settings.connection.type;
     const membersChanged = members ? Object.keys(membersInit).some(iface => membersInit[iface] != members[iface]) : false;
 
@@ -288,7 +288,7 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
             : apply_settings(settings))
                 .then(() => {
                     onClose();
-                    if (connection)
+                    if (connection && iface)
                         cockpit.location.go([iface]);
                     if (connection && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === connection)
                         return reactivateConnection({ con: connection, dev });

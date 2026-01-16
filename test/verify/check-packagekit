@@ -1662,6 +1662,7 @@ class TestAutoUpdates(NoSubManCase):
             # don't allow stomping over unparsable custom settings
             b.wait_not_present("#autoupdates-settings button")
 
+    @testlib.skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch")
     def testWithAvailableUpdates(self):
         b = self.browser
         m = self.machine
@@ -1674,9 +1675,6 @@ class TestAutoUpdates(NoSubManCase):
         self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
-
-        if not self.supported_backend:
-            return
 
         b.wait_in_text("#autoupdates-settings", "Disabled")
 
@@ -1718,6 +1716,7 @@ class TestAutoUpdates(NoSubManCase):
         else:
             raise NotImplementedError(self.backend)
 
+    @testlib.skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch")
     def testPrivilegeChange(self):
         b = self.browser
         m = self.machine
@@ -1725,10 +1724,6 @@ class TestAutoUpdates(NoSubManCase):
         m.execute("pkcon refresh")
 
         self.login_and_go("/updates", superuser=False)
-
-        if not self.supported_backend:
-            return
-
         b.wait_in_text("#status", "System is up to date")
 
         # detecting auto updates configuration works unprivileged, but changing does not

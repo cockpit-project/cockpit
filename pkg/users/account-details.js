@@ -47,6 +47,7 @@ import { account_expiration_dialog, password_expiration_dialog } from "./expirat
 import { account_shell_dialog } from "./shell-dialog.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
+import { AccountPasskeys } from "./account-passkeys";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
 import { get_locked } from "./utils.js";
 
@@ -342,6 +343,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
                             </Form>
                         </CardBody>
                     </Card>
+                    <AccountPasskeys account={account} />
                     <AuthorizedKeys name={account.name} home={account.home} allow_mods={self_mod_allowed} />
                     <AccountLogs name={account.name} />
                 </Gallery>

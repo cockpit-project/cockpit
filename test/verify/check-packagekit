@@ -1667,6 +1667,8 @@ class TestAutoUpdates(NoSubManCase):
         self.enableRepo()
 
         self.login_and_go("/updates")
+        b.wait_in_text(".pf-v6-c-empty-state__content", "Checking software status")
+
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
 
@@ -1724,9 +1726,11 @@ class TestAutoUpdates(NoSubManCase):
         if not self.supported_backend:
             return
 
-        # detecting auto updates configuration works unprivileged, but changing does not
         with b.wait_timeout(30):
-            b.wait_visible("#autoupdates-settings button:disabled")
+            b.wait_in_text("#status", "System is up to date")
+
+        # detecting auto updates configuration works unprivileged, but changing does not
+        b.wait_visible("#autoupdates-settings button:disabled")
 
         # become superuser, enable auto-updates
         b.become_superuser()

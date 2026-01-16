@@ -778,6 +778,7 @@ function debug(...args) {
 
         if (form == "login")
             id("login-button").addEventListener("click", call_login);
+            id("create-passkey").addEventListener("click", createCredentials);
 
         if (environment.is_cockpit_client) {
             render_recent_hosts();
@@ -905,6 +906,119 @@ function debug(...args) {
             typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable !== "function")
     }
 
+
+
+    const supportedAlgorithms = {
+        "es256": -7,
+        "rs256": -257,
+        "eddsa": -8
+    };
+
+    const supportedAlgorithmsByValue = function(value) {
+        return Object.keys(supportedAlgorithms).filter(key => key !== "byValue").find(key => supportedAlgorithms[key] === value)
+    }
+
+    // Used when registering a token
+    function getPublicKeyObject(decodedAttestationObject) {
+        const {authData} = decodedAttestationObject;
+
+        // get the length of the credential ID
+        const dataView = new DataView(
+            new ArrayBuffer(2));
+        const idLenBytes = authData.slice(53, 55);
+        idLenBytes.forEach(
+            (value, index) => dataView.setUint8(
+                index, value));
+        const credentialIdLength = dataView.getUint16();
+
+        // get the credential ID
+        const _credentialId = authData.slice(
+            55, 55 + credentialIdLength);
+
+        // get the public key object
+        const publicKeyBytes = authData.slice(
+            55 + credentialIdLength);
+
+        // the publicKeyBytes are encoded again as CBOR
+        const publicKeyObject = CBOR.decode(
+            publicKeyBytes.buffer);
+        return publicKeyObject;
+    }
+
+    async function createCredentials(username) {
+        console.log(username);
+        const passkey = await (navigator.credentials.create({
+            publicKey: {
+                challenge: new Uint8Array([
+                    // temp: must be a cryptographically random number sent from a server
+                    0x8c, 0x0a, 0x26, 0xff, 0x22, 0x91, 0xc1, 0xe9, 0xb9, 0x4e, 0x2e, 0x17,
+                    0x1a, 0x98, 0x6a, 0x73, 0x71, 0x9d, 0x43, 0x48,
+                ]),
+                rp: { id: "localhost", name: "cockpit" },
+                user: {
+                    id: new Uint8Array([0x1a, 0x98, 0x6a, 0x73, 0x71, 0x9d, 0x43]),
+                    name: "admin",
+                    displayName: "Jamie Doe",
+                },
+                attestation: "direct",
+                timeout: 60_000,
+                authenticatorSelection: {
+                    requireResidentKey: false,
+                    userVerification: "discouraged"
+                },
+                // Ordered in terms of priority and what is supported by pam-u2f
+                pubKeyCredParams: [
+                    {
+                        alg: supportedAlgorithms.es256, type: "public-key"
+                    },
+                    {
+                        alg: supportedAlgorithms.eddsa, type: "public-key"
+                    },
+                    {
+                        alg: supportedAlgorithms.rs256, type: "public-key"
+                    }
+                ],
+            },
+        }));
+
+        // FIXME: Testing purposes
+        console.log("passkey", passkey, passkey.toJSON());
+        window.passkey = passkey;
+        // FIXME Testing purposes
+        if (!passkey) return;
+        // Need to parse publickey from the response to base64
+
+        let decodedAttestationObj = CBOR.decode(passkey.response.attestationObject)
+        console.log("decodedAttestationObj", decodedAttestationObj)
+
+        let publicKeyCbor = getPublicKeyObject(decodedAttestationObj)
+        let concatenatedPublicKey = new Uint8Array(64)
+        concatenatedPublicKey.set(publicKeyCbor['-2'])
+        concatenatedPublicKey.set(publicKeyCbor['-3'], 32)
+        const id = new Uint8Array(passkey.rawId).toBase64()
+        // Can get ID by Uint8Array.fromBase64(passkey.id, {alphabet: "base64url"}).buffer
+        console.log(`admin:${id},${concatenatedPublicKey.toBase64()},${supportedAlgorithmsByValue(passkey.response.getPublicKeyAlgorithm())},`)
+        return new Promise((resolve, reject) => {
+                // credential ID is base64 encoded, need to decode before sending it. Format is (passkey:<id>,<publicKey>)
+                // TODO: alice isn't showin in Accounts page, so hardcoding it for testing purposes.
+                resolve();});
+            //     cockpit.spawn(["ipa", "user-add-passkey", "alice", `passkey:${btoa(credential.id)},${publicKey}`], { err: "out" })
+            //             .done(function() {
+            //                 resolve();
+            //             })
+            //             .fail(function(ex, response) {
+            //                 if (ex.exit_status) {
+            //                     console.log(ex);
+            //                     if (response)
+            //                         ex = new Error(response);
+            //                     else
+            //                         ex = new Error(_("Failed to change password"));
+            //                 }
+            //                 reject(ex);
+            //             });
+            // });
+    }
+
     function do_passkey_verification(data) {
         if (!window.isSecureContext) {
             login_failure(_("This web page was not loaded in a secure context (https). Please try loading the page again using https or make sure you are using a browser with secure context support"))
@@ -943,25 +1057,29 @@ function debug(...args) {
             id("login-button").removeEventListener("click", call_converse);
             login_failure(null, null, "passkey");
             const publicKey = {
-                challenge: new TextEncoder().encode(challenge).buffer,
+                challenge: Uint8Array.fromBase64(challenge),
                 rpId: rp,
                 allowCredentials,
-                userVerification: "required"
+                userVerification: "discouraged"
             };
-            console.log("challenge", new TextEncoder().encode(challenge).buffer, challenge);
+            console.log("challenge", Uint8Array.fromBase64(challenge).buffer, challenge);
             console.log("rp", rp);
             if (allowCredentials.length) {
                 console.log("credentials", Uint8Array.fromBase64(client).buffer, client)
             }
 
-            const credentials = await navigator.credentials.get({ publicKey });
+            const passkey = await navigator.credentials.get({ publicKey });
+            console.log("passkey",passkey);
+
             const response = [];
-            response.push(new Uint8Array(credentials.response.clientDataJSON).toBase64());
-            // response.push(challenge);
+            window.passkey = passkey;
+            // response.push(new Uint8Array(passkey.response.clientDataJSON).toBase64());
+            response.push(challenge);
             response.push("localhost")
-            response.push(new Uint8Array(credentials.response.authenticatorData).toBase64())
-            response.push(new Uint8Array(credentials.response.signature).toBase64())
-            response.push(new Uint8Array(credentials.rawId).toBase64());
+            response.push(new Uint8Array(CBOR.encode(new Uint8Array(passkey.response.authenticatorData))).toBase64())
+            response.push(new Uint8Array(passkey.response.signature).toBase64())
+            // response.push(new Uint8Array(credentials.rawId).toBase64());
+
             console.log(response);
 
             function delay(milliseconds){
@@ -969,7 +1087,7 @@ function debug(...args) {
                     setTimeout(resolve, milliseconds);
                 });
             }
-            // converse(data.id, response.join("\n"));
+            // converse(data.id, response.join("\n") + "\n");
             for (const r of response) {
                 await delay(500);
                 converse(data.id, r)

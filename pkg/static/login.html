@@ -8,7 +8,6 @@
   <meta name="robots" content="noindex" />
   <meta insert="dynamic_content_here" />
   <script type="text/javascript">/*insert_translations_here*/</script>
-  <script type="text/javascript" src="cockpit/static/login.js"></script>
   <link href="cockpit/static/login.css" type="text/css" rel="stylesheet" />
   <link href="cockpit/static/branding.css" type="text/css" rel="stylesheet" />
 </head>
@@ -148,6 +147,8 @@
             </div>
           </div>
 
+          <div><button class="pf-v6-c-button pf-m-primary" id="create-passkey">Create passkey</button></div>
+
           <div class="form-group login-actions">
             <button class="pf-v6-c-button pf-m-primary login-button" id="login-button" type="submit">
               <span class="spinner"></span>
@@ -188,6 +189,8 @@
     </div>
   </div>
 
+  <script type="text/javascript" src="cockpit/static/cbor.js"></script>
+  <script type="text/javascript" src="cockpit/static/login.js"></script>
   <script type="text/javascript">
     /* Hide everything classed as "noscript" */
     document.querySelectorAll('.noscript').forEach(function(element){

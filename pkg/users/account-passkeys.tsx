@@ -36,9 +36,13 @@ async function createCredentials(username: string) {
             attestation: "none",
             timeout: 60000,
             authenticatorSelection: {
-                residentKey: "required",
-                requireResidentKey: true,
+                requireResidentKey: false,
+                userVerification: "discouraged"
             },
+            // authenticatorSelection: {
+            //     residentKey: "required",
+            //     requireResidentKey: true,
+            // },
             // Ordered in terms of priority and what is supported by pam-u2f
             pubKeyCredParams: [
               {

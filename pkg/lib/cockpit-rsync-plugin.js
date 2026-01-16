@@ -12,7 +12,6 @@ function init(options) {
     // ensure the target directory exists
     if (config.ssh_host) {
         // config.rsync_dir = process.env.RSYNC ? "/usr/local/share/cockpit/" : "~/.local/share/cockpit/";
-        // child_process.spawnSync("ssh", [config.ssh_host, "mkdir", "-p", config.rsync_dir], { stdio: "inherit" });
         config.rsync_dir = process.env.RSYNC ? "/usr/share/cockpit/" : "~/.local/share/cockpit/";
         child_process.spawnSync("ssh", [config.ssh_host, "mkdir", "-p", config.rsync_dir], { stdio: "inherit" });
     }

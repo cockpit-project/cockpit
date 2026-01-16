@@ -54,6 +54,10 @@ class TestActivePages(testlib.MachineCase):
         b.click("button:contains('Cancel')")
         b.wait_not_present("#active-pages-dialog")
 
+        # WebGL2 is not supported in firefox headless mode
+        if b.browser == "firefox":
+            return
+
         # open the terminal page and start a session we can see on the machine
         # Remove failed units which will show up in the first terminal line
         m.execute("systemctl reset-failed")

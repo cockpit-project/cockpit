@@ -1667,6 +1667,8 @@ class TestAutoUpdates(NoSubManCase):
         self.enableRepo()
 
         self.login_and_go("/updates")
+        b.wait_in_text(".pf-v6-c-empty-state__content", "Checking software status")
+
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
 

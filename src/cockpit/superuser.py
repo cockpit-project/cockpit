@@ -21,13 +21,16 @@ import contextlib
 import getpass
 import logging
 import os
+import shutil
 import socket
+import subprocess
+from os.path import basename
 from tempfile import TemporaryDirectory
-from typing import List, Optional, Sequence, Tuple
+from typing import Sequence
 
 from cockpit._vendor import ferny
 from cockpit._vendor.bei.bootloader import make_bootloader
-from cockpit._vendor.systemd_ctypes import Variant, bus
+from cockpit._vendor.systemd_ctypes import Bus, Variant, bus
 
 from .beipack import BridgeBeibootHelper
 from .jsonutil import JsonObject, get_str
@@ -39,6 +42,36 @@ from .router import Router, RoutingError, RoutingRule
 logger = logging.getLogger(__name__)
 
 
+def sudo_supports_askpass(sudo_path: str) -> bool:
+    try:
+        # Returns 0 if -A is supported, non-zero if it's not
+        subprocess.run(
+            [sudo_path, '-A', '--help'],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True
+        )
+        return True
+    except (subprocess.CalledProcessError, OSError):
+        return False
+
+
+def is_valid_superuser_config(config: BridgeConfig) -> bool:
+    if not config.privileged:
+        return False
+    # StartTransientUnit doesn't spawn commands directly - systemd does
+    # So we don't validate that the spawn command exists in our PATH
+    if config.method == 'StartTransientUnit':
+        return True
+    command = shutil.which(config.spawn[0])
+    if command is None:
+        return False
+    if basename(command) == 'sudo' and not sudo_supports_askpass(command):
+        return False
+    return True
+
+
 class SuperuserPeer(ConfiguredPeer):
     responder: ferny.AskpassHandler
 
@@ -46,13 +79,54 @@ class SuperuserPeer(ConfiguredPeer):
         super().__init__(router, config)
         self.responder = responder
 
+    async def start_transient_unit(self, args: 'Sequence[str]', stderr: object) -> asyncio.Transport:
+        ours, theirs = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
+        loop = asyncio.get_running_loop()
+
+        unit_name = f"cockpit-superuser-{os.getpid()}.service"
+
+        system = Bus.default_system()
+        msg = system.message_new_method_call(
+            "org.freedesktop.systemd1",
+            "/org/freedesktop/systemd1",
+            "org.freedesktop.systemd1.Manager",
+            "StartTransientUnit",
+            "ssa(sv)a(sa(sv))",
+            unit_name,
+            "fail",
+            [
+                ("Description", {"t": "s", "v": "Cockpit privileged bridge"}),
+                ("Type", {"t": "s", "v": "exec"}),
+                ("User", {"t": "s", "v": "root"}),
+                ("StandardInputFileDescriptor", {"t": "h", "v": theirs}),
+                ("StandardOutputFileDescriptor", {"t": "h", "v": theirs}),
+                ("StandardErrorFileDescriptor", {"t": "h", "v": stderr}),
+                ("ExecStart", {"t": "a(sasb)", "v": [(args[0], args, False)]}),
+            ],
+            [],
+        )
+        msg.set_allow_interactive_authorization(True)
+
+        # We fire and forget.  If we catch an authentication error, that'll be
+        # raised as a BusError which will propagate upwards to our caller (ie:
+        # the Start method) and get displayed as an error dialog.  If we get
+        # other errors (like failure to spawn the named executable for some
+        # reason or unusual exit codes) then we will see the stderr output but
+        # otherwise won't get any notification about it.  The amount of work
+        # required to do this "properly" is quite high and it's not super
+        # useful.
+        await system.call_async(msg)
+
+        transport, protocol = await loop.create_connection(lambda: self, sock=ours)
+        assert protocol is self
+        return transport
+
     async def do_connect_transport(self) -> None:
         async with contextlib.AsyncExitStack() as context:
-            if 'pkexec' in self.args:
-                logger.debug('connecting polkit superuser peer transport %r', self.args)
-                await context.enter_async_context(PolkitAgent(self.responder))
-            else:
-                logger.debug('connecting non-polkit superuser peer transport %r', self.args)
+            # Note: polkit agent is registered once at SuperuserRoutingRule level,
+            # not per-peer, to avoid D-Bus deadlocks from nested async calls
+            logger.debug('connecting %s superuser peer transport %r',
+                        'polkit' if self.config.polkit else 'non-polkit', self.args)
 
             responders: 'list[ferny.InteractionHandler]' = [self.responder]
 
@@ -73,7 +147,10 @@ class SuperuserPeer(ConfiguredPeer):
             else:
                 env = self.env
 
-            transport = await self.spawn(self.args, env, stderr=agent, start_new_session=True)
+            if self.config.method == 'StartTransientUnit':
+                transport = await self.start_transient_unit(self.args, stderr=agent)
+            else:
+                transport = await self.spawn(self.args, env, stderr=agent, start_new_session=True)
 
             if stage1 is not None:
                 transport.write(stage1)
@@ -87,7 +164,9 @@ class SuperuserPeer(ConfiguredPeer):
 class CockpitResponder(ferny.AskpassHandler):
     commands = ('ferny.askpass', 'cockpit.send-stderr')
 
-    async def do_custom_command(self, command: str, args: Tuple, fds: List[int], stderr: str) -> None:
+    async def do_custom_command(
+        self, command: str, args: 'tuple[object, ...]', fds: 'list[int]', stderr: str
+    ) -> None:
         if command == 'cockpit.send-stderr':
             with socket.socket(fileno=fds[0]) as sock:
                 fds.pop(0)
@@ -114,8 +193,9 @@ class AuthorizeResponder(CockpitResponder):
 
 class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface='cockpit.Superuser'):
     superuser_configs: Sequence[BridgeConfig] = ()
-    pending_prompt: Optional[asyncio.Future]
-    peer: Optional[SuperuserPeer]
+    pending_prompt: 'asyncio.Future[str] | None'
+    peer: 'SuperuserPeer | None'
+    polkit_agent: 'PolkitAgent | None'
 
     # D-Bus signals
     prompt = bus.Interface.Signal('s', 's', 's', 'b', 's')  # message, prompt, default, echo, error
@@ -126,7 +206,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
     methods = bus.Interface.Property('a{sv}', value={})
 
     # RoutingRule
-    def apply_rule(self, options: JsonObject) -> Optional[Peer]:
+    def apply_rule(self, options: JsonObject) -> 'Peer | None':
         superuser = options.get('superuser')
 
         if not superuser or self.current == 'root':
@@ -141,7 +221,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
             raise RoutingError('access-denied')
 
     # ferny.AskpassHandler
-    async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
+    async def do_askpass(self, messages: str, prompt: str, hint: str) -> 'str | None':
         assert self.pending_prompt is None
         echo = hint == "confirm"
         self.pending_prompt = asyncio.get_running_loop().create_future()
@@ -160,13 +240,37 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         self.pending_prompt = None
         self.peer = None
         self.startup = None
+        self.polkit_agent = None
+        self.polkit_registration_task: 'asyncio.Task[None] | None' = None
 
         if privileged or os.getuid() == 0:
             self.current = 'root'
 
+    async def _register_polkit_agent(self) -> None:
+        """Register polkit agent asynchronously"""
+        try:
+            if self.polkit_agent:
+                await asyncio.wait_for(self.polkit_agent.__aenter__(), timeout=5.0)
+        except asyncio.TimeoutError:
+            logger.warning('polkit agent registration timed out after 5 seconds')
+        except Exception as e:
+            logger.warning('polkit agent registration failed: %s', e)
+
+    async def peer_done_async(self) -> None:
+        # Wait for any pending polkit authentications to complete
+        if self.polkit_agent and self.polkit_agent.agent_object:
+            if self.polkit_agent.agent_object.auth_in_progress > 0:
+                logger.debug('peer_done: waiting for %d pending authentications',
+                           self.polkit_agent.agent_object.auth_in_progress)
+                await self.polkit_agent.agent_object.auth_done_event.wait()
+                logger.debug('peer_done: all authentications completed')
+
     def peer_done(self) -> None:
+        # Mark peer as done immediately
         self.current = 'none'
         self.peer = None
+        # Schedule async cleanup for pending polkit authentications (keep reference to prevent GC)
+        self._peer_done_task = asyncio.create_task(self.peer_done_async())
 
     async def go(self, name: str, responder: ferny.AskpassHandler) -> None:
         if self.current != 'none':
@@ -194,20 +298,32 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
 
         self.current = self.peer.config.name
 
-    def set_configs(self, configs: Sequence[BridgeConfig]):
+    def set_configs(self, configs: Sequence[BridgeConfig]) -> None:
         logger.debug("set_configs() with %d items", len(configs))
-        configs = [config for config in configs if config.privileged]
+        configs = [config for config in configs if is_valid_superuser_config(config)]
         self.superuser_configs = tuple(configs)
         self.bridges = [config.name for config in self.superuser_configs]
         self.methods = {c.label: Variant({'label': Variant(c.label)}, 'a{sv}') for c in configs if c.label}
 
         logger.debug("  bridges are now %s", self.bridges)
 
+        # Register polkit agent if we have any polkit-enabled bridges and haven't registered yet.
+        # The agent is registered once and lives for the process lifetime (never unregistered).
+        # This avoids nested D-Bus calls from within D-Bus method handlers (which can cause deadlocks)
+        # and prevents task destruction races during agent lifecycle management.
+        needs_polkit = any(config.polkit for config in self.superuser_configs)
+        if needs_polkit and self.polkit_agent is None:
+            logger.debug('set_configs: polkit-enabled bridge found, registering polkit agent')
+            from .polkit import PolkitAgent
+            self.polkit_agent = PolkitAgent(self)
+            # Register agent in background task (keeps reference to prevent GC)
+            self.polkit_registration_task = asyncio.create_task(self._register_polkit_agent())
+
         # If the currently active bridge config is not in the new set of configs, stop it
         if self.peer is not None:
             if self.peer.config not in self.superuser_configs:
                 logger.debug("  stopping superuser bridge '%s': it disappeared from configs", self.peer.config.name)
-                self.stop()
+                self.shutdown()
 
     def cancel_prompt(self) -> None:
         if self.pending_prompt is not None:
@@ -236,15 +352,15 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         del self._init_task
 
     # D-Bus methods
-    @bus.Interface.Method(in_types=['s'])
+    @bus.Interface.Method(in_types=['s'])  # type: ignore[misc]
     async def start(self, name: str) -> None:
         await self.go(name, self)
 
-    @bus.Interface.Method()
+    @bus.Interface.Method()  # type: ignore[misc]
     def stop(self) -> None:
         self.shutdown()
 
-    @bus.Interface.Method(in_types=['s'])
+    @bus.Interface.Method(in_types=['s'])  # type: ignore[misc]
     def answer(self, reply: str) -> None:
         if self.pending_prompt is not None:
             logger.debug('responding to pending prompt')

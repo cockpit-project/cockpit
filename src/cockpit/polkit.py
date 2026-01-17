@@ -134,7 +134,27 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
     async def _communicate(self, stdin: asyncio.StreamWriter, stdout: asyncio.StreamReader) -> None:
         messages: List[str] = []
 
-        async for line in stdout:
+        # Use timeout only on first read to handle socket-activated helper startup delay.
+        # After first line arrives, helper is running and subsequent reads are normal.
+        first_line = True
+
+        while True:
+            if first_line:
+                # Socket-activated helper may take time to start, use timeout
+                try:
+                    line = await asyncio.wait_for(stdout.readline(), timeout=2.0)
+                except asyncio.TimeoutError:
+                    logger.warning('Timeout waiting for polkit helper to start')
+                    break
+                first_line = False
+            else:
+                # Normal read for subsequent lines
+                line = await stdout.readline()
+
+            if not line:
+                # EOF reached
+                break
+
             logger.debug('Read line from helper: %s', line)
             command, _, value = line.strip().decode().partition(' ')
 

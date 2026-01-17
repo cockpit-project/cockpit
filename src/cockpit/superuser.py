@@ -60,6 +60,10 @@ def sudo_supports_askpass(sudo_path: str) -> bool:
 def is_valid_superuser_config(config: BridgeConfig) -> bool:
     if not config.privileged:
         return False
+    # StartTransientUnit doesn't spawn commands directly - systemd does
+    # So we don't validate that the spawn command exists in our PATH
+    if config.method == 'StartTransientUnit':
+        return True
     command = shutil.which(config.spawn[0])
     if command is None:
         return False
@@ -119,11 +123,10 @@ class SuperuserPeer(ConfiguredPeer):
 
     async def do_connect_transport(self) -> None:
         async with contextlib.AsyncExitStack() as context:
-            if self.config.polkit:
-                logger.debug('connecting polkit superuser peer transport %r', self.args)
-                await context.enter_async_context(PolkitAgent(self.responder))
-            else:
-                logger.debug('connecting non-polkit superuser peer transport %r', self.args)
+            # Note: polkit agent is registered once at SuperuserRoutingRule level,
+            # not per-peer, to avoid D-Bus deadlocks from nested async calls
+            logger.debug('connecting %s superuser peer transport %r',
+                        'polkit' if self.config.polkit else 'non-polkit', self.args)
 
             responders: 'list[ferny.InteractionHandler]' = [self.responder]
 
@@ -192,6 +195,7 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
     superuser_configs: Sequence[BridgeConfig] = ()
     pending_prompt: 'asyncio.Future[str] | None'
     peer: 'SuperuserPeer | None'
+    polkit_agent: 'PolkitAgent | None'
 
     # D-Bus signals
     prompt = bus.Interface.Signal('s', 's', 's', 'b', 's')  # message, prompt, default, echo, error
@@ -236,13 +240,37 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         self.pending_prompt = None
         self.peer = None
         self.startup = None
+        self.polkit_agent = None
+        self.polkit_registration_task: 'asyncio.Task[None] | None' = None
 
         if privileged or os.getuid() == 0:
             self.current = 'root'
 
+    async def _register_polkit_agent(self) -> None:
+        """Register polkit agent asynchronously"""
+        try:
+            if self.polkit_agent:
+                await asyncio.wait_for(self.polkit_agent.__aenter__(), timeout=5.0)
+        except asyncio.TimeoutError:
+            logger.warning('polkit agent registration timed out after 5 seconds')
+        except Exception as e:
+            logger.warning('polkit agent registration failed: %s', e)
+
+    async def peer_done_async(self) -> None:
+        # Wait for any pending polkit authentications to complete
+        if self.polkit_agent and self.polkit_agent.agent_object:
+            if self.polkit_agent.agent_object.auth_in_progress > 0:
+                logger.debug('peer_done: waiting for %d pending authentications',
+                           self.polkit_agent.agent_object.auth_in_progress)
+                await self.polkit_agent.agent_object.auth_done_event.wait()
+                logger.debug('peer_done: all authentications completed')
+
     def peer_done(self) -> None:
+        # Mark peer as done immediately
         self.current = 'none'
         self.peer = None
+        # Schedule async cleanup for pending polkit authentications (keep reference to prevent GC)
+        self._peer_done_task = asyncio.create_task(self.peer_done_async())
 
     async def go(self, name: str, responder: ferny.AskpassHandler) -> None:
         if self.current != 'none':
@@ -278,6 +306,18 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         self.methods = {c.label: Variant({'label': Variant(c.label)}, 'a{sv}') for c in configs if c.label}
 
         logger.debug("  bridges are now %s", self.bridges)
+
+        # Register polkit agent if we have any polkit-enabled bridges and haven't registered yet.
+        # The agent is registered once and lives for the process lifetime (never unregistered).
+        # This avoids nested D-Bus calls from within D-Bus method handlers (which can cause deadlocks)
+        # and prevents task destruction races during agent lifecycle management.
+        needs_polkit = any(config.polkit for config in self.superuser_configs)
+        if needs_polkit and self.polkit_agent is None:
+            logger.debug('set_configs: polkit-enabled bridge found, registering polkit agent')
+            from .polkit import PolkitAgent
+            self.polkit_agent = PolkitAgent(self)
+            # Register agent in background task (keeps reference to prevent GC)
+            self.polkit_registration_task = asyncio.create_task(self._register_polkit_agent())
 
         # If the currently active bridge config is not in the new set of configs, stop it
         if self.peer is not None:

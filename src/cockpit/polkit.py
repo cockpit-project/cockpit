@@ -50,11 +50,26 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
     def __init__(self, responder: AskpassHandler):
         super().__init__()
         self.responder = responder
+        self.auth_in_progress = 0
+        self.auth_done_event = asyncio.Event()
+        self.auth_done_event.set()  # Initially no auth in progress
 
     # confusingly named: this actually does the whole authentication dialog, see docs
     @bus.Interface.Method('', ['s', 's', 's', 'a{ss}', 's', 'a(sa{sv})'])
     async def begin_authentication(self, action_id: str, message: str, icon_name: str,
                                    details: Dict[str, str], cookie: str, identities: Sequence[Identity]) -> None:
+        # Track active authentications so superuser peer can wait for completion
+        self.auth_in_progress += 1
+        self.auth_done_event.clear()
+        try:
+            await self._do_begin_authentication(action_id, message, icon_name, details, cookie, identities)
+        finally:
+            self.auth_in_progress -= 1
+            if self.auth_in_progress == 0:
+                self.auth_done_event.set()
+
+    async def _do_begin_authentication(self, action_id: str, message: str, icon_name: str,
+                                       details: Dict[str, str], cookie: str, identities: Sequence[Identity]) -> None:
         logger.debug('BeginAuthentication: action %s, message "%s", icon %s, details %s, cookie %s, identities %r',
                      action_id, message, icon_name, details, cookie, identities)
         # only support authentication as ourselves, as we don't yet have the
@@ -162,9 +177,10 @@ class PolkitAgent:
     """
     def __init__(self, responder: AskpassHandler):
         self.responder = responder
-        self.agent_slot = None
+        self.agent_slot: 'bus.Slot | None' = None
+        self.agent_object: 'org_freedesktop_PolicyKit1_AuthenticationAgent | None' = None
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> 'PolkitAgent':
         try:
             self.system_bus = bus.Bus.default_system()
         except OSError as e:
@@ -178,8 +194,8 @@ class PolkitAgent:
             logger.debug('XDG_SESSION_ID not set, not registering polkit agent')
             return self
 
-        agent_object = org_freedesktop_PolicyKit1_AuthenticationAgent(self.responder)
-        self.agent_slot = self.system_bus.add_object(AGENT_DBUS_PATH, agent_object)
+        self.agent_object = org_freedesktop_PolicyKit1_AuthenticationAgent(self.responder)
+        self.agent_slot = self.system_bus.add_object(AGENT_DBUS_PATH, self.agent_object)
 
         # register agent
         locale_name = locale.setlocale(locale.LC_MESSAGES, None)

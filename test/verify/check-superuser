@@ -388,10 +388,29 @@ session include system-auth
         b.wait_in_text(".pf-v6-c-modal-box select", "Polkit")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate")
+        # wrong password
+        b.set_input_text(".pf-v6-c-modal-box input", "wrong")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+
+        # polkit only prompts once, so we expect Permission denied
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
+        b.wait_in_text(".pf-v6-c-modal-box", "Not authorized")
+        b.click(".pf-v6-c-modal-box button:contains('Close')")
+
+        # try again with correct password
+        b.open_superuser_dialog()
+        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+        b.set_val(".pf-v6-c-modal-box select", "Polkit")
+        b.wait_in_text(".pf-v6-c-modal-box select", "Polkit")
+        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+        b.wait_in_text(".pf-v6-c-modal-box", "Please authenticate")
         b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Administrative access")
+
+        # Verify that sudo is not being used
+        self.assertEqual(m.execute(["pgrep", "-a", "sudo"], check=False).strip(), "")
 
         # Drop them
         b.open_superuser_dialog()

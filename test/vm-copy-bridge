@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2026 Red Hat, Inc.
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+"""
+Fast iteration of src/cockpit/ against existing running VMs.
+
+Instead of the slow image-prepare way (building packages), this script:
+1. Uploads the current src/cockpit code to /var/tmp on the VM
+2. Detects the package manager (dpkg/rpm/pacman) or container
+3. Bind-mounts the new code over the installed package path
+4. For containers, rebuilds the cockpit/ws container image
+
+Usage:
+    test/vm-copy-bridge PORT
+"""
+
+import argparse
+import os
+import subprocess
+import sys
+
+# Add bots to path
+BOTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bots")
+sys.path.insert(0, BOTS_DIR)
+
+from lib.constants import DEFAULT_IDENTITY_FILE  # noqa: E402
+from machine.machine_core.ssh_connection import SSHConnection  # noqa: E402
+
+
+def find_cockpit_path(file_list: str) -> str:
+    """Find the cockpit module path from a list of file paths.
+
+    Handles package manager output formats:
+    - dpkg/rpm: one filepath per line
+    - pacman: "package-name filepath" per line
+    """
+    for line in file_list.splitlines():
+        line = line.strip()
+        if line.endswith('/cockpit/__init__.py'):
+            # Extract the path (for pacman, take last field to skip package name)
+            path = line.split()[-1]
+            return os.path.dirname(path)
+
+    sys.exit("Could not find cockpit module path in package file list: " + file_list)
+
+
+def setup_bind_mount(conn: SSHConnection, cockpit_path: str, port: int) -> None:
+    """Set up bind mount from /var/tmp/cockpit to the package path."""
+    conn.execute(f"if mountpoint -q {cockpit_path}; then umount {cockpit_path}; fi")
+    conn.execute(f"mount --bind /var/tmp/cockpit {cockpit_path}")
+    print(f"Mounted /var/tmp/cockpit over {cockpit_path}")
+
+
+def rebuild_container(conn: SSHConnection) -> None:
+    """Rebuild the cockpit/ws container with the new bridge code."""
+    print("Rebuilding cockpit/ws container...")
+
+    # Find the cockpit module path inside the container
+    cockpit_path_in_container = conn.execute(
+        "podman run --rm localhost/cockpit/ws python3 -c "
+        "'import cockpit, os; print(os.path.dirname(cockpit.__file__))'"
+    ).strip()
+
+    # Build Containerfile with stdin - copy uploaded code into container
+    # Note: COPY source is relative to build context (.)
+    containerfile = f"""FROM localhost/cockpit/ws:latest
+COPY cockpit {cockpit_path_in_container}
+"""
+
+    # Build the new container using stdin input
+    conn.execute(
+        "cd /var/tmp && podman build -t localhost/cockpit/ws:latest -f - .",
+        input=containerfile,
+        timeout=30
+    )
+    print("cockpit/ws container rebuilt successfully!")
+
+
+#
+# main
+#
+
+parser = argparse.ArgumentParser(description="Copy bridge code to a running VM")
+parser.add_argument("port", type=int, help="SSH port of the running VM")
+parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+args = parser.parse_args()
+
+# Connection parameters matching ~/.ssh/config "Host c" paragraph
+conn = SSHConnection(
+    user="root",
+    address="127.0.0.2",
+    ssh_port=args.port,
+    identity_file=DEFAULT_IDENTITY_FILE,
+    verbose=args.verbose
+)
+
+# Check if we can connect
+if not conn.wait_execute(timeout_sec=5):
+    sys.exit(f"Cannot connect to VM on port {args.port}")
+
+print(f"Connected to VM on port {args.port}")
+
+# Get the local src/cockpit directory
+src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+cockpit_src = os.path.join(src_dir, "src", "cockpit")
+
+if not os.path.isdir(cockpit_src):
+    sys.exit(f"{cockpit_src} does not exist")
+
+# Upload the cockpit module to /var/tmp
+print(f"Uploading {cockpit_src} to VM...")
+conn.execute("rm -rf /var/tmp/cockpit")
+conn.upload(["src/cockpit"], "/var/tmp/", relative_dir=src_dir)
+
+# Known package managers
+pkg_managers = [
+    ("dpkg -L cockpit-bridge", "Debian/Ubuntu"),
+    ("rpm -ql cockpit-bridge", "RPM-based"),
+    ("pacman -Ql cockpit", "Arch Linux"),
+]
+
+for cmd, system_type in pkg_managers:
+    try:
+        output = conn.execute(cmd)
+    except subprocess.CalledProcessError:
+        continue
+    else:
+        cockpit_path = find_cockpit_path(output)
+        print(f"Detected {system_type} system, cockpit at: {cockpit_path}")
+        setup_bind_mount(conn, cockpit_path, args.port)
+        break
+else:
+    # No package manager found, try container
+    try:
+        conn.execute("podman image exists localhost/cockpit/ws")
+        print("Detected container-based system (localhost/cockpit/ws)")
+        rebuild_container(conn)
+    except subprocess.CalledProcessError:
+        sys.exit("Could not detect package type (tried dpkg, rpm, pacman, podman)")
+
+conn.disconnect()

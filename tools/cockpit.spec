@@ -144,7 +144,7 @@ Requires: cockpit-system
 Recommends: (cockpit-storaged if udisks2)
 Recommends: (cockpit-packagekit if dnf)
 %if 0%{?suse_version} == 0
-Recommends: (dnf5-daemonserver if dnf5)
+Recommends: (dnf5daemon-server if dnf5)
 %endif
 Suggests: python3-pcp
 

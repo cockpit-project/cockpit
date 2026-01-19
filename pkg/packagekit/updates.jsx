@@ -993,13 +993,6 @@ class OsUpdates extends React.Component {
         this.loadUpdates = this.loadUpdates.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
         this.checkNeedsRestart = this.checkNeedsRestart.bind(this);
-
-        superuser.addEventListener("changed", () => {
-            this.setState({ privileged: superuser.allowed });
-            // get out of error state when switching from unprivileged to privileged
-            if (superuser.allowed && this.state.state.indexOf("Error") >= 0)
-                this.loadUpdates();
-        });
     }
 
     onValueChanged(key, value) {
@@ -1009,6 +1002,8 @@ class OsUpdates extends React.Component {
     componentDidMount() {
         this._mounted = true;
         this.checkNeedsRestart();
+
+        superuser.addEventListener("changed", this.handleSuperUserChange);
 
         PK.getBackendName().then(([prop]) => this.setState({ backend: prop.v }));
 
@@ -1045,7 +1040,15 @@ class OsUpdates extends React.Component {
 
     componentWillUnmount() {
         this._mounted = false;
+        superuser.removeEventListener("changed", this.handleSuperUserChange);
     }
+
+    handleSuperUserChange = () => {
+        this.setState({ privileged: superuser.allowed });
+        // get out of error state when switching from unprivileged to privileged
+        if (superuser.allowed && this.state.state.indexOf("Error") >= 0)
+            this.loadUpdates();
+    };
 
     checkNeedsRestart() {
         this.setState({ checkRestartRunning: true });

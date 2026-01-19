@@ -16,6 +16,19 @@ system
 for rpm in ws bridge $PACKAGES; do
     rpm2cpio /var/tmp/cockpit-$rpm-*.rpm | cpio -i --make-directories --directory=/var/tmp/install
 done
+
+# Sometimes the actual quay.io/cockpit/ws Fedora version lags behind containers/ws/Containerfile, i.e. in between
+# moving the latter to a new Fedora version, and releasing Cockpit and landing it in Fedora. Then the Python version
+# in the rpms does not match the actual Python version in the container. So remove any traces of the old Python
+# deployment first, unpack the new rpms, and move our Python module into place.
+ws_pyver=$(podman run --rm --entrypoint /usr/bin/python3 quay.io/cockpit/ws -c \
+           'import sys; print("%d.%d" % sys.version_info[:2])')
+ws_sitelib="/var/tmp/install/usr/lib/python${ws_pyver}"
+if ! [ -d "$ws_sitelib" ]; then
+    echo "Adjusting Python module location to $ws_sitelib" >&2
+    mv --verbose /var/tmp/install/usr/lib/python3.* "$ws_sitelib" >&2
+fi
+
 podman run --name build-cockpit -i \
     -v /var/tmp/:/run/build:Z \
     quay.io/cockpit/ws sh -exc '

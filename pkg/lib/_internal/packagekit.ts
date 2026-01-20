@@ -36,8 +36,105 @@ export class PackageKitManager implements PackageManager {
         this.name = "packagekit";
     }
 
+    /* Support for installing missing packages.
+     *
+     * First call check_missing_packages to determine whether something
+     * needs to be installed, then call install_missing_packages to
+     * actually install them.
+     *
+     * check_missing_packages resolves to an object that can be passed to
+     * install_missing_packages.  It contains these fields:
+     *
+     * - missing_names:     Packages that were requested, are currently not installed,
+     *                      and can be installed.
+     *
+     * - missing_ids:       The full PackageKit IDs corresponding to missing_names
+     *
+     * - unavailable_names: Packages that were requested, are currently not installed,
+     *                      but can't be found in any repository.
+     *
+     * If unavailable_names is empty, a simulated installation of the missing packages
+     * is done and the result also contains these fields:
+     *
+     * - extra_names:       Packages that need to be installed as dependencies of
+     *                      missing_names.
+     *
+     * - remove_names:      Packages that need to be removed.
+     *
+     * - download_size:     Bytes that need to be downloaded.
+     */
     async check_missing_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<MissingPackages> {
-        return PK.check_missing_packages(pkgnames, progress_cb);
+        const install_ids: string[] = [];
+        const installed_names = new Set();
+        const data: MissingPackages = {
+            download_size: 0,
+            missing_ids: [],
+            missing_names: [],
+            unavailable_names: [],
+            extra_names: [],
+            remove_names: [],
+        };
+
+        if (pkgnames.length === 0)
+            return data;
+
+        await this.refresh(false, progress_cb);
+
+        await PK.cancellableTransaction("Resolve",
+                                        [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, pkgnames],
+                                        progress_cb,
+                                        {
+                                            Package: (_info: number, package_id: string) => {
+                                                const parts = package_id.split(";");
+                                                const repos = parts[3].split(":");
+                                                if (repos.indexOf("installed") >= 0) {
+                                                    installed_names.add(parts[0]);
+                                                } else {
+                                                    data.missing_ids.push(package_id);
+                                                    data.missing_names.push(parts[0]);
+                                                }
+                                            },
+                                        });
+        pkgnames.forEach(name => {
+            if (!installed_names.has(name) && data.missing_names.indexOf(name) == -1)
+                data.unavailable_names.push(name);
+        });
+
+        if (data.missing_ids.length > 0 && data.unavailable_names.length === 0) {
+            await PK.cancellableTransaction("InstallPackages",
+                                            [PK.Enum.TRANSACTION_FLAG_SIMULATE, data.missing_ids],
+                                            progress_cb,
+                                            {
+                                                Package: (info: number, package_id: string) => {
+                                                    const name = package_id.split(";")[0];
+                                                    if (info == PK.Enum.INFO_REMOVING) {
+                                                        data.remove_names.push(name);
+                                                    } else if (info == PK.Enum.INFO_INSTALLING ||
+                                                             info == PK.Enum.INFO_UPDATING) {
+                                                        install_ids.push(package_id);
+                                                        if (data.missing_names.indexOf(name) == -1)
+                                                            data.extra_names.push(name);
+                                                    }
+                                                }
+                                            });
+            data.missing_names.sort();
+            data.extra_names.sort();
+            data.remove_names.sort();
+        }
+
+        if (install_ids.length > 0) {
+            await PK.cancellableTransaction("GetDetails",
+                                            [install_ids],
+                                            progress_cb,
+                                            {
+                                                Details: (details: { size: { v: number, t: string } }) => {
+                                                    if (details.size)
+                                                        data.download_size += details.size.v;
+                                                }
+                                            });
+        }
+
+        return data;
     }
 
     /* Carry out what check_missing_packages has planned.

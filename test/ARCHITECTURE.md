@@ -164,7 +164,7 @@ scheduling loop is started, if a machine was provided it is used for the
 "non-destructive" tests, "destructive" tests will always spawn a new machine.
 If no machine is provided a pool of global machines for "non-destructive" tests
 depending on available CPUs and RAM. The test runner will first try to assign all
-"non-destructive" tests on the available global machines and start the tests. 
+"non-destructive" tests on the available global machines and start the tests.
 
 The scheduling loop periodically inspects all running tests and polls if the
 test has ended. Depending on the exit code of the test process the test runner
@@ -175,7 +175,7 @@ graph TD;
     succeeded{Test succeeded?}
     affected{"Test affected?"}
     affecteddone["Retry three times"]
-    skipped{Test skipped?}   
+    skipped{Test skipped?}
     todosuccess{Test todo?}
     todonosuccess{Test todo?}
     todosucceeded["Unexpected success
@@ -189,25 +189,25 @@ graph TD;
     test failures"]
     testfailed["Test failed"]
     failure_policy{"Known issue?"}
-    
+
     finished --> skipped
     skipped --> |No| succeeded
     skipped --> |Yes| skiptest[Show as skipped test]
     succeeded --> |No| todonosuccess
     succeeded --> |yes| affected
-   
+
     affected --> |Yes| affecteddone
     affected --> |No| todosuccess
-    
+
     todosuccess --> |Yes| todosucceeded
     todosuccess --> |No| done[Test succeeded]
-    
+
     todonosuccess --> |Yes| todofail
     todonosuccess --> |No| failure_policy
-    
+
     failure_policy --> |Yes| known_issue[Show as known issue]
     failure_policy --> |No| pixel_journal_failure
-    
+
     pixel_journal_failure --> |Yes| testfailed
     pixel_journal_failure --> |No| retry
 ```

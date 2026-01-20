@@ -343,13 +343,13 @@ class DBusChannel(Channel):
         try:
             method_call = self.bus.message_new_method_call(self.name, path, iface, method, signature, *args)
             reply = await self.bus.call_async(method_call, timeout=timeout)
+            endianness = "<" if reply.is_little_endian() else ">"
             # If the method call has kicked off any signals related to
             # watch processing, wait for that to be done.
             async with self.watch_processing_lock:
-                # TODO: stop hard-coding the endian flag here.
                 self.send_json(
                     reply=[reply.get_body()], id=cookie,
-                    flags="<" if flags is not None else None,
+                    flags=endianness,
                     type=reply.get_signature(True))  # noqa: FBT003
         except BusError as error:
             # actually, should send the fields from the message body

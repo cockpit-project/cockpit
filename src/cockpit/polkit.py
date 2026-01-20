@@ -50,11 +50,22 @@ class org_freedesktop_PolicyKit1_AuthenticationAgent(bus.Object):
     def __init__(self, responder: AskpassHandler):
         super().__init__()
         self.responder = responder
+        self.active_authentications = set()
 
     # confusingly named: this actually does the whole authentication dialog, see docs
     @bus.Interface.Method('', ['s', 's', 's', 'a{ss}', 's', 'a(sa{sv})'])
     async def begin_authentication(self, action_id: str, message: str, icon_name: str,
                                    details: Dict[str, str], cookie: str, identities: Sequence[Identity]) -> None:
+        # Track this task so PolkitAgent can wait for completion before unregistering
+        task = asyncio.current_task()
+        self.active_authentications.add(task)
+        try:
+            await self._do_begin_authentication(action_id, message, icon_name, details, cookie, identities)
+        finally:
+            self.active_authentications.discard(task)
+
+    async def _do_begin_authentication(self, action_id: str, message: str, icon_name: str,
+                                       details: Dict[str, str], cookie: str, identities: Sequence[Identity]) -> None:
         logger.debug('BeginAuthentication: action %s, message "%s", icon %s, details %s, cookie %s, identities %r',
                      action_id, message, icon_name, details, cookie, identities)
         # only support authentication as ourselves, as we don't yet have the
@@ -195,6 +206,19 @@ class PolkitAgent:
 
     async def __aexit__(self, _exc_type, _exc_value, _traceback):
         if self.agent_slot:
+            # Give any scheduled begin_authentication() tasks a chance to start executing
+            # This handles the race where tasks are scheduled but haven't started yet
+            for _ in range(10):
+                await asyncio.sleep(0)
+
+            # Wait for any active authentications to complete
+            if self.agent_object and self.agent_object.active_authentications:
+                active_tasks = list(self.agent_object.active_authentications)
+                logger.debug('Waiting for %d active authentication(s) to complete', len(active_tasks))
+                # Gather all active tasks and wait for them
+                await asyncio.gather(*active_tasks, return_exceptions=True)
+                logger.debug('All authentications completed')
+
             await self.system_bus.call_method_async(
                 'org.freedesktop.PolicyKit1',
                 '/org/freedesktop/PolicyKit1/Authority',

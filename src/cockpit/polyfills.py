@@ -15,12 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import contextlib
 import socket
 
 
 def install():
     """Add shims for older Python versions"""
+
+    # introduced in 3.7
+    if not hasattr(asyncio, 'current_task'):
+        asyncio.current_task = asyncio.Task.current_task  # type: ignore[attr-defined]
 
     # introduced in 3.9
     if not hasattr(socket, 'recv_fds'):

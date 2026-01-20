@@ -174,6 +174,7 @@ class PolkitAgent:
     def __init__(self, responder: AskpassHandler):
         self.responder = responder
         self.agent_slot = None
+        self.agent_object = None
 
     async def __aenter__(self):
         try:
@@ -189,8 +190,8 @@ class PolkitAgent:
             logger.debug('XDG_SESSION_ID not set, not registering polkit agent')
             return self
 
-        agent_object = org_freedesktop_PolicyKit1_AuthenticationAgent(self.responder)
-        self.agent_slot = self.system_bus.add_object(AGENT_DBUS_PATH, agent_object)
+        self.agent_object = org_freedesktop_PolicyKit1_AuthenticationAgent(self.responder)
+        self.agent_slot = self.system_bus.add_object(AGENT_DBUS_PATH, self.agent_object)
 
         # register agent
         locale_name = locale.setlocale(locale.LC_MESSAGES, None)
@@ -227,4 +228,6 @@ class PolkitAgent:
                 '(sa{sv})s',
                 self.subject, AGENT_DBUS_PATH)
             self.agent_slot.cancel()
+            self.agent_slot = None
+            self.agent_object = None
             logger.debug('Unregistered agent for %r', self.subject)

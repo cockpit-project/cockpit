@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-07 14:33+0000\n"
+"POT-Creation-Date: 2026-01-14 10:35+0000\n"
 "PO-Revision-Date: 2025-08-09 22:55+0000\n"
 "Last-Translator: hsu zangmen <chzang55@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.fedoraproject.org/"
@@ -125,7 +125,7 @@ msgstr[0] "$0 次嘗試登入失敗"
 msgid "$0 filesystem"
 msgstr "$0 檔案系統"
 
-#: pkg/systemd/services.jsx:867
+#: pkg/systemd/services.jsx:869
 msgid "$0 filters applied"
 msgstr "$0 個篩選器己經應用"
 
@@ -979,7 +979,7 @@ msgstr "位址的格式不正確"
 msgid "Administration with Cockpit Web Console"
 msgstr "使用 Cockpit 網頁控制台進行管理"
 
-#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:229 pkg/lib/superuser-dialogs.tsx:399
 msgid "Administrative access"
 msgstr "管理員存取模式"
 
@@ -1205,7 +1205,7 @@ msgstr "屬性失敗"
 msgid "Audit log"
 msgstr "稽核日誌"
 
-#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:222 pkg/lib/superuser-dialogs.tsx:259
 msgid "Authenticate"
 msgstr "認證"
 
@@ -1483,15 +1483,15 @@ msgstr "使用目前的篩選器組合無法找到任何紀錄檔。"
 #: pkg/packagekit/updates.jsx:561 pkg/packagekit/kpatch.jsx:312
 #: pkg/kdump/kdump-view.jsx:327 pkg/apps/utils.tsx:92
 #: pkg/lib/cockpit-components-shutdown.jsx:237
-#: pkg/lib/cockpit-connect-ssh.tsx:189 pkg/lib/cockpit-connect-ssh.tsx:502
+#: pkg/lib/superuser-dialogs.tsx:225 pkg/lib/superuser-dialogs.tsx:262
+#: pkg/lib/superuser-dialogs.tsx:318 pkg/lib/cockpit-connect-ssh.tsx:189
+#: pkg/lib/cockpit-connect-ssh.tsx:502
 #: pkg/lib/cockpit-components-dialog.jsx:128 pkg/shell/hosts_dialog.jsx:289
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
-#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
-#: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
-#: pkg/networkmanager/firewall.jsx:956
+#: pkg/shell/active-pages-modal.tsx:126 pkg/networkmanager/firewall.jsx:742
+#: pkg/networkmanager/firewall.jsx:932 pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
 #: pkg/sosreport/sosreport.jsx:384
 msgid "Cancel"
@@ -1736,9 +1736,9 @@ msgstr "客戶端軟體"
 #: pkg/systemd/overview-cards/configurationCard.jsx:202 pkg/apps/utils.tsx:140
 #: pkg/lib/cockpit-components-terminal.tsx:363
 #: pkg/lib/cockpit-components-modifications.jsx:79
+#: pkg/lib/superuser-dialogs.tsx:233 pkg/lib/superuser-dialogs.tsx:241
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "關閉"
@@ -3319,8 +3319,8 @@ msgstr "啟動失敗"
 msgid "Failed to switch profile"
 msgstr "切換設定檔失敗"
 
-#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
-#: pkg/systemd/services.jsx:849
+#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:848
+#: pkg/systemd/services.jsx:850
 msgid "File state"
 msgstr "檔案狀態"
 
@@ -4310,7 +4310,7 @@ msgstr "以 GNU LGPL 2.1 版授權"
 msgid "Light"
 msgstr "淺色"
 
-#: pkg/lib/superuser-dialogs.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:315
 msgid "Limit access"
 msgstr "限制存取"
 
@@ -4322,11 +4322,11 @@ msgstr "限制大小"
 msgid "Limit virtual filesystem size"
 msgstr "限制虛擬檔案系統大小"
 
-#: pkg/lib/superuser-dialogs.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:399
 msgid "Limited access"
 msgstr "受限制的存取"
 
-#: pkg/lib/superuser-dialogs.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:332
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4811,7 +4811,7 @@ msgstr "日期格式無效"
 msgid "Metadata used"
 msgstr "已使用的後設資料"
 
-#: pkg/lib/superuser-dialogs.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:248
 msgid "Method"
 msgstr "方法"
 
@@ -5787,11 +5787,11 @@ msgid "Passphrases do not match"
 msgstr "通行片語不相符"
 
 #: pkg/static/login.html:113 pkg/storaged/iscsi/create-dialog.jsx:34
-#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/lib/cockpit-connect-ssh.tsx:446
-#: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
-#: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
-#: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
+#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/lib/superuser-dialogs.tsx:188
+#: pkg/lib/cockpit-connect-ssh.tsx:446 pkg/lib/cockpit-connect-ssh.tsx:456
+#: pkg/shell/hosts_dialog.jsx:1050 pkg/shell/hosts_dialog.jsx:1059
+#: pkg/shell/credentials.tsx:177 pkg/shell/credentials.tsx:236
+#: pkg/shell/credentials.tsx:323 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "密碼"
@@ -6003,7 +6003,7 @@ msgstr "已固定的單元"
 msgid "Pizza box"
 msgstr "披薩盒"
 
-#: pkg/lib/superuser-dialogs.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:187
 msgid "Please authenticate to gain administrative access"
 msgstr "請進行驗證以獲得管理員存取權限"
 
@@ -6128,7 +6128,7 @@ msgstr "優先度 $priority"
 msgid "Private key"
 msgstr "私鑰"
 
-#: pkg/lib/superuser-dialogs.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:237
 msgid "Problem becoming administrator"
 msgstr "切換為管理員時發生問題"
 
@@ -7675,11 +7675,11 @@ msgstr "關掉 $0"
 msgid "Switch on $0"
 msgstr "打開 $0"
 
-#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:197 pkg/lib/superuser-dialogs.tsx:244
 msgid "Switch to administrative access"
 msgstr "切換至管理員存取模式"
 
-#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:327 pkg/lib/superuser-dialogs.tsx:418
 msgid "Switch to limited access"
 msgstr "切換至受限存取模式"
 
@@ -7715,7 +7715,7 @@ msgstr "正在同步 MDRAID 裝置 $target"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/systemd/services.jsx:915 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
+#: pkg/systemd/services.jsx:917 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
 msgid "System"
 msgstr "系統"
 
@@ -8566,7 +8566,7 @@ msgstr "Tuned 非執行中"
 msgid "Tuned is off"
 msgstr "Tuned 已關閉"
 
-#: pkg/lib/superuser-dialogs.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:418
 msgid "Turn on administrative access"
 msgstr "打開管理員存取權限"
 
@@ -8988,7 +8988,7 @@ msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr "對需要互動（如輸入通行片語）或非必要性的掛載來說很有用"
 
-#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:919
+#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:921
 msgid "User"
 msgstr "使用者"
 
@@ -9357,7 +9357,7 @@ msgstr "您可能會想變更金鑰的密碼以便自動登入。"
 msgid "You must wait longer to change your password"
 msgstr "您必須等待更長時間才能更改密碼"
 
-#: pkg/lib/superuser-dialogs.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:144
 msgid "You now have administrative access."
 msgstr "您現在已有管理員存取權限。"
 
@@ -9379,7 +9379,7 @@ msgid ""
 "Shift+Insert."
 msgstr "您的瀏覽器不允許從網頁選單貼上。您可以使用 Shift+Insert 。"
 
-#: pkg/lib/superuser-dialogs.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:333
 msgid "Your browser will remember your access level across sessions."
 msgstr "您的瀏覽器將在不同工作階段間記住您的存取權限等級。"
 

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-07 14:33+0000\n"
+"POT-Creation-Date: 2026-01-14 10:35+0000\n"
 "PO-Revision-Date: 2025-12-25 18:09+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
@@ -129,7 +129,7 @@ msgstr[0] "$0 로그인 시도 실패"
 msgid "$0 filesystem"
 msgstr "$0 파일 시스템"
 
-#: pkg/systemd/services.jsx:867
+#: pkg/systemd/services.jsx:869
 msgid "$0 filters applied"
 msgstr "$0 필터가 적용됨"
 
@@ -974,7 +974,7 @@ msgstr "주소가 올바른 형식이 아닙니다"
 msgid "Administration with Cockpit Web Console"
 msgstr "Cockpit 웹 콘솔로 관리"
 
-#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:229 pkg/lib/superuser-dialogs.tsx:399
 msgid "Administrative access"
 msgstr "관리 접근"
 
@@ -1200,7 +1200,7 @@ msgstr "속성 실패"
 msgid "Audit log"
 msgstr "감사 로그"
 
-#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:222 pkg/lib/superuser-dialogs.tsx:259
 msgid "Authenticate"
 msgstr "인증"
 
@@ -1478,15 +1478,15 @@ msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 #: pkg/packagekit/updates.jsx:561 pkg/packagekit/kpatch.jsx:312
 #: pkg/kdump/kdump-view.jsx:327 pkg/apps/utils.tsx:92
 #: pkg/lib/cockpit-components-shutdown.jsx:237
-#: pkg/lib/cockpit-connect-ssh.tsx:189 pkg/lib/cockpit-connect-ssh.tsx:502
+#: pkg/lib/superuser-dialogs.tsx:225 pkg/lib/superuser-dialogs.tsx:262
+#: pkg/lib/superuser-dialogs.tsx:318 pkg/lib/cockpit-connect-ssh.tsx:189
+#: pkg/lib/cockpit-connect-ssh.tsx:502
 #: pkg/lib/cockpit-components-dialog.jsx:128 pkg/shell/hosts_dialog.jsx:289
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
-#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
-#: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
-#: pkg/networkmanager/firewall.jsx:956
+#: pkg/shell/active-pages-modal.tsx:126 pkg/networkmanager/firewall.jsx:742
+#: pkg/networkmanager/firewall.jsx:932 pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
 #: pkg/sosreport/sosreport.jsx:384
 msgid "Cancel"
@@ -1732,9 +1732,9 @@ msgstr "클라이언트 소프트웨어"
 #: pkg/systemd/overview-cards/configurationCard.jsx:202 pkg/apps/utils.tsx:140
 #: pkg/lib/cockpit-components-terminal.tsx:363
 #: pkg/lib/cockpit-components-modifications.jsx:79
+#: pkg/lib/superuser-dialogs.tsx:233 pkg/lib/superuser-dialogs.tsx:241
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "닫기"
@@ -3328,8 +3328,8 @@ msgstr "시작하지 못했습니다"
 msgid "Failed to switch profile"
 msgstr "프로파일 전환에 실패했습니다"
 
-#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
-#: pkg/systemd/services.jsx:849
+#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:848
+#: pkg/systemd/services.jsx:850
 msgid "File state"
 msgstr "파일 상태"
 
@@ -4299,7 +4299,7 @@ msgstr "GNU LGPL 버전 2.1 하에서 인가됨"
 msgid "Light"
 msgstr "밝게"
 
-#: pkg/lib/superuser-dialogs.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:315
 msgid "Limit access"
 msgstr "접근 제한"
 
@@ -4311,11 +4311,11 @@ msgstr "크기 제한"
 msgid "Limit virtual filesystem size"
 msgstr "가상 파일시스템 크기를 제한합니다"
 
-#: pkg/lib/superuser-dialogs.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:399
 msgid "Limited access"
 msgstr "제한된 접근"
 
-#: pkg/lib/superuser-dialogs.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:332
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4809,7 +4809,7 @@ msgstr "메타자료 형식"
 msgid "Metadata used"
 msgstr "사용된 메타데이터"
 
-#: pkg/lib/superuser-dialogs.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:248
 msgid "Method"
 msgstr "방식"
 
@@ -5790,11 +5790,11 @@ msgid "Passphrases do not match"
 msgstr "암호문이 일치하지 않습니다"
 
 #: pkg/static/login.html:113 pkg/storaged/iscsi/create-dialog.jsx:34
-#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/lib/cockpit-connect-ssh.tsx:446
-#: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
-#: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
-#: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
+#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/lib/superuser-dialogs.tsx:188
+#: pkg/lib/cockpit-connect-ssh.tsx:446 pkg/lib/cockpit-connect-ssh.tsx:456
+#: pkg/shell/hosts_dialog.jsx:1050 pkg/shell/hosts_dialog.jsx:1059
+#: pkg/shell/credentials.tsx:177 pkg/shell/credentials.tsx:236
+#: pkg/shell/credentials.tsx:323 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "비밀번호"
@@ -6006,7 +6006,7 @@ msgstr "고정된 단위"
 msgid "Pizza box"
 msgstr "피자 박스"
 
-#: pkg/lib/superuser-dialogs.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:187
 msgid "Please authenticate to gain administrative access"
 msgstr "관리 접근 권한을 얻으려면 인증하세요"
 
@@ -6129,7 +6129,7 @@ msgstr "우선순위 $priority"
 msgid "Private key"
 msgstr "개인 키"
 
-#: pkg/lib/superuser-dialogs.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:237
 msgid "Problem becoming administrator"
 msgstr "관리자에게서 발생한 문제"
 
@@ -7677,11 +7677,11 @@ msgstr "$0 끄기"
 msgid "Switch on $0"
 msgstr "$0 켜기"
 
-#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:197 pkg/lib/superuser-dialogs.tsx:244
 msgid "Switch to administrative access"
 msgstr "관리자 접근으로 전환"
 
-#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:327 pkg/lib/superuser-dialogs.tsx:418
 msgid "Switch to limited access"
 msgstr "제한된 접근으로 전환"
 
@@ -7717,7 +7717,7 @@ msgstr "MD레이드 장치 $target 동기화 중"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/systemd/services.jsx:915 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
+#: pkg/systemd/services.jsx:917 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
 msgid "System"
 msgstr "시스템"
 
@@ -8606,7 +8606,7 @@ msgstr "Tuned가 동작되지 않음"
 msgid "Tuned is off"
 msgstr "Tuned이 종료되어 있습니다"
 
-#: pkg/lib/superuser-dialogs.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:418
 msgid "Turn on administrative access"
 msgstr "관리자 접근 켜기"
 
@@ -9026,7 +9026,7 @@ msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr "선택적이거나 상호 작용이 필요한 적재에 유용함 (암호문과 같은 경우)"
 
-#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:919
+#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:921
 msgid "User"
 msgstr "사용자"
 
@@ -9394,7 +9394,7 @@ msgstr "자동 로그인을 위해 키 비밀번호를 변경 할 수 있습니�
 msgid "You must wait longer to change your password"
 msgstr "비밀번호 변경을 위해 조금 더 기다려 주십시오"
 
-#: pkg/lib/superuser-dialogs.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:144
 msgid "You now have administrative access."
 msgstr "이제 관리자 접근 권한이 있습니다."
 
@@ -9418,7 +9418,7 @@ msgstr ""
 "당신의 검색기는 내용 메뉴에서 붙여넣기를 허용하지 않습니다. Shift+Insert를 사"
 "용 할 수 있습니다."
 
-#: pkg/lib/superuser-dialogs.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:333
 msgid "Your browser will remember your access level across sessions."
 msgstr "당신의 검색기는 세션을 통해 자신의 접근 수준을 기억합니다."
 

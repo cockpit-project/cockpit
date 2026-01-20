@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-07 14:33+0000\n"
+"POT-Creation-Date: 2026-01-14 10:35+0000\n"
 "PO-Revision-Date: 2025-12-05 16:34+0000\n"
 "Last-Translator: Salvatore Cocuzza <info@salvatorecocuzza.it>\n"
 "Language-Team: Italian <https://translate.fedoraproject.org/projects/cockpit/"
@@ -137,7 +137,7 @@ msgstr[1] "$0 tentativi di accesso falliti"
 msgid "$0 filesystem"
 msgstr "File system $0"
 
-#: pkg/systemd/services.jsx:867
+#: pkg/systemd/services.jsx:869
 msgid "$0 filters applied"
 msgstr "$0 filtri applicati"
 
@@ -1015,7 +1015,7 @@ msgstr "Gli indirizzi non sono formattati correttamente"
 msgid "Administration with Cockpit Web Console"
 msgstr "Amministrazione con Cockpit Web Console"
 
-#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:229 pkg/lib/superuser-dialogs.tsx:399
 msgid "Administrative access"
 msgstr "Accesso amministrativo"
 
@@ -1247,7 +1247,7 @@ msgstr "Attributi con errori"
 msgid "Audit log"
 msgstr "Log audit"
 
-#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:222 pkg/lib/superuser-dialogs.tsx:259
 msgid "Authenticate"
 msgstr "Autenticare"
 
@@ -1534,15 +1534,15 @@ msgstr ""
 #: pkg/packagekit/updates.jsx:561 pkg/packagekit/kpatch.jsx:312
 #: pkg/kdump/kdump-view.jsx:327 pkg/apps/utils.tsx:92
 #: pkg/lib/cockpit-components-shutdown.jsx:237
-#: pkg/lib/cockpit-connect-ssh.tsx:189 pkg/lib/cockpit-connect-ssh.tsx:502
+#: pkg/lib/superuser-dialogs.tsx:225 pkg/lib/superuser-dialogs.tsx:262
+#: pkg/lib/superuser-dialogs.tsx:318 pkg/lib/cockpit-connect-ssh.tsx:189
+#: pkg/lib/cockpit-connect-ssh.tsx:502
 #: pkg/lib/cockpit-components-dialog.jsx:128 pkg/shell/hosts_dialog.jsx:289
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
-#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
-#: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
-#: pkg/networkmanager/firewall.jsx:956
+#: pkg/shell/active-pages-modal.tsx:126 pkg/networkmanager/firewall.jsx:742
+#: pkg/networkmanager/firewall.jsx:932 pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
 #: pkg/sosreport/sosreport.jsx:384
 msgid "Cancel"
@@ -1796,9 +1796,9 @@ msgstr "Software Client"
 #: pkg/systemd/overview-cards/configurationCard.jsx:202 pkg/apps/utils.tsx:140
 #: pkg/lib/cockpit-components-terminal.tsx:363
 #: pkg/lib/cockpit-components-modifications.jsx:79
+#: pkg/lib/superuser-dialogs.tsx:233 pkg/lib/superuser-dialogs.tsx:241
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "Chiudi"
@@ -3413,8 +3413,8 @@ msgstr "Impossibile avviare"
 msgid "Failed to switch profile"
 msgstr "Impossibile cambiare profilo"
 
-#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
-#: pkg/systemd/services.jsx:849
+#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:848
+#: pkg/systemd/services.jsx:850
 msgid "File state"
 msgstr "Stato file"
 
@@ -4401,7 +4401,7 @@ msgstr "Concesso in licenza sotto GNU LGPL versione 2.1"
 msgid "Light"
 msgstr "Chiaro"
 
-#: pkg/lib/superuser-dialogs.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:315
 msgid "Limit access"
 msgstr "Limitare l'accesso"
 
@@ -4413,11 +4413,11 @@ msgstr "Limita dimensione"
 msgid "Limit virtual filesystem size"
 msgstr "Limita la dimensione del filesystem virtuale"
 
-#: pkg/lib/superuser-dialogs.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:399
 msgid "Limited access"
 msgstr "Accesso limitato"
 
-#: pkg/lib/superuser-dialogs.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:332
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4912,7 +4912,7 @@ msgstr "Formato dei metadati"
 msgid "Metadata used"
 msgstr "Metadati utilizzati"
 
-#: pkg/lib/superuser-dialogs.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:248
 msgid "Method"
 msgstr "Metodo"
 
@@ -5903,11 +5903,11 @@ msgid "Passphrases do not match"
 msgstr "Le frasi di accesso non corrispondono"
 
 #: pkg/static/login.html:113 pkg/storaged/iscsi/create-dialog.jsx:34
-#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/lib/cockpit-connect-ssh.tsx:446
-#: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
-#: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
-#: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
+#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/lib/superuser-dialogs.tsx:188
+#: pkg/lib/cockpit-connect-ssh.tsx:446 pkg/lib/cockpit-connect-ssh.tsx:456
+#: pkg/shell/hosts_dialog.jsx:1050 pkg/shell/hosts_dialog.jsx:1059
+#: pkg/shell/credentials.tsx:177 pkg/shell/credentials.tsx:236
+#: pkg/shell/credentials.tsx:323 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "Password"
@@ -6120,7 +6120,7 @@ msgstr "Unità pinnate"
 msgid "Pizza box"
 msgstr "Pizza box"
 
-#: pkg/lib/superuser-dialogs.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:187
 msgid "Please authenticate to gain administrative access"
 msgstr "Autenticarsi per ottenere l'accesso amministrativo"
 
@@ -6243,7 +6243,7 @@ msgstr "Priorità $priority"
 msgid "Private key"
 msgstr "Chiave privata"
 
-#: pkg/lib/superuser-dialogs.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:237
 msgid "Problem becoming administrator"
 msgstr "Problema diventando amministratore"
 
@@ -7812,11 +7812,11 @@ msgstr "Spegni $0"
 msgid "Switch on $0"
 msgstr "Accendi $0"
 
-#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:197 pkg/lib/superuser-dialogs.tsx:244
 msgid "Switch to administrative access"
 msgstr "Passa all'accesso amministrativo"
 
-#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:327 pkg/lib/superuser-dialogs.tsx:418
 msgid "Switch to limited access"
 msgstr "Passa ad accesso limitato"
 
@@ -7856,7 +7856,7 @@ msgstr "Sincronizzazione del dispositivo MDRAID $target"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/systemd/services.jsx:915 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
+#: pkg/systemd/services.jsx:917 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
 msgid "System"
 msgstr "Sistema"
 
@@ -8793,7 +8793,7 @@ msgstr "Tuned non è in esecuzione"
 msgid "Tuned is off"
 msgstr "Tuned è disattivato"
 
-#: pkg/lib/superuser-dialogs.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:418
 msgid "Turn on administrative access"
 msgstr "Attiva l'accesso amministrativo"
 
@@ -9223,7 +9223,7 @@ msgstr ""
 "Utile per i mount che sono opzionali o che necessitano di interazione (come "
 "le passphrase)"
 
-#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:919
+#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:921
 msgid "User"
 msgstr "Utente"
 
@@ -9605,7 +9605,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Devi aspettare più a lungo per cambiare la tua password"
 
-#: pkg/lib/superuser-dialogs.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:144
 msgid "You now have administrative access."
 msgstr "Ora hai accesso amministrativo."
 
@@ -9629,7 +9629,7 @@ msgstr ""
 "Il tuo browser non consente l'incolla dal menu contestuale. Puoi usare "
 "Maiusc+Ins."
 
-#: pkg/lib/superuser-dialogs.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:333
 msgid "Your browser will remember your access level across sessions."
 msgstr "Il tuo browser ricorderà il tuo livello di accesso tra le sessioni."
 

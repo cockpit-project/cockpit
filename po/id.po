@@ -25,8 +25,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-07 14:33+0000\n"
-"PO-Revision-Date: 2025-12-25 06:52+0000\n"
+"POT-Creation-Date: 2026-01-14 10:35+0000\n"
+"PO-Revision-Date: 2026-01-16 01:58+0000\n"
 "Last-Translator: Arif Budiman <arifpedia@gmail.com>\n"
 "Language-Team: Indonesian <https://translate.fedoraproject.org/projects/"
 "cockpit/cockpit/id/>\n"
@@ -35,7 +35,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #: pkg/users/accounts-list.js:250
 msgid "# of users"
@@ -143,7 +143,7 @@ msgstr[0] "$0 upaya login gagal"
 msgid "$0 filesystem"
 msgstr "$0 Sistem berkas"
 
-#: pkg/systemd/services.jsx:867
+#: pkg/systemd/services.jsx:869
 msgid "$0 filters applied"
 msgstr "$0 filter diterapkan"
 
@@ -204,7 +204,7 @@ msgstr "$0 dihentikan dengan sinyal $1"
 #: pkg/systemd/overview-cards/insights.jsx:213
 msgid "$0 low severity hit"
 msgid_plural "$0 low severity hits"
-msgstr[0] ""
+msgstr[0] "$0 temuan tingkat keparahan rendah"
 
 #: pkg/lib/cockpit-components-plot.jsx:234
 msgid "$0 minute"
@@ -214,7 +214,7 @@ msgstr[0] "$0 menit"
 #: pkg/systemd/overview-cards/insights.jsx:208
 msgid "$0 moderate hit"
 msgid_plural "$0 hits, including moderate"
-msgstr[0] ""
+msgstr[0] "$0 temuan, termasuk tingkat keparahan sedang"
 
 #: pkg/lib/cockpit-components-plot.jsx:222
 msgid "$0 month"
@@ -233,7 +233,7 @@ msgstr[0] "$0 paket"
 #: pkg/packagekit/updates.jsx:689 pkg/packagekit/updates.jsx:803
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
-msgstr[0] ""
+msgstr[0] "$0 paket memerlukan reboot sistem"
 
 #: pkg/metrics/metrics.jsx:139
 msgid "$0 page"
@@ -242,14 +242,12 @@ msgstr[0] "$0 halaman"
 
 #: pkg/storaged/partitions/partition-table.jsx:95
 msgid "$0 partitions"
-msgstr "Partisi $0"
+msgstr "$0 partisi"
 
 #: pkg/packagekit/updates.jsx:775
-#, fuzzy
-#| msgid "Available"
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
-msgstr[0] "Tersedia"
+msgstr[0] "Tersedia $0 perbaikan keamanan"
 
 #: pkg/systemd/services.jsx:599
 msgid "$0 service has failed"
@@ -259,7 +257,7 @@ msgstr[0] "$0 service telah gagal"
 #: pkg/packagekit/updates.jsx:706 pkg/packagekit/updates.jsx:815
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
-msgstr[0] ""
+msgstr[0] "$0 layanan perlu dimulai ulang"
 
 #: pkg/storaged/crypto/keyslots.jsx:790
 msgid "$0 slot remains"
@@ -267,11 +265,9 @@ msgid_plural "$0 slots remain"
 msgstr[0] "$0 slot tersisa"
 
 #: pkg/metrics/metrics.jsx:1314
-#, fuzzy
-#| msgid "Memory & swap"
 msgid "$0 spike"
 msgid_plural "$0 spikes"
-msgstr[0] "Memori & Swap"
+msgstr[0] "$0 lonjakan"
 
 #: pkg/storaged/lvm2/block-logical-volume.jsx:402
 msgid "$0 synchronized"
@@ -337,7 +333,7 @@ msgstr "(direkomendasikan)"
 #: pkg/packagekit/updates.jsx:785
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
-msgstr[0] ""
+msgstr[0] ", termasuk $1 perbaikan keamanan"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:95
 msgid "1 MiB"
@@ -597,7 +593,7 @@ msgstr ""
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
-msgstr[0] ""
+msgstr[0] "Beberapa paket memerlukan reboot sistem agar pembaruan diterapkan:"
 
 #: pkg/storaged/stratis/utils.jsx:34
 msgid "A pool with this name exists already."
@@ -607,7 +603,7 @@ msgstr "Kolam dengan nama ini sudah ada."
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
-msgstr[0] ""
+msgstr[0] "Beberapa layanan perlu dimulai ulang agar pembaruan diterapkan:"
 
 #: pkg/storaged/lvm2/volume-group.jsx:365
 msgid "A volume group with missing physical volumes can not be renamed."
@@ -992,7 +988,7 @@ msgstr "Alamat tidak diformat dengan benar"
 msgid "Administration with Cockpit Web Console"
 msgstr "Administrasi dengan Konsol Web Cockpit"
 
-#: pkg/lib/superuser-dialogs.tsx:215 pkg/lib/superuser-dialogs.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:229 pkg/lib/superuser-dialogs.tsx:399
 msgid "Administrative access"
 msgstr "Akses administratif"
 
@@ -1169,11 +1165,9 @@ msgid "At boot"
 msgstr "Saat boot"
 
 #: pkg/storaged/mdraid/create-dialog.jsx:105
-#, fuzzy
-#| msgid "A disk is needed."
 msgid "At least $0 disk is needed."
 msgid_plural "At least $0 disks are needed."
-msgstr[0] "Sebuah disk diperlukan."
+msgstr[0] "Setidaknya diperlukan disk sebesar $0."
 
 #: pkg/storaged/stratis/create-dialog.jsx:98
 msgid "At least one block device is needed."
@@ -1221,7 +1215,7 @@ msgstr "Atribut gagal"
 msgid "Audit log"
 msgstr "Log audit"
 
-#: pkg/lib/superuser-dialogs.tsx:208 pkg/lib/superuser-dialogs.tsx:245
+#: pkg/lib/superuser-dialogs.tsx:222 pkg/lib/superuser-dialogs.tsx:259
 msgid "Authenticate"
 msgstr "Autentikasi"
 
@@ -1503,15 +1497,15 @@ msgstr ""
 #: pkg/packagekit/updates.jsx:561 pkg/packagekit/kpatch.jsx:312
 #: pkg/kdump/kdump-view.jsx:327 pkg/apps/utils.tsx:92
 #: pkg/lib/cockpit-components-shutdown.jsx:237
-#: pkg/lib/cockpit-connect-ssh.tsx:189 pkg/lib/cockpit-connect-ssh.tsx:502
+#: pkg/lib/superuser-dialogs.tsx:225 pkg/lib/superuser-dialogs.tsx:262
+#: pkg/lib/superuser-dialogs.tsx:318 pkg/lib/cockpit-connect-ssh.tsx:189
+#: pkg/lib/cockpit-connect-ssh.tsx:502
 #: pkg/lib/cockpit-components-dialog.jsx:128 pkg/shell/hosts_dialog.jsx:289
 #: pkg/shell/hosts_dialog.jsx:491 pkg/shell/hosts_dialog.jsx:588
 #: pkg/shell/hosts_dialog.jsx:724 pkg/shell/hosts_dialog.jsx:1103
 #: pkg/shell/shell-modals.tsx:186 pkg/shell/credentials.tsx:243
-#: pkg/lib/superuser-dialogs.tsx:211 pkg/lib/superuser-dialogs.tsx:248
-#: pkg/lib/superuser-dialogs.tsx:304 pkg/shell/active-pages-modal.tsx:126
-#: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:932
-#: pkg/networkmanager/firewall.jsx:956
+#: pkg/shell/active-pages-modal.tsx:126 pkg/networkmanager/firewall.jsx:742
+#: pkg/networkmanager/firewall.jsx:932 pkg/networkmanager/firewall.jsx:956
 #: pkg/networkmanager/dialogs-common.jsx:159 pkg/sosreport/sosreport.jsx:296
 #: pkg/sosreport/sosreport.jsx:384
 msgid "Cancel"
@@ -1761,9 +1755,9 @@ msgstr "Perangkat lunak klien"
 #: pkg/systemd/overview-cards/configurationCard.jsx:202 pkg/apps/utils.tsx:140
 #: pkg/lib/cockpit-components-terminal.tsx:363
 #: pkg/lib/cockpit-components-modifications.jsx:79
+#: pkg/lib/superuser-dialogs.tsx:233 pkg/lib/superuser-dialogs.tsx:241
 #: pkg/lib/cockpit-connect-ssh.tsx:527 pkg/shell/hosts_dialog.jsx:220
 #: pkg/shell/shell-modals.tsx:212 pkg/shell/credentials.tsx:350
-#: pkg/lib/superuser-dialogs.tsx:219 pkg/lib/superuser-dialogs.tsx:227
 #: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
 msgid "Close"
 msgstr "Tutup"
@@ -2070,7 +2064,7 @@ msgstr "Kontrol"
 #: pkg/playground/translate.js:23
 msgctxt "key"
 msgid "Control"
-msgstr ""
+msgstr "Kontrol"
 
 #: pkg/lib/machine-info.js:92
 msgid "Convertible"
@@ -2799,7 +2793,7 @@ msgstr "Abaikan"
 #: pkg/selinux/setroubleshoot-view.jsx:408
 msgid "Dismiss $0 alert"
 msgid_plural "Dismiss $0 alerts"
-msgstr[0] ""
+msgstr[0] "Abaikan $0 peringatan"
 
 #: pkg/selinux/setroubleshoot-view.jsx:408
 msgid "Dismiss selected alerts"
@@ -3356,8 +3350,8 @@ msgstr "Gagal memulai"
 msgid "Failed to switch profile"
 msgstr "Gagal beralih profil"
 
-#: pkg/systemd/services.jsx:843 pkg/systemd/services.jsx:847
-#: pkg/systemd/services.jsx:849
+#: pkg/systemd/services.jsx:844 pkg/systemd/services.jsx:848
+#: pkg/systemd/services.jsx:850
 msgid "File state"
 msgstr "Status berkas"
 
@@ -3960,8 +3954,6 @@ msgid "Installing packages"
 msgstr "Menginstal paket"
 
 #: pkg/metrics/metrics.jsx:778 pkg/networkmanager/firewall.jsx:226
-#, fuzzy
-#| msgid "Interfaces"
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "Antarmuka"
@@ -4327,7 +4319,7 @@ msgstr "Dilisensikan di bawah GNU LGPL versi 2.1"
 msgid "Light"
 msgstr "Ringan"
 
-#: pkg/lib/superuser-dialogs.tsx:301
+#: pkg/lib/superuser-dialogs.tsx:315
 msgid "Limit access"
 msgstr "Batasi akses"
 
@@ -4339,11 +4331,11 @@ msgstr "Batasi ukuran"
 msgid "Limit virtual filesystem size"
 msgstr "Batasi ukuran sistem berkas virtual"
 
-#: pkg/lib/superuser-dialogs.tsx:385
+#: pkg/lib/superuser-dialogs.tsx:399
 msgid "Limited access"
 msgstr "Akses terbatas"
 
-#: pkg/lib/superuser-dialogs.tsx:318
+#: pkg/lib/superuser-dialogs.tsx:332
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -4827,7 +4819,7 @@ msgstr "Format metadata"
 msgid "Metadata used"
 msgstr "Metadata yang digunakan"
 
-#: pkg/lib/superuser-dialogs.tsx:234
+#: pkg/lib/superuser-dialogs.tsx:248
 msgid "Method"
 msgstr "Metode"
 
@@ -5804,11 +5796,11 @@ msgid "Passphrases do not match"
 msgstr "Frasa sandi tidak cocok"
 
 #: pkg/static/login.html:113 pkg/storaged/iscsi/create-dialog.jsx:34
-#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/lib/cockpit-connect-ssh.tsx:446
-#: pkg/lib/cockpit-connect-ssh.tsx:456 pkg/shell/hosts_dialog.jsx:1050
-#: pkg/shell/hosts_dialog.jsx:1059 pkg/shell/credentials.tsx:177
-#: pkg/shell/credentials.tsx:236 pkg/shell/credentials.tsx:323
-#: pkg/lib/superuser-dialogs.tsx:174 pkg/users/account-details.js:297
+#: pkg/storaged/iscsi/create-dialog.jsx:140 pkg/lib/superuser-dialogs.tsx:188
+#: pkg/lib/cockpit-connect-ssh.tsx:446 pkg/lib/cockpit-connect-ssh.tsx:456
+#: pkg/shell/hosts_dialog.jsx:1050 pkg/shell/hosts_dialog.jsx:1059
+#: pkg/shell/credentials.tsx:177 pkg/shell/credentials.tsx:236
+#: pkg/shell/credentials.tsx:323 pkg/users/account-details.js:297
 #: pkg/users/account-create-dialog.js:139
 msgid "Password"
 msgstr "Kata sandi"
@@ -6020,7 +6012,7 @@ msgstr "Unit tersemat"
 msgid "Pizza box"
 msgstr "Casing pipih (Pizza box)"
 
-#: pkg/lib/superuser-dialogs.tsx:173
+#: pkg/lib/superuser-dialogs.tsx:187
 msgid "Please authenticate to gain administrative access"
 msgstr "Silakan autentikasi untuk mendapatkan akses administratif"
 
@@ -6143,7 +6135,7 @@ msgstr "Prioritas $priority"
 msgid "Private key"
 msgstr "Kunci pribadi"
 
-#: pkg/lib/superuser-dialogs.tsx:223
+#: pkg/lib/superuser-dialogs.tsx:237
 msgid "Problem becoming administrator"
 msgstr "Masalah saat menjadi administrator"
 
@@ -6324,7 +6316,7 @@ msgstr "Siap"
 #: pkg/playground/translate.html:24
 msgctxt "verb"
 msgid "Ready"
-msgstr ""
+msgstr "Siap"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:290
 msgid "Real host name"
@@ -7696,11 +7688,11 @@ msgstr "Matikan $0"
 msgid "Switch on $0"
 msgstr "Nyalakan $0"
 
-#: pkg/lib/superuser-dialogs.tsx:183 pkg/lib/superuser-dialogs.tsx:230
+#: pkg/lib/superuser-dialogs.tsx:197 pkg/lib/superuser-dialogs.tsx:244
 msgid "Switch to administrative access"
 msgstr "Beralih ke akses administratif"
 
-#: pkg/lib/superuser-dialogs.tsx:313 pkg/lib/superuser-dialogs.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:327 pkg/lib/superuser-dialogs.tsx:418
 msgid "Switch to limited access"
 msgstr "Beralih ke mode akses terbatas"
 
@@ -7738,7 +7730,7 @@ msgstr "Sedang menyinkronkan"
 msgid "Synchronizing MDRAID device $target"
 msgstr "Menyinkronkan perangkat MDRAID $target"
 
-#: pkg/systemd/services.jsx:915 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
+#: pkg/systemd/services.jsx:917 pkg/shell/nav.tsx:72 pkg/shell/nav.tsx:411
 msgid "System"
 msgstr "Sistem"
 
@@ -8003,7 +7995,7 @@ msgstr "Sidik jari harus cocok:"
 #: pkg/packagekit/updates.jsx:496
 msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
-msgstr[0] ""
+msgstr[0] "Layanan berikut akan dimulai ulang:"
 
 #: pkg/users/account-create-dialog.js:172
 msgid "The full name must not contain colons."
@@ -8653,7 +8645,7 @@ msgstr "Tuned tidak berjalan"
 msgid "Tuned is off"
 msgstr "Tuned dimatikan"
 
-#: pkg/lib/superuser-dialogs.tsx:404
+#: pkg/lib/superuser-dialogs.tsx:418
 msgid "Turn on administrative access"
 msgstr "Aktifkan akses administratif"
 
@@ -9070,7 +9062,7 @@ msgstr ""
 "Berguna untuk mount yang bersifat opsional atau memerlukan interaksi "
 "(seperti frasa sandi)"
 
-#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:919
+#: pkg/storaged/dialog.jsx:1498 pkg/systemd/services.jsx:921
 msgid "User"
 msgstr "Pengguna"
 
@@ -9438,7 +9430,7 @@ msgstr "Anda mungkin ingin mengubah kata sandi kunci untuk login otomatis."
 msgid "You must wait longer to change your password"
 msgstr "Anda harus menunggu lebih lama untuk mengubah kata sandi Anda"
 
-#: pkg/lib/superuser-dialogs.tsx:130
+#: pkg/lib/superuser-dialogs.tsx:144
 msgid "You now have administrative access."
 msgstr "Anda sekarang memiliki akses administratif."
 
@@ -9462,7 +9454,7 @@ msgstr ""
 "Peramban Anda tidak mengizinkan tempel dari menu konteks. Anda dapat "
 "menggunakan Shift+Insert."
 
-#: pkg/lib/superuser-dialogs.tsx:319
+#: pkg/lib/superuser-dialogs.tsx:333
 msgid "Your browser will remember your access level across sessions."
 msgstr "Peramban Anda akan mengingat tingkat akses Anda di seluruh sesi."
 
@@ -10034,7 +10026,7 @@ msgstr "tidak ada"
 #: pkg/systemd/overview-cards/usageCard.jsx:124
 msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
-msgstr[0] ""
+msgstr[0] "dari $0 CPU"
 
 #: pkg/systemd/overview-cards/lastLogin.tsx:42
 msgctxt "on <terminal>"

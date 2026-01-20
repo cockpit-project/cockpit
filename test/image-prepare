@@ -42,8 +42,7 @@ def create_machine(image: str) -> Iterator[machine_virtual.VirtMachine]:
     network = machine_virtual.VirtNetwork(image=image)
     machine = machine_virtual.VirtMachine(image=image, networking=network.host(restrict=True))
     try:
-        machine.start()
-        machine.wait_boot()
+        machine.boot()
         yield machine
     finally:
         machine.stop()

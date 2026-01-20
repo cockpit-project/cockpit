@@ -94,8 +94,7 @@ sequenceDiagram
 
     test->>test: test_main()
     test->>test: setUp()
-    test->>machine: start()
-    test->>machine: wait_boot()
+    test->>machine: boot()
     test->>browser: __init__()
     test->>test: setup non-destructive setup
     test->>test: run test

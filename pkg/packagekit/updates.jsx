@@ -1008,8 +1008,11 @@ class OsUpdates extends React.Component {
         superuser.addEventListener("changed", this.handleSuperUserChange);
 
         const packageManager = await getPackageManager();
+        console.log(packageManager.name);
         const backend = await packageManager.get_backend();
         this.setState({ packageManager, backend });
+
+        packageManager.watch_active_transactions((data) => console.log("package cb", data), (data) => console.log("notify cb", data), abort => { console.log(abort) });
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
@@ -1273,11 +1276,13 @@ class OsUpdates extends React.Component {
                                        // not working/being used in at least Fedora
                                        RequireRestart: (type, packageId) => console.log("update RequireRestart", type, packageId),
 
+                                       // ??
                                        Package: (status, packageId) => this.setState(old =>
                                            ({ applyActions: [...old.applyActions, { status, packageId }] })
                                        ),
                                    },
 
+                                   // callback
                                    notify => this.setState(old =>
                                        ({ applyTransactionProps: { ...old.applyTransactionProps, ...notify } })
                                    )
@@ -1296,24 +1301,38 @@ class OsUpdates extends React.Component {
             updates = updates.filter(update => isKpatchPackage(update.name));
         }
 
-        PK.transaction()
-                .then(transactionPath => {
-                    this.watchUpdates(transactionPath)
-                            .then(() => {
-                                PK.update_packages(updates, null, transactionPath)
-                                        .catch(ex => {
-                                            // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
-                                            // show this if we don't have anything else
-                                            if (this.state.errorMessages.length === 0)
-                                                this.state.errorMessages.push(ex.message);
-                                            this.setState({ state: "updateError" });
-                                        });
-                            });
-                })
-                .catch(ex => {
-                    this.state.errorMessages.push(ex.message);
-                    this.setState({ state: "updateError" });
+        // async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, package_cb: UpdatesPackageCB, notify_cb: UpdatesNotifyCB, abort_cb: UpdatesAbortCB): Promise<void> {
+        // package_cb({ id: packageId, name: id_fields[0], version: id_fields[1], arch: id_fields[2], status: UpdateStatusMap[status] });
+        this.state.packageManager.update_packages(updates,
+                                                  null,
+                                                  ({ id, name, version, arch, status }) => {
+                                                      console.log(id);
+                                                  },
+                                                  ({ remainig_time, allow_cancel, percentage, last_package }) => {
+                                                      console.log(remainig_time);
+                                                  },
+                                                  abort => this.setState({ abort }))
+                .then((data) => {
+                    console.log("errors", data);
                 });
+        // PK.transaction()
+        //         .then(transactionPath => {
+        //             this.watchUpdates(transactionPath)
+        //                     .then(() => {
+        //                         PK.update_packages(updates, null, transactionPath)
+        //                                 .catch(ex => {
+        //                                     // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
+        //                                     // show this if we don't have anything else
+        //                                     if (this.state.errorMessages.length === 0)
+        //                                         this.state.errorMessages.push(ex.message);
+        //                                     this.setState({ state: "updateError" });
+        //                                 });
+        //                     });
+        //         })
+        //         .catch(ex => {
+        //             this.state.errorMessages.push(ex.message);
+        //             this.setState({ state: "updateError" });
+        //         });
     }
 
     renderContent() {

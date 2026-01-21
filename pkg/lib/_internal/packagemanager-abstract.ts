@@ -35,6 +35,22 @@ export interface InstallProgressData extends ProgressData {
 }
 
 export type InstallProgressCB = (data: InstallProgressData) => void;
+export interface UpdatesPackageData {
+    status: TransactionStatus
+    id: string
+    name: string
+    version: string
+    arch: string
+}
+export type UpdatesPackageCB = (data: UpdatesPackageData) => void;
+export interface UpdatesNotifyData {
+    remainig_time: number
+    allow_cancel: boolean
+    percentage: number
+    last_package: string
+}
+export type UpdatesNotifyCB = (data: UpdatesNotifyData) => void;
+export type UpdatesAbortCB = () => void;
 
 export interface MissingPackages {
     // Packages that were requested, are currently not installed, and can be installed
@@ -62,6 +78,27 @@ export enum InstallProgressType {
     REMOVING,
     REINSTALLING,
     DOWNGRADING,
+}
+
+export enum TransactionExitCode {
+    SUCCESS,
+    CANCELLED,
+    FAILED,
+}
+
+export enum TransactionStatus {
+    WAIT,
+    DOWNLOAD,
+    INSTALL,
+    UPDATE,
+    CLEANUP,
+    SIGCHECK,
+    WAITING_FOR_LOCK,
+}
+
+interface WatchResult {
+    errors: string[]
+    exit_code: number
 }
 
 export enum Severity {
@@ -107,6 +144,7 @@ export interface PackageManager {
   get_backend(): Promise<string>;
   get_last_refresh_time(): Promise<number>;
   get_history(): Promise<History[]>;
+  watch_active_transactions(package_cb: UpdatesPackageCB, notify_cb: UpdatesNotifyCB, abort_cb: UpdatesAbortCB): Promise<WatchResult>;
 }
 
 export class UnsupportedError extends Error {

@@ -185,9 +185,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
             const watchdog_problem = options.problem as string || "disconnected";
             console.warn("transport closed: " + watchdog_problem);
             this.problem = watchdog_problem;
-            // We might get here real early, before events seem to
-            // work. Let's push the update processing to the event loop.
-            setTimeout(() => this.update(), 0);
+            this.update();
         });
 
         const old_onerror = window.onerror;

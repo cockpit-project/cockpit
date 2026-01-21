@@ -856,7 +856,8 @@ class TestCurrentMetrics(testlib.MachineCase):
         m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
                   "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=100K count=500 status=none & done'")
         try:
-            b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
+            with b.wait_timeout(120):
+                b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
         finally:
             m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
 

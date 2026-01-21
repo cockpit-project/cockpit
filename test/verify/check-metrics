@@ -793,6 +793,9 @@ class TestCurrentMetrics(testlib.MachineCase):
         self.busybox_image = m.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
         self.login_and_go("/metrics")
 
+        # Disable pre-loading packagekit, dnf consumes tons of memory/CPU and interferes too much
+        self.disable_preload("packagekit")
+
     def run_as_admin(self, cmd: str) -> str:
         return self.machine.execute(f"systemd-run --machine=admin@ --quiet --user --collect --pipe --wait /bin/sh -ec '{cmd}'")
 
@@ -1445,6 +1448,9 @@ class TestMultiCPU(testlib.MachineCase):
     def testCPUUsage(self):
         b = self.browser
         m = self.machine
+
+        # Disable pre-loading packagekit, dnf consumes tons of memory/CPU and interferes too much
+        self.disable_preload("packagekit")
 
         prepareArchive(m, "2corescpu.tar.gz", 1598971635)
         self.login_and_go("/metrics")

@@ -25,6 +25,8 @@ fi
 if [ "$ID" = "debian" ] || [ "$ID" = "ubuntu" ]; then
     # avoid random dpkg database locks, they break our package related tests
     systemctl disable apt-daily-upgrade.timer
+    # takes a lot of memory and does not have a chance of working anyway
+    systemctl disable apt-listchanges.timer || true
 
     # create public firewalld zone for our firewall tests
     systemctl start firewalld

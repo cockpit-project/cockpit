@@ -632,8 +632,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_browser_errors(".*")
 
         m.start_cockpit()
-        # Really start Cockpit to make sure it has generated all its certificates.
-        m.execute("systemctl start cockpit")
 
         if safari:
             b.set_user_agent("Safari/300")
@@ -643,12 +641,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         else:
             m.execute("rm -f /etc/cockpit/ws-certs.d/0-self-signed-ca.pem")
 
-        # Log in.
         b.open("/system")
-        b.wait_visible("#login")
-        b.set_val('#login-user-input', "admin")
-        b.set_val('#login-password-input', "foobar")
-        b.click('#login-button')
+        b.try_login()
 
         b.wait_visible("#early-failure")
         if safari and cacert:

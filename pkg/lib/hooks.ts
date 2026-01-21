@@ -301,7 +301,7 @@ export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: c
 
     const [, forceUpdate] = useReducer(x => x + 1, 0);
 
-    useEffect(() => {
+    function addListener() {
         function update(...args: Parameters<cockpit.EventListener<EM[E]>>) {
             if (handler)
                 handler(...args);
@@ -310,7 +310,12 @@ export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: c
 
         obj?.addEventListener(event, update);
         return () => obj?.removeEventListener(event, update);
-    }, [obj, event, handler]);
+    }
+
+    useObject(
+        addListener,
+        removeListener => removeListener(),
+        [obj, event, handler]);
 }
 
 /* Same as useEvent, but for our own EventEmitter.
@@ -318,9 +323,10 @@ export function useEvent<EM extends cockpit.EventMap, E extends keyof EM>(obj: c
 export function useOn<EM extends { [E in keyof EM]: (...args: never[]) => void }, E extends keyof EM>(object: EventEmitter<EM> | null, event: E): void {
     const [, forceUpdate] = useReducer(x => x + 1, 0);
 
-    useEffect(() => {
-        return object?.on(event, forceUpdate as EM[E]);
-    }, [object, event]);
+    useObject(
+        () => object?.on(event, forceUpdate as EM[E]),
+        off => off && off(),
+        [object, event]);
 }
 
 /* - useInit(func, deps, comps)

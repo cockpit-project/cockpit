@@ -82,16 +82,29 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
 
     #on_ready() {
         if (this.machines.ready && this.#config_ready) {
-            this.ready = true;
-            window.addEventListener("popstate", () => {
+            // Don't set ready=true if there's already a problem - this would break
+            // the condition (problem && !ready) that triggers EarlyFailure rendering
+            if (!this.problem) {
+                this.ready = true;
+                window.addEventListener("popstate", () => {
+                    this.update();
+                    this.ensure_frame_loaded();
+                    this.ensure_connection();
+                });
+
                 this.update();
                 this.ensure_frame_loaded();
                 this.ensure_connection();
-            });
-
+            } else {
+                // Emit an update event in case the previous one was missed (emitted before
+                // React component listeners were set up)
+                this.update();
+            }
+        } else if (this.problem && (this.machines.ready || this.#config_ready)) {
+            // If there's a problem and at least one subsystem is ready (but not both),
+            // emit an update to ensure EarlyFailure gets rendered. This handles the case
+            // where the connection fails before machines become ready.
             this.update();
-            this.ensure_frame_loaded();
-            this.ensure_connection();
         }
     }
 

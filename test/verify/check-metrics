@@ -825,23 +825,24 @@ class TestCurrentMetrics(testlib.MachineCase):
         b.wait(lambda: b.get_pf_progress_value("#current-cpu-usage") < 20)
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=60% --unit cpu-hog dd if=/dev/urandom of=/dev/null")
         m.execute("systemd-run --collect --slice cockpittest -p CPUQuota=30% --unit cpu-piglet dd if=/dev/urandom of=/dev/null")
-        b.wait(lambda: b.get_pf_progress_value("#current-cpu-usage") > 75)
-        # no other process in the test VM should take > 30% CPU, by the "settles down" assertion above
-        b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(1) td[data-label='Service']", "cpu-hog")
-        b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(2) td[data-label='Service']", "cpu-piglet")
-
-        # There might be some other processes which take more resources
-        # Keep this logging so we can easily debug which ones we might need to cleanup
         try:
-            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 50)
-            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) < 70)
-            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 2) > 20)
-            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 2) < 40)
-        except BaseException:
-            print(m.execute("top -b -n 1"))
-            raise
+            b.wait(lambda: b.get_pf_progress_value("#current-cpu-usage") > 75)
+            # no other process in the test VM should take > 30% CPU, by the "settles down" assertion above
+            b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(1) td[data-label='Service']", "cpu-hog")
+            b.wait_text("table[aria-label='Top 5 CPU services'] tbody tr:nth-of-type(2) td[data-label='Service']", "cpu-piglet")
 
-        m.execute("systemctl stop cpu-hog cpu-piglet")
+            # There might be some other processes which take more resources
+            # Keep this logging so we can easily debug which ones we might need to cleanup
+            try:
+                b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 50)
+                b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) < 70)
+                b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 2) > 20)
+                b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 2) < 40)
+            except BaseException:
+                print(m.execute("top -b -n 1"))
+                raise
+        finally:
+            m.execute("systemctl stop cpu-hog cpu-piglet")
         # should go back to idle usage
         b.wait(lambda: b.get_pf_progress_value("#current-cpu-usage") < 20)
         # it could be that the table disappears completely if no service has a noticeable CPU usage;
@@ -854,25 +855,27 @@ class TestCurrentMetrics(testlib.MachineCase):
 
         m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
                   "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=100K count=500 status=none & done'")
-        b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
-        m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
+        try:
+            b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
+        finally:
+            m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
 
         container_name = "pod-cpu-hog"
         m.execute(f"podman run --rm -d --name {container_name} {self.busybox_image} /bin/dd if=/dev/urandom of=/dev/null")
+        try:
+            container_sha = m.execute(f"podman inspect --format '{{{{.Id}}}}' {container_name}").strip()
+            shortid = container_sha[:12]
 
-        container_sha = m.execute(f"podman inspect --format '{{{{.Id}}}}' {container_name}").strip()
-        shortid = container_sha[:12]
+            # On some test images the container takes a while to show up
+            with b.wait_timeout(300):
+                b.wait_in_text("#current-metrics-card-cpu", f"pod {shortid}")
+            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 70)
 
-        # On some test images the container takes a while to show up
-        with b.wait_timeout(300):
-            b.wait_in_text("#current-metrics-card-cpu", f"pod {shortid}")
-        b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 70)
-
-        # It takes one re-render for the name lookup
-        with b.wait_timeout(30):
-            b.wait_in_text("#current-metrics-card-cpu", f"pod {container_name}")
-
-        m.execute(f"podman stop -t 0 {container_name}")
+            # It takes one re-render for the name lookup
+            with b.wait_timeout(30):
+                b.wait_in_text("#current-metrics-card-cpu", f"pod {container_name}")
+        finally:
+            m.execute(f"podman stop -t 0 {container_name}")
 
         # RHEL-8's podman user containers do not show up as
         # libpod-$containerid but as podman-3679.scope.

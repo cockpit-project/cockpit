@@ -372,7 +372,7 @@ class Browser:
         """
         if href.startswith("/"):
             schema = "https" if tls else "http"
-            href = "%s://%s:%s%s" % (schema, self.address, self.port, href)
+            href = f"{schema}://{self.address}:{self.port}{href}"
 
         if not self.current_layout and os.environ.get("TEST_SHOW_BROWSER") in [None, "pixels"]:
             self.current_layout = self.layouts[0]
@@ -471,7 +471,7 @@ class Browser:
         :param func: JavaScript function to call
         :param args: arguments for the JavaScript function
         """
-        return self.eval_js("%s(%s)" % (func, ','.join(map(jsquote, args))))
+        return self.eval_js("{}({})".format(func, ','.join(map(jsquote, args))))
 
     def set_mock(self, mock: Mapping[str, str], base: str = "") -> None:
         """Replace some DOM elements with mock text
@@ -858,7 +858,7 @@ class Browser:
         raise Error(f"timeout\nwait_js_cond({cond}): {last_error.msg}") from None
 
     def wait_js_func(self, func: str, *args: object) -> None:
-        self.wait_js_cond("%s(%s)" % (func, ','.join(map(jsquote, args))))
+        self.wait_js_cond("{}({})".format(func, ','.join(map(jsquote, args))))
 
     def is_present(self, selector: str) -> bool:
         return self.call_js_func('ph_is_present', selector)
@@ -905,7 +905,7 @@ class Browser:
 
     def wait_in_text(self, selector: str, text: str) -> None:
         self.wait_visible(selector)
-        self.wait_js_cond("ph_in_text(%s,%s)" % (jsquote(selector), jsquote(text)),
+        self.wait_js_cond(f"ph_in_text({jsquote(selector)},{jsquote(text)})",
                           error_description="() => 'actual text: ' + ph_text(%s)" % jsquote(selector))
 
     def wait_not_in_text(self, selector: str, text: str) -> None:
@@ -917,7 +917,7 @@ class Browser:
 
     def wait_text(self, selector: str, text: str) -> None:
         self.wait_visible(selector)
-        self.wait_js_cond("ph_text_is(%s,%s)" % (jsquote(selector), jsquote(text)),
+        self.wait_js_cond(f"ph_text_is({jsquote(selector)},{jsquote(text)})",
                           error_description="() => 'actual text: ' + ph_text(%s)" % jsquote(selector))
 
     def wait_text_not(self, selector: str, text: str) -> None:
@@ -941,7 +941,7 @@ class Browser:
         code_2 = parts[0]
         if len(parts) > 1:
             code_2 += "_" + parts[1].upper()
-        self.wait_js_cond("cockpit.language == '%s' || cockpit.language == '%s'" % (code_1, code_2))
+        self.wait_js_cond(f"cockpit.language == '{code_1}' || cockpit.language == '{code_2}'")
 
     def dialog_cancel(self, sel: str, button: str = "button[data-dismiss='modal']") -> None:
         self.click(sel + " " + button)
@@ -1025,7 +1025,7 @@ class Browser:
         if legacy_authorized is not None:
             self.set_checked('#authorized-input', legacy_authorized)
         if superuser is not None:
-            self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
+            self.eval_js('window.localStorage.setItem("superuser:{}", "{}");'.format(user, "any" if superuser else "none"))
         self.click('#login-button')
 
     def login_and_go(
@@ -1917,7 +1917,7 @@ class MachineCase(unittest.TestCase):
         m = self.machine
 
         # helps with mapping journal output to particular tests
-        name = "%s.%s" % (self.__class__.__name__, self._testMethodName)
+        name = f"{self.__class__.__name__}.{self._testMethodName}"
         m.execute("logger -p user.info 'COCKPITTEST: start %s'" % name)
         self.addCleanup(m.execute, "logger -p user.info 'COCKPITTEST: end %s'" % name)
 
@@ -2371,7 +2371,7 @@ class MachineCase(unittest.TestCase):
     def copy_journal(self, title: str, label: str | None = None) -> None:
         for _, m in self.machines.items():
             if m.ssh_reachable:
-                log = unique_filename("%s-%s-%s" % (label or self.label(), m.label, title), "log.gz")
+                log = unique_filename(f"{label or self.label()}-{m.label}-{title}", "log.gz")
                 with open(log, "w") as fp:
                     m.execute("journalctl|gzip", stdout=fp)
                     print("Journal extracted to %s" % (log))
@@ -2382,7 +2382,7 @@ class MachineCase(unittest.TestCase):
             return
         for _, m in self.machines.items():
             if m.ssh_reachable:
-                directory = "%s-%s-%s.core" % (label or self.label(), m.label, title)
+                directory = f"{label or self.label()}-{m.label}-{title}.core"
                 dest = os.path.abspath(directory)
                 # overwrite core dumps from previous retries
                 if os.path.exists(dest):

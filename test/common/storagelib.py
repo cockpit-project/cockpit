@@ -424,8 +424,7 @@ class StorageHelpers(MachineCase):
                     for entry in crypto_iface["ChildConfiguration"]:
                         if entry[0] == tab:
                             if field in entry[1]:
-                                print("%s/child/%s/%s = %s" % (path, tab, field,
-                                                               from_udisks_ascii(entry[1][field])))
+                                print(f"{path}/child/{tab}/{field} = {from_udisks_ascii(entry[1][field])}")
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
@@ -441,8 +440,7 @@ class StorageHelpers(MachineCase):
                     for entry in iface["ChildConfiguration"]:
                         if entry[0] == tab:
                             if field in entry[1]:
-                                print("%s/child/%s/%s = %s" % (path, tab, field,
-                                                               from_udisks_ascii(entry[1][field])))
+                                print(f"{path}/child/{tab}/{field} = {from_udisks_ascii(entry[1][field])}")
                                 return from_udisks_ascii(entry[1][field])
         return ""
 

@@ -1403,10 +1403,10 @@ class TestReverseProxy(testlib.MachineCase):
         m.upload(["../src/tls/ca/alice.pem", "../src/tls/ca/alice.key"], "/etc/pki")
 
         m.write("/etc/cockpit/cockpit.conf", """[WebService]
-Origins = https://%(origin)s wss://%(origin)s
+Origins = https://{origin} wss://{origin}
 ForwardedForHeader = X-Forwarded-For
 ProtocolHeader = X-Forwarded-Proto
-""" % {"origin": m.forward["443"]}, append=True)
+""".format(origin=m.forward["443"]), append=True)
 
         m.execute("setsebool -P httpd_can_network_connect on")
         # these tests are running the cockpit-ws binary directly, not via cockpit.socket
@@ -1459,15 +1459,15 @@ ProtocolHeader = X-Forwarded-Proto
         m = self.machine
 
         m.write("/etc/nginx/conf.d/cockpit.conf", """
-server {
+server {{
     listen 443 ssl;
-    server_name %(origin)s;
+    server_name {origin};
     root /srv/www;
 
     ssl_certificate "/etc/pki/alice.pem";
     ssl_certificate_key "/etc/pki/alice.key";
 
-    location / {
+    location / {{
         # Required to proxy the connection to Cockpit
         proxy_pass https://127.0.0.1:9090;
         proxy_set_header Host $host;
@@ -1483,9 +1483,9 @@ server {
         # Pass ETag header from Cockpit to clients.
         # See: https://github.com/cockpit-project/cockpit/issues/5239
         gzip off;
-    }
-}
-""" % {"origin": m.forward["443"]})
+    }}
+}}
+""".format(origin=m.forward["443"]))
 
         m.execute("systemctl start nginx")
         m.start_cockpit(tls=True)
@@ -1538,14 +1538,14 @@ server {
         m = self.machine
 
         m.write("/etc/nginx/conf.d/cockpit.conf", """
-server {
+server {{
     listen 443 ssl;
-    server_name %(origin)s;
+    server_name {origin};
 
     ssl_certificate "/etc/pki/alice.pem";
     ssl_certificate_key "/etc/pki/alice.key";
 
-    location / {
+    location / {{
         # Required to proxy the connection to Cockpit
         proxy_pass http://127.0.0.1:9090;
         proxy_set_header Host $host;
@@ -1561,9 +1561,9 @@ server {
         # Pass ETag header from Cockpit to clients.
         # See: https://github.com/cockpit-project/cockpit/issues/5239
         gzip off;
-    }
-}
-""" % {"origin": m.forward["443"]})
+    }}
+}}
+""".format(origin=m.forward["443"]))
 
         m.execute("systemctl start nginx")
 

@@ -33,15 +33,15 @@ class NetworkHelpers(MachineCase):
         """
         if dhcp_range is None:
             dhcp_range = ['10.111.112.2', '10.111.127.254']
-        self.machine.execute(r"""
+        self.machine.execute(rf"""
             mkdir -p /run/udev/rules.d/
-            echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-%(name)s-test.rules
+            echo 'ENV{{ID_NET_DRIVER}}=="veth", ENV{{INTERFACE}}=="{name}", ENV{{NM_UNMANAGED}}="0"' > /run/udev/rules.d/99-nm-veth-{name}-test.rules
             udevadm control --reload
-            ip link add name %(name)s type veth peer name v_%(name)s
+            ip link add name {name} type veth peer name v_{name}
             # Trigger udev to make sure that it has been renamed to its final name
             udevadm trigger --subsystem-match=net
             udevadm settle
-            """ % {"name": name})
+            """)
         self.addCleanup(self.machine.execute, f"rm /run/udev/rules.d/99-nm-veth-{name}-test.rules; ip link del dev {name}")
         if dhcp_cidr:
             # up the remote end, give it an IP, and start DHCP server

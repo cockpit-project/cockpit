@@ -539,6 +539,10 @@ class TestConnection(testlib.MachineCase):
         self.assertIn("Cross-Origin-Resource-Policy: same-origin", headers)
         self.assertIn("X-Frame-Options: sameorigin", headers)
 
+        # IPv6 connection
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl -6 --head http://[::1]:9090"))
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl -6 -k --head https://[::1]:9090"))
+
         self.allow_journal_messages(
             ".*Peer failed to perform TLS handshake",
             ".*Peer sent fatal TLS alert:.*",

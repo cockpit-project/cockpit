@@ -55,3 +55,9 @@ done
 
 rm -rf /build/var/cache/*dnf* /build/var/lib/dnf /build/var/lib/rpm* /build/var/log/*
 rm -rf /container/rpms || true
+
+# Copy local files if they exist (for fast development iteration)
+if [ -d /container/overlay ]; then
+    echo "Installing local overlay files..."
+    cp -rv /container/overlay/* $INSTALLROOT/
+fi

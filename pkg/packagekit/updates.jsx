@@ -1184,7 +1184,7 @@ class OsUpdates extends React.Component {
         PK.is_available(["coreutils"], null)
                 .then((have_coreutils) => this.setState({ haveOsRepo: have_coreutils }),
                       ex => console.warn("Resolving coreutils failed:", JSON.stringify(ex)))
-                .then(() => PK.get_updates(true, null).then(updates => {
+                .then(() => this.state.packageManager.get_updates(true, null).then(updates => {
                     debug("GetUpdates result:", updates);
                     if (updates.length) {
                         for (const update of updates) {

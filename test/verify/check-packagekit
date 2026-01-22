@@ -461,7 +461,7 @@ ExecStart=/usr/local/bin/{package} infinity
         b = self.browser
         m = self.machine
 
-        class Tracer(object):
+        class Tracer:
             def __init__(self,
                          testObj: TestUpdates,
                          rebootRequired: bool = False,

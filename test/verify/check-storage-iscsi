@@ -49,16 +49,16 @@ class TestStorageISCSI(storagelib.StorageCase):
         #
         #        https://bugzilla.redhat.com/show_bug.cgi?id=1441121
 
-        m.execute("""
+        m.execute(f"""
                   export TERM=dumb
                   targetcli /backstores/ramdisk create test 50M
                   targetcli /iscsi set discovery_auth enable=1 userid=admin password=foobar
-                  targetcli /iscsi create %(tgt)s
-                  targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
-                  targetcli /iscsi/%(tgt)s/tpg1 set attribute authentication=1
-                  targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
-                  targetcli /iscsi/%(tgt)s/tpg1/acls/%(ini)s set auth userid=admin password=barfoo
-                  """ % {"tgt": target_iqn, "ini": initiator_iqn})
+                  targetcli /iscsi create {target_iqn}
+                  targetcli /iscsi/{target_iqn}/tpg1/luns create /backstores/ramdisk/test
+                  targetcli /iscsi/{target_iqn}/tpg1 set attribute authentication=1
+                  targetcli /iscsi/{target_iqn}/tpg1/acls create {initiator_iqn}
+                  targetcli /iscsi/{target_iqn}/tpg1/acls/{initiator_iqn} set auth userid=admin password=barfoo
+                  """)
         self.addCleanup(m.execute, f"""
             targetcli /iscsi delete {target_iqn}
             iscsiadm -m node -o delete || true

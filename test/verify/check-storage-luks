@@ -27,7 +27,7 @@ import testlib
 
 
 def console_screenshot(machine, name):
-    subprocess.run("virsh -c qemu:///session screenshot %s '%s'" % (str(machine._domain.ID()), name),
+    subprocess.run(f"virsh -c qemu:///session screenshot {machine._domain.ID()!s} '{name}'",
                    shell=True)
     testlib.attach(name, move=True)
     print("Wrote screenshot to " + name)

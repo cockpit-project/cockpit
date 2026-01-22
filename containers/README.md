@@ -13,11 +13,14 @@ ws container development
 
 Build the container:
 
-    $ make ws-container
+    make ws-container
+
+You can install locally built RPMs by copying them into the `ws/rpms/`
+directory.
 
 Run the built container and log in interactively as a shell:
 
-    $ make ws-container-shell
+    make ws-container-shell
 
 When running docker the 'sudo' command will be used to get necessary
 privileges.

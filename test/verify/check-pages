@@ -242,8 +242,8 @@ OnCalendar=daily
         self.assertEqual(b.text("#gettext-context-control"), "Strg")
         self.assertEqual(b.text("#ngettext-disks-1"), "$0 Festplatte fehlt")
         self.assertEqual(b.text("#ngettext-disks-2"), "$0 Festplatten fehlen")
-        self.assertEqual(b.text("#ngettext-context-disks-1"), u"$0 Datenträger fehlt")
-        self.assertEqual(b.text("#ngettext-context-disks-2"), u"$0 Datenträger fehlen")
+        self.assertEqual(b.text("#ngettext-context-disks-1"), "$0 Datenträger fehlt")
+        self.assertEqual(b.text("#ngettext-context-disks-2"), "$0 Datenträger fehlen")
 
         # Frame title
         b.switch_to_top()
@@ -363,7 +363,7 @@ OnCalendar=daily
         # HTML section
         self.assertEqual(b.text('#translate-html'), 'Pronto')
         self.assertEqual(b.text('#translate-html-context'), 'Pronto')
-        self.assertEqual(b.text('#translate-html-yes'), u'Não está pronto')
+        self.assertEqual(b.text('#translate-html-yes'), 'Não está pronto')
 
         # Glade section
         self.assertEqual(b.text('#translatable-glade'), 'Vazio')
@@ -375,10 +375,10 @@ OnCalendar=daily
         self.assertEqual(b.text('#cunderscore-context-empty'), 'Vazio')
         self.assertEqual(b.text('#gettext-control'), 'Controle')
         self.assertEqual(b.text('#gettext-context-control'), 'Controle')
-        self.assertEqual(b.text('#ngettext-disks-1'), u'$0 disco não encontrado')
-        self.assertEqual(b.text('#ngettext-disks-2'), u'$0 discos não encontrados')
-        self.assertEqual(b.text('#ngettext-context-disks-1'), u'$0 disco não encontrado')
-        self.assertEqual(b.text('#ngettext-context-disks-2'), u'$0 discos não encontrados')
+        self.assertEqual(b.text('#ngettext-disks-1'), '$0 disco não encontrado')
+        self.assertEqual(b.text('#ngettext-disks-2'), '$0 discos não encontrados')
+        self.assertEqual(b.text('#ngettext-context-disks-1'), '$0 disco não encontrado')
+        self.assertEqual(b.text('#ngettext-context-disks-2'), '$0 discos não encontrados')
 
         # Log out and check that login page is translated now
         b.logout()

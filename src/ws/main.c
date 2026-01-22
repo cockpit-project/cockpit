@@ -37,7 +37,6 @@
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpitwebcertificate.h"
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -52,7 +51,7 @@ static gboolean  opt_version      = FALSE;
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
   {"address", 'a', 0, G_OPTION_ARG_STRING, &opt_address, "Address to bind to (binds on all addresses if unset)", "ADDRESS"},
-  {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
+  {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Disable http to https redirection", NULL},
   {"for-tls-proxy", 0, 0, G_OPTION_ARG_NONE, &opt_for_tls_proxy,
       "Act behind a https-terminating proxy: accept only https:// origins by default",
       NULL},
@@ -115,7 +114,6 @@ main (int argc,
 {
   gint ret = 1;
   g_autoptr(GOptionContext) context = NULL;
-  g_autoptr(GTlsCertificate) certificate = NULL;
   g_autoptr(GError) error = NULL;
   g_auto(GStrv) roots = NULL;
   g_autoptr(GMainLoop) loop = NULL;
@@ -143,7 +141,7 @@ main (int argc,
   /* check mutually exclusive options */
   if (opt_for_tls_proxy && opt_no_tls)
     {
-      g_printerr ("--for-tls-proxy and --no-tls are mutually exclusive");
+      g_printerr ("--for-tls-proxy and --no-tls are mutually exclusive\n");
       goto out;
     }
 
@@ -159,28 +157,6 @@ main (int argc,
 
   cockpit_hacks_redirect_gdebug_to_stderr ();
 
-  if (opt_local_session || opt_no_tls)
-    {
-      /* no certificate */
-    }
-  else
-    {
-      g_autofree char *message = NULL;
-      g_autofree gchar *cert_path = cockpit_certificate_locate (false, &message);
-      if (cert_path == NULL)
-        {
-          g_set_error_literal (&error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, message);
-          goto out;
-        }
-
-      g_autofree gchar *key_path = cockpit_certificate_key_path (cert_path);
-
-      certificate = g_tls_certificate_new_from_files (cert_path, key_path, &error);
-      if (certificate == NULL)
-        goto out;
-      g_info ("Using certificate: %s", cert_path);
-    }
-
   loop = g_main_loop_new (NULL, FALSE);
 
   data.os_release = cockpit_system_load_os_release ();
@@ -195,13 +171,10 @@ main (int argc,
 
   if (opt_for_tls_proxy)
     server_flags |= COCKPIT_WEB_SERVER_FOR_TLS_PROXY;
-  if (!cockpit_conf_bool ("WebService", "AllowUnencrypted", FALSE))
-    {
-      if (!opt_no_tls)
-        server_flags |= COCKPIT_WEB_SERVER_REDIRECT_TLS;
-    }
+  if (!opt_no_tls && !cockpit_conf_bool ("WebService", "AllowUnencrypted", FALSE))
+    server_flags |= COCKPIT_WEB_SERVER_REDIRECT_TLS;
 
-  server = cockpit_web_server_new (certificate, server_flags);
+  server = cockpit_web_server_new (server_flags);
 
   const gint n_listen_fds = sd_listen_fds (true);
   if (n_listen_fds)

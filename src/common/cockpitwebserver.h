@@ -90,8 +90,7 @@ typedef enum {
 } CockpitWebServerFlags;
 
 
-CockpitWebServer * cockpit_web_server_new           (GTlsCertificate *certificate,
-                                                     CockpitWebServerFlags flags);
+CockpitWebServer * cockpit_web_server_new           (CockpitWebServerFlags flags);
 
 void               cockpit_web_server_start         (CockpitWebServer *self);
 

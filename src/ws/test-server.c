@@ -770,8 +770,7 @@ server_ready (void)
     server_port = 8765;
 
   server_roots = cockpit_web_response_resolve_roots (roots);
-  server = cockpit_web_server_new (NULL, /* TLS cert */
-                                   COCKPIT_WEB_SERVER_NONE);
+  server = cockpit_web_server_new (COCKPIT_WEB_SERVER_NONE);
   server_port = cockpit_web_server_add_inet_listener (server, NULL, server_port, &error);
   g_assert_no_error (error);
   g_assert (server_port != 0);

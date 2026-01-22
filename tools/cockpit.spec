@@ -449,7 +449,6 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/system-cockpithttps.slice
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-ws.conf
 %{pamdir}/pam_ssh_add.so
-%{pamdir}/pam_cockpit_cert.so
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-wsinstance-factory
 %{_libexecdir}/cockpit-tls
@@ -487,14 +486,6 @@ fi
 %systemd_post cockpit.socket cockpit.service
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
-
-# check for deprecated PAM config
-if test -f %{_sysconfdir}/pam.d/cockpit &&  grep -q pam_cockpit_cert %{_sysconfdir}/pam.d/cockpit; then
-    echo '**** WARNING:'
-    echo '**** WARNING: pam_cockpit_cert is a no-op and will be removed in a'
-    echo '**** WARNING: future release; remove it from your /etc/pam.d/cockpit.'
-    echo '**** WARNING:'
-fi
 
 # remove obsolete system user on upgrade (replaced with DynamicUser in version 330)
 if getent passwd cockpit-wsinstance >/dev/null; then

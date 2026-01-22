@@ -90,7 +90,7 @@ class TestUpdates(NoSubManCase):
         else:
             self.assertEqual(b.text(row + " tr:first-child [data-label=Name]"), pkgname)
             b.mouse(row + "tr:first-child [data-label=Name] span", "mouseenter")
-            b.wait_text(".pf-v6-c-tooltip", "dummy " + pkgname + " (" + arch + ")")
+            b.wait_text(".pf-v6-c-tooltip", f"dummy {pkgname} ({arch})")
             b.mouse(row + "tr:first-child [data-label=Name] span", "mouseleave")
             b.wait_not_present(".pf-v6-c-tooltip")
         self.assertEqual(b.text(row + "[data-label=Version]"), version)

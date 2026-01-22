@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -58,7 +59,7 @@ typedef struct {
   gchar *clients_dir;
   gchar *cgroup_line;
   GPid ws_spawner;
-  struct sockaddr_in server_addr;
+  struct sockaddr_in6 server_addr;
 } TestCase;
 
 typedef struct {
@@ -154,9 +155,56 @@ check_for_certfile (TestCase *tc,
 static int
 do_connect (TestCase *tc)
 {
-  int fd = socket (AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  int fd = socket (AF_INET6, SOCK_STREAM | SOCK_CLOEXEC, 0);
   g_assert_cmpint (fd, >, 0);
   if (connect (fd, (struct sockaddr *) &tc->server_addr, sizeof (tc->server_addr)) < 0)
+    {
+      close (fd);
+      return -errno;
+    }
+  else
+    {
+      return fd;
+    }
+}
+
+/* Explicitly connect using IPv4 to the dual-stack server */
+static int
+do_connect_ipv4 (TestCase *tc)
+{
+  struct sockaddr_in sa;
+  int fd = socket (AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  g_assert_cmpint (fd, >, 0);
+
+  memset (&sa, 0, sizeof (sa));
+  sa.sin_family = AF_INET;
+  sa.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
+  sa.sin_port = tc->server_addr.sin6_port;
+
+  if (connect (fd, (struct sockaddr *) &sa, sizeof (sa)) < 0)
+    {
+      close (fd);
+      return -errno;
+    }
+  else
+    {
+      return fd;
+    }
+}
+
+/* Connect using IPv4-mapped IPv6 address (::ffff:x.x.x.x) */
+static int
+do_connect_ipv4_mapped (TestCase *tc, const char *ipv4_mapped_addr)
+{
+  struct sockaddr_in6 sa;
+  int fd = socket (AF_INET6, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  g_assert_cmpint (fd, >, 0);
+
+  /* Use server_addr but change address to specified IPv4-mapped address */
+  memcpy (&sa, &tc->server_addr, sizeof (sa));
+  g_assert_cmpint (inet_pton (AF_INET6, ipv4_mapped_addr, &sa.sin6_addr), ==, 1);
+
+  if (connect (fd, (struct sockaddr *) &sa, sizeof (sa)) < 0)
     {
       close (fd);
       return -errno;
@@ -190,10 +238,9 @@ recv_reply (int fd, char *buf, size_t buflen)
 }
 
 static const char*
-do_request (TestCase *tc, const char *request)
+do_request_fd (int fd, const char *request)
 {
   static char buf[4096];
-  int fd = do_connect (tc);
   int res;
 
   send_request (fd, request);
@@ -207,6 +254,13 @@ do_request (TestCase *tc, const char *request)
   }
 
   g_error ("timed out waiting for enough data to become available: res=%d, error: %m", res);
+}
+
+static const char*
+do_request (TestCase *tc, const char *request)
+{
+  int fd = do_connect (tc);
+  return do_request_fd (fd, request);
 }
 
 static void
@@ -404,7 +458,7 @@ setup (TestCase *tc, gconstpointer data)
 
   /* Sanity check */
   g_assert_cmpint (addrlen, ==, sizeof tc->server_addr);
-  g_assert_cmpint (tc->server_addr.sin_family, ==, AF_INET);
+  g_assert_cmpint (tc->server_addr.sin6_family, ==, AF_INET6);
 }
 
 static void
@@ -566,11 +620,17 @@ test_no_tls_many_parallel (TestCase *tc, gconstpointer data)
 static void
 test_no_tls_redirect (TestCase *tc, gconstpointer data)
 {
-  /* Make sure we connect on something other than localhost */
-  tc->server_addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK + 1);
+  struct sockaddr *sa = (struct sockaddr *) &tc->server_addr;
+
+  /* Server uses IPv6 dual-stack socket */
+  g_assert_cmpint (sa->sa_family, ==, AF_INET6);
+
+  /* Connect to non-localhost address (127.0.0.2 as IPv4-mapped IPv6) to test redirect logic */
+  int fd = do_connect_ipv4_mapped (tc, "::ffff:127.0.0.2");
+  g_assert_cmpint (fd, >, 0);
 
   /* without TLS support it should not redirect */
-  const char *res = do_request (tc, "GET / HTTP/1.0\r\nHost: some.remote:1234\r\n\r\n");
+  const char *res = do_request_fd (fd, "GET / HTTP/1.0\r\nHost: some.remote:1234\r\n\r\n");
   /* This succeeds (200 OK) when building in-tree, but fails with dist-check due to missing doc root */
   if (strstr (res, "200 OK"))
     cockpit_assert_strmatch (res, "HTTP/1.1 200 OK*");
@@ -595,11 +655,17 @@ test_tls_no_server_cert (TestCase *tc, gconstpointer data)
 static void
 test_tls_redirect (TestCase *tc, gconstpointer data)
 {
-  /* Make sure we connect on something other than localhost */
-  tc->server_addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK + 1);
+  struct sockaddr *sa = (struct sockaddr *) &tc->server_addr;
+
+  /* Server uses IPv6 dual-stack socket */
+  g_assert_cmpint (sa->sa_family, ==, AF_INET6);
+
+  /* Connect to non-localhost address (127.0.0.2 as IPv4-mapped IPv6) to test redirect logic */
+  int fd = do_connect_ipv4_mapped (tc, "::ffff:127.0.0.2");
+  g_assert_cmpint (fd, >, 0);
 
   /* with TLS support it should redirect */
-  const char *res = do_request (tc, "GET / HTTP/1.0\r\nHost: some.remote:1234\r\n\r\n");
+  const char *res = do_request_fd (fd, "GET / HTTP/1.0\r\nHost: some.remote:1234\r\n\r\n");
   cockpit_assert_strmatch (res, "HTTP/1.1 301 Moved Permanently*");
 }
 
@@ -787,6 +853,22 @@ test_run_idle (TestCase *tc, gconstpointer data)
   server_run ();
 }
 
+static void
+test_ipv4_connection (TestCase *tc, gconstpointer data)
+{
+  /* Explicitly connect using IPv4 to the dual-stack server */
+  int fd = do_connect_ipv4 (tc);
+  g_assert_cmpint (fd, >, 0);
+
+  const char *reply = do_request_fd (fd, "GET / HTTP/1.0\r\nHost: localhost\r\n\r\n");
+
+  /* This succeeds (200 OK) when building in-tree, but fails with dist-check due to missing doc root */
+  if (strstr (reply, "200 OK"))
+    cockpit_assert_strmatch (reply, "HTTP/1.1 200 OK*");
+  else
+    cockpit_assert_strmatch (reply, "HTTP/1.1 404 Not Found*");
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -822,6 +904,8 @@ main (int argc, char *argv[])
               setup, test_mixed_protocols, teardown);
   g_test_add ("/server/run-idle", TestCase, &fixture_run_idle,
               setup, test_run_idle, teardown);
+  g_test_add ("/server/ipv4/connection", TestCase, NULL,
+              setup, test_ipv4_connection, teardown);
 
   return g_test_run ();
 }

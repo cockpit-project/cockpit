@@ -221,22 +221,26 @@ server_init (const char *wsinstance_sockdir,
     }
   else
     {
-      struct sockaddr_in sa_serv;
+      struct sockaddr_in6 sa_serv;
       int optval = 1;
 
       /* Listen to our port; on the command line and our API we just support one */
-      server.first_listener = socket (AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+      server.first_listener = socket (AF_INET6, SOCK_STREAM | SOCK_CLOEXEC, 0);
       if (server.first_listener < 0)
         err (EXIT_FAILURE, "failed to create server listening fd");
       server.last_listener = server.first_listener;
 
       memset (&sa_serv, '\0', sizeof (sa_serv));
-      sa_serv.sin_family = AF_INET;
-      sa_serv.sin_addr.s_addr = INADDR_ANY;
-      sa_serv.sin_port = htons (port);
+      sa_serv.sin6_family = AF_INET6;
+      sa_serv.sin6_addr = in6addr_any;
+      sa_serv.sin6_port = htons (port);
 
       if (setsockopt (server.first_listener, SOL_SOCKET, SO_REUSEADDR, (void *) &optval, sizeof (int)) < 0)
         err (EXIT_FAILURE, "failed to set socket option");
+      /* Allow both IPv4 and IPv6 connections on the same socket */
+      optval = 0;
+      if (setsockopt (server.first_listener, IPPROTO_IPV6, IPV6_V6ONLY, (void *) &optval, sizeof (int)) < 0)
+        err (EXIT_FAILURE, "failed to set IPV6_V6ONLY socket option");
       if (bind (server.first_listener, (struct sockaddr *) &sa_serv, sizeof (sa_serv)) < 0)
         err (EXIT_FAILURE, "failed to bind to port %hu", port);
       if (listen (server.first_listener, 1024) < 0)

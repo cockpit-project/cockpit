@@ -823,30 +823,25 @@ class TestConnection(testlib.MachineCase):
         m.execute("rm -f /etc/cockpit/ws-certs.d/* /etc/cockpit/cockpit.conf")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nLoginTitle = A Custom Title\n")
 
-        m.execute(f"{self.libexecdir}/cockpit-certificate-ensure")
-        self.assertTrue(m.execute("ls /etc/cockpit/ws-certs.d/*"))
-
         pid = m.spawn(f"{self.ws_executable} --port 9000 --address 127.0.0.1", "cockpit-ws.log")
         self.addCleanup(m.execute, f"kill {pid}")
 
         # The port may not be available immediately, so wait for it
-        testlib.wait(lambda: 'A Custom Title' in m.curl('-k', 'https://localhost:9000/'))
+        testlib.wait(lambda: 'A Custom Title' in m.curl('http://localhost:9000/'))
 
-        output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || echo $?')
+        # listens on localhost only
+        output = m.execute('curl -s -S http://172.27.0.15:9000/ 2>&1 || echo $?')
         self.assertIn('7', output.strip())
 
-        # Large requests are processed correctly with plain HTTP
+        # Large requests are processed correctly
         self.assertIn('A Custom Title', m.curl('http://localhost:9000/', headers=large_headers))
-
-        # Large requests are processed correctly with TLS
-        self.assertIn('A Custom Title', m.curl('-k', 'https://localhost:9000/', headers=large_headers))
 
         # unsupported HTTP method
         self.assertIn("HTTP/1.1 405 Method Not Allowed",
-                      m.execute('curl -k --verbose -X PATCH https://localhost:9000/ 2>&1'))
+                      m.execute('curl -k --verbose -X PATCH http://localhost:9000/ 2>&1'))
 
         # no body with HEAD request
-        out = m.execute('curl -k --head https://localhost:9000/')
+        out = m.execute('curl -k --head http://localhost:9000/')
         self.assertIn("HTTP/1.1 200", out)
         self.assertNotIn("<html>", out)
 
@@ -854,7 +849,6 @@ class TestConnection(testlib.MachineCase):
         expected = "User-agent: *\nDisallow: /\n"
         self.assertEqual(m.execute("curl http://localhost:9000/robots.txt"), expected)
         self.assertEqual(m.execute("curl http://localhost:9000/somedir/robots.txt"), expected)
-        self.assertEqual(m.execute("curl -k https://localhost:9000/robots.txt"), expected)
 
     @testlib.nondestructive
     def testHeadRequest(self):

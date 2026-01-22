@@ -48,7 +48,7 @@ seconds if nobody logs in, or after the last user is disconnected.
   *ListenStream* directive in the *cockpit.socket* file in the usual
   *systemd* manner.
 *--no-tls*::
-  Don't use TLS.
+  Disable http to https redirection.
 *--for-tls-proxy*::
   Tell *cockpit-ws* that it is running behind a local reverse proxy
   that does the TLS termination. Then Cockpit puts https:// URLs into

@@ -75,25 +75,15 @@ static void
 fixture_setup (Fixture *fixture,
                const TestCase *test_case)
 {
-  GTlsCertificate *cert = NULL;
-  GError *error = NULL;
   GInetAddress *inet;
   gchar *str = NULL;
   gint port;
+  GError *error = NULL;
 
   inet = cockpit_test_find_non_loopback_address ();
   /* this can fail in environments with only localhost */
   if (inet != NULL)
     str = g_inet_address_to_string (inet);
-
-  if (test_case->use_cert)
-    {
-      cert = g_tls_certificate_new_from_file (SRCDIR "/src/ws/mock-combined.crt", &error);
-      g_assert_no_error (error);
-
-      /* don't require system SSL cert database in build environments */
-      cockpit_expect_possible_log ("GLib-Net", G_LOG_LEVEL_WARNING, "couldn't load TLS file database: * No such file or directory");
-    }
 
   gchar *address;
   if (test_case->local_only)
@@ -103,8 +93,7 @@ fixture_setup (Fixture *fixture,
   else
     address = NULL;
 
-  fixture->web_server = cockpit_web_server_new (cert, test_case->server_flags);
-  g_clear_object (&cert);
+  fixture->web_server = cockpit_web_server_new (test_case->server_flags);
 
   if (test_case && test_case->forwarded_for_header)
     cockpit_web_server_set_forwarded_for_header (fixture->web_server, test_case->forwarded_for_header);
@@ -470,14 +459,6 @@ perform_http_request (const gchar *hostport,
   return perform_request (hostport, request, length, FALSE);
 }
 
-static gchar *
-perform_https_request (const gchar *hostport,
-                       const gchar *request,
-                       gsize *length)
-{
-  return perform_request (hostport, request, length, TRUE);
-}
-
 static gboolean
 on_shell_index_html (CockpitWebServer *server,
                      CockpitWebRequest *request,
@@ -534,81 +515,7 @@ test_webserver_not_found (Fixture *fixture,
   g_free (resp);
 }
 
-static void
-test_webserver_tls (Fixture *fixture,
-                    const TestCase *test_case)
-{
-  gchar *resp;
-  gsize length;
 
-  g_signal_connect (fixture->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
-  resp = perform_https_request (fixture->localport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", &length);
-  g_assert (resp != NULL);
-  g_assert_cmpuint (length, >, 0);
-
-  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\nContent-Length: *\r\n\r\n<!DOCTYPE html>*");
-  g_free (resp);
-}
-
-static gboolean
-on_big_header (CockpitWebServer *server,
-               CockpitWebRequest *request,
-               const gchar *path,
-               GHashTable *headers,
-               CockpitWebResponse *response,
-               gpointer user_data)
-{
-  GBytes *bytes;
-  const gchar *big_header;
-
-  big_header = g_hash_table_lookup (headers, "BigHeader");
-  g_assert (big_header);
-  g_assert_cmpint (strlen (big_header), ==, 7000);
-  g_assert_cmpint (big_header[strlen (big_header) - 1], ==, '1');
-
-  bytes = g_bytes_new_static ("OK", 2);
-  cockpit_web_response_content (response, NULL, bytes, NULL);
-  g_bytes_unref (bytes);
-  return TRUE;
-}
-
-static void
-test_webserver_tls_big_header (Fixture *fixture,
-                               const TestCase *test_case)
-{
-  g_autofree gchar *req = NULL;
-  g_autofree gchar *resp = NULL;
-  gsize length;
-
-  /* max request size is 8KiB (2 * cockpit_webserver_request_maximum), stay slightly below that */
-  req = g_strdup_printf ("GET /test HTTP/1.0\r\nHost:test\r\nBigHeader: %07000i\r\n\r\n", 1);
-
-  g_signal_connect (fixture->web_server, "handle-resource", G_CALLBACK (on_big_header), NULL);
-  resp = perform_https_request (fixture->localport, req, &length);
-  g_assert (resp != NULL);
-  g_assert_cmpuint (length, >, 0);
-
-  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\nContent-Length: 2\r\n*\r\n\r\nOK");
-}
-
-static void
-test_webserver_tls_request_too_large (Fixture *fixture,
-                                      const TestCase *test_case)
-{
-  g_autofree gchar *req = NULL;
-  g_autofree gchar *resp = NULL;
-  gsize length;
-
-  /* request bigger than 16 KiB should be rejected */
-  /* FIXME: This really should be 8 KiB, but due to pipelining we reserve twice
-   * that amount in the buffer */
-  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "received HTTP request that was too large");
-  req = g_strdup_printf ("GET /test HTTP/1.0\r\nHost:test\r\nBigHeader: %016500i\r\n\r\n", 1);
-  resp = perform_https_request (fixture->localport, req, &length);
-  g_assert (resp != NULL);
-  g_assert_cmpuint (length, ==, 0);
-  g_assert_cmpstr (resp, ==, "");
-}
 
 static void
 test_webserver_redirect_notls (Fixture *fixture,
@@ -1008,7 +915,7 @@ test_bad_address (Fixture *fixture,
 {
   gint port;
 
-  g_autoptr(CockpitWebServer) server = cockpit_web_server_new (NULL, COCKPIT_WEB_SERVER_NONE);
+  g_autoptr(CockpitWebServer) server = cockpit_web_server_new (COCKPIT_WEB_SERVER_NONE);
   g_autoptr(GError) error = NULL;
   port = cockpit_web_server_add_inet_listener (server, "bad", 0, &error);
   g_assert (port == 0);
@@ -1072,20 +979,13 @@ main (int argc,
   cockpit_test_add ("/web-server/host-header", test_webserver_host_header);
   cockpit_test_add ("/web-server/not-found", test_webserver_not_found);
 
-  cockpit_test_add ("/web-server/tls", test_webserver_tls,
-                    .use_cert=TRUE, .expected_protocol="https");
-  cockpit_test_add ("/web-server/tls-big-header", test_webserver_tls_big_header,
-                    .use_cert=TRUE, .expected_protocol="https");
-  cockpit_test_add ("/web-server/tls-request-too-large", test_webserver_tls_request_too_large,
-                    .use_cert=TRUE, .expected_protocol="https");
-
-  cockpit_test_add ("/web-server/redirect-notls", test_webserver_redirect_notls, .use_cert=TRUE,
+  cockpit_test_add ("/web-server/redirect-notls", test_webserver_redirect_notls,
                     .server_flags=COCKPIT_WEB_SERVER_REDIRECT_TLS);
-  cockpit_test_add ("/web-server/no-redirect-localhost", test_webserver_noredirect_localhost, .use_cert=TRUE,
+  cockpit_test_add ("/web-server/no-redirect-localhost", test_webserver_noredirect_localhost,
                     .server_flags=COCKPIT_WEB_SERVER_REDIRECT_TLS);
-  cockpit_test_add ("/web-server/no-redirect-exception", test_webserver_noredirect_exception, .use_cert=TRUE,
+  cockpit_test_add ("/web-server/no-redirect-exception", test_webserver_noredirect_exception,
                     .server_flags=COCKPIT_WEB_SERVER_REDIRECT_TLS);
-  cockpit_test_add ("/web-server/no-redirect-override", test_webserver_noredirect_override, .use_cert=TRUE,
+  cockpit_test_add ("/web-server/no-redirect-override", test_webserver_noredirect_override,
                     .server_flags=COCKPIT_WEB_SERVER_NONE);
 
   cockpit_test_add ("/web-server/handle-resource", test_handle_resource);

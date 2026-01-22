@@ -40,16 +40,12 @@
 
 #include "cockpitwebrequest-private.h"
 
-/* Used during testing */
-gboolean cockpit_webserver_want_certificate = FALSE;
-
 guint cockpit_webserver_request_timeout = 30;
 const gsize cockpit_webserver_request_maximum = 8192;
 
 struct _CockpitWebServer {
   GObject parent_instance;
 
-  GTlsCertificate *certificate;
   GString *ssl_exception_prefix;
   GString *url_root;
   gint request_timeout;
@@ -67,7 +63,6 @@ struct _CockpitWebServer {
 enum
 {
   PROP_0,
-  PROP_CERTIFICATE,
   PROP_SSL_EXCEPTION_PREFIX,
   PROP_FLAGS,
   PROP_URL_ROOT,
@@ -132,7 +127,6 @@ cockpit_web_server_finalize (GObject *object)
 {
   CockpitWebServer *server = COCKPIT_WEB_SERVER (object);
 
-  g_clear_object (&server->certificate);
   g_hash_table_destroy (server->requests);
   if (server->main_context)
     g_main_context_unref (server->main_context);
@@ -155,10 +149,6 @@ cockpit_web_server_get_property (GObject *object,
 
   switch (prop_id)
     {
-    case PROP_CERTIFICATE:
-      g_value_set_object (value, server->certificate);
-      break;
-
     case PROP_SSL_EXCEPTION_PREFIX:
       g_value_set_string (value, server->ssl_exception_prefix->str);
       break;
@@ -191,10 +181,6 @@ cockpit_web_server_set_property (GObject *object,
 
   switch (prop_id)
     {
-    case PROP_CERTIFICATE:
-      server->certificate = g_value_dup_object (value);
-      break;
-
     case PROP_SSL_EXCEPTION_PREFIX:
       g_string_assign (server->ssl_exception_prefix, g_value_get_string (value));
       break;
@@ -345,15 +331,6 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
   gobject_class->set_property = cockpit_web_server_set_property;
   gobject_class->get_property = cockpit_web_server_get_property;
 
-  g_object_class_install_property (gobject_class,
-                                   PROP_CERTIFICATE,
-                                   g_param_spec_object ("certificate", NULL, NULL,
-                                                        G_TYPE_TLS_CERTIFICATE,
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
-
   g_object_class_install_property (gobject_class, PROP_SSL_EXCEPTION_PREFIX,
                                    g_param_spec_string ("ssl-exception-prefix", NULL, NULL, "",
                                                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
@@ -396,11 +373,9 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
 }
 
 CockpitWebServer *
-cockpit_web_server_new (GTlsCertificate *certificate,
-                        CockpitWebServerFlags flags)
+cockpit_web_server_new (CockpitWebServerFlags flags)
 {
   return g_object_new (COCKPIT_TYPE_WEB_SERVER,
-                       "certificate", certificate,
                        "flags", flags,
                        NULL);
 }
@@ -957,13 +932,6 @@ static gboolean
 should_suppress_request_error (GError *error,
                                gsize received)
 {
-  if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF) ||
-      g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_NOT_TLS))
-    {
-      g_debug ("request error: %s", error->message);
-      return TRUE;
-    }
-
   /* If no bytes received, then don't worry about ECONNRESET and friends */
   if (received > 0)
     return FALSE;
@@ -1086,17 +1054,6 @@ cockpit_web_request_start_input (CockpitWebRequest *self)
 }
 
 static gboolean
-cockpit_web_request_on_accept_certificate (GTlsConnection *conn,
-                                           GTlsCertificate *peer_cert,
-                                           GTlsCertificateFlags errors,
-                                           gpointer user_data)
-{
-  /* Only used during testing */
-  g_assert (cockpit_webserver_want_certificate == TRUE);
-  return TRUE;
-}
-
-static gboolean
 cockpit_web_request_on_socket_input (GSocket *socket,
                                      GIOCondition condition,
                                      gpointer user_data)
@@ -1106,7 +1063,6 @@ cockpit_web_request_on_socket_input (GSocket *socket,
   GInputVector vector[1] = { { &first_byte, 1 } };
   gint flags = G_SOCKET_MSG_PEEK;
   GError *error = NULL;
-  GIOStream *tls_stream;
   gssize num_read;
   g_auto(CockpitControlMessages) ccm = COCKPIT_CONTROL_MESSAGES_INIT;
 
@@ -1153,46 +1109,18 @@ cockpit_web_request_on_socket_input (GSocket *socket,
 
   /*
    * TLS streams are guaranteed to start with octet 22.. this way we can distinguish them
-   * from regular HTTP requests
+   * from regular HTTP requests. cockpit-ws no longer handles TLS.
    */
   if (first_byte == 22 || first_byte == 0x80)
     {
-      if (self->web_server->certificate == NULL)
-        {
-          g_warning ("Received unexpected TLS connection and no certificate was configured");
-          cockpit_web_request_finish (self);
-          return FALSE;
-        }
-
-      tls_stream = g_tls_server_connection_new (self->io,
-                                                self->web_server->certificate,
-                                                &error);
-      if (tls_stream == NULL)
-        {
-          g_warning ("couldn't create new TLS stream: %s", error->message);
-          cockpit_web_request_finish (self);
-          g_error_free (error);
-          return FALSE;
-        }
-
-      if (cockpit_webserver_want_certificate)
-        {
-          g_object_set (tls_stream, "authentication-mode", G_TLS_AUTHENTICATION_REQUESTED, NULL);
-          g_signal_connect (tls_stream, "accept-certificate", G_CALLBACK (cockpit_web_request_on_accept_certificate), NULL);
-        }
-
-      g_object_unref (self->io);
-      self->io = G_IO_STREAM (tls_stream);
+      g_warning ("Received unexpected TLS connection; use cockpit-tls for TLS termination");
+      cockpit_web_request_finish (self);
+      return FALSE;
     }
-  else
-    {
-      if (self->web_server->certificate || self->web_server->flags & COCKPIT_WEB_SERVER_REDIRECT_TLS)
-        {
-          /* non-TLS stream; defer redirection check until after header parsing */
-          if (cockpit_web_server_get_flags (self->web_server) & COCKPIT_WEB_SERVER_REDIRECT_TLS)
-            self->check_tls_redirect = TRUE;
-        }
-    }
+
+  /* Defer redirection check until after header parsing */
+  if (cockpit_web_server_get_flags (self->web_server) & COCKPIT_WEB_SERVER_REDIRECT_TLS)
+    self->check_tls_redirect = TRUE;
 
   cockpit_web_request_start_input (self);
 
@@ -1322,9 +1250,6 @@ cockpit_web_request_get_host (CockpitWebRequest *self)
 const gchar *
 cockpit_web_request_get_protocol (CockpitWebRequest *self)
 {
-  if (G_IS_TLS_CONNECTION (self->io))
-    return "https";
-
   if (self->web_server && self->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY)
     return "https";
 
@@ -1369,17 +1294,11 @@ cockpit_web_request_get_remote_address (CockpitWebRequest *self)
         return g_strdup (tmp);
     }
 
-  g_autoptr(GIOStream) base = NULL;
-  if (G_IS_TLS_CONNECTION (self->io))
-    g_object_get (self->io, "base-io-stream", &base, NULL);
-  else
-    base = g_object_ref (self->io);
-
   /* This is definitely a socket */
-  g_return_val_if_fail (G_IS_SOCKET_CONNECTION (base), NULL);
+  g_return_val_if_fail (G_IS_SOCKET_CONNECTION (self->io), NULL);
 
   /* ...but it might be a unix socket.  NB: GInetSocketAddress includes IPv6. */
-  g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (base), NULL);
+  g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (self->io), NULL);
   if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
     return g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
 

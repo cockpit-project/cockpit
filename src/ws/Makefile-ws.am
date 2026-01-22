@@ -49,15 +49,6 @@ cockpit_ws_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS)
 cockpit_ws_LDADD = $(libcockpit_ws_a_LIBS)
 
 # -----------------------------------------------------------------------------
-# pam_cockpit_cert.so: Client certificate authentication PAM module
-
-pam_PROGRAMS += pam_cockpit_cert.so
-pam_cockpit_cert_so_CFLAGS = -fPIC $(AM_CFLAGS)
-pam_cockpit_cert_so_LDADD = -lpam
-pam_cockpit_cert_so_LDFLAGS = -shared
-pam_cockpit_cert_so_SOURCES = src/ws/pam_cockpit_cert.c
-
-# -----------------------------------------------------------------------------
 # test-server: server for running the html/browser unit tests against
 
 check_PROGRAMS += test-server

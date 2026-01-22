@@ -42,7 +42,7 @@ class TestWsBastionContainer(testlib.MachineCase):
         m = self.machine
         b = self.browser
         m.execute("podman run -d --name cockpit-bastion -p 9090:9090 localhost/cockpit/ws")
-        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done", timeout=10)
 
         b.open("/", tls=True)
 
@@ -112,7 +112,7 @@ class TestWsBastionContainer(testlib.MachineCase):
         self.addCleanup(m.execute, "rm /root/known_hosts")
 
         def check_login():
-            m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+            m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done", timeout=10)
             b.open("/", tls=True)
             b.set_val("#login-user-input", "admin")
             b.set_val("#login-password-input", "foobar")
@@ -148,7 +148,7 @@ class TestWsBastionContainer(testlib.MachineCase):
                   "-v /root/cockpit.conf:/etc/cockpit/cockpit.conf:ro,Z "
                   "-v /root/os-release:/etc/os-release:ro,Z "
                   "localhost/cockpit/ws")
-        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done", timeout=10)
 
         b.open("/", tls=True)
 
@@ -191,7 +191,7 @@ class TestWsBastionContainer(testlib.MachineCase):
                 "-e COCKPIT_DEBUG=all "
                 "localhost/cockpit/ws"
             )
-            m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+            m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done", timeout=10)
 
             b.open("/", tls=True)
             b.set_val("#login-user-input", "admin")
@@ -329,12 +329,12 @@ class TestWsPrivileged(testlib.MachineCase):
         m.execute("systemctl start cockpit.service")
         self.assertEqual(m.execute("systemctl is-active cockpit.service").strip(), "active")
         firstStartTime = m.execute("podman inspect cockpit-ws| jq '.[0].Created'")
-        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done", timeout=10)
 
         m.execute("systemctl restart cockpit.service")
         self.assertEqual(m.execute("systemctl is-active cockpit.service").strip(), "active")
         secondStartTime = m.execute("podman inspect cockpit-ws| jq '.[0].Created'")
-        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done", timeout=10)
 
         self.assertNotEqual(firstStartTime, secondStartTime)
 

@@ -460,6 +460,7 @@ ExecStart=/usr/local/bin/{package} infinity
     def testTracer(self):
         b = self.browser
         m = self.machine
+        print('lets me be affected')
 
         class Tracer:
             def __init__(self,

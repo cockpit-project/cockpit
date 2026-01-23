@@ -306,4 +306,29 @@ export class PackageKitManager implements PackageManager {
 
         return history;
     }
+
+    /**
+     * Check a list of packages whether they are available.
+     *
+     * @param {string[]} pkgnames - names of packages which should be available in the repositories
+     * @return {Promise<boolean>} true if packages are available
+     */
+    async is_available(pkgnames: string[]): Promise<boolean> {
+        const available = new Set();
+
+        if (pkgnames && pkgnames.length === 0)
+            return true;
+
+        await PK.cancellableTransaction("Resolve",
+                                        [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED, pkgnames],
+                                        null,
+                                        {
+                                            Package: (_info: unknown, package_id: string) => {
+                                                const pkgname = package_id.split(";")[0];
+                                                available.add(pkgname);
+                                            },
+                                        });
+
+        return available.size === new Set(pkgnames).size;
+    }
 }

@@ -107,6 +107,7 @@ export interface PackageManager {
   get_backend(): Promise<string>;
   get_last_refresh_time(): Promise<number>;
   get_history(): Promise<History[]>;
+  is_available(pkgnames: string[]): Promise<boolean>;
 }
 
 export class UnsupportedError extends Error {

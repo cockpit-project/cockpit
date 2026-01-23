@@ -659,4 +659,10 @@ export class Dnf5DaemonManager implements PackageManager {
         throw new Error("not implemented");
         return [];
     }
+
+    async is_available(_pkgnames: string[]): Promise<boolean> {
+        // TODO: requires RHEL to have dnf5 to run TestUpdatesSubscriptions.testNoUpdates
+        throw new Error("not implemented");
+        return false;
+    }
 }

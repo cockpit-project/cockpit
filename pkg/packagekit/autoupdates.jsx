@@ -342,7 +342,10 @@ export function getBackend(packagekit_backend, forceReinit) {
     if (!getBackend.promise || forceReinit) {
         debug("getBackend() called first time or forceReinit passed, initializing promise");
         getBackend.promise = new Promise((resolve, reject) => {
-            if (packagekit_backend === "dnf") {
+            if (packagekit_backend === "dnf5") {
+                const backend = new Dnf5Impl();
+                backend.getConfig().then(() => resolve(backend));
+            } else if (packagekit_backend === "dnf") {
                 // we need to do this runtime check -- you can e.g. install dnf5 on Fedora 40, but it's not the "main" dnf
                 cockpit.spawn(["dnf", "--version"], { err: "message" })
                         .then(version => {

@@ -425,7 +425,7 @@ class PcpMetricsChannel(AsyncChannel):
 
         return False
 
-    def sample(self, context: 'pmapi.pmContext', archive_batch: int, limit: int, total_fetched: int) -> int:
+    async def sample(self, context: 'pmapi.pmContext', archive_batch: int, limit: int, total_fetched: int) -> int:
         # HACK: pmFetch only takes an array of ctypes.c_uint, no native type, alternative keep pmids.
         pmids = (ctypes.c_uint * len(self.metric_descriptions))()
         for i, metric in enumerate(self.metric_descriptions):
@@ -460,6 +460,7 @@ class PcpMetricsChannel(AsyncChannel):
 
                 self.send_updates(fetched)
                 fetched.clear()
+                await asyncio.sleep(0)  # yield
             except pmapi.pmErr as exc:
                 logger.debug('Fetching error: %r, fetched %r', exc, fetched)
                 if exc.errno() != c_api.PM_ERR_EOL:
@@ -622,7 +623,7 @@ class PcpMetricsChannel(AsyncChannel):
 
         self.send_data(json.dumps(data).encode())
 
-    def sample_archives(self, archives: 'Sequence[ArchiveInfo]') -> None:
+    async def sample_archives(self, archives: 'Sequence[ArchiveInfo]') -> None:
         total_fetched = 0
         for i, archive in enumerate(archives):
             # Set metric_descriptions to the current archive
@@ -655,7 +656,7 @@ class PcpMetricsChannel(AsyncChannel):
             except pmapi.pmErr as exc:
                 raise ChannelError('internal-error', message=str(exc)) from None
 
-            total_fetched = self.sample(archive.context, self.archive_batch, self.limit, total_fetched)
+            total_fetched = await self.sample(archive.context, self.archive_batch, self.limit, total_fetched)
 
     def prepare_direct_context(self, name: str, context_type: str) -> 'pmapi.pmContext':
         try:
@@ -689,11 +690,11 @@ class PcpMetricsChannel(AsyncChannel):
         if context_type == c_api.PM_CONTEXT_ARCHIVE:
             archives = self.get_archives(name)
             self.ready()
-            self.sample_archives(archives)
+            await self.sample_archives(archives)
         else:
             direct_context = self.prepare_direct_context(name, context_type)
             self.ready()
 
             while True:
-                self.sample(direct_context, 1, 1, 0)
+                await self.sample(direct_context, 1, 1, 0)
                 await asyncio.sleep(self.interval / 1000)

@@ -36,7 +36,7 @@ import urllib.parse
 from bisect import bisect_left
 from typing import Any, Mapping, Sequence
 
-from task import github
+from lib import github
 
 BASE_DIR = os.path.realpath(f'{__file__}/../../..')
 

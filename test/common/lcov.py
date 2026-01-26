@@ -34,7 +34,7 @@ import subprocess
 import sys
 from bisect import bisect_left
 
-from task import github
+from lib import github
 
 BASE_DIR = os.path.realpath(f'{__file__}/../../..')
 

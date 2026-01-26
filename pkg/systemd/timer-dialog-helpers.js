@@ -4,24 +4,9 @@
  */
 
 import cockpit from "cockpit";
-import * as python from "python";
 import s_bus from "./busnames.js";
 import { systemd_client, clock_realtime_now } from "./services.jsx";
 import { CockpitManagedMarker } from "./service-details.jsx";
-
-export async function join_command_arguments(command, args) {
-    const exec = [command].concat(args.slice(1));
-    const shlex = python.spawn(
-        "from json import loads; from shlex import join; from sys import stdin;" +
-        "out = join(loads(stdin.read())); print(out, end='');"
-    );
-
-    shlex.input(JSON.stringify(exec));
-    shlex.input();
-    const output = await shlex;
-
-    return output;
-}
 
 export function from_boot_usec(value) {
     const result = { delay: "system-boot" };
@@ -141,12 +126,29 @@ export function from_on_calendar(patterns) {
     }
 }
 
+/* Escape STR so that it is parsed as a single argument in a
+   ExecStart= line.  We need to escape spaces, newlines, quotes, and
+   backslashes by prepending a backslash.  We also need to escape
+   specifiers by prepending a "%" character.
+ */
+
+function escape_systemd_exec_arg(str) {
+    return str
+            .replaceAll("\\", "\\\\")
+            .replaceAll(" ", "\\s")
+            .replaceAll("\t", "\\t")
+            .replaceAll("\n", "\\n")
+            .replaceAll("\"", "\\\"")
+            .replaceAll("'", "\\'")
+            .replaceAll("%", "%%");
+}
+
 export function create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, repeatPatterns, specificTime, owner }) {
     const timer_unit = {};
     const repeat_array = repeatPatterns;
     timer_unit.name = name.replace(/\s/g, '');
     timer_unit.Description = description;
-    timer_unit.Command = command;
+    timer_unit.Command = "/bin/sh -c " + escape_systemd_exec_arg(command);
     timer_unit.boot_time = delayNumber;
     timer_unit.boot_time_unit = delayUnit;
 

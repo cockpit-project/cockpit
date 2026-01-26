@@ -63,14 +63,13 @@ export const TimerDialog = ({ owner, timer }) => {
     const [specificTime, setSpecificTime] = useState(timer?.specificTime || "00:00");
     const [isSpecificTimeOpen, setSpecificTimeOpen] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [commandNotFound, setCommandNotFound] = useState(false);
     const validationFailed = {};
 
     if (!name.trim().length || !/^[a-zA-Z0-9:_.@-]+$/.test(name))
         validationFailed.name = true;
     if (!description.trim().length)
         validationFailed.description = true;
-    if (!command.trim().length || commandNotFound)
+    if (!command.trim().length)
         validationFailed.command = true;
     if (!/^[0-9]+$/.test(delayNumber))
         validationFailed.delayNumber = true;
@@ -103,20 +102,9 @@ export const TimerDialog = ({ owner, timer }) => {
         if (Object.keys(validationFailed).length)
             return false;
 
-        setInProgress(true);
-
-        // Verify if the command exists
-        const command_parts = command.split(" ");
-        cockpit.spawn(["test", "-f", command_parts[0]], { err: "ignore" })
-                .then(() => {
-                    create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
-                            .then(Dialogs.close, exc => {
-                                setDialogError(exc.message);
-                                setInProgress(false);
-                            });
-                })
-                .catch(() => {
-                    setCommandNotFound(true);
+        create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
+                .then(Dialogs.close, exc => {
+                    setDialogError(exc.message);
                     setInProgress(false);
                 });
 
@@ -156,14 +144,15 @@ export const TimerDialog = ({ owner, timer }) => {
                                    onChange={(_event, value) => setDescription(value)} />
                         <FormHelper fieldId="description" helperTextInvalid={submitted && validationFailed.description && _("This field cannot be empty")} />
                     </FormGroup>
-                    <FormGroup label={_("Command")}
+                    <FormGroup label={_("Shell command")}
                                fieldId="command">
                         <TextInput id='command'
                                    value={command}
                                    validated={submitted && validationFailed.command ? "error" : "default"}
-                                   onChange={(_event, str) => { setCommandNotFound(false); setCommand(str) }} />
+                                   onChange={(_event, str) => { setCommand(str) }} />
                         <FormHelper fieldId="command"
-                                    helperTextInvalid={submitted && validationFailed.command && (commandNotFound ? _("Command not found") : _("This field cannot be empty"))} />
+                                    helperText={_("This command will be executed by /bin/sh.")}
+                                    helperTextInvalid={submitted && validationFailed.command && _("This field cannot be empty")} />
                     </FormGroup>
                     <FormGroup label={_("Trigger")} hasNoPaddingTop>
                         <Flex>
@@ -379,7 +368,7 @@ export const TimerDialog = ({ owner, timer }) => {
                 <Button variant='primary'
                         id="timer-save-button"
                         isLoading={inProgress}
-                        isDisabled={inProgress || commandNotFound}
+                        isDisabled={inProgress}
                         onClick={onSubmit}>
                     {_("Save")}
                 </Button>

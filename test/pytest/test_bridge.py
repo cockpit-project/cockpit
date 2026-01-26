@@ -22,8 +22,8 @@ import pytest_asyncio
 from cockpit._vendor.systemd_ctypes import bus
 from cockpit.bridge import Bridge
 from cockpit.channel import AsyncChannel, Channel, ChannelRoutingRule
-from cockpit.channels import CHANNEL_TYPES
 from cockpit.channels.filesystem import tag_from_path
+from cockpit.channels.types import CHANNEL_TYPES
 from cockpit.jsonutil import JsonDict, JsonObject, JsonValue, get_bool, get_dict, get_int, get_str, json_merge_patch
 from cockpit.packages import BridgeConfig
 

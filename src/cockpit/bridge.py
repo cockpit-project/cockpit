@@ -36,7 +36,7 @@ from cockpit._vendor.systemd_ctypes import bus, run_async
 from . import polyfills
 from ._version import __version__
 from .channel import ChannelRoutingRule
-from .channels import CHANNEL_TYPES
+from .channels.types import CHANNEL_TYPES
 from .config import Config, Environment
 from .internal_endpoints import EXPORTS
 from .jsonutil import JsonError, JsonObject, JsonValue, get_dict

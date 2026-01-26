@@ -1310,18 +1310,9 @@ cockpit_web_service_create_socket (const gchar **protocols,
   gchar *allocated = NULL;
   gchar *origin = NULL;
   gchar *defaults[2];
-  gboolean is_https;
-  gchar *url;
 
   const gchar *host = cockpit_web_request_get_host (request);
   const gchar *protocol = cockpit_web_request_get_protocol (request);
-  g_debug("cockpit_web_service_create_socket: host %s, protocol %s", host, protocol);
-  is_https = g_str_equal (protocol, "https") == 0;
-
-  url = g_strdup_printf ("%s://%s%s",
-                         is_https ? "wss" : "ws",
-                         host ? host : "localhost",
-                         cockpit_web_request_get_path (request));
 
   origins = cockpit_conf_strv ("WebService", "Origins", ' ');
   if (origins == NULL)
@@ -1332,12 +1323,11 @@ cockpit_web_service_create_socket (const gchar **protocols,
       origins = (const gchar **)defaults;
     }
 
-  connection = web_socket_server_new_for_stream (url, origins, protocols,
+  connection = web_socket_server_new_for_stream (origins, protocols,
                                                  cockpit_web_request_get_io_stream (request),
                                                  cockpit_web_request_get_headers (request),
                                                  cockpit_web_request_get_buffer (request));
   g_free (allocated);
-  g_free (url);
   g_free (origin);
 
   return connection;

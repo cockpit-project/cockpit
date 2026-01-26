@@ -25,7 +25,7 @@ from .pcp import PcpMetricsChannel
 from .stream import SocketStreamChannel, SubprocessStreamChannel
 from .trivial import EchoChannel, NullChannel
 
-CHANNEL_TYPES = [
+CHANNEL_TYPES = [  # noqa: RUF067
     DBusChannel,
     EchoChannel,
     FsInfoChannel,

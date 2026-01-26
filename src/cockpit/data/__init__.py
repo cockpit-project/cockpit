@@ -1,6 +1,6 @@
 import sys
 
-if sys.version_info >= (3, 11):
+if sys.version_info >= (3, 11):  # noqa: RUF067
     import importlib.resources
 
     def read_cockpit_data_file(filename: str) -> bytes:

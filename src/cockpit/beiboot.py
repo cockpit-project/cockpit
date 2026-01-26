@@ -34,7 +34,7 @@ from cockpit._vendor.bei import bootloader
 from cockpit.beipack import BridgeBeibootHelper
 from cockpit.bridge import parse_os_release, setup_logging
 from cockpit.channel import ChannelRoutingRule
-from cockpit.channels import PackagesChannel
+from cockpit.channels.packages import PackagesChannel
 from cockpit.jsonutil import JsonObject, get_str
 from cockpit.osinfo import supported_oses
 from cockpit.packages import Packages, PackagesLoader, patch_libexecdir

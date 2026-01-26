@@ -512,7 +512,6 @@ session include system-auth
         self.assertEqual(m.execute(["pgrep", "-a", "sudo"], check=False).strip(), "")
         self.assertEqual(m.execute(["pgrep", "-a", "pkexec"], check=False).strip(), "")
 
-    @testlib.skipImage("Unstable with polkit 127, COCKPIT-1419", "arch", "debian-testing")
     @testlib.skipOstree("can't delete sudo")
     def testStartTransientUnitNoSudo(self):
         # Break sudo to force StartTransientUnit to be used
@@ -520,7 +519,6 @@ session include system-auth
         self.machine.execute(["rm", "-f", "/usr/bin/sudo"])
         self.start_transient_unit_common()
 
-    @testlib.skipImage("Unstable with polkit 127, COCKPIT-1419", "arch", "debian-testing")
     @testlib.skipOstree("can't replace sudo")
     def testStartTransientUnitNoAskpass(self):
         # sudo doesn't support -A: StartTransientUnit must be used

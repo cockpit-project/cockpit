@@ -243,7 +243,6 @@ parse_handshake_request (WebSocketServer *self,
   gboolean valid;
   gssize in1, in2;
   gssize consumed;
-  const gchar *url;
 
   /* Headers already passed from caller */
   if (self->request_headers)
@@ -251,11 +250,6 @@ parse_handshake_request (WebSocketServer *self,
       headers = self->request_headers;
       self->request_headers = NULL;
       method = g_strdup ("GET");
-
-      url = web_socket_connection_get_url (conn);
-      if (!_web_socket_util_parse_url (url, NULL, NULL, &resource, NULL))
-        resource = g_strdup ("/");
-
       consumed = 0;
     }
   else
@@ -292,7 +286,7 @@ parse_handshake_request (WebSocketServer *self,
 
   if (!g_str_equal (method, "GET"))
     {
-      g_message ("received unexpected method: %s %s", method, resource);
+      g_message ("received unexpected method: %s", method);
       valid = FALSE;
     }
   else
@@ -446,7 +440,6 @@ web_socket_server_class_init (WebSocketServerClass *klass)
 
 /**
  * web_socket_server_new_for_stream:
- * @url: the url address of the WebSocket
  * @origins: (allow-none): the origin to expect the client to report
  * @protocols: (allow-none): possible protocols for the client to
  * @io_stream: the IO stream to communicate over
@@ -476,15 +469,13 @@ web_socket_server_class_init (WebSocketServerClass *klass)
  * Returns: (transfer full): a new WebSocket
  */
 WebSocketConnection *
-web_socket_server_new_for_stream (const gchar *url,
-                                  const gchar * const *origins,
+web_socket_server_new_for_stream (const gchar * const *origins,
                                   const gchar * const *protocols,
                                   GIOStream *io_stream,
                                   GHashTable *request_headers,
                                   GByteArray *input_buffer)
 {
   return g_object_new (WEB_SOCKET_TYPE_SERVER,
-                       "url", url,
                        "origins", origins,
                        "protocols", protocols,
                        "io-stream", io_stream,

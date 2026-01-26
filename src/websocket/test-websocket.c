@@ -477,7 +477,7 @@ setup_pair (Test *test,
 
   cockpit_socket_streampair (&ioc, &ios);
 
-  test->server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL, NULL, ios, NULL, NULL);
+  test->server = web_socket_server_new_for_stream (NULL, NULL, ios, NULL, NULL);
   test->client =  web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, ioc);
 
   g_signal_connect (test->server, "error", G_CALLBACK (on_error_not_reached), NULL);
@@ -1237,8 +1237,7 @@ test_handshake_with_buffer_and_headers (void)
   input = g_byte_array_new ();
   g_byte_array_append (input, (guchar *)buffer + (in1 + in2), count - (in1 + in2));
 
-  server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL,
-                                             NULL, ios, headers, input);
+  server = web_socket_server_new_for_stream (NULL, NULL, ios, headers, input);
   g_signal_connect (server, "error", G_CALLBACK (on_error_not_reached), NULL);
 
   WAIT_UNTIL (web_socket_connection_get_ready_state (server) != WEB_SOCKET_STATE_CONNECTING);

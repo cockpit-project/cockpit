@@ -556,12 +556,10 @@ on_handle_stream_external (CockpitWebServer *server,
       const gchar *protocols[] = { "cockpit1", NULL };
       const gchar *origins[2] = { NULL, NULL };
       WebSocketConnection *ws = NULL;
-      gchar *url;
 
-      url = g_strdup_printf ("ws://localhost:%u%s", server_port, path);
       origins[0] = g_strdup_printf ("http://localhost:%u", server_port);
 
-      ws = web_socket_server_new_for_stream (url, (const gchar **)origins,
+      ws = web_socket_server_new_for_stream ((const gchar **)origins,
                                              protocols, io_stream, headers, input);
 
       g_signal_connect (ws, "message", G_CALLBACK (on_echo_socket_message), NULL);

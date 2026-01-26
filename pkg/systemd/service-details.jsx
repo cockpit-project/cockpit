@@ -54,7 +54,7 @@ import './service-details.scss';
 import { KebabDropdown } from "cockpit-components-dropdown";
 
 import { TimerDialog } from "./timer-dialog.jsx";
-import { from_boot_usec, from_on_calendar, join_command_arguments } from "./timer-dialog-helpers.js";
+import { from_boot_usec, from_on_calendar } from "./timer-dialog-helpers.js";
 
 const _ = cockpit.gettext;
 const METRICS_POLL_DELAY = 30000; // 30s
@@ -399,11 +399,9 @@ export class ServiceDetails extends React.Component {
             const serviceProperties = await bus.call(serviceDbusPath[0], s_bus.I_PROPS, "GetAll", [s_bus.I_SERVICE]);
             const exec = serviceProperties[0].ExecStart.v;
 
-            // ensure there is exactly one ExecStart= in the unit file
-            if (exec.length === 1) {
-                const execCommand = exec[0][0];
-                const execArguments = exec[0][1];
-                return await join_command_arguments(execCommand, execArguments);
+            // ensure there is exactly one ExecStart= in the unit file that matches "%s -c cmd"
+            if (exec.length === 1 && exec[0].length > 1 && exec[0][1].length > 2 && exec[0][1][1] == "-c") {
+                return exec[0][1][2];
             } else {
                 console.warn(`${exec.length} ExecStart= entries were found for ${serviceUnitName} instead of 1`);
                 return null;

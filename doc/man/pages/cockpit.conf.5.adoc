@@ -24,12 +24,13 @@ To change the port change the systemd *cockpit.socket* file.
   By default cockpit will not accept crossdomain websocket connections.
   Use this setting to allow access from alternate domains. Origins
   should include scheme, host and port, if necessary. Wildcards and glob
-  expressions are permitted.
+  expressions are permitted. IPv6 addresses must have their brackets escaped
+  with backslashes (e.g. `+\[::1\]+`) as they are matched using `+fnmatch()+`.
    +
 [source,ini]
 ----
 [WebService]
-Origins = https://somedomain1.com https://somedomain2.com:9090 https://*.somedomain3.com
+Origins = https://somedomain1.com https://somedomain2.com:9090 https://*.somedomain3.com https://\[::1\]:9090
 ----
 *ProtocolHeader*::
   Configure cockpit to look at the contents of this header to determine

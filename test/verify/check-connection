@@ -621,6 +621,17 @@ class TestConnection(testlib.MachineCase):
         with self.assertRaises(subprocess.CalledProcessError):
             m.curl('-f', '-N', '-k', 'https://127.0.0.1:9090/cockpit/socket', headers=headers)
 
+        # good: https:// origin on https connection with IPv6
+        headers['Host'] = '[::1]:9090'
+        headers['Origin'] = "https://[::1]:9090"
+        output = m.curl('-f', '-N', '-k', '-6', 'https://[::1]:9090/cockpit/socket', headers=headers)
+        self.assertIn('"no-session"', output)
+
+        # bad: http:// origin on https connection with IPv6
+        headers['Origin'] = "http://[::1]:9090"
+        with self.assertRaises(subprocess.CalledProcessError):
+            m.curl('-f', '-N', '-k', '-6', 'https://[::1]:9090/cockpit/socket', headers=headers)
+
         # http connection tests
         m.stop_cockpit()
         m.start_cockpit(tls=False)
@@ -649,7 +660,19 @@ class TestConnection(testlib.MachineCase):
         with self.assertRaises(subprocess.CalledProcessError):
             m.curl('-f', '-N', 'http://127.0.0.1:9090/cockpit/socket', headers=headers)
 
+        # good: http:// origin on http connection with IPv6
+        headers['Host'] = '[::1]:9090'
+        headers['Origin'] = "http://[::1]:9090"
+        output = m.curl('-f', '-N', '-6', 'http://[::1]:9090/cockpit/socket', headers=headers)
+        self.assertIn('"no-session"', output)
+
+        # bad: https:// origin on http connection with IPv6
+        headers['Origin'] = "https://[::1]:9090"
+        with self.assertRaises(subprocess.CalledProcessError):
+            m.curl('-f', '-N', '-6', 'http://[::1]:9090/cockpit/socket', headers=headers)
+
         # Test explicit Origins= configuration; IPv6 address requires escaping due to fnmatch()
+
         m.stop_cockpit()
         m.write("/etc/cockpit/cockpit.conf",
                 r"""[WebService]

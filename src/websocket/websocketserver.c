@@ -187,6 +187,7 @@ respond_handshake_rfc6455 (WebSocketServer *self,
 
   if (self->allowed_origins)
     {
+      /* Explicit origins configured - validate using fnmatch for pattern matching */
       origin = g_hash_table_lookup (headers, "Origin");
       if (!origin)
         {
@@ -204,6 +205,37 @@ respond_handshake_rfc6455 (WebSocketServer *self,
           g_message ("received request from bad Origin: %s", origin);
           respond_handshake_forbidden (conn);
           return FALSE;
+        }
+    }
+  else
+    {
+      /* No explicit origins configured - check if we should validate against default origin.
+       * Only validate if X-Cockpit-Protocol header is present (indicates cockpit-ws request).
+       * Otherwise skip validation (for standalone websocket tests). */
+      const gchar *protocol = g_hash_table_lookup (headers, "X-Cockpit-Protocol");
+      if (protocol)
+        {
+          origin = g_hash_table_lookup (headers, "Origin");
+          if (!origin)
+            {
+              g_message ("received request without Origin");
+              respond_handshake_forbidden (conn);
+              return FALSE;
+            }
+
+          /* Construct expected origin from protocol and Host, then do exact string
+           * comparison to avoid fnmatch issues with IPv6 addresses */
+          gchar *expected_origin = g_strdup_printf ("%s://%s", protocol, host);
+
+          if (g_ascii_strcasecmp (origin, expected_origin) != 0)
+            {
+              g_message ("received request from bad Origin: %s (expected %s)", origin, expected_origin);
+              g_free (expected_origin);
+              respond_handshake_forbidden (conn);
+              return FALSE;
+            }
+
+          g_free (expected_origin);
         }
     }
 

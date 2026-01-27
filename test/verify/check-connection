@@ -649,10 +649,12 @@ class TestConnection(testlib.MachineCase):
         with self.assertRaises(subprocess.CalledProcessError):
             m.curl('-f', '-N', 'http://127.0.0.1:9090/cockpit/socket', headers=headers)
 
-        # Test explicit Origins= configuration
-
+        # Test explicit Origins= configuration; IPv6 address requires escaping due to fnmatch()
         m.stop_cockpit()
-        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nOrigins = http://origin-one:9090 http://localhost:9090 http://*.origin-two:9090")
+        m.write("/etc/cockpit/cockpit.conf",
+                r"""[WebService]
+                Origins = http://origin-one:9090 http://localhost:9090 http://*.origin-two:9090 http://\[::1\]:*
+                """)
         m.start_cockpit()
         headers['Origin'] = 'http://origin-one:9090'
         output = m.curl('-f', '-N', 'http://localhost:9090/cockpit/socket', headers=headers)
@@ -665,6 +667,12 @@ class TestConnection(testlib.MachineCase):
 
         # The socket should also answer at /socket
         output = m.curl('-f', '-N', 'http://localhost:9090/socket', headers=headers)
+        self.assertIn('"no-session"', output)
+
+        # Test IPv6 wildcard pattern (escaped brackets, wildcard port)
+        headers['Host'] = '[::1]:9090'
+        headers['Origin'] = "http://[::1]:9090"
+        output = m.curl('-f', '-N', '-6', 'http://[::1]:9090/cockpit/socket', headers=headers)
         self.assertIn('"no-session"', output)
 
         self.allow_journal_messages('peer did not close io when expected')

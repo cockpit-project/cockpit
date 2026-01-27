@@ -33,8 +33,11 @@ import { Label } from '@patternfly/react-core/dist/esm/components/Label/index.js
 import { List, ListItem } from '@patternfly/react-core/dist/esm/components/List/index.js';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
+import { Tooltip } from '@patternfly/react-core/dist/esm/components/Tooltip/index.js';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { DragDropSort } from '@patternfly/react-drag-drop';
+import { GripVerticalIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { useDialogs } from 'dialogs.jsx';
 import { v4 as uuidv4 } from 'uuid';
 import { Name, NetworkModal, dialogSave } from "./dialogs-common";
@@ -975,23 +978,38 @@ const WiFiSavedNetworks = ({ dev, model }) => {
     const [savedNetworks, setSavedNetworks] = useState([]);
     const [error, setError] = useState(null);
 
-    // Get saved WiFi connections
+    // Get saved WiFi connections with subscription to model changes
     useEffect(() => {
         if (!model) return;
 
-        const manager = model.get_manager();
-        if (!manager || !manager.Connections) return;
+        const updateSavedNetworks = () => {
+            const settings = model.get_settings();
+            if (!settings || !settings.Connections) {
+                setSavedNetworks([]);
+                return;
+            }
 
-        // Filter for WiFi connections that are not AP mode
-        const wifiConnections = manager.Connections.filter(con => {
-            const settings = con.Settings;
-            if (!settings || settings.connection?.type !== "802-11-wireless") return false;
-            // Exclude AP mode connections
-            const mode = settings.wifi?.mode || settings["802-11-wireless"]?.mode?.v;
-            return mode !== "ap";
-        });
+            // Filter for WiFi client connections (exclude AP mode)
+            const wifiConnections = settings.Connections.filter(con => {
+                const conSettings = con.Settings;
+                if (!conSettings || conSettings.connection?.type !== "802-11-wireless") return false;
+                const mode = conSettings.wifi?.mode || conSettings["802-11-wireless"]?.mode?.v;
+                return mode !== "ap";
+            });
 
-        setSavedNetworks(wifiConnections);
+            // Sort by autoconnect-priority (highest first)
+            const sorted = [...wifiConnections].sort((a, b) => {
+                const priorityA = a.Settings.connection?.['autoconnect-priority'] ?? 0;
+                const priorityB = b.Settings.connection?.['autoconnect-priority'] ?? 0;
+                return priorityB - priorityA;
+            });
+
+            setSavedNetworks(sorted);
+        };
+
+        updateSavedNetworks();
+        model.addEventListener("changed", updateSavedNetworks);
+        return () => model.removeEventListener("changed", updateSavedNetworks);
     }, [model]);
 
     const handleConnect = useCallback(async (connection) => {
@@ -1022,14 +1040,109 @@ const WiFiSavedNetworks = ({ dev, model }) => {
         }
     }, []);
 
+    // Handle drag-drop reorder: update autoconnect-priority for all affected items
+    const handleReorder = useCallback(async (newItems) => {
+        try {
+            setError(null);
+            // Assign priorities based on new order (highest priority = list length, decreasing)
+            const updates = newItems.map((item, index) => {
+                const connection = item.connection;
+                const newPriority = newItems.length - index;
+                return connection.update({
+                    ...connection.Settings,
+                    connection: { ...connection.Settings.connection, 'autoconnect-priority': newPriority },
+                });
+            });
+            await Promise.all(updates);
+        } catch (err) {
+            setError(cockpit.format(_("Failed to change priority: $0"), err.message));
+        }
+    }, []);
+
     if (savedNetworks.length === 0) {
-        return null; // Don't show the card if no saved networks
+        return (
+            <Card style={{ marginTop: "1rem" }}>
+                <CardHeader>
+                    <CardTitle>{_("Saved Networks")}</CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <EmptyState variant="sm">
+                        <EmptyStateBody>
+                            {_("No saved networks. Connect to a WiFi network to save it.")}
+                        </EmptyStateBody>
+                    </EmptyState>
+                </CardBody>
+            </Card>
+        );
     }
+
+    // Build draggable items for DragDropSort
+    const draggableItems = savedNetworks.map((connection) => {
+        const ssid = connection.Settings.wifi?.ssid ||
+                    connection.Settings["802-11-wireless"]?.ssid?.v ||
+                    connection.Settings.connection?.id ||
+                    _("Unknown");
+        const isActive = dev?.ActiveConnection?.Connection?.[" priv"]?.path === connection[" priv"]?.path;
+
+        return {
+            id: connection[" priv"].path,
+            connection, // Store connection reference for reorder handler
+            content: (
+                <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }} style={{ width: "100%" }}>
+                    <FlexItem>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                            <FlexItem>
+                                <GripVerticalIcon style={{ cursor: "grab", color: "var(--pf-v5-global--Color--200)" }} />
+                            </FlexItem>
+                            <FlexItem>
+                                <span>{ssid}</span>
+                                {isActive && (
+                                    <Label color="blue" style={{ marginLeft: "0.5rem" }}>
+                                        {_("Connected")}
+                                    </Label>
+                                )}
+                            </FlexItem>
+                        </Flex>
+                    </FlexItem>
+                    <FlexItem>
+                        <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                            {!isActive && (
+                                <FlexItem>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => handleConnect(connection)}
+                                    >
+                                        {_("Connect")}
+                                    </Button>
+                                </FlexItem>
+                            )}
+                            <FlexItem>
+                                <Button
+                                    variant="link"
+                                    isDanger
+                                    size="sm"
+                                    onClick={() => handleForget(connection)}
+                                >
+                                    {_("Forget")}
+                                </Button>
+                            </FlexItem>
+                        </Flex>
+                    </FlexItem>
+                </Flex>
+            ),
+        };
+    });
 
     return (
         <Card style={{ marginTop: "1rem" }}>
             <CardHeader>
-                <CardTitle>{_("Saved Networks")}</CardTitle>
+                <CardTitle>
+                    {_("Saved Networks")}
+                    <Tooltip content={_("Drag to reorder. Networks are connected in priority order (top = highest).")}>
+                        <OutlinedQuestionCircleIcon style={{ marginLeft: "0.5rem", color: "var(--pf-v5-global--Color--200)" }} />
+                    </Tooltip>
+                </CardTitle>
             </CardHeader>
             <CardBody>
                 {error && (
@@ -1040,55 +1153,10 @@ const WiFiSavedNetworks = ({ dev, model }) => {
                         style={{ marginBottom: "1rem" }}
                     />
                 )}
-                <List isPlain>
-                    {savedNetworks.map((connection) => {
-                        const ssid = connection.Settings.wifi?.ssid ||
-                                    connection.Settings["802-11-wireless"]?.ssid?.v ||
-                                    connection.Settings.connection?.id ||
-                                    _("Unknown");
-                        const isActive = dev?.ActiveConnection?.Connection?.[" priv"]?.path === connection[" priv"]?.path;
-
-                        return (
-                            <ListItem key={connection[" priv"].path}>
-                                <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
-                                    <FlexItem flex={{ default: 'flex_2' }}>
-                                        <span>{ssid}</span>
-                                        {isActive && (
-                                            <Label color="blue" style={{ marginLeft: "0.5rem" }}>
-                                                {_("Connected")}
-                                            </Label>
-                                        )}
-                                    </FlexItem>
-                                    <FlexItem>
-                                        <Flex spaceItems={{ default: 'spaceItemsSm' }}>
-                                            {!isActive && (
-                                                <FlexItem>
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => handleConnect(connection)}
-                                                    >
-                                                        {_("Connect")}
-                                                    </Button>
-                                                </FlexItem>
-                                            )}
-                                            <FlexItem>
-                                                <Button
-                                                    variant="link"
-                                                    isDanger
-                                                    size="sm"
-                                                    onClick={() => handleForget(connection)}
-                                                >
-                                                    {_("Forget")}
-                                                </Button>
-                                            </FlexItem>
-                                        </Flex>
-                                    </FlexItem>
-                                </Flex>
-                            </ListItem>
-                        );
-                    })}
-                </List>
+                <DragDropSort
+                    items={draggableItems}
+                    onDrop={(_, newItems) => handleReorder(newItems)}
+                />
             </CardBody>
         </Card>
     );

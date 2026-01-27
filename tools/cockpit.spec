@@ -119,6 +119,7 @@ BuildRequires: gdb
 
 %if 0%{?rebuild_bundle}
 BuildRequires: nodejs
+BuildRequires: %{_bindir}/node
 BuildRequires: nodejs-esbuild
 %endif
 

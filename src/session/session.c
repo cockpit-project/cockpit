@@ -136,11 +136,16 @@ pam_conv_func (int num_msg,
   int success = 1;
   int i;
 
+  /* For handling X-Conversation with newlines */
+  char *prompt_token = NULL;
+  char *prompt_token_ptr = NULL;
+
   /* Any messages from the last conversation pass? */
   txt_msg = last_txt_msg;
   last_txt_msg = NULL;
   err_msg = last_err_msg;
   last_err_msg = NULL;
+
 
   resp = callocx (sizeof (struct pam_response), num_msg);
 
@@ -203,16 +208,22 @@ pam_conv_func (int num_msg,
               txt_msg = NULL;
             }
 
-          char *authorization = read_authorize_response (msg[i]->msg);
-          char *response = get_authorize_key (authorization, "response", true);
-          char *prompt_resp = cockpit_authorize_parse_x_conversation (response, NULL);
+          char *authorization, *response, *prompt_resp;
+          if (prompt_token == NULL) {
+            authorization = read_authorize_response(msg[i]->msg);
+            response = get_authorize_key(authorization, "response", true);
+            prompt_resp = cockpit_authorize_parse_x_conversation(response, NULL);
+            prompt_token = strtok_r(prompt_resp, "\n", &prompt_token_ptr);
+            debug("got prompt response");
+          } else {
+            prompt_token = strtok_r(NULL, "\n", &prompt_token_ptr);
+            debug("using prior prompt");
+          }
           cockpit_memory_clear (response, -1);
           free (response);
-
-          debug ("got prompt response");
-          if (prompt_resp)
+          if (prompt_token)
             {
-              resp[i].resp = prompt_resp;
+              resp[i].resp = prompt_token;
               resp[i].resp_retcode = 0;
               prompt_resp = NULL;
             }
@@ -467,8 +478,8 @@ perform_passkey(const char *rhost,
 
   debug("passkey authentication");
 
-  /* The input should be a user:password */
-  password = cockpit_authorize_parse_basic(authorization, &user);
+  /* The input should be a user:pam-u2f-expected-input-with-newlines */
+  password = cockpit_authorize_parse_passkey(authorization, &user);
   if (password == NULL)
   {
     debug("bad passkey auth input");

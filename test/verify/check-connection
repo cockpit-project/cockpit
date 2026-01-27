@@ -585,16 +585,76 @@ class TestConnection(testlib.MachineCase):
     @testlib.nondestructive
     def testConfigOrigins(self):
         m = self.machine
-        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nOrigins = http://origin-one:9090 http://localhost:9090 http://*.origin-two:9090")
-        m.start_cockpit()
+
+        # Test default behavior without explicit Origins= configuration
+
         headers = {
             'Connection': 'Upgrade',
             'Upgrade': 'websocket',
             'Host': 'localhost:9090',
-            'Origin': 'http://origin-one:9090',
             'Sec-Websocket-Key': '3sc2c9IzwRUc3BlSIYwtSA==',
-            'Sec-Websocket-Version': 13
+            'Sec-Websocket-Version': "13"
         }
+
+        # https connection tests
+        m.start_cockpit(tls=True)
+
+        # good: https:// origin on https connection
+        headers['Origin'] = "https://localhost:9090"
+        output = m.curl('-f', '-N', '-k', 'https://localhost:9090/cockpit/socket', headers=headers)
+        self.assertIn('"no-session"', output)
+
+        # bad: http:// origin on https connection
+        headers['Origin'] = "http://localhost:9090"
+        with self.assertRaises(subprocess.CalledProcessError):
+            m.curl('-f', '-N', '-k', 'https://localhost:9090/cockpit/socket', headers=headers)
+        self.allow_journal_messages("received request from bad Origin: .*")
+
+        # good: https:// origin on https connection with IPv4
+        headers['Host'] = '127.0.0.1:9090'
+        headers['Origin'] = "https://127.0.0.1:9090"
+        output = m.curl('-f', '-N', '-k', 'https://127.0.0.1:9090/cockpit/socket', headers=headers)
+        self.assertIn('"no-session"', output)
+
+        # bad: http:// origin on https connection with IPv4
+        headers['Origin'] = "http://127.0.0.1:9090"
+        with self.assertRaises(subprocess.CalledProcessError):
+            m.curl('-f', '-N', '-k', 'https://127.0.0.1:9090/cockpit/socket', headers=headers)
+
+        # http connection tests
+        m.stop_cockpit()
+        m.start_cockpit(tls=False)
+
+        # good: http:// origin on http connection
+        headers['Host'] = 'localhost:9090'
+        headers['Origin'] = "http://localhost:9090"
+        output = m.curl('-f', '-N', 'http://localhost:9090/cockpit/socket', headers=headers)
+        self.assertIn('"no-session"', output)
+
+        # bad: https:// origin on http connection
+        headers['Origin'] = "https://localhost:9090"
+        with self.assertRaises(subprocess.CalledProcessError):
+            m.curl('-f', '-N', 'http://localhost:9090/cockpit/socket', headers=headers)
+
+        self.allow_journal_messages("Received invalid handshake request from the client")
+
+        # good: http:// origin on http connection with IPv4
+        headers['Host'] = '127.0.0.1:9090'
+        headers['Origin'] = "http://127.0.0.1:9090"
+        output = m.curl('-f', '-N', 'http://127.0.0.1:9090/cockpit/socket', headers=headers)
+        self.assertIn('"no-session"', output)
+
+        # bad: https:// origin on http connection with IPv4
+        headers['Origin'] = "https://127.0.0.1:9090"
+        with self.assertRaises(subprocess.CalledProcessError):
+            m.curl('-f', '-N', 'http://127.0.0.1:9090/cockpit/socket', headers=headers)
+
+        # Test explicit Origins= configuration
+
+        m.stop_cockpit()
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nOrigins = http://origin-one:9090 http://localhost:9090 http://*.origin-two:9090")
+        m.start_cockpit()
+        headers['Origin'] = 'http://origin-one:9090'
         output = m.curl('-f', '-N', 'http://localhost:9090/cockpit/socket', headers=headers)
         self.assertIn('"no-session"', output)
 

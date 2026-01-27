@@ -1301,6 +1301,23 @@ cockpit_web_service_new (CockpitCreds *creds,
   return self;
 }
 
+/* Escape a host string for fnmatch.
+ * IPv6 addresses look like [::1]:9090 which fnmatch treats as character classes.
+ */
+static gchar *
+escape_host_for_fnmatch (const gchar *host)
+{
+  GString* escaped = g_string_new(NULL);
+  for (int i = 0; host[i]; i++)
+    {
+      if (strchr ("[]?*\\", host[i]))
+        g_string_append_c (escaped, '\\');
+      g_string_append_c (escaped, host[i]);
+    }
+
+  return g_string_free (escaped, FALSE);
+}
+
 WebSocketConnection *
 cockpit_web_service_create_socket (const gchar **protocols,
                                    CockpitWebRequest *request)
@@ -1317,7 +1334,10 @@ cockpit_web_service_create_socket (const gchar **protocols,
   origins = cockpit_conf_strv ("WebService", "Origins", ' ');
   if (origins == NULL)
     {
-      origin = g_strdup_printf ("%s://%s", protocol, host);
+      /* Origins are checked with fnmatch(), escape [..] in IPv6 addresses */
+      g_autofree gchar *escaped_host = escape_host_for_fnmatch (host);
+      origin = g_strdup_printf ("%s://%s", protocol, escaped_host);
+
       defaults[0] = origin;
       defaults[1] = NULL;
       origins = (const gchar **)defaults;

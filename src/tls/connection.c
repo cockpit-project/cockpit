@@ -660,11 +660,19 @@ connection_handshake (Connection *self)
 static void
 connection_thread_loop (Connection *self)
 {
+  bool made_progress = true;
+
   while (buffer_alive (&self->client_to_ws_buffer) || buffer_alive (&self->ws_to_client_buffer))
     {
       short client_events, ws_events;
       short client_revents, ws_revents;
       int n_ready;
+      bool had_progress;  /* Did we make progress in the PREVIOUS iteration? */
+
+      /* Save the previous iteration's progress status for poll timeout decision */
+      had_progress = made_progress;
+      /* Assume no progress in this iteration until we actually do something */
+      made_progress = false;
 
       client_events = calculate_events (&self->client_to_ws_buffer, &self->ws_to_client_buffer);
       ws_events = calculate_events (&self->ws_to_client_buffer, &self->client_to_ws_buffer);
@@ -684,7 +692,11 @@ connection_thread_loop (Connection *self)
           struct pollfd fds[] = { { client_events ? self->client_fd : -1, client_events },
                                   { ws_events ? self->ws_fd : -1, ws_events }};
 
-          n_ready = poll (fds, N_ELEMENTS (fds), (client_revents | ws_revents) ? 0 : -1);
+          /* If we have synthetic revents but made no progress in the last iteration,
+           * don't spin with timeout=0. Use blocking poll instead.
+           */
+          n_ready = poll (fds, N_ELEMENTS (fds),
+                         (client_revents | ws_revents) && had_progress ? 0 : -1);
 
           client_revents |= fds[0].revents;
           ws_revents |= fds[1].revents;
@@ -697,6 +709,14 @@ connection_thread_loop (Connection *self)
             return;
           err (EXIT_FAILURE, "poll failed");
         }
+
+      /* If poll returned real events (n_ready > 0), we made progress.
+       * If poll returned 0 (timeout with timeout=0), we had synthetic revents
+       * but no real fd events - this might be progress if the synthetic events
+       * lead to actual work, or might be spinning if they don't.
+       */
+      if (n_ready > 0)
+        made_progress = true;
 
       debug (POLL, "poll result %i | client %d/x%x | ws %d/x%x |", n_ready,
              self->client_fd, client_revents, self->ws_fd, ws_revents);

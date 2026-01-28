@@ -63,15 +63,17 @@ class TestActivePages(testlib.MachineCase):
         def line_sel(i):
             return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
-        # wait for prompt in first line
-        b.wait_visible(".terminal .xterm-accessibility-tree")
-        b.wait_in_text(line_sel(1), '$')
+        # WebGL2 is not supported in firefox headless mode
+        if b.browser != "firefox":
+            # wait for prompt in first line
+            b.wait_visible(".terminal .xterm-accessibility-tree")
+            b.wait_in_text(line_sel(1), '$')
 
-        # run a command that we can easily identify, and which will die with the terminal
-        b.input_text("sleep 42\n")
+            # run a command that we can easily identify, and which will die with the terminal
+            b.input_text("sleep 42\n")
 
-        # wait for command to run
-        m.execute("until pgrep -afx 'sleep 42'; do sleep 1; done")
+            # wait for command to run
+            m.execute("until pgrep -afx 'sleep 42'; do sleep 1; done")
 
         # now close the page
         showPagesAssertCount(3)

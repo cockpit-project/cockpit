@@ -64,6 +64,13 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.login_and_go("/system/terminal")
         blank_state = ' '
 
+        # Firefox headless does not support WebGL2,
+        # empty state should be visible when WebGL2 is not available
+        if b.browser == "firefox":
+            b.wait_visible(".pf-v6-c-empty-state")
+            b.wait_in_text(".pf-v6-c-empty-state__title-text", "Terminal not available")
+            return
+
         # wait until first line is not empty
         n = 1
         b.wait_visible(".terminal .xterm-accessibility-tree")
@@ -109,7 +116,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             b.wait_in_text(".terminal .xterm-accessibility-tree", "9999989999991000000admin@")
 
         b.assert_pixels("#terminal .terminal-group", "header", ignore=[".terminal-title"])
-        b.assert_pixels("#terminal .xterm-text-layer", "text")
+        b.assert_pixels("#terminal .xterm-screen", "text")
 
         # now reset terminal
         b.click('button:contains("Reset")')
@@ -213,7 +220,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         def check_theme_select(name, style):
             b.select_from_dropdown("#theme-select + div select", name)
-            b.wait_attr_contains(".xterm-viewport", "style", style)
+            b.wait_attr_contains(".xterm-scrollable-element", "style", style)
 
         # Check that color theme changes
         white_style = "background-color: rgb(255, 255, 255);"
@@ -222,6 +229,10 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         check_theme_select("dark-theme", "background-color: rgb(0, 43, 54);")
         check_theme_select("light-theme", "background-color: rgb(253, 246, 227);")
         check_theme_select("white-theme", white_style)
+
+        # clear terminal to compare font styling on a clean terminal page
+        self.clear_terminal()
+        b.wait_in_text(line_sel(n), '$')
 
         # Test changing of font size
         b.wait_val("#toolbar input", 16)
@@ -245,7 +256,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
         b.wait_visible('.terminal')
-        b.wait_attr_contains(".xterm-viewport", "style", white_style)
+        b.wait_in_text(line_sel(n), '$')
+        b.wait_attr_contains(".xterm-scrollable-element", "style", white_style)
         b.wait_val("#toolbar input", 17)
         b.wait_attr(".xterm-accessibility-tree div:first-child", "style", new_style)
         b.click("#toolbar button[aria-label='Decrease by one']")
@@ -258,6 +270,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             b.wait_val("#toolbar input", i)
         b.wait_visible("#toolbar button[aria-label='Decrease by one']:disabled")
 
+    @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
     @testlib.nondestructive
     def testOnlyTerminal(self):
         b = self.browser
@@ -280,6 +293,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.input_text("id\n")
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
 
+    @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
     @testlib.nondestructive
     def testOpenPath(self):
         b = self.browser
@@ -350,6 +364,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.wait_line(2, "/var")
         self.assertIn("No such process", m.execute(f"kill -0 {pid} 2>&1 || true"))
 
+    @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
     def testExternalState(self):
         b = self.browser
         m = self.machine

@@ -371,6 +371,15 @@ buffer_read_from_tls (Buffer           *self,
     {
       if (s != GNUTLS_E_AGAIN)
         buffer_epipe (self);
+      else if (gnutls_record_check_pending (tls))
+        {
+          /* gnutls_record_check_pending() claimed there was data, but
+           * gnutls_record_recv() returned EAGAIN.  This can happen when
+           * the TLS session is in an error state (eg: after receiving a
+           * fatal alert).  Treat this as EOF to avoid spinning forever.
+           */
+          buffer_epipe (self);
+        }
     }
   else
     self->end += s;

@@ -663,7 +663,7 @@ connection_thread_loop (Connection *self)
       ws_revents = calculate_revents (&self->ws_to_client_buffer, &self->client_to_ws_buffer);
 
       if (self->tls && buffer_can_read (&self->client_to_ws_buffer))
-        client_revents |= POLLIN * gnutls_record_check_pending (self->tls);
+        client_revents |= POLLIN * (gnutls_record_check_pending (self->tls) != 0);
 
       debug (POLL, "poll | client %d/x%x/x%x | ws %d/x%x/x%x |",
              self->client_fd, client_events, client_revents,

@@ -1308,27 +1308,22 @@ cockpit_web_service_create_socket (const gchar **protocols,
   WebSocketConnection *connection;
   const gchar * const *origins;
   gchar *allocated = NULL;
-  gchar *origin = NULL;
-  gchar *defaults[2];
+  GHashTable *headers;
 
-  const gchar *host = cockpit_web_request_get_host (request);
-  const gchar *protocol = cockpit_web_request_get_protocol (request);
-
+  /* Pass NULL for origins when not explicitly configured - websocket server
+   * will construct the expected origin from the request and do exact matching */
   origins = cockpit_conf_strv ("WebService", "Origins", ' ');
-  if (origins == NULL)
-    {
-      origin = g_strdup_printf ("%s://%s", protocol, host);
-      defaults[0] = origin;
-      defaults[1] = NULL;
-      origins = (const gchar **)defaults;
-    }
+
+  /* Add the request protocol to headers so websocket server can validate origin */
+  headers = cockpit_web_request_get_headers (request);
+  g_hash_table_insert (headers, g_strdup ("X-Cockpit-Protocol"),
+                       g_strdup (cockpit_web_request_get_protocol (request)));
 
   connection = web_socket_server_new_for_stream (origins, protocols,
                                                  cockpit_web_request_get_io_stream (request),
-                                                 cockpit_web_request_get_headers (request),
+                                                 headers,
                                                  cockpit_web_request_get_buffer (request));
   g_free (allocated);
-  g_free (origin);
 
   return connection;
 }

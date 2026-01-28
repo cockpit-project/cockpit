@@ -21,8 +21,6 @@
 
 #include "cockpitpipe.h"
 
-#include "cockpitsystem.h"
-
 #include "testlib/cockpittest.h"
 #include "testlib/mock-pressure.h"
 
@@ -1236,8 +1234,8 @@ test_get_environ (void)
   const gchar *input[] = { "ENVIRON=Marmalaaade", "ANOTHER=zerog", NULL };
   gchar **environ;
 
-  cockpit_setenv_check ("BLAH", "exists", TRUE);
-  cockpit_setenv_check ("ANOTHER", "original", TRUE);
+  cockpit_test_setenv ("BLAH", "exists");
+  cockpit_test_setenv ("ANOTHER", "original");
 
   environ = cockpit_pipe_get_environ (input, "/directory");
 
@@ -1268,8 +1266,8 @@ test_get_environ_null (void)
 {
   gchar **environ;
 
-  cockpit_setenv_check ("BLAH", "exists", TRUE);
-  cockpit_setenv_check ("ANOTHER", "original", TRUE);
+  cockpit_test_setenv ("BLAH", "exists");
+  cockpit_test_setenv ("ANOTHER", "original");
 
   environ = cockpit_pipe_get_environ (NULL, NULL);
 

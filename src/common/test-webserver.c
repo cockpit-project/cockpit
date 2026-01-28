@@ -22,7 +22,6 @@
 #include "cockpitwebserver.h"
 #include "cockpitwebresponse.h"
 
-#include "common/cockpitsystem.h"
 #include "testlib/cockpittest.h"
 
 #include "websocket/websocket.h"
@@ -954,9 +953,9 @@ int
 main (int argc,
       char *argv[])
 {
-  cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
-  cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
+  cockpit_test_setenv ("GSETTINGS_BACKEND", "memory");
+  cockpit_test_setenv ("GIO_USE_PROXY_RESOLVER", "dummy");
+  cockpit_test_setenv ("GIO_USE_VFS", "local");
 
   cockpit_test_init (&argc, &argv);
 

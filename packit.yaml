@@ -86,26 +86,28 @@ jobs:
     owner: "@cockpit"
     project: "cockpit-preview"
     preserve_project: True
-    actions:
-      # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0 and Source1; this
-      # really should be the default, see https://github.com/packit/packit-service/issues/1505
-      # packit will compute and set the version by itself; but we want to NPM_PROVIDES
+    # Don't rebuild the tarball for official releases (https://github.com/packit/packit-service/issues/1505)
+    actions: &official_release_actions
+      # just a dummy; the PACKIT_* variables are not yet set here
       post-upstream-clone:
+        - |
+          cp tools/cockpit.spec .
+
+      # packit will compute and set Version: by itself, so the released .spec file is otherwise correct
+      fix-spec-file:
         - |
           bash -exc '
           curl -L --fail -O https://github.com/cockpit-project/cockpit/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_PROJECT_NAME_VERSION}.tar.xz
           curl -L --fail -O https://github.com/cockpit-project/cockpit/releases/download/${PACKIT_PROJECT_VERSION}/cockpit-node-${PACKIT_PROJECT_VERSION}.tar.xz
           tar -xJf ${PACKIT_PROJECT_NAME_VERSION}.tar.xz ${PACKIT_PROJECT_NAME_VERSION}/runtime-npm-modules.txt ${PACKIT_PROJECT_NAME_VERSION}/tools/cockpit.spec --strip-components=1
-          tools/fix-spec ./tools/cockpit.spec 0
           cp tools/cockpit.spec .
-          '
-      # same as the global one, but specifying actions: does not inherit
-      # packit needs local file names, not URLs
-      fix-spec-file:
-        - sed -i 's|^\(Source[0-9]*:\s*\).*\/|\1|' cockpit.spec
+
+          sed -i 's|^\(Source[0-9]*:\s*\).*\/|\1|' cockpit.spec
 
   - job: propose_downstream
     trigger: release
+    actions: *official_release_actions
+
     dist_git_branches:
       - fedora-development
       - fedora-42

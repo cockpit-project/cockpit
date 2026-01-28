@@ -73,10 +73,10 @@ dist-hook: $(distdir)/tools/debian/copyright
 # when building from tarball (also separate build tree, dist-git), we can't
 # rely on node_modules, so just copy the existing file
 $(distdir)/tools/debian/copyright: $(srcdir)/tools/debian/copyright.template $(DIST_STAMP) $(if $(wildcard $(srcdir)/node_modules/.package-lock.json),$(NODE_CACHE))
-	@if [ -e "$(srcdir)/node_modules/.package-lock.json" ]; then \
-		$(AM_V_GEN) $(srcdir)/tools/build-debian-copyright $< $(NODE_CACHE) > $@; \
+	$(AM_V_GEN) if [ -e "$(srcdir)/node_modules/.package-lock.json" ]; then \
+		$(srcdir)/tools/build-debian-copyright $< $(NODE_CACHE) > $@; \
 	else \
-		$(AM_V_GEN) cp "$(srcdir)/tools/debian/copyright" $@; \
+		cp "$(srcdir)/tools/debian/copyright" $@; \
 	fi
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only $(EXTRA_DISTCHECK_CONFIGURE_FLAGS)

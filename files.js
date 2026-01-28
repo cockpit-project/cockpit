@@ -34,6 +34,8 @@ const info = {
         "shell/shell.jsx",
         "sosreport/sosreport.jsx",
         "static/login.js",
+        "static/cbor.js",
+
         "storaged/storaged.jsx",
 
         "systemd/services.jsx",

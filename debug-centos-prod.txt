@@ -1,0 +1,4 @@
+Venefilyn yes, but that happens with a separate build tree
+Venefilyn: install: cannot stat 'doc/output/html': No such file or directory https://download.copr.fedorainfracloud.org/results/packit/cockpit-project-cockpit-22693/centos-stream-10-x86_64/09982260-cockpit/builder-live.log.gz
+Venefilyn: note you can try `test/image-prepare -q centos-10` or any other rhel/centos image
+Venefilyn: maybe the cwd of these commands is some build/unpack dir, not the source tree? I'm not sure how you refer to the source tree, maybe there's some `%{srcdir}` or so?

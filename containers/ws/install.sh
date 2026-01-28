@@ -4,7 +4,7 @@ set -ex
 
 OSVER=$(. /etc/os-release && echo "$VERSION_ID")
 INSTALLROOT=/build
-INSTALL="dnf install -y --installroot=$INSTALLROOT --releasever=$OSVER --setopt=install_weak_deps=False --use-host-config"
+INSTALL="dnf install -y --installroot=$INSTALLROOT --setopt=install_weak_deps=False --use-host-config"
 
 # keep in sync with test/ws-container.install
 PACKAGES="
@@ -20,9 +20,6 @@ system
 EXTERNAL_COCKPIT_PACKAGES="
 cockpit-files
 "
-
-dnf install -y 'dnf-command(download)' cpio
-$INSTALL coreutils-single util-linux-core sed sscg python3 openssh-clients
 
 arch=`uname -p`
 rpm=$(ls /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-bridge-*$OSVER.*$arch.rpm || true)

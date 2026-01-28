@@ -3,8 +3,26 @@ LABEL maintainer="cockpit-devel@lists.fedorahosted.org"
 LABEL VERSION=main
 
 ARG VERSION
-ADD . /container
 
+# This goes into the builder container
+RUN dnf install -y 'dnf-command(download)' cpio
+
+# This goes into the final container.  The cockpit- packages can be replaced
+# with local builds by the install.sh script later.
+RUN dnf install -y \
+		--installroot=/build \
+		--setopt=install_weak_deps=False \
+		--use-host-config \
+	cockpit-bridge \
+	cockpit-ws \
+	coreutils-single \
+	openssh-clients \
+	sed \
+	sscg \
+	util-linux-core \
+	;
+
+ADD . /container
 RUN /container/install.sh
 
 FROM scratch

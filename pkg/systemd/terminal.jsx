@@ -15,6 +15,7 @@ import { fsinfo } from "cockpit/fsinfo";
 import "./terminal.scss";
 
 import { Terminal } from "cockpit-components-terminal.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 
 const _ = cockpit.gettext;
 
@@ -68,6 +69,11 @@ const _ = cockpit.gettext;
                     this.invalidateCookie("size_cookie");
                 }
             }
+
+            // Check if WebGL2 is available
+            // Only checking if WebGL2RenderingContext is defined is not sufficient, in Firefox tests it is defined
+            // as WebGL is enabled but it is not available in headless mode.
+            this.webglAvailable = !!document.createElement("canvas").getContext("webgl2");
 
             this.state = {
                 title: 'Terminal',
@@ -268,6 +274,7 @@ const _ = cockpit.gettext;
                                     </ToolbarGroup>
                                     <ToolbarItem>
                                         <button ref={this.resetButtonRef}
+                                            disabled={!this.webglAvailable}
                                             className="pf-v6-c-button pf-m-secondary terminal-reset"
                                             onClick={this.onResetClick}>{_("Reset")}</button>
                                     </ToolbarItem>
@@ -300,9 +307,11 @@ const _ = cockpit.gettext;
                             </Alert>
                             }
                         </div>
-                        <div className={"terminal-body " + this.state.theme} id="cockpit-terminal">
-                            {terminal}
-                        </div>
+                        {this.webglAvailable
+                            ? (<div className={"terminal-body " + this.state.theme} id="cockpit-terminal">
+                                {terminal}
+                            </div>)
+                            : <EmptyStatePanel title={_("Terminal not available")} paragraph={_("This browser does not support WebGL2.")} />}
                     </PageSection>
                 </Page>
             );

@@ -779,11 +779,14 @@ ipa-advise enable-admins-sudo | sh -ex
         # S4U ticket is in the session
         b.open("/system/terminal")
         b.enter_page("/system/terminal")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
-        b.input_text("klist\n")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "Ticket cache: FILE:/run/user")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "Default principal: alice@COCKPIT.LAN")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "for client HTTP/x0.cockpit.lan@COCKPIT.LAN")
+        # WebGL2 is not supported in firefox headless mode
+        if b.browser != "firefox":
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
+            b.input_text("klist\n")
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "Ticket cache: FILE:/run/user")
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "Default principal: alice@COCKPIT.LAN")
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "for client HTTP/x0.cockpit.lan@COCKPIT.LAN")
+
         self.assertIn("cockpit-session-", m.execute("ls /run/user/$(id -u alice)/*.ccache"))
         ccache_env = m.execute("xargs -0n1 < /proc/$(pgrep cockpit-bridge)/environ | grep KRB5CCNAME=").strip()
 
@@ -1084,13 +1087,15 @@ class TestKerberos(testlib.MachineCase):
 
         # kerberos ticket got forwarded into the session
         b.enter_page("/system/terminal")
-        # wait for prompt
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "admin")
-        b.input_text("klist\n")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "Ticket cache")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "Default principal: admin@COCKPIT.LAN")
-        b.wait_in_text(".terminal .xterm-accessibility-tree", "krbtgt/COCKPIT.LAN")
-        self.assertIn("cockpit-session-", m.execute("ls /run/user/$(id -u admin)/*.ccache"))
+        # WebGL2 is not supported in firefox headless mode
+        if b.browser != "firefox":
+            # wait for prompt
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "admin")
+            b.input_text("klist\n")
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "Ticket cache")
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "Default principal: admin@COCKPIT.LAN")
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "krbtgt/COCKPIT.LAN")
+            self.assertIn("cockpit-session-", m.execute("ls /run/user/$(id -u admin)/*.ccache"))
 
         # Now connect to another machine
         self.assertNotIn("admin", m.execute("ps -xa | grep sshd"))
@@ -1104,7 +1109,9 @@ class TestKerberos(testlib.MachineCase):
         b.click('#hosts_connect_server_dialog button.pf-m-warning')
 
         b.enter_page("/system/terminal", host="x0.cockpit.lan")
-        b.wait_visible(".terminal")
+        # WebGL2 is not supported in firefox headless mode
+        if b.browser != "firefox":
+            b.wait_visible(".terminal")
 
         # Make sure we connected via SSH
         self.assertIn("admin", m.execute("ps -xa | grep sshd"))

@@ -44,6 +44,7 @@ else
     ../../configure \
         CPPFLAGS=-I../../tools/mock-build-env \
         PKG_CONFIG_PATH=../../tools/mock-build-env \
+        --disable-doc \
         --enable-prefix-only \
         > /dev/null
 fi

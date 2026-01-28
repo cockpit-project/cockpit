@@ -25,8 +25,6 @@ import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/compon
 
 import { useInit } from "hooks";
 
-import stable_stringify from "json-stable-stringify-without-jsonify";
-
 const _ = cockpit.gettext;
 
 async function digest(text, hash) {
@@ -87,20 +85,21 @@ async function compute_thp(jwk) {
     if (!REQUIRED_ATTRS[jwk.kty])
         return cockpit.format("(unknown keytype $0)", jwk.kty);
 
-    const req = REQUIRED_ATTRS[jwk.kty];
+    const req = REQUIRED_ATTRS[jwk.kty].sort();
     const norm = { };
     req.forEach(k => { if (k in jwk) norm[k] = jwk[k]; });
 
     const hashes = {};
     try {
-        const sha256 = jwk_b64_encode(await digest(stable_stringify(norm), "SHA-256"));
+        console.log(JSON.stringify(norm));
+        const sha256 = jwk_b64_encode(await digest(JSON.stringify(norm), "SHA-256"));
         hashes.sha256 = sha256;
     } catch (err) {
         console.warn("Unable to create a sha256 hash", err);
     }
 
     try {
-        const sha1 = jwk_b64_encode(await digest(stable_stringify(norm), "SHA-1"));
+        const sha1 = jwk_b64_encode(await digest(JSON.stringify(norm), "SHA-1"));
         hashes.sha1 = sha1;
     } catch (err) {
         console.warn("Unable to create a sha1 hash", err);

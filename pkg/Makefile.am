@@ -30,7 +30,7 @@ V_BUNDLE_0 = @echo "  BUNDLE   dist";
 # but this is just a representative for all of dist/*
 $(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
 	@rm -f $(DIST_STAMP)
-	$(V_BUNDLE) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz ./build.js
+	$(V_BUNDLE) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' ./build.js
 
 EXTRA_DIST += build.js files.js package.json package-lock.json
 

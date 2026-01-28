@@ -88,13 +88,6 @@ jobs:
           rm -rf website/guide/latest
           cp -rT source/doc/output/html website/guide/latest
 
-          # Add frontmatter for Jekyll
-          find website/guide/latest -name '*.html' -exec sed -i '
-          1i\
-          ---\
-          layout: guide\
-          ---' '{}' ';'
-
           git config --global user.name "GitHub Workflow"
           git config --global user.email "cockpituous@cockpit-project.org"
 

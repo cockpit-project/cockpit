@@ -19,7 +19,6 @@
 
 #include "config.h"
 
-#include "common/cockpitsystem.h"
 #include "testlib/cockpittest.h"
 
 #include <fcntl.h>

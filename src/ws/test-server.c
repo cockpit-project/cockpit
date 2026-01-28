@@ -27,7 +27,6 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitconf.h"
 #include "common/cockpitpipetransport.h"
-#include "common/cockpitsystem.h"
 #include "testlib/cockpittest.h"
 #include "common/cockpitwebserver.h"
 #include "common/cockpitwebinject.h"
@@ -876,7 +875,7 @@ setup_path (const char *argv0)
                           old ? ":" : "",
                           old ? old : NULL);
 
-  cockpit_setenv_check ("PATH", path, TRUE);
+  cockpit_test_setenv ("PATH", path);
 
   g_free (path);
   g_free (dir);
@@ -947,7 +946,7 @@ main (int argc,
 
   signal (SIGPIPE, SIG_IGN);
   /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
-  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
+  cockpit_test_setenv ("GIO_USE_VFS", "local");
 
   /* playground config directory */
   g_autofree gchar *config_dir = g_dir_make_tmp ("cockpit.config.XXXXXX", NULL);
@@ -955,10 +954,10 @@ main (int argc,
   g_autofree gchar *machines_dir = g_build_filename (config_dir, "cockpit", "machines.d", NULL);
   g_assert (g_mkdir_with_parents (machines_dir, 0755) == 0);
 
-  cockpit_setenv_check ("PYTHONPATH", SRCDIR "/src", TRUE);
-  cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/test/data/mock-resource/home", TRUE);
-  cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/test/data/mock-resource/system", TRUE);
-  cockpit_setenv_check ("XDG_CONFIG_DIRS", config_dir, TRUE);
+  cockpit_test_setenv ("PYTHONPATH", SRCDIR "/src");
+  cockpit_test_setenv ("XDG_DATA_HOME", SRCDIR "/test/data/mock-resource/home");
+  cockpit_test_setenv ("XDG_DATA_DIRS", SRCDIR "/test/data/mock-resource/system");
+  cockpit_test_setenv ("XDG_CONFIG_DIRS", config_dir);
 
   setup_path (argv[0]);
 

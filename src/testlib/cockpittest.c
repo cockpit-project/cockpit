@@ -22,10 +22,9 @@
 #include "cockpittest.h"
 
 #include "common/cockpitconf.h"
-#include "common/cockpitjson.h"
-#include "common/cockpitsystem.h"
 
 #include <glib-object.h>
+#include <json-glib/json-glib.h>
 
 #include <net/if.h>
 #include <netinet/in.h>
@@ -202,12 +201,12 @@ cockpit_test_init (int *argc,
 
   signal (SIGPIPE, SIG_IGN);
 
-  cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
-  cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
-  cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  cockpit_test_setenv ("GIO_USE_VFS", "local");
+  cockpit_test_setenv ("GSETTINGS_BACKEND", "memory");
+  cockpit_test_setenv ("GIO_USE_PROXY_RESOLVER", "dummy");
 
   g_assert (g_snprintf (path, sizeof (path), "%s:%s", BUILDDIR, g_getenv ("PATH")) < sizeof (path));
-  cockpit_setenv_check ("PATH", path, TRUE);
+  cockpit_test_setenv ("PATH", path);
 
   /* For our process (children are handled through $G_DEBUG) */
   g_log_set_always_fatal (G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
@@ -368,10 +367,9 @@ _cockpit_assert_json_eq_msg (const char *domain,
                              const gchar *expect)
 {
   GError *error = NULL;
+  JsonParser *parser;
   JsonNode *node;
   JsonNode *exnode;
-  gchar *escaped;
-  gchar *msg;
 
   if (expect[0] == '[')
     {
@@ -384,22 +382,32 @@ _cockpit_assert_json_eq_msg (const char *domain,
       json_node_set_object (node, object_or_array);
     }
 
-  exnode = cockpit_json_parse (expect, -1, &error);
-  if (error)
-    g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
+  parser = json_parser_new ();
+  if (!json_parser_load_from_data (parser, expect, -1, &error))
+    {
+      g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
+      g_object_unref (parser);
+      json_node_free (node);
+      return;
+    }
+
+  exnode = json_parser_get_root (parser);
   g_assert (exnode);
 
-  if (!cockpit_json_equal (exnode, node))
+  if (!json_node_equal (exnode, node))
     {
-      escaped = cockpit_json_write (node, NULL);
+      JsonGenerator *generator = json_generator_new ();
+      json_generator_set_root (generator, node);
+      gchar *escaped = json_generator_to_data (generator, NULL);
+      g_object_unref (generator);
 
-      msg = g_strdup_printf ("%s != %s", escaped, expect);
+      gchar *msg = g_strdup_printf ("%s != %s", escaped, expect);
       g_assertion_message (domain, file, line, func, msg);
       g_free (escaped);
       g_free (msg);
     }
+  g_object_unref (parser);
   json_node_free (node);
-  json_node_free (exnode);
 }
 
 void
@@ -549,7 +557,7 @@ cockpit_test_allow_warnings (void)
   /* make some noise if this gets called twice */
   g_return_if_fail (orig_g_debug == NULL);
   orig_g_debug = g_getenv ("G_DEBUG");
-  cockpit_setenv_check ("G_DEBUG", "fatal-criticals", TRUE);
+  cockpit_test_setenv ("G_DEBUG", "fatal-criticals");
 }
 
 void
@@ -557,9 +565,17 @@ cockpit_test_reset_warnings (void)
 {
   if (orig_g_debug != NULL)
     {
-      cockpit_setenv_check ("G_DEBUG", orig_g_debug, TRUE);
+      cockpit_test_setenv ("G_DEBUG", orig_g_debug);
       orig_g_debug = NULL;
     }
+}
+
+void
+cockpit_test_setenv (const char *variable,
+                     const char *value)
+{
+  if (!g_setenv (variable, value, TRUE))
+    g_error ("couldn't set $%s", variable);
 }
 
 gboolean

@@ -1,49 +1,135 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/python3
 
-# This is the startup script for cockpit-ws.
+# This is the startup script for the cockpit ws container.
 
-cd /
-PATH="/bin:/sbin"
+import argparse
+import contextlib
+import fcntl
+import os
+import shutil
+import socket
+import subprocess
+from collections.abc import Sequence
+from typing import Never
+
+SHA256_NIL = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+
+
+def exec_with_listener(cmd: Sequence[str], env: dict[str, str], sock: socket.socket) -> Never:
+    # First dup to an fd > 3, then dup2(3). This ensures we always get a fresh
+    # fd at 3 without CLOEXEC, even if the socket was already at fd 3 (where
+    # dup2 would be a no-op).  We're very fork/exec here because of the need to
+    # set environment variables post-fork (to get the correct value for
+    # LISTEN_PID).
+    os.dup2(fcntl.fcntl(sock.fileno(), fcntl.F_DUPFD_CLOEXEC, 4), 3)
+    env = {**env, 'LISTEN_FDS': "1", 'LISTEN_PID': f"{os.getpid()}"}
+
+    os.chdir('/')
+    os.execve(cmd[0], list(cmd), env)
+
+
+parser = argparse.ArgumentParser(description='Startup script for cockpit-ws')
+parser.add_argument('--no-tls', action='store_true', help='Run in plain HTTP mode (no TLS)')
+parser.add_argument('--port', '-p', type=int, default=9090, help='Port to bind to (default: 9090)')
+parser.add_argument('--address', default='', help='Address to bind to (default: all interfaces)')
+args = parser.parse_args()
+
+# survive `podman restart`
+shutil.rmtree("/run/cockpit", ignore_errors=True)
+os.makedirs("/run/cockpit/tls")
+
+# Build environment for child processes
+env = {
+    **os.environ,
+    'PATH': '/bin:/sbin',
+    'RUNTIME_DIRECTORY': "/run/cockpit/tls",
+    "COCKPIT_WS_PROCESS_IDLE": f"{(1 << 32) - 1}",  # ~136 years
+}
+
+# Read the list of mountpoints so we can make some guesses about the container
+# configuration.  Fields are whitespace-separated with whitespace within the
+# names octal-encoded. We are uninterested in paths with whitespace, so don't
+# bother decoding it.
+# See fstab(5) which is cited by proc_pid_mounts(5).
+with open('/proc/mounts') as f:
+    mountpoints = frozenset(line.split()[1] for line in f)
+
 
 # When run in a privileged container, the host file system must be mounted at /host.
-if [ -d /host ]; then
-    # Run the install command just to be sure
-    /container/label-install || exit $?
+if os.path.isdir('/host'):
+    # Enter host namespaces so sockets bind to host network
+    for ns in ['net', 'uts']:
+        with open(f'/host/proc/1/ns/{ns}') as f:
+            os.setns(f.fileno(), 0)
 
-    set +x
+    subprocess.run(['/container/label-install'], check=True)
 
-    /bin/mount --bind /host/usr/share/pixmaps /usr/share/pixmaps
-    /bin/mount --bind /host/usr/share/icons /usr/share/icons
-    /bin/mount --bind /host/var /var
-    /bin/mount --bind /host/etc/ssh /etc/ssh
+    for src, dest in (
+        ('/host/usr/share/pixmaps', '/usr/share/pixmaps'),
+        ('/host/usr/share/icons', '/usr/share/icons'),
+        ('/host/var', '/var'),
+        ('/host/etc/ssh', '/etc/ssh'),
+    ):
+        subprocess.run(['/bin/mount', '--bind', src, dest], check=True)
 
-    # Make the container think it's the host OS version
-    if ! mountpoint -q /etc/os-release; then
-        rm -f /etc/os-release /usr/lib/os-release
-        ln -sv /host/etc/os-release /etc/os-release
-        ln -sv /host/usr/lib/os-release /usr/lib/os-release
-    fi
+    # Make the container think it's the host OS version (for branding purposes)
+    if '/etc/os-release' not in mountpoints and '/usr/lib/os-release' not in mountpoints:
+        for path in ['/etc/os-release', '/usr/lib/os-release']:
+            with contextlib.suppress(FileNotFoundError):
+                os.unlink(path)
+        os.symlink('/host/etc/os-release', '/etc/os-release')
+        os.symlink('/host/usr/lib/os-release', '/usr/lib/os-release')
 
-    # And run cockpit-ws
-    TARGET_NS=/host/proc/1/ns
-    exec /usr/bin/nsenter --net=$TARGET_NS/net --uts=$TARGET_NS/uts -- /usr/libexec/cockpit-ws --local-ssh "$@"
-else
-    # unprivileged mode
-
+else:
     # branding can be set from outside; if it's not, don't show any branding
-    if ! mountpoint --quiet /etc/os-release; then
-        rm /etc/os-release
-        printf 'NAME=default\nID=default\n' > /etc/os-release
-    fi
+    if '/etc/os-release' not in mountpoints and '/usr/lib/os-release' not in mountpoints:
+        os.unlink('/etc/os-release')
+        with open('/etc/os-release', 'w') as f:
+            f.write('NAME=default\nID=default\n')
 
     # config can be customized, but provide a default suitable for a bastion host
-    mountpoint --quiet /etc/cockpit || mountpoint --quiet /etc/cockpit/cockpit.conf || ln -s /container/default-bastion.conf /etc/cockpit/cockpit.conf
-
-    /usr/libexec/cockpit-certificate-ensure
+    if '/etc/cockpit' not in mountpoints and '/etc/cockpit/cockpit.conf' not in mountpoints:
+        with contextlib.suppress(FileExistsError):
+            os.symlink('/container/default-bastion.conf', '/etc/cockpit/cockpit.conf')
 
     # start SSH agent, unless we already got pointed to one
-    [ -n "${SSH_AUTH_SOCK:-}" ] || eval "$(ssh-agent)"
+    if 'SSH_AUTH_SOCK' not in env:
+        result = subprocess.run(['ssh-agent'], capture_output=True, text=True, check=True)
+        for line in result.stdout.splitlines():
+            if '=' in line and ';' in line:
+                var, value = line.split(';')[0].split('=', 1)
+                env[var] = value
 
-    exec /usr/libexec/cockpit-ws --local-ssh "$@"
-fi
+
+# Create our main TCP listener socket
+if args.address == '' or ':' in args.address:
+    tcp_listener = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    tcp_listener.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+else:
+    tcp_listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
+with tcp_listener:
+    tcp_listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    tcp_listener.bind((args.address, args.port))
+    tcp_listener.listen()
+
+    if args.no_tls:
+        exec_with_listener(['/usr/libexec/cockpit-ws', '--no-tls', '--local-ssh'], env, tcp_listener)
+
+    else:
+        subprocess.run(
+            ['/usr/libexec/cockpit-certificate-ensure', '--for-cockpit-tls'], env=env, cwd='/', check=True
+        )
+
+        os.mkdir(wsinstance_dir := "/run/cockpit/wsinstance")
+
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as unix_listener:
+            unix_listener.bind(f"{wsinstance_dir}/http.sock")
+            os.symlink("http.sock", f"{wsinstance_dir}/https@{SHA256_NIL}.sock")
+            unix_listener.listen()
+
+            if os.fork() == 0:  # child
+                exec_with_listener(['/usr/libexec/cockpit-ws', '--for-tls-proxy', '--local-ssh'], env, unix_listener)
+
+        exec_with_listener(['/usr/libexec/cockpit-tls', '--idle-timeout=0'], env, tcp_listener)

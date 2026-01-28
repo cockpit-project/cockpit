@@ -911,7 +911,7 @@ function debug(...args) {
         "es256": -7,
         "rs256": -257,
         "eddsa": -8
-    }
+    };
 
     const supportedAlgorithmsByValue = function(value) {
         return Object.keys(supportedAlgorithms).filter(key => key !== "byValue").find(key => supportedAlgorithms[key] === value)
@@ -931,7 +931,7 @@ function debug(...args) {
         const credentialIdLength = dataView.getUint16();
 
         // get the credential ID
-        const credentialId = authData.slice(
+        const _credentialId = authData.slice(
             55, 55 + credentialIdLength);
 
         // get the public key object
@@ -960,7 +960,7 @@ function debug(...args) {
                     displayName: "Jamie Doe",
                 },
                 attestation: "direct",
-                timeout: 60000,
+                timeout: 60_000,
                 authenticatorSelection: {
                     requireResidentKey: false,
                     userVerification: "discouraged"

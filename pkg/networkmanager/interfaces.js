@@ -535,6 +535,7 @@ export function NetworkManagerModel() {
                 timestamp: get("connection", "timestamp", 0),
                 id: get("connection", "id", _("Unknown")),
                 autoconnect: get("connection", "autoconnect", true),
+                'autoconnect-priority': get("connection", "autoconnect-priority", 0),
                 autoconnect_members:
                                 get("connection", "autoconnect-slaves", -1),
                 member_type: get("connection", "slave-type"),
@@ -714,6 +715,7 @@ export function NetworkManagerModel() {
 
         set("connection", "id", 's', settings.connection.id);
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
+        set("connection", "autoconnect-priority", 'i', settings.connection['autoconnect-priority']);
         set("connection", "autoconnect-slaves", 'i', settings.connection.autoconnect_members);
         set("connection", "uuid", 's', settings.connection.uuid);
         set("connection", "interface-name", 's', settings.connection.interface_name);

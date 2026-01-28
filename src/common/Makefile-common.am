@@ -105,12 +105,6 @@ EXTRA_DIST += src/common/fail.html
 dist_check_SCRIPTS += src/common/mock-stderr
 dist_check_DATA += src/common/mock-content
 
-# preload wrapper library for unit tests that need a temp home dir
-check_PROGRAMS += libpreload-temp-home.so
-libpreload_temp_home_so_SOURCES = src/common/preload-temp-home.c
-libpreload_temp_home_so_CFLAGS = -fPIC $(AM_CFLAGS)
-libpreload_temp_home_so_LDFLAGS = -shared
-
 TEST_PROGRAM += test-authorize
 test_authorize_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_authorize_LDADD = $(TEST_LIBS)

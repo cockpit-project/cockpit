@@ -59,7 +59,7 @@ static void
 setup_normal (Test *test,
               gconstpointer data)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
+  cockpit_config_file = SRCDIR "/src/common/mock-config/cockpit/cockpit.conf";
   test->auth = cockpit_auth_new (FALSE, COCKPIT_AUTH_NONE);
 }
 
@@ -67,7 +67,7 @@ static void
 setup_alt_config (Test *test,
               gconstpointer data)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf";
+  cockpit_config_file = SRCDIR "/src/common/mock-config/cockpit/cockpit-alt.conf";
   test->auth = cockpit_auth_new (FALSE, COCKPIT_AUTH_NONE);
 }
 

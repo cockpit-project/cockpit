@@ -31,7 +31,7 @@ extern const gchar *cockpit_config_file;
 static void
 test_get_strings (void)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
+  cockpit_config_file = SRCDIR "/src/common/mock-config/cockpit/cockpit.conf";
 
   g_assert_null (cockpit_conf_string ("bad-section", "value"));
   g_assert_null (cockpit_conf_string ("Section1", "value"));
@@ -50,7 +50,7 @@ test_get_strings (void)
 static void
 test_get_bool (void)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
+  cockpit_config_file = SRCDIR "/src/common/mock-config/cockpit/cockpit.conf";
 
   g_assert_true (cockpit_conf_bool ("bad-section", "value", TRUE));
   g_assert_false (cockpit_conf_bool ("bad-section", "value", FALSE));
@@ -69,7 +69,7 @@ test_get_bool (void)
 static void
 test_get_uint (void)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
+  cockpit_config_file = SRCDIR "/src/common/mock-config/cockpit/cockpit.conf";
 
   g_assert_cmpuint (cockpit_conf_uint ("bad-section", "value", 1, 999, 0), ==,  1);
   g_assert_cmpuint (cockpit_conf_uint ("Section2", "missing", 1, 999, 0), ==,  1);
@@ -87,7 +87,7 @@ test_get_strvs (void)
 {
   const gchar * const *list = NULL;
 
-  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
+  cockpit_config_file = SRCDIR "/src/common/mock-config/cockpit/cockpit.conf";
 
   g_assert_null (cockpit_conf_strv ("bad-section", "value", ' '));
   g_assert_null (cockpit_conf_strv ("Section1", "value", ' '));
@@ -135,7 +135,7 @@ test_load_dir (void)
 {
   const char * const *dirs;
 
-  cockpit_test_setenv ("XDG_CONFIG_DIRS", "/does-not-exist:" SRCDIR "/src/ws/mock-config");
+  cockpit_test_setenv ("XDG_CONFIG_DIRS", "/does-not-exist:" SRCDIR "/src/common/mock-config");
   cockpit_config_file = "cockpit.conf";
 
   g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"), ==, "string");
@@ -144,7 +144,7 @@ test_load_dir (void)
   /* PACKAGE_SYSCONF_DIR is always first, even when XDG_CONFIG_DIRS is set */
   g_assert_cmpstr (dirs[0], ==, PACKAGE_SYSCONF_DIR);
   g_assert_cmpstr (dirs[1], ==, "/does-not-exist");
-  g_assert_cmpstr (dirs[2], ==, SRCDIR "/src/ws/mock-config");
+  g_assert_cmpstr (dirs[2], ==, SRCDIR "/src/common/mock-config");
   g_assert_null (dirs[3]);
 
   cockpit_conf_cleanup ();

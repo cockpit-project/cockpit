@@ -119,7 +119,7 @@ with tcp_listener:
 
     else:
         subprocess.run(
-            ['/usr/libexec/cockpit-certificate-ensure', '--for-cockpit-tls'], env=env, cwd='/', check=True
+            ['/usr/libexec/cockpit-certificate-ensure'], env=env, cwd='/', check=True
         )
 
         os.mkdir(wsinstance_dir := "/run/cockpit/wsinstance")

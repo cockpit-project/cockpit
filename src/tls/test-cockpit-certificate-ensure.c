@@ -208,7 +208,7 @@ test_copy (Fixture *fixture,
   g_autoptr(GError) error = NULL;
 
   g_autoptr(GSubprocess) helper = g_subprocess_launcher_spawn (fixture->launcher, &error,
-                                                               CERTIFICATE_HELPER, "--for-cockpit-tls", NULL);
+                                                               CERTIFICATE_HELPER, NULL);
   g_assert_no_error (error);
 
   g_autofree gchar *stdout_str = NULL;
@@ -408,14 +408,14 @@ static const TestCase expired_combined = {
   .files = (const gchar *[]) { SRCDIR "/test/data/expired/combined.cert",
                                NULL },
   .check_stdout = "",
-  .check_stderr = "*merged certificate and key files are unsupported*",
+  .check_stderr = "*merged certificate and key files are no longer supported*",
   .check_exit = EXIT_FAILURE,
 
   .copy_stdout = "",
-  .copy_stderr = "*merged certificate and key files are deprecated*",
-  .copy_exit = EXIT_SUCCESS,
-  .key_source = "*/cockpit/ws-certs.d/combined.cert",
-  .cert_source = "*/cockpit/ws-certs.d/combined.cert"
+  .copy_stderr = "*merged certificate and key files are no longer supported*",
+  .copy_exit = EXIT_FAILURE,
+  .cert_source = "",
+  .key_source = "",
 };
 
 static const TestCase many_files = {
@@ -426,14 +426,14 @@ static const TestCase many_files = {
                                SRCDIR "/test/data/expired/combined.cert",
                                NULL },
   .check_stdout = "",
-  .check_stderr = "*merged certificate and key files are unsupported*",
+  .check_stderr = "*merged certificate and key files are no longer supported*",
   .check_exit = EXIT_FAILURE,
 
   .copy_stdout = "",
-  .copy_stderr = "*merged certificate and key files are deprecated*",
-  .copy_exit = EXIT_SUCCESS,
-  .key_source = "*/cockpit/ws-certs.d/combined.cert",
-  .cert_source = "*/cockpit/ws-certs.d/combined.cert"
+  .copy_stderr = "*merged certificate and key files are no longer supported*",
+  .copy_exit = EXIT_FAILURE,
+  .cert_source = "",
+  .key_source = "",
 };
 
 int

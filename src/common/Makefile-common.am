@@ -106,81 +106,81 @@ dist_check_SCRIPTS += src/common/mock-stderr
 dist_check_DATA += src/common/mock-content
 
 TEST_PROGRAM += test-authorize
-test_authorize_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_authorize_LDADD = $(TEST_LIBS)
+test_authorize_CPPFLAGS = $(TEST_CPP)
+test_authorize_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
 test_authorize_SOURCES = src/common/test-authorize.c
 
 TEST_PROGRAM += test-base64
-test_base64_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_base64_LDADD = $(TEST_LIBS)
+test_base64_CPPFLAGS = $(TEST_CPP)
+test_base64_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
 test_base64_SOURCES = src/common/test-base64.c
 
 TEST_PROGRAM += test-channel
 test_channel_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_channel_LDADD = $(TEST_LIBS)
+test_channel_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_channel_SOURCES = src/common/test-channel.c
 
 TEST_PROGRAM += test-config
-test_config_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_config_LDADD = $(TEST_LIBS)
+test_config_CPPFLAGS = $(TEST_CPP)
+test_config_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
 test_config_SOURCES = src/common/test-config.c
 
 TEST_PROGRAM += test-frame
-test_frame_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_frame_LDADD = $(TEST_LIBS)
+test_frame_CPPFLAGS = $(TEST_CPP)
+test_frame_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
 test_frame_SOURCES = src/common/test-frame.c
 
 TEST_PROGRAM += test-hash
 test_hash_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_hash_LDADD = $(TEST_LIBS)
+test_hash_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_hash_SOURCES = src/common/test-hash.c
 
 TEST_PROGRAM += test-json
 test_json_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_json_LDADD = $(TEST_LIBS)
+test_json_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_json_SOURCES = src/common/test-json.c
 
 TEST_PROGRAM += test-jsonfds
 test_jsonfds_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_jsonfds_LDADD = $(TEST_LIBS)
+test_jsonfds_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_jsonfds_SOURCES = src/common/test-jsonfds.c
 
 TEST_PROGRAM += test-locale
 test_locale_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_locale_LDADD = $(TEST_LIBS)
+test_locale_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_locale_SOURCES = src/common/test-locale.c
 
 TEST_PROGRAM += test-pipe
 test_pipe_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_pipe_LDADD = $(TEST_LIBS)
+test_pipe_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_pipe_SOURCES = src/common/test-pipe.c
 
 TEST_PROGRAM += test-template
 test_template_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_template_LDADD = $(TEST_LIBS)
+test_template_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_template_SOURCES = src/common/test-template.c
 
 TEST_PROGRAM += test-transport
 test_transport_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_transport_LDADD = $(TEST_LIBS)
+test_transport_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_transport_SOURCES = src/common/test-transport.c
 
 TEST_PROGRAM += test-unicode
 test_unicode_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_unicode_LDADD = $(TEST_LIBS)
+test_unicode_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_unicode_SOURCES = src/common/test-unicode.c
 
 TEST_PROGRAM += test-webcertificate
-test_webcertificate_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_webcertificate_LDADD = $(TEST_LIBS)
+test_webcertificate_CPPFLAGS = $(TEST_CPP)
+test_webcertificate_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
 test_webcertificate_SOURCES = src/common/test-webcertificate.c
 
 TEST_PROGRAM += test-webresponse
 test_webresponse_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_webresponse_LDADD = $(TEST_LIBS)
+test_webresponse_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_webresponse_SOURCES = src/common/test-webresponse.c
 
 TEST_PROGRAM += test-webserver
 test_webserver_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
-test_webserver_LDADD = $(TEST_LIBS)
+test_webserver_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_webserver_SOURCES = src/common/test-webserver.c

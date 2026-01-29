@@ -103,7 +103,7 @@ BuildRequires: krb5-devel >= 1.11
 BuildRequires: glib-networking
 BuildRequires: sed
 
-BuildRequires: glib2-devel >= 2.50.0
+BuildRequires: glib2-devel >= 2.68.0
 # this is for runtimedir in the tls proxy ace21c8879
 BuildRequires: systemd-devel >= 235
 %if 0%{?suse_version}
@@ -396,7 +396,7 @@ This package contains the Cockpit shell and system configuration interfaces.
 %package ws
 Summary: Cockpit Web Service
 Requires: openssl
-Requires: glib2 >= 2.50.0
+Requires: glib2 >= 2.68.0
 Requires: (%{name}-ws-selinux = %{version}-%{release} if selinux-policy-base)
 Recommends: sscg >= 2.3
 Recommends: system-logos

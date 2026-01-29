@@ -25,8 +25,6 @@
 #include <glib.h>
 #include <sys/stat.h>
 
-#include "common/cockpithacks-glib.h"
-
 #define CERTIFICATE_HELPER  BUILDDIR "/cockpit-certificate-ensure"
 
 typedef struct {

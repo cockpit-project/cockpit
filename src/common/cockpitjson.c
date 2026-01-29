@@ -224,7 +224,7 @@ cockpit_json_get_strv (JsonObject *options,
   if (!node)
     {
       if (defawlt)
-        val = g_memdup (defawlt, sizeof (gchar *) * (g_strv_length ((gchar **)defawlt) + 1));
+        val = g_memdup2 (defawlt, sizeof (gchar *) * (g_strv_length ((gchar **)defawlt) + 1));
       valid = TRUE;
     }
   else if (json_node_get_node_type (node) == JSON_NODE_ARRAY)

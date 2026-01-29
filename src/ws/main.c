@@ -34,7 +34,6 @@
 #include "cockpitbranding.h"
 
 #include "common/cockpitconf.h"
-#include "common/cockpithacks-glib.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
 
@@ -155,7 +154,7 @@ main (int argc,
   if (opt_for_tls_proxy || cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE))
     opt_no_tls = TRUE;
 
-  cockpit_hacks_redirect_gdebug_to_stderr ();
+  g_log_writer_default_set_use_stderr (TRUE);
 
   loop = g_main_loop_new (NULL, FALSE);
 

@@ -36,7 +36,6 @@
 #include <common/cockpitwebcertificate.h>
 #include <common/cockpitmemory.h>
 
-#include "certificate.h"
 #include "utils.h"
 
 #define COCKPIT_CERTIFICATE_HELPER   LIBEXECDIR "/cockpit-certificate-helper"

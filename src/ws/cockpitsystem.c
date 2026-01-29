@@ -37,9 +37,6 @@
 #include <string.h>
 #include <unistd.h>
 
-/* Used to override from tests */
-const gchar *cockpit_system_proc_base = "/proc";
-
 static const gchar *os_release_fields[] = {
   "NAME",
   "VERSION",

@@ -310,7 +310,7 @@ cockpit_auth_init (CockpitAuth *self)
   self->max_startups_rate = 100;
 }
 
-gchar *
+static gchar *
 cockpit_auth_nonce (CockpitAuth *self)
 {
   const guchar *key;
@@ -1388,16 +1388,6 @@ cockpit_auth_local_async (CockpitAuth *self,
   g_free (csrf_token);
   g_object_unref (transport);
   cockpit_creds_unref (creds);
-}
-
-gboolean
-cockpit_auth_local_finish (CockpitAuth *self,
-                           GAsyncResult *result,
-                           GError **error)
-{
-  g_return_val_if_fail (g_task_is_valid (result, self), FALSE);
-
-  return g_task_propagate_boolean (G_TASK (result), error);
 }
 
 /*

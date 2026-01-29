@@ -39,8 +39,6 @@ struct _CockpitCreds {
   gchar *superuser;
 };
 
-G_DEFINE_BOXED_TYPE (CockpitCreds, cockpit_creds, cockpit_creds_ref, cockpit_creds_unref);
-
 static void
 cockpit_creds_free (gpointer data)
 {

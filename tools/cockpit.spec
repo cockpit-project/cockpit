@@ -395,7 +395,6 @@ This package contains the Cockpit shell and system configuration interfaces.
 
 %package ws
 Summary: Cockpit Web Service
-Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.50.0
 Requires: (%{name}-ws-selinux = %{version}-%{release} if selinux-policy-base)

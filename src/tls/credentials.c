@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#include "certificate.h"
+#include "credentials.h"
 
 #include <assert.h>
 #include <err.h>
@@ -19,24 +19,24 @@
 
 #include "utils.h"
 
-struct _Certificate
+struct _Credentials
 {
   gnutls_certificate_credentials_t creds;
   int ref_count;
 };
 
-static Certificate *
-certificate_new (gnutls_certificate_credentials_t creds)
+static Credentials *
+credentials_new (gnutls_certificate_credentials_t creds)
 {
-  Certificate *self = mallocx (sizeof (Certificate));
+  Credentials *self = mallocx (sizeof (Credentials));
   self->creds = creds;
   self->ref_count = 1;
 
   return self;
 }
 
-Certificate *
-certificate_ref (Certificate *self)
+Credentials *
+credentials_ref (Credentials *self)
 {
   self->ref_count++;
 
@@ -44,7 +44,7 @@ certificate_ref (Certificate *self)
 }
 
 void
-certificate_unref (Certificate *self)
+credentials_unref (Credentials *self)
 {
   if (--self->ref_count == 0)
     {
@@ -54,13 +54,13 @@ certificate_unref (Certificate *self)
 }
 
 gnutls_certificate_credentials_t
-certificate_get_credentials (Certificate *self)
+credentials_get (Credentials *self)
 {
   return self->creds;
 }
 
-Certificate *
-certificate_load (const char *certificate_filename,
+Credentials *
+credentials_load (const char *certificate_filename,
                   const char *key_filename)
 {
   gnutls_certificate_credentials_t creds;
@@ -78,5 +78,5 @@ certificate_load (const char *certificate_filename,
   if (ret != GNUTLS_E_SUCCESS)
     errx (EXIT_FAILURE, "Failed to initialize server certificate: %s", gnutls_strerror (ret));
 
-  return certificate_new (creds);
+  return credentials_new (creds);
 }

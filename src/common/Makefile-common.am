@@ -145,6 +145,11 @@ test_jsonfds_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_jsonfds_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_jsonfds_SOURCES = src/common/test-jsonfds.c
 
+TEST_PROGRAM += test-jsonprint
+test_jsonprint_CPPFLAGS = $(TEST_CPP)
+test_jsonprint_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
+test_jsonprint_SOURCES = src/common/test-jsonprint.c
+
 TEST_PROGRAM += test-locale
 test_locale_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
 test_locale_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)

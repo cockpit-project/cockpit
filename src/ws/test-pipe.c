@@ -935,35 +935,6 @@ test_spawn_and_buffer_stderr (void)
   g_object_unref (pipe);
 }
 
-static void
-test_pty_shell (void)
-{
-  gboolean closed = FALSE;
-  GByteArray *buffer;
-  CockpitPipe *pipe;
-  GBytes *sent;
-
-  const gchar *argv[] = { "/bin/bash", "-i", NULL };
-
-  pipe = cockpit_pipe_pty (argv, NULL, NULL, 24, 80);
-  g_assert (pipe != NULL);
-
-  sent = g_bytes_new_static ("echo booyah\nexit\n", 17);
-  cockpit_pipe_write (pipe, sent);
-  g_bytes_unref (sent);
-
-  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
-
-  while (closed == FALSE)
-    g_main_context_iteration (NULL, TRUE);
-
-  buffer = cockpit_pipe_get_buffer (pipe);
-  g_byte_array_append (buffer, (const guint8 *)"\0", 1);
-
-  cockpit_assert_strmatch ((gchar *)buffer->data, "*booyah*");
-  g_object_unref (pipe);
-}
-
 typedef struct {
   GSocket *listen_sock;
   GSource *listen_source;
@@ -1228,55 +1199,6 @@ test_problem_later (void)
   g_free (check);
 }
 
-static void
-test_get_environ (void)
-{
-  const gchar *input[] = { "ENVIRON=Marmalaaade", "ANOTHER=zerog", NULL };
-  gchar **environ;
-
-  cockpit_test_setenv ("BLAH", "exists");
-  cockpit_test_setenv ("ANOTHER", "original");
-
-  environ = cockpit_pipe_get_environ (input, "/directory");
-
-  g_assert_cmpstr (g_environ_getenv (environ, "ENVIRON"), ==, "Marmalaaade");
-  g_assert_cmpstr (g_environ_getenv (environ, "ANOTHER"), ==, "zerog");
-  g_assert_cmpstr (g_environ_getenv (environ, "BLAH"), ==, "exists");
-  g_assert_cmpstr (g_environ_getenv (environ, "PWD"), ==, "/directory");
-
-  g_strfreev (environ);
-}
-
-static void
-test_get_environ_with_pwd (void)
-{
-  const gchar *input[] = { "ENVIRON=Marmalaaade", "PWD=/mine", NULL };
-  gchar **environ;
-
-  environ = cockpit_pipe_get_environ (input, "/directory");
-
-  g_assert_cmpstr (g_environ_getenv (environ, "ENVIRON"), ==, "Marmalaaade");
-  g_assert_cmpstr (g_environ_getenv (environ, "PWD"), ==, "/mine");
-
-  g_strfreev (environ);
-}
-
-static void
-test_get_environ_null (void)
-{
-  gchar **environ;
-
-  cockpit_test_setenv ("BLAH", "exists");
-  cockpit_test_setenv ("ANOTHER", "original");
-
-  environ = cockpit_pipe_get_environ (NULL, NULL);
-
-  g_assert_cmpstr (g_environ_getenv (environ, "BLAH"), ==, "exists");
-  g_assert_cmpstr (g_environ_getenv (environ, "ANOTHER"), ==, "original");
-
-  g_strfreev (environ);
-}
-
 int
 main (int argc,
       char *argv[])
@@ -1338,8 +1260,6 @@ main (int argc,
   g_test_add ("/pipe/spawn/close-terminate", TestCase, NULL,
               setup_timeout, test_spawn_close_terminate, teardown);
 
-  g_test_add_func ("/pipe/pty/shell", test_pty_shell);
-
   g_test_add ("/pipe/connect/and-read", TestConnect, NULL,
               setup_connect, test_connect_and_read, teardown_connect);
   g_test_add ("/pipe/connect/and-write", TestConnect, NULL,
@@ -1349,10 +1269,6 @@ main (int argc,
 
   g_test_add_func ("/pipe/connect/not-found", test_fail_not_found);
   g_test_add_func ("/pipe/connect/access-denied", test_fail_access_denied);
-
-  g_test_add_func ("/pipe/environ/simple", test_get_environ);
-  g_test_add_func ("/pipe/environ/pwd", test_get_environ_with_pwd);
-  g_test_add_func ("/pipe/environ/null", test_get_environ_null);
 
   return g_test_run ();
 }

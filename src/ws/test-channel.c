@@ -413,10 +413,14 @@ test_close_not_capable (void)
   CockpitChannel *channel2;
   const gchar *cap[] = { "supported", NULL };
 
-  cockpit_expect_message ("55: unsupported capability required: unsupported1");
-  cockpit_expect_message ("55: unsupported capability required: unsupported2");
-  cockpit_expect_message ("55: unsupported capability required: unsupported1");
-  cockpit_expect_message ("55: unsupported capability required: unsupported2");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+                         "55: unsupported capability required: unsupported1");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+                         "55: unsupported capability required: unsupported2");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+                         "55: unsupported capability required: unsupported1");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+                         "55: unsupported capability required: unsupported2");
 
   options = json_object_new ();
   capabilities = json_array_new ();

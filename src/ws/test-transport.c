@@ -395,8 +395,8 @@ test_read_error (void)
   g_assert_cmpint (pipe (fds), ==, 0);
 
 
-  cockpit_expect_warning ("*Bad file descriptor");
-  cockpit_expect_warning ("*Bad file descriptor");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*Bad file descriptor");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*Bad file descriptor");
 
   /* Pass in a bad read descriptor */
   transport = cockpit_pipe_transport_new_fds ("test", 1000, fds[0]);
@@ -428,8 +428,8 @@ test_write_error (void)
   /* Assuming FD 1000 is not taken */
   g_assert (write (1000, "1", 1) < 0);
 
-  cockpit_expect_warning ("*Bad file descriptor");
-  cockpit_expect_warning ("*Bad file descriptor");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*Bad file descriptor");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*Bad file descriptor");
 
   /* Pass in a bad write descriptor */
   transport = cockpit_pipe_transport_new_fds ("test", fds[0], 1000);
@@ -534,7 +534,7 @@ test_incorrect_protocol (void)
   out = dup (2);
   g_assert (out >= 0);
 
-  cockpit_expect_warning ("*received invalid length prefix");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*received invalid length prefix");
 
   /* Pass in a read end of the pipe */
   transport = cockpit_pipe_transport_new_fds ("test", fds[0], out);
@@ -580,7 +580,7 @@ test_parse_frame_bad (void)
   GBytes *message;
   GBytes *payload;
 
-  cockpit_expect_message ("*invalid channel prefix");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*invalid channel prefix");
 
   message = g_bytes_new_static ("b\x00y\ntest", 8);
   payload = cockpit_transport_parse_frame (message, &channel);
@@ -590,7 +590,7 @@ test_parse_frame_bad (void)
 
   cockpit_assert_expected ();
 
-  cockpit_expect_message ("*invalid message without channel prefix");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*invalid message without channel prefix");
 
   channel = NULL;
   message = g_bytes_new_static ("test", 4);
@@ -689,7 +689,7 @@ test_parse_command_bad (gconstpointer input)
   JsonObject *options;
   gboolean ret;
 
-  cockpit_expect_warning ("*");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*");
 
   message = g_bytes_new_static (input, strlen (input));
 

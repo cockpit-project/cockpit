@@ -1,4 +1,109 @@
 # -----------------------------------------------------------------------------
+# libwebsocket.a: low-level websocket handling code
+
+# Note: Because of its use of cockpitflow, libwebsocket_a_LIBS should
+#       rightfully include a reference to libcockpit_common_a_LIBS, but it
+#       can't do this because libcockpit-common.a depends, in turn, on
+#       libwebsocket.
+#
+#       At this point, libwebsocket should probably just be merged into
+#       libcockpit-common, but we can't do that because the log domain is
+#       different, and some of the tests depend on that.
+
+noinst_LIBRARIES += libwebsocket.a
+
+libwebsocket_a_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"WebSocket\" \
+	$(glib_CFLAGS) \
+	$(AM_CPPFLAGS)
+
+libwebsocket_a_LIBS = \
+	libwebsocket.a \
+	$(glib_LIBS) \
+	$(NULL)
+
+libwebsocket_a_SOURCES = \
+	src/ws/websocket.h \
+	src/ws/websocket.c \
+	src/ws/websocketclient.h \
+	src/ws/websocketclient.c \
+	src/ws/websocketserver.h \
+	src/ws/websocketserver.c \
+	src/ws/websocketconnection.h \
+	src/ws/websocketconnection.c \
+	src/ws/websocketprivate.h \
+	$(NULL)
+
+# -----------------------------------------------------------------------------
+# libcockpit-common.a: code that has other dependencies, like glib or libsystemd
+
+noinst_LIBRARIES += libcockpit-common.a
+
+libcockpit_common_a_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-protocol\" \
+	$(glib_CFLAGS) \
+	$(json_glib_CFLAGS) \
+	$(AM_CPPFLAGS)
+
+libcockpit_common_a_LIBS = \
+	libcockpit-common.a \
+	$(libcockpit_common_nodeps_a_LIBS) \
+	$(libwebsocket_a_LIBS) \
+	$(json_glib_LIBS) \
+	$(libsystemd_LIBS) \
+	-lutil \
+	$(NULL)
+
+libcockpit_common_a_SOURCES = \
+	src/ws/cockpitchannel.c \
+	src/ws/cockpitchannel.h \
+	src/ws/cockpitcontrolmessages.c \
+	src/ws/cockpitcontrolmessages.h \
+	src/ws/cockpiterror.c \
+	src/ws/cockpiterror.h \
+	src/ws/cockpitflow.c \
+	src/ws/cockpitflow.h \
+	src/ws/cockpithash.c \
+	src/ws/cockpithash.h \
+	src/ws/cockpitjson.c \
+	src/ws/cockpitjson.h \
+	src/ws/cockpitlocale.c \
+	src/ws/cockpitlocale.h \
+	src/ws/cockpitmemfdread.c \
+	src/ws/cockpitmemfdread.h \
+	src/ws/cockpitpipe.c \
+	src/ws/cockpitpipe.h \
+	src/ws/cockpitpipetransport.c \
+	src/ws/cockpitpipetransport.h \
+	src/ws/cockpitsocket.c \
+	src/ws/cockpitsocket.h \
+	src/ws/cockpitsystem.c \
+	src/ws/cockpitsystem.h \
+	src/ws/cockpittemplate.c \
+	src/ws/cockpittemplate.h \
+	src/ws/cockpittransport.c \
+	src/ws/cockpittransport.h \
+	src/ws/cockpitunicode.c \
+	src/ws/cockpitunicode.h \
+	src/ws/cockpitwebfilter.c \
+	src/ws/cockpitwebfilter.h \
+	src/ws/cockpitwebinject.c \
+	src/ws/cockpitwebinject.h \
+	src/ws/cockpitwebrequest-private.h \
+	src/ws/cockpitwebresponse.c \
+	src/ws/cockpitwebresponse.h \
+	src/ws/cockpitwebserver.c \
+	src/ws/cockpitwebserver.h \
+	$(NULL)
+
+# libcockpit-common.a static-links an HTML template to use on failures
+nodist_libcockpit_common_a_SOURCES = src/ws/fail-html.c
+src/ws/fail-html.c: src/common/fail.html
+	@mkdir -p '$(dir $@)'
+	$(AM_V_GEN) $(top_srcdir)/tools/escape-to-c cockpit_webresponse_fail_html_text < $< > $@.tmp && mv $@.tmp $@
+CLEANFILES += src/ws/fail-html.c
+
+# -----------------------------------------------------------------------------
 # libcockpit-ws.a: code used in cockpit-ws and its tests
 
 noinst_LIBRARIES += libcockpit-ws.a
@@ -91,7 +196,73 @@ src/ws/mock-dbus-tests.c: $(GDBUS_CODEGEN_XML)
 # -----------------------------------------------------------------------------
 # Unit tests
 
+dist_check_DATA += src/ws/mock-content
 check_SCRIPTS += src/ws/mock-cat-with-init
+
+check_PROGRAMS += frob-websocket
+frob_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
+frob_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+frob_websocket_SOURCES = src/ws/frob-websocket.c
+
+TEST_PROGRAM += test-websocket
+test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
+test_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_websocket_SOURCES = src/ws/test-websocket.c
+
+TEST_PROGRAM += test-channel
+test_channel_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_channel_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_channel_SOURCES = src/ws/test-channel.c
+
+TEST_PROGRAM += test-hash
+test_hash_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_hash_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_hash_SOURCES = src/ws/test-hash.c
+
+TEST_PROGRAM += test-json
+test_json_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_json_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_json_SOURCES = src/ws/test-json.c
+
+TEST_PROGRAM += test-jsonfds
+test_jsonfds_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_jsonfds_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_jsonfds_SOURCES = src/ws/test-jsonfds.c
+
+TEST_PROGRAM += test-locale
+test_locale_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_locale_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_locale_SOURCES = src/ws/test-locale.c
+
+TEST_PROGRAM += test-pipe
+test_pipe_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_pipe_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_pipe_SOURCES = src/ws/test-pipe.c
+
+TEST_PROGRAM += test-template
+test_template_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_template_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_template_SOURCES = src/ws/test-template.c
+
+TEST_PROGRAM += test-transport
+test_transport_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_transport_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_transport_SOURCES = src/ws/test-transport.c
+
+TEST_PROGRAM += test-unicode
+test_unicode_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_unicode_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_unicode_SOURCES = src/ws/test-unicode.c
+
+TEST_PROGRAM += test-webresponse
+test_webresponse_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_webresponse_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_webresponse_SOURCES = src/ws/test-webresponse.c
+
+TEST_PROGRAM += test-webserver
+test_webserver_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_webserver_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
+test_webserver_SOURCES = src/ws/test-webserver.c
 
 check_PROGRAMS += mock-echo
 mock_echo_CPPFLAGS = $(glib_CFLAGS) $(AM_CPPFLAGS)

@@ -21,15 +21,15 @@
 
 #include "cockpitwebserver.h"
 
-#include "cockpitconf.h"
+#include "common/cockpitconf.h"
 #include "cockpithash.h"
 #include "cockpitjson.h"
 #include "cockpitmemfdread.h"
-#include "cockpitmemory.h"
+#include "common/cockpitmemory.h"
 #include "cockpitsocket.h"
 #include "cockpitwebresponse.h"
 
-#include "websocket/websocket.h"
+#include "websocket.h"
 
 #include <sys/socket.h>
 #include <errno.h>

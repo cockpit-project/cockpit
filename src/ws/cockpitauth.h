@@ -26,9 +26,9 @@
 #include "cockpitcreds.h"
 #include "cockpitwebservice.h"
 
-#include "common/cockpitpipe.h"
-#include "common/cockpittransport.h"
-#include "common/cockpitwebserver.h"
+#include "cockpitpipe.h"
+#include "cockpittransport.h"
+#include "cockpitwebserver.h"
 
 G_BEGIN_DECLS
 

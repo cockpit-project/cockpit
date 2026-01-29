@@ -184,6 +184,5 @@ include src/pam-ssh-add/Makefile.am
 include src/session/Makefile-session.am
 include src/systemd/Makefile.am
 include src/tls/Makefile-tls.am
-include src/websocket/Makefile-websocket.am
 include src/ws/Makefile-ws.am
 include tools/Makefile-tools.am

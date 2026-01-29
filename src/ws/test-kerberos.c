@@ -22,8 +22,8 @@
 #include "cockpitauth.h"
 #include "cockpitws.h"
 
-#include "common/cockpitwebserver.h"
-#include "common/cockpitwebrequest-private.h"
+#include "cockpitwebserver.h"
+#include "cockpitwebrequest-private.h"
 
 #include "testlib/cockpittest.h"
 

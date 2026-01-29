@@ -29,10 +29,10 @@
 #include "cockpitwebfilter.h"
 
 #include "common/cockpitconf.h"
-#include "common/cockpiterror.h"
-#include "common/cockpitflow.h"
-#include "common/cockpitlocale.h"
-#include "common/cockpittemplate.h"
+#include "cockpiterror.h"
+#include "cockpitflow.h"
+#include "cockpitlocale.h"
+#include "cockpittemplate.h"
 
 #include <errno.h>
 #include <stdlib.h>

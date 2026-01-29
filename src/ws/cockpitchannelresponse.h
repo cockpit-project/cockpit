@@ -20,7 +20,7 @@
 #ifndef __COCKPIT_CHANNEL_RESPONSE_H__
 #define __COCKPIT_CHANNEL_RESPONSE_H__
 
-#include "common/cockpitwebserver.h"
+#include "cockpitwebserver.h"
 #include "cockpitwebservice.h"
 
 G_BEGIN_DECLS

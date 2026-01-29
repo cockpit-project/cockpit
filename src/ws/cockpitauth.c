@@ -23,18 +23,18 @@
 
 #include "cockpitws.h"
 
-#include "websocket/websocket.h"
+#include "websocket.h"
 
 #include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
-#include "common/cockpiterror.h"
+#include "cockpiterror.h"
 #include "common/cockpithex.h"
-#include "common/cockpitjson.h"
+#include "cockpitjson.h"
 #include "common/cockpitmemory.h"
-#include "common/cockpitpipe.h"
-#include "common/cockpitpipetransport.h"
-#include "common/cockpitsystem.h"
-#include "common/cockpitwebserver.h"
+#include "cockpitpipe.h"
+#include "cockpitpipetransport.h"
+#include "cockpitsystem.h"
+#include "cockpitwebserver.h"
 
 #include <sys/socket.h>
 #include <stdlib.h>

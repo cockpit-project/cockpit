@@ -20,8 +20,8 @@
 #include "config.h"
 
 #include "cockpitcontrolmessages.h"
-#include "cockpitfdpassing.h"
-#include "cockpitjsonprint.h"
+#include "common/cockpitfdpassing.h"
+#include "common/cockpitjsonprint.h"
 #include "cockpitmemfdread.h"
 #include "cockpitsocket.h"
 

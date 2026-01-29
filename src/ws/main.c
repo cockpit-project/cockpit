@@ -35,7 +35,7 @@
 
 #include "common/cockpitconf.h"
 #include "common/cockpitmemory.h"
-#include "common/cockpitsystem.h"
+#include "cockpitsystem.h"
 
 /* ---------------------------------------------------------------------------------------------------- */
 

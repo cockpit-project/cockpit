@@ -21,7 +21,7 @@
 
 #include "ws/cockpitcreds.h"
 
-#include "common/cockpitjson.h"
+#include "cockpitjson.h"
 #include "testlib/cockpittest.h"
 
 static void

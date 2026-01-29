@@ -20,7 +20,7 @@
 #ifndef MOCK_TRANSPORT_H
 #define MOCK_TRANSPORT_H
 
-#include "common/cockpittransport.h"
+#include "ws/cockpittransport.h"
 
 #include <gio/gio.h>
 

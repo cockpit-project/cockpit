@@ -24,12 +24,12 @@
 #include "cockpitchannelsocket.h"
 #include "cockpitws.h"
 
-#include "common/cockpitpipe.h"
+#include "cockpitpipe.h"
 #include "common/cockpitconf.h"
-#include "common/cockpitpipetransport.h"
+#include "cockpitpipetransport.h"
 #include "testlib/cockpittest.h"
-#include "common/cockpitwebserver.h"
-#include "common/cockpitwebinject.h"
+#include "cockpitwebserver.h"
+#include "cockpitwebinject.h"
 
 #include "ws/mock-service.h"
 

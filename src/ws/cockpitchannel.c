@@ -21,9 +21,9 @@
 
 #include "cockpitchannel.h"
 
-#include "common/cockpitflow.h"
-#include "common/cockpitjson.h"
-#include "common/cockpitunicode.h"
+#include "cockpitflow.h"
+#include "cockpitjson.h"
+#include "cockpitunicode.h"
 
 #include <json-glib/json-glib.h>
 

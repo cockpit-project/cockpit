@@ -24,8 +24,8 @@
 
 #include "testlib/cockpittest.h"
 
-#include "websocket/websocket.h"
-#include "websocket/websocketprivate.h"
+#include "websocket.h"
+#include "websocketprivate.h"
 
 #include <string.h>
 

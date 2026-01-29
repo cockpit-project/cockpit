@@ -19,9 +19,9 @@
 
 #include "config.h"
 
-#include "common/cockpitwebserver.h"
-#include "common/cockpittransport.h"
-#include "common/cockpitsystem.h"
+#include "cockpitwebserver.h"
+#include "cockpittransport.h"
+#include "cockpitsystem.h"
 #include "common/cockpitconf.h"
 
 #include "cockpitauth.h"

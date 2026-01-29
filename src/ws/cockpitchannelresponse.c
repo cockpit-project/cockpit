@@ -21,12 +21,12 @@
 
 #include "cockpitchannelresponse.h"
 
-#include "common/cockpitchannel.h"
+#include "cockpitchannel.h"
 #include "common/cockpitconf.h"
-#include "common/cockpitflow.h"
-#include "common/cockpitwebinject.h"
-#include "common/cockpitwebserver.h"
-#include "common/cockpitwebresponse.h"
+#include "cockpitflow.h"
+#include "cockpitwebinject.h"
+#include "cockpitwebserver.h"
+#include "cockpitwebresponse.h"
 
 #include <string.h>
 

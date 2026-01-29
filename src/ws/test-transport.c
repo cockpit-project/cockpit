@@ -26,7 +26,7 @@
 #include "testlib/cockpittest.h"
 #include "testlib/mock-transport.h"
 
-#include "websocket/websocket.h"
+#include "websocket.h"
 
 #include <glib.h>
 

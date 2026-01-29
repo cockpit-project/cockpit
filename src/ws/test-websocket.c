@@ -22,8 +22,8 @@
 #include "websocket.h"
 #include "websocketprivate.h"
 
-#include "common/cockpitflow.h"
-#include "common/cockpitsocket.h"
+#include "cockpitflow.h"
+#include "cockpitsocket.h"
 #include "testlib/mock-pressure.h"
 
 #include <string.h>

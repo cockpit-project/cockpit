@@ -28,11 +28,11 @@
 #include "cockpitws.h"
 
 #include "common/cockpitconf.h"
-#include "common/cockpitjson.h"
+#include "cockpitjson.h"
 #include "common/cockpitwebcertificate.h"
-#include "common/cockpitwebinject.h"
+#include "cockpitwebinject.h"
 
-#include "websocket/websocket.h"
+#include "websocket.h"
 
 #include <json-glib/json-glib.h>
 

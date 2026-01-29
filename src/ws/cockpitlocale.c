@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "cockpitlocale.h"
-#include "common/cockpitsystem.h"
+#include "cockpitsystem.h"
 
 #include <locale.h>
 #include <string.h>

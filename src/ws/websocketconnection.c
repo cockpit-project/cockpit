@@ -22,7 +22,7 @@
 #include "websocket.h"
 #include "websocketprivate.h"
 
-#include "common/cockpitflow.h"
+#include "cockpitflow.h"
 
 #include <string.h>
 

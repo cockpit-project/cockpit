@@ -25,7 +25,7 @@
 
 #include "testlib/cockpittest.h"
 
-#include "websocket/websocket.h"
+#include "websocket.h"
 
 #include <glib/gstdio.h>
 
@@ -337,7 +337,7 @@ static const TestFixture content_type_fixture_png = {
 };
 
 static const TestFixture content_type_fixture_wasm = {
-  .path = "/src/common/mock-content/test.wasm",
+  .path = "/src/ws/mock-content/test.wasm",
   .expected_content_type = "application/wasm",
 };
 
@@ -386,7 +386,7 @@ static void
 test_template (TestCase *tc,
                gconstpointer user_data)
 {
-  const gchar *roots[] = { SRCDIR "/src/common/mock-content/", NULL };
+  const gchar *roots[] = { SRCDIR "/src/ws/mock-content/", NULL };
   const gchar *resp;
   GHashTable *data = g_hash_table_new (g_str_hash, g_str_equal);
 
@@ -1284,7 +1284,7 @@ test_gunzip_small (void)
   GBytes *compressed;
   GBytes *bytes;
 
-  file = g_mapped_file_new (SRCDIR "/src/common/mock-content/test-file.txt.gz", FALSE, &error);
+  file = g_mapped_file_new (SRCDIR "/src/ws/mock-content/test-file.txt.gz", FALSE, &error);
   g_assert_no_error (error);
 
   compressed = g_mapped_file_get_bytes (file);
@@ -1307,7 +1307,7 @@ test_gunzip_large (void)
   GBytes *bytes;
   gchar *checksum;
 
-  file = g_mapped_file_new (SRCDIR "/src/common/mock-content/large.min.js.gz", FALSE, &error);
+  file = g_mapped_file_new (SRCDIR "/src/ws/mock-content/large.min.js.gz", FALSE, &error);
   g_assert_no_error (error);
 
   compressed = g_mapped_file_get_bytes (file);
@@ -1348,7 +1348,7 @@ test_negotiation_first (void)
   GError *error = NULL;
   GBytes *bytes;
 
-  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/ws/mock-content/test-file.txt",
                                             NULL, NULL, &is_language_specific, &is_compressed, &error);
 
   cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
@@ -1367,7 +1367,7 @@ test_negotiation_last (void)
   gchar *checksum;
   GBytes *bytes;
 
-  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/large.js",
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/ws/mock-content/large.js",
                                             NULL, NULL, &is_language_specific, &is_compressed, &error);
 
   g_assert_no_error (error);
@@ -1387,7 +1387,7 @@ test_negotiation_prune (void)
   GError *error = NULL;
   GBytes *bytes;
 
-  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.extra.extension.txt",
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/ws/mock-content/test-file.extra.extension.txt",
                                             NULL, NULL, NULL, NULL, &error);
 
   cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
@@ -1404,9 +1404,9 @@ test_negotiation_with_listing (void)
 
   /* Lie and say that only the .gz file exists */
   existing = g_hash_table_new (g_str_hash, g_str_equal);
-  g_hash_table_add (existing, SRCDIR "/src/common/mock-content/test-file.txt.gz");
+  g_hash_table_add (existing, SRCDIR "/src/ws/mock-content/test-file.txt.gz");
 
-  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/ws/mock-content/test-file.txt",
                                             existing, NULL, NULL, NULL, &error);
 
   cockpit_assert_bytes_eq (bytes, "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00"
@@ -1424,7 +1424,7 @@ test_negotiation_locale (void)
   GError *error = NULL;
   GBytes *bytes;
 
-  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/ws/mock-content/test-file.txt",
                                             NULL, "zh-cn", &is_language_specific, &is_compressed, &error);
 
   cockpit_assert_bytes_eq (bytes, "A translated test file\n", -1);
@@ -1441,7 +1441,7 @@ test_negotiation_notfound (void)
   GError *error = NULL;
   GBytes *bytes;
 
-  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/non-existent",
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/ws/mock-content/non-existent",
                                             NULL, NULL, NULL, NULL, &error);
 
   g_assert_no_error (error);
@@ -1454,7 +1454,7 @@ test_negotiation_failure (void)
   GError *error = NULL;
   GBytes *bytes;
 
-  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/directory",
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/ws/mock-content/directory",
                                             NULL, NULL, NULL, NULL, &error);
 
   g_assert (error != NULL);

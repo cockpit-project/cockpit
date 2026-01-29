@@ -21,7 +21,7 @@
 
 #include "mock-transport.h"
 
-#include "common/cockpitjson.h"
+#include "ws/cockpitjson.h"
 
 #include <gio/gio.h>
 

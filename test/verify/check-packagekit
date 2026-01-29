@@ -425,6 +425,26 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
+    @testlib.nondestructive
+    @testlib.skipImage("alpm PackageKit backend does not support cancelling", "arch")
+    def testBasicTZFullHour(self):
+        m = self.machine
+        orig_timezone = m.execute("timedatectl show --value -p Timezone").strip()
+        self.addCleanup(m.execute, f"timedatectl set-timezone {orig_timezone}")
+        # UTC+1 or 2
+        m.execute("timedatectl set-timezone Europe/Berlin")
+        self.testBasic()
+
+    @testlib.nondestructive
+    @testlib.skipImage("alpm PackageKit backend does not support cancelling", "arch")
+    def testBasicTZHalfHour(self):
+        m = self.machine
+        orig_timezone = m.execute("timedatectl show --value -p Timezone").strip()
+        self.addCleanup(m.execute, f"timedatectl set-timezone {orig_timezone}")
+        # IST = UTC + 5:30
+        m.execute("timedatectl set-timezone Asia/Kolkata")
+        self.testBasic()
+
     # returns ExecMainStartTimestamp
     def createServicePackageUpgrade(self, package: str, *, manual_proc: bool = False) -> str:
         m = self.machine

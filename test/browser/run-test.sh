@@ -139,6 +139,8 @@ if [ "$PLAN" = "main" ]; then
     # Testing Farm machines often have pending restarts/reboot
     EXCLUDES="$EXCLUDES
               TestUpdates.testBasic
+              TestUpdates.testBasicTZFullHour
+              TestUpdates.testBasicTZHalfHour
               TestUpdates.testDnfRestart
               TestUpdates.testFailServiceRestart
               TestUpdates.testKpatch

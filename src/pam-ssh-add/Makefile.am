@@ -29,7 +29,7 @@ pam_ssh_add_so_SOURCES = src/pam-ssh-add/pam-ssh-add.c
 
 TEST_PROGRAM += test-ssh-add
 test_ssh_add_CPPFLAGS = $(TEST_CPP)
-test_ssh_add_LDADD = $(libpam_ssh_add_a_LIBS) $(TEST_LIBS)
+test_ssh_add_LDADD = $(libpam_ssh_add_a_LIBS) $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
 test_ssh_add_SOURCES = src/pam-ssh-add/test-ssh-add.c
 
 dist_check_DATA += \

@@ -56,10 +56,10 @@ libwebsocket_a_SOURCES = \
 
 check_PROGRAMS += frob-websocket
 frob_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
-frob_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS)
+frob_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 frob_websocket_SOURCES = src/websocket/frob-websocket.c
 
 TEST_PROGRAM += test-websocket
 test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
-test_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS)
+test_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_websocket_SOURCES = src/websocket/test-websocket.c

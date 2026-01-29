@@ -23,7 +23,7 @@
 
 #include "common/cockpitauthorize.h"
 
-#include "websocket/websocket.h"
+#include "ws/websocket.h"
 
 #include <string.h>
 

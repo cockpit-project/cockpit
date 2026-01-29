@@ -22,8 +22,8 @@
 
 #include "cockpitauth.h"
 
-#include "common/cockpitwebserver.h"
-#include "common/cockpitwebresponse.h"
+#include "cockpitwebserver.h"
+#include "cockpitwebresponse.h"
 
 extern const gchar *cockpit_ws_shell_component;
 

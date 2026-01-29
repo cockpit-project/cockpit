@@ -73,7 +73,7 @@ main (int argc,
   g_unsetenv ("LC_ALL");
   g_unsetenv ("LC_MESSAGES");
 
-  bindtextdomain ("test", BUILDDIR "/src/common/mock-locale");
+  bindtextdomain ("test", BUILDDIR "/src/ws/mock-locale");
   cockpit_test_init (&argc, &argv);
 
   for (i = 0; i < G_N_ELEMENTS (from_fixtures); i++)

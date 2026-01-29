@@ -33,13 +33,13 @@
 #include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
 #include "common/cockpithex.h"
-#include "common/cockpitjson.h"
+#include "cockpitjson.h"
 #include "common/cockpitmemory.h"
-#include "common/cockpitsystem.h"
-#include "common/cockpitwebresponse.h"
-#include "common/cockpitwebserver.h"
+#include "cockpitsystem.h"
+#include "cockpitwebresponse.h"
+#include "cockpitwebserver.h"
 
-#include "websocket/websocket.h"
+#include "websocket.h"
 
 
 #include <stdlib.h>

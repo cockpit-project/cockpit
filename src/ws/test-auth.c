@@ -23,10 +23,10 @@
 #include "cockpitws.h"
 
 #include "common/cockpitconf.h"
-#include "common/cockpiterror.h"
-#include "common/cockpitwebrequest-private.h"
+#include "cockpiterror.h"
+#include "cockpitwebrequest-private.h"
 
-#include "websocket/websocket.h"
+#include "websocket.h"
 
 #include "testlib/cockpittest.h"
 #include "testlib/mock-auth.h"

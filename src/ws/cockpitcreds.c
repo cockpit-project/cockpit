@@ -22,7 +22,7 @@
 #include "cockpitcreds.h"
 
 #include "common/cockpitmemory.h"
-#include "common/cockpitjson.h"
+#include "cockpitjson.h"
 
 #include <string.h>
 

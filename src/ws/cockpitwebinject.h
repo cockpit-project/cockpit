@@ -20,7 +20,7 @@
 #ifndef COCKPIT_WEB_INJECT_H__
 #define COCKPIT_WEB_INJECT_H__
 
-#include "common/cockpitwebfilter.h"
+#include "cockpitwebfilter.h"
 
 G_BEGIN_DECLS
 

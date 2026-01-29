@@ -22,12 +22,12 @@
 
 #include "cockpitcreds.h"
 
-#include "common/cockpitjson.h"
-#include "common/cockpittransport.h"
-#include "common/cockpitwebresponse.h"
-#include "common/cockpitwebserver.h"
+#include "cockpitjson.h"
+#include "cockpittransport.h"
+#include "cockpitwebresponse.h"
+#include "cockpitwebserver.h"
 
-#include "websocket/websocket.h"
+#include "websocket.h"
 
 G_BEGIN_DECLS
 

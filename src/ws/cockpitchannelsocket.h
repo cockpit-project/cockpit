@@ -20,7 +20,7 @@
 #ifndef __COCKPIT_CHANNEL_SOCKET_H__
 #define __COCKPIT_CHANNEL_SOCKET_H__
 
-#include "common/cockpitwebserver.h"
+#include "cockpitwebserver.h"
 
 #include "cockpitwebservice.h"
 

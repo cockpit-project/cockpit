@@ -21,7 +21,7 @@
 
 #include "cockpitpipetransport.h"
 
-#include "cockpitframe.h"
+#include "common/cockpitframe.h"
 #include "cockpitpipe.h"
 
 #include <glib-unix.h>

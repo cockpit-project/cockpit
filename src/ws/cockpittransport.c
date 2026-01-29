@@ -21,7 +21,7 @@
 
 #include "cockpittransport.h"
 
-#include "common/cockpitjson.h"
+#include "cockpitjson.h"
 
 #include <stdlib.h>
 #include <string.h>

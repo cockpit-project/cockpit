@@ -40,7 +40,7 @@ build() {
 }
 
 package_cockpit() {
-  depends=(krb5 json-glib glib-networking python)
+  depends=(krb5 json-glib python)
   provides=(cockpit-pcp)
   replaces=(cockpit-pcp)
   backup=('etc/pam.d/cockpit' 'etc/cockpit/disallowed-users')

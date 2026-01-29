@@ -35,8 +35,6 @@ typedef struct _CockpitCreds       CockpitCreds;
 #define COCKPIT_CRED_CSRF_TOKEN   "csrf-token"
 #define COCKPIT_CRED_SUPERUSER    "superuser"
 
-#define         COCKPIT_TYPE_CREDS           (cockpit_creds_get_type ())
-
 GType           cockpit_creds_get_type       (void) G_GNUC_CONST;
 
 CockpitCreds *  cockpit_creds_new            (const gchar *application,

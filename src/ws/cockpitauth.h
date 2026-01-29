@@ -76,8 +76,6 @@ GType           cockpit_auth_get_type        (void) G_GNUC_CONST;
 
 CockpitAuth *   cockpit_auth_new             (gboolean login_loopback, CockpitAuthFlags flags);
 
-gchar *         cockpit_auth_nonce           (CockpitAuth *self);
-
 void            cockpit_auth_login_async     (CockpitAuth *self,
                                               CockpitWebRequest *request,
                                               GAsyncReadyCallback callback,
@@ -94,10 +92,6 @@ void            cockpit_auth_local_async     (CockpitAuth *self,
                                               CockpitPipe *pipe,
                                               GAsyncReadyCallback callback,
                                               gpointer user_data);
-
-gboolean        cockpit_auth_local_finish    (CockpitAuth *self,
-                                              GAsyncResult *result,
-                                              GError **error);
 
 CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
                                                    CockpitWebRequest *request);

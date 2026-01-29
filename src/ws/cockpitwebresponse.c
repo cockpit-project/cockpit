@@ -693,7 +693,7 @@ cockpit_web_response_get_state (CockpitWebResponse *self)
     return COCKPIT_WEB_RESPONSE_QUEUING;
 }
 
-gboolean
+static gboolean
 cockpit_web_response_is_simple_token (const gchar *string)
 {
   string += strcspn (string, " \t\r\n\v");

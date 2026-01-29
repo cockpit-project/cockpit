@@ -137,8 +137,6 @@ const gchar *         cockpit_web_response_content_type  (const gchar *path);
 gboolean     cockpit_web_should_suppress_output_error    (const gchar *logname,
                                                           GError *error);
 
-gboolean     cockpit_web_response_is_simple_token        (const gchar *string);
-
 gboolean     cockpit_web_response_is_header_value        (const gchar *string);
 
 void         cockpit_web_response_set_cache_type         (CockpitWebResponse *self,

@@ -36,7 +36,7 @@
 #include <common/cockpitmemory.h>
 #include <common/cockpitwebcertificate.h>
 
-#include "certificate.h"
+#include "credentials.h"
 #include "client-certificate.h"
 #include "httpredirect.h"
 #include "socket-io.h"
@@ -45,7 +45,7 @@
 /* cockpit-tls TCP server state (singleton) */
 static struct {
   gnutls_certificate_request_t request_mode;
-  Certificate *certificate;
+  Credentials *credentials;
   bool require_https;
   int wsinstance_sockdir;
   int cert_session_dir;
@@ -579,7 +579,7 @@ connection_handshake (Connection *self)
     {
       debug (CONNECTION, "first byte is %i, initializing TLS", (int) b);
 
-      if (parameters.certificate == NULL)
+      if (parameters.credentials == NULL)
         {
           warnx ("got TLS connection, but our server does not have a certificate/key; refusing");
           return false;
@@ -600,7 +600,7 @@ connection_handshake (Connection *self)
         }
 
       ret = gnutls_credentials_set (self->tls, GNUTLS_CRD_CERTIFICATE,
-                                    certificate_get_credentials (parameters.certificate));
+                                    credentials_get (parameters.credentials));
       if (ret != GNUTLS_E_SUCCESS)
         {
           warnx ("gnutls_credentials_set failed: %s", gnutls_strerror (ret));
@@ -844,7 +844,7 @@ connection_crypto_init (const char *certificate_filename,
                         bool allow_unencrypted,
                         gnutls_certificate_request_t request_mode)
 {
-  parameters.certificate = certificate_load (certificate_filename, key_filename);
+  parameters.credentials = credentials_load (certificate_filename, key_filename);
   parameters.request_mode = request_mode;
   /* If we aren't called, then require_https is false */
   parameters.require_https = !allow_unencrypted;
@@ -884,10 +884,10 @@ connection_cleanup (void)
   assert (parameters.wsinstance_sockdir != -1);
   assert (parameters.cert_session_dir != -1);
 
-  if (parameters.certificate)
+  if (parameters.credentials)
     {
-      certificate_unref (parameters.certificate);
-      parameters.certificate = NULL;
+      credentials_unref (parameters.credentials);
+      parameters.credentials = NULL;
     }
 
   parameters.require_https = false;

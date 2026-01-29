@@ -4,7 +4,7 @@
 libexec_PROGRAMS += cockpit-session
 
 cockpit_session_LDADD = \
-	$(libcockpit_common_nodeps_a_LIBS) \
+	$(libcockpit_common_a_LIBS) \
 	$(krb5_LIBS) \
 	$(libsystemd_LIBS) \
 	-lpam \

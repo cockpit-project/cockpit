@@ -1,11 +1,11 @@
 # -----------------------------------------------------------------------------
-# libcockpit-common-nodeps.a: code that has no dependencies other than libc
+# libcockpit-common.a: common code that has no dependencies other than libc
 
-noinst_LIBRARIES += libcockpit-common-nodeps.a
+noinst_LIBRARIES += libcockpit-common.a
 
-libcockpit_common_nodeps_a_LIBS = libcockpit-common-nodeps.a
+libcockpit_common_a_LIBS = libcockpit-common.a
 
-libcockpit_common_nodeps_a_SOURCES = \
+libcockpit_common_a_SOURCES = \
 	src/common/cockpitauthorize.c \
 	src/common/cockpitauthorize.h \
 	src/common/cockpitbase64.c \
@@ -36,30 +36,30 @@ dist_check_DATA += src/common/mock-config
 
 TEST_PROGRAM += test-authorize
 test_authorize_CPPFLAGS = $(TEST_CPP)
-test_authorize_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
+test_authorize_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_authorize_SOURCES = src/common/test-authorize.c
 
 TEST_PROGRAM += test-base64
 test_base64_CPPFLAGS = $(TEST_CPP)
-test_base64_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
+test_base64_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_base64_SOURCES = src/common/test-base64.c
 
 TEST_PROGRAM += test-config
 test_config_CPPFLAGS = $(TEST_CPP)
-test_config_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
+test_config_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_config_SOURCES = src/common/test-config.c
 
 TEST_PROGRAM += test-frame
 test_frame_CPPFLAGS = $(TEST_CPP)
-test_frame_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
+test_frame_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_frame_SOURCES = src/common/test-frame.c
 
 TEST_PROGRAM += test-jsonprint
 test_jsonprint_CPPFLAGS = $(TEST_CPP)
-test_jsonprint_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
+test_jsonprint_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_jsonprint_SOURCES = src/common/test-jsonprint.c
 
 TEST_PROGRAM += test-webcertificate
 test_webcertificate_CPPFLAGS = $(TEST_CPP)
-test_webcertificate_LDADD = $(TEST_LIBS) $(libcockpit_common_nodeps_a_LIBS)
+test_webcertificate_LDADD = $(TEST_LIBS) $(libcockpit_common_a_LIBS)
 test_webcertificate_SOURCES = src/common/test-webcertificate.c

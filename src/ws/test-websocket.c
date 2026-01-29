@@ -397,11 +397,11 @@ test_header_equals (void)
   g_assert (_web_socket_util_header_equals (headers, "blah", "Value"));
   g_assert (_web_socket_util_header_equals (headers, "Funny", "a☺b"));
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
+  g_test_expect_message ("WebSocket", G_LOG_LEVEL_MESSAGE,
                          "received invalid or missing Blah header*");
   g_assert (!_web_socket_util_header_equals (headers, "Blah", "test"));
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
+  g_test_expect_message ("WebSocket", G_LOG_LEVEL_MESSAGE,
                          "received invalid or missing Extra header*");
   g_assert (!_web_socket_util_header_equals (headers, "Extra", "test"));
   g_hash_table_unref (headers);
@@ -417,15 +417,15 @@ test_header_contains (void)
   g_assert (_web_socket_util_header_contains (headers, "blah", "two"));
   g_assert (_web_socket_util_header_contains (headers, "blah", "three"));
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
+  g_test_expect_message ("WebSocket", G_LOG_LEVEL_MESSAGE,
                          "received invalid or missing Blah header*");
   g_assert (!_web_socket_util_header_contains (headers, "Blah", "thre"));
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
+  g_test_expect_message ("WebSocket", G_LOG_LEVEL_MESSAGE,
                          "received invalid or missing Blah header*");
   g_assert (!_web_socket_util_header_contains (headers, "Blah", "four"));
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
+  g_test_expect_message ("WebSocket", G_LOG_LEVEL_MESSAGE,
                          "received invalid or missing Extra header*");
   g_assert (!_web_socket_util_header_contains (headers, "Extra", "test"));
   g_hash_table_unref (headers);
@@ -441,7 +441,7 @@ test_header_empty (void)
   g_assert (_web_socket_util_header_empty (headers, "empty"));
   g_assert (_web_socket_util_header_empty (headers, "Another"));
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
+  g_test_expect_message ("WebSocket", G_LOG_LEVEL_MESSAGE,
                          "received unsupported Blah header*");
   g_assert (!_web_socket_util_header_empty (headers, "Blah"));
   g_hash_table_unref (headers);

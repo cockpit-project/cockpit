@@ -561,8 +561,8 @@ test_read_error (void)
   out = dup (2);
   g_assert (out >= 0);
 
-  cockpit_expect_warning ("*Bad file descriptor");
-  cockpit_expect_warning ("*Bad file descriptor");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*Bad file descriptor");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*Bad file descriptor");
 
   /* Pass in a bad read descriptor */
   echo_pipe = g_object_new (mock_echo_pipe_get_type (),
@@ -592,8 +592,8 @@ test_write_error (void)
   if (pipe(fds) < 0)
     g_assert_not_reached ();
 
-  cockpit_expect_warning ("*Bad file descriptor");
-  cockpit_expect_warning ("*Bad file descriptor");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*Bad file descriptor");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*Bad file descriptor");
 
   /* Pass in a bad write descriptor */
   echo_pipe = g_object_new (mock_echo_pipe_get_type (),
@@ -1133,7 +1133,7 @@ test_fail_not_found (void)
   GSocketAddress *address;
   gchar *problem = NULL;
 
-  cockpit_expect_message ("*No such file or directory");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*No such file or directory");
 
   address = g_unix_socket_address_new ("/non-existent");
   pipe = cockpit_pipe_connect ("bad", address);
@@ -1176,7 +1176,7 @@ test_fail_access_denied (void)
   /* Take away all permissions from the file */
   g_assert_cmpint (fchmod (fd, 0000), ==, 0);
 
-  cockpit_expect_message ("*Permission denied");
+  g_test_expect_message ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*Permission denied");
 
   address = g_unix_socket_address_new (unix_path);
   pipe = cockpit_pipe_connect ("bad", address);

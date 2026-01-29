@@ -5,7 +5,7 @@ noinst_LIBRARIES += libcockpit-tls.a
 
 libcockpit_tls_a_LIBS = \
 	libcockpit-tls.a \
-	$(libcockpit_common_nodeps_a_LIBS) \
+	$(libcockpit_common_a_LIBS) \
 	$(gnutls_LIBS) \
 	-lpthread \
 	$(NULL)

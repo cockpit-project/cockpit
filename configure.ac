@@ -38,7 +38,7 @@ AC_PROG_RANLIB
 # This is required to find the correct `ar` for cross-compiling
 AC_CHECK_TOOL(AR, ar)
 
-AC_CHECK_FUNCS(closefrom pidfd_getpid)
+AC_CHECK_FUNCS(pidfd_getpid)
 
 AM_SILENT_RULES([yes])
 

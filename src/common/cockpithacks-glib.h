@@ -19,15 +19,8 @@
 
 #pragma once
 
-/* See the comment in cockpithacks.h for an explanation of why this file
- * exists.
- *
- * This file is intended to be included from code which is built against
- * GLib.  For the "pure C" parts of cockpit, include cockpithacks.h
- * directly.
- */
+/* Workarounds for older versions of GLib. */
 
-#include "cockpithacks.h"
 #include <glib.h>
 
 /* g_debug() defaults to writing its output to stdout, which doesn't

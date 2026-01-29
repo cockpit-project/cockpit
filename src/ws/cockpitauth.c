@@ -28,7 +28,6 @@
 #include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
 #include "common/cockpiterror.h"
-#include "common/cockpithacks.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
@@ -469,7 +468,7 @@ session_child_setup (gpointer data)
 
   close (child->io);
 
-  closefrom (3);
+  close_range (3, ~0U, 0);
 }
 
 static CockpitPipe *

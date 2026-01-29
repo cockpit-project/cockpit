@@ -22,7 +22,6 @@
 #include "cockpitpipe.h"
 
 #include "cockpitflow.h"
-#include "cockpithacks.h"
 #include "cockpitunicode.h"
 
 #include <glib-unix.h>
@@ -1407,7 +1406,7 @@ cockpit_pipe_pty (const gchar **argv,
   pid = forkpty (&fd, NULL, NULL, &winsz);
   if (pid == 0)
     {
-      closefrom (3);
+      close_range (3, ~0U, 0);
 
       if (directory)
         {

@@ -23,7 +23,6 @@
 
 #include "common/cockpitframe.h"
 #include "common/cockpitjsonprint.h"
-#include "common/cockpithacks.h"
 #include "common/cockpitmemory.h"
 
 #include <fcntl.h>
@@ -572,7 +571,7 @@ fd_remap (const int *remap_fds,
         abort_with_message ("dup2(%d, %d) failed: %m", fds[i], i);
 
   /* close everything else */
-  closefrom (n_remap_fds);
+  close_range (n_remap_fds, ~0U, 0);
 }
 
 int

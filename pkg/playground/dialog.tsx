@@ -40,7 +40,7 @@ import {
     useDialogState_async,
     DialogError,
     DialogErrorMessage,
-    DialogValue,
+    DialogHandle,
     DialogCheckbox,
     DialogTextInput,
     DialogRadioSelect,
@@ -59,8 +59,8 @@ function List<T>({
     init,
 } : {
     label: string
-    value: DialogValue<T[]>,
-    Component: ({ value } : { value: DialogValue<T> }) => React.ReactNode,
+    value: DialogHandle<T[]>,
+    Component: ({ value } : { value: DialogHandle<T> }) => React.ReactNode,
     init: T,
 }) {
     return (
@@ -97,7 +97,7 @@ const StringList = ({
     value,
     label,
 } : {
-    value: DialogValue<string[]>,
+    value: DialogHandle<string[]>,
     label: string
 }) => {
     return (
@@ -118,12 +118,12 @@ interface Name {
 const NameInput = ({
     value,
 } : {
-    value: DialogValue<Name>,
+    value: DialogHandle<Name>,
 }) => {
     return <DialogTextInput value={value.sub("name")} />;
 };
 
-function validate_Name(value: DialogValue<Name>, countAsyncValidation: () => void) {
+function validate_Name(value: DialogHandle<Name>, countAsyncValidation: () => void) {
     const { _length_cache } = value.get();
     value.sub("name").validate_async(1000, async n => {
         await async_sleep(2000);
@@ -138,7 +138,7 @@ const NameList = ({
     value,
     label,
 } : {
-    value: DialogValue<Name[]>,
+    value: DialogHandle<Name[]>,
     label: string
 }) => {
     return (
@@ -158,7 +158,7 @@ const OptionalTextInput = ({
 } : {
     field_label: string,
     checkbox_label: string;
-    value: DialogValue<false | string>,
+    value: DialogHandle<false | string>,
 }) => {
     const val = value.get();
     let body;
@@ -250,18 +250,18 @@ const ExampleDialog = ({
 
     function validate(dlg: DialogState<ExampleValues>) {
         if (dlg.values.flag) {
-            dlg.value("text").validate(v => {
+            dlg.field("text").validate(v => {
                 if (!v)
                     return "Text can not be empty";
             });
         }
-        dlg.value("list").forEach(v => {
+        dlg.field("list").forEach(v => {
             v.validate(vv => {
                 if (vv == ".")
                     return "No dots";
             });
         });
-        dlg.value("async").forEach(v => validate_Name(v, countAsyncValidation));
+        dlg.field("async").forEach(v => validate_Name(v, countAsyncValidation));
     }
 
     const dlg = useDialogState(init, validate);
@@ -289,7 +289,7 @@ const ExampleDialog = ({
     }
 
     function update_color(color: Color) {
-        dlg.value("text").set(color.name);
+        dlg.field("text").set(color.name);
     }
 
     return (
@@ -307,22 +307,22 @@ const ExampleDialog = ({
                     <DialogCheckbox
                         field_label="Checkbox"
                         checkbox_label="Enable text"
-                        value={dlg.value("flag")}
+                        value={dlg.field("flag")}
                     />
                     <DialogTextInput
                         label="Text"
-                        value={dlg.value("text")}
+                        value={dlg.field("text")}
                         excuse={!dlg.values.flag && "Disabled"}
                         explanation="Explanation"
                         warning={dlg.values.text == "warn" ? "Warning" : null}
                     />
                     {
                         // Calling "map" on a non-array should just do nothing.
-                        dlg.value("text").map((v, i) => <span key={i}>{v.get()}</span>)
+                        dlg.field("text").map((v, i) => <span key={i}>{v.get()}</span>)
                     }
                     <DialogRadioSelect
                         label="Radio"
-                        value={dlg.value("radio")}
+                        value={dlg.field("radio")}
                         options={
                             [
                                 {
@@ -345,7 +345,7 @@ const ExampleDialog = ({
                     />
                     <DialogDropdownSelect
                         label="Dropdown"
-                        value={dlg.value("dropdown")}
+                        value={dlg.field("dropdown")}
                         options={
                             [
                                 { value: "one", label: "Eins" },
@@ -353,26 +353,26 @@ const ExampleDialog = ({
                                 { value: "three", label: "Drei" },
                             ]
                         }
-                        warning={dlg.value("dropdown").get() == "two" ? "There is a discount if you buy three." : null}
+                        warning={dlg.field("dropdown").get() == "two" ? "There is a discount if you buy three." : null}
                     />
                     <DialogDropdownSelectObject
                         label="DropdownObject"
-                        value={dlg.value("color", update_color)}
+                        value={dlg.field("color", update_color)}
                         options={colors}
                         option_label={c => c.name}
                     />
-                    <StringList label="List" value={dlg.value("list")} />
-                    <NameList label="Async" value={dlg.value("async")} />
+                    <StringList label="List" value={dlg.field("list")} />
+                    <NameList label="Async" value={dlg.field("async")} />
                     <OptionalTextInput
                         field_label="Alternative"
                         checkbox_label="Custom value"
-                        value={dlg.value("alternative")}
+                        value={dlg.field("alternative")}
                     />
                     <DialogDropdownSelectObject
                         label="Error"
-                        value={dlg.value("error")}
+                        value={dlg.field("error")}
                         options={["none", "custom", "from", "from-random", "message", "spawn", "random"]}
-                        warning={dlg.value("error").get() != "none" ? "There will be an error" : null}
+                        warning={dlg.field("error").get() != "none" ? "There will be an error" : null}
                     />
                 </Form>
             </ModalBody>
@@ -465,7 +465,7 @@ const ExampleDialogWithInitFunc = () => {
                 <Form isHorizontal>
                     <DialogTextInput
                         label="Text"
-                        value={dlg.value("text")}
+                        value={dlg.field("text")}
                     />
                 </Form>
             </ModalBody>
@@ -500,7 +500,7 @@ const AsyncExampleDialog = ({
     }
 
     function validate(dlg: DialogState<AsyncExampleValues>) {
-        dlg.value("text").validate_async(0, async () => {
+        dlg.field("text").validate_async(0, async () => {
             throw Error("upps");
         });
     }
@@ -526,7 +526,7 @@ const AsyncExampleDialog = ({
     } else if (dlg instanceof DialogError) {
         body = null;
     } else if (dlg instanceof DialogState) {
-        const vals = dlg.top_value(update_top);
+        const vals = dlg.top(update_top);
         body = (
             <Form isHorizontal>
                 <DialogTextInput label="Text" value={vals.sub("text")} />

@@ -125,6 +125,10 @@
      object.  And instead of a single setter function, there are ways
      to get setters to individual parts of that object via "handles".
 
+   - The handles work also for nested objects and arrays. You can get
+     a "sub handles" for a single key from a handle for an object, for
+     example.
+
    - The useDialogState hook also provides for global validation of
      the state object, at exactly the right times, and communicates
      the result of that to the "Apply" button, for example.
@@ -174,8 +178,8 @@
    The return value of useDialogState, "dlg", has a number of fields
    and methods.
 
-   - value = dlg.value(name)
-   - value = dlg.value(name, update_func)
+   - handle = dlg.field(name)
+   - handle = dlg.field(name, update_func)
 
    This returns a handle for a specific field of the dialog
    values. Using handles like this becomes convenient when there are
@@ -188,72 +192,73 @@
    dialog value is changed via the returned handle (and the returned
    handle only).
 
-   - value = dlg.top_value()
-   - value = dlg.top_value(update_func)
+   - handle = dlg.top()
+   - handle = dlg.top(update_func)
 
    Get a handle for the whole value object.  The usual
-   "dlg.value(name)" call is actually just a shortcut for
-   "dlg.top_value().sub(name)".  But since that operation is so
-   common, the shortcut is well worth having.  But this whole-value
-   handle is useful for "dlg.top_value().at(...)", see below, or for
-   update notifications that trigger for each and every change.
+   "dlg.field(name)" call is actually just a shortcut for
+   "dlg.top().sub(name)".  But since that looks quite obscure in
+   simple dialogs that only have one level of values, we have the
+   "dlg.field(name)" shortcut as well.  This whole-value handle is
+   useful for "dlg.top().at(...)", see below, or for update
+   notifications that trigger for each and every change.
 
    - dlg.values
 
    The current whole dialog value object. This is the same as
-   "dlg.top_value().get()", but accessing it is common enough in
-   simple dialogs that exposing it directly makes sense.
+   "dlg.top().get()", but accessing it is common enough in simple
+   dialogs that exposing it directly makes sense.
 
    The object will never be mutated by the plumbing itself. When it
    needs to be changed, a whole new value object is constructed and
    assigned to "dlg.values".
 
-   - value.get()
+   - handle.get()
 
    Get the current value of a value handle.
 
-   - value.validation_text()
+   - handle.validation_text()
 
    Get the current validation error message for this value. This is
    "undefined" when there is no message.
 
-   - value.set(val)
+   - handle.set(val)
 
    Set the current value of a value handle. This will re-render the
    dialog, and do input validation as necessary and all the other
    things that you don't need to think about.
 
-   - value.sub(name_or_index)
-   - value.sub(name_or_index, update_func)
+   - handle.sub(name_or_index)
+   - handle.sub(name_or_index, update_func)
 
    Get a handle for a nested value. When the current value is an
    object, you should pass the name of a nested field. If it is an
-   array, pass the index of the desired element.  See "dlg.value()"
+   array, pass the index of the desired element.  See "dlg.field()"
    above for more information about handles.
 
-   - value.at(witness)
+   - handle.at(witness)
 
-   Get a handle with a narrowed type for "value".  The new handle
-   works like "value" and modifies the same place in the dialog value
+   Get a handle with a narrowed type for "handle".  The new handle
+   works like "handle" and modifies the same place in the dialog value
    object, but it's type will be the type of "witness".  This is
    useful to carry over type inference into value handles.  The
    general pattern is:
 
-     const val = value.get();
+     const val = handle.get();
      if (some_type_narrowing_condition(val)) {
-       const narrowed_value = value.at(val);
+       const narrowed_handle = handle.at(val);
 
        ...
      }
 
-   - value.add(val)
+   - handle.add(val)
 
    If the current value is an array, append "val" at the end.
 
-   - value.remove(index)
+   - handle.remove(index)
 
    If the current value is an array, remove the element at "index".
-   It is important to use this function instead of just "value.set()"
+   It is important to use this function instead of just "handle.set()"
    with an appropriately modified array. By using this function, the
    plumbing is able to keep its internal state in synch, which is
    especially important for asynchronous validation functions.
@@ -264,17 +269,15 @@
    every element of the array has just changed, and it will do a lot
    of needless validations all over again.
 
-   - value.map(func)
+   - handle.map(func)
 
-   If the current value is an array, map "func" over value handles for
-   its elements. This is nice for creating React components for
-   arrays.
+   If the current value is an array, map "func" over handles for its
+   elements. This is nice for creating React components for arrays.
 
-   - value.forEach(func)
+   - handle.forEach(func)
 
-   If the current value is an array, call "func" with value handles
-   for each of its elements, in order. This is nice for "validate"
-   functions.
+   If the current value is an array, call "func" with handles for each
+   of its elements, in order. This is nice for "validate" functions.
 
    Now back to the fields and methods of the dialog state.
 
@@ -324,13 +327,13 @@
    If and only if the render function instantiates a component for a
    dialog value, should the validate function visit it.
 
-   - value.validate(v => ...)
+   - handle.validate(v => ...)
 
    This might call the given function with the current value of the
    handle. If it passes validation, the function should return
    "undefined". If it fails, the function should return a string with
    the appropriate message. This message will be available from the
-   "value.validation_text" method and should be shown by the React
+   "handle.validation_text" method and should be shown by the React
    component for this value, of course.
 
    The "v => ..." function is only called when necessary, when the
@@ -346,7 +349,7 @@
    then you need to find some other way. Maybe with a memoized
    function or an explicit cache.
 
-   - value.validate_async(debounce, async v >= ...)
+   - handle.validate_async(debounce, async v >= ...)
 
    Calls the given async function "debounce" milliseconds after the
    value represented by the handle has last been changed. (Or
@@ -354,7 +357,7 @@
    throws an exception, the validation is considered to have been
    successful.
 
-   See the documentation for "value.validate" above for more rules
+   See the documentation for "handle.validate" above for more rules
    that apply to validation functions.
 
    TESTING
@@ -365,7 +368,7 @@
    attributes. The code that instantiates an element can get suitable
    IDs for dialog value handles with the following function:
 
-   - value.id(tag)
+   - handle.id(tag)
 
    This will return a unique and predictable string for the value
    handle that will also include "tag". This is suitable for the "id"
@@ -445,7 +448,7 @@
    "close_func", or run the cancel function provided by the currently
    running action function (if there is any).
 
-   - <DialogTextInput label="Name" value={dlg.value("name")} ... />
+   - <DialogTextInput label="Name" value={dlg.field("name")} ... />
 
    This will produce a TextInput in a (optional) FormGroup that will
    manage the given value handle.  The "label" property is optional
@@ -521,7 +524,7 @@
 
   And the component itself:
 
-    export const TwoLevelSelect = ({ value } : { value: DialogValue<TwoLevelSelectValue> }) => {
+    export const TwoLevelSelect = ({ value } : { value: DialogHandle<TwoLevelSelectValue> }) => {
       const { _firsts, _seconds, _options } = value.get();
 
       function update_first(f: string) {
@@ -562,7 +565,7 @@
 
     return (
       ...
-      <TwoLevelSelect value={dlg.value("food")} />
+      <TwoLevelSelect value={dlg.field("food")} />
       ...
     );
 
@@ -578,7 +581,7 @@
       return { ... };
     }
 
-    export const TwoLevel = ({ value } : { value: DialogValue<TwoLevelValue | string> }) => {
+    export const TwoLevel = ({ value } : { value: DialogHandle<TwoLevelValue | string> }) => {
       const val = value.get();
       if (typeof val == "string")
           return null;
@@ -629,7 +632,7 @@ function toSpliced<T>(arr: T[], start: number, deleteCount: number, ...rest: T[]
     return copy;
 }
 
-export class DialogValue<T> {
+export class DialogHandle<T> {
     /* eslint-disable no-use-before-define */
     #dialog: DialogState<unknown>;
     /* eslint-enable */
@@ -665,18 +668,18 @@ export class DialogValue<T> {
         return "dialog-" + tag + "-" + this.#path;
     }
 
-    map<X>(func: (val: DialogValue<ArrayElement<T>>, index: number) => X): X[] {
+    map<X>(func: (val: DialogHandle<ArrayElement<T>>, index: number) => X): X[] {
         const val = this.get();
         if (Array.isArray(val)) {
-            return val.map((_, i) => func(this.sub(i as keyof T) as DialogValue<ArrayElement<T>>, i));
+            return val.map((_, i) => func(this.sub(i as keyof T) as DialogHandle<ArrayElement<T>>, i));
         } else
             return [];
     }
 
-    forEach(func: (val: DialogValue<ArrayElement<T>>, index: number) => void): void {
+    forEach(func: (val: DialogHandle<ArrayElement<T>>, index: number) => void): void {
         const val = this.get();
         if (Array.isArray(val)) {
-            val.forEach((_, i) => func(this.sub(i as keyof T) as DialogValue<ArrayElement<T>>, i));
+            val.forEach((_, i) => func(this.sub(i as keyof T) as DialogHandle<ArrayElement<T>>, i));
         }
     }
 
@@ -696,8 +699,8 @@ export class DialogValue<T> {
         }
     }
 
-    sub<K extends keyof T>(tag: K, update_func?: ((val: T[K]) => void) | undefined): DialogValue<T[K]> {
-        return new DialogValue<T[K]>(
+    sub<K extends keyof T>(tag: K, update_func?: ((val: T[K]) => void) | undefined): DialogHandle<T[K]> {
+        return new DialogHandle<T[K]>(
             this.#dialog,
             () => this.get()[tag],
             (val) => {
@@ -713,9 +716,9 @@ export class DialogValue<T> {
         );
     }
 
-    at<TT extends T>(witness: TT): DialogValue<TT> {
+    at<TT extends T>(witness: TT): DialogHandle<TT> {
         cockpit.assert(Object.is(witness, this.get()));
-        return new DialogValue<TT>(
+        return new DialogHandle<TT>(
             this.#dialog,
             () => this.get() as TT,
             (val) => {
@@ -1147,8 +1150,8 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         this.#update();
     }
 
-    top_value(update_func?: ((val: V) => void) | undefined): DialogValue<V> {
-        return new DialogValue<V>(
+    top(update_func?: ((val: V) => void) | undefined): DialogHandle<V> {
+        return new DialogHandle<V>(
             this as DialogState<unknown>,
             () => this.values,
             (val) => {
@@ -1167,8 +1170,8 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             "");
     }
 
-    value<K extends keyof V>(tag: K, update_func?: ((val: V[K]) => void) | undefined): DialogValue<V[K]> {
-        return this.top_value().sub(tag, update_func);
+    field<K extends keyof V>(tag: K, update_func?: ((val: V[K]) => void) | undefined): DialogHandle<V[K]> {
+        return this.top().sub(tag, update_func);
     }
 }
 
@@ -1327,7 +1330,7 @@ export function DialogHelperText<V>({
     warning,
     explanation,
 } : {
-    value: DialogValue<V>;
+    value: DialogHandle<V>;
     excuse?: string | falsy;
     warning?: React.ReactNode;
     explanation?: React.ReactNode;
@@ -1393,7 +1396,7 @@ export const DialogTextInput = ({
     ...props
 } : {
     label?: React.ReactNode,
-    value: DialogValue<string>,
+    value: DialogHandle<string>,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1423,7 +1426,7 @@ export const DialogCheckbox = ({
 } : {
     field_label?: React.ReactNode,
     checkbox_label: string,
-    value: DialogValue<boolean>,
+    value: DialogHandle<boolean>,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1458,7 +1461,7 @@ export function DialogRadioSelect<T extends string>({
     isInline = false,
 } : {
     label?: React.ReactNode,
-    value: DialogValue<T>,
+    value: DialogHandle<T>,
     options: DialogRadioSelectOption<T>[],
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1512,7 +1515,7 @@ export function DialogDropdownSelect<T extends string>({
     ...props
 } : {
     label?: React.ReactNode,
-    value: DialogValue<T>,
+    value: DialogHandle<T>,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1552,7 +1555,7 @@ export function DialogDropdownSelectObject<T>({
     ...props
 } : {
     label?: React.ReactNode,
-    value: DialogValue<T>,
+    value: DialogHandle<T>,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,

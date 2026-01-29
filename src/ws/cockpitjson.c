@@ -59,34 +59,6 @@ cockpit_json_get_int (JsonObject *object,
 }
 
 gboolean
-cockpit_json_get_double (JsonObject *object,
-                         const gchar *name,
-                         gdouble defawlt,
-                         gdouble *value)
-{
-  JsonNode *node;
-
-  node = json_object_get_member (object, name);
-  if (!node)
-    {
-      if (value)
-        *value = defawlt;
-      return TRUE;
-    }
-  else if (json_node_get_value_type (node) == G_TYPE_INT64 ||
-           json_node_get_value_type (node) == G_TYPE_DOUBLE)
-    {
-      if (value)
-        *value = json_node_get_double (node);
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    }
-}
-
-gboolean
 cockpit_json_get_bool (JsonObject *object,
                        const gchar *name,
                        gboolean defawlt,
@@ -133,33 +105,6 @@ cockpit_json_get_string (JsonObject *options,
     {
       if (value)
         *value = json_node_get_string (node);
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    }
-}
-
-gboolean
-cockpit_json_get_array (JsonObject *options,
-                        const gchar *name,
-                        JsonArray *defawlt,
-                        JsonArray **value)
-{
-  JsonNode *node;
-
-  node = json_object_get_member (options, name);
-  if (!node)
-    {
-      if (value)
-        *value = defawlt;
-      return TRUE;
-    }
-  else if (json_node_get_node_type (node) == JSON_NODE_ARRAY)
-    {
-      if (value)
-        *value = json_node_get_array (node);
       return TRUE;
     }
   else
@@ -261,231 +206,6 @@ cockpit_json_get_strv (JsonObject *options,
     g_free (val);
 
   return valid;
-}
-
-gboolean
-cockpit_json_get_null (JsonObject *object,
-                       const gchar *member,
-                       gboolean *present)
-{
-  JsonNode *node;
-
-  node = json_object_get_member (object, member);
-  if (!node)
-    {
-      if (present)
-        *present = FALSE;
-      return TRUE;
-    }
-  else if (json_node_get_node_type (node) == JSON_NODE_NULL)
-    {
-      if (present)
-        *present = TRUE;
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    }
-}
-
-gboolean
-cockpit_json_equal_object (JsonObject *previous,
-                           JsonObject *current)
-{
-  const gchar *name = NULL;
-  gboolean ret = TRUE;
-  GList *names;
-  GList *l;
-
-  names = json_object_get_members (previous);
-  names = g_list_concat (names, json_object_get_members (current));
-  names = g_list_sort (names, (GCompareFunc)strcmp);
-
-  for (l = names; l != NULL; l = g_list_next (l))
-    {
-      if (name && g_str_equal (name, l->data))
-          continue;
-
-      name = l->data;
-      if (!cockpit_json_equal (json_object_get_member (previous, name),
-                               json_object_get_member (current, name)))
-        {
-          ret = FALSE;
-          break;
-        }
-    }
-
-  g_list_free (names);
-  return ret;
-}
-
-static gboolean
-cockpit_json_equal_array (JsonArray *previous,
-                          JsonArray *current)
-{
-  guint len_previous;
-  guint len_current;
-  guint i;
-
-  len_previous = json_array_get_length (previous);
-  len_current = json_array_get_length (current);
-
-  if (len_previous != len_current)
-    return FALSE;
-
-  /* Look for something that has changed */
-  for (i = 0; i < len_previous; i++)
-    {
-      if (!cockpit_json_equal (json_array_get_element (previous, i),
-                               json_array_get_element (current, i)))
-        return FALSE;
-    }
-
-  return TRUE;
-}
-
-/**
- * cockpit_json_equal:
- * @previous: first JSON thing or %NULL
- * @current: second JSON thing or %NULL
- *
- * Compares whether two JSON nodes are equal or not. Accepts
- * %NULL for either parameter, and if both are %NULL is equal.
- *
- * The keys of objects do not have to be in the same order.
- *
- * If nodes have different types or value types then equality
- * is FALSE.
- *
- * Returns: whether equal or not
- */
-gboolean
-cockpit_json_equal (JsonNode *previous,
-                    JsonNode *current)
-
-{
-  JsonNodeType type = 0;
-  GType gtype = 0;
-
-  if (previous == current)
-    return TRUE;
-  if (!previous || !current)
-    return FALSE;
-
-  type = json_node_get_node_type (previous);
-  if (type != json_node_get_node_type (current))
-    return FALSE;
-  if (type == JSON_NODE_VALUE)
-    {
-      gtype = json_node_get_value_type (previous);
-      if (gtype != json_node_get_value_type (current))
-        return FALSE;
-    }
-
-  /* Now compare values */
-  switch (type)
-    {
-    case JSON_NODE_OBJECT:
-      return cockpit_json_equal_object (json_node_get_object (previous),
-                                        json_node_get_object (current));
-    case JSON_NODE_ARRAY:
-      return cockpit_json_equal_array (json_node_get_array (previous),
-                                       json_node_get_array (current));
-    case JSON_NODE_NULL:
-      return TRUE;
-
-    case JSON_NODE_VALUE:
-      if (gtype == G_TYPE_INT64)
-        return json_node_get_int (previous) == json_node_get_int (current);
-      else if (gtype == G_TYPE_DOUBLE)
-        return json_node_get_double (previous) == json_node_get_double (current);
-      else if (gtype == G_TYPE_BOOLEAN)
-        return json_node_get_boolean (previous) == json_node_get_boolean (current);
-      else if (gtype == G_TYPE_STRING)
-        return g_strcmp0 (json_node_get_string (previous), json_node_get_string (current)) == 0;
-      else
-        return TRUE;
-
-    default:
-      return FALSE;
-    }
-}
-
-/**
- * cockpit_json_override:
- * @target: a JSON object
- * @override: a JSON object to override from
- *
- * Override the values in @target with the members in @override.
- * Any members of @override are set on @target. If both contain
- * objects for a given member, then these are overridden in turn.
- *
- * Any members that are set to null in the @override will be
- * removed from the @target.
- */
-void
-cockpit_json_patch (JsonObject *target,
-                    JsonObject *override)
-{
-  GList *l, *members;
-  JsonNode *node, *other;
-
-  members = json_object_get_members (override);
-  for (l = members; l != NULL; l = g_list_next (l))
-    {
-      node = json_object_get_member (override, l->data);
-      if (JSON_NODE_HOLDS_NULL (node))
-        {
-          json_object_remove_member (target, l->data);
-          continue;
-        }
-      else if (JSON_NODE_HOLDS_OBJECT (node))
-        {
-          other = json_object_get_member (target, l->data);
-          if (other && JSON_NODE_HOLDS_OBJECT (other))
-            {
-              cockpit_json_patch (json_node_get_object (other),
-                                  json_node_get_object (node));
-              continue;
-            }
-        }
-
-      json_object_set_member (target, l->data, json_node_copy (node));
-    }
-  g_list_free (members);
-}
-
-/**
- * cockpit_json_int_hash:
- * @v: pointer to a gint64
- *
- * Hash a pointer to a gint64. This is like g_int_hash()
- * but for gint64.
- *
- * Returns: the hash
- */
-guint
-cockpit_json_int_hash (gconstpointer v)
-{
-  return (guint)*((const guint64 *)v);
-}
-
-/**
- * cockpit_json_int_equal:
- * @v1: pointer to a gint64
- * @v2: pointer to a gint64
- *
- * Compare pointers to a gint64. This is like g_int_equal()
- * but for gint64.
- *
- * Returns: the hash
- */
-gboolean
-cockpit_json_int_equal (gconstpointer v1,
-                        gconstpointer v2)
-{
-  return *((const guint64 *)v1) == *((const guint64 *)v2);
 }
 
 /**
@@ -594,6 +314,30 @@ cockpit_json_parse_bytes (GBytes *data,
 }
 
 /**
+ * cockpit_json_write_object:
+ * @object: object to write
+ * @length: optionally a location to return the length
+ *
+ * Encode a JsonObject to a string.
+ *
+ * Returns: (transfer full): the encoded data
+ */
+static gchar *
+cockpit_json_write_object (JsonObject *object,
+                           gsize *length)
+{
+  JsonNode *node;
+  gchar *ret;
+
+  node = json_node_new (JSON_NODE_OBJECT);
+  json_node_set_object (node, object);
+  ret = cockpit_json_write (node, length);
+  json_node_free (node);
+
+  return ret;
+}
+
+/**
  * cockpit_json_write_bytes:
  * @object: object to write
  *
@@ -609,30 +353,6 @@ cockpit_json_write_bytes (JsonObject *object)
 
   data = cockpit_json_write_object (object, &length);
   return g_bytes_new_take (data, length);
-}
-
-/**
- * cockpit_json_write_object:
- * @object: object to write
- * @length: optionally a location to return the length
- *
- * Encode a JsonObject to a string.
- *
- * Returns: (transfer full): the encoded data
- */
-gchar *
-cockpit_json_write_object (JsonObject *object,
-                           gsize *length)
-{
-  JsonNode *node;
-  gchar *ret;
-
-  node = json_node_new (JSON_NODE_OBJECT);
-  json_node_set_object (node, object);
-  ret = cockpit_json_write (node, length);
-  json_node_free (node);
-
-  return ret;
 }
 
 /*
@@ -930,30 +650,6 @@ cockpit_json_write (JsonNode *node,
   return retval;
 }
 
-JsonObject *
-cockpit_json_from_hash_table (GHashTable *hash_table,
-                              const gchar **fields)
-{
-  JsonObject *block = NULL;
-  gint i;
-  const gchar *value;
-
-  if (hash_table)
-   {
-     block = json_object_new ();
-     for (i = 0; fields[i] != NULL; i++)
-       {
-         value = g_hash_table_lookup (hash_table, fields[i]);
-         if (value)
-           json_object_set_string_member (block, fields[i], value);
-         else
-           json_object_set_null_member (block, fields[i]);
-       }
-   }
-
-  return block;
-}
-
 GHashTable *
 cockpit_json_to_hash_table (JsonObject *object,
                             const gchar **fields)
@@ -972,166 +668,4 @@ cockpit_json_to_hash_table (JsonObject *object,
    }
 
   return hash_table;
-}
-
-typedef const struct {
-  CockpitJsonWalkCallback callback;
-  gpointer                user_data;
-} WalkClosure;
-
-static JsonNode *
-cockpit_json_walk_node (JsonNode    *node,
-                        WalkClosure *closure);
-
-static JsonArray *
-cockpit_json_walk_array (JsonArray   *array,
-                         WalkClosure *closure)
-{
-  gint n = json_array_get_length (array);
-  JsonArray *copy = NULL;
-
-  for (gint i = 0; i < n; i++)
-    {
-      JsonNode *element = json_array_get_element (array, i);
-      JsonNode *node = cockpit_json_walk_node (element, closure);
-
-      if (node && !copy)
-        {
-          /* We've decided we need to copy now, so revisit everything up
-           * to this point and add it to the copy.
-           */
-          copy = json_array_sized_new (n);
-          for (gint j = 0; j < i; j++)
-            json_array_add_element (copy, json_array_dup_element (array, j));
-        }
-
-      if (copy)
-        json_array_add_element (copy, node ?: json_node_ref (element));
-    }
-
-  return copy;
-}
-
-static JsonObject *
-cockpit_json_walk_object (JsonObject  *object,
-                          WalkClosure *closure)
-{
-  JsonObject *copy = NULL;
-  JsonObjectIter iter;
-  const gchar *key;
-  JsonNode *value;
-
-  json_object_iter_init (&iter, object);
-  while (json_object_iter_next (&iter, &key, &value))
-    {
-      JsonNode *node = cockpit_json_walk_node (value, closure);
-
-      if (node && !copy)
-        {
-          const gchar *this_key = key;
-
-          /* We've decided we need to copy now, so revisit everything up
-           * to this point and add it to the copy.
-           */
-          copy = json_object_new ();
-          json_object_iter_init (&iter, object);
-          while (json_object_iter_next (&iter, &key, &value) && key != this_key)
-            json_object_set_member (copy, key, json_node_ref (value));
-
-          /* ...now key and value will be where they were before we entered */
-          g_assert (key == this_key);
-        }
-
-      if (copy)
-        json_object_set_member (copy, key, node ?: json_node_ref (value));
-    }
-
-  return copy;
-}
-
-static JsonNode *
-cockpit_json_walk_node (JsonNode    *node,
-                        WalkClosure *closure)
-{
-  JsonNode *new_node = NULL;
-
-  switch (json_node_get_node_type (node))
-    {
-    case JSON_NODE_ARRAY:
-      {
-        JsonArray *array = json_node_get_array (node);
-        JsonArray *copy = cockpit_json_walk_array (array, closure);
-
-        if (copy)
-          {
-            new_node = json_node_new (JSON_NODE_ARRAY);
-            json_node_take_array (new_node, copy);
-          }
-
-        break;
-      }
-
-    case JSON_NODE_OBJECT:
-      {
-        JsonObject *object = json_node_get_object (node);
-        JsonObject *copy = cockpit_json_walk_object (object, closure);
-
-        if (copy)
-          {
-            new_node = json_node_new (JSON_NODE_OBJECT);
-            json_node_take_object (new_node, copy);
-          }
-
-        break;
-      }
-
-    default:
-      {
-        new_node = (* closure->callback) (node, closure->user_data);
-        break;
-      }
-    }
-
-  return new_node;
-}
-
-/**
- * cockpit_json_walk:
- * @object: an immutable #JsonObject
- * @callback: a #CockpitJsonWalkCallback
- * @user_data: user data for @callback
- *
- * Recursively visits each node contained in @object, calling @callback
- * on each simple value type to allow point replacements of values.
- * @object must be immutable; the resulting value will be returned.
- *
- * If @callback returns %NULL then no replacement is performed.
- * Otherwise, the #JsonNode returned by @callback is used in place of
- * the value which was previously found.
- *
- * @object must be immutable, and the result will also be immutable.
- * The two trees will be shared to the extent possible, which means that
- * if a particular branch of the original tree contained no
- * replacements, then that branch will be used.  In particular, if no
- * replacements are performed at all, then this function is equivalent
- * to json_object_ref().
- *
- * Returns: (transfer full): the resulting tree (immutable)
- */
-JsonObject *
-cockpit_json_walk (JsonObject              *object,
-                   CockpitJsonWalkCallback  callback,
-                   gpointer                 user_data)
-{
-  g_return_val_if_fail (json_object_is_immutable (object), NULL);
-
-  WalkClosure closure = { callback, user_data };
-  JsonObject *copy = cockpit_json_walk_object (object, &closure);
-
-  if (!copy)
-    return json_object_ref (object);
-
-  json_object_seal (copy);
-
-  return copy;
 }

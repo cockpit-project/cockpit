@@ -40,29 +40,12 @@ JsonObject *   cockpit_json_parse_bytes       (GBytes *data,
 gchar *        cockpit_json_write             (JsonNode *node,
                                                gsize *length);
 
-gchar *        cockpit_json_write_object      (JsonObject *object,
-                                               gsize *length);
-
 GBytes *       cockpit_json_write_bytes       (JsonObject *object);
-
-gboolean       cockpit_json_equal             (JsonNode *previous,
-                                               JsonNode *current);
-
-gboolean       cockpit_json_equal_object      (JsonObject *previous,
-                                               JsonObject *current);
-
-void           cockpit_json_patch             (JsonObject *target,
-                                               JsonObject *patch);
 
 gboolean       cockpit_json_get_int           (JsonObject *object,
                                                const gchar *member,
                                                gint64 defawlt,
                                                gint64 *value);
-
-gboolean       cockpit_json_get_double        (JsonObject *object,
-                                               const gchar *member,
-                                               gdouble defawlt,
-                                               gdouble *value);
 
 gboolean       cockpit_json_get_bool          (JsonObject *object,
                                                const gchar *member,
@@ -79,35 +62,12 @@ gboolean       cockpit_json_get_strv          (JsonObject *object,
                                                const gchar **defawlt,
                                                const gchar ***value);
 
-gboolean       cockpit_json_get_array         (JsonObject *object,
-                                               const gchar *member,
-                                               JsonArray *defawlt,
-                                               JsonArray **value);
-
 gboolean       cockpit_json_get_object        (JsonObject *options,
                                                const gchar *member,
                                                JsonObject *defawlt,
                                                JsonObject **value);
 
-gboolean       cockpit_json_get_null          (JsonObject *object,
-                                               const gchar *member,
-                                               gboolean *present);
-
-guint          cockpit_json_int_hash          (gconstpointer v);
-
-gboolean       cockpit_json_int_equal         (gconstpointer v1,
-                                               gconstpointer v2);
-
-JsonObject *   cockpit_json_from_hash_table   (GHashTable *hash_table,
-                                               const gchar **fields);
-
 GHashTable *   cockpit_json_to_hash_table     (JsonObject *object,
                                                const gchar **fields);
-
-typedef JsonNode * (* CockpitJsonWalkCallback) (JsonNode *node, gpointer user_data);
-
-JsonObject *   cockpit_json_walk              (JsonObject              *object,
-                                               CockpitJsonWalkCallback  callback,
-                                               gpointer                 user_data);
 
 #endif /* COCKPIT_JSON_H__ */

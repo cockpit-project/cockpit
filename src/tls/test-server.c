@@ -39,7 +39,6 @@
 #include "server.h"
 #include "utils.h"
 #include "testlib/cockpittest.h"
-#include "common/cockpithacks-glib.h"
 
 #define SOCKET_ACTIVATION_HELPER BUILDDIR "/socket-activation-helper"
 #define COCKPIT_WS BUILDDIR "/cockpit-ws"

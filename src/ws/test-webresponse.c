@@ -1277,71 +1277,6 @@ test_removed_prefix (TestPlain *tc,
 }
 
 static void
-test_gunzip_small (void)
-{
-  GError *error = NULL;
-  GMappedFile *file;
-  GBytes *compressed;
-  GBytes *bytes;
-
-  file = g_mapped_file_new (SRCDIR "/src/ws/mock-content/test-file.txt.gz", FALSE, &error);
-  g_assert_no_error (error);
-
-  compressed = g_mapped_file_get_bytes (file);
-  g_mapped_file_unref (file);
-
-  bytes = cockpit_web_response_gunzip (compressed, &error);
-  g_assert_no_error (error);
-  g_bytes_unref (compressed);
-
-  cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
-  g_bytes_unref (bytes);
-}
-
-static void
-test_gunzip_large (void)
-{
-  GError *error = NULL;
-  GMappedFile *file;
-  GBytes *compressed;
-  GBytes *bytes;
-  gchar *checksum;
-
-  file = g_mapped_file_new (SRCDIR "/src/ws/mock-content/large.min.js.gz", FALSE, &error);
-  g_assert_no_error (error);
-
-  compressed = g_mapped_file_get_bytes (file);
-  g_mapped_file_unref (file);
-
-  bytes = cockpit_web_response_gunzip (compressed, &error);
-  g_assert_no_error (error);
-  g_bytes_unref (compressed);
-
-  checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5, bytes);
-  g_assert_cmpstr (checksum, ==, "5ca7582261c421482436dfdf3af9bffe");
-  g_free (checksum);
-
-  g_bytes_unref (bytes);
-}
-
-static void
-test_gunzip_invalid (void)
-{
-  GError *error = NULL;
-  GBytes *compressed;
-  GBytes *bytes;
-
-  compressed = g_bytes_new_static ("invalid", 7);
-
-  bytes = cockpit_web_response_gunzip (compressed, &error);
-  g_assert (bytes == NULL);
-  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
-  g_error_free (error);
-
-  g_bytes_unref (compressed);
-}
-
-static void
 test_negotiation_first (void)
 {
   gboolean is_language_specific, is_compressed;
@@ -1565,10 +1500,6 @@ main (int argc,
               setup_plain, test_skip_path_root, teardown_plain);
   g_test_add ("/web-response/path/removed-prefix", TestPlain, NULL,
               setup_plain, test_removed_prefix, teardown_plain);
-
-  g_test_add_func ("/web-response/gunzip/small", test_gunzip_small);
-  g_test_add_func ("/web-response/gunzip/large", test_gunzip_large);
-  g_test_add_func ("/web-response/gunzip/invalid", test_gunzip_invalid);
 
   g_test_add_func ("/web-response/negotiation/first", test_negotiation_first);
   g_test_add_func ("/web-response/negotiation/last", test_negotiation_last);

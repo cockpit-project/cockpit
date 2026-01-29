@@ -118,12 +118,8 @@ void                  cockpit_web_response_file          (CockpitWebResponse *re
                                                           const gchar **roots);
 
 void                  cockpit_web_response_file_or_gz    (CockpitWebResponse *response,
-                                                          gboolean accepts_gz,
                                                           const gchar *escaped,
                                                           const gchar **roots);
-
-GBytes *              cockpit_web_response_gunzip        (GBytes *bytes,
-                                                          GError **error);
 
 GBytes *              cockpit_web_response_negotiation   (const gchar *path,
                                                           GHashTable *existing,

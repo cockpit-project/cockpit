@@ -1292,6 +1292,8 @@ web_response_file (CockpitWebResponse *response,
                    gpointer user_data)
 {
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
+  g_return_if_fail (!search_gzip || template_func == NULL);
+  g_return_if_fail (search_gzip == accept_gzip);
 
   if (!escaped)
     escaped = cockpit_web_response_get_path (response);
@@ -1368,23 +1370,6 @@ web_response_file (CockpitWebResponse *response,
 
   g_autoptr(GBytes) body = g_mapped_file_get_bytes (file);
 
-  if (is_gzip && (!accept_gzip || template_func))
-    {
-      /* We have gzipped content, but the client won't accept it, or
-       * template expansion was requested.  Decompress.
-       */
-      g_autoptr(GError) error = NULL;
-      g_autoptr(GBytes) body_gz = g_steal_pointer (&body);
-      body = cockpit_web_response_gunzip (body_gz, &error);
-      if (body == NULL)
-        {
-          g_warning ("%s", error->message);
-          cockpit_web_response_error (response, 500, NULL, "Internal server error");
-          return;
-        }
-      is_gzip = FALSE;
-    }
-
   GList *output;
   gint content_length = -1;
   if (template_func)
@@ -1460,11 +1445,10 @@ cockpit_web_response_template (CockpitWebResponse *response,
 
 void
 cockpit_web_response_file_or_gz (CockpitWebResponse *response,
-                                 gboolean accepts_gzip,
                                  const gchar *escaped,
                                  const gchar **roots)
 {
-  web_response_file (response, escaped, roots, TRUE, accepts_gzip, NULL, NULL);
+  web_response_file (response, escaped, roots, TRUE, TRUE, NULL, NULL);
 }
 
 static gboolean
@@ -1534,59 +1518,6 @@ cockpit_web_response_add_filter (CockpitWebResponse *self,
   g_return_if_fail (COCKPIT_IS_WEB_FILTER (filter));
   g_return_if_fail (self->count == 0);
   self->filters = g_list_append (self->filters, g_object_ref (filter));
-}
-
-/**
- * cockpit_web_response_gunzip:
- * @bytes: the compressed bytes
- * @error: place to put an error
- *
- * Perform gzip decompression on the @bytes.
- *
- * Returns: the uncompressed bytes, caller owns return value.
- */
-GBytes *
-cockpit_web_response_gunzip (GBytes *bytes,
-                             GError **error)
-{
-  GConverter *converter;
-  GConverterResult result;
-  const guint8 *in;
-  gsize inl, outl, read, written;
-  GByteArray *out;
-
-  converter = G_CONVERTER (g_zlib_decompressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP));
-
-  in = g_bytes_get_data (bytes, &inl);
-  out = g_byte_array_new ();
-
-  do
-    {
-      outl = out->len;
-      g_byte_array_set_size (out, outl + inl);
-
-      result = g_converter_convert (converter, in, inl, out->data + outl, inl,
-                                    G_CONVERTER_INPUT_AT_END, &read, &written, error);
-      if (result == G_CONVERTER_ERROR)
-        break;
-
-      g_byte_array_set_size (out, outl + written);
-      in += read;
-      inl -= read;
-    }
-  while (result != G_CONVERTER_FINISHED);
-
-  g_object_unref (converter);
-
-  if (result != G_CONVERTER_FINISHED)
-    {
-      g_byte_array_unref (out);
-      return NULL;
-    }
-  else
-    {
-      return g_byte_array_free_to_bytes (out);
-    }
 }
 
 static const gchar *

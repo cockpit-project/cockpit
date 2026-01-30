@@ -69,7 +69,7 @@
         }
 
         const dlg = useDialogState({ text: "" }, validate);
-        const text_value = dlg.value("text");
+        const text_field = dlg.field("text");
 
         return (
             <Modal position="top" variant="medium" isOpen onClose={Dialogs.close}>
@@ -79,10 +79,10 @@
                     <Form>
                         <FormGroup label="Log message">
                             <TextInput
-                                value={text_value.get()}
-                                onChange={(_event, val) => text_value.set(val)}
+                                value={text_field.get()}
+                                onChange={(_event, val) => text_field.set(val)}
                             />
-                            <DialogHelperText value={text_value} />
+                            <DialogHelperText field={text_field} />
                         </FormGroup>
                     </Form>
                 </ModalBody>
@@ -448,27 +448,27 @@
    "close_func", or run the cancel function provided by the currently
    running action function (if there is any).
 
-   - <DialogTextInput label="Name" value={dlg.field("name")} ... />
+   - <DialogTextInput label="Name" field={dlg.field("name")} ... />
 
    This will produce a TextInput in a (optional) FormGroup that will
    manage the given value handle.  The "label" property is optional
    and omitting it will also omit the FormGroup.
 
-  - <DialogCheckbox label= value= .../>
+  - <DialogCheckbox label= field= .../>
 
   For a single checkbox that drives a boolean.
 
-  - <DialogRadioSelect label= value= options= .../>
+  - <DialogRadioSelect label= field= options= .../>
 
   For a group of radio buttons.  The options can be disabled and have
   explanations.
 
-  - <DialogDropdownSelect label= value= options= .../> </>
+  - <DialogDropdownSelect label= field= options= .../> </>
 
   For a simple dropdown select. Options can not be disabled or have
   explanations.
 
-  - <DialogDropdownSelectObject label= value= options= option_label= />
+  - <DialogDropdownSelectObject label= field= options= option_label= />
 
   A variant of the simple dropdown select from above where the options
   can be of any type whatsoever, such as something directly from your
@@ -524,8 +524,8 @@
 
   And the component itself:
 
-    export const TwoLevelSelect = ({ value } : { value: DialogHandle<TwoLevelSelectValue> }) => {
-      const { _firsts, _seconds, _options } = value.get();
+    export const TwoLevelSelect = ({ field } : { field: DialogField<TwoLevelSelectValue> }) => {
+      const { _firsts, _seconds, _options } = field.get();
 
       function update_first(f: string) {
         const _seconds = _options[f];
@@ -537,12 +537,12 @@
         <>
           <DialogDropdownSelectObject
             label="First"
-            value={value.sub("first", update_first)}
+            field={field.sub("first", update_first)}
             options={_firsts}
           />
           <DialogDropdownSelectObject
             label="Second"
-            value={value.sub("second")}
+            field={field.sub("second")}
             options={_seconds}
           />
         </>
@@ -561,11 +561,11 @@
       }
     }
 
-    const dlg = useDialogState(init, validate);
+    const dlg = useDialogState(init);
 
     return (
       ...
-      <TwoLevelSelect value={dlg.field("food")} />
+      <TwoLevelSelect field={dlg.field("food")} />
       ...
     );
 
@@ -581,18 +581,18 @@
       return { ... };
     }
 
-    export const TwoLevel = ({ value } : { value: DialogHandle<TwoLevelValue | string> }) => {
-      const val = value.get();
+    export const TwoLevel = ({ field } : { field: DialogField<TwoLevelValue | string> }) => {
+      const val = field.get();
       if (typeof val == "string")
           return null;
 
-      const tls_value = value.at(val);
+      const tls_field = field.at(val);
 
-      const { _firsts, _seconds, _options } = tls_value.get();
+      const { _firsts, _seconds, _options } = tls_field.get();
       ...
     }
 
-  Note the use of the "value.at()" function to get a handle for a
+  Note the use of the "field.at()" function to get a handle for a
   TwoLevelSelectValue that can be used to access the "first" sub
   value, etc.
  */
@@ -632,7 +632,7 @@ function toSpliced<T>(arr: T[], start: number, deleteCount: number, ...rest: T[]
     return copy;
 }
 
-export class DialogHandle<T> {
+export class DialogField<T> {
     /* eslint-disable no-use-before-define */
     #dialog: DialogState<unknown>;
     /* eslint-enable */
@@ -668,18 +668,18 @@ export class DialogHandle<T> {
         return "dialog-" + tag + "-" + this.#path;
     }
 
-    map<X>(func: (val: DialogHandle<ArrayElement<T>>, index: number) => X): X[] {
+    map<X>(func: (val: DialogField<ArrayElement<T>>, index: number) => X): X[] {
         const val = this.get();
         if (Array.isArray(val)) {
-            return val.map((_, i) => func(this.sub(i as keyof T) as DialogHandle<ArrayElement<T>>, i));
+            return val.map((_, i) => func(this.sub(i as keyof T) as DialogField<ArrayElement<T>>, i));
         } else
             return [];
     }
 
-    forEach(func: (val: DialogHandle<ArrayElement<T>>, index: number) => void): void {
+    forEach(func: (val: DialogField<ArrayElement<T>>, index: number) => void): void {
         const val = this.get();
         if (Array.isArray(val)) {
-            val.forEach((_, i) => func(this.sub(i as keyof T) as DialogHandle<ArrayElement<T>>, i));
+            val.forEach((_, i) => func(this.sub(i as keyof T) as DialogField<ArrayElement<T>>, i));
         }
     }
 
@@ -699,8 +699,8 @@ export class DialogHandle<T> {
         }
     }
 
-    sub<K extends keyof T>(tag: K, update_func?: ((val: T[K]) => void) | undefined): DialogHandle<T[K]> {
-        return new DialogHandle<T[K]>(
+    sub<K extends keyof T>(tag: K, update_func?: ((val: T[K]) => void) | undefined): DialogField<T[K]> {
+        return new DialogField<T[K]>(
             this.#dialog,
             () => this.get()[tag],
             (val) => {
@@ -716,9 +716,9 @@ export class DialogHandle<T> {
         );
     }
 
-    at<TT extends T>(witness: TT): DialogHandle<TT> {
+    at<TT extends T>(witness: TT): DialogField<TT> {
         cockpit.assert(Object.is(witness, this.get()));
-        return new DialogHandle<TT>(
+        return new DialogField<TT>(
             this.#dialog,
             () => this.get() as TT,
             (val) => {
@@ -1150,8 +1150,8 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         this.#update();
     }
 
-    top(update_func?: ((val: V) => void) | undefined): DialogHandle<V> {
-        return new DialogHandle<V>(
+    top(update_func?: ((val: V) => void) | undefined): DialogField<V> {
+        return new DialogField<V>(
             this as DialogState<unknown>,
             () => this.values,
             (val) => {
@@ -1170,7 +1170,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             "");
     }
 
-    field<K extends keyof V>(tag: K, update_func?: ((val: V[K]) => void) | undefined): DialogHandle<V[K]> {
+    field<K extends keyof V>(tag: K, update_func?: ((val: V[K]) => void) | undefined): DialogField<V[K]> {
         return this.top().sub(tag, update_func);
     }
 }
@@ -1325,17 +1325,17 @@ export function DialogCancelButton<V>({
 type falsy = null | undefined | false;
 
 export function DialogHelperText<V>({
-    value,
+    field,
     excuse,
     warning,
     explanation,
 } : {
-    value: DialogHandle<V>;
+    field: DialogField<V>;
     excuse?: string | falsy;
     warning?: React.ReactNode;
     explanation?: React.ReactNode;
 }) {
-    let text: React.ReactNode = value.validation_text();
+    let text: React.ReactNode = field.validation_text();
     let variant: HelperTextItemProps["variant"] = "error";
     if (!text && excuse) {
         text = excuse;
@@ -1356,7 +1356,7 @@ export function DialogHelperText<V>({
     return (
         <FormHelperText>
             <HelperText>
-                <HelperTextItem id={value.id("helper-text")} variant={variant}>
+                <HelperTextItem id={field.id("helper-text")} variant={variant}>
                     {text}
                 </HelperTextItem>
             </HelperText>
@@ -1388,7 +1388,7 @@ export const OptionalFormGroup = ({
 
 export const DialogTextInput = ({
     label = null,
-    value,
+    field,
     excuse,
     warning,
     explanation,
@@ -1396,22 +1396,22 @@ export const DialogTextInput = ({
     ...props
 } : {
     label?: React.ReactNode,
-    value: DialogHandle<string>,
+    field: DialogField<string>,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
     isDisabled?: boolean,
 } & Omit<TextInputProps, "id" | "label" | "value" | "onChange">) => {
     return (
-        <OptionalFormGroup label={label} fieldId={value.id()}>
+        <OptionalFormGroup label={label} fieldId={field.id()}>
             <TextInput
-                id={value.id()}
-                value={value.get()}
-                onChange={(_event, val) => value.set(val)}
+                id={field.id()}
+                value={field.get()}
+                onChange={(_event, val) => field.set(val)}
                 isDisabled={!!excuse || isDisabled}
                 {...props}
             />
-            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} value={value} />
+            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
         </OptionalFormGroup>
     );
 };
@@ -1419,14 +1419,14 @@ export const DialogTextInput = ({
 export const DialogCheckbox = ({
     field_label = null,
     checkbox_label,
-    value,
+    field,
     excuse,
     warning,
     explanation,
 } : {
     field_label?: React.ReactNode,
     checkbox_label: string,
-    value: DialogHandle<boolean>,
+    field: DialogField<boolean>,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1434,13 +1434,13 @@ export const DialogCheckbox = ({
     return (
         <OptionalFormGroup label={field_label} hasNoPaddingTop>
             <Checkbox
-                id={value.id()}
-                isChecked={value.get()}
+                id={field.id()}
+                isChecked={field.get()}
                 label={checkbox_label}
-                onChange={(_event, checked) => value.set(checked)}
+                onChange={(_event, checked) => field.set(checked)}
                 isDisabled={!!excuse}
             />
-            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} value={value} />
+            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
         </OptionalFormGroup>
     );
 };
@@ -1454,14 +1454,14 @@ export interface DialogRadioSelectOption<T extends string> {
 
 export function DialogRadioSelect<T extends string>({
     label = null,
-    value,
+    field,
     options,
     warning,
     explanation,
     isInline = false,
 } : {
     label?: React.ReactNode,
-    value: DialogHandle<T>,
+    field: DialogField<T>,
     options: DialogRadioSelectOption<T>[],
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1471,7 +1471,7 @@ export function DialogRadioSelect<T extends string>({
         const exc = o.excuse ? <> ({o.excuse})</> : null;
         const pad = (!isInline && i < options.length - 1) ? <><br />{"\u00A0"}</> : null;
         const exp = o.explanation ? <><br /><small>{o.explanation}{pad}</small></> : null;
-        return <div id={value.id(o.value + "-label")}>{o.label}{exc}{exp}</div>;
+        return <div id={field.id(o.value + "-label")}>{o.label}{exc}{exp}</div>;
     }
 
     return (
@@ -1479,23 +1479,23 @@ export function DialogRadioSelect<T extends string>({
             label={label}
             hasNoPaddingTop
             isInline={isInline}
-            id={value.id()}
-            data-value={value.get()}
+            id={field.id()}
+            data-value={field.get()}
         >
             {
                 options.map((o, i) =>
                     <Radio
                         key={o.value}
-                        id={value.id(o.value)}
+                        id={field.id(o.value)}
                         name={o.value}
-                        isChecked={value.get() == o.value}
+                        isChecked={field.get() == o.value}
                         label={makeLabel(o, i)}
-                        onChange={() => value.set(o.value)}
+                        onChange={() => field.set(o.value)}
                         isDisabled={!!o.excuse}
                     />
                 )
             }
-            <DialogHelperText explanation={explanation} warning={warning} value={value} />
+            <DialogHelperText explanation={explanation} warning={warning} field={field} />
         </OptionalFormGroup>
     );
 }
@@ -1507,7 +1507,7 @@ export interface DialogDropdownSelectOption<T extends string> {
 
 export function DialogDropdownSelect<T extends string>({
     label,
-    value,
+    field,
     excuse,
     warning,
     explanation,
@@ -1515,7 +1515,7 @@ export function DialogDropdownSelect<T extends string>({
     ...props
 } : {
     label?: React.ReactNode,
-    value: DialogHandle<T>,
+    field: DialogField<T>,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1524,11 +1524,11 @@ export function DialogDropdownSelect<T extends string>({
     return (
         <OptionalFormGroup label={label}>
             <FormSelect
-                id={value.id()}
-                onChange={(_event, val) => value.set(val as T) }
+                id={field.id()}
+                onChange={(_event, val) => field.set(val as T) }
                 validated={warning ? "warning" : undefined}
                 isDisabled={!!excuse}
-                value={value.get()}
+                value={field.get()}
                 {...props}
             >
                 {
@@ -1539,14 +1539,14 @@ export function DialogDropdownSelect<T extends string>({
                     )
                 }
             </FormSelect>
-            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} value={value} />
+            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
         </OptionalFormGroup>
     );
 }
 
 export function DialogDropdownSelectObject<T>({
     label,
-    value,
+    field,
     excuse,
     warning,
     explanation,
@@ -1555,7 +1555,7 @@ export function DialogDropdownSelectObject<T>({
     ...props
 } : {
     label?: React.ReactNode,
-    value: DialogHandle<T>,
+    field: DialogField<T>,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1565,14 +1565,14 @@ export function DialogDropdownSelectObject<T>({
     return (
         <OptionalFormGroup label={label}>
             <FormSelect
-                id={value.id()}
+                id={field.id()}
                 onChange={(_event, val) => {
                     const opt = options.find(o => option_label(o) == val);
-                    value.set(opt!);
+                    field.set(opt!);
                 }}
                 validated={warning ? "warning" : undefined}
                 isDisabled={!!excuse}
-                value={option_label(value.get())}
+                value={option_label(field.get())}
                 {...props}
             >
                 {
@@ -1584,7 +1584,7 @@ export function DialogDropdownSelectObject<T>({
                     )
                 }
             </FormSelect>
-            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} value={value} />
+            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
         </OptionalFormGroup>
     );
 }

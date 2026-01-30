@@ -40,7 +40,7 @@ import {
     useDialogState_async,
     DialogError,
     DialogErrorMessage,
-    DialogHandle,
+    DialogField,
     DialogCheckbox,
     DialogTextInput,
     DialogRadioSelect,
@@ -54,38 +54,38 @@ import 'page.scss';
 
 function List<T>({
     label,
-    value,
+    field,
     Component,
     init,
 } : {
     label: string
-    value: DialogHandle<T[]>,
-    Component: ({ value } : { value: DialogHandle<T> }) => React.ReactNode,
+    field: DialogField<T[]>,
+    Component: ({ field } : { field: DialogField<T> }) => React.ReactNode,
     init: T,
 }) {
     return (
-        <FormGroup label={label} id={value.id()}>
-            { value.map((v, i) => (
+        <FormGroup label={label} id={field.id()}>
+            { field.map((f, i) => (
                 <Split key={i}>
                     <SplitItem isFilled>
-                        <Component value={v} />
+                        <Component field={f} />
                     </SplitItem>
                     <SplitItem>
                         <Button
-                            id={v.id("remove")}
+                            id={f.id("remove")}
                             variant="link"
-                            onClick={() => value.remove(i)}
+                            onClick={() => field.remove(i)}
                         >
                             Remove
                         </Button>
                     </SplitItem>
                 </Split>
             ))}
-            <DialogHelperText value={value} />
+            <DialogHelperText field={field} />
             <Button
-                id={value.id("add")}
+                id={field.id("add")}
                 variant="link"
-                onClick={() => value.add(init)}
+                onClick={() => field.add(init)}
             >
                 Add
             </Button>
@@ -94,16 +94,16 @@ function List<T>({
 }
 
 const StringList = ({
-    value,
+    field,
     label,
 } : {
-    value: DialogHandle<string[]>,
+    field: DialogField<string[]>,
     label: string
 }) => {
     return (
         <List
             label={label}
-            value={value}
+            field={field}
             Component={DialogTextInput}
             init=""
         />
@@ -116,16 +116,16 @@ interface Name {
 }
 
 const NameInput = ({
-    value,
+    field,
 } : {
-    value: DialogHandle<Name>,
+    field: DialogField<Name>,
 }) => {
-    return <DialogTextInput value={value.sub("name")} />;
+    return <DialogTextInput field={field.sub("name")} />;
 };
 
-function validate_Name(value: DialogHandle<Name>, countAsyncValidation: () => void) {
-    const { _length_cache } = value.get();
-    value.sub("name").validate_async(1000, async n => {
+function validate_Name(field: DialogField<Name>, countAsyncValidation: () => void) {
+    const { _length_cache } = field.get();
+    field.sub("name").validate_async(1000, async n => {
         await async_sleep(2000);
         countAsyncValidation();
         _length_cache[n] = n.length;
@@ -135,16 +135,16 @@ function validate_Name(value: DialogHandle<Name>, countAsyncValidation: () => vo
 }
 
 const NameList = ({
-    value,
+    field,
     label,
 } : {
-    value: DialogHandle<Name[]>,
+    field: DialogField<Name[]>,
     label: string
 }) => {
     return (
         <List
             label={label}
-            value={value}
+            field={field}
             Component={NameInput}
             init={{ name: "", _length_cache: { } }}
         />
@@ -154,34 +154,34 @@ const NameList = ({
 const OptionalTextInput = ({
     field_label,
     checkbox_label,
-    value,
+    field,
 } : {
     field_label: string,
     checkbox_label: string;
-    value: DialogHandle<false | string>,
+    field: DialogField<false | string>,
 }) => {
-    const val = value.get();
+    const val = field.get();
     let body;
 
     if (val === false) {
         body = (
             <Checkbox
-                id={value.id("checkbox")}
+                id={field.id("checkbox")}
                 isChecked={false}
                 label={checkbox_label}
-                onChange={() => value.set("")}
+                onChange={() => field.set("")}
             />
         );
     } else {
         body = (
             <>
                 <Checkbox
-                    id={value.id("checkbox")}
+                    id={field.id("checkbox")}
                     isChecked
                     label={checkbox_label}
-                    onChange={() => value.set(false)}
+                    onChange={() => field.set(false)}
                 />
-                <DialogTextInput value={value.at(val)} />
+                <DialogTextInput field={field.at(val)} />
             </>
         );
     }
@@ -191,7 +191,7 @@ const OptionalTextInput = ({
             label={field_label}
         >
             {body}
-            <DialogHelperText value={value} />
+            <DialogHelperText field={field} />
         </FormGroup>
     );
 };
@@ -307,11 +307,11 @@ const ExampleDialog = ({
                     <DialogCheckbox
                         field_label="Checkbox"
                         checkbox_label="Enable text"
-                        value={dlg.field("flag")}
+                        field={dlg.field("flag")}
                     />
                     <DialogTextInput
                         label="Text"
-                        value={dlg.field("text")}
+                        field={dlg.field("text")}
                         excuse={!dlg.values.flag && "Disabled"}
                         explanation="Explanation"
                         warning={dlg.values.text == "warn" ? "Warning" : null}
@@ -322,7 +322,7 @@ const ExampleDialog = ({
                     }
                     <DialogRadioSelect
                         label="Radio"
-                        value={dlg.field("radio")}
+                        field={dlg.field("radio")}
                         options={
                             [
                                 {
@@ -345,7 +345,7 @@ const ExampleDialog = ({
                     />
                     <DialogDropdownSelect
                         label="Dropdown"
-                        value={dlg.field("dropdown")}
+                        field={dlg.field("dropdown")}
                         options={
                             [
                                 { value: "one", label: "Eins" },
@@ -357,20 +357,20 @@ const ExampleDialog = ({
                     />
                     <DialogDropdownSelectObject
                         label="DropdownObject"
-                        value={dlg.field("color", update_color)}
+                        field={dlg.field("color", update_color)}
                         options={colors}
                         option_label={c => c.name}
                     />
-                    <StringList label="List" value={dlg.field("list")} />
-                    <NameList label="Async" value={dlg.field("async")} />
+                    <StringList label="List" field={dlg.field("list")} />
+                    <NameList label="Async" field={dlg.field("async")} />
                     <OptionalTextInput
                         field_label="Alternative"
                         checkbox_label="Custom value"
-                        value={dlg.field("alternative")}
+                        field={dlg.field("alternative")}
                     />
                     <DialogDropdownSelectObject
                         label="Error"
-                        value={dlg.field("error")}
+                        field={dlg.field("error")}
                         options={["none", "custom", "from", "from-random", "message", "spawn", "random"]}
                         warning={dlg.field("error").get() != "none" ? "There will be an error" : null}
                     />
@@ -465,7 +465,7 @@ const ExampleDialogWithInitFunc = () => {
                 <Form isHorizontal>
                     <DialogTextInput
                         label="Text"
-                        value={dlg.field("text")}
+                        field={dlg.field("text")}
                     />
                 </Form>
             </ModalBody>
@@ -529,7 +529,7 @@ const AsyncExampleDialog = ({
         const vals = dlg.top(update_top);
         body = (
             <Form isHorizontal>
-                <DialogTextInput label="Text" value={vals.sub("text")} />
+                <DialogTextInput label="Text" field={vals.sub("text")} />
             </Form>
         );
     }

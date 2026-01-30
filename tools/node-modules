@@ -155,8 +155,9 @@ cmd_runtime_tar() {
     # special-case node_modules/iconv-lite/encodings/sbcs-data-generated.js, it's JS with binary strings in it
     # and resolve/test/resolver/cup.coffee which is a single-byte test file
     # Ubuntu 24.04's file (or at least not that in the GitHub actions runner) does not detect *.woff2 file type properly
+    # react-dropzone 14.4.0 started to include a dist tarball (https://github.com/react-dropzone/react-dropzone/issues/1447)
     for pkg in $runtime_pkgs; do
-        if find "$pkg" -type f -print0 |
+        if find "$pkg" -type f ! -path '*/dist/react-dropzone*.tgz' -print0 |
            xargs -0 file --mime |
            grep -Ev \
                -e 'text/' \

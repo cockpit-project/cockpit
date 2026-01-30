@@ -832,19 +832,23 @@ connection_thread_main (int fd)
  * support for connections. If this function is not called, the server
  * will only be able to handle http requests.
  *
- * The certificate file must either contain the key as well, or end with
- * "*.crt" or "*.cert" and have a corresponding "*.key" file.
+ * Loads all certificate/key pairs from the directory. Files ending in
+ * ".crt" or ".cert" are treated as certificates, with corresponding
+ * ".key" files for private keys.
  *
- * @certfile: Server TLS certificate file; cannot be %NULL
+ * @cert_dirfd: Directory fd containing certificate/key files
+ * @allow_unencrypted: Whether to allow plain HTTP connections
  * @request_mode: Whether to ask for client certificates
  */
 void
-connection_crypto_init (const char *certificate_filename,
-                        const char *key_filename,
+connection_crypto_init (int cert_dirfd,
                         bool allow_unencrypted,
                         gnutls_certificate_request_t request_mode)
 {
-  parameters.credentials = credentials_load (certificate_filename, key_filename);
+  parameters.credentials = credentials_load_directory (cert_dirfd);
+  if (parameters.credentials == NULL)
+    errx (EXIT_FAILURE, "Failed to load certificates from directory");
+
   parameters.request_mode = request_mode;
   /* If we aren't called, then require_https is false */
   parameters.require_https = !allow_unencrypted;

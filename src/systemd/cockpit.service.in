@@ -8,7 +8,7 @@ After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
 
 [Service]
 RuntimeDirectory=cockpit/tls
-ExecStartPre=+@libexecdir@/cockpit-certificate-ensure --for-cockpit-tls
+ExecStartPre=+@libexecdir@/cockpit-certificate-ensure
 ExecStart=@libexecdir@/cockpit-tls
 DynamicUser=yes
 # otherwise systemd uses 'cockpit' even if it exists as a normal user account

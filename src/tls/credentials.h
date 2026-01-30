@@ -19,19 +19,27 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #include <gnutls/gnutls.h>
 
-typedef struct _Certificate Certificate;
+typedef struct _Credentials Credentials;
 
-Certificate *
-certificate_ref (Certificate *self);
+Credentials *
+credentials_ref (Credentials *self);
 
 void
-certificate_unref (Certificate *self);
+credentials_unref (Credentials *self);
 
 gnutls_certificate_credentials_t
-certificate_get_credentials (Certificate *self);
+credentials_get (Credentials *self);
 
-Certificate *
-certificate_load (const char *certificate_filename,
+Credentials *
+credentials_load (const char *certificate_filename,
                   const char *key_filename);
+
+Credentials *
+credentials_new_empty (void);
+
+Credentials *
+credentials_load_directory (int dirfd);

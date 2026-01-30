@@ -51,6 +51,9 @@ export function show_unexpected_error(error) {
 }
 
 function show_breaking_change_dialog({ fail_text, anyway_text, action }) {
+    // Signal that a breaking change dialog is active for anaconda-webui
+    window.sessionStorage.setItem("cockpit_has_breaking_dialog", "true");
+
     const props = {
         titleIconVariant: "warning",
         id: "confirm-breaking-change-popup",
@@ -58,15 +61,30 @@ function show_breaking_change_dialog({ fail_text, anyway_text, action }) {
         body: <p>{fail_text}</p>
     };
 
+    // Wrap the action to clear the dialog state when clicked
+    const wrappedAction = function() {
+        window.sessionStorage.setItem("cockpit_has_breaking_dialog", "false");
+        if (action) {
+            action();
+        }
+    };
+
     const footer = {
         actions: [
             {
                 caption: anyway_text,
-                clicked: action,
+                clicked: wrappedAction,
                 style: "danger",
             }
         ],
-        cancel_button: { text: _("Keep connection"), variant: "secondary" }
+        cancel_button: {
+            text: _("Keep connection"),
+            variant: "secondary",
+            clicked: function() {
+                // Clear dialog state when cancelled
+                window.sessionStorage.setItem("cockpit_has_breaking_dialog", "false");
+            }
+        }
     };
 
     show_modal_dialog(props, footer);
@@ -1670,6 +1688,9 @@ export function with_checkpoint(model, modify, options) {
                     return;
                 }
 
+                // Signal that a checkpoint is active for anaconda-webui
+                window.sessionStorage.setItem("cockpit_has_checkpoint", "true");
+
                 show_curtain();
                 modify()
                         .then(function () {
@@ -1681,10 +1702,16 @@ export function with_checkpoint(model, modify, options) {
                                                 action: syn_click(model, modify)
                                             });
                                         })
-                                        .finally(hide_curtain);
+                                        .finally(function() {
+                                            // Clear checkpoint status when done
+                                            window.sessionStorage.setItem("cockpit_has_checkpoint", "false");
+                                            hide_curtain();
+                                        });
                             }, settle_time * 1000);
                         })
                         .catch(function () {
+                            // Clear checkpoint status on failure
+                            window.sessionStorage.setItem("cockpit_has_checkpoint", "false");
                             hide_curtain();
 
                             // HACK

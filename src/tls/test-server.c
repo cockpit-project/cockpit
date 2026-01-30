@@ -434,7 +434,20 @@ setup (TestCase *tc, gconstpointer data)
   server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, 0);
 
   if (fixture && fixture->certfile)
-    connection_crypto_init (fixture->certfile, fixture->keyfile, false, fixture->cert_request_mode);
+    {
+      /* Set up certs directory with 0.cert and 0.key */
+      g_autofree gchar *certs_dir = g_build_filename (tc->runtime_dir, "tls/server", NULL);
+      g_assert_cmpint (g_mkdir (certs_dir, 0700), ==, 0);
+      g_autofree gchar *cert_link = g_build_filename (certs_dir, "0.crt", NULL);
+      g_autofree gchar *key_link = g_build_filename (certs_dir, "0.key", NULL);
+      g_assert_cmpint (symlink (fixture->certfile, cert_link), ==, 0);
+      g_assert_cmpint (symlink (fixture->keyfile, key_link), ==, 0);
+
+      int cert_dirfd = open (certs_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+      g_assert_cmpint (cert_dirfd, >=, 0);
+      connection_crypto_init (cert_dirfd, false, fixture->cert_request_mode);
+      close (cert_dirfd);
+    }
 
   /* Figure out the socket address we ought to connect to */
   socklen_t addrlen = sizeof tc->server_addr;
@@ -480,6 +493,17 @@ teardown (TestCase *tc, gconstpointer data)
 
   g_assert_cmpint (g_rmdir (tc->clients_dir), ==, 0);
   g_free (tc->clients_dir);
+
+  /* Clean up certs.d if it exists */
+  g_autofree gchar *certs_dir = g_build_filename (tc->runtime_dir, "certs.d", NULL);
+  if (g_file_test (certs_dir, G_FILE_TEST_IS_DIR))
+    {
+      g_autofree gchar *cert_file = g_build_filename (certs_dir, "0.crt", NULL);
+      g_autofree gchar *key_file = g_build_filename (certs_dir, "0.key", NULL);
+      g_unlink (cert_file);
+      g_unlink (key_file);
+      g_assert_cmpint (g_rmdir (certs_dir), ==, 0);
+    }
 
   g_assert_cmpint (g_rmdir (tc->runtime_dir), ==, 0);
   g_free (tc->runtime_dir);

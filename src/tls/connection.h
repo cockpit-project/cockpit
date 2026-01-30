@@ -16,8 +16,7 @@ connection_set_directories (const char *wsinstance_sockdir,
                             const char *runtime_directory);
 
 void
-connection_crypto_init (const char *certificate_filename,
-                        const char *key_filename,
+connection_crypto_init (int cert_dirfd,
                         bool allow_unencrypted,
                         gnutls_certificate_request_t request_mode);
 

@@ -209,10 +209,10 @@ test_copy (Fixture *fixture,
   cockpit_assert_strmatch (stderr_str, tc->copy_stderr);
   g_assert_cmpint (g_subprocess_get_exit_status (helper), ==, tc->copy_exit);
 
-  g_autofree gchar *cert_source = areadlinkat (fixture->runtime_dir_fd, "server/cert.source");
+  g_autofree gchar *cert_source = areadlinkat (fixture->runtime_dir_fd, "server/0.crt.source");
   cockpit_assert_strmatch (cert_source, tc->cert_source);
 
-  g_autofree gchar *key_source = areadlinkat (fixture->runtime_dir_fd, "server/key.source");
+  g_autofree gchar *key_source = areadlinkat (fixture->runtime_dir_fd, "server/0.key.source");
   cockpit_assert_strmatch (key_source, tc->key_source);
 
   if (tc->copy_exit == EXIT_SUCCESS)
@@ -225,8 +225,8 @@ test_copy (Fixture *fixture,
       g_autoptr(GTlsCertificate) input = g_tls_certificate_new_from_pem (input_data->str, input_data->len, &error);
       g_assert_no_error (error);
 
-      g_autofree gchar *certfile = g_build_filename (fixture->runtime_dir, "server", "cert", NULL);
-      g_autofree gchar *keyfile = g_build_filename (fixture->runtime_dir, "server", "key", NULL);
+      g_autofree gchar *certfile = g_build_filename (fixture->runtime_dir, "server", "0.crt", NULL);
+      g_autofree gchar *keyfile = g_build_filename (fixture->runtime_dir, "server", "0.key", NULL);
       g_autoptr(GTlsCertificate) output = g_tls_certificate_new_from_files (certfile, keyfile, &error);
 #if !GLIB_CHECK_VERSION(2,58,0)
       /* Older GLib (RHEL 8) doesn't know how to find EC private keys */

@@ -7,7 +7,9 @@
 
 #include <argp.h>
 #include <err.h>
+#include <fcntl.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -96,26 +98,32 @@ main (int argc, char **argv)
 
   if (!arguments.no_tls)
     {
-      char *error = NULL;
-
-      if (error)
-        errx (EXIT_FAILURE, "Could not locate server certificate: %s", error);
+      static const char cert_dir[] = "/run/cockpit/tls/server";
 
       if (cockpit_conf_bool ("WebService", "ClientCertAuthentication", false))
         client_cert_mode = GNUTLS_CERT_REQUEST;
 
       bool allow_unencrypted = cockpit_conf_bool ("WebService", "AllowUnencrypted", false);
 
-      connection_crypto_init ("/run/cockpit/tls/server/cert",
-                              "/run/cockpit/tls/server/key",
-                              allow_unencrypted, client_cert_mode);
+      int cert_dirfd = open (cert_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+      if (cert_dirfd == -1)
+        err (EXIT_FAILURE, "open: %s", cert_dir);
 
-      /* There's absolutely no need to keep these around */
-      if (unlink ("/run/cockpit/tls/server/cert") != 0)
-        err (EXIT_FAILURE, "unlink: /run/cockpit/tls/server/cert");
+      connection_crypto_init (cert_dirfd, allow_unencrypted, client_cert_mode);
 
-      if (unlink ("/run/cockpit/tls/server/key") != 0)
-        err (EXIT_FAILURE, "unlink: /run/cockpit/tls/server/key");
+      /* Clean up certificate files after loading */
+      for (int i = 0; ; i++)
+        {
+          char cert_name[16], key_name[16];
+          snprintf (cert_name, sizeof cert_name, "%d.crt", i);
+          snprintf (key_name, sizeof key_name, "%d.key", i);
+
+          if (unlinkat (cert_dirfd, cert_name, 0) != 0)
+            break;
+          unlinkat (cert_dirfd, key_name, 0);
+        }
+
+      close (cert_dirfd);
     }
 
   server_run ();

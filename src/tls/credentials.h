@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #include <gnutls/gnutls.h>
 
 typedef struct _Credentials Credentials;
@@ -35,3 +37,9 @@ credentials_get (Credentials *self);
 Credentials *
 credentials_load (const char *certificate_filename,
                   const char *key_filename);
+
+Credentials *
+credentials_new_empty (void);
+
+Credentials *
+credentials_load_directory (int dirfd);

@@ -279,9 +279,25 @@ export class PackageKitManager implements PackageManager {
                 if (role !== PK.Enum.ROLE_UPDATE_PACKAGES)
                     return;
 
-                // data looks like:
-                // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
-                // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
+                /**
+                 * data looks like:
+                 * downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
+                 * updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
+                 * timeSpec will be one of:
+                 * 2026-01-29T12:57:49.112827-08
+                 * 2026-01-29T19:27:49.112827-01:30
+                 * 2026-01-29T20:57:49.112827Z
+                 * depending on timezone and PackageKit version
+                 * Neither Firefox's nor Chromium's parsers handle the short offset
+                 * format (first one) as of 2026-01:
+                 * https://bugzilla.mozilla.org/show_bug.cgi?id=2013444
+                 * https://issues.chromium.org/issues/479862357
+                 * so we hack around it by adding the :00
+                 */
+                const shortoff_regex = /[-+]\d\d$/;
+                if (shortoff_regex.exec(timeSpec)) {
+                    timeSpec += ":00";
+                }
                 const timestamp = Date.parse(timeSpec);
                 if (isNaN(timestamp)) {
                     console.debug(`Transaction has an invalid timespec=${timeSpec}`);

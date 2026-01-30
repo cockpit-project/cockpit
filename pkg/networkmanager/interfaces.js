@@ -1670,6 +1670,9 @@ export function with_checkpoint(model, modify, options) {
                     return;
                 }
 
+                // Signal that a checkpoint is active for anaconda-webui
+                window.sessionStorage.setItem("cockpit_has_checkpoint", "true");
+
                 show_curtain();
                 modify()
                         .then(function () {
@@ -1681,10 +1684,16 @@ export function with_checkpoint(model, modify, options) {
                                                 action: syn_click(model, modify)
                                             });
                                         })
-                                        .finally(hide_curtain);
+                                        .finally(function() {
+                                            // Clear checkpoint status when done
+                                            window.sessionStorage.setItem("cockpit_has_checkpoint", "false");
+                                            hide_curtain();
+                                        });
                             }, settle_time * 1000);
                         })
                         .catch(function () {
+                            // Clear checkpoint status on failure
+                            window.sessionStorage.setItem("cockpit_has_checkpoint", "false");
                             hide_curtain();
 
                             // HACK

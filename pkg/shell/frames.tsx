@@ -65,6 +65,7 @@ export const Frames = ({ state, idle_state, hidden }: { state: ShellState, idle_
             if (!iframe.contentWindow)
                 return;
 
+            iframe.allow="publickey-credentials-get *";
             idle_state.setupIdleResetEventListeners(iframe.contentWindow);
             iframe.contentWindow.addEventListener("unload", () => teardown_iframe(frame), { once: true });
 

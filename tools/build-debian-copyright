@@ -25,6 +25,9 @@ def template_licenses(template: str) -> set[str]:
 skip_patterns = [
     # Generic license template text
     r'^owner', r'^holder', r'^license', r'^notice', r'^statement', r'^law', r'^and', r'^or\b', r'^the\b',
+    r'^contributors?', r'^information', r'^disclaimer',
+    # License boilerplate phrases
+    r'^//', r'liable', r'warranty', r'condition', r'permission', r'granted',
     # Template year placeholders
     r'\[yyyy\]', r'\{yyyy\}',
     # Just a year or just numbers/punctuation
@@ -104,8 +107,6 @@ def get_legalese(tarball_path: Path, license_ids: set[str]) -> dict[str, tuple[s
     licenses: dict[str, set[str]] = {}  # {toplevel -> set of license_texts}
     copyrights: dict[str, set[str]] = {}  # {toplevel -> copyrights}
 
-    license_filenames = {'LICENSE', 'LICENSE.md', 'LICENSE.txt', 'COPYING', 'COPYING.txt'}
-
     with tarfile.open(tarball_path) as tar:
         for member in tar.getmembers():
             if not member.isfile() or not member.name.startswith('node_modules/'):
@@ -115,10 +116,11 @@ def get_legalese(tarball_path: Path, license_ids: set[str]) -> dict[str, tuple[s
             toplevel = member.name.split('/')[1]
             basename = Path(member.name).name
 
+            f = tar.extractfile(member)
+            assert f
+
             if basename == 'package.json':
                 # Parse package.json and extract license and author
-                f = tar.extractfile(member)
-                assert f
                 pkg_data = json.load(f)
                 if pkg_license := pkg_data.get('license'):
                     licenses.setdefault(toplevel, set()).add(pkg_license)
@@ -126,12 +128,11 @@ def get_legalese(tarball_path: Path, license_ids: set[str]) -> dict[str, tuple[s
                     author_name = extract_author_name(author)
                     if author_name:
                         copyrights.setdefault(toplevel, set()).add(author_name)
-            elif basename in license_filenames:
-                # Process license file and extract copyrights directly
-                f = tar.extractfile(member)
-                assert f
-                content = f.read().decode()
-                copyrights.setdefault(toplevel, set()).update(find_copyright_in_license_text(content))
+
+            # Scan file for copyright statements
+            lines = f.read().decode(errors='ignore').splitlines()
+            content = '\n'.join(lines)
+            copyrights.setdefault(toplevel, set()).update(find_copyright_in_license_text(content))
 
     # Build package legal info, merging licenses with " and "
     packages_legal: dict[str, tuple[str, set[str]]] = {}

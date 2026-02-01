@@ -8,6 +8,7 @@ import json
 import re
 import sys
 import tarfile
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -102,48 +103,41 @@ def extract_author_name(author: str | dict[str, Any]) -> str:
 def get_legalese(tarball_path: Path, license_ids: set[str]) -> dict[str, tuple[str, set[str]]]:
     """Extract licenses and copyrights from node_modules tarball.
 
-    Returns: {toplevel -> (license, copyrights)}
+    Returns: {package_path -> (license, copyrights)}
     """
-    licenses: dict[str, set[str]] = {}  # {toplevel -> set of license_texts}
-    copyrights: dict[str, set[str]] = {}  # {toplevel -> copyrights}
+    # Map package_path to license (from package.json)
+    package_licenses: dict[str, str] = {}
+    # Map package_path to copyrights
+    copyrights: dict[str, set[str]] = {}
 
     with tarfile.open(tarball_path) as tar:
         for member in tar.getmembers():
             if not member.isfile() or not member.name.startswith('node_modules/'):
                 continue
 
-            # toplevel package name (second component after node_modules/ prefix)
-            toplevel = member.name.split('/')[1]
-            basename = Path(member.name).name
-
             f = tar.extractfile(member)
             assert f
 
-            if basename == 'package.json':
-                # Parse package.json and extract license and author
+            if Path(member.name).name == 'package.json':
                 pkg_data = json.load(f)
                 if pkg_license := pkg_data.get('license'):
-                    licenses.setdefault(toplevel, set()).add(pkg_license)
-                if author := pkg_data.get('author'):
-                    author_name = extract_author_name(author)
-                    if author_name:
-                        copyrights.setdefault(toplevel, set()).add(author_name)
+                    package_path = str(Path(member.name).parent.relative_to('node_modules'))
+                    package_licenses[package_path] = pkg_license
+                    if author := pkg_data.get('author'):
+                        if author_name := extract_author_name(author):
+                            copyrights.setdefault(package_path, set()).add(author_name)
 
-            # Scan file for copyright statements
-            lines = f.read().decode(errors='ignore').splitlines()
-            content = '\n'.join(lines)
-            copyrights.setdefault(toplevel, set()).update(find_copyright_in_license_text(content))
+            # Scan all files for copyright statements (associate with top-level package)
+            if copyright_statements := find_copyright_in_license_text(f.read().decode(errors='ignore')):
+                toplevel = member.name.split('/')[1]
+                copyrights.setdefault(toplevel, set()).update(copyright_statements)
 
-    # Build package legal info, merging licenses with " and "
-    packages_legal: dict[str, tuple[str, set[str]]] = {}
-    for toplevel in licenses:
-        # Normalize and merge licenses
-        normalized = sorted({normalize_spdx_license(lic, license_ids) for lic in licenses[toplevel]})
-        license_text = ' and '.join(normalized)
-        # Last-resort fallback if no copyright found
-        packages_legal[toplevel] = (license_text, copyrights.get(toplevel, {f"Authors of {toplevel}"}))
-
-    return packages_legal
+    # Build package legal info
+    return {
+        path: (normalize_spdx_license(lic, license_ids),
+               copyrights.get(path) or copyrights.get(path.split('/')[0], {f"Authors of {path}"}))
+        for path, lic in package_licenses.items()
+    }
 
 
 #
@@ -160,12 +154,35 @@ template = template_file.read_text()
 license_ids = template_licenses(template)
 packages_legal = get_legalese(node_cache_path, license_ids)
 
-# Generate paragraphs
+# Merge siblings with the same license into their parent
+by_parent = defaultdict(list)
+for path in list(packages_legal.keys()):
+    if parent := '/'.join(path.split('/')[:-1]):
+        by_parent[parent].append(path)
+
+for parent, children in by_parent.items():
+    if len(children) > 1 and len(licenses := {packages_legal[c][0] for c in children}) == 1:
+        copyrights = set().union(*(packages_legal[c][1] for c in children))
+        for child in children:
+            del packages_legal[child]
+        packages_legal[parent] = (licenses.pop(), copyrights)
+
+# Generate paragraphs, skipping entries covered by a parent with the same license
 paragraphs: list[str] = []
-for toplevel in sorted(packages_legal.keys()):
-    license_text, copyrights = packages_legal[toplevel]
-    copyright_text = '\n '.join(sorted(copyrights))
-    paragraphs.append(f"Files: node/{toplevel}/*\nCopyright: {copyright_text}\nLicense: {license_text}")
+for package_path in sorted(packages_legal.keys()):
+    license_text, copyrights = packages_legal[package_path]
+
+    # Check if any parent path has the same license (if so, skip - already covered)
+    covered_by_parent = any(
+        parent_path != package_path
+        and package_path.startswith(parent_path + '/')
+        and packages_legal[parent_path][0] == license_text
+        for parent_path in packages_legal
+    )
+
+    if not covered_by_parent:
+        copyright_text = '\n '.join(sorted(copyrights))
+        paragraphs.append(f"Files: node/{package_path}/*\nCopyright: {copyright_text}\nLicense: {license_text}")
 
 # Assemble copyright file
 npm_content = '\n\n'.join(paragraphs)

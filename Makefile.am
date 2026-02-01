@@ -24,7 +24,7 @@ $(srcdir)/package-lock.json: FORCE
 # -----------------------------------------------------------------------------
 #  make dist
 
-EXTRA_DIST = README.md
+EXTRA_DIST = README.md LICENSES/BSD-3-Clause.txt LICENSES/GPL-3.0.txt LICENSES/LGPL-2.1.txt LICENSES/MIT.txt
 CLEANFILES += cockpit-*.tar.xz
 
 # We override distdir as we want to dist some git-tracked files and dist/ without explicitly listing.

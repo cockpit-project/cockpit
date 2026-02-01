@@ -1,5 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: cockpit
+Upstream-Contact: https://github.com/cockpit-project/cockpit/wiki/Contributing
 Source: https://github.com/cockpit-project/cockpit
 Comment:
  This does not directly cover the files in dist/*. These are "minified" and
@@ -9,13 +10,29 @@ Comment:
  documented below (node_modules/* is auto-generated).
 
 Files: *
-Copyright: 2013-2016  Red Hat, Inc.
+Copyright: 2013-2026  Red Hat, Inc.
 License: LGPL-2.1-or-later
+
+Files: debian/*
+Copyright: 2013-2026  Red Hat, Inc.
+License: LGPL-2.1-or-later
+
+Files: pkg/lib/cockpit-components-checkbox-select.tsx
+ pkg/lib/cockpit-components-multi-typeahead-select.tsx
+ pkg/lib/cockpit-components-typeahead-select.tsx
+ pkg/lib/cockpit-components-simple-select.tsx
+Comment: modified copies from PatternFly react-templates
+Copyright: (c) 2019 Red Hat, Inc.
+License: MIT
 
 Files: src/common/cockpitbase64.*
 Copyright: Copyright (c) 1996, 1998 by Internet Software Consortium
  Portions Copyright (c) 1995 by International Business Machines, Inc.
 License: MIT-IBM-immunity
+
+Files: test/common/pixeldiff.html
+Copyright: (c) 2018 Diamant Haxhimusa
+License: MIT
 
 Files: tools/install-sh
 Copyright: Copyright (C) 1994 X Consortium

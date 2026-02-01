@@ -217,7 +217,7 @@ mkdir -p $RPM_BUILD_ROOT%{pamconfdir}
 install -p -m 644 %{pamconfig} $RPM_BUILD_ROOT%{pamconfdir}/cockpit
 
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
-install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
+install -D -p -m 644 AUTHORS README.md %{buildroot}%{_docdir}/cockpit/
 
 # We install the upstream pre-built docs as we can't build them
 %if %{defined bundle_docs}
@@ -318,7 +318,6 @@ troubleshooting, interactive command-line sessions, and more.
 %files
 %license COPYING
 %{_docdir}/cockpit/AUTHORS
-%{_docdir}/cockpit/COPYING
 %{_docdir}/cockpit/README.md
 %{_datadir}/metainfo/org.cockpit_project.cockpit.appdata.xml
 %{_datadir}/icons/hicolor/128x128/apps/cockpit.png
@@ -352,7 +351,6 @@ embed or extend Cockpit.
 %files doc
 %license COPYING
 %exclude %{_docdir}/cockpit/AUTHORS
-%exclude %{_docdir}/cockpit/COPYING
 %exclude %{_docdir}/cockpit/README.md
 %{_docdir}/cockpit
 

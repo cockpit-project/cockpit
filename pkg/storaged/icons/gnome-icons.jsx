@@ -1,5 +1,7 @@
 /* Icons from the GNOME project, https://www.gnome.org
 
+   SPDX-License-Identifier: LGPL-3.0-or-later OR CC-BY-SA-3.0
+
    This work is licenced under the terms of either the GNU LGPL v3 or
    Creative Commons Attribution-Share Alike 3.0 United States License.
 

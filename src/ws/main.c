@@ -69,7 +69,7 @@ print_version (void)
 {
   g_print ("Version: %s\n", PACKAGE_VERSION);
   g_print ("Protocol: 1\n");
-  g_print ("Authorization: crypt1\n");
+  g_print ("Authorization: basic\n");
 }
 
 static gchar **

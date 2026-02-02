@@ -30,8 +30,6 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitchannelresponse.h \
 	src/ws/cockpitchannelsocket.c \
 	src/ws/cockpitchannelsocket.h \
-	src/ws/cockpitcompat.c \
-	src/ws/cockpitcompat.h \
 	src/ws/cockpitcontrolmessages.c \
 	src/ws/cockpitcontrolmessages.h \
 	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
@@ -231,11 +229,6 @@ TEST_PROGRAM += test-auth
 test_auth_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
 test_auth_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
 test_auth_SOURCES = src/ws/test-auth.c
-
-TEST_PROGRAM += test-compat
-test_compat_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
-test_compat_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
-test_compat_SOURCES = src/ws/test-compat.c
 
 TEST_PROGRAM += test-creds
 test_creds_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)

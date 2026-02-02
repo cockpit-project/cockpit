@@ -981,8 +981,8 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         testlib.wait(lambda: re.search(r'.*Invalid TLS peer certificate.* expired',
                      m.execute(f"journalctl -ocat --cursor '{journal_cursor}' SYSLOG_IDENTIFIER=cockpit-tls")),
                      tries=10)
-        self.allow_journal_messages('.*Invalid TLS peer certificate.* expired')
-        self.allow_journal_messages('.*TLS handshake failed: Error in the certificate verification.*')
+        self.allow_journal_messages('.*Invalid TLS peer certificate.* expired.*')
+        self.allow_journal_messages('.*handshake failed: Error in the certificate verification.*')
 
         # disallow password auth
         m.write("/etc/cockpit/cockpit.conf", "[Basic]\naction = none\n", append=True)

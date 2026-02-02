@@ -243,6 +243,7 @@ class TestConnection(testlib.MachineCase):
         expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"])
         self.assertRaises(subprocess.CalledProcessError, m.execute,
                           "curl --silent https://127.0.0.1:9090")
+        self.allow_journal_messages("cockpit-tls: got TLS connection, but our server does not have a certificate/key.*")
         # c-tls knows it can't do https, and not activate that instance
         expect_actives(ws_socket=True, instance_sockets=True, http_instances=["http"])
 
@@ -1505,6 +1506,8 @@ ProtocolHeader = X-Forwarded-Proto
         # these tests are running the cockpit-ws binary directly, not via cockpit.socket
         m.execute("systemctl start cockpit-session.socket")
         self.allow_journal_messages("audit.*bool=httpd_can_network_connect.*val=1.*")
+        # tests don't patiently wait for sessions to shut down properly
+        self.allow_restart_journal_messages()
 
     def callProxyCurl(self, path, *args):
         # should use nginx' certificate, not cockpit's; use --resolve so that SNI matches the certificate's CN

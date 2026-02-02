@@ -284,7 +284,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.enable_preload("packagekit", "index")
 
         # Refresh cache so cockpit does not try to reload page
-        m.execute("pkcon refresh")
+        self.refreshMetadata()
 
         self.login_and_go("/system")
         # status on /system front page: no repos at all, thus no updates
@@ -1716,10 +1716,8 @@ class TestAutoUpdates(NoSubManCase):
     @testlib.skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch")
     def testPrivilegeChange(self):
         b = self.browser
-        m = self.machine
 
-        m.execute("pkcon refresh")
-
+        self.refreshMetadata()
         self.login_and_go("/updates", superuser=False)
         b.wait_in_text("#status", "System is up to date")
 

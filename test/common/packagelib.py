@@ -473,7 +473,8 @@ Server = file://{self.repo_dir}
             if 'testrepo' not in self.machine.execute('grep testrepo /etc/pacman.conf || true'):
                 self.machine.write("/etc/pacman.conf", config, append=True)
                 # packagekit does not detect new repositories without a restart and refresh
-                self.machine.execute("systemctl restart packagekit; pkcon refresh force")
+                self.machine.execute("systemctl restart packagekit")
+                self.refreshMetadata(force=True)
 
         else:
             self.machine.execute(f"""printf '[updates]\nname=cockpittest\nbaseurl=file://{self.repo_dir}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
@@ -483,7 +484,10 @@ Server = file://{self.repo_dir}
                                      dnf clean all""")
 
         if refresh_repo:
-            self.machine.execute("pkcon refresh")
+            self.refreshMetadata()
+
+    def refreshMetadata(self, *, force: bool = False) -> None:
+        self.machine.execute(f"pkcon refresh {'force' if force else ''}")
 
     def removePackages(self, packages: list[str]) -> None:
         packages_str = ' '.join(packages)

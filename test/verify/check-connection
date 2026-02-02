@@ -582,6 +582,10 @@ class TestConnection(testlib.MachineCase):
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://172.27.0.15:9090"))
 
+        # FIXME: this message makes absolutely no sense in this test, and is not reproducible locally
+        # but it keeps happening in CI
+        self.allow_journal_messages("Received unexpected TLS connection; use cockpit-tls for TLS termination")
+
     @testlib.nondestructive
     def testConfigOrigins(self):
         m = self.machine

@@ -598,6 +598,35 @@ class TestConnection(testlib.MachineCase):
         self.allow_journal_messages("Received unexpected TLS connection; use cockpit-tls for TLS termination")
 
     @testlib.nondestructive
+    @testlib.skipWsContainer("ws container doesn't have certs on the host")
+    @testlib.skipImage("no PQC support", "arch", "debian*", "ubuntu*", "fedora-42", "rhel-9*", "centos-9*")
+    def testPQC(self):
+        m = self.machine
+
+        # note: deploying this is NOT RECOMMENDED! Production systems should use a hybrid PQC + EC certificate,
+        # but that is not specified/supported yet as of Jan 2026.
+        # See https://issues.redhat.com/browse/RHELMISC-11973
+        m.execute("sscg --key-type=mldsa --cert-key-file /etc/cockpit/ws-certs.d/mldsa.key "
+                  "--cert-file /etc/cockpit/ws-certs.d/mldsa.crt "
+                  "--ca-file /etc/cockpit/ws-certs.d/mldsa-ca.crt "
+                  "--subject-alt-name localhost "
+                  "--subject-alt-name IP:172.27.0.15 "
+                  "--subject-alt-name IP:127.0.0.2")
+
+        m.start_cockpit(tls=True)
+
+        # Check PQC signature and KEX with curl, can't do that with browser (no API)
+        output = m.execute('openssl s_client -CAfile /etc/cockpit/ws-certs.d/mldsa-ca.crt -connect 172.27.0.15:9090 2>&1')
+        self.assertIn("DONE", output)
+        self.assertIn("Peer signature type: mldsa44", output)
+        self.assertIn("Negotiated TLS1.3 group: X25519MLKEM", output)
+
+        # TODO: this does not currently work with Firefox/Chromium, they don't accept MLKEM certificates
+        # see discussion in https://issues.redhat.com/browse/RHELMISC-11973
+        self.assertRaises(testlib.Error, self.login_and_go, "/system", tls=True)
+        self.allow_journal_messages(".*gnutls_handshake failed: No supported cipher suites.*")
+
+    @testlib.nondestructive
     def testConfigOrigins(self):
         m = self.machine
 

@@ -593,6 +593,9 @@ class TestStorageStratisReboot(storagelib.StorageCase):
             exe("systemctl enable --now stratisd")
             self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
 
+        # these tests reboot
+        self.allow_restart_journal_messages()
+
     def testEncrypted(self, legacy=False):
         m = self.machine
         b = self.browser

@@ -2218,6 +2218,9 @@ class MachineCase(unittest.TestCase):
     def allow_restart_journal_messages(self) -> None:
         self.allow_journal_messages(".*Connection reset by peer.*",
                                     "connection unexpectedly closed by peer",
+                                    ".*gnutls_handshake failed.*",
+                                    # stopping the unit while requests are pending removes the .sock files
+                                    "cockpit-tls: .* No such file or directory",
                                     ".*Broken pipe.*",
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
                                     "cockpit-session: .*timed out.*",
@@ -2261,6 +2264,7 @@ class MachineCase(unittest.TestCase):
 
         matches = [
             "SYSLOG_IDENTIFIER=cockpit-ws",
+            "SYSLOG_IDENTIFIER=cockpit-tls",
             "SYSLOG_IDENTIFIER=cockpit-bridge",
             "SYSLOG_IDENTIFIER=cockpit/ssh",
             # also catch GLIB_DOMAIN=<library> which apply to cockpit-ws (but not to -bridge, too much random noise)

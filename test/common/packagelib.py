@@ -21,6 +21,9 @@ class PackageCase(MachineCase):
             logging.warning("PackageCase: OSTree images can't install additional packages")
             return
 
+        # PackageKit 1.3.4 no longer installs pkcon by default
+        self.packagekit_cmd = self.machine.execute("command -v pkcon pkgcli").strip().split()[0]
+
         # expected backend; hardcode this on image names to check the auto-detection
         if self.machine.image.startswith("debian") or self.machine.image.startswith("ubuntu"):
             self.backend = "apt"
@@ -487,7 +490,7 @@ Server = file://{self.repo_dir}
             self.refreshMetadata()
 
     def refreshMetadata(self, *, force: bool = False) -> None:
-        self.machine.execute(f"pkcon refresh {'force' if force else ''}")
+        self.machine.execute(f"{self.packagekit_cmd} refresh {'force' if force else ''}")
 
     def removePackages(self, packages: list[str]) -> None:
         packages_str = ' '.join(packages)

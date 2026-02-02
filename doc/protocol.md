@@ -344,7 +344,7 @@ Example authorize challenge and response messages:
 {
     "command": "authorize",
     "cookie": "555",
-    "challenge": "crypt1:74657374:$6$2rcph,noe92ot..."
+    "challenge": "Basic c2NydWZmeTp6ZXJvZw=="
 }
 ```
 
@@ -352,7 +352,7 @@ Example authorize challenge and response messages:
 {
     "command": "authorize",
     "cookie": "555",
-    "response": "crypt1:$6$r0oetn2039ntoen..."
+    "challenge": "Basic c2NydWZmeTp6ZXJvZw=="
 }
 ```
 

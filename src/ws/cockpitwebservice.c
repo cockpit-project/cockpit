@@ -21,7 +21,6 @@
 
 #include "cockpitwebservice.h"
 
-#include "cockpitcompat.h"
 #include "cockpitws.h"
 
 #include <string.h>
@@ -535,7 +534,6 @@ process_transport_authorize (CockpitWebService *self,
       g_message ("received invalid authorize challenge command");
     }
   else if (g_str_equal (type, "plain1") ||
-           g_str_equal (type, "crypt1") ||
            g_str_equal (type, "basic"))
     {
       data = cockpit_creds_get_password (self->creds);
@@ -550,15 +548,7 @@ process_transport_authorize (CockpitWebService *self,
       else
         {
           password = g_bytes_get_data (data, NULL);
-          if (g_str_equal (type, "crypt1"))
-            {
-              alloc = cockpit_compat_reply_crypt1 (challenge, password);
-              if (alloc)
-                response = alloc;
-              else
-                g_message ("failed to \"authorize\" crypt1 \"challenge\"");
-            }
-          else if (g_str_equal (type, "basic"))
+          if (g_str_equal (type, "basic"))
             {
               alloc = cockpit_authorize_build_basic (cockpit_creds_get_user (self->creds), password);
               response = alloc;

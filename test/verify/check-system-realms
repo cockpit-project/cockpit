@@ -1194,9 +1194,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # case 3: provide an available realmd package
         self.createPackage("realmd", "1", "1", content={"/realmd-stub": ""})
-        self.enableRepo()
-        if self.backend != 'dnf5':
-            m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=self.backend != "dnf5")
 
         self.login_and_go("/system")
 

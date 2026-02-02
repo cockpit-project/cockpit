@@ -63,8 +63,7 @@ class TestApps(packagelib.PackageCase):
 </components>
             """,
             f"/usr/share/{subdir.split('/')[0]}/icons/test/64x64/test.png": {"path": "/var/tmp/test.png"}})
-        self.enableRepo()
-        self.machine.execute("pkcon refresh force")
+        self.enableRepo(refresh_repo=True)
         # ignore the corresponding journal entry
         self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
 

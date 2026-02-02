@@ -447,7 +447,7 @@ post_upgrade() {{
     def addPackageSet(self, name: str) -> None:
         self.machine.execute(f"mkdir -p {self.repo_dir}; cp /var/lib/package-sets/{name}/* {self.repo_dir}")
 
-    def enableRepo(self) -> None:
+    def enableRepo(self, *, refresh_repo: bool = False) -> None:
         if self.backend == "apt":
             self.createAptChangelogs()
             self.machine.execute(f"""echo 'deb [trusted=yes] file://{self.repo_dir} /' > /etc/apt/sources.list.d/test.list
@@ -481,6 +481,9 @@ Server = file://{self.repo_dir}
                                      createrepo_c {self.repo_dir}
                                      modifyrepo_c /tmp/updateinfo.xml {self.repo_dir}/repodata
                                      dnf clean all""")
+
+        if refresh_repo:
+            self.machine.execute("pkcon refresh")
 
     def removePackages(self, packages: list[str]) -> None:
         packages_str = ' '.join(packages)

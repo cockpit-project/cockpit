@@ -812,8 +812,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.createPackage("sevcritical", "5", "2", cves=["CVE-2014-54321"], securitySeverity="critical",
                            errata=["RHSA-2000:0001", "RHSA-2000:0002"], changes="More broken stuff")
 
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=True)
 
         self.login_and_go("/updates")
         with b.wait_timeout(30):
@@ -978,15 +977,13 @@ ExecStart=/usr/local/bin/{packageName}
     @testlib.nondestructive
     def testSecurityOnly(self):
         b = self.browser
-        m = self.machine
 
         # security fix with proper CVE list and severity
         self.createPackage("secdeclare", "3", "4.a1", install=True)
         self.createPackage("secdeclare", "3", "4.b1", severity="security",
                            changes="Will crash your data center", cves=['CVE-2014-123456'])
 
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=True)
 
         self.login_and_go("/updates")
         with b.wait_timeout(30):
@@ -1088,8 +1085,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.createPackage("vanilla", "1.0", "1", install=True)
         self.createPackage("vanilla", "1.0", "2",
                            postinst=f"while [ ! -e {install_lockfile} ]; do sleep 1; done; rm -f {install_lockfile}")
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=True)
 
         self.login_and_go("/updates")
         with b.wait_timeout(30):
@@ -1120,8 +1116,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.createPackage("vapor", "1", "1", install=True)
         self.createPackage("vapor", "1", "2")
 
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=True)
 
         # break the upgrade by removing the generated packages from the repo
         m.execute(f"rm -f {self.repo_dir}/vapor*.deb {self.repo_dir}/vapor*.rpm {self.repo_dir}/vapor*.pkg*")
@@ -1161,8 +1156,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.createPackage("slow", "1", "1", install=True)
         # we don't want this installation to finish
         self.createPackage("slow", "1", "2", postinst="sleep infinity")
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=True)
 
         self.login_and_go("/updates")
 
@@ -1211,12 +1205,10 @@ ExecStart=/usr/local/bin/{packageName}
     @testlib.nondestructive
     def testUnprivileged(self):
         b = self.browser
-        m = self.machine
 
         self.createPackage("vanilla", "1.0", "1", install=True)
         self.createPackage("vanilla", "2.0", "2")
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=True)
 
         # getting update info is allowed to all users
         self.login_and_go("/updates", superuser=False)
@@ -1265,8 +1257,7 @@ class TestWsUpdate(NoSubManCase):
         self.createPackage(
             "slow", "1", "2",
             postinst=f"while [ ! -e {install_lockfile} ]; do sleep 1; done; rm -f {install_lockfile}")
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=True)
 
         self.login_and_go("/updates")
 
@@ -1449,13 +1440,11 @@ class TestUpdatesSubscriptions(packagelib.PackageCase, submanlib.SubscriptionCas
         self.assertEqual(b.attr(self.update_icon + " svg", "data-pficon"), "bug")
 
     def testNoSubOsRepo(self):
-        m = self.machine
         b = self.browser
 
         # pretend we have a proper OS repo that does not require subscription
         self.createPackage("coreutils", "999", "1")
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        self.enableRepo(refresh_repo=True)
 
         self.login_and_go("/system")
         with b.wait_timeout(30):
@@ -1866,7 +1855,6 @@ class TestInstallDialog(NoSubManCase):
 
     def testBasic(self):
         b = self.browser
-        m = self.machine
 
         # dummy package
         self.createPackage("dummy", "1", "1")
@@ -1890,9 +1878,7 @@ class TestInstallDialog(NoSubManCase):
 
         # Install dummy which is now available
         # Also works around https://github.com/PackageKit/PackageKit/issues/893
-        self.enableRepo()
-        if self.backend != "dnf5":
-            m.execute("pkcon refresh force")
+        self.enableRepo(refresh_repo=self.backend != "dnf5")
 
         self.show_install_dialog("dummy")
         b.wait_in_text("#dialog", "dummy will be installed.")

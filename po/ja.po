@@ -12,17 +12,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-21 21:40+0000\n"
-"PO-Revision-Date: 2025-02-28 05:37+0000\n"
-"Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
+"POT-Creation-Date: 2026-02-02 07:26+0000\n"
+"PO-Revision-Date: 2026-02-03 08:58+0000\n"
+"Last-Translator: Kohei Takahashi <flast@flast.jp>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
-"cockpit/main/ja/>\n"
+"cockpit/cockpit/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 5.10\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #: pkg/users/accounts-list.js:250
 msgid "# of users"
@@ -81,11 +81,9 @@ msgid_plural "$0 days"
 msgstr[0] "$0 日"
 
 #: pkg/systemd/overview-cards/smart-status.jsx:94
-#, fuzzy
-#| msgid "Disk is failing"
 msgid "$0 disk is failing"
 msgid_plural "$0 disks are failing"
-msgstr[0] "ディスクで障害が発生中"
+msgstr[0] "ディスク $0 で障害が発生中"
 
 #: pkg/storaged/mdraid/mdraid.jsx:274 pkg/playground/translate.js:26
 #: pkg/playground/translate.js:29
@@ -107,7 +105,7 @@ msgstr "$0 ディスク"
 msgid "$0 documentation"
 msgstr "$0 ドキュメント"
 
-#: pkg/systemd/terminal.jsx:167
+#: pkg/systemd/terminal.jsx:173
 msgid "$0 does not exist"
 msgstr "$0 が存在しません"
 
@@ -175,7 +173,7 @@ msgstr "$0 は既存のファイルです"
 msgid "$0 is in use"
 msgstr "$0 は使用されています"
 
-#: pkg/systemd/terminal.jsx:163
+#: pkg/systemd/terminal.jsx:169
 msgid "$0 is not a directory"
 msgstr "$0 はディレクトリーではありません"
 
@@ -222,7 +220,7 @@ msgid "$0 package"
 msgid_plural "$0 packages"
 msgstr[0] "$0 パッケージ"
 
-#: pkg/packagekit/updates.jsx:689 pkg/packagekit/updates.jsx:803
+#: pkg/packagekit/updates.jsx:690 pkg/packagekit/updates.jsx:804
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 パッケージにはシステムの再起動が必要です"
@@ -236,7 +234,7 @@ msgstr[0] "$0 ページ"
 msgid "$0 partitions"
 msgstr "$0 パーティション"
 
-#: pkg/packagekit/updates.jsx:775
+#: pkg/packagekit/updates.jsx:776
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "$0 セキュリティー修正が利用可能"
@@ -246,7 +244,7 @@ msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "失敗したサービスの数 ($0)"
 
-#: pkg/packagekit/updates.jsx:706 pkg/packagekit/updates.jsx:815
+#: pkg/packagekit/updates.jsx:707 pkg/packagekit/updates.jsx:816
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 サービスを再起動する必要があります"
@@ -270,7 +268,7 @@ msgstr "$0 同期済み"
 msgid "$0 total"
 msgstr "$0 合計"
 
-#: pkg/packagekit/updates.jsx:783
+#: pkg/packagekit/updates.jsx:784
 msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 更新を利用できます"
@@ -322,7 +320,7 @@ msgstr "(マウントされていません)"
 msgid "(recommended)"
 msgstr "(推奨)"
 
-#: pkg/packagekit/updates.jsx:785
+#: pkg/packagekit/updates.jsx:786
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] "セキュリティー修正を $1 個含む"
@@ -583,7 +581,7 @@ msgstr ""
 "$0 で新しい SSH キーが $2 の $1 用に作成され、$5 上の $3 の $3 ファイルに追加"
 "されました。"
 
-#: pkg/packagekit/updates.jsx:1520
+#: pkg/packagekit/updates.jsx:1496
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
@@ -594,7 +592,7 @@ msgstr[0] ""
 msgid "A pool with this name exists already."
 msgstr "この名前を持つプールはすでに存在します。"
 
-#: pkg/packagekit/updates.jsx:1524
+#: pkg/packagekit/updates.jsx:1500
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
@@ -896,14 +894,8 @@ msgstr ""
 "$0 を追加すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
 
 #: pkg/storaged/stratis/pool.jsx:951
-#, fuzzy
-#| msgid ""
-#| "Adding a keyserver requires unlocking the pool. Please provide the "
-#| "existing pool passphrase."
 msgid "Adding a keyserver requires unlocking the pool."
-msgstr ""
-"キーサーバーを追加するには、プールのロック解除が必要です。既存のプールパスフ"
-"レーズを提供してください。"
+msgstr "キーサーバーを追加するには、プールのロック解除が必要です。"
 
 #: pkg/storaged/stratis/pool.jsx:874
 #, fuzzy
@@ -1055,7 +1047,7 @@ msgstr "選択したレイアウトには、選択した $0 の物理ボリュ�
 msgid "All media is in read-only mode"
 msgstr "デバイスは読み取り専用です"
 
-#: pkg/packagekit/autoupdates.jsx:405
+#: pkg/packagekit/autoupdates.jsx:408
 msgid "All updates"
 msgstr "すべてのアップデート"
 
@@ -1107,7 +1099,7 @@ msgstr ""
 "ルタリングもサポートできます。これらは、FIELD=VALUE の形式でスペースで区切っ"
 "た値は、使用できる値のカンマ区切りのリストになります。"
 
-#: pkg/systemd/terminal.jsx:256
+#: pkg/systemd/terminal.jsx:262
 msgid "Appearance"
 msgstr "外観"
 
@@ -1144,11 +1136,11 @@ msgstr "新しいポリシーを適用しています... これには数分か�
 msgid "Applying solution..."
 msgstr "ソリューションの適用中 ..."
 
-#: pkg/packagekit/updates.jsx:105
+#: pkg/packagekit/updates.jsx:106
 msgid "Applying updates"
 msgstr "アップデートの適用中"
 
-#: pkg/packagekit/updates.jsx:106
+#: pkg/packagekit/updates.jsx:107
 msgid "Applying updates failed"
 msgstr "アップデートの適用に失敗しました"
 
@@ -1280,7 +1272,7 @@ msgstr "自動 (DHCP のみ)"
 msgid "Automatic login"
 msgstr "自動ログイン"
 
-#: pkg/packagekit/autoupdates.jsx:386 pkg/packagekit/autoupdates.jsx:507
+#: pkg/packagekit/autoupdates.jsx:389 pkg/packagekit/autoupdates.jsx:510
 msgid "Automatic updates"
 msgstr "自動アップデート"
 
@@ -1308,7 +1300,7 @@ msgstr "オートメーションスクリプト"
 msgid "Available targets on $0"
 msgstr "$0 で利用可能なターゲット"
 
-#: pkg/packagekit/updates.jsx:426 pkg/packagekit/updates.jsx:914
+#: pkg/packagekit/updates.jsx:427 pkg/packagekit/updates.jsx:915
 msgid "Available updates"
 msgstr "利用可能なアップデート"
 
@@ -1353,7 +1345,7 @@ msgstr "前"
 msgid "Binds to"
 msgstr "バインドする"
 
-#: pkg/systemd/terminal.jsx:262
+#: pkg/systemd/terminal.jsx:268
 msgid "Black"
 msgstr "黒"
 
@@ -1411,6 +1403,7 @@ msgstr "バインドされた"
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:194
 #: pkg/networkmanager/network-interface.jsx:512
+#, fuzzy
 msgid "Bridge"
 msgstr "ブリッジ"
 
@@ -1431,11 +1424,11 @@ msgstr "ブロードキャスト"
 msgid "Broken configuration"
 msgstr "破損した設定"
 
-#: pkg/packagekit/updates.jsx:1430
+#: pkg/packagekit/updates.jsx:1406
 msgid "Bug fix updates available"
 msgstr "バグ修正の更新が利用可能"
 
-#: pkg/packagekit/updates.jsx:369
+#: pkg/packagekit/updates.jsx:370
 msgid "Bugs"
 msgstr "バグ"
 
@@ -1479,7 +1472,7 @@ msgstr "CPU 使用率"
 msgid "CPU usage/load"
 msgstr "CPU 使用率/負荷"
 
-#: pkg/packagekit/updates.jsx:351
+#: pkg/packagekit/updates.jsx:352
 msgid "CVE"
 msgstr "CVE"
 
@@ -1503,11 +1496,11 @@ msgstr ""
 #: pkg/systemd/overview-cards/motdCard.jsx:77
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:231 pkg/systemd/hwinfo.jsx:235
 #: pkg/systemd/service-details.jsx:91 pkg/systemd/service-details.jsx:749
-#: pkg/systemd/terminal.jsx:296 pkg/systemd/timer-dialog.jsx:392
-#: pkg/packagekit/autoupdates.jsx:452 pkg/packagekit/updates.jsx:528
-#: pkg/packagekit/updates.jsx:561 pkg/packagekit/kpatch.jsx:316
+#: pkg/systemd/terminal.jsx:303 pkg/systemd/timer-dialog.jsx:392
+#: pkg/packagekit/autoupdates.jsx:455 pkg/packagekit/updates.jsx:529
+#: pkg/packagekit/updates.jsx:562 pkg/packagekit/kpatch.jsx:316
 #: pkg/kdump/kdump-view.jsx:327 pkg/apps/utils.tsx:92
-#: pkg/lib/cockpit-components-shutdown.jsx:237
+#: pkg/lib/cockpit/dialog.tsx:1317 pkg/lib/cockpit-components-shutdown.jsx:237
 #: pkg/lib/superuser-dialogs.tsx:227 pkg/lib/superuser-dialogs.tsx:264
 #: pkg/lib/superuser-dialogs.tsx:320 pkg/lib/cockpit-connect-ssh.tsx:189
 #: pkg/lib/cockpit-connect-ssh.tsx:502
@@ -1576,7 +1569,7 @@ msgstr "変更"
 msgid "Change cryptographic policy"
 msgstr "暗号化ポリシーの変更"
 
-#: pkg/systemd/terminal.jsx:295
+#: pkg/systemd/terminal.jsx:302
 msgid "Change directory"
 msgstr "ディレクトリーの変更"
 
@@ -1641,7 +1634,7 @@ msgid "Changing partition types might prevent the system from booting."
 msgstr ""
 "パーティションタイプを変更すると、システムが起動しなくなる可能性があります。"
 
-#: pkg/systemd/terminal.jsx:299
+#: pkg/systemd/terminal.jsx:306
 msgid ""
 "Changing the directory will forcefully stop the currently running process. "
 "The process can also be stopped manually in the terminal before continuing."
@@ -1657,7 +1650,7 @@ msgstr ""
 "設定を変更すると、サーバーへの接続が切断され、管理 UI が利用できなくなりま"
 "す。"
 
-#: pkg/packagekit/updates.jsx:896
+#: pkg/packagekit/updates.jsx:897
 msgid "Check for updates"
 msgstr "更新の確認"
 
@@ -1700,7 +1693,7 @@ msgstr "$0 パッケージの確認中"
 msgid "Checking for NBDE support in the initrd"
 msgstr "initrd での NBDE サポートの確認中"
 
-#: pkg/packagekit/updates.jsx:1383
+#: pkg/packagekit/updates.jsx:1359
 msgid "Checking for package updates..."
 msgstr "パッケージの更新を確認しています..."
 
@@ -1709,7 +1702,7 @@ msgstr "パッケージの更新を確認しています..."
 msgid "Checking installed software"
 msgstr "インストールされたソフトウェアの確認中"
 
-#: pkg/packagekit/updates.jsx:1393
+#: pkg/packagekit/updates.jsx:1369
 msgid "Checking software status"
 msgstr "ソフトウェアステータスの確認"
 
@@ -2054,16 +2047,14 @@ msgid "Contacted domain"
 msgstr "接続されたドメイン"
 
 #: pkg/systemd/service-details.jsx:688
-#, fuzzy
-#| msgid "Container:"
 msgid "Container"
-msgstr "コンテナー:"
+msgstr "コンテナー"
 
 #: pkg/shell/nav.tsx:295
 msgid "Contains:"
 msgstr "次を含む:"
 
-#: pkg/packagekit/updates.jsx:663 pkg/packagekit/updates.jsx:749
+#: pkg/packagekit/updates.jsx:664 pkg/packagekit/updates.jsx:750
 msgid "Continue"
 msgstr "続行"
 
@@ -2405,11 +2396,11 @@ msgstr "DNS 検索ドメイン $val"
 msgid "Daily"
 msgstr "毎日"
 
-#: pkg/packagekit/updates.jsx:921
+#: pkg/packagekit/updates.jsx:922
 msgid "Danger alert:"
 msgstr "Danger アラート:"
 
-#: pkg/systemd/terminal.jsx:263 pkg/shell/topnav.tsx:199
+#: pkg/systemd/terminal.jsx:269 pkg/shell/topnav.tsx:199
 msgid "Dark"
 msgstr "ダーク"
 
@@ -2522,7 +2513,7 @@ msgstr "$target の非アクティブ化"
 msgid "Debug and above"
 msgstr "デバッグ以上のレベル"
 
-#: pkg/systemd/terminal.jsx:248
+#: pkg/systemd/terminal.jsx:254
 msgid "Decrease by one"
 msgstr "1 つ減らす"
 
@@ -2687,7 +2678,7 @@ msgstr "デスクトップ"
 msgid "Detachable"
 msgstr "割り当て解除可能"
 
-#: pkg/systemd/overview-cards/realmd.jsx:418 pkg/packagekit/updates.jsx:432
+#: pkg/systemd/overview-cards/realmd.jsx:418 pkg/packagekit/updates.jsx:433
 #: pkg/shell/credentials.tsx:313
 msgid "Details"
 msgstr "詳細"
@@ -2753,7 +2744,7 @@ msgid "Disable tuned"
 msgstr "tuned の無効化"
 
 #: pkg/systemd/service-details.jsx:444 pkg/systemd/services.jsx:245
-#: pkg/systemd/services.jsx:686 pkg/packagekit/autoupdates.jsx:467
+#: pkg/systemd/services.jsx:686 pkg/packagekit/autoupdates.jsx:470
 #: pkg/packagekit/kpatch.jsx:250 pkg/kdump/kdump-view.jsx:558
 #: pkg/networkmanager/ip-settings.jsx:48
 #: pkg/networkmanager/firewall-switch.jsx:64
@@ -2902,11 +2893,11 @@ msgstr "ダウンロード"
 msgid "Download a new browser for free"
 msgstr "新しいブラウザーを無料でダウンロードします"
 
-#: pkg/packagekit/updates.jsx:115
+#: pkg/packagekit/updates.jsx:116
 msgid "Downloaded"
 msgstr "ダウンロードされました"
 
-#: pkg/packagekit/updates.jsx:109
+#: pkg/packagekit/updates.jsx:110
 msgid "Downloading"
 msgstr "ダウンロード中"
 
@@ -2930,7 +2921,7 @@ msgid "EFI system partition"
 msgstr "EFI システムパーティション"
 
 #: pkg/storaged/crypto/keyslots.jsx:738 pkg/storaged/nfs/nfs.jsx:312
-#: pkg/packagekit/autoupdates.jsx:530 pkg/packagekit/kpatch.jsx:229
+#: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:229
 #: pkg/kdump/kdump-view.jsx:494 pkg/shell/nav.tsx:421 pkg/shell/hosts.tsx:261
 #: pkg/networkmanager/firewall.jsx:117
 msgid "Edit"
@@ -3031,7 +3022,7 @@ msgstr "パスワードが入力されていません"
 msgid "Emptying $target"
 msgstr "$target を空にしています"
 
-#: pkg/packagekit/autoupdates.jsx:530 pkg/packagekit/kpatch.jsx:251
+#: pkg/packagekit/autoupdates.jsx:533 pkg/packagekit/kpatch.jsx:251
 msgid "Enable"
 msgstr "有効化"
 
@@ -3130,7 +3121,7 @@ msgstr ""
 msgid "Enforcing"
 msgstr "強制"
 
-#: pkg/packagekit/updates.jsx:1432
+#: pkg/packagekit/updates.jsx:1408
 msgid "Enhancement updates available"
 msgstr "機能拡張の更新を利用できます"
 
@@ -3150,7 +3141,7 @@ msgstr "$0 のエントリー"
 msgid "Erasing $target"
 msgstr "$target の削除中"
 
-#: pkg/packagekit/updates.jsx:363
+#: pkg/packagekit/updates.jsx:364
 msgid "Errata"
 msgstr "エラータ"
 
@@ -3164,6 +3155,10 @@ msgstr "エラー"
 #: pkg/systemd/logs.jsx:68
 msgid "Error and above"
 msgstr "エラー以上のレベル"
+
+#: pkg/lib/cockpit/dialog.tsx:1229
+msgid "Error during initialization"
+msgstr ""
 
 #: pkg/metrics/metrics.jsx:1853
 msgid "Error has occurred"
@@ -3261,7 +3256,8 @@ msgstr "FIPS が適切に有効化されていません"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "さらにコモンクライテリアの制限がある FIPS。"
 
-#: pkg/storaged/mdraid/mdraid-disk.jsx:71 pkg/networkmanager/interfaces.js:868
+#: pkg/storaged/mdraid/mdraid-disk.jsx:71 pkg/lib/cockpit/dialog.tsx:1253
+#: pkg/lib/cockpit/dialog.tsx:1256 pkg/networkmanager/interfaces.js:868
 msgid "Failed"
 msgstr "失敗"
 
@@ -3357,7 +3353,7 @@ msgstr "承認された鍵のロードに失敗しました。"
 msgid "Failed to load unit"
 msgstr "ユニットのロードに失敗しました"
 
-#: pkg/packagekit/autoupdates.jsx:498
+#: pkg/packagekit/autoupdates.jsx:501
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-"
 "install.timer. Please remove custom overrides to configure automatic updates."
@@ -3366,7 +3362,7 @@ msgstr ""
 "析に失敗しました。カスタムオーバーライドを削除して、自動更新を設定してくださ"
 "い。"
 
-#: pkg/packagekit/updates.jsx:479
+#: pkg/packagekit/updates.jsx:480
 msgid "Failed to restart service"
 msgstr "サービスの再起動に失敗しました"
 
@@ -3452,7 +3448,7 @@ msgstr "ファームウェアバージョン"
 msgid "Fix NBDE support"
 msgstr "NBDE サポートの修正"
 
-#: pkg/systemd/terminal.jsx:237 pkg/systemd/terminal.jsx:247
+#: pkg/systemd/terminal.jsx:243 pkg/systemd/terminal.jsx:253
 msgid "Font size"
 msgstr "フォントのサイズ"
 
@@ -3510,7 +3506,7 @@ msgstr "空き領域"
 msgid "Free-form search"
 msgstr "フリーフォーム検索"
 
-#: pkg/systemd/timer-dialog.jsx:312 pkg/packagekit/autoupdates.jsx:423
+#: pkg/systemd/timer-dialog.jsx:312 pkg/packagekit/autoupdates.jsx:426
 msgid "Fridays"
 msgstr "毎週金曜日"
 
@@ -3825,7 +3821,7 @@ msgstr ""
 "キーサーバーを追加するには、プールのロック解除が必要です。既存のプールパスフ"
 "レーズを提供してください。"
 
-#: pkg/packagekit/updates.jsx:666 pkg/packagekit/updates.jsx:748
+#: pkg/packagekit/updates.jsx:667 pkg/packagekit/updates.jsx:749
 #: pkg/networkmanager/ip-settings.jsx:46
 msgid "Ignore"
 msgstr "無視"
@@ -3887,7 +3883,7 @@ msgstr ""
 msgid "Inconsistent filesystem mount"
 msgstr "一貫性のないシステムマウント"
 
-#: pkg/systemd/terminal.jsx:249
+#: pkg/systemd/terminal.jsx:255
 msgid "Increase by one"
 msgstr "1 つ増やす"
 
@@ -3899,7 +3895,7 @@ msgstr "インデックスメモリー"
 msgid "Indirect"
 msgstr "間接"
 
-#: pkg/packagekit/updates.jsx:740
+#: pkg/packagekit/updates.jsx:741
 msgid "Info"
 msgstr "情報"
 
@@ -3919,7 +3915,7 @@ msgstr "ディスク $0 を初期化します"
 msgid "Initializing erases all data on a disk."
 msgstr "初期化すると、ディスク上の全データが削除されます。"
 
-#: pkg/packagekit/updates.jsx:565
+#: pkg/packagekit/updates.jsx:566
 msgid "Initializing..."
 msgstr "初期化中..."
 
@@ -3945,7 +3941,7 @@ msgstr "PCP サポートをインストール"
 msgid "Install Stratis support"
 msgstr "Stratis サポートをインストールする"
 
-#: pkg/packagekit/updates.jsx:1409
+#: pkg/packagekit/updates.jsx:1385
 msgid "Install all updates"
 msgstr "すべてのアップデートをインストールする"
 
@@ -3953,7 +3949,7 @@ msgstr "すべてのアップデートをインストールする"
 msgid "Install application information"
 msgstr "アプリケーション情報をインストールする"
 
-#: pkg/packagekit/updates.jsx:1422
+#: pkg/packagekit/updates.jsx:1398
 msgid "Install kpatch updates"
 msgstr "kpatch の更新をインストールする"
 
@@ -3961,7 +3957,7 @@ msgstr "kpatch の更新をインストールする"
 msgid "Install realmd support"
 msgstr "realmd サポートをインストールする"
 
-#: pkg/packagekit/updates.jsx:1408 pkg/packagekit/updates.jsx:1415
+#: pkg/packagekit/updates.jsx:1384 pkg/packagekit/updates.jsx:1391
 msgid "Install security updates"
 msgstr "セキュリティーアップデートをインストールする"
 
@@ -3987,11 +3983,11 @@ msgstr ""
 "$0 に cockpit-system パッケージ（およびオプションで他の cockpit パッケージ）"
 "をインストールして、ウェブ コンソールへのアクセスを有効にしてください。"
 
-#: pkg/packagekit/updates.jsx:116
+#: pkg/packagekit/updates.jsx:117
 msgid "Installed"
 msgstr "インストール済み"
 
-#: pkg/packagekit/updates.jsx:110 pkg/apps/application.jsx:55
+#: pkg/packagekit/updates.jsx:111 pkg/apps/application.jsx:55
 msgid "Installing"
 msgstr "インストール中"
 
@@ -4126,7 +4122,7 @@ msgstr "無効なプレフィックスまたはネットマスク $0"
 msgid "Invalid range"
 msgstr "無効な範囲"
 
-#: pkg/packagekit/autoupdates.jsx:433 pkg/lib/serverTime.js:684
+#: pkg/packagekit/autoupdates.jsx:436 pkg/lib/serverTime.js:684
 #: pkg/lib/cockpit-components-shutdown.jsx:117
 msgid "Invalid time format"
 msgstr "無効な時間形式"
@@ -4329,7 +4325,7 @@ msgstr "最後に操作を行った時間"
 msgid "Last cannot be removed"
 msgstr "最後のものは削除できません"
 
-#: pkg/packagekit/updates.jsx:770
+#: pkg/packagekit/updates.jsx:771
 msgid "Last checked: $0"
 msgstr "最終確認: $0"
 
@@ -4386,7 +4382,7 @@ msgstr "暗号化をスキップするには空白のままにします"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "GNU LGPL バージョン 2.1 でのライセンス"
 
-#: pkg/systemd/terminal.jsx:264 pkg/shell/topnav.tsx:196
+#: pkg/systemd/terminal.jsx:270 pkg/shell/topnav.tsx:196
 msgid "Light"
 msgstr "ライト"
 
@@ -4489,11 +4485,11 @@ msgstr "以前のデータのロード"
 msgid "Load earlier entries"
 msgstr "以前のエントリーのロード"
 
-#: pkg/packagekit/updates.jsx:107
+#: pkg/packagekit/updates.jsx:108
 msgid "Loading available updates failed"
 msgstr "利用可能なアップデートのロードに失敗しました"
 
-#: pkg/packagekit/updates.jsx:101
+#: pkg/packagekit/updates.jsx:102
 msgid "Loading available updates, please wait..."
 msgstr "利用可能なアップデートをロード中です。しばらくお待ちください..."
 
@@ -4956,7 +4952,7 @@ msgstr "モデル"
 msgid "Modifying $target"
 msgstr "$target の変更"
 
-#: pkg/systemd/timer-dialog.jsx:308 pkg/packagekit/autoupdates.jsx:419
+#: pkg/systemd/timer-dialog.jsx:308 pkg/packagekit/autoupdates.jsx:422
 msgid "Mondays"
 msgstr "毎週月曜日"
 
@@ -4972,7 +4968,7 @@ msgstr "ターゲットの監視"
 msgid "Monthly"
 msgstr "毎月"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:929
 msgid "More info..."
 msgstr "詳細..."
 
@@ -5128,7 +5124,7 @@ msgstr "NTP サーバー"
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:137
 #: pkg/storaged/lvm2/vdo-pool.jsx:78 pkg/systemd/hwinfo.jsx:88
-#: pkg/systemd/timer-dialog.jsx:148 pkg/packagekit/updates.jsx:429
+#: pkg/systemd/timer-dialog.jsx:148 pkg/packagekit/updates.jsx:430
 #: pkg/shell/credentials.tsx:305 pkg/networkmanager/dialogs-common.jsx:133
 #: pkg/networkmanager/network-main.jsx:185
 #: pkg/networkmanager/network-main.jsx:200
@@ -5496,7 +5492,7 @@ msgstr "システム変更がありません"
 msgid "No system reports."
 msgstr "システムレポートがありません。"
 
-#: pkg/packagekit/autoupdates.jsx:393
+#: pkg/packagekit/autoupdates.jsx:396
 msgid "No updates"
 msgstr "更新なし"
 
@@ -5575,7 +5571,7 @@ msgstr "この動作を実行する権限がありません。"
 msgid "Not ready"
 msgstr "準備ができていません"
 
-#: pkg/packagekit/updates.jsx:1361
+#: pkg/packagekit/updates.jsx:1337
 msgid "Not registered"
 msgstr "登録されていません"
 
@@ -5585,7 +5581,7 @@ msgstr "登録されていません"
 msgid "Not running"
 msgstr "未実行"
 
-#: pkg/packagekit/autoupdates.jsx:469
+#: pkg/packagekit/autoupdates.jsx:472
 msgid "Not set up"
 msgstr "設定されていません"
 
@@ -5756,7 +5752,7 @@ msgstr "履歴を利用するには PCP が必要です"
 msgid "PID"
 msgstr "PID"
 
-#: pkg/packagekit/updates.jsx:676 pkg/packagekit/updates.jsx:754
+#: pkg/packagekit/updates.jsx:677 pkg/packagekit/updates.jsx:755
 msgid "Package information"
 msgstr "パッケージ情報"
 
@@ -5764,11 +5760,11 @@ msgstr "パッケージ情報"
 msgid "PackageKit crashed"
 msgstr "PackageKit がクラッシュしました"
 
-#: pkg/packagekit/updates.jsx:1167
+#: pkg/packagekit/updates.jsx:1172
 msgid "PackageKit is not installed"
 msgstr "PackageKit はインストールされていません"
 
-#: pkg/packagekit/updates.jsx:1298
+#: pkg/packagekit/updates.jsx:1274
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit が、エラーコード $0 を報告しました"
 
@@ -5776,7 +5772,7 @@ msgstr "PackageKit が、エラーコード $0 を報告しました"
 msgid "Packageless session unavailable"
 msgstr "パッケージレス セッションは利用できません"
 
-#: pkg/packagekit/updates.jsx:346
+#: pkg/packagekit/updates.jsx:347
 msgid "Packages"
 msgstr "パッケージ"
 
@@ -6116,7 +6112,7 @@ msgstr ""
 "キーサーバーを追加するには、プールのロック解除が必要です。既存のプールパスフ"
 "レーズを提供してください。"
 
-#: pkg/packagekit/updates.jsx:1485
+#: pkg/packagekit/updates.jsx:1461
 msgid "Please resolve the issue and reload this page."
 msgstr "問題を解決し、このページを再ロードしてください。"
 
@@ -6429,16 +6425,16 @@ msgstr "再適用して再起動する"
 msgid "Reboot"
 msgstr "再起動"
 
-#: pkg/packagekit/updates.jsx:596
+#: pkg/packagekit/updates.jsx:597
 msgid "Reboot after completion"
 msgstr "完了後に再起動する"
 
-#: pkg/packagekit/updates.jsx:1517
+#: pkg/packagekit/updates.jsx:1493
 msgid "Reboot recommended"
 msgstr "再起動を推奨します"
 
-#: pkg/packagekit/updates.jsx:665 pkg/packagekit/updates.jsx:745
-#: pkg/packagekit/updates.jsx:809
+#: pkg/packagekit/updates.jsx:666 pkg/packagekit/updates.jsx:746
+#: pkg/packagekit/updates.jsx:810
 msgid "Reboot system..."
 msgstr "システムの再起動..."
 
@@ -6468,7 +6464,7 @@ msgstr "復旧"
 msgid "Recovering MDRAID device $target"
 msgstr "MDRAID デバイス $target の復旧"
 
-#: pkg/packagekit/updates.jsx:103
+#: pkg/packagekit/updates.jsx:104
 msgid "Refreshing package information"
 msgstr "パッケージ情報の更新中"
 
@@ -6484,7 +6480,7 @@ msgstr "再生成"
 msgid "Regenerating initrd"
 msgstr "initrd の再生成"
 
-#: pkg/packagekit/updates.jsx:1372
+#: pkg/packagekit/updates.jsx:1348
 msgid "Register…"
 msgstr "登録中…"
 
@@ -6512,7 +6508,7 @@ msgstr "伝搬元を再ロード"
 msgid "Reloading"
 msgstr "リロード中"
 
-#: pkg/packagekit/updates.jsx:491
+#: pkg/packagekit/updates.jsx:492
 msgid "Reloading the state of remaining services"
 msgstr "残りのサービス状態の再読み込み"
 
@@ -6805,7 +6801,7 @@ msgstr ""
 msgid "Reserved memory"
 msgstr "予約済みメモリー"
 
-#: pkg/systemd/terminal.jsx:272 pkg/systemd/logs.jsx:379
+#: pkg/systemd/terminal.jsx:279 pkg/systemd/logs.jsx:379
 msgid "Reset"
 msgstr "リセット"
 
@@ -6830,15 +6826,15 @@ msgstr ""
 msgid "Restart"
 msgstr "再起動"
 
-#: pkg/packagekit/updates.jsx:506 pkg/packagekit/updates.jsx:525
+#: pkg/packagekit/updates.jsx:507 pkg/packagekit/updates.jsx:526
 msgid "Restart services"
 msgstr "サービスの再起動"
 
-#: pkg/packagekit/updates.jsx:746 pkg/packagekit/updates.jsx:821
+#: pkg/packagekit/updates.jsx:747 pkg/packagekit/updates.jsx:822
 msgid "Restart services..."
 msgstr "サービスの再起動..."
 
-#: pkg/packagekit/updates.jsx:1565
+#: pkg/packagekit/updates.jsx:1541
 msgid "Restarting"
 msgstr "再起動中"
 
@@ -6942,7 +6938,7 @@ msgstr "ランナー"
 msgid "Running"
 msgstr "実行中"
 
-#: pkg/systemd/terminal.jsx:289
+#: pkg/systemd/terminal.jsx:296
 msgid "Running process prevents directory change"
 msgstr "実行中のプロセスがあるためディレクトリーを変更できません"
 
@@ -7032,7 +7028,7 @@ msgid ""
 msgstr ""
 "Safari ユーザーは、自己署名 CA 証明書をインポートし、信頼する必要があります:"
 
-#: pkg/systemd/timer-dialog.jsx:313 pkg/packagekit/autoupdates.jsx:424
+#: pkg/systemd/timer-dialog.jsx:313 pkg/packagekit/autoupdates.jsx:427
 msgid "Saturdays"
 msgstr "毎週土曜日"
 
@@ -7054,7 +7050,7 @@ msgid "Save and reboot"
 msgstr "保存および再起動"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:73
-#: pkg/packagekit/autoupdates.jsx:447 pkg/kdump/kdump-view.jsx:321
+#: pkg/packagekit/autoupdates.jsx:450 pkg/kdump/kdump-view.jsx:321
 msgid "Save changes"
 msgstr "変更の保存"
 
@@ -7123,15 +7119,15 @@ msgstr "$target を安全に削除"
 msgid "Security Enhanced Linux configuration and troubleshooting"
 msgstr "Security Enhanced Linux の設定とトラブルシューティング"
 
-#: pkg/packagekit/updates.jsx:1428
+#: pkg/packagekit/updates.jsx:1404
 msgid "Security updates available"
 msgstr "セキュリティーの更新を利用できます"
 
-#: pkg/packagekit/autoupdates.jsx:399
+#: pkg/packagekit/autoupdates.jsx:402
 msgid "Security updates only"
 msgstr "セキュリティー更新のみ"
 
-#: pkg/packagekit/autoupdates.jsx:488
+#: pkg/packagekit/autoupdates.jsx:491
 msgid "Security updates will be applied $0 at $1"
 msgstr "$0 $1 にセキュリティーアップデートが適用されます"
 
@@ -7266,7 +7262,7 @@ msgstr "時間の設定"
 msgid "Set to"
 msgstr "設定値"
 
-#: pkg/packagekit/updates.jsx:118
+#: pkg/packagekit/updates.jsx:119
 msgid "Set up"
 msgstr "設定済み"
 
@@ -7279,7 +7275,7 @@ msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr "設定が設定された状態と異なるため、次回起動時に元の状態に戻ります。"
 
-#: pkg/packagekit/updates.jsx:112
+#: pkg/packagekit/updates.jsx:113
 msgid "Setting up"
 msgstr "設定中"
 
@@ -7287,11 +7283,11 @@ msgstr "設定中"
 msgid "Setting up loop device $target"
 msgstr "ループデバイス $target の設定"
 
-#: pkg/packagekit/updates.jsx:906
+#: pkg/packagekit/updates.jsx:907
 msgid "Settings"
 msgstr "設定"
 
-#: pkg/packagekit/updates.jsx:357 pkg/packagekit/updates.jsx:431
+#: pkg/packagekit/updates.jsx:358 pkg/packagekit/updates.jsx:432
 msgid "Severity"
 msgstr "重大度"
 
@@ -7447,6 +7443,7 @@ msgid "Sockets"
 msgstr "ソケット"
 
 #: pkg/packagekit/index.html:23 pkg/packagekit/manifest.json:0
+#, fuzzy
 msgid "Software updates"
 msgstr "ソフトウェア更新"
 
@@ -7484,14 +7481,14 @@ msgstr ""
 "プールの作成後に、このプールのブロックデバイスでサイズが増大したものがありま"
 "す。このプールを安全に拡張するには新たに利用可能な領域を使用してください。"
 
-#: pkg/packagekit/updates.jsx:102
+#: pkg/packagekit/updates.jsx:103
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
 "別のプログラムがパッケージマネージャーを使用中です。しばらくお待ちください..."
 
-#: pkg/packagekit/updates.jsx:723 pkg/packagekit/updates.jsx:829
-#: pkg/packagekit/updates.jsx:1528
+#: pkg/packagekit/updates.jsx:724 pkg/packagekit/updates.jsx:830
+#: pkg/packagekit/updates.jsx:1504
 msgid "Some software needs to be restarted manually"
 msgstr "一部のソフトウェアを手動で再起動する必要があります"
 
@@ -7585,7 +7582,7 @@ msgstr "状態"
 msgid "Static"
 msgstr "静的"
 
-#: pkg/systemd/service-details.jsx:666 pkg/packagekit/updates.jsx:895
+#: pkg/systemd/service-details.jsx:666 pkg/packagekit/updates.jsx:896
 #: pkg/networkmanager/network-interface.jsx:266
 msgid "Status"
 msgstr "ステータス"
@@ -7741,9 +7738,9 @@ msgstr "クリップボードへのコピーに成功しました"
 
 #: pkg/storaged/crypto/tang.jsx:146
 msgid "Successfully copied to clipboard!"
-msgstr "クリップボードへのコピーに成功しました！"
+msgstr "クリップボードにコピーしました!"
 
-#: pkg/systemd/timer-dialog.jsx:314 pkg/packagekit/autoupdates.jsx:425
+#: pkg/systemd/timer-dialog.jsx:314 pkg/packagekit/autoupdates.jsx:428
 msgid "Sundays"
 msgstr "毎週日曜日"
 
@@ -7826,7 +7823,7 @@ msgstr "システムの診断"
 msgid "System information"
 msgstr "システム情報"
 
-#: pkg/packagekit/updates.jsx:104
+#: pkg/packagekit/updates.jsx:105
 msgid "System is up to date"
 msgstr "システムは最新の状態です"
 
@@ -7883,6 +7880,10 @@ msgstr ""
 #: pkg/systemd/terminal.html:4 pkg/systemd/manifest.json:0
 msgid "Terminal"
 msgstr "端末"
+
+#: pkg/systemd/terminal.jsx:314
+msgid "Terminal not available"
+msgstr "ターミナルは利用できません"
 
 #: pkg/users/account-details.js:222
 msgid "Terminate session"
@@ -8075,7 +8076,7 @@ msgstr ""
 msgid "The fingerprint should match:"
 msgstr "フィンガープリントは次のものと一致する必要があります:"
 
-#: pkg/packagekit/updates.jsx:496
+#: pkg/packagekit/updates.jsx:497
 msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
 msgstr[0] "以下のサービスが再起動します:"
@@ -8320,6 +8321,12 @@ msgstr "この NFS マウントは使用中で、そのオプションだけを�
 msgid "This VDO device does not use all of its backing device."
 msgstr "この VDO デバイスは、そのバッキングデバイスをすべて使用していません。"
 
+#: pkg/systemd/terminal.jsx:314
+#, fuzzy
+#| msgid "Libvirt or hypervisor does not support UEFI"
+msgid "This browser does not support WebGL2."
+msgstr "libvirtまたはハイパーバイザーがUEFIをサポートしていません"
+
 #: pkg/storaged/block/format-dialog.jsx:246
 #: pkg/storaged/filesystem/mounting-dialog.jsx:159
 msgid "This device can not be used for the installation target."
@@ -8342,7 +8349,7 @@ msgstr "このフィールドは必須の項目です"
 msgid "This group is the primary group for the following users:"
 msgstr "このグループは、以下のユーザーのプライマリーグループです:"
 
-#: pkg/packagekit/autoupdates.jsx:438
+#: pkg/packagekit/autoupdates.jsx:441
 msgid "This host will reboot after updates are installed."
 msgstr "このホストは、更新後に再起動します。"
 
@@ -8415,7 +8422,7 @@ msgstr ""
 msgid "This pool is in a degraded state."
 msgstr "このプールは、degraded の状態にあります。"
 
-#: pkg/packagekit/updates.jsx:1368
+#: pkg/packagekit/updates.jsx:1344
 msgid "This system is not registered"
 msgstr "このシステムは登録されていません"
 
@@ -8543,7 +8550,7 @@ msgstr ""
 "このゾーンには Cockpit サービスが含まれます。このゾーンが現在の web コンソー"
 "ル接続に適用されないことを確認してください。"
 
-#: pkg/systemd/timer-dialog.jsx:311 pkg/packagekit/autoupdates.jsx:422
+#: pkg/systemd/timer-dialog.jsx:311 pkg/packagekit/autoupdates.jsx:425
 msgid "Thursdays"
 msgstr "毎週木曜日"
 
@@ -8555,7 +8562,7 @@ msgstr "階層"
 msgid "Time"
 msgstr "時間"
 
-#: pkg/packagekit/updates.jsx:586
+#: pkg/packagekit/updates.jsx:587
 msgid "Time remaining: "
 msgstr ""
 
@@ -8592,7 +8599,7 @@ msgstr ""
 "悪意のあるサードパーティーによって接続がインターセプトされないようにするに"
 "は、ホストキーフィンガープリントを確認してください:"
 
-#: pkg/packagekit/updates.jsx:1370
+#: pkg/packagekit/updates.jsx:1346
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -8704,7 +8711,7 @@ msgstr "再試行します"
 msgid "Trying to synchronize with $0"
 msgstr "$0 との同期を試行中です"
 
-#: pkg/systemd/timer-dialog.jsx:309 pkg/packagekit/autoupdates.jsx:420
+#: pkg/systemd/timer-dialog.jsx:309 pkg/packagekit/autoupdates.jsx:423
 msgid "Tuesdays"
 msgstr "毎週火曜日"
 
@@ -8743,7 +8750,7 @@ msgstr "管理者アクセスをオンにする"
 #: pkg/storaged/partitions/partition.jsx:183
 #: pkg/storaged/partitions/partition.jsx:229 pkg/storaged/pages.jsx:727
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/hwinfo.jsx:295
-#: pkg/packagekit/autoupdates.jsx:389 pkg/shell/credentials.tsx:107
+#: pkg/packagekit/autoupdates.jsx:392 pkg/shell/credentials.tsx:107
 msgid "Type"
 msgstr "タイプ"
 
@@ -8826,7 +8833,7 @@ msgstr ""
 "$0 にログインできません。ホストが、パスワードログインまたは SSH キーを受け付"
 "けていません。"
 
-#: pkg/systemd/terminal.jsx:281
+#: pkg/systemd/terminal.jsx:288
 msgid "Unable to open directory"
 msgstr "ディレクトリーを開けません"
 
@@ -9047,11 +9054,11 @@ msgstr "起動時間:"
 msgid "Update"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:739
+#: pkg/packagekit/updates.jsx:740
 msgid "Update Success Table"
 msgstr "更新成功テーブル"
 
-#: pkg/packagekit/updates.jsx:944
+#: pkg/packagekit/updates.jsx:945
 msgid "Update history"
 msgstr "更新履歴"
 
@@ -9059,25 +9066,25 @@ msgstr "更新履歴"
 msgid "Update package information"
 msgstr "パッケージ情報アップデート"
 
-#: pkg/packagekit/updates.jsx:586
+#: pkg/packagekit/updates.jsx:587
 #, fuzzy
 #| msgid "Update log"
 msgid "Update progress"
 msgstr "ログの更新"
 
-#: pkg/packagekit/updates.jsx:671 pkg/packagekit/updates.jsx:735
+#: pkg/packagekit/updates.jsx:672 pkg/packagekit/updates.jsx:736
 msgid "Update was successful"
 msgstr "更新が正常に実行されました"
 
-#: pkg/packagekit/updates.jsx:117
+#: pkg/packagekit/updates.jsx:118
 msgid "Updated"
 msgstr "更新済み"
 
-#: pkg/packagekit/updates.jsx:661
+#: pkg/packagekit/updates.jsx:662
 msgid "Updated packages may require a reboot to take effect."
 msgstr "パッケージの更新を反映するには、再起動が必要になる場合があります。"
 
-#: pkg/packagekit/updates.jsx:1434
+#: pkg/packagekit/updates.jsx:1410
 msgid "Updates available"
 msgstr "更新を利用できます"
 
@@ -9085,11 +9092,11 @@ msgstr "更新を利用できます"
 msgid "Updates history"
 msgstr "更新履歴"
 
-#: pkg/packagekit/autoupdates.jsx:489
+#: pkg/packagekit/autoupdates.jsx:492
 msgid "Updates will be applied $0 at $1"
 msgstr "$0 $1 に更新が適用されます"
 
-#: pkg/packagekit/updates.jsx:111
+#: pkg/packagekit/updates.jsx:112
 msgid "Updating"
 msgstr "更新中"
 
@@ -9239,7 +9246,7 @@ msgstr "認証トークンの検証"
 msgid "Vendor"
 msgstr "ベンダー"
 
-#: pkg/packagekit/updates.jsx:119
+#: pkg/packagekit/updates.jsx:120
 msgid "Verified"
 msgstr "検証済み"
 
@@ -9251,11 +9258,11 @@ msgstr "フィンガープリントの検証"
 msgid "Verify key"
 msgstr "キーを検証します"
 
-#: pkg/packagekit/updates.jsx:113
+#: pkg/packagekit/updates.jsx:114
 msgid "Verifying"
 msgstr "検証中"
 
-#: pkg/systemd/hwinfo.jsx:93 pkg/packagekit/updates.jsx:430
+#: pkg/systemd/hwinfo.jsx:93 pkg/packagekit/updates.jsx:431
 msgid "Version"
 msgstr "バージョン"
 
@@ -9319,7 +9326,7 @@ msgstr "ディスクごとのスループットの表示"
 msgid "View project website"
 msgstr "プロジェクト Web サイトの表示"
 
-#: pkg/packagekit/updates.jsx:601
+#: pkg/packagekit/updates.jsx:602
 msgid "View update log"
 msgstr "更新ログの表示"
 
@@ -9410,7 +9417,7 @@ msgstr "Webコンソール"
 msgid "Web Console for Linux servers"
 msgstr "Linux サーバー用 Web コンソール"
 
-#: pkg/packagekit/updates.jsx:516 pkg/packagekit/updates.jsx:922
+#: pkg/packagekit/updates.jsx:517 pkg/packagekit/updates.jsx:923
 msgid "Web Console will restart"
 msgstr "Web コンソールが再起動します"
 
@@ -9422,7 +9429,7 @@ msgstr "Web コンソールが制限付きアクセスモードで実行され�
 msgid "Web console logo"
 msgstr "Web コンソールロゴ"
 
-#: pkg/systemd/timer-dialog.jsx:310 pkg/packagekit/autoupdates.jsx:421
+#: pkg/systemd/timer-dialog.jsx:310 pkg/packagekit/autoupdates.jsx:424
 msgid "Wednesdays"
 msgstr "毎週水曜日"
 
@@ -9434,7 +9441,7 @@ msgstr "毎週"
 msgid "Weeks"
 msgstr "週"
 
-#: pkg/packagekit/autoupdates.jsx:412
+#: pkg/packagekit/autoupdates.jsx:415
 msgid "When"
 msgstr "条件"
 
@@ -9442,7 +9449,7 @@ msgstr "条件"
 msgid "When empty, connect with the current user"
 msgstr "空の場合は、現在のユーザーに接続します"
 
-#: pkg/packagekit/updates.jsx:519 pkg/packagekit/updates.jsx:927
+#: pkg/packagekit/updates.jsx:520 pkg/packagekit/updates.jsx:928
 msgid ""
 "When the Web Console is restarted, you will no longer see progress "
 "information. However, the update process will continue in the background. "
@@ -9452,7 +9459,7 @@ msgstr ""
 "ロセスはバックグラウンドで続行されます。更新プロセスの監視を継続するには、再"
 "接続します。"
 
-#: pkg/systemd/terminal.jsx:265
+#: pkg/systemd/terminal.jsx:271
 msgid "White"
 msgstr "白"
 
@@ -9556,7 +9563,7 @@ msgstr ""
 msgid "Your browser will remember your access level across sessions."
 msgstr "ブラウザーはセッション間のアクセスレベルを記憶します。"
 
-#: pkg/packagekit/updates.jsx:1567
+#: pkg/packagekit/updates.jsx:1543
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -9620,7 +9627,7 @@ msgstr "apt-get"
 msgid "asset tag"
 msgstr "アセットタグ"
 
-#: pkg/packagekit/autoupdates.jsx:428
+#: pkg/packagekit/autoupdates.jsx:431
 msgid "at"
 msgstr "時間"
 
@@ -9685,7 +9692,7 @@ msgstr "btrfs サブボリューム"
 msgid "btrfs volume"
 msgstr "btrfs ボリューム"
 
-#: pkg/packagekit/updates.jsx:198 pkg/packagekit/updates.jsx:301
+#: pkg/packagekit/updates.jsx:199 pkg/packagekit/updates.jsx:302
 msgid "bug fix"
 msgstr "バグ修正"
 
@@ -9726,7 +9733,7 @@ msgstr "コアダンプ"
 msgid "cpu"
 msgstr "CPU"
 
-#: pkg/systemd/manifest.json:0 pkg/kdump/manifest.json:0
+#: pkg/kdump/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "crash"
 msgstr "クラッシュ"
 
@@ -9818,7 +9825,7 @@ msgstr "暗号化"
 msgid "encryption"
 msgstr "暗号化"
 
-#: pkg/packagekit/updates.jsx:200 pkg/packagekit/updates.jsx:301
+#: pkg/packagekit/updates.jsx:201 pkg/packagekit/updates.jsx:302
 msgid "enhancement"
 msgstr "機能強化"
 
@@ -9826,35 +9833,35 @@ msgstr "機能強化"
 msgid "error"
 msgstr "エラー"
 
-#: pkg/packagekit/autoupdates.jsx:477
+#: pkg/packagekit/autoupdates.jsx:480
 msgid "every Friday"
 msgstr "毎週金曜日"
 
-#: pkg/packagekit/autoupdates.jsx:473
+#: pkg/packagekit/autoupdates.jsx:476
 msgid "every Monday"
 msgstr "毎週月曜日"
 
-#: pkg/packagekit/autoupdates.jsx:478
+#: pkg/packagekit/autoupdates.jsx:481
 msgid "every Saturday"
 msgstr "毎週土曜日"
 
-#: pkg/packagekit/autoupdates.jsx:479
+#: pkg/packagekit/autoupdates.jsx:482
 msgid "every Sunday"
 msgstr "毎週日曜日"
 
-#: pkg/packagekit/autoupdates.jsx:476
+#: pkg/packagekit/autoupdates.jsx:479
 msgid "every Thursday"
 msgstr "毎週木曜日"
 
-#: pkg/packagekit/autoupdates.jsx:474
+#: pkg/packagekit/autoupdates.jsx:477
 msgid "every Tuesday"
 msgstr "毎週火曜日"
 
-#: pkg/packagekit/autoupdates.jsx:475
+#: pkg/packagekit/autoupdates.jsx:478
 msgid "every Wednesday"
 msgstr "毎週水曜日"
 
-#: pkg/packagekit/autoupdates.jsx:418 pkg/packagekit/autoupdates.jsx:472
+#: pkg/packagekit/autoupdates.jsx:421 pkg/packagekit/autoupdates.jsx:475
 msgid "every day"
 msgstr "毎日"
 
@@ -10088,7 +10095,7 @@ msgstr "マウント"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "ネットワーク"
 
@@ -10165,7 +10172,7 @@ msgstr "パスワード"
 msgid "password quality"
 msgstr "パスワードの強度"
 
-#: pkg/packagekit/updates.jsx:326
+#: pkg/packagekit/updates.jsx:327
 msgid "patches"
 msgstr "パッチ"
 
@@ -10257,7 +10264,7 @@ msgstr "ロール"
 msgid "running $0"
 msgstr "実行中 $0"
 
-#: pkg/packagekit/updates.jsx:196 pkg/packagekit/updates.jsx:293
+#: pkg/packagekit/updates.jsx:197 pkg/packagekit/updates.jsx:294
 #: pkg/packagekit/manifest.json:0
 msgid "security"
 msgstr "セキュリティー"
@@ -10322,7 +10329,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "sos repot 失敗"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -11912,9 +11919,6 @@ msgstr "ゾーン"
 #~ msgstr ""
 #~ "libvirtがホストにインストールされているUEFI/OVMFファームウェアイメージを検"
 #~ "出できませんでした"
-
-#~ msgid "Libvirt or hypervisor does not support UEFI"
-#~ msgstr "libvirtまたはハイパーバイザーがUEFIをサポートしていません"
 
 #~ msgid "Loading resources"
 #~ msgstr "リソースのロード中"

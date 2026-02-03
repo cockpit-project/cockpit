@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /* There is https://www.npmjs.com/package/esbuild-plugin-compress but it does
  * not work together with our PO plugin, they are incompatible due to requiring
  * different values for `write:`. We may be able to change our plugins to work

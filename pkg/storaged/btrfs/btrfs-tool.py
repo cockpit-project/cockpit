@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+# SPDX-License-Identifier: LGPL-2.1-or-later
 
 # btrfs-tool  --  Query and monitor btrfs filesystems
 #

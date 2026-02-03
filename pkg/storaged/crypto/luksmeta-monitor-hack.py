@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+# SPDX-License-Identifier: LGPL-2.1-or-later
 
 # This simulates the org.freedesktop.UDisks.Encrypted.Slots property
 # et al for versions of UDisks that don't have them yet.

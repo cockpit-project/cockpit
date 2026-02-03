@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: LGPL-2.1-or-later
 # Helper to add, modify, and remove a kernel command line option. This supports
 # grub and zipl, i. e. x86, arm64, and s390x. Either grubby (Fedora, RHEL) or
 # update-grub (Debian, Ubuntu) needs to be available.

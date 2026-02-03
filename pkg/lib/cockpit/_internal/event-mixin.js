@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 import { is_function, invoke_functions } from './common';
 
 /*

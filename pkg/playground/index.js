@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 import '../lib/patternfly/patternfly-6-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import 'cockpit-dark-theme'; // once per page

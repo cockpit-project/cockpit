@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 import QUnit, { f } from "qunit-tests";
 
 import cockpit from "cockpit";

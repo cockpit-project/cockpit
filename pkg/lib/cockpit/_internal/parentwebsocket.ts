@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 import { transport_origin } from './location-utils';
 
 /*

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 # -----------------------------------------------------------------------------
 # libpam_ssh_add.a: code used in pam_ssh_add.so and its tests
 

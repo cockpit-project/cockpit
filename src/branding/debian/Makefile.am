@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 debianbrandingdir = $(datadir)/cockpit/branding/debian
 
 dist_debianbranding_DATA = \

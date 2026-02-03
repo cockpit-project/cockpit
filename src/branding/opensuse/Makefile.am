@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 opensusebrandingdir = $(datadir)/cockpit/branding/opensuse
 
 dist_opensusebranding_DATA = \

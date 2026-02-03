@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 fedorabrandingdir = $(datadir)/cockpit/branding/fedora
 
 dist_fedorabranding_DATA = \

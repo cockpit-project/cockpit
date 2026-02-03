@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 # Print lastlog2 database as JSON; used in ./login.js
 import json
 import os

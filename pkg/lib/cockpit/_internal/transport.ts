@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 import { EventEmitter } from '../event';
 
 import type { JsonObject } from './common';

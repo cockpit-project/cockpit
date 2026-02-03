@@ -139,12 +139,12 @@ test_include_config_h() {
 test_spdx_license_identifier() {
     # Every source file should have an SPDX-License-Identifier in the first 10 lines
     # Exclude file types that cannot have comments or don't need a license
-    git ls-files src -- \
+    git ls-files pkg src -- \
         ':!src/systemd/*' ':!src/cockpit/_vendor' \
-        ':!*.json' ':!*.png' ':!*.jpg' ':!*.svg' ':!*.ico' \
+        ':!*.json' ':!*.png' ':!*.jpg' ':!*.gif' ':!*.svg' ':!*.ico' \
         ':!*mock*' ':!*.pem' ':!*.key' ':!*.p12' \
         ':!*.policy.in' ':!*.xml.in' ':!*.metainfo*' \
-        ':!*.md' ':!*.txt' ':!*.html' ':!*HACKING' \
+        ':!*.md' ':!*.txt' ':!*.html' '!:*README' ':!*HACKING' \
         ':!*.service' ':!*.desktop' | \
     while read -r filename; do
         # Check first 10 lines for SPDX-License-Identifier

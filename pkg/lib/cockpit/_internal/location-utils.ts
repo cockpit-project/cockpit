@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 function get_url_root(): string | null {
     const meta_url_root = document.head.querySelector("meta[name='url-root']");
     if (meta_url_root instanceof HTMLMetaElement) {

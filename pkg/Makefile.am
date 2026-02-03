@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 pkg_TESTS = \
 	pkg/users/test-list-public-keys.sh \
 	$(NULL)

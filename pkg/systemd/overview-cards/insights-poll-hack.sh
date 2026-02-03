@@ -1,4 +1,5 @@
 #! /bin/sh
+# SPDX-License-Identifier: LGPL-2.1-or-later
 
 # Poll until /var/lib/insights/insights-details.json is 5 minutes
 # older than /etc/insights-client/.lastupload, then exit.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /*
  * These are the polyfills from Mozilla. It's pretty nasty that
  * these weren't in the typed array standardization.

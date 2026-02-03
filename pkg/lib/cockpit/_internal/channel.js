@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 import { join_data } from './common';
 import { Deferred } from './deferred';
 import { event_mixin } from './event-mixin';

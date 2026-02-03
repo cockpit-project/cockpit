@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 const s_bus = {
     BUS_NAME: "org.freedesktop.systemd1",
     O_MANAGER: "/org/freedesktop/systemd1",

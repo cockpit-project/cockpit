@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /* global direct_address, bus_address, */
 import { common_dbus_tests, dbus_track_tests } from "./test-dbus-common.js";
 

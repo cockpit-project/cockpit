@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 archbrandingdir = $(datadir)/cockpit/branding/arch
 
 dist_archbranding_DATA = \

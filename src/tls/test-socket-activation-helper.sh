@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: LGPL-2.1-or-later
 set -eu
 
 if ! type curl >/dev/null 2>&1; then

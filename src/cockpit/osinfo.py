@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 # supported OSes for beibooting; entries are os-release keys
 # keep this in sync with bots/lib/testmap.py
 supported_oses: 'list[dict[str, str | None]]' = [

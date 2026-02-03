@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 defaultbrandingdir = $(datadir)/cockpit/branding/default
 
 dist_defaultbranding_DATA = \

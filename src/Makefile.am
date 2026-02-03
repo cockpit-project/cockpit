@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 BUILT_SOURCES =
 bin_PROGRAMS =
 libexec_PROGRAMS =

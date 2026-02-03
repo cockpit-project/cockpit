@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 # -----------------------------------------------------------------------------
 # Common cpp and ld flags for tests: these will be used an awful lot
 

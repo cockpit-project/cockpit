@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 rhelbrandingdir = $(datadir)/cockpit/branding/rhel
 
 dist_rhelbranding_DATA = \

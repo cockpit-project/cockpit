@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 ubuntubrandingdir = $(datadir)/cockpit/branding/ubuntu
 
 dist_ubuntubranding_DATA = \

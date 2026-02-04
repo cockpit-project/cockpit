@@ -41,6 +41,7 @@ import {
     settings_applier,
     show_unexpected_error,
 } from './interfaces.js';
+import { isNonPersistentMultiCon } from './utils.js';
 
 const _ = cockpit.gettext;
 // nm-dbus-interface.h
@@ -272,12 +273,15 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                                  settings,
                                  type)
             : apply_settings(settings))
-                .then(() => {
+                // NOTE: `new_con_path` will contain object path (string) of a newly acticated connection (ActiveConnection).
+                // If it is only an update of an existing connection this variable is undefined.
+                .then(new_con_path => {
                     onClose();
                     if (connection && iface)
                         cockpit.location.go([iface]);
-                    if (connection && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === connection)
+                    if (connection && new_con_path === undefined && !isNonPersistentMultiCon(connection) && dev?.ActiveConnection?.Connection === connection) {
                         return reactivateConnection({ con: connection, dev });
+                    }
                 })
                 .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
                 .then(() => model.set_operation_in_progress(false));
@@ -288,7 +292,7 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                                      ...(type != 'vlan' && {
                                          devices: (membersChanged ? [] : connection_devices(connection))
                                      }),
-                                     hack_does_add_or_remove: type == 'vlan' || membersChanged,
+                                     hack_does_add_or_remove: type == 'vlan' || membersChanged || isNonPersistentMultiCon(connection),
                                      rollback_on_failure: type !== 'vlan' && membersChanged
                                  });
     } else {

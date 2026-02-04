@@ -31,6 +31,8 @@
 /* this has a corresponding mock-server.key */
 #define CERTFILE SRCDIR "/test/data/mock-server.crt"
 #define KEYFILE SRCDIR "/test/data/mock-server.key"
+#define ECC_CERTFILE SRCDIR "/test/data/mock-ecc.crt"
+#define ECC_KEYFILE SRCDIR "/test/data/mock-ecc.key"
 
 #define CLIENT_CERTFILE SRCDIR "/src/tls/ca/alice.pem"
 #define CLIENT_KEYFILE SRCDIR "/src/tls/ca/alice.key"
@@ -50,11 +52,15 @@ typedef struct {
 typedef struct {
   const char *certfile;
   const char *keyfile;
+  const char *certfile2;
+  const char *keyfile2;
   int cert_request_mode;
   int idle_timeout;
   const char *client_crt;
   const char *client_key;
   const char *client_fingerprint;
+  const char *priority;
+  int expected_pk_algo;
 } TestFixture;
 
 static const TestFixture fixture_separate_crt_key = {
@@ -91,6 +97,24 @@ static const TestFixture fixture_alternate_client_cert = {
 
 static const TestFixture fixture_run_idle = {
   .idle_timeout = 1,
+};
+
+static const TestFixture fixture_multiple_certs_ecdsa = {
+  .certfile = CERTFILE,
+  .keyfile = KEYFILE,
+  .certfile2 = ECC_CERTFILE,
+  .keyfile2 = ECC_KEYFILE,
+  .priority = "NORMAL:-SIGN-ALL:+SIGN-ECDSA-SECP256R1-SHA256",
+  .expected_pk_algo = GNUTLS_PK_ECDSA,
+};
+
+static const TestFixture fixture_multiple_certs_rsa = {
+  .certfile = CERTFILE,
+  .keyfile = KEYFILE,
+  .certfile2 = ECC_CERTFILE,
+  .keyfile2 = ECC_KEYFILE,
+  .priority = "NORMAL:-SIGN-ALL:+SIGN-RSA-SHA256:+SIGN-RSA-PSS-RSAE-SHA256",
+  .expected_pk_algo = GNUTLS_PK_RSA,
 };
 
 /* for forking test cases, where server's SIGCHLD handling gets in the way */
@@ -296,7 +320,10 @@ assert_https_outcome (TestCase *tc,
 
       g_assert_cmpint (gnutls_init (&session, GNUTLS_CLIENT), ==, GNUTLS_E_SUCCESS);
       gnutls_transport_set_int (session, fd);
-      g_assert_cmpint (gnutls_set_default_priority (session), ==, GNUTLS_E_SUCCESS);
+      if (fixture && fixture->priority)
+        g_assert_cmpint (gnutls_priority_set_direct (session, fixture->priority, NULL), ==, GNUTLS_E_SUCCESS);
+      else
+        g_assert_cmpint (gnutls_set_default_priority (session), ==, GNUTLS_E_SUCCESS);
       gnutls_handshake_set_timeout(session, 5000);
       g_assert_cmpint (gnutls_certificate_allocate_credentials (&xcred), ==, GNUTLS_E_SUCCESS);
       g_assert_cmpint (gnutls_certificate_set_x509_system_trust (xcred), >=, 0);
@@ -324,6 +351,17 @@ assert_https_outcome (TestCase *tc,
       server_certs = gnutls_certificate_get_peers (session, &server_certs_len);
       g_assert (server_certs);
       g_assert_cmpuint (server_certs_len, ==, expected_server_certs);
+
+      /* check server certificate algorithm if requested */
+      if (fixture && fixture->expected_pk_algo)
+        {
+          gnutls_x509_crt_t cert;
+          g_assert_cmpint (gnutls_x509_crt_init (&cert), ==, GNUTLS_E_SUCCESS);
+          g_assert_cmpint (gnutls_x509_crt_import (cert, &server_certs[0], GNUTLS_X509_FMT_DER),
+                           ==, GNUTLS_E_SUCCESS);
+          g_assert_cmpint (gnutls_x509_crt_get_pk_algorithm (cert, NULL), ==, fixture->expected_pk_algo);
+          gnutls_x509_crt_deinit (cert);
+        }
 
       /* send request, read response */
       len = gnutls_record_send (session, request, sizeof (request));
@@ -435,13 +473,20 @@ setup (TestCase *tc, gconstpointer data)
 
   if (fixture && fixture->certfile)
     {
-      /* Set up certs directory with 0.cert and 0.key */
+      /* Set up certs directory with 0.crt and 0.key */
       g_autofree gchar *certs_dir = g_build_filename (tc->runtime_dir, "tls/server", NULL);
-      g_assert_cmpint (g_mkdir (certs_dir, 0700), ==, 0);
-      g_autofree gchar *cert_link = g_build_filename (certs_dir, "0.crt", NULL);
-      g_autofree gchar *key_link = g_build_filename (certs_dir, "0.key", NULL);
-      g_assert_cmpint (symlink (fixture->certfile, cert_link), ==, 0);
-      g_assert_cmpint (symlink (fixture->keyfile, key_link), ==, 0);
+      g_assert_cmpint (g_mkdir_with_parents (certs_dir, 0700), ==, 0);
+
+      const char *sources[] = { fixture->certfile, fixture->keyfile,
+                                fixture->certfile2, fixture->keyfile2 };
+      const char *dests[] = { "0.crt", "0.key", "1.crt", "1.key" };
+      for (int i = 0; i < G_N_ELEMENTS (sources) && sources[i]; i++)
+        {
+          g_autofree gchar *contents = NULL;
+          g_autofree gchar *dest = g_build_filename (certs_dir, dests[i], NULL);
+          g_assert (g_file_get_contents (sources[i], &contents, NULL, NULL));
+          g_assert (g_file_set_contents (dest, contents, -1, NULL));
+        }
 
       int cert_dirfd = open (certs_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
       g_assert_cmpint (cert_dirfd, >=, 0);
@@ -494,17 +539,23 @@ teardown (TestCase *tc, gconstpointer data)
   g_assert_cmpint (g_rmdir (tc->clients_dir), ==, 0);
   g_free (tc->clients_dir);
 
-  /* Clean up certs.d if it exists */
-  g_autofree gchar *certs_dir = g_build_filename (tc->runtime_dir, "certs.d", NULL);
-  if (g_file_test (certs_dir, G_FILE_TEST_IS_DIR))
+  /* Clean up tls dir if it exists */
+  g_autofree gchar *tls_dir = g_build_filename (tc->runtime_dir, "tls", NULL);
+  if (g_file_test (tls_dir, G_FILE_TEST_IS_DIR))
     {
-      g_autofree gchar *cert_file = g_build_filename (certs_dir, "0.crt", NULL);
-      g_autofree gchar *key_file = g_build_filename (certs_dir, "0.key", NULL);
-      g_unlink (cert_file);
-      g_unlink (key_file);
-      g_assert_cmpint (g_rmdir (certs_dir), ==, 0);
+      g_autofree gchar *certs_dir = g_build_filename (tls_dir, "server", NULL);
+      if (g_file_test (certs_dir, G_FILE_TEST_IS_DIR))
+        {
+          const char *files[] = { "0.crt", "0.key", "1.crt", "1.key", NULL };
+          for (int i = 0; files[i]; i++)
+            {
+              g_autofree gchar *path = g_build_filename (certs_dir, files[i], NULL);
+              g_unlink (path);
+            }
+          g_assert_cmpint (g_rmdir (certs_dir), ==, 0);
+        }
+      g_assert_cmpint (g_rmdir (tls_dir), ==, 0);
     }
-
   g_assert_cmpint (g_rmdir (tc->runtime_dir), ==, 0);
   g_free (tc->runtime_dir);
 
@@ -911,6 +962,10 @@ main (int argc, char *argv[])
               setup, test_tls_blocked_handshake, teardown);
   g_test_add ("/server/mixed-protocols", TestCase, &fixture_separate_crt_key,
               setup, test_mixed_protocols, teardown);
+  g_test_add ("/server/tls/multiple-certs/ecdsa", TestCase, &fixture_multiple_certs_ecdsa,
+              setup, test_tls_no_client_cert, teardown);
+  g_test_add ("/server/tls/multiple-certs/rsa", TestCase, &fixture_multiple_certs_rsa,
+              setup, test_tls_no_client_cert, teardown);
   g_test_add ("/server/run-idle", TestCase, &fixture_run_idle,
               setup, test_run_idle, teardown);
   g_test_add ("/server/ipv4/connection", TestCase, NULL,

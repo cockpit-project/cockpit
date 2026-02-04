@@ -89,6 +89,29 @@ class ImplBase {
         else
             this.supported = false;
     }
+
+    // Generate shell script fragment to create a systemd timer drop-in
+    generateTimerConfigScript(configFile, day, time) {
+        let script = "";
+
+        if (time !== null || day !== null) {
+            if (day === "" && time === "") {
+                // restore defaults
+                script += `rm -f ${configFile}; `;
+            } else {
+                if (day == null) day = this.day;
+                if (time == null) time = this.time;
+
+                const confDir = configFile.substring(0, configFile.lastIndexOf('/'));
+                script += `mkdir -p ${confDir}; `;
+                script += `printf '[Timer]\\nOnBootSec=\\nOnCalendar=${day} ${time}\\n' > ${configFile}; `;
+            }
+
+            script += "systemctl daemon-reload; ";
+        }
+
+        return script;
+    }
 }
 
 class Dnf4Impl extends ImplBase {
@@ -137,7 +160,6 @@ class Dnf4Impl extends ImplBase {
     }
 
     async setConfig(enabled, type, day, time) {
-        const timerConf = "/etc/systemd/system/dnf-automatic-install.timer.d/time.conf";
         let script = "set -e; ";
 
         if (type !== null) {
@@ -154,20 +176,8 @@ class Dnf4Impl extends ImplBase {
         if (enabled && !this.enabled && !this.time && !this.day)
             time = "6:00";
 
-        if (time !== null || day !== null) {
-            if (day === "" && time === "") {
-                // restore defaults
-                script += "rm -f " + timerConf + "; ";
-            } else {
-                if (day == null)
-                    day = this.day;
-                if (time == null)
-                    time = this.time;
-                script += "mkdir -p /etc/systemd/system/dnf-automatic-install.timer.d; ";
-                script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
-                script += "systemctl daemon-reload; ";
-            }
-        }
+        const timerConf = "/etc/systemd/system/dnf-automatic-install.timer.d/time.conf";
+        script += this.generateTimerConfigScript(timerConf, day, time);
 
         if (enabled !== null) {
             const rebootConf = "/etc/systemd/system/dnf-automatic-install.service.d/autoreboot.conf";
@@ -267,8 +277,6 @@ class Dnf5Impl extends ImplBase {
     }
 
     async setConfig(enabled, type, day, time) {
-        const timerConfD = "/etc/systemd/system/dnf5-automatic.timer.d";
-        const timerConf = timerConfD + "/time.conf";
         let script = "set -e; ";
 
         // there's no default config file, admins are supposed to put their own settings into a new file
@@ -277,20 +285,8 @@ class Dnf5Impl extends ImplBase {
         if (type !== null)
             settings.push(["upgrade_type", (type == "security") ? "security" : "default"]);
 
-        if (time !== null || day !== null) {
-            if (day === "" && time === "") {
-                // restore defaults
-                script += "rm -f " + timerConf + "; ";
-            } else {
-                if (day == null)
-                    day = this.day;
-                if (time == null)
-                    time = this.time;
-                script += "mkdir -p " + timerConfD + "; ";
-                script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
-                script += "systemctl daemon-reload; ";
-            }
-        }
+        const timerConf = "/etc/systemd/system/dnf5-automatic.timer.d/time.conf";
+        script += this.generateTimerConfigScript(timerConf, day, time);
 
         if (enabled !== null) {
             script += "systemctl " + (enabled ? "enable" : "disable") + " --now dnf5-automatic.timer; ";

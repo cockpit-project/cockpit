@@ -97,7 +97,7 @@ class SuperuserPeer(ConfiguredPeer):
                 ("StandardInputFileDescriptor", {"t": "h", "v": theirs}),
                 ("StandardOutputFileDescriptor", {"t": "h", "v": theirs}),
                 ("StandardErrorFileDescriptor", {"t": "h", "v": stderr}),
-                ("ExecStart", {"t": "a(sasb)", "v": [(args[0], args, False)]}),
+                ("ExecStart", {"t": "a(sasb)", "v": [(shutil.which(args[0]), args, False)]}),
             ],
             [],
         )

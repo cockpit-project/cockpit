@@ -1,0 +1,412 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+#
+# Copyright (C) 2026 Red Hat, Inc.
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+import time
+
+import netlib
+import testlib
+
+
+@testlib.nondestructive
+@testlib.onlyImage("hostapd/NM-wifi not installed on our test image", "fedora-43")
+class TestNetworkingWifi(netlib.NetworkCase):
+    def setUp(self):
+        super().setUp()
+        m = self.machine
+
+        # firewalld blocks local dnsmasq/hostapd
+        m.execute("systemctl stop firewalld")
+        self.addCleanup(m.execute, "systemctl start firewalld")
+
+        # tell NM to ignore router and BSS interfaces
+        self.write_file("/run/udev/rules.d/99-nm-wifi-test.rules", 'ENV{INTERFACE}=="wlan0*", ENV{NM_UNMANAGED}="1"',
+                        post_restore_action="udevadm control --reload")
+        m.execute("udevadm control --reload")
+
+        # start fake wifi wlan0/1 pair and wait for it
+        m.execute("modprobe mac80211_hwsim; while ! [ -e /sys/class/net/wlan0 ]; do sleep 0.1; done")
+        self.addCleanup(m.execute, "rmmod mac80211_hwsim")
+
+        # start hostapd with multiple BSSes
+        self.write_file("/tmp/hostapd.conf", """
+interface=wlan0
+hw_mode=g
+channel=1
+
+# First network: WPA2-PSK
+ssid=ZE WIFI!
+wpa=2
+wpa_passphrase=12345678
+
+# Second network: WPA2-PSK
+bss=wlan0_0
+ssid=PrivateNet
+wpa=2
+wpa_passphrase=secret123
+
+# Third network: Open
+bss=wlan0_1
+ssid=OpenNet
+
+# Fourth network: second AP for same SSID
+bss=wlan0_2
+ssid=OpenNet
+
+# Fifth network: Hidden WPA2-PSK
+bss=wlan0_3
+ssid=HiddenNet
+ignore_broadcast_ssid=1
+wpa=2
+wpa_passphrase=hidden99""")
+        hostapd_pid = m.spawn("hostapd /tmp/hostapd.conf", "hostapd.log")
+        self.addCleanup(m.execute, f"kill {hostapd_pid}")
+
+        # give router ends an IP
+        m.execute("until [ -e /sys/class/net/wlan0_3 ]; do sleep 0.1; done")
+        m.execute("ip addr add 10.0.42.1/24 dev wlan0")
+        m.execute("ip addr add 10.0.42.2/24 dev wlan0_0")
+        m.execute("ip addr add 10.0.42.3/24 dev wlan0_1")
+        m.execute("ip addr add 10.0.42.4/24 dev wlan0_2")
+        m.execute("ip addr add 10.0.42.5/24 dev wlan0_3")
+
+        # start DNS server
+        dnsmasq_pid = m.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
+                              "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases "
+                              "--bind-interfaces --except-interface=lo "
+                              "--interface=wlan0 --interface=wlan0_0 --interface=wlan0_1 --interface=wlan0_2 --interface=wlan0_3 "
+                              "--dhcp-range=10.0.42.10,10.0.42.200", "wifi-dnsmasq.log")
+        self.addCleanup(m.execute, f"kill {dnsmasq_pid}")
+
+        # client-side interface
+        self.iface = "wlan1"
+
+    def testWifi(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        self.wait_for_iface(self.iface, active=False)
+
+        # Details column shows correct number of networks (hidden networks not counted)
+        with b.wait_timeout(30):
+            b.wait_text(f"tr[data-interface='{self.iface}'] [data-label='Details']", "3 networks")
+        # Not connected to anything
+        b.wait_not_present(f"tr[data-interface='{self.iface}'] .pf-m-success")
+
+        self.select_iface(self.iface)
+        b.wait_visible("#network-interface")
+        self.wait_for_iface_setting("Status", "Inactive")
+
+        # detects our three visible wifis (plus one hidden)
+        b.wait_in_text("table[aria-label='Available networks'] tbody:first-of-type", "ZE WIFI!")
+        b.wait_text("tr[data-ssid='ZE WIFI!'] th", "ZE WIFI!")
+        self.assertEqual(b.get_pf_progress_value("tr[data-ssid='ZE WIFI!'] [data-label='Signal']"), 100)
+        # sadly, mac80211_hwsim's data rate reporting is flaky, so just ensure at least one of our networks is correct
+        b.wait_in_text("table[aria-label='Available networks']", "54 Mbps")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] [data-label='Mode'] [aria-label='secured']")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        # No known network yet
+        b.wait_not_present(".nm-icon-known")
+
+        b.wait_visible("tr[data-ssid='PrivateNet'] [data-label='Mode'] [aria-label='secured']")
+        b.wait_visible("tr[data-ssid='PrivateNet'] button[aria-label='Connect']")
+
+        # only one OpenNet row for the two APs
+        b.wait_count("tr[data-ssid='OpenNet']", 1)
+        b.wait_visible("tr[data-ssid='OpenNet'] [data-label='Mode'] [aria-label='open']")
+        b.wait_visible("tr[data-ssid='OpenNet'] button[aria-label='Connect']")
+
+        # Filter networks
+        b.set_input_text("#network-interface-wifi-networks input[placeholder='Filter']", "wifi")
+        # Should show only "ZE WIFI!"
+        b.wait_visible("tr[data-ssid='ZE WIFI!']")
+        b.wait_not_present("tr[data-ssid='PrivateNet']")
+        b.wait_not_present("tr[data-ssid='OpenNet']")
+
+        # Search for network that doesn't exist
+        b.set_input_text("#network-interface-wifi-networks input[placeholder='Filter']", "NoSuchNetwork")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!']")
+        b.wait_not_present("tr[data-ssid='PrivateNet']")
+        b.wait_not_present("tr[data-ssid='OpenNet']")
+
+        # Clear search
+        b.click("#network-interface-wifi-networks button[aria-label='Reset']")
+        b.wait_visible("tr[data-ssid='ZE WIFI!']")
+        b.wait_visible("tr[data-ssid='PrivateNet']")
+        b.wait_visible("tr[data-ssid='OpenNet']")
+
+        # Connect to OpenNet
+        b.click("tr[data-ssid='OpenNet'] button[aria-label='Connect']")
+        b.wait_visible("tr[data-ssid='OpenNet'] button[aria-label='Disconnect']")
+        # gets a "connected" icon
+        b.wait_visible("tr[data-ssid='OpenNet'] .nm-icon-connected")
+        # gets an IP
+        self.wait_for_iface_setting("Status", "10.0.42")
+        # moves to top of table
+        b.wait_in_text("table[aria-label='Available networks'] tbody:first-of-type", "OpenNet")
+
+        # Overview shows connected network
+        b.click("#network-interface nav a:contains('Networking')")
+        b.wait_visible("#networking")
+        b.wait_in_text(f"tr[data-interface='{self.iface}'] [data-label='Details']", "3 networks")
+        b.wait_in_text(f"tr[data-interface='{self.iface}'] [data-label='Details'] .pf-v6-c-label.pf-m-success", "OpenNet")
+        self.select_iface(self.iface)
+
+        # Disconnect
+        b.click("tr[data-ssid='OpenNet'] button[aria-label='Disconnect']")
+        b.wait_visible("tr[data-ssid='OpenNet'] button[aria-label='Connect']")
+        # icon moves to "known" state
+        b.wait_visible("tr[data-ssid='OpenNet'] .nm-icon-known")
+        b.wait_not_present("tr[data-ssid='OpenNet'] .nm-icon-connected")
+        # loses IP
+        self.wait_for_iface_setting("Status", "Inactive")
+        # still a known network, stays at the top of the table
+        b.wait_in_text("table[aria-label='Available networks'] tbody:nth-of-type(1)", "OpenNet")
+
+        # Overview shows disconnected
+        b.click("#network-interface nav a:contains('Networking')")
+        b.wait_visible("#networking")
+        b.wait_text(f"tr[data-interface='{self.iface}'] [data-label='Details']", "3 networks")
+        b.wait_not_present(f"tr[data-interface='{self.iface}'] .pf-v6-c-label.pf-m-success")
+        self.select_iface(self.iface)
+
+        # Connect to ZE WIFI!
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
+        # Validation: Empty password
+        b.wait_val("#network-wifi-connect-password-input", "")
+        b.wait_visible("#network-wifi-connect-connect:disabled")
+        # Test password reveal
+        b.set_input_text("#network-wifi-connect-password-input", "wrong123")
+        b.wait_visible("#network-wifi-connect-connect:not(:disabled)")
+        self.assertEqual(b.attr("#network-wifi-connect-password-input", "type"), "password")
+        b.click("#network-wifi-connect-dialog button[aria-label='Show password']")
+        self.assertEqual(b.attr("#network-wifi-connect-password-input", "type"), "text")
+        self.assertEqual(b.val("#network-wifi-connect-password-input"), "wrong123")
+        b.click("#network-wifi-connect-dialog button[aria-label='Hide password']")
+        self.assertEqual(b.attr("#network-wifi-connect-password-input", "type"), "password")
+        # Submit with wrong password
+        b.click("#network-wifi-connect-connect")
+        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
+        b.wait_visible("#network-wifi-connect-connect:disabled")
+        b.wait_in_text("#network-wifi-connect-dialog", "Failed to connect. Check your password")
+        # correct password
+        b.set_input_text("#network-wifi-connect-password-input", "12345678")
+        b.click("#network-wifi-connect-connect")
+        b.wait_not_present("#network-wifi-connect-dialog")
+
+        # connects, action changes
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Disconnect']")
+        # gets a "connected" icon
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] .nm-icon-connected")
+        # gets an IP
+        self.wait_for_iface_setting("Status", "10.0.42")
+
+        # Disconnect
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Disconnect']")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        # icon moves to "known" state
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] .nm-icon-known")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] .nm-icon-connected")
+        # loses IP
+        self.wait_for_iface_setting("Status", "Inactive")
+
+        # NM now knows the connection and can re-connect without password query
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        # icon moves to "connected" state
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] .nm-icon-connected")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] .nm-icon-known")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Disconnect']")
+        self.wait_for_iface_setting("Status", "10.0.42")
+        # OpenNet is known but not connected
+        b.wait_visible("tr[data-ssid='OpenNet'] .nm-icon-known")
+
+        # Test connection failure when password is not stored
+        # Disconnect first
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Disconnect']")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        # Remove the password from the connection file and restart NM
+        m.execute("sed -i '/^psk=/d' /etc/NetworkManager/system-connections/'ZE WIFI!.nmconnection'")
+        m.execute("systemctl restart NetworkManager")
+        b.reload()
+        b.enter_page("/network")
+        # Try to connect - shows error about missing password
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_in_text("#error-popup", "Failed to connect to ZE WIFI!")
+        b.wait_in_text("#error-popup", "Network password is not stored")
+        b.click("#error-popup button:contains('Close')")
+        b.wait_not_present("#error-popup")
+        # Restore the connection with password for subsequent tests
+        b.click("tr[data-ssid='ZE WIFI!'] button.pf-v6-c-menu-toggle")
+        b.click(".pf-v6-c-menu button[aria-label='Forget']")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] .nm-icon-known")
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
+        b.set_input_text("#network-wifi-connect-password-input", "12345678")
+        b.click("#network-wifi-connect-connect")
+        b.wait_not_present("#network-wifi-connect-dialog")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Disconnect']")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] .nm-icon-connected")
+
+        # connecting to OpenNet disconnects from ZE WIFI!
+        self.assertIn("ZE WIFI!", m.execute("nmcli d show wlan1 | grep GENERAL.CONNECTION"))
+        b.click("tr[data-ssid='OpenNet'] button[aria-label='Connect']")
+        b.wait_visible("tr[data-ssid='OpenNet'] button[aria-label='Disconnect']")
+        # OpenNet moves to top of the table
+        b.wait_in_text("table[aria-label='Available networks'] tbody:first-of-type", "OpenNet")
+        # OpenNet icon moves to "connected" state
+        b.wait_visible("tr[data-ssid='OpenNet'] .nm-icon-connected")
+        b.wait_not_present("tr[data-ssid='OpenNet'] .nm-icon-known")
+        self.wait_for_iface_setting("Status", "10.0.42")
+        # ZE WIFI! moves to "known" state
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] .nm-icon-known")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] .nm-icon-connected")
+        self.assertIn("OpenNet", m.execute("nmcli d show wlan1 | grep GENERAL.CONNECTION"))
+
+        b.click("tr[data-ssid='OpenNet'] button[aria-label='Disconnect']")
+        self.wait_for_iface_setting("Status", "Inactive")
+
+        # Forget ZE WIFI! network
+        b.click("tr[data-ssid='ZE WIFI!'] button.pf-v6-c-menu-toggle")
+        b.click(".pf-v6-c-menu button[aria-label='Forget']")
+        # Known icon disappears
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] .nm-icon-known")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] button.pf-v6-c-menu-toggle")
+        # Try to connect again - should ask for password; cancel
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
+        b.click("#network-wifi-connect-cancel")
+        b.wait_not_present("#network-wifi-connect-dialog")
+        # Cancelling does not create a known connection
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] button.pf-v6-c-menu-toggle")
+
+        # Cancel during connection attempt
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
+        b.set_input_text("#network-wifi-connect-password-input", "12345678")
+        b.click("#network-wifi-connect-connect")
+        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
+        b.click("#network-wifi-connect-cancel")
+        b.wait_not_present("#network-wifi-connect-dialog")
+        # Cancelling did not create or deleted the known connection
+        # This tests a negative -- ensure the connnection does not get created in the background
+        time.sleep(3)
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] button.pf-v6-c-menu-toggle")
+        self.wait_for_iface_setting("Status", "Inactive")
+
+        # WiFi kill switch: detected networks disappear
+        m.execute("nmcli radio wifi off")
+        self.addCleanup(m.execute, "nmcli radio wifi on")
+        self.wait_for_iface_setting("Status", "Not available")
+        b.wait_not_present("table[aria-label='Available networks']")
+        b.click("#network-interface nav a:contains('Networking')")
+        b.wait_not_present(f"tr[data-interface='{self.iface}'] [data-label='Details']")
+
+        m.execute("nmcli radio wifi on")
+        # in theory, NM will now connect to OpenNet automatically; however, kill switch messes up
+        # mac80211_hwsim/hostapd's state, and they become unpredictable. So just assert that we get any life sign
+        b.wait_in_text(f"tr[data-interface='{self.iface}'] [data-label='Details']", "networks")
+        self.select_iface(self.iface)
+        b.wait_visible("table[aria-label='Available networks']")
+
+    def testHidden(self):
+        b = self.browser
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        self.wait_for_iface(self.iface, active=False)
+        self.select_iface(self.iface)
+        b.wait_visible("#network-interface")
+
+        # Hidden networks are aggregated at the bottom as "N hidden networks" with no actions
+        # They are not broadcast very often especially after initial hostapd setup
+        with b.wait_timeout(60):
+            b.wait_text("tr[data-hidden]", "1 hidden network")
+
+        # Connect to hidden network via manual connection dialog
+        b.click("button:contains('Connect to hidden network')")
+        b.wait_in_text("#network-wifi-connect-dialog", "Connect to hidden network")
+
+        # Validation: Connect button only becomes active with SSID and password
+        b.wait_visible("#network-wifi-connect-connect:disabled")
+        b.set_input_text("#network-wifi-connect-ssid-input", "SomeNetwork")
+        time.sleep(0.5)
+        b.wait_visible("#network-wifi-connect-connect:disabled")
+
+        # Validation: No password required for open networks
+        b.set_val("#network-wifi-connect-security-select", "none")
+        b.wait_not_present("#network-wifi-connect-password-input")
+        b.wait_visible("#network-wifi-connect-connect:not(:disabled)")
+
+        # Validation: Password required for WPA networks
+        b.set_val("#network-wifi-connect-security-select", "wpa-psk")
+        b.wait_visible("#network-wifi-connect-password-input")
+        b.wait_visible("#network-wifi-connect-connect:disabled")
+
+        # Error case 1: Wrong SSID
+        b.set_input_text("#network-wifi-connect-ssid-input", "WrongSSID")
+        self.assertEqual(b.val("#network-wifi-connect-security-select"), "wpa-psk")
+        b.set_input_text("#network-wifi-connect-password-input", "password")
+        b.click("#network-wifi-connect-connect")
+        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
+        with b.wait_timeout(30):
+            b.wait_in_text("#network-wifi-connect-dialog", "Failed to connect")
+        b.wait_not_present("#network-wifi-connect-connect.pf-m-in-progress")
+
+        # Error case 2: Wrong security (open instead of WPA)
+        b.set_input_text("#network-wifi-connect-ssid-input", "HiddenNet")
+        b.set_val("#network-wifi-connect-security-select", "none")
+        b.wait_not_present("#network-wifi-connect-password-input")
+        b.click("#network-wifi-connect-connect")
+        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
+        with b.wait_timeout(30):
+            b.wait_in_text("#network-wifi-connect-dialog", "Failed to connect")
+        b.wait_not_present("#network-wifi-connect-connect.pf-m-in-progress")
+
+        # Error case 3: Wrong password
+        b.set_val("#network-wifi-connect-security-select", "wpa-psk")
+        b.wait_visible("#network-wifi-connect-password-input")
+        b.set_input_text("#network-wifi-connect-password-input", "wrongpassword")
+        b.click("#network-wifi-connect-connect")
+        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
+        b.wait_in_text("#network-wifi-connect-dialog", "Failed to connect")
+        b.wait_not_present("#network-wifi-connect-connect.pf-m-in-progress")
+
+        # Success case: Correct credentials
+        b.set_input_text("#network-wifi-connect-password-input", "hidden99")
+        b.click("#network-wifi-connect-connect")
+        b.wait_not_present("#network-wifi-connect-dialog")
+        # Hidden network connects and shows its real SSID
+        b.wait_visible("tr[data-ssid='HiddenNet'] button[aria-label='Disconnect']")
+        b.wait_visible("tr[data-ssid='HiddenNet'] .nm-icon-connected")
+        self.wait_for_iface_setting("Status", "10.0.42")
+        # Should not show (hidden network) anymore, only HiddenNet
+        b.wait_not_present("tr[data-hidden]")
+
+        # Disconnect from hidden network - it remains known with its SSID
+        b.click("tr[data-ssid='HiddenNet'] button[aria-label='Disconnect']")
+        self.wait_for_iface_setting("Status", "Inactive")
+        b.wait_visible("tr[data-ssid='HiddenNet'] button[aria-label='Connect']")
+        b.wait_visible("tr[data-ssid='HiddenNet'] .nm-icon-known")
+        b.wait_not_present("tr[data-ssid='HiddenNet'] .nm-icon-connected")
+
+        # Forget hidden network - it disappears
+        b.click("tr[data-ssid='HiddenNet'] button.pf-v6-c-menu-toggle")
+        b.click(".pf-v6-c-menu button[aria-label='Forget']")
+        b.wait_not_present("tr[data-ssid='HiddenNet']")
+        b.wait_not_present("tr[data-ssid='HiddenNet'] .nm-icon-known")
+        # ... and becomes unknown again in the hidden networks row
+        b.wait_text("tr[data-hidden]", "1 hidden network")
+
+
+if __name__ == '__main__':
+    testlib.test_main()

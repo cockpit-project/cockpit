@@ -17,7 +17,7 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-function show_error_dialog(title, message) {
+export function show_error_dialog(title, message) {
     const props = {
         id: "error-popup",
         title,
@@ -332,7 +332,8 @@ export function NetworkManagerModel() {
 
             if (signal == "PropertiesChanged") {
                 push_refresh();
-                set_object_properties(obj, remove_signatures(args[0]));
+                const props = remove_signatures(args[0]);
+                set_object_properties(obj, props);
                 pop_refresh();
             } else if (type.signals && type.signals[signal])
                 type.signals[signal](obj, args);
@@ -398,6 +399,21 @@ export function NetworkManagerModel() {
 
             Object.keys(interfaces).forEach(iface => {
                 const props = interfaces[iface];
+
+                /* Capture connection failure reasons for devices
+                   NM transitions through PREPARE → CONFIG → NEED_AUTH → FAILED → DISCONNECTED very
+                   quickly, and React batches these updates, so the UI often misses the FAILED state.
+                   Store the failure reason here at the D-Bus event level so we can retrieve it later. */
+                if (path.includes("/Devices/") && props?.StateReason) {
+                    const obj = peek_object(path);
+                    if (obj) {
+                        const [state, reason] = props.StateReason;
+                        if (state === 120 && reason !== 0) {
+                            utils.debug("Captured", obj.Interface, "failure, reason:", reason);
+                            priv(obj).lastFailureReason = reason;
+                        }
+                    }
+                }
 
                 if (props)
                     interface_properties(path, iface, props);
@@ -610,6 +626,13 @@ export function NetworkManagerModel() {
             };
         }
 
+        if (settings["802-11-wireless"]) {
+            result["802-11-wireless"] = {
+                ssid: get("802-11-wireless", "ssid"),
+                mode: get("802-11-wireless", "mode"),
+            };
+        }
+
         return result;
     }
 
@@ -784,6 +807,20 @@ export function NetworkManagerModel() {
             delete result.wireguard;
         }
 
+        if (settings["802-11-wireless"]) {
+            set("802-11-wireless", "ssid", 'ay', settings["802-11-wireless"].ssid);
+            set("802-11-wireless", "mode", 's', settings["802-11-wireless"].mode);
+        } else {
+            delete result["802-11-wireless"];
+        }
+
+        if (settings["802-11-wireless-security"]) {
+            set("802-11-wireless-security", "key-mgmt", 's', settings["802-11-wireless-security"]["key-mgmt"]);
+            set("802-11-wireless-security", "psk", 's', settings["802-11-wireless-security"].psk);
+        } else {
+            delete result["802-11-wireless-security"];
+        }
+
         return result;
     }
 
@@ -857,6 +894,21 @@ export function NetworkManagerModel() {
         // NM_DEVICE_STATE_FAILED
         case 120: return _("Failed");
         default: return "";
+        }
+    }
+
+    function access_point_mode_to_text(mode) {
+        switch (mode) {
+        // NM_802_11_MODE_ADHOC
+        case 1: return _("Adhoc");
+        // NM_802_11_MODE_INFRA
+        case 2: return _("Infra");
+        // NM_802_11_MODE_AP
+        case 3: return _("AP");
+        // NM_802_11_MODE_MESH
+        case 4: return _("Mesh");
+        // subsumes NM_802_11_MODE_UNKNOWN
+        default: return _("Unknown");
         }
     }
 
@@ -940,6 +992,37 @@ export function NetworkManagerModel() {
         props: {
             AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
         }
+    };
+
+    const type_AccessPoint = {
+        interfaces: [
+            "org.freedesktop.NetworkManager.AccessPoint"
+        ],
+
+        props: {
+            Flags: { def: 0 },
+            WpaFlags: { def: 0 },
+            RsnFlags: { def: 0 },
+            Ssid: { conv: utils.ssid_from_nm, def: "" },
+            Frequency: { def: 0 }, // MHz
+            HwAddress: { def: "" },
+            Mode: { conv: access_point_mode_to_text, def: "" },
+            MaxBitrate: { def: 0 }, // Kbit/s
+            Bandwidth: { def: 0 }, // MHz
+            Strength: { def: 0 },
+            LastSeen: { def: -1 }, // CLOCK_BOOTTIME seconds, -1 if never seen
+        },
+
+        exporters: [
+            function (obj) {
+                // Find connection for this SSID (undefined if none exists)
+                obj.Connection = (self.get_settings()?.Connections || []).find(con => {
+                    if (con.Settings?.["802-11-wireless"]?.ssid)
+                        return utils.ssid_from_nm(con.Settings["802-11-wireless"].ssid) == obj.Ssid;
+                    return false;
+                });
+            }
+        ]
     };
 
     const type_Connection = {
@@ -1052,7 +1135,8 @@ export function NetworkManagerModel() {
         props: {
             Connection: { conv: conv_Object(type_Connection) },
             Ip4Config: { conv: conv_Object(type_Ipv4Config) },
-            Ip6Config: { conv: conv_Object(type_Ipv6Config) }
+            Ip6Config: { conv: conv_Object(type_Ipv6Config) },
+            State: { def: 0 }
             // See below for "Group"
         },
 
@@ -1073,7 +1157,8 @@ export function NetworkManagerModel() {
             "org.freedesktop.NetworkManager.Device.Bond",
             "org.freedesktop.NetworkManager.Device.Team",
             "org.freedesktop.NetworkManager.Device.Bridge",
-            "org.freedesktop.NetworkManager.Device.Vlan"
+            "org.freedesktop.NetworkManager.Device.Vlan",
+            "org.freedesktop.NetworkManager.Device.Wireless"
         ],
 
         props: {
@@ -1081,6 +1166,7 @@ export function NetworkManagerModel() {
             Interface: { },
             StateText: { prop: "State", conv: device_state_to_text, def: _("Unknown") },
             State: { },
+            StateReason: { def: [0, 0] }, // [state, reason] tuple
             HwAddress: { },
             AvailableConnections: { conv: conv_Array(conv_Object(type_Connection)), def: [] },
             ActiveConnection: { conv: conv_Object(type_ActiveConnection) },
@@ -1093,11 +1179,15 @@ export function NetworkManagerModel() {
             Carrier: { def: true },
             Speed: { },
             Managed: { def: false },
+            // WiFi-specific properties
+            AccessPoints: { conv: conv_Array(conv_Object(type_AccessPoint)), def: [] },
+            ActiveAccessPoint: { conv: conv_Object(type_AccessPoint) },
             // See below for "Members"
         },
 
         prototype: {
             activate: function(connection, specific_object) {
+                priv(this).lastFailureReason = undefined; // Clear stale failure reason from previous attempts
                 return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                           "org.freedesktop.NetworkManager", "ActivateConnection",
                                           objpath(connection), objpath(this), objpath(specific_object))
@@ -1105,11 +1195,15 @@ export function NetworkManagerModel() {
             },
 
             activate_with_settings: function(settings, specific_object) {
+                priv(this).lastFailureReason = undefined; // Clear stale failure reason from previous attempts
                 try {
                     return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                               "org.freedesktop.NetworkManager", "AddAndActivateConnection",
                                               settings_to_nm(settings), objpath(this), objpath(specific_object))
-                            .then(([path, active_connection]) => active_connection);
+                            .then(([path, active_connection_path]) => ({
+                                connection: get_object(path, type_Connection),
+                                active_connection: get_object(active_connection_path, type_ActiveConnection)
+                            }));
                 } catch (e) {
                     return Promise.reject(e);
                 }
@@ -1118,8 +1212,136 @@ export function NetworkManagerModel() {
             disconnect: function () {
                 return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect')
                         .then(() => undefined);
+            },
+
+            // Request a WiFi scan to populate this.AccessPoints
+            request_scan: function() {
+                utils.debug("request_scan: requesting scan for", this.Interface);
+                call_object_method(this, 'org.freedesktop.NetworkManager.Device.Wireless', 'RequestScan', {})
+                        .catch(error => {
+                            // RequestScan can fail if a scan was recently done, that's OK
+                            console.warn("request_scan: scan failed for", this.Interface + ":", error.toString());
+                        });
+            },
+
+            // Get and clear the last connection failure reason
+            consume_failure_reason: function() {
+                const reason = priv(this).lastFailureReason;
+                priv(this).lastFailureReason = undefined;
+                return reason;
+            },
+
+            // Mark that a pending connection is being cancelled by the user
+            cancel_pending_connection: function() {
+                priv(this).connectionCancelled = true;
+            },
+
+            // Wait for a connection to complete
+            // For WiFi, pass expected_ssid to verify we connected to the right network
+            // Returns a Promise that resolves on success or cancel, rejects with {reason} on failure
+            wait_connection: function(expected_ssid) {
+                priv(this).connectionCancelled = false;
+                utils.debug("wait_connection: starting, iface:", this.Interface, "expected:", expected_ssid, "initial state:", this.State);
+                return new Promise((resolve, reject) => {
+                    let activationStarted = false;
+
+                    const cleanup = () => self.removeEventListener("changed", check);
+
+                    const check = () => {
+                        utils.debug("wait_connection check: state:", this.State, "ssid:", this.ActiveAccessPoint?.Ssid,
+                                    "activeConn:", !!this.ActiveConnection, "activationStarted:", activationStarted,
+                                    "lastFailureReason:", priv(this).lastFailureReason,
+                                    "connectionCancelled:", priv(this).connectionCancelled);
+
+                        // captured a failure?
+                        const reason = this.consume_failure_reason();
+                        if (reason) {
+                            cleanup();
+                            console.warn("wait_connection: connection failed for", this.Interface, "reason:", reason);
+                            const error = new Error("Connection failed");
+                            error.reason = reason;
+                            reject(error);
+                            return;
+                        }
+
+                        // https://networkmanager.dev/docs/api/latest/nm-dbus-types.html#NMDeviceState
+                        switch (this.State) {
+                        case 100: // NM_DEVICE_STATE_ACTIVATED
+                            if (!expected_ssid || this.ActiveAccessPoint?.Ssid === expected_ssid) {
+                                utils.debug("wait_connection: success");
+                                cleanup();
+                                resolve();
+                            }
+                            break;
+
+                        case 30: // NM_DEVICE_STATE_DISCONNECTED; initial state, so wait for activation to start
+                        case 120: // NM_DEVICE_STATE_FAILED
+                            // Disconnected/failed after activation started means user cancelled or failure without reason
+                            if (activationStarted && !this.ActiveConnection) {
+                                cleanup();
+                                if (priv(this).connectionCancelled) {
+                                    utils.debug("wait_connection: cancelled by user");
+                                    resolve();
+                                } else {
+                                    console.warn("wait_connection: connection failed for", this.Interface, "without captured reason");
+                                    reject(new Error("Connection failed"));
+                                }
+                            }
+                            break;
+
+                        case 20: // NM_DEVICE_STATE_UNAVAILABLE
+                        case 110: // NM_DEVICE_STATE_DEACTIVATING
+                            break;
+
+                        // any other state means we're activating
+                        default:
+                            if (!activationStarted) {
+                                utils.debug("wait_connection: activation started");
+                                activationStarted = true;
+                            }
+                        }
+                    };
+
+                    self.addEventListener("changed", check);
+                    check(); // Check current state immediately in case already connected
+                });
             }
-        }
+        },
+
+        exporters: [
+            function (obj) {
+                if (obj.DeviceType === '802-11-wireless') {
+                    // When a hidden network (no SSID broadcast) has a saved connection, NetworkManager
+                    // duplicates it in AccessPoints: once without SSID (from the beacon), and once with
+                    // SSID (synthesized from the saved connection). Both have the same HwAddress (MAC).
+                    // We deduplicate by MAC first, preferring the one with a known connection
+                    const apByMac = new Map();
+                    (obj.AccessPoints || []).forEach(ap => {
+                        utils.debug(`AP: Ssid '${ap.Ssid}' HwAddress: ${ap.HwAddress} Strength: ${ap.Strength} hasConnection: ${!!ap.Connection}`);
+                        if (!apByMac.get(ap.HwAddress) || ap.Connection)
+                            apByMac.set(ap.HwAddress, ap);
+                    });
+
+                    // Deduplicate visible APs by SSID, keeping the strongest signal for each network.
+                    // Count remaining hidden APs (those without SSID after MAC deduplication).
+                    const apBySsid = new Map();
+                    let hiddenCount = 0;
+                    Array.from(apByMac.values()).forEach(ap => {
+                        if (ap.Ssid) {
+                            const existing = apBySsid.get(ap.Ssid);
+                            if (!existing || ap.Strength > existing.Strength) {
+                                apBySsid.set(ap.Ssid, ap);
+                            }
+                        } else {
+                            hiddenCount++;
+                        }
+                    });
+                    obj.visibleSsids = Array.from(apBySsid.values());
+                    obj.hiddenAPCount = hiddenCount;
+                    utils.debug("Device exporter:", obj.Interface, "has", obj.visibleSsids.length, "visible SSIDs and", obj.hiddenAPCount, "hidden APs");
+                }
+            }
+        ]
     };
 
     // The 'Interface' type does not correspond to any NetworkManager
@@ -1362,7 +1584,8 @@ export function NetworkManagerModel() {
         type_Ipv4Config,
         type_Ipv6Config,
         type_Connection,
-        type_ActiveConnection
+        type_ActiveConnection,
+        type_AccessPoint
     ]);
 
     get_object("/org/freedesktop/NetworkManager", type_Manager);

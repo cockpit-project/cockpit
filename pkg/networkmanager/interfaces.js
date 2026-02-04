@@ -610,6 +610,13 @@ export function NetworkManagerModel() {
             };
         }
 
+        if (settings["802-11-wireless"]) {
+            result["802-11-wireless"] = {
+                ssid: get("802-11-wireless", "ssid"),
+                mode: get("802-11-wireless", "mode"),
+            };
+        }
+
         return result;
     }
 
@@ -784,6 +791,20 @@ export function NetworkManagerModel() {
             delete result.wireguard;
         }
 
+        if (settings["802-11-wireless"]) {
+            set("802-11-wireless", "ssid", 'ay', settings["802-11-wireless"].ssid);
+            set("802-11-wireless", "mode", 's', settings["802-11-wireless"].mode);
+        } else {
+            delete result["802-11-wireless"];
+        }
+
+        if (settings["802-11-wireless-security"]) {
+            set("802-11-wireless-security", "key-mgmt", 's', settings["802-11-wireless-security"]["key-mgmt"]);
+            set("802-11-wireless-security", "psk", 's', settings["802-11-wireless-security"].psk);
+        } else {
+            delete result["802-11-wireless-security"];
+        }
+
         return result;
     }
 
@@ -857,6 +878,21 @@ export function NetworkManagerModel() {
         // NM_DEVICE_STATE_FAILED
         case 120: return _("Failed");
         default: return "";
+        }
+    }
+
+    function access_point_mode_to_text(mode) {
+        switch (mode) {
+        // NM_802_11_MODE_ADHOC
+        case 1: return _("Adhoc");
+        // NM_802_11_MODE_INFRA
+        case 2: return _("Infra");
+        // NM_802_11_MODE_AP
+        case 3: return _("AP");
+        // NM_802_11_MODE_MESH
+        case 4: return _("Mesh");
+        // subsumes NM_802_11_MODE_UNKNOWN
+        default: return _("Unknown");
         }
     }
 
@@ -940,6 +976,37 @@ export function NetworkManagerModel() {
         props: {
             AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
         }
+    };
+
+    const type_AccessPoint = {
+        interfaces: [
+            "org.freedesktop.NetworkManager.AccessPoint"
+        ],
+
+        props: {
+            Flags: { def: 0 },
+            WpaFlags: { def: 0 },
+            RsnFlags: { def: 0 },
+            Ssid: { conv: utils.ssid_from_nm, def: "" },
+            Frequency: { def: 0 }, // MHz
+            HwAddress: { def: "" },
+            Mode: { conv: access_point_mode_to_text, def: "" },
+            MaxBitrate: { def: 0 }, // Kbit/s
+            Bandwidth: { def: 0 }, // MHz
+            Strength: { def: 0 },
+            LastSeen: { def: -1 }, // CLOCK_BOOTTIME seconds, -1 if never seen
+        },
+
+        exporters: [
+            function (obj) {
+                // Find connection for this SSID (undefined if none exists)
+                obj.Connection = (self.get_settings()?.Connections || []).find(con => {
+                    if (con.Settings?.["802-11-wireless"]?.ssid)
+                        return utils.ssid_from_nm(con.Settings["802-11-wireless"].ssid) == obj.Ssid;
+                    return false;
+                });
+            }
+        ]
     };
 
     const type_Connection = {
@@ -1052,7 +1119,8 @@ export function NetworkManagerModel() {
         props: {
             Connection: { conv: conv_Object(type_Connection) },
             Ip4Config: { conv: conv_Object(type_Ipv4Config) },
-            Ip6Config: { conv: conv_Object(type_Ipv6Config) }
+            Ip6Config: { conv: conv_Object(type_Ipv6Config) },
+            State: { def: 0 }
             // See below for "Group"
         },
 
@@ -1073,7 +1141,8 @@ export function NetworkManagerModel() {
             "org.freedesktop.NetworkManager.Device.Bond",
             "org.freedesktop.NetworkManager.Device.Team",
             "org.freedesktop.NetworkManager.Device.Bridge",
-            "org.freedesktop.NetworkManager.Device.Vlan"
+            "org.freedesktop.NetworkManager.Device.Vlan",
+            "org.freedesktop.NetworkManager.Device.Wireless"
         ],
 
         props: {
@@ -1093,6 +1162,9 @@ export function NetworkManagerModel() {
             Carrier: { def: true },
             Speed: { },
             Managed: { def: false },
+            // WiFi-specific properties
+            AccessPoints: { conv: conv_Array(conv_Object(type_AccessPoint)), def: [] },
+            ActiveAccessPoint: { conv: conv_Object(type_AccessPoint) },
             // See below for "Members"
         },
 
@@ -1109,7 +1181,10 @@ export function NetworkManagerModel() {
                     return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                               "org.freedesktop.NetworkManager", "AddAndActivateConnection",
                                               settings_to_nm(settings), objpath(this), objpath(specific_object))
-                            .then(([path, active_connection]) => active_connection);
+                            .then(([path, active_connection_path]) => ({
+                                connection: get_object(path, type_Connection),
+                                active_connection: get_object(active_connection_path, type_ActiveConnection)
+                            }));
                 } catch (e) {
                     return Promise.reject(e);
                 }
@@ -1118,8 +1193,29 @@ export function NetworkManagerModel() {
             disconnect: function () {
                 return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect')
                         .then(() => undefined);
+            },
+
+            // Request a WiFi scan to populate this.AccessPoints
+            request_scan: function() {
+                utils.debug("request_scan: requesting scan for", this.Interface);
+                call_object_method(this, 'org.freedesktop.NetworkManager.Device.Wireless', 'RequestScan', {})
+                        .catch(error => {
+                            // RequestScan can fail if a scan was recently done, that's OK
+                            console.warn("request_scan: scan failed for", this.Interface + ":", error.toString());
+                        });
             }
-        }
+        },
+
+        exporters: [
+            function (obj) {
+                // Once we see any WiFi device, trigger one initial scan
+                if (obj.DeviceType === '802-11-wireless' && !priv(obj).wifi_scan_requested) {
+                    utils.debug("triggering initial WiFi scan for", obj.Interface);
+                    priv(obj).wifi_scan_requested = true;
+                    obj.request_scan();
+                }
+            }
+        ]
     };
 
     // The 'Interface' type does not correspond to any NetworkManager
@@ -1362,7 +1458,8 @@ export function NetworkManagerModel() {
         type_Ipv4Config,
         type_Ipv6Config,
         type_Connection,
-        type_ActiveConnection
+        type_ActiveConnection,
+        type_AccessPoint
     ]);
 
     get_object("/org/freedesktop/NetworkManager", type_Manager);

@@ -776,9 +776,10 @@ function debug(...args) {
         id("login-button").classList.add("pf-m-primary");
         hide("#get-out-link");
 
-        if (form == "login")
+        if (form == "login") {
             id("login-button").addEventListener("click", call_login);
             id("create-passkey").addEventListener("click", createCredentials);
+        }
 
         if (environment.is_cockpit_client) {
             render_recent_hosts();
@@ -790,7 +791,7 @@ function debug(...args) {
         /* Show the login screen */
         login_info(message);
         id("server-name").textContent = document.title;
-        login_note(_("Log in with your server user account!!"));
+        login_note(_("Log in with your server user account"));
         id("login-user-input").addEventListener("keydown", function(e) {
             login_failure(null);
             clear_info();
@@ -915,7 +916,7 @@ function debug(...args) {
     };
 
     const supportedAlgorithmsByValue = function(value) {
-        return Object.keys(supportedAlgorithms).filter(key => key !== "byValue").find(key => supportedAlgorithms[key] === value)
+        return Object.keys(supportedAlgorithms).filter(key => key !== "byValue").find(key => supportedAlgorithms[key] === value);
     }
 
     // Used when registering a token
@@ -950,7 +951,7 @@ function debug(...args) {
         const passkey = await (navigator.credentials.create({
             publicKey: {
                 challenge: new Uint8Array([
-                    // temp: must be a cryptographically random number sent from a server
+                    // TODO: must be a cryptographically random number sent from a server
                     0x8c, 0x0a, 0x26, 0xff, 0x22, 0x91, 0xc1, 0xe9, 0xb9, 0x4e, 0x2e, 0x17,
                     0x1a, 0x98, 0x6a, 0x73, 0x71, 0x9d, 0x43, 0x48,
                 ]),
@@ -963,7 +964,7 @@ function debug(...args) {
                 attestation: "direct",
                 timeout: 60_000,
                 authenticatorSelection: {
-                    requireResidentKey: false,
+                    residentKey: "discouraged",
                     userVerification: "discouraged"
                 },
                 // Ordered in terms of priority and what is supported by pam-u2f
@@ -1073,8 +1074,8 @@ function debug(...args) {
 
             const response = [];
             window.passkey = passkey;
-            // response.push(new Uint8Array(passkey.response.clientDataJSON).toBase64());
-            response.push(challenge);
+            response.push(new Uint8Array(passkey.response.clientDataJSON).toBase64());
+            // response.push(challenge);
             response.push("localhost")
             response.push(new Uint8Array(CBOR.encode(new Uint8Array(passkey.response.authenticatorData))).toBase64())
             response.push(new Uint8Array(passkey.response.signature).toBase64())

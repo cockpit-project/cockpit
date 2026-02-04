@@ -147,8 +147,6 @@
             </div>
           </div>
 
-          <div><button class="pf-v6-c-button pf-m-primary" id="create-passkey">Create passkey</button></div>
-
           <div class="form-group login-actions">
             <button class="pf-v6-c-button pf-m-primary login-button" id="login-button" type="submit">
               <span class="spinner"></span>
@@ -156,13 +154,16 @@
             </button>
             <a id="get-out-link" href="/" translate="yes">Cancel</a>
           </div>
-          <div class="form-group login-actions details" id="passkey-group" hidden>
+          <!--<div class="form-group login-actions details" id="passkey-group" hidden>
             <button class="pf-v6-c-button pf-m-primary login-button" id="passkey-login" type="submit">
               <span class="spinner"></span>
               <span id="passkey-login-text" class="button-text" translate="yes">Log in with Passkey</span>
             </button>
-          </div>
+          </div>-->
+
         </form>
+        <div style="padding-top: 1rem;"><button style="width: 100%;" class="pf-v6-c-button pf-m-primary" id="create-passkey">DEBUG: Create passkey</button></div>
+
       </div>
 
       <div id="login-wait-validating" hidden="true">

@@ -229,6 +229,62 @@ class TestNetworkingSettings(netlib.NetworkCase):
         b.wait_visible("#network-interface")
         self.wait_for_iface_setting("IPv4", "AutomaticAdditional DNS 8.8.8.8")
 
+        # Test multiconnect connection
+        b.go("/network")
+        b.wait_visible("#networking")
+        iface1 = self.add_iface(activate=False)
+        iface2 = self.add_iface(activate=False)
+        # add temporary connections with multiconnect enabled
+        m.execute(f"""
+            nmcli con add con-name 'Wired Connection' save no connection.type 802-3-ethernet \
+                connection.autoconnect no connection.multi-connect multiple \
+                ipv4.meth auto ipv6.meth auto ipv6.addr-gen-mode eui64
+            nmcli con sh | grep -q 'Wired Connection'
+
+            for IFACE in {iface1} {iface2}; do
+                nmcli con up 'Wired Connection' ifname ${{IFACE}}
+            done
+        """)
+
+        # Edit interface with nonpersistent Wired Connection active
+        self.select_iface(iface1)
+        b.wait_visible("#network-interface")
+        self.configure_iface_setting('IPv4')
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.set_input_text('#network-ip-settings-address-0', "10.11.12.13")
+        b.set_input_text('#network-ip-settings-netmask-0', "24")
+        b.click("#network-ip-settings-dns-add")
+        b.set_input_text('#network-ip-settings-dns-server-0', "8.8.8.8")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting("IPv4", "Address 10.11.12.13/24Gateway 10.11.12.1DNS 8.8.8.8")
+        # Check that new connection exists and is applied to the interface
+        self.assertEqual(m.execute(f"nmcli --get connection.interface-name,connection.multi-connect,ipv4.addresses,ipv4.dns con sh {iface1}"),
+                         f"{iface1}\n0\n10.11.12.13/24\n8.8.8.8\n")
+        # Wired Connection is unmodified
+        self.assertEqual(m.execute("nmcli --get ipv4.method con sh 'Wired Connection'"), "auto\n")
+
+        # Further edits will edit the new connection
+        self.configure_iface_setting('IPv4')
+        b.set_input_text('#network-ip-settings-dns-server-0', "1.1.1.1")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting("IPv4", "Address 10.11.12.13/24Gateway 10.11.12.1DNS 1.1.1.1")
+        m.execute(f'[ $(nmcli --get ipv4.dns con sh {iface1}) == "1.1.1.1" ]')
+
+        # Editing auto-connect also creates new connection when necessary
+        b.go("/network")
+        b.wait_visible("#networking")
+        self.select_iface(iface2)
+        b.wait_visible("#network-interface")
+        b.wait_visible('#autoreconnect:not(:checked)')
+        b.set_checked('#autoreconnect', val=True)
+        b.wait_visible('#autoreconnect:checked')
+        # Check that new connection exists and autoconnect is enabled
+        self.assertEqual(
+            m.execute(f"nmcli --get connection.interface-name,connection.autoconnect,connection.multi-connect con sh {iface2}"),
+                        f"{iface2}\nyes\n0\n")
+
 
 if __name__ == '__main__':
     testlib.test_main()

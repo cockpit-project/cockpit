@@ -478,7 +478,7 @@ class TestKdumpConfiguration(KdumpHelpers):
 class TestKdumpNFS(KdumpHelpers):
     provision = {
         "0": {"address": "10.111.113.1/24", "memory_mb": 2048, "capture_console": True},
-        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512}
+        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24"}
     }
 
     def testBasic(self):
@@ -563,9 +563,9 @@ class TestKdumpNFS(KdumpHelpers):
 @testlib.timeout(900)
 class TestKdumpNFSAnsible(KdumpHelpers):
     provision = {
-        "cockpit": {"memory_mb": 512},
+        "cockpit": {},
         "kdump_ansible_machine": {"address": "10.111.113.1/24", "memory_mb": 2048, "capture_console": True},
-        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512},
+        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24"},
     }
 
     def testBasic(self):
@@ -622,7 +622,7 @@ class TestKdumpNFSAnsible(KdumpHelpers):
 @testlib.timeout(900)
 class TestKdumpAnsible(KdumpHelpers):
     provision = {
-        "cockpit": {"memory_mb": 512},
+        "cockpit": {},
         "kdump_ansible_machine": {"memory_mb": 2048},
     }
 

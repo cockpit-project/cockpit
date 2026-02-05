@@ -1512,7 +1512,7 @@ Command={self.libexecdir}/cockpit-session
 class TestReverseProxy(testlib.MachineCase):
 
     provision = {
-        "0": {"forward": {"443": 8443}, "memory_mb": 768}
+        "0": {"forward": {"443": 8443}}
     }
 
     def setUp(self):

@@ -523,8 +523,8 @@ exit 1
 @testlib.skipBeiboot("host switching disabled in beiboot mode")
 class TestSuperuserDashboard(testlib.MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20", "memory_mb": 768},
-        "machine2": {"address": "10.111.113.2/20", "memory_mb": 768},
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20"},
     }
 
     def test(self):

@@ -10,8 +10,8 @@ import testlib
 
 class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
     provision = {
-        "machine1": {"address": "192.168.100.11/24", "address6": "2001:db8:face::1/64", "memory_mb": 768},
-        "machine2": {"address": "192.168.100.12/24", "address6": "2001:db8:face::2/64", "memory_mb": 512}
+        "machine1": {"address": "192.168.100.11/24", "address6": "2001:db8:face::1/64"},
+        "machine2": {"address": "192.168.100.12/24", "address6": "2001:db8:face::2/64"}
     }
 
     def testVPN(self):

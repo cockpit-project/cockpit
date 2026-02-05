@@ -12,8 +12,8 @@ from lib.constants import TEST_OS_DEFAULT
 
 class TestNetworkingMAC(netlib.NetworkCase):
     provision = {
-        "machine1": {"memory_mb": 512},
-        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 512}
+        "machine1": {},
+        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True}
     }
 
     def testMac(self):

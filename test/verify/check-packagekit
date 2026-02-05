@@ -1346,8 +1346,8 @@ class TestKpatchInstall(NoSubManCase):
 @testlib.skipBeiboot("sub-man-cockpit not contained in cockpit/ws")
 class TestUpdatesSubscriptions(packagelib.PackageCase, submanlib.SubscriptionCase):
     provision = {
-        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 1024},
-        "services": {"image": "services", "memory_mb": 1024}
+        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},
+        "services": {"image": "services"}
     }
 
     def setUp(self):

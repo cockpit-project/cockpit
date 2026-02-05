@@ -13,8 +13,8 @@ import testlib
 class TestClient(testlib.MachineCase):
 
     provision = {
-        "client": {"address": "10.111.113.1/24", "memory_mb": 660},
-        "target": {"address": "10.111.113.2/24", "memory_mb": 660},
+        "client": {"address": "10.111.113.1/24"},
+        "target": {"address": "10.111.113.2/24"},
     }
 
     def setUp(self):

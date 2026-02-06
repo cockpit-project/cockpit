@@ -19,6 +19,9 @@ const char *  cockpit_authorize_type                      (const char *challenge
 const char *  cockpit_authorize_subject                   (const char *challenge,
                                                            char **subject);
 
+char *        cockpit_authorize_parse_passkey             (const char *challenge,
+                                                           char **user);
+
 char *        cockpit_authorize_parse_basic               (const char *challenge,
                                                            char **user);
 

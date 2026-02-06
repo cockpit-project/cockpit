@@ -162,6 +162,7 @@ pam_conv_func (int num_msg,
                struct pam_response **ret_resp,
                void *appdata_ptr)
 {
+  // Provide initial data to PAM
   pam_conv_data *appdata = (pam_conv_data *) appdata_ptr;
   char **password = (char **)&appdata->password;
 

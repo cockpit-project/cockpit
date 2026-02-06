@@ -99,6 +99,8 @@ if [ "$PLAN" = "main" ]; then
               TestNetworkingBasic.testNoService
               TestNetworkingCheckpoints.testCheckpoint
               TestNetworkingCheckpoints.testCheckpointSlowRollback
+              TestNetworkingCheckpoints.testCheckpointSessionStorageEventSuccess
+              TestNetworkingCheckpoints.testCheckpointSessionStorageEventRollback
               TestNetworkingUnmanaged.testUnmanaged
 
               TestSOS.testWithUrlRoot

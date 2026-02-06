@@ -526,8 +526,8 @@ MakeDirectory=yes
         m.execute(f"""
 set -x
 parted -s {dev} mktable msdos
-parted -s {dev} mkpart primary ext4 1M 500M
-parted -s {dev} mkpart primary ext4 500M 100%
+parted -s {dev} mkpart primary ext4 1M 1000M
+parted -s {dev} mkpart primary ext4 1000M 100%
 if [ "{passphrase}" != "None" ]; then
   echo {passphrase} | cryptsetup luksFormat --pbkdf-memory=300 {dev}2
   luks_uuid=$(blkid -p {dev}2 -s UUID -o value)

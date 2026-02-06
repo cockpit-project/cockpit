@@ -5,10 +5,11 @@
 
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Form, FormGroup, FormAlert } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
 import {
@@ -31,7 +32,7 @@ import "./timers.scss";
 
 const _ = cockpit.gettext;
 
-export const CreateTimerDialog = ({ owner, isLoading }) => {
+export const CreateTimerDialogButton = ({ owner, isLoading }) => {
     const Dialogs = useDialogs();
     return (
         <Button key='create-timer-action'
@@ -40,36 +41,35 @@ export const CreateTimerDialog = ({ owner, isLoading }) => {
                 isDisabled={isLoading}
                 onClick={() => {
                     updateTime();
-                    Dialogs.show(<CreateTimerDialogBody owner={owner} />);
+                    Dialogs.show(<TimerDialog owner={owner} />);
                 }}>
             {_("Create timer")}
         </Button>
     );
 };
 
-const CreateTimerDialogBody = ({ owner }) => {
+export const TimerDialog = ({ owner, timer }) => {
     const Dialogs = useDialogs();
-    const [command, setCommand] = useState('');
-    const [delay, setDelay] = useState('specific-time');
-    const [delayNumber, setDelayNumber] = useState(0);
-    const [delayUnit, setDelayUnit] = useState('sec');
-    const [description, setDescription] = useState('');
+    const [command, setCommand] = useState(timer?.command || '');
+    const [delay, setDelay] = useState(timer?.delay || 'specific-time');
+    const [delayNumber, setDelayNumber] = useState(timer?.delayNumber || 0);
+    const [delayUnit, setDelayUnit] = useState(timer?.delayUnit || 'sec');
+    const [description, setDescription] = useState(timer?.description || '');
     const [dialogError, setDialogError] = useState(undefined);
     const [inProgress, setInProgress] = useState(false);
-    const [name, setName] = useState('');
-    const [repeat, setRepeat] = useState('no');
-    const [repeatPatterns, setRepeatPatterns] = useState([]);
-    const [specificTime, setSpecificTime] = useState("00:00");
+    const [name, setName] = useState(timer?.name || '');
+    const [repeat, setRepeat] = useState(timer?.repeat || 'no');
+    const [repeatPatterns, setRepeatPatterns] = useState(timer?.repeatPatterns || []);
+    const [specificTime, setSpecificTime] = useState(timer?.specificTime || "00:00");
     const [isSpecificTimeOpen, setSpecificTimeOpen] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [commandNotFound, setCommandNotFound] = useState(false);
     const validationFailed = {};
 
     if (!name.trim().length || !/^[a-zA-Z0-9:_.@-]+$/.test(name))
         validationFailed.name = true;
     if (!description.trim().length)
         validationFailed.description = true;
-    if (!command.trim().length || commandNotFound)
+    if (!command.trim().length)
         validationFailed.command = true;
     if (!/^[0-9]+$/.test(delayNumber))
         validationFailed.delayNumber = true;
@@ -102,20 +102,9 @@ const CreateTimerDialogBody = ({ owner }) => {
         if (Object.keys(validationFailed).length)
             return false;
 
-        setInProgress(true);
-
-        // Verify if the command exists
-        const command_parts = command.split(" ");
-        cockpit.spawn(["test", "-f", command_parts[0]], { err: "ignore" })
-                .then(() => {
-                    create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
-                            .then(Dialogs.close, exc => {
-                                setDialogError(exc.message);
-                                setInProgress(false);
-                            });
-                })
-                .catch(() => {
-                    setCommandNotFound(true);
+        create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
+                .then(Dialogs.close, exc => {
+                    setDialogError(exc.message);
                     setInProgress(false);
                 });
 
@@ -127,16 +116,23 @@ const CreateTimerDialogBody = ({ owner }) => {
             className="timer-dialog" position="top"
             variant="medium" isOpen onClose={Dialogs.close}
         >
-            <ModalHeader title={cockpit.format(_("Create timer"), name)} />
+            <ModalHeader title={!timer ? _("Create timer") : _("Edit timer")} />
             <ModalBody>
                 {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}
                 <Form isHorizontal onSubmit={onSubmit}>
+                    {timer && !timer.delay && <FormAlert>
+                        <Alert variant="danger" title={_("Failed to get the starting conditions for the timer")} isInline />
+                    </FormAlert>}
+                    {timer && !timer.command && <FormAlert>
+                        <Alert variant="danger" title={_("Failed to get the timer command")} isInline />
+                    </FormAlert>}
                     <FormGroup label={_("Name")}
                                fieldId="servicename">
                         <TextInput id='servicename'
                                    value={name}
                                    validated={submitted && validationFailed.name ? "error" : "default"}
-                                   onChange={(_event, value) => setName(value)} />
+                                   onChange={(_event, value) => setName(value)}
+                                   readOnlyVariant={!!timer} />
                         <FormHelper fieldId="servicename"
                                     helperTextInvalid={submitted && validationFailed.name && (!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed"))} />
                     </FormGroup>
@@ -148,14 +144,15 @@ const CreateTimerDialogBody = ({ owner }) => {
                                    onChange={(_event, value) => setDescription(value)} />
                         <FormHelper fieldId="description" helperTextInvalid={submitted && validationFailed.description && _("This field cannot be empty")} />
                     </FormGroup>
-                    <FormGroup label={_("Command")}
+                    <FormGroup label={_("Shell command")}
                                fieldId="command">
                         <TextInput id='command'
                                    value={command}
                                    validated={submitted && validationFailed.command ? "error" : "default"}
-                                   onChange={(_event, str) => { setCommandNotFound(false); setCommand(str) }} />
+                                   onChange={(_event, str) => { setCommand(str) }} />
                         <FormHelper fieldId="command"
-                                    helperTextInvalid={submitted && validationFailed.command && (commandNotFound ? _("Command not found") : _("This field cannot be empty"))} />
+                                    helperText={_("This command will be executed by /bin/sh.")}
+                                    helperTextInvalid={submitted && validationFailed.command && _("This field cannot be empty")} />
                     </FormGroup>
                     <FormGroup label={_("Trigger")} hasNoPaddingTop>
                         <Flex>
@@ -330,7 +327,8 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                                 arr[idx].date = str;
                                                                 return arr;
                                                             })}
-                                                            appendTo={() => document.body} />
+                                                            appendTo={() => document.body}
+                                                            value={repeatPatterns[idx].date || ""} />
                                                 {timePicker(idx)}
                                             </>}
                                             {repeat !== "no" && <FlexItem align={{ default: 'alignRight' }}>
@@ -370,11 +368,11 @@ const CreateTimerDialogBody = ({ owner }) => {
                 <Button variant='primary'
                         id="timer-save-button"
                         isLoading={inProgress}
-                        isDisabled={inProgress || commandNotFound}
+                        isDisabled={inProgress}
                         onClick={onSubmit}>
                     {_("Save")}
                 </Button>
-                <Button variant='link' onClick={Dialogs.close}>
+                <Button id="timer-dialog-close-button" variant='link' onClick={Dialogs.close}>
                     {_("Cancel")}
                 </Button>
             </ModalFooter>

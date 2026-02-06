@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "properties": {
+    "content-security-policy": {
+      "description": "By default Cockpit serves packages using a strict Content Security Policy, which among other things does not allow inline styles or scripts. This can be overridden on a per-package basis, with this setting. \n\nIf the overridden content security policy does not contain a `default-src`, `connect-src`, `base-uri`, `form-action`, `object-src`, or `block-all-mixed-content` then these will be added to the policy from the manifest.",
+      "type": "string"
+    },
+    "name": {
+      "description": "An optional string that changes the name of the package. Normally packages derive their name from the directory that they are located in. This field overrides that name.",
+      "type": "string"
+    },
+    "priority": {
+      "type": "number",
+      "description": "An optional number that specifies which package is preferred in cases where there are conflicts. For example given two packages with the same `name` a package is chosen based on its priority."
+    },
+    "conditions": {
+      "description": "An optional list of `{\"predicate\": \"value\"}` objects. Cockpit will only consider the package if all conditions are met. Currently supported predicates are `path-exists` and `path-not-exists`. Unknown predicates are ignored. This is preferable to using `priority`, but only available since Cockpit 286.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path-exists": {
+            "description": "A condition where a specific file path must exist.",
+            "type": "string"
+          },
+          "path-not-exists": {
+            "description": "A condition where a specific file path must exist.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "requires": {
+      "type": "object",
+      "description": "An optional JSON object that contains a \"cockpit\" string version number. The package will only be usable if the Cockpit bridge and javascript base are equal or newer than the given version number.",
+      "properties": {
+        "cockpit": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      },
+      "required": [
+        "cockpit"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "description": "An informational version number for the package."
+    },
+    "preload": {
+      "type": "array",
+      "description": "A list of identifiers of the components that should be preloaded. Normally, the files of a component are loaded when the user navigates to it for the first time. The files of a preloaded component are loaded immediately after the user logs in, and the initialization code of the component is invoked. \n\nThe value of this field is an array of strings, where each string is one of the keys used in the `dashboard`, `menu`, or `tool` fields.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "parent": {
+      "type": "object",
+      "description": "Used when module does not have its own menu item but is a part of a different module.",
+      "properties": {
+        "component": {
+          "type": "string",
+          "description": "The name of the superordinate component."
+        },
+        "docs": {
+          "$ref": "#/$defs/docs"
+        }
+      }
+    },
+    "dashboard": {
+      "description": "Dashboard items appear in the menu under the section Apps.",
+      "$ref": "#/$defs/menu-type"
+    },
+    "menu": {
+      "description": "These items appear in the menu under the section System. This section is roughly ordered into these categories (with their order in parentheses):\n- System Information (10) \n- Logs (20) \n- Configuring major subsystems (30-40) \n- Things running on the machine (VMs, Containers - 50-60) \n- Implementation Details (Accounts, Services - 70-100)",
+      "$ref": "#/$defs/menu-type"
+    },
+    "tools": {
+      "description": "These items appear in the menu under the section Tools.",
+      "$ref": "#/$defs/menu-type"
+    },
+    "bridges": {
+      "type": "array",
+      "description": "Details for additional server-side bridges. Each item specifies how to match requests and which executable to use.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "environ": {
+            "description": "Optional, an array of environment variables to pass to the bridge command. Dynamic values can be used with ${} syntax.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "match": {
+            "type": "object",
+            "properties": {
+              "payload": {
+                "type": "string",
+                "description": "The payload pattern to match incoming requests."
+              }
+            },
+            "required": [
+              "payload"
+            ]
+          },
+          "privileged": {
+            "description": "If set to true, marks the bridge as a superuser bridge, to be started with escalated privileges. A privileged bridge can not have a \"match\" property.",
+            "type": "boolean",
+            "default": false
+          },
+          "label": {
+            "description": "Optional, sets a label on the bridge for selection in the UI, useful for privileged bridges.",
+            "type": "string"
+          },
+          "problem": {
+            "description": "If specified, when bridge fails to start it will close the associated channel with this problem code.",
+            "type": "string"
+          },
+          "spawn": {
+            "type": "array",
+            "description": "The command and arguments to invoke the bridge. Dynamic values can be used with ${} syntax.",
+            "required": [
+              "spawn"
+            ]
+          }
+        },
+        "$comment": "A privileged bridge can not have a 'match' property.",
+        "if": {
+          "$comment": "Have to use 'not' here and const: false Otherwise it matches non-defined 'privileged' as 'true' and says 'match' isn't allowed.",
+          "not": {
+            "properties": {
+              "privileged": {
+                "const": false
+              }
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "match": false
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "docs": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "description": "List of documentation URLs for the given page, describing where the component is located within Cockpit.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "The label for the documentation page."
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL for the documentation page."
+          }
+        },
+        "required": [
+          "label",
+          "url"
+        ]
+      }
+    },
+    "menu-type": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "description": "An index of menu items with labels and their order.",
+          "type": "object",
+          "properties": {
+            "label": {
+              "description": "The displayed text of the menu item.",
+              "type": "string"
+            },
+            "order": {
+              "description": "An optional order number to place this menu item or tool. Lower numbers are listed first.",
+              "type": "number"
+            },
+            "path": {
+              "description": "The relative path to the HTML file within the package that implements the menu item or tool.",
+              "type": "string"
+            },
+            "docs": {
+              "$ref": "#/$defs/docs"
+            },
+            "keywords": {
+              "description": "Keywords that describe the page and which are used for searching. These keywords should be lowercase. Page label is prepended as first keyword in the first keyword item.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "matches": {
+                    "description": "An array of strings matching keywords in lowercase.",
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[^A-Z]+$"
+                    }
+                  },
+                  "goto": {
+                    "description": "Optional path that is used for all keywords in this item. When this argument starts with slash, then it is used as pathname, otherwise it is used as hash. Defining `goto:\"page_hash\"` in page with `path:\"/page_path\"` would redirect to `/page_path#page_hash`, while `goto:\"/page_path\"` would redirect to `/page_path` ignoring default page path.",
+                    "type": "string"
+                  },
+                  "weight": {
+                    "description": "How much keywords are prioritized over others.",
+                    "type": "number",
+                    "default": 3
+                  },
+                  "translate": {
+                    "description": "If keywords should be localized or not.",
+                    "type": "boolean",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

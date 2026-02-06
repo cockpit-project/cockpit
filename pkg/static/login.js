@@ -6,6 +6,10 @@ function debug(...args) {
         console.debug('login:', ...args);
 }
 
+const COSE_ES256 = -7;
+const COSE_RS256 = -257;
+const COSE_EDDSA = -8;
+
 (function(console) {
     let localStorage;
 
@@ -907,16 +911,8 @@ function debug(...args) {
             typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable !== "function")
     }
 
-
-
-    const supportedAlgorithms = {
-        "es256": -7,
-        "rs256": -257,
-        "eddsa": -8
-    };
-
     const supportedAlgorithmsByValue = function(value) {
-        return Object.keys(supportedAlgorithms).filter(key => key !== "byValue").find(key => supportedAlgorithms[key] === value);
+        return Object.keys(PK_ALGS).filter(key => key !== "byValue").find(key => PK_ALGS[key] === value);
     }
 
     // Used when registering a token
@@ -946,6 +942,36 @@ function debug(...args) {
         return publicKeyObject;
     }
 
+    function publicKeyToString(publicKeyCose) {
+        // https://www.w3.org/TR/webauthn-3/#authdata-attestedcredentialdata-credentialpublickey
+        let publicKey = "";
+        const alg = publicKeyCose[3];
+        switch (alg) {
+            case COSE_ES256:
+                let es256Key = new Uint8Array(64);
+                es256Key.set(publicKeyCose['-2']);
+                es256Key.set(publicKeyCose['-3'], 32);
+                publicKey = es256Key.toBase64();
+                break;
+            case COSE_EDDSA:
+                let eddsaKey = new Uint8Array(32);
+                eddsaKey.set(publicKeyCose['-2']);
+                publicKey = eddsaKey.toBase64();
+                break;
+            case COSE_RS256:
+                let rs256Key = new Uint8Array(259);
+                rs256Key.set(publicKeyCose['-1']);
+                rs256Key.set(publicKeyCose['-2'], 256);
+                publicKey = rs256Key.toBase64();
+                break;
+            default:
+                console.warn("Unsupported algorithm detected", alg);
+                break;
+        }
+
+        return publicKey;
+    }
+
     async function createCredentials(username) {
         console.log(username);
         const passkey = await (navigator.credentials.create({
@@ -970,13 +996,13 @@ function debug(...args) {
                 // Ordered in terms of priority and what is supported by pam-u2f
                 pubKeyCredParams: [
                     {
-                        alg: supportedAlgorithms.es256, type: "public-key"
+                        alg: COSE_ES256, type: "public-key"
                     },
                     {
-                        alg: supportedAlgorithms.eddsa, type: "public-key"
+                        alg: COSE_EDDSA, type: "public-key"
                     },
                     {
-                        alg: supportedAlgorithms.rs256, type: "public-key"
+                        alg: COSE_RS256, type: "public-key"
                     }
                 ],
             },
@@ -989,16 +1015,22 @@ function debug(...args) {
         if (!passkey) return;
         // Need to parse publickey from the response to base64
 
-        let decodedAttestationObj = CBOR.decode(passkey.response.attestationObject)
-        console.log("decodedAttestationObj", decodedAttestationObj)
+        let decodedAttestationObj = CBOR.decode(passkey.response.attestationObject);
+        console.log("decodedAttestationObj", decodedAttestationObj);
 
-        let publicKeyCbor = getPublicKeyObject(decodedAttestationObj)
-        let concatenatedPublicKey = new Uint8Array(64)
-        concatenatedPublicKey.set(publicKeyCbor['-2'])
-        concatenatedPublicKey.set(publicKeyCbor['-3'], 32)
-        const id = new Uint8Array(passkey.rawId).toBase64()
+        if (decodedAttestationObj?.fmt !== "packed") {
+            console.warn("Attestation needs to be format 'packed'.");
+            return;
+        }
+
+        let publicKeyCose = getPublicKeyObject(decodedAttestationObj);
+
+        console.log("pubKeyCose", publicKeyCose);
+
+        const publicKey = publicKeyToString(publicKeyCose);
+        const id = new Uint8Array(passkey.rawId).toBase64();
         // Can get ID by Uint8Array.fromBase64(passkey.id, {alphabet: "base64url"}).buffer
-        console.log(`admin:${id},${concatenatedPublicKey.toBase64()},${supportedAlgorithmsByValue(passkey.response.getPublicKeyAlgorithm())},`)
+        console.log(`admin:${id},${publicKey},${supportedAlgorithmsByValue(passkey.response.getPublicKeyAlgorithm())},`);
         return new Promise((resolve, reject) => {
                 // credential ID is base64 encoded, need to decode before sending it. Format is (passkey:<id>,<publicKey>)
                 // TODO: alice isn't showin in Accounts page, so hardcoding it for testing purposes.
@@ -1022,10 +1054,10 @@ function debug(...args) {
 
     function do_passkey_verification(data) {
         if (!window.isSecureContext) {
-            login_failure(_("This web page was not loaded in a secure context (https). Please try loading the page again using https or make sure you are using a browser with secure context support"))
+            login_failure(_("This web page was not loaded in a secure context (https). Please try loading the page again using https or make sure you are using a browser with secure context support"));
         }
         if (!isPasskeySupported) {
-            login_failure(_("Browser or client does not support necessary Web Authentication"))
+            login_failure(_("Browser or client does not support necessary Web Authentication"));
         }
         const match = /.*\n(?<challenge>\S+)\n(?<rp>\S+)\n(?<client>\S+).*/.exec(data["message"]);
         if (!match) {
@@ -1091,7 +1123,7 @@ function debug(...args) {
             // converse(data.id, response.join("\n") + "\n");
             for (const r of response) {
                 await delay(500);
-                converse(data.id, r)
+                converse(data.id, r);
             }
             // if (key.endsWith(" login-data")) {
             //     login_data_host = key_host;

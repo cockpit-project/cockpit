@@ -41,6 +41,7 @@ import {
     settings_applier,
     show_unexpected_error,
 } from './interfaces.js';
+import { isNonPersistentMultiCon } from './utils.js';
 
 const _ = cockpit.gettext;
 // nm-dbus-interface.h
@@ -272,11 +273,13 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                                  settings,
                                  type)
             : apply_settings(settings))
-                .then(() => {
+                // NOTE: `activated_con` will contain object path (string) of a newly created connection.
+                // If it is only an update of an existing connection this variable is undefined.
+                .then(activated_con => {
                     onClose();
                     if (connection && iface)
                         cockpit.location.go([iface]);
-                    if (connection && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === connection)
+                    if (connection && dev && (activated_con === undefined || dev.ActiveConnection[" priv"].path === activated_con))
                         return reactivateConnection({ con: connection, dev });
                 })
                 .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
@@ -288,7 +291,7 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                                      ...(type != 'vlan' && {
                                          devices: (membersChanged ? [] : connection_devices(connection))
                                      }),
-                                     hack_does_add_or_remove: type == 'vlan' || membersChanged,
+                                     hack_does_add_or_remove: type == 'vlan' || membersChanged || isNonPersistentMultiCon(connection),
                                      rollback_on_failure: type !== 'vlan' && membersChanged
                                  });
     } else {

@@ -22,7 +22,6 @@
 #include <common/cockpitwebcertificate.h>
 #include <common/cockpitmemory.h>
 
-#include "certificate.h"
 #include "utils.h"
 
 #define COCKPIT_CERTIFICATE_HELPER   LIBEXECDIR "/cockpit-certificate-helper"
@@ -208,15 +207,15 @@ certificate_and_key_write (const CertificateKeyPair *self,
   if (fchown (fd, buf.st_uid, buf.st_gid) != 0)
     err (EXIT_FAILURE, "%s: fchown", directory);
 
-  if (symlinkat (self->certificate_filename, fd, "cert.source") != 0)
-    err (EXIT_FAILURE, "%s/%s: symlinkat", directory, "certificate.source");
+  if (symlinkat (self->certificate_filename, fd, "0.crt.source") != 0)
+    err (EXIT_FAILURE, "%s/%s: symlinkat", directory, "0.crt.source");
 
-  if (symlinkat (self->key_filename, fd, "key.source") != 0)
-    err (EXIT_FAILURE, "%s/%s: symlinkat", directory, "key.source");
+  if (symlinkat (self->key_filename, fd, "0.key.source") != 0)
+    err (EXIT_FAILURE, "%s/%s: symlinkat", directory, "0.key.source");
 
-  write_file (fd, directory, "cert", &self->certificate, buf.st_uid, buf.st_gid);
+  write_file (fd, directory, "0.crt", &self->certificate, buf.st_uid, buf.st_gid);
 
-  write_file (fd, directory, "key", &self->key, buf.st_uid, buf.st_gid);
+  write_file (fd, directory, "0.key", &self->key, buf.st_uid, buf.st_gid);
 
   close (dirfd);
   close (fd);

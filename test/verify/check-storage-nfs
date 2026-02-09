@@ -323,7 +323,7 @@ class TestStoragePackagesNFS(packagelib.PackageCase, storagelib.StorageCase):
         # https://github.com/PackageKit/PackageKit/issues/893
         #
         if "debian" in m.image or "ubuntu" in m.image:
-            m.execute("pkcon refresh; pkcon install -y dummy")
+            m.execute(f"{self.packagekit_cmd} refresh; {self.packagekit_cmd} install -y dummy")
 
         # HACK
         # Packagekit on Arch Linux does not deal well with detecting new repositories

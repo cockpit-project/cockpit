@@ -930,6 +930,8 @@ main (int argc,
     { NULL }
   };
 
+  g_log_writer_default_set_use_stderr (TRUE);
+
   signal (SIGPIPE, SIG_IGN);
   /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
   cockpit_test_setenv ("GIO_USE_VFS", "local");

@@ -509,35 +509,38 @@ automation and shown inside [the blog
 post](https://cockpit-project.org/blog/cockpit-347.html) for the release
 that included it.
 
-## Debug logging of Cockpit processes
+## Debug logging
 
 All messages from the various cockpit processes go to the journal and can be
 seen with commands like:
 
     sudo journalctl -f
 
-Much of Cockpit has verbose internal debug logging that can be enabled when
+Cockpit's web server has verbose internal debug logging that can be enabled when
 trying to track down a problem. To turn it on add a file to your system like
 this:
 
-    sudo mkdir -p /etc/systemd/system/cockpit.service.d
-    sudo sh -c 'printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf'
+    sudo mkdir -p /etc/systemd/system/cockpit-wsinstance-http.service.d
+    sudo sh -c 'printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=all\n" > /etc/systemd/system/cockpit-wsinstance-http.service.d/debug.conf'
     sudo systemctl daemon-reload
-    sudo systemctl restart cockpit
+    sudo systemctl stop cockpit
 
-In the above command you'll notice the string "cockpit-ws". This is a log
-domain. There are various log domains you can enable:
+Instead of `all`, you can also specify a log domain:
 
- * cockpit-bridge: Cockpit bridge detailed debug messages
  * cockpit-protocol: Very verbose low level traffic logging
  * cockpit-ws: Cockpit Web Service detailed debug messages
  * WebSocket: Verbose low level WebSocket logging
 
 To revert the above logging changes:
 
-    sudo rm /etc/systemd/system/cockpit.service.d/debug.conf
+    sudo rm /etc/systemd/system/cockpit-wsinstance-http.service.d/debug.conf
     sudo systemctl daemon-reload
-    sudo systemctl restart cockpit
+    sudo systemctl stop cockpit
+
+To debug HTTPS connections, replace `http` with `https@` in the above commands.
+
+The bridge runs in the user session, not in a systemd service. See "Running the
+bridge" section for how to enable debug logging.
 
 ## Debug logging in Javascript console
 

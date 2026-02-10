@@ -140,7 +140,8 @@ class Bridge(Router, PackagesListener):
                 logger.warning("Neither /etc/os-release nor /usr/lib/os-release exists")
                 return {}
 
-        return parse_os_release(file.read())
+        with file:
+            return parse_os_release(file.read())
 
     def do_init(self, message: JsonObject) -> None:
         # we're only interested in the case where this is a dict, but

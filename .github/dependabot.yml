@@ -51,6 +51,10 @@ updates:
       - dependency-name: "@xterm/*"
         update-types: ["version-update:semver-major"]
 
+      # The plugins we use didn't work with anything after 8 at some point
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     open-pull-requests-limit: 3

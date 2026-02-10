@@ -45,8 +45,8 @@ def add_machine(b, address, password):
 @testlib.skipDistroPackage()
 class TestRHEL8(testlib.MachineCase):
     provision = {
-        "0": {"address": "10.111.113.1/20", "memory_mb": 768},
-        "stock": {"address": "10.111.113.5/20", "image": "rhel-8-8", "memory_mb": 512}
+        "0": {"address": "10.111.113.1/20"},
+        "stock": {"address": "10.111.113.5/20", "image": "rhel-8-8"}
     }
 
     @testlib.todoPybridgeRHEL8()
@@ -84,8 +84,8 @@ class TestRHEL8(testlib.MachineCase):
 @testlib.skipDistroPackage()
 class TestMultiOSDirect(testlib.MachineCase):
     provision = {
-        "0": {"address": "10.111.113.1/20", "memory_mb": 512},
-        "stock": {"address": "10.111.113.5/20", "image": "rhel-8-10", "memory_mb": 512}
+        "0": {"address": "10.111.113.1/20"},
+        "stock": {"address": "10.111.113.5/20", "image": "rhel-8-10"}
     }
 
     @testlib.todoPybridgeRHEL8()

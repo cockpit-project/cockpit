@@ -269,8 +269,8 @@ class TestBonding(netlib.NetworkCase):
 @testlib.skipDistroPackage()
 class TestBondingVirt(netlib.NetworkCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
-        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True}
     }
 
     @testlib.skipImage("Main interface can't be managed", "debian-*", "ubuntu-*")

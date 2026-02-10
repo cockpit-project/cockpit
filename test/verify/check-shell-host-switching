@@ -99,9 +99,9 @@ class HostSwitcherHelpers:
 @testlib.todoPybridgeRHEL8()
 class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
     provision = {
-        'machine1': {"address": "10.111.113.1/20", "memory_mb": 512},
-        'machine2': {"address": "10.111.113.2/20", "memory_mb": 512},
-        'machine3': {"address": "10.111.113.3/20", "memory_mb": 512}
+        'machine1': {"address": "10.111.113.1/20"},
+        'machine2': {"address": "10.111.113.2/20"},
+        'machine3': {"address": "10.111.113.3/20"}
     }
 
     def setUp(self):

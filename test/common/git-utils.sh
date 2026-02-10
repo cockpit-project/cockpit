@@ -71,7 +71,7 @@ fetch_sha_to_cache() {
         message FETCH "${SUBDIR}  [ref: ${sha}]"
         git_cache fetch --no-tags ${quiet} origin "${sha}"
         # tag it to keep it from being GC'd.
-        git_cache tag "sha-${sha}" "${sha}"
+        git_cache tag "sha-${sha}" "${sha}" "--no-sign"
     fi
 }
 

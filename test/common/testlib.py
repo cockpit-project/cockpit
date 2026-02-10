@@ -36,6 +36,8 @@ import tempfile
 import time
 import traceback
 import unittest
+from collections.abc import Sequence
+from dataclasses import dataclass
 from time import sleep
 from typing import Any, Callable, Dict, List, Optional, Union
 
@@ -2477,6 +2479,18 @@ def print_tests(tests):
             print(test.id().replace("__main__.", ""))
 
 
+@dataclass
+class TestlibArgs:
+    coverage: bool
+    enable_network: bool
+    fetch: bool
+    list: bool
+    sit: bool
+    trace: bool
+    verbosity: int
+    tests: Sequence[str]
+
+
 def arg_parser(enable_sit=True):
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
@@ -2488,6 +2502,8 @@ def arg_parser(enable_sit=True):
     if enable_sit:
         parser.add_argument('-s', "--sit", dest='sit', action='store_true',
                             help="Sit and wait after test failure")
+    else:
+        parser.set_defaults(sit=False)
     parser.add_argument('--nonet', dest="fetch", action="store_false",
                         help="Don't go online to download images or data")
     parser.add_argument('--enable-network', dest='enable_network', action='store_true',

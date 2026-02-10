@@ -117,9 +117,9 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
 @testlib.todoPybridgeRHEL8()
 class TestMultiMachineAdd(testlib.MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},
-        "machine2": {"address": "10.111.113.2/20", "memory_mb": 660},
-        "machine3": {"address": "10.111.113.3/20", "memory_mb": 660},
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20"},
+        "machine3": {"address": "10.111.113.3/20"},
     }
 
     def setUp(self):
@@ -215,9 +215,9 @@ class TestMultiMachineAdd(testlib.MachineCase):
 @testlib.skipDistroPackage()
 class TestMultiMachine(testlib.MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},
-        "machine2": {"address": "10.111.113.2/20", "memory_mb": 660},
-        "machine3": {"address": "10.111.113.3/20", "memory_mb": 660},
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20"},
+        "machine3": {"address": "10.111.113.3/20"},
     }
 
     def setUp(self):

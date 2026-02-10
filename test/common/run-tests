@@ -1,6 +1,5 @@
 #!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/pywrap", sys.argv)
 
-import argparse
 import binascii
 import errno
 import glob
@@ -15,16 +14,54 @@ import sys
 import tempfile
 import time
 import unittest
-from typing import List, Optional, Tuple
+from collections.abc import Collection, Sequence
+from dataclasses import dataclass
+from typing import IO
 
 import testlib
-import testvm
 from lcov import create_coverage_report, prepare_for_code_coverage
+from lib.constants import DEFAULT_MACHINE_MEMORY_MB
+from machine import testvm
 
-os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ["PYTHONUNBUFFERED"] = "1"
+
+# Amount of times a test is re-run to find flakes / race conditions
+AMPLIFY_TEST_COUNT = 10
+
+# Memory usage constants; measured 2026-01 on Fedora 43 x86_64 with Chromium 143 and Firefox 146
+BROWSER_MEMORY_MB = 550  # Incremental per process (Firefox: 470 MB, Chromium: 319 MB; + margin)
+# browser code/libs shared memory (285 MB measured), and leave some breathing room for OS/buffers
+SYSTEM_RESERVE_GB = 1.0
 
 
-def flush_stdout():
+def get_available_memory_gb() -> float:
+    # Format: "MemAvailable:    12345678 kB"
+    with open('/proc/meminfo', 'r') as f:
+        for line in f:
+            if line.startswith('MemAvailable:'):
+                return int(line.split()[1]) / (1024 * 1024)
+    raise RuntimeError("MemAvailable not found in /proc/meminfo")
+
+
+@dataclass
+class CliOpts(testlib.TestlibArgs):
+    amplify: str | None
+    base: str
+    browser: str | None
+    debug: bool
+    exclude: Sequence[str]
+    machine: str | None
+    no_retry_fail: bool
+    nondestructive: bool
+    nondestructive_cpus: int
+    nondestructive_memory_mb: int
+    test_dir: str
+    test_glob: str
+    thorough: bool
+    track_naughties: bool
+
+
+def flush_stdout() -> None:
     while True:
         try:
             sys.stdout.flush()
@@ -34,20 +71,30 @@ def flush_stdout():
 
 
 class Test:
-    def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected, todo, cost=1):
-        self.process = None
+    def __init__(
+        self,
+        test_id: int,
+        *,
+        command: Sequence[str],
+        timeout: float,
+        nondestructive: bool,
+        retry_when_affected: bool,
+        todo: str | None,
+        ram_gb: float,
+    ) -> None:
+        self.process: subprocess.Popen[bytes] | None = None
         self.retries = 0
         self.test_id = test_id
-        self.command = command
+        self.command = list(command)
         self.timeout = timeout
         self.nondestructive = nondestructive
-        self.machine_id = None
+        self.machine_id: int | None = None
         self.retry_when_affected = retry_when_affected
         self.todo = todo
-        self.cost = cost
-        self.returncode = None
+        self.ram_gb = ram_gb
+        self.returncode: int | None = None
 
-    def assign_machine(self, machine_id, ssh_address, web_address):
+    def assign_machine(self, machine_id: int, ssh_address: str, web_address: str) -> None:
         assert self.nondestructive, "assigning a machine only works for nondestructive test"
         self.machine_id = machine_id
         self.command.insert(-2, "--machine")
@@ -55,16 +102,23 @@ class Test:
         self.command.insert(-2, "--browser")
         self.command.insert(-2, web_address)
 
-    def start(self):
+    def start(self) -> None:
         if self.nondestructive:
-            assert self.machine_id is not None, f"need to assign nondestructive test {self} {self.command} to a machine"
-        self.outfile = tempfile.TemporaryFile()
-        self.process = subprocess.Popen(["timeout", "-v", str(self.timeout), *self.command],
-                                        stdout=self.outfile, stderr=subprocess.STDOUT)
+            assert self.machine_id is not None, (
+                f"need to assign nondestructive test {self} {self.command} to a machine"
+            )
+        self.outfile: IO[bytes] | None = tempfile.TemporaryFile()
+        self.process = subprocess.Popen(
+            ["timeout", "-v", str(self.timeout), *self.command], stdout=self.outfile, stderr=subprocess.STDOUT
+        )
 
-    def poll(self):
+    def poll(self) -> int | None:
+        assert self.process is not None
+
         poll_result = self.process.poll()
         if poll_result is not None:
+            assert self.outfile is not None
+
             self.outfile.flush()
             self.outfile.seek(0)
             self.output = self.outfile.read()
@@ -74,7 +128,7 @@ class Test:
 
         return poll_result
 
-    def finish(self, affected_tests: List[str], opts: argparse.Namespace) -> Tuple[Optional[str], int]:
+    def finish(self, affected_tests: list[str], opts: CliOpts) -> tuple[str | None, int]:
         """Returns if a test should retry or not
 
         Call test-failure-policy on the test's output, print if needed.
@@ -90,15 +144,15 @@ class Test:
         if self.returncode == 0 and affected and self.retry_when_affected and self.retries < 2:
             retry_reason = "test affected tests 3 times"
             self.retries += 1
-            self._print_test(print_tap, f"# RETRY {self.retries} ({retry_reason})")
+            self._print_test(print_tap=print_tap, retry_reason=f"# RETRY {self.retries} ({retry_reason})")
             return retry_reason, 0
 
         # If test is being skipped pick up the reason
         if self.returncode == 77:
             lines = self.output.splitlines()
-            skip_reason = lines[-1].strip().decode("utf-8")
+            skip_reason = lines[-1].strip().decode()
             self.output = b"\n".join(lines[:-1])
-            self._print_test(print_tap, skip_reason=skip_reason)
+            self._print_test(print_tap=print_tap, skip_reason=skip_reason)
             return None, 0
 
         # If the test was marked with @todo then...
@@ -106,16 +160,16 @@ class Test:
             if self.returncode == 0:
                 # The test passed, but it shouldn't have.
                 self.returncode = 1  # that's a fail
-                self._print_test(print_tap, todo_reason=f'# expected failure: {self.todo}')
+                self._print_test(print_tap=print_tap, todo_reason=f"# expected failure: {self.todo}")
                 return None, 1
             else:
                 # The test failed as expected
                 # Outputs  'not ok 1 test # TODO ...'
-                self._print_test(print_tap, todo_reason=f'# TODO {self.todo}')
+                self._print_test(print_tap=print_tap, todo_reason=f"# TODO {self.todo}")
                 return None, 0
 
         if self.returncode == 0:
-            self._print_test(print_tap)
+            self._print_test(print_tap=print_tap)
             return None, 0
 
         if not opts.thorough:
@@ -138,11 +192,17 @@ class Test:
                     return None, 1
 
                 if proc.returncode == 1:
-                    retry_reason = reason.decode("utf-8")
+                    retry_reason = reason.decode()
 
             except OSError as ex:
                 if ex.errno != errno.ENOENT:
                     sys.stderr.write(f"\nCouldn't run test-failure-policy: {ex!s}\n")
+
+        # Always retry test harness failures
+        if retry_reason and "test harness" in retry_reason:
+            self.retries += 1
+            self._print_test(retry_reason=f"# RETRY {self.retries} ({retry_reason})")
+            return retry_reason, 0
 
         # HACK: many tests are unstable, always retry them 3 times unless affected
         if not affected and not retry_reason and not opts.no_retry_fail:
@@ -162,13 +222,15 @@ class Test:
 
     # internal methods
 
-    def __str__(self):
-        cost = "" if self.cost == 1 else f" ${self.cost}"
+    def __str__(self) -> str:
+        ram = "" if self.nondestructive else f" ({self.ram_gb:.1f}GB)"
         nd = f" [ND@{self.machine_id}]" if self.nondestructive else ""
-        return f"{self.test_id} {self.command[0]} {self.command[-1]}{cost}{nd}"
+        return f"{self.test_id} {self.command[0]} {self.command[-1]}{ram}{nd}"
 
-    def _print_test(self, print_tap=True, retry_reason="", skip_reason="", todo_reason=""):
-        def write_line(line):
+    def _print_test(
+        self, *, print_tap: bool = True, retry_reason: str = "", skip_reason: str = "", todo_reason: str = ""
+    ) -> None:
+        def write_line(line: bytes) -> None:
             while line:
                 try:
                     sys.stdout.buffer.write(line)
@@ -201,39 +263,47 @@ class Test:
             return
 
         print()  # Tap needs to start on a separate line
-        status = 'ok' if self.returncode in [0, 77] else 'not ok'
+        status = "ok" if self.returncode in [0, 77] else "not ok"
         print(f"{status} {self}{retry_reason}{skip_reason}{todo_reason}")
         flush_stdout()
 
 
 class GlobalMachine:
-    def __init__(self, restrict=True, cpus=None, memory_mb=None, machine_class=testvm.VirtMachine):
+    def __init__(
+        self,
+        *,
+        restrict: bool = True,
+        cpus: int | None = None,
+        memory_mb: int,
+        machine_class: type[testvm.VirtMachine] = testvm.VirtMachine,
+    ):
         self.image = testvm.DEFAULT_IMAGE
         self.network = testvm.VirtNetwork(image=self.image)
         self.networking = self.network.host(restrict=restrict)
-        # provide enough RAM for cryptsetup's PBKDF, as long as that is not configurable:
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1881829
-        self.machine = machine_class(verbose=True, networking=self.networking, image=self.image, cpus=cpus,
-                                     memory_mb=memory_mb or 1400)
+        self.machine: testvm.VirtMachine | None = machine_class(
+            verbose=True, networking=self.networking, image=self.image, cpus=cpus, memory_mb=memory_mb
+        )
         self.machine_class = machine_class
         if not os.path.exists(self.machine.image_file):
             self.machine.pull(self.machine.image_file)
         self.machine.start()
         self.start_time = time.time()
-        self.duration = None
-        self.ssh_address = f"{self.machine.ssh_address}:{self.machine.ssh_port}"
-        self.web_address = f"{self.machine.web_address}:{self.machine.web_port}"
-        self.running_test = None
+        self.duration: int | None = None
+        self.ssh_address: str | None = f"{self.machine.ssh_address}:{self.machine.ssh_port}"
+        self.web_address: str | None = f"{self.machine.web_address}:{self.machine.web_port}"
+        self.running_test: Test | None = None
 
-    def reset(self):
+    def reset(self) -> None:
         # It is important to re-use self.networking here, so that the
         # machine keeps its browser and control port.
+        assert self.machine is not None
         self.machine.kill()
         self.machine = self.machine_class(verbose=True, networking=self.networking, image=self.image)
         self.machine.start()
 
-    def kill(self):
+    def kill(self) -> None:
         assert self.running_test is None, "can't kill global machine with running test"
+        assert self.machine is not None
         self.machine.kill()
         self.network.kill()
         self.duration = round(time.time() - self.start_time)
@@ -241,19 +311,19 @@ class GlobalMachine:
         self.ssh_address = None
         self.web_address = None
 
-    def is_available(self):
-        return self.machine and self.running_test is None
+    def is_available(self) -> bool:
+        return self.machine is not None and self.running_test is None
 
 
-def check_valid(filename):
+def check_valid(filename: str) -> str | None:
     name = os.path.basename(filename)
-    allowed = string.ascii_letters + string.digits + '-_'
+    allowed = string.ascii_letters + string.digits + "-_"
     if not all(c in allowed for c in name):
         return None
     return name.replace("-", "_")
 
 
-def build_command(filename, test, opts):
+def build_command(filename: str, test: str, opts: CliOpts) -> Sequence[str]:
     cmd = [filename]
     if opts.trace:
         cmd.append("-t")
@@ -269,7 +339,7 @@ def build_command(filename, test, opts):
     return cmd
 
 
-def get_affected_tests(test_dir, base_branch, test_files):
+def get_affected_tests(test_dir: str, base_branch: str, test_files: Collection[str]) -> list[str]:
     if not base_branch:
         return []
 
@@ -279,7 +349,7 @@ def get_affected_tests(test_dir, base_branch, test_files):
     diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + base_branch, test_dir])
     # Never consider 'test/verify/check-example' to be affected - our tests for tests count on that
     # This file provides only examples, there is no place for it being flaky, no need to retry
-    changed_tests = [test.decode("utf-8") for test in diff_out.strip().splitlines() if not test.endswith(b"check-example")]
+    changed_tests = [test.decode() for test in diff_out.strip().splitlines() if not test.endswith(b"check-example")]
 
     # If more than 3 test files were changed don't consider any of them as affected
     # as it might be a PR that changes more unrelated things.
@@ -297,24 +367,26 @@ def get_affected_tests(test_dir, base_branch, test_files):
     diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + base_branch, "--", "pkg/"])
 
     # Drop changes in css files - this does not affect tests thus no reason to retry
-    files = [f.decode("utf-8") for f in diff_out.strip().splitlines() if not f.endswith(b"css")]
+    files = [f.decode() for f in diff_out.strip().splitlines() if not f.endswith(b"css")]
 
-    changed_pkgs = {"check-" + pkg.split('/')[1] for pkg in files}
+    changed_pkgs = {"check-" + pkg.split("/")[1] for pkg in files}
     changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
 
     return changed_tests
 
 
-def detect_tests(test_files, image, opts):
+def detect_tests(
+    test_files: Collection[str], image: str, opts: CliOpts
+) -> tuple[list[Test], list[Test], type[testvm.VirtMachine] | None]:
     """Detect tests to be run
 
     Builds the list of tests we'll run in separate machines (destructive tests)
     and the ones we can run on the same machine (nondestructive)
     """
 
-    destructive_tests = []
-    nondestructive_tests = []
-    seen_classes = {}
+    destructive_tests: list[Test] = []
+    nondestructive_tests: list[Test] = []
+    seen_classes: dict[str, str] = {}
     machine_class = None
     test_id = 1
 
@@ -323,13 +395,19 @@ def detect_tests(test_files, image, opts):
         if not name or not os.path.isfile(filename):
             continue
         loader = importlib.machinery.SourceFileLoader(name, filename)
-        module = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
+        spec = importlib.util.spec_from_loader(loader.name, loader)
+        assert spec is not None
+        module = importlib.util.module_from_spec(spec)
         loader.exec_module(module)
         for test_suite in unittest.TestLoader().loadTestsFromModule(module):
+            assert isinstance(test_suite, unittest.TestSuite)
             for test in test_suite:
-                if hasattr(test, "machine_class") and test.machine_class is not None:
+                assert isinstance(test, unittest.TestCase)
+                if isinstance(test, testlib.MachineCase) and test.machine_class is not None:
                     if machine_class is not None and machine_class != test.machine_class:
-                        raise ValueError(f"only one unique machine_class can be used per project, provided with {machine_class} and {test.machine_class}")
+                        raise ValueError(
+                            f"only one unique machine_class can be used per project, provided with {machine_class} and {test.machine_class}"
+                        )
 
                     machine_class = test.machine_class
 
@@ -352,17 +430,34 @@ def detect_tests(test_files, image, opts):
                 nd = testlib.get_decorator(test_method, test, "nondestructive")
                 rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
                 todo = testlib.get_decorator(test_method, test, "todo")
-                if getattr(test.__class__, "provision", None):
-                    # each additionally provisioned VM costs destructive test capacity
-                    cost = len(test.__class__.provision)
-                else:
-                    cost = 1
-                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, todo, cost=cost)
+
+                # Calculate test's RAM requirement (VM memory + browser)
                 if nd:
-                    nondestructive_tests.append(test)
+                    total_vm_memory_mb = opts.nondestructive_memory_mb
+                else:
+                    provision = getattr(test.__class__, "provision", None) or {"machine": {}}
+                    total_vm_memory_mb = sum(
+                        config.get("memory_mb") or DEFAULT_MACHINE_MEMORY_MB
+                        for config in provision.values()
+                    )
+                ram_gb = (total_vm_memory_mb + BROWSER_MEMORY_MB) / 1024.0
+
+                tst = Test(
+                    test_id,
+                    command=build_command(filename, test_str, opts),
+                    timeout=test_timeout,
+                    nondestructive=nd,
+                    retry_when_affected=rwa,
+                    todo=todo,
+                    ram_gb=ram_gb,
+                )
+                if nd:
+                    for _ in range(AMPLIFY_TEST_COUNT if opts.amplify == test_str else 1):
+                        nondestructive_tests.append(tst)
                 else:
                     if not opts.nondestructive:
-                        destructive_tests.append(test)
+                        for _ in range(AMPLIFY_TEST_COUNT if opts.amplify == test_str else 1):
+                            destructive_tests.append(tst)
                 test_id += 1
 
     # sort non destructive tests by class/test name, to avoid spurious errors where failures depend on the order of
@@ -373,7 +468,7 @@ def detect_tests(test_files, image, opts):
     return (nondestructive_tests, destructive_tests, machine_class)
 
 
-def list_tests(opts):
+def list_tests(opts: CliOpts) -> None:
     test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
     nondestructive_tests, destructive_tests, _ = detect_tests(test_files, "dummy", opts)
     names = {t.command[-1] for t in nondestructive_tests + destructive_tests}
@@ -381,7 +476,7 @@ def list_tests(opts):
         print(n)
 
 
-def run(opts, image):
+def run(opts: CliOpts, image: str) -> int:
     fail_count = 0
     start_time = time.time()
 
@@ -400,19 +495,38 @@ def run(opts, image):
     print(f"1..{nondestructive_tests_len + destructive_tests_len}")
     flush_stdout()
 
-    running_tests = []
-    global_machines = []
+    running_tests: list[Test] = []
+    global_machines: list[GlobalMachine] = []
+    test_slots: int = 0  # how many tests can we run in parallel
 
     if not opts.machine:
         # Create appropriate number of nondestructive machines; prioritize the nondestructive tests, to get
         # them out of the way as fast as possible, then let the destructive ones start as soon as
-        # a given nondestructive runner is done.
-        num_global = min(nondestructive_tests_len, opts.jobs)
+        # a given nondestructive runner is done. Limit by available RAM and CPU.
+        available_ram_gb = get_available_memory_gb() - SYSTEM_RESERVE_GB
+        global_machine_ram_gb = (opts.nondestructive_memory_mb + BROWSER_MEMORY_MB) / 1024.0
+        max_global_by_ram = int(available_ram_gb / global_machine_ram_gb)
+        if max_global_by_ram == 0:
+            sys.exit(f"Need {global_machine_ram_gb:.1f} GB per test, but only {available_ram_gb:.1f} GB available")
+
+        max_global_by_cpu = max((os.cpu_count() or 0) // 2, 1)
+        test_slots = min(max_global_by_ram, max_global_by_cpu)
+
+        num_global = min(nondestructive_tests_len, test_slots)
+        logging.debug("ND capacity: %.1f GB available, %.1f GB/slot, "
+                      "max %d by RAM, max %d by CPU, %d tests → starting %d slots",
+                      available_ram_gb, global_machine_ram_gb,
+                      max_global_by_ram, max_global_by_cpu, nondestructive_tests_len, num_global)
 
         for _ in range(num_global):
-            global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,
-                                                 memory_mb=opts.nondestructive_memory_mb,
-                                                 machine_class=machine_class or testvm.VirtMachine))
+            global_machines.append(
+                GlobalMachine(
+                    restrict=not opts.enable_network,
+                    cpus=opts.nondestructive_cpus,
+                    memory_mb=opts.nondestructive_memory_mb,
+                    machine_class=machine_class or testvm.VirtMachine,
+                )
+            )
 
     # test scheduling loop
     while True:
@@ -436,7 +550,7 @@ def run(opts, image):
 
                     # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
-                    if not opts.machine and (poll_result == 124 or (retry_reason and "test harness" in retry_reason)):
+                    if poll_result == 124 or (retry_reason and "test harness" in retry_reason):
                         # try hard to keep the test output consistent
                         sys.stderr.write("\nRestarting global machine %s\n" % test_machine)
                         sys.stderr.flush()
@@ -449,7 +563,7 @@ def run(opts, image):
                     else:
                         destructive_tests.insert(0, test)
 
-        if opts.machine:
+        if opts.machine and opts.browser:
             if not running_tests and nondestructive_tests:
                 test = nondestructive_tests.pop(0)
                 logging.debug("Static machine is free, assigning next test %s", test)
@@ -459,12 +573,14 @@ def run(opts, image):
                 made_progress = True
         else:
             # find free global machines, and either assign a new non destructive test, or kill them to free resources
-            for (idx, machine) in enumerate(global_machines):
+            for idx, machine in enumerate(global_machines):
                 if machine.is_available():
                     if nondestructive_tests:
                         test = nondestructive_tests.pop(0)
                         logging.debug("Global machine %s is free, assigning next test %s", idx, test)
                         machine.running_test = test
+                        assert machine.ssh_address is not None
+                        assert machine.web_address is not None
                         test.assign_machine(idx, machine.ssh_address, machine.web_address)
                         test.start()
                         running_tests.append(test)
@@ -474,27 +590,45 @@ def run(opts, image):
 
                     made_progress = True
 
-        def running_cost():
-            return sum(test.cost for test in running_tests)
+        # Schedule destructive tests if we have enough RAM, and also don't exceed the parallelism capacity
+        running_destructive_tests = len([t for t in running_tests if not t.nondestructive])
+        available_ram_gb = get_available_memory_gb() - SYSTEM_RESERVE_GB
 
-        # fill the remaining available job slots with destructive tests; run tests with a cost higher than #jobs by themselves
-        while destructive_tests and (running_cost() + destructive_tests[0].cost <= opts.jobs or len(running_tests) == 0):
-            test = destructive_tests.pop(0)
-            logging.debug("%d running tests with total cost %d, starting next destructive test %s",
-                          len(running_tests), running_cost(), test)
-            test.start()
-            running_tests.append(test)
-            made_progress = True
+        # Start destructive tests one at a time to avoid VM boot storms
+        if destructive_tests:
+            next_test = destructive_tests[0]
+
+            # Check if we have a free slot
+            running_global_machines = len([m for m in global_machines if m.machine is not None])
+            assert test_slots
+            max_destructive = test_slots - running_global_machines
+            if running_destructive_tests >= max_destructive:
+                logging.debug("NOT starting %s: no free slots (max %d), already running %d destructive and %d global ND machines",
+                              next_test, max_destructive, running_destructive_tests, running_global_machines)
+            # Check available RAM
+            elif next_test.ram_gb > available_ram_gb:
+                logging.debug("NOT starting %s: insufficient RAM (needs %.1f GB, only %.1f GB available)",
+                              next_test, next_test.ram_gb, available_ram_gb)
+            else:
+                test = destructive_tests.pop(0)
+                logging.debug("starting %s", test)
+                test.start()
+                running_tests.append(test)
+                made_progress = True
+                # Avoid VM boot storms; unreliable especially with nested KVM. This should be enough time to let VMs boot
+                time.sleep(15)
 
         # are we done?
         if not running_tests:
-            assert not nondestructive_tests, f"nondestructive_tests should be empty: {[str(t) for t in nondestructive_tests]}"
+            assert not nondestructive_tests, (
+                f"nondestructive_tests should be empty: {[str(t) for t in nondestructive_tests]}"
+            )
             assert not destructive_tests, f"destructive_tests should be empty: {[str(t) for t in destructive_tests]}"
             break
 
-        # Sleep if we didn't make progress
+        # Sleep if we didn't make progress, give running tests some breathing room
         if not made_progress:
-            time.sleep(0.5)
+            time.sleep(5)
 
     # Create coverage report
     if opts.coverage:
@@ -504,9 +638,9 @@ def run(opts, image):
     duration = int(time.time() - start_time)
     hostname = socket.gethostname().split(".")[0]
 
-    nondestructive_details = []
+    nondestructive_details: list[str] = []
     if not opts.machine:
-        for (idx, machine) in enumerate(global_machines):
+        for idx, machine in enumerate(global_machines):
             nondestructive_details.append(f"{idx}: {machine.duration}s")
 
     details = f"[{duration}s on {hostname}, {destructive_tests_len} destructive tests, {nondestructive_tests_len} nondestructive tests: {', '.join(nondestructive_details)}]"
@@ -520,47 +654,71 @@ def run(opts, image):
     return fail_count
 
 
-def main():
+def main() -> int:
     parser = testlib.arg_parser(enable_sit=False)
-    parser.add_argument('-j', '--jobs', type=int,
-                        default=int(os.environ.get("TEST_JOBS", 1)), help="Number of concurrent jobs")
-    parser.add_argument('--thorough', action='store_true',
-                        help='Thorough mode, no skipping known issues')
-    parser.add_argument('-n', '--nondestructive', action='store_true',
-                        help='Only consider @nondestructive tests')
-    parser.add_argument('--machine', metavar="hostname[:port]",
-                        default=None, help="Run tests against an already running machine;  implies --nondestructive")
-    parser.add_argument('--browser', metavar="hostname[:port]",
-                        default=None, help="When using --machine, use this cockpit web address")
-    parser.add_argument('--test-dir', default=os.environ.get("TEST_DIR", testvm.TEST_DIR),
-                        help="Directory in which to glob for test files; default: %(default)s")
-    parser.add_argument('--test-glob', default="check-*",
-                        help="Pattern with which to glob in the test directory; default: %(default)s")
-    parser.add_argument('--exclude', action="append", default=[], metavar="TestClass.testName",
-                        help="Exclude test (exact match only); can be specified multiple times")
-    parser.add_argument('--nondestructive-cpus', type=int, default=None,
-                        help="Number of CPUs for nondestructive test global machines")
-    parser.add_argument('--nondestructive-memory-mb', type=int, default=None,
-                        help="RAM size for nondestructive test global machines")
-    parser.add_argument('--base', default=os.environ.get("BASE_BRANCH"),
-                        help="Retry affected tests compared to given base branch; default: %(default)s")
-    parser.add_argument('--track-naughties', action='store_true',
-                        help='Update the occurrence of naughties on cockpit-project/bots')
-    parser.add_argument('--no-retry-fail', action='store_true',
-                        help="Don't retry failed tests")
-    opts = parser.parse_args()
+    parser.add_argument("--debug", action="store_true", help="Enable verbose debug logging")
+    parser.add_argument("--thorough", action="store_true", help="Thorough mode, no skipping known issues")
+    parser.add_argument("-n", "--nondestructive", action="store_true", help="Only consider @nondestructive tests")
+    parser.add_argument(
+        "--machine",
+        metavar="hostname[:port]",
+        default=None,
+        help="Run tests against an already running machine;  implies --nondestructive",
+    )
+    parser.add_argument(
+        "--browser",
+        metavar="hostname[:port]",
+        default=None,
+        help="When using --machine, use this cockpit web address",
+    )
+    parser.add_argument(
+        "--test-dir",
+        default=os.environ.get("TEST_DIR", testvm.TEST_DIR),
+        help="Directory in which to glob for test files; default: %(default)s",
+    )
+    parser.add_argument(
+        "--test-glob",
+        default="check-*",
+        help="Pattern with which to glob in the test directory; default: %(default)s",
+    )
+    parser.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        metavar="TestClass.testName",
+        help="Exclude test (exact match only); can be specified multiple times",
+    )
+    parser.add_argument(
+        "--nondestructive-cpus", type=int, default=None, help="Number of CPUs for nondestructive test global machines"
+    )
+    parser.add_argument(
+        "--nondestructive-memory-mb", type=int, default=DEFAULT_MACHINE_MEMORY_MB,
+        help="RAM size for nondestructive test global machines (default: %(default)s MB)",
+    )
+    parser.add_argument(
+        "--base",
+        default=os.environ.get("BASE_BRANCH"),
+        help="Retry affected tests compared to given base branch; default: %(default)s",
+    )
+    parser.add_argument(
+        "--track-naughties", action="store_true", help="Update the occurrence of naughties on cockpit-project/bots"
+    )
+    parser.add_argument("--no-retry-fail", action="store_true", help="Don't retry failed tests")
+    parser.add_argument("--amplify", type=str, default=None, help="Run the given tests multiple times in a row")
+    opts = CliOpts(**vars(parser.parse_args()))
+
+    # Set up logging
+    if opts.debug:
+        logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:run-tests:%(message)s')
 
     if opts.machine:
-        if opts.jobs > 1:
-            parser.error("--machine cannot be used with concurrent jobs")
         if not opts.browser:
             parser.error("--browser must be specified together with --machine")
         opts.nondestructive = True
 
     # Tell any subprocesses what we are testing
     if "TEST_REVISION" not in os.environ:
-        r = subprocess.run(["git", "rev-parse", "HEAD"],
-                           universal_newlines=True, check=False, stdout=subprocess.PIPE)
+        r = subprocess.run(["git", "rev-parse", "HEAD"], universal_newlines=True, check=False, stdout=subprocess.PIPE)
         if r.returncode == 0:
             os.environ["TEST_REVISION"] = r.stdout.strip()
 
@@ -569,6 +727,11 @@ def main():
     image = testvm.DEFAULT_IMAGE
     testvm.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
+
+    # on RHEL 8, provide enough RAM for cryptsetup's PBKDF (https://issues.redhat.com/browse/RHEL-8258)
+    # On any newer OS, cryptsetup gets along with less RAM
+    if image.startswith("rhel-8") and opts.nondestructive_memory_mb == DEFAULT_MACHINE_MEMORY_MB:
+        opts.nondestructive_memory_mb = 1400
 
     # Make sure tests can make relative imports
     sys.path.append(os.path.realpath(opts.test_dir))
@@ -580,6 +743,5 @@ def main():
     return run(opts, image)
 
 
-if __name__ == '__main__':
-    # logging.basicConfig(level=logging.DEBUG)
+if __name__ == "__main__":
     sys.exit(main())

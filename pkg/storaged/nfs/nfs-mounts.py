@@ -140,16 +140,16 @@ def monitor():
     process_fstab()
     report()
     fstab_watcher = Watcher("/etc/fstab")
-    mtab_file = open("/proc/self/mounts", "r")
-    while True:
-        r, _w, x = select.select([fstab_watcher.inotify.fd], [], [mtab_file])
-        if mtab_file in x:
-            process_mtab()
-            report()
-        if fstab_watcher.inotify.fd in r:
-            fstab_watcher.process()
-            process_fstab()
-            report()
+    with open("/proc/self/mounts", "r") as mtab_file:
+        while True:
+            r, _w, x = select.select([fstab_watcher.inotify.fd], [], [mtab_file])
+            if mtab_file in x:
+                process_mtab()
+                report()
+            if fstab_watcher.inotify.fd in r:
+                fstab_watcher.process()
+                process_fstab()
+                report()
 
 
 def mkdir_if_necessary(path):

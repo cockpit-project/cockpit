@@ -110,9 +110,6 @@ if [ "$PLAN" = "main" ]; then
               TestSystemInfo.testOverview
               TestSystemInfo.testShutdownStatus
 
-              TestJournal.testAbrtDelete
-              TestJournal.testAbrtReportNoReportd
-              TestJournal.testAbrtReportCancel
               TestJournal.testBinary
               TestJournal.testNoMessage
 

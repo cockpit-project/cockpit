@@ -23,7 +23,7 @@ const LogDetails = ({ entry }) => {
     const general = Object.keys(entry).filter(k => k !== 'MESSAGE');
     general.sort();
 
-    const id = entry.PROBLEM_BINARY || entry.UNIT || entry.SYSLOG_IDENTIFIER || "";
+    const id = entry.UNIT || entry.SYSLOG_IDENTIFIER || "";
     let service = entry.USER_UNIT || entry.COREDUMP_USER_UNIT || entry._SYSTEMD_USER_UNIT || "";
     const is_user = !!service;
     service = service || entry.UNIT || entry.COREDUMP_UNIT || entry._SYSTEMD_UNIT || "";
@@ -60,23 +60,6 @@ const LogDetails = ({ entry }) => {
     );
 };
 
-function get_problems(service) {
-    return service.wait()
-            .then(() => {
-                return service.GetProblems(0, {})
-                        .then(paths => {
-                            const proxies = paths.map(p => service.client.proxy("org.freedesktop.Problems2.Entry", p));
-                            return Promise.all(proxies.map(p => p.wait()))
-                                    .then(() => {
-                                        const result = { };
-                                        for (let i = 0; i < paths.length; i++)
-                                            result[paths[i]] = proxies[i];
-                                        return result;
-                                    });
-                        });
-            });
-}
-
 export class LogEntry extends React.Component {
     constructor(props) {
         super(props);
@@ -84,38 +67,9 @@ export class LogEntry extends React.Component {
             error: "",
             entry: null,
             loading: true,
-            problemPath: null,
-            abrtService: null,
         };
 
-        this.loadProblem = this.loadProblem.bind(this);
         this.goHome = this.goHome.bind(this);
-        this.problems_client = null;
-    }
-
-    loadProblem(entry) {
-        if (this.problems_client)
-            this.problems_client.close();
-        this.problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
-
-        const service = this.problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
-        get_problems(service)
-                .then(problems => {
-                    const fields = [entry.PROBLEM_DIR, entry.PROBLEM_DUPHASH, entry.PROBLEM_UUID];
-                    let path = null;
-                    Object.keys(problems).some(pth => {
-                        const p = problems[pth];
-                        if (p && (fields.indexOf(p.ID) > 0 || fields.indexOf(p.UUID) || fields.indexOf(p.Duphash))) {
-                            path = p;
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    });
-
-                    this.setState({ entry, loading: false, error: "", problemPath: path, abrtService: service });
-                })
-                .catch(err => this.setState({ entry, loading: false, error: err.toString() }));
     }
 
     componentDidMount() {
@@ -123,21 +77,11 @@ export class LogEntry extends React.Component {
         journal.journalctl({ cursor, count: 1, follow: false })
                 .then(entries => {
                     if (entries.length >= 1 && entries[0].__CURSOR == cursor) {
-                        if (entries[0].SYSLOG_IDENTIFIER === "abrt-notification" || entries[0]._SYSTEMD_UNIT === "abrt-notification")
-                            this.loadProblem(entries[0]);
-                        else
-                            this.setState({ entry: entries[0], loading: false, error: "" });
+                        this.setState({ entry: entries[0], loading: false, error: "" });
                     } else
                         this.setState({ entry: null, loading: false, error: _("Journal entry not found") });
                 })
                 .catch(error => this.setState({ entry: null, loading: false, error }));
-    }
-
-    componentWillUnmount() {
-        if (this.problems_client) {
-            this.problems_client.close();
-            this.problems_client = null;
-        }
     }
 
     goHome(ev) {

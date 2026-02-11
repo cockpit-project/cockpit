@@ -9,7 +9,7 @@ import React from "react";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
+import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 
 import { journal } from "journal";
 import "journal.css";
@@ -48,13 +48,9 @@ export class JournalOutput {
     }
 
     render_line(ident, prio, message, count, time, entry) {
-        let problem = false;
         let warning = false;
 
-        if (ident === 'abrt-notification') {
-            problem = true;
-            ident = entry.PROBLEM_BINARY;
-        } else if (prio < 4) {
+        if (prio < 4) {
             warning = true;
         }
 
@@ -68,10 +64,6 @@ export class JournalOutput {
                 <div className="cockpit-log-warning" role="cell">
                     { warning
                         ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
-                        : null
-                    }
-                    { problem
-                        ? <TimesCircleIcon className="ct-icon-times-circle" />
                         : null
                     }
                 </div>

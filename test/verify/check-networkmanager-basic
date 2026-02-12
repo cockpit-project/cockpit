@@ -364,6 +364,8 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.set_input_text("#network-ip-settings-gateway", "10.0.5.1")
         b.click("#network-ip-settings-save")
         self.wait_for_iface_setting("IPv4", "Address 10.0.5.10/24Gateway 10.0.5.1")
+        self.wait_for_iface_setting("Status", "Inactive")
+
         # Configure IPv6 address
         self.configure_iface_setting("IPv6")
         b.wait_visible("#network-ip-settings-dialog")
@@ -374,6 +376,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.set_input_text("#network-ip-settings-gateway", "2001:db8::1")
         b.click("#network-ip-settings-save")
         self.wait_for_iface_setting("IPv6", "Address 2001:db8::10/64Gateway 2001:db8::1")
+        self.wait_for_iface_setting("Status", "Inactive")
 
         # Start the interface and verify new address is set
         b.click("#interface-switch")

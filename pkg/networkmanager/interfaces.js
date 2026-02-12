@@ -521,10 +521,12 @@ export function NetworkManagerModel() {
                 timestamp: get("connection", "timestamp", 0),
                 id: get("connection", "id", _("Unknown")),
                 autoconnect: get("connection", "autoconnect", true),
+                autoconnect_priority: get("connection", "autoconnect-priority", 0),
                 autoconnect_members:
                                 get("connection", "autoconnect-slaves", -1),
                 member_type: get("connection", "slave-type"),
-                group: get("connection", "master")
+                group: get("connection", "master"),
+                multi_connect: get("connection", "multi-connect"),
             }
         };
 
@@ -684,12 +686,14 @@ export function NetworkManagerModel() {
 
         set("connection", "id", 's', settings.connection.id);
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
+        set("connection", "autoconnect-priority", 'i', settings.connection.autoconnect_priority);
         set("connection", "autoconnect-slaves", 'i', settings.connection.autoconnect_members);
         set("connection", "uuid", 's', settings.connection.uuid);
         set("connection", "interface-name", 's', settings.connection.interface_name);
         set("connection", "type", 's', settings.connection.type);
         set("connection", "slave-type", 's', settings.connection.member_type);
         set("connection", "master", 's', settings.connection.group);
+        set("connection", "multi-connect", 'i', settings.connection.multi_connect);
 
         if (settings.ipv4)
             set_ip("ipv4", 'au', utils.ip4_from_text);
@@ -1481,6 +1485,8 @@ export function settings_applier(model, device, connection) {
      * them as a stand-alone object.  Otherwise, we
      * activate the device with the settings which causes
      * NM to fill in the type and other details.
+     * Non-persistent "Wired Connection" is a special case
+     * and we make a new connection instead.
      *
      * HACK - The activation is a hack, we would rather
      * just have NM fill in the details and not activate
@@ -1490,11 +1496,16 @@ export function settings_applier(model, device, connection) {
      * https://bugzilla.gnome.org/show_bug.cgi?id=775226
      */
 
+    const specialCon = utils.isNonPersistentMultiCon(connection);
+
     return function (settings) {
-        if (connection) {
+        if (connection && !specialCon) {
             return connection.apply_settings(settings);
-        } else if (settings.connection.type) {
+        } else if (settings.connection.type && !specialCon) {
             return model.get_settings().add_connection(settings);
+        } else if (device && specialCon) {
+            const newSettings = utils.createNewConnSettings(settings, device.Interface);
+            return device.activate_with_settings(newSettings);
         } else if (device) {
             return device.activate_with_settings(settings);
         } else {

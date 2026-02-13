@@ -6,6 +6,10 @@ function debug(...args) {
         console.debug('login:', ...args);
 }
 
+const COSE_ES256 = -7;
+const COSE_RS256 = -257;
+const COSE_EDDSA = -8;
+
 (function(console) {
     let localStorage;
 
@@ -740,7 +744,20 @@ function debug(...args) {
         hideToggle("#conversation-group", form != "conversation");
         hideToggle("#hostkey-group", form != "hostkey");
 
-        id("login-button-text").textContent = (form == "hostkey") ? _("Accept key and log in") : _("Log in");
+        let loginText = ""
+        switch (form) {
+            case "hostkey":
+                loginText = _("Accept key and log in")
+                break;
+            case "passkey":
+                loginText = _("Log in with passkey")
+                break;
+            default:
+                loginText = _("Log in")
+                break;
+        }
+
+        id("login-button-text").textContent = loginText;
         if (form != "login")
             id("login-password-input").value = '';
 
@@ -763,8 +780,10 @@ function debug(...args) {
         id("login-button").classList.add("pf-m-primary");
         hide("#get-out-link");
 
-        if (form == "login")
+        if (form == "login") {
             id("login-button").addEventListener("click", call_login);
+            id("create-passkey").addEventListener("click", createCredentials);
+        }
 
         if (environment.is_cockpit_client) {
             render_recent_hosts();
@@ -776,7 +795,7 @@ function debug(...args) {
         /* Show the login screen */
         login_info(message);
         id("server-name").textContent = document.title;
-        login_note(_("Log in with your server user account."));
+        login_note(_("Log in with your server user account"));
         id("login-user-input").addEventListener("keydown", function(e) {
             login_failure(null);
             clear_info();
@@ -885,9 +904,249 @@ function debug(...args) {
         }
     }
 
+
+    function isPasskeySupported() {
+        return !(window.PublicKeyCredential === undefined ||
+            typeof window.PublicKeyCredential !== "function" ||
+            typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable !== "function")
+    }
+
+    const supportedAlgorithmsByValue = function(value) {
+        return Object.keys(PK_ALGS).filter(key => key !== "byValue").find(key => PK_ALGS[key] === value);
+    }
+
+    // Used when registering a token
+    function getPublicKeyObject(decodedAttestationObject) {
+        const {authData} = decodedAttestationObject;
+
+        // get the length of the credential ID
+        const dataView = new DataView(
+            new ArrayBuffer(2));
+        const idLenBytes = authData.slice(53, 55);
+        idLenBytes.forEach(
+            (value, index) => dataView.setUint8(
+                index, value));
+        const credentialIdLength = dataView.getUint16();
+
+        // get the credential ID
+        const _credentialId = authData.slice(
+            55, 55 + credentialIdLength);
+
+        // get the public key object
+        const publicKeyBytes = authData.slice(
+            55 + credentialIdLength);
+
+        // the publicKeyBytes are encoded again as CBOR
+        const publicKeyObject = CBOR.decode(
+            publicKeyBytes.buffer);
+        return publicKeyObject;
+    }
+
+    function publicKeyToString(publicKeyCose) {
+        // https://www.w3.org/TR/webauthn-3/#authdata-attestedcredentialdata-credentialpublickey
+        let publicKey = "";
+        const alg = publicKeyCose[3];
+        switch (alg) {
+            case COSE_ES256:
+                let es256Key = new Uint8Array(64);
+                es256Key.set(publicKeyCose['-2']);
+                es256Key.set(publicKeyCose['-3'], 32);
+                publicKey = es256Key.toBase64();
+                break;
+            case COSE_EDDSA:
+                let eddsaKey = new Uint8Array(32);
+                eddsaKey.set(publicKeyCose['-2']);
+                publicKey = eddsaKey.toBase64();
+                break;
+            case COSE_RS256:
+                let rs256Key = new Uint8Array(259);
+                rs256Key.set(publicKeyCose['-1']);
+                rs256Key.set(publicKeyCose['-2'], 256);
+                publicKey = rs256Key.toBase64();
+                break;
+            default:
+                console.warn("Unsupported algorithm detected", alg);
+                break;
+        }
+
+        return publicKey;
+    }
+
+    async function createCredentials(username) {
+        console.log(username);
+        const passkey = await (navigator.credentials.create({
+            publicKey: {
+                challenge: new Uint8Array([
+                    // TODO: must be a cryptographically random number sent from a server
+                    0x8c, 0x0a, 0x26, 0xff, 0x22, 0x91, 0xc1, 0xe9, 0xb9, 0x4e, 0x2e, 0x17,
+                    0x1a, 0x98, 0x6a, 0x73, 0x71, 0x9d, 0x43, 0x48,
+                ]),
+                rp: { id: "localhost", name: "cockpit" },
+                user: {
+                    id: new Uint8Array([0x1a, 0x98, 0x6a, 0x73, 0x71, 0x9d, 0x43]),
+                    name: "admin",
+                    displayName: "Jamie Doe",
+                },
+                attestation: "direct",
+                timeout: 60_000,
+                authenticatorSelection: {
+                    residentKey: "discouraged",
+                    userVerification: "discouraged"
+                },
+                // Ordered in terms of priority and what is supported by pam-u2f
+                pubKeyCredParams: [
+                    {
+                        alg: COSE_ES256, type: "public-key"
+                    },
+                    {
+                        alg: COSE_EDDSA, type: "public-key"
+                    },
+                    {
+                        alg: COSE_RS256, type: "public-key"
+                    }
+                ],
+            },
+        }));
+
+        // FIXME: Testing purposes
+        console.log("passkey", passkey, passkey.toJSON());
+        window.passkey = passkey;
+        // FIXME Testing purposes
+        if (!passkey) return;
+        // Need to parse publickey from the response to base64
+
+        let decodedAttestationObj = CBOR.decode(passkey.response.attestationObject);
+        console.log("decodedAttestationObj", decodedAttestationObj);
+
+        if (decodedAttestationObj?.fmt !== "packed") {
+            console.warn("Attestation needs to be format 'packed'.");
+            return;
+        }
+
+        let publicKeyCose = getPublicKeyObject(decodedAttestationObj);
+
+        console.log("pubKeyCose", publicKeyCose);
+
+        const publicKey = publicKeyToString(publicKeyCose);
+        const id = new Uint8Array(passkey.rawId).toBase64();
+        // Can get ID by Uint8Array.fromBase64(passkey.id, {alphabet: "base64url"}).buffer
+        console.log(`admin:${id},${publicKey},${supportedAlgorithmsByValue(passkey.response.getPublicKeyAlgorithm())},`);
+        return new Promise((resolve, reject) => {
+                // credential ID is base64 encoded, need to decode before sending it. Format is (passkey:<id>,<publicKey>)
+                // TODO: alice isn't showin in Accounts page, so hardcoding it for testing purposes.
+                resolve();});
+            //     cockpit.spawn(["ipa", "user-add-passkey", "alice", `passkey:${btoa(credential.id)},${publicKey}`], { err: "out" })
+            //             .done(function() {
+            //                 resolve();
+            //             })
+            //             .fail(function(ex, response) {
+            //                 if (ex.exit_status) {
+            //                     console.log(ex);
+            //                     if (response)
+            //                         ex = new Error(response);
+            //                     else
+            //                         ex = new Error(_("Failed to change password"));
+            //                 }
+            //                 reject(ex);
+            //             });
+            // });
+    }
+
+    function do_passkey_verification(data) {
+        if (!window.isSecureContext) {
+            login_failure(_("This web page was not loaded in a secure context (https). Please try loading the page again using https or make sure you are using a browser with secure context support"));
+        }
+        if (!isPasskeySupported) {
+            login_failure(_("Browser or client does not support necessary Web Authentication"));
+        }
+        const match = /.*\n(?<challenge>\S+)\n(?<rp>\S+)\n(?<client>\S+).*/.exec(data["message"]);
+        if (!match) {
+            // login_failure(null, null, "passkey");
+            return;
+        }
+        const challenge = match.groups?.challenge;
+        const rp = match.groups?.rp;
+        const client = match.groups?.client;
+
+        if (!challenge || !rp || !client) {
+            return;
+        }
+
+        show("#passkey-group");
+
+        login_failure("");
+        // const id = Uint8Array.fromBase64(passkey.id, {alphabet: "base64url"}).buffer
+
+        async function call_converse() {
+            const allowCredentials = [];
+            if (client !== "*") {
+                allowCredentials.push(
+                    {
+                        type: "public-key",
+                        id: Uint8Array.fromBase64(client).buffer
+                    }
+                );
+            }
+            id("login-button").removeEventListener("click", call_converse);
+            login_failure(null, null, "passkey");
+            const publicKey = {
+                challenge: Uint8Array.fromBase64(challenge),
+                rpId: rp,
+                allowCredentials,
+                userVerification: "discouraged"
+            };
+            console.log("challenge", Uint8Array.fromBase64(challenge).buffer, challenge);
+            console.log("rp", rp);
+            if (allowCredentials.length) {
+                console.log("credentials", Uint8Array.fromBase64(client).buffer, client)
+            }
+
+            const passkey = await navigator.credentials.get({ publicKey });
+            console.log("passkey",passkey);
+
+            const response = [];
+            window.passkey = passkey;
+            response.push(new Uint8Array(passkey.response.clientDataJSON).toBase64());
+            // response.push(challenge);
+            response.push("localhost")
+            response.push(new Uint8Array(CBOR.encode(new Uint8Array(passkey.response.authenticatorData))).toBase64())
+            response.push(new Uint8Array(passkey.response.signature).toBase64())
+            // response.push(new Uint8Array(credentials.rawId).toBase64());
+
+            console.log(response);
+
+            function delay(milliseconds){
+                return new Promise(resolve => {
+                    setTimeout(resolve, milliseconds);
+                });
+            }
+            // converse(data.id, response.join("\n") + "\n");
+            for (const r of response) {
+                await delay(500);
+                converse(data.id, r);
+            }
+            // if (key.endsWith(" login-data")) {
+            //     login_data_host = key_host;
+            //     console.log("call_converse(): got placeholder host keyfor", login_data_host, ", deferring db update");
+            //     converse(data.id, data.default);
+            // } else {
+            //     console.error("login: got unexpected host key prompt, expecting login-data placeholder:", key);
+            //     fatal(_("Internal protocol error"));
+            // }
+        }
+
+        show_form("passkey");
+        show("#get-out-link");
+
+        id("login-button").addEventListener("click", call_converse);
+    }
+
     function show_converse(prompt_data) {
         if (prompt_data["host-key"]) {
             do_hostkey_verification(prompt_data);
+            return;
+        } else if (prompt_data["prompt"].includes("Response #1:")) {
+            do_passkey_verification(prompt_data);
             return;
         }
 
@@ -1068,6 +1327,7 @@ function debug(...args) {
         const headers = {
             Authorization: "X-Conversation " + id + " " + window.btoa(utf8(msg))
         };
+        console.log(headers);
         send_login_request("GET", headers, true);
     }
 

@@ -291,6 +291,18 @@
    while it runs. When "func" throws an error, it is caught and stored
    in "dlg.error".
 
+   "dlg.run_action" returns true when validation has passed and "func"
+   has completed without throwing an error.
+
+   All state changes via "field.set()" are denied while
+   "dlg.run_action" is running. This is done to prevent the user from
+   interacting with the dialog while an action runs. But there is
+   nothing fundamentally wrong with programmatically changing dialog
+   state as part of an action. If you want to do that, write code like
+
+     if (dlg.run_action(...))
+       dlg.field("xxx").set(...)
+
    Let's now finally talk about input validation.
 
    Input validation is done by a single, central function for the
@@ -1116,14 +1128,14 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         }
     }
 
-    async run_action(func: (vals: V) => Promise<void>) {
+    async run_action(func: (vals: V) => Promise<void>): Promise<boolean> {
         this.error = null;
         this.#action_running = true;
         this.#update();
         if (!await this.validate()) {
             this.#action_running = false;
             this.#update();
-            return;
+            return false;
         }
 
         try {
@@ -1135,6 +1147,8 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
 
         this.#action_running = false;
         this.#update();
+
+        return !this.error;
     }
 
     top(update_func?: ((val: V) => void) | undefined): DialogField<V> {
@@ -1144,6 +1158,13 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             (val) => {
                 debug("set", val);
                 if (this.#action_running) {
+                    // Deny state changes while actions run.  This
+                    // prevents the user from interacting with the
+                    // dialog while it is busy. The alternative would
+                    // be to officially disable all fields and prevent
+                    // interactions that way, but that is visually
+                    // very jarring and not something that we have
+                    // been doing earlier.
                     debug("set denied");
                     return;
                 }
@@ -1274,9 +1295,10 @@ export function DialogActionButton<V>({
             isLoading={!!dialog && !(dialog instanceof DialogError) && dialog.busy}
             isDisabled={!dialog || dialog instanceof DialogError || dialog.actions_disabled}
             variant="primary"
-            onClick={() => {
+            onClick={async () => {
                 cockpit.assert(dialog && !(dialog instanceof DialogError));
-                dialog.run_action(vals => action(vals).then(onClose || (() => {})));
+                if (await dialog.run_action(action) && onClose)
+                    onClose();
             }}
             {...props}
         >

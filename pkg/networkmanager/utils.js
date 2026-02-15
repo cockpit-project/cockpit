@@ -266,6 +266,13 @@ export function ip6_from_text(text, empty_is_zero) {
     return cockpit.base64_encode(bytes);
 }
 
+// SSID comes as a base64-encoded string from D-Bus (signature 'ay')
+export const ssid_from_nm = bytes => new TextDecoder().decode(
+    new Uint8Array(cockpit.base64_decode(bytes ?? []))
+);
+
+export const ssid_to_nm = ssid => cockpit.base64_encode(new TextEncoder().encode(ssid));
+
 export function list_interfaces() {
     return new Promise((resolve, reject) => {
         const client = cockpit.dbus("org.freedesktop.NetworkManager");
@@ -295,4 +302,9 @@ export function list_interfaces() {
                 })
                 .catch(e => console.warn(JSON.stringify(e)));
     });
+}
+
+export function debug() {
+    if (window.debugging == "all" || window.debugging?.includes("networkmanager")) // not-covered: debugging
+        console.debug("networkmanager:", ...arguments); // not-covered: debugging
 }

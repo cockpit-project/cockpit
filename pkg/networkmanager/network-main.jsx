@@ -8,10 +8,12 @@ import React from 'react';
 import { useEvent } from "hooks";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { ConnectedIcon } from "@patternfly/react-icons";
 
 import { FirewallSwitch } from "./firewall-switch.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -81,6 +83,29 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         } else {
             row.columns.push({ title: device_state_text(dev), props: { colSpan: 2 } });
         }
+
+        // Details column: show type-specific information
+        let detailsColumn = null;
+        if (dev?.DeviceType === '802-11-wireless') {
+            const networkCount = dev.AccessPoints?.length;
+            detailsColumn = (
+                <Flex columnGap={{ default: 'columnGapSm' }}>
+                    {networkCount > 0 && (
+                        <FlexItem>
+                            <Label status="info">
+                                {cockpit.format(cockpit.ngettext("$0 network", "$0 networks", networkCount), networkCount)}
+                            </Label>
+                        </FlexItem>
+                    )}
+                    {dev.ActiveAccessPoint?.Ssid && (
+                        <FlexItem>
+                            <Label status="success" icon={<ConnectedIcon />}>{dev.ActiveAccessPoint?.Ssid}</Label>
+                        </FlexItem>
+                    )}
+                </Flex>
+            );
+        }
+        row.columns.push({ title: detailsColumn });
 
         if (!dev || is_managed(dev)) {
             managed.push(row);
@@ -168,10 +193,11 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                         <ListingTable aria-label={_("Managed interfaces")}
                                       variant='compact'
                                       columns={[
-                                          { title: _("Name"), header: true, props: { width: 25 } },
-                                          { title: _("IP address"), props: { width: 25 } },
-                                          { title: _("Sending"), props: { width: 25 } },
-                                          { title: _("Receiving"), props: { width: 25 } },
+                                          { title: _("Name"), header: true, props: { width: 15 } },
+                                          { title: _("IP address"), props: { width: 35 } },
+                                          { title: _("Sending"), props: { width: 15 } },
+                                          { title: _("Receiving"), props: { width: 15 } },
+                                          { title: _("Details"), props: { width: 20 } },
                                       ]}
                                       rows={managed} />
                     </Card>
@@ -183,10 +209,11 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                         <ListingTable aria-label={_("Unmanaged interfaces")}
                                       variant='compact'
                                       columns={[
-                                          { title: _("Name"), header: true, props: { width: 25 } },
-                                          { title: _("IP address"), props: { width: 25 } },
-                                          { title: _("Sending"), props: { width: 25 } },
-                                          { title: _("Receiving"), props: { width: 25 } },
+                                          { title: _("Name"), header: true, props: { width: 15 } },
+                                          { title: _("IP address"), props: { width: 35 } },
+                                          { title: _("Sending"), props: { width: 15 } },
+                                          { title: _("Receiving"), props: { width: 15 } },
+                                          { title: _("Details"), props: { width: 20 } },
                                       ]}
                                       rows={unmanaged} />
                     </Card>}

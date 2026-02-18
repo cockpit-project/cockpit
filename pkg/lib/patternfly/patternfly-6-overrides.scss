@@ -367,3 +367,12 @@ $phone: 767px;
 .pf-v6-c-table .pf-v6-c-table__tbody :where(.pf-v6-c-table__th, .pf-v6-c-table__td)[data-label]::before {
     font-weight: var(--pf-t--global--font--weight--body--bold);
 }
+
+// NOTE: PF6 read-only inline inputs has cropped border when it is focused/selected
+// within a modal and positioned at the end of a modal body.
+// Adding small spacing at the end of the modal body fixes the issue.
+// https://github.com/patternfly/patternfly/issues/8150
+.pf-v6-c-modal-box__body {
+  // PF's Modal body already has this set for padding-block-start
+  padding-block-end: var(--pf-t--global--spacer--sm);
+}

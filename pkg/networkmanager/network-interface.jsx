@@ -306,7 +306,7 @@ export const NetworkInterfacePage = ({
                             <Checkbox id="autoreconnect" isDisabled={!privileged}
                                       onChange={(_event, checked) => {
                                           settings.connection.autoconnect = checked;
-                                          settings_applier(self.model, dev, con)(settings);
+                                          settings_applier(model, dev, con)(settings);
                                       }}
                                       isChecked={settings.connection.autoconnect}
                                       label={_("Connect automatically")} />

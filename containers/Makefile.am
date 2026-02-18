@@ -5,7 +5,7 @@ CLEANFILES += $(WS_DIR)/rpms $(WS_DIR)/libexec
 ws-container:
 	rm -rf $(WS_DIR)/rpms
 	if [ -e cockpit-bridge-*.rpm ]; then mkdir -p $(WS_DIR)/rpms; cp *.rpm $(WS_DIR)/rpms; fi
-	podman build -t quay.io/cockpit/ws $(WS_DIR)
+	$(WS_DIR)/release.sh
 
 # Developer target for quick iteration. Your have to build your local tree on
 # the same OS than the container image, and with the correct --prefix=/usr

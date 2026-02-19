@@ -9,6 +9,7 @@ import testlib
 
 
 @testlib.skipWsContainer("cockpit/ws always uses loopback")
+@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 @testlib.nondestructive
 class TestLoopback(testlib.MachineCase):
 

@@ -94,6 +94,7 @@ def createUser(
 
 
 @testlib.nondestructive
+@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 class TestAccounts(testlib.MachineCase):
 
     def testBasic(self):

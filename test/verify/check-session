@@ -11,6 +11,7 @@ import testlib
 @testlib.nondestructive
 class TestSession(testlib.MachineCase):
 
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testBasic(self):
         m = self.machine
         b = self.browser

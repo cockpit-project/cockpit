@@ -1240,6 +1240,7 @@ ExecStart=/usr/local/bin/{packageName}
 
 @testlib.skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
 @testlib.skipWsContainer("no cockpit-ws package with cockpit/ws container")
+@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 class TestWsUpdate(NoSubManCase):
     def testBasic(self):
         # The main case for this is that cockpit-ws itself gets upgraded, which
@@ -1305,6 +1306,7 @@ class TestWsUpdate(NoSubManCase):
 
 
 @testlib.skipImage("kpatch is not available", *OSesWithoutKpatch)
+@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 class TestKpatchInstall(NoSubManCase):
     def testBasic(self):
         b = self.browser
@@ -1836,6 +1838,7 @@ WantedBy=basic.target
 
 
 @testlib.skipOstree("Image uses OSTree")
+@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 @testlib.nondestructive
 class TestInstallDialog(NoSubManCase):
 

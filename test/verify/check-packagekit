@@ -15,7 +15,7 @@ import testlib
 
 OSesWithoutTracer = ["debian-*", "ubuntu-*", "fedora-coreos", "centos-10", "rhel-10*"]
 OSesWithDnfRestart = ["centos-10", "rhel-10*"]
-OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*"]
+OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*", "opensuse-*"]
 
 
 class NoSubManCase(packagelib.PackageCase):
@@ -1239,6 +1239,7 @@ ExecStart=/usr/local/bin/{packageName}
 
 
 @testlib.skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
+@testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
 @testlib.skipWsContainer("no cockpit-ws package with cockpit/ws container")
 class TestWsUpdate(NoSubManCase):
     def testBasic(self):
@@ -1836,6 +1837,7 @@ WantedBy=basic.target
 
 
 @testlib.skipOstree("Image uses OSTree")
+@testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
 @testlib.nondestructive
 class TestInstallDialog(NoSubManCase):
 

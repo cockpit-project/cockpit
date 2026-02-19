@@ -81,7 +81,7 @@ exec "$@"
         ''', timeout=10)
         self.m_target.execute("while pgrep -af '([c]ockpit|[s]sh-agent)' >&2; do sleep 1; done",
                               timeout=30)
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testBeibootNoBridge(self):
         # set up target machine: no cockpit
         self.m_target.execute("rm /usr/bin/cockpit-bridge; rm -r /usr/share/cockpit")

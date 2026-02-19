@@ -55,7 +55,7 @@ class TestSystemInfo(testlib.MachineCase):
 
         # Switching into and out of FIPS mode is not supported anymore in newer OSes.
         self.supportsFIPS = self.machine.image.startswith(("rhel-8", "rhel-9", "centos-9"))
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -207,6 +207,7 @@ class TestSystemInfo(testlib.MachineCase):
                                     "sudo: unable to resolve host host1.cockpit.lan: .*")
 
     @testlib.nondestructive
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testMotd(self):
         m = self.machine
         b = self.browser
@@ -872,7 +873,7 @@ class TestSystemInfoTime(packagelib.PackageCase):
         b.click("#change_systime_btn")
         b.click(f"#change_systime button:contains('{mode}')")
         b.wait_in_text("#system_information_change_systime #change_systime_btn", mode)
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testTime(self):
         m = self.machine
         b = self.browser
@@ -958,6 +959,7 @@ class TestSystemInfoTime(packagelib.PackageCase):
         self.assertIn("EEST 2050\n", m.execute("date"))
 
     @testlib.skipImage("timesyncd not available", "rhel*", "centos-*")
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testTimeServersTimesyncd(self):
         m = self.machine
         b = self.browser

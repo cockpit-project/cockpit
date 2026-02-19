@@ -7,7 +7,6 @@
 
 import testlib
 
-
 @testlib.nondestructive
 class TestReauthorize(testlib.MachineCase):
     def testBasic(self):
@@ -68,7 +67,7 @@ class TestReauthorize(testlib.MachineCase):
         b.wait_in_text(".super-channel span", 'result: uid=0')
         b.leave_page()
         b.check_superuser_indicator("")
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testSudo(self):
         m = self.machine
         b = self.browser

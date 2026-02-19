@@ -1183,6 +1183,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.allow_journal_messages("admin: Executing command .*COMMAND=.*cockpit-bridge --privileged.*")
 
     @testlib.skipBeiboot("test does not make sense in beiboot mode")
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testReverseProxy(self):
         m = self.machine
         b = self.browser

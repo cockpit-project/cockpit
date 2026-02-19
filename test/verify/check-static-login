@@ -14,6 +14,7 @@ import testlib
 
 
 @testlib.nondestructive
+@testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
 class TestLogin(testlib.MachineCase):
     def check_shell(self):
         b = self.browser

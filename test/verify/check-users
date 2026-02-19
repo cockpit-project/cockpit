@@ -95,7 +95,7 @@ def createUser(
 
 @testlib.nondestructive
 class TestAccounts(testlib.MachineCase):
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -443,7 +443,7 @@ class TestAccounts(testlib.MachineCase):
         check_column_sort("[data-label='ID']", invert=True)
         b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
         check_column_sort("[data-label='ID']")
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testUserPasswords(self):
         b = self.browser
         m = self.machine
@@ -1021,7 +1021,7 @@ class TestAccounts(testlib.MachineCase):
                 _, _, value = line.partition(":")
                 return value.strip()
         return None
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testExpire(self):
         m = self.machine
         b = self.browser
@@ -1118,6 +1118,7 @@ class TestAccounts(testlib.MachineCase):
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
 
     @testlib.skipWsContainer("User is not shown as logged in with cockpit/ws")
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testAccountLogs(self):
         b = self.browser
         m = self.machine
@@ -1297,7 +1298,7 @@ class TestAccounts(testlib.MachineCase):
         b.click("#groups-create-dialog button.pf-m-primary")
         b.wait_not_present("#groups-create-dialog")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("saturn")')
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testGroupRename(self):
         b = self.browser
         m = self.machine

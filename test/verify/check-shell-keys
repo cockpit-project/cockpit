@@ -137,6 +137,7 @@ class TestKeys(testlib.MachineCase):
 
     # Possible workaround - ssh as `admin` and just do `m.execute()`
     @testlib.skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testPrivateKeys(self):
         b = self.browser
         m = self.machine

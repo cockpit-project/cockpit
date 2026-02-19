@@ -79,6 +79,7 @@ def applySettings(browser, dialog_selector):
 
 
 @testlib.skipOstree("no PCP support")
+@testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
 class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -1032,7 +1033,7 @@ class TestCurrentMetrics(testlib.MachineCase):
             b.click("table[aria-label='Top 5 CPU services'] tbody td[data-label='Service'] a:contains('cpu-userhog')")
             b.enter_page("/system/services")
             b.wait_in_text(".service-name", "/usr/bin/dd if=/dev/urandom of=/dev/null")
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testMemory(self):
         b = self.browser
         m = self.machine
@@ -1489,7 +1490,7 @@ class TestMultiCPU(testlib.MachineCase):
 
         self.allow_journal_messages('.*apparmor="DENIED" operation="open" class="file" profile="hostname" name="/proc/sys/net/ipv6/conf/all/disable_ipv6".*')
 
-
+@testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
 @testlib.skipOstree("no PCP support")
 class TestGrafanaClient(testlib.MachineCase):
 

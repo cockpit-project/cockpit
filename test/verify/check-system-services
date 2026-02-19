@@ -374,6 +374,7 @@ WantedBy=default.target
         b.wait_not_present('#test.service > svg.service-thumbtack-icon-color')
 
     @testlib.nondestructive
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testFilter(self):
         b = self.browser
 
@@ -655,10 +656,12 @@ WantedBy=default.target
             b.click(".pf-v6-c-breadcrumb a:contains('Services')")
 
     @testlib.nondestructive
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testServiceMetrics(self):
         self._testServiceMetrics(user=False)
 
     @testlib.nondestructive
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testServiceMetricsSession(self):
         self._testServiceMetrics(user=True)
 

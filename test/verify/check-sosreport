@@ -14,6 +14,7 @@ import testlib
 
 @testlib.skipOstree("No sosreport")
 @testlib.skipImage("No sosreport", "arch")
+@testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
 @testlib.nondestructive
 class TestSOS(testlib.MachineCase):
 

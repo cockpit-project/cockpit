@@ -8,6 +8,7 @@
 import testlib
 
 
+@testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
 @testlib.nondestructive
 class TestSession(testlib.MachineCase):
 

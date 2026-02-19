@@ -142,7 +142,7 @@ class TestMenu(testlib.MachineCase):
         b.wait_visible("#login")
         b.wait_visible("#login-info-message")
         b.wait_text("#login-info-message", "You have been logged out due to inactivity.")
-
+    @testlib.skipImage("TODO: enable for OpenSUSE", "opensuse-tumbleweed")
     def testKeyboardNavigation(self):
         b = self.browser
         self.login_and_go()

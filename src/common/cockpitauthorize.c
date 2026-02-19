@@ -206,6 +206,97 @@ cockpit_authorize_subject (const char *challenge,
   return challenge + len;
 }
 
+// set user from method
+// out: sets passkey data from output
+// response.push(new Uint8Array(passkey.response.clientDataJSON).toBase64());
+// response.push(challenge);
+// response.push("localhost")
+// response.push(new Uint8Array(CBOR.encode(new Uint8Array(passkey.response.authenticatorData))).toBase64())
+// response.push(new Uint8Array(passkey.response.signature).toBase64())
+
+char *
+cockpit_authorize_parse_passkey (const char *challenge,
+                               char **user)
+{
+  unsigned char *buf = NULL;
+  char *type = NULL;
+  size_t len;
+  ssize_t res;
+  int errn = 0;
+  size_t off;
+
+  challenge = cockpit_authorize_type (challenge, &type);
+  if (!challenge)
+    return NULL;
+
+  if (strcmp (type, "passkey") != 0)
+    {
+      message ("invalid prefix in Passkey header");
+      errn = EINVAL;
+      goto out;
+    }
+
+  len = strcspn (challenge, " ");
+  buf = malloc (len + 1);
+  if (!buf)
+    {
+      message ("couldn't allocate memory for Passkey header");
+      errn = ENOMEM;
+      goto out;
+    }
+
+  /* No value */
+  if (len == 0)
+    {
+      buf[0] = 0;
+      if (user)
+        *user = NULL;
+      goto out;
+    }
+
+  /* Decode and find split point */
+  res = cockpit_base64_pton (challenge, len, buf, len);
+  if (res < 0)
+    {
+      message ("invalid base64 data in Passkey header");
+      errn = EINVAL;
+      goto out;
+    }
+  assert (res <= len);
+  buf[res] = 0;
+
+  off = strcspn ((char *)buf, ":");
+  if (off == res)
+    {
+      message ("invalid base64 data in Passkey header");
+      errn = EINVAL;
+      goto out;
+    }
+
+  if (user)
+    {
+      *user = strndup ((char *)buf, off);
+      if (!*user)
+        {
+          message ("couldn't allocate memory for user name");
+          errn = ENOMEM;
+          goto out;
+        }
+    }
+
+  memmove (buf, buf + off + 1, res - off);
+
+out:
+  free (type);
+  if (errn != 0)
+    {
+      errno = errn;
+      free (buf);
+      buf = NULL;
+    }
+  return (char *)buf;
+}
+
 char *
 cockpit_authorize_parse_basic (const char *challenge,
                                char **user)

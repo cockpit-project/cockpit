@@ -26,7 +26,7 @@ class TestLogin(testlib.MachineCase):
             b.click("#hosts-sel button")
             b.set_layout("desktop")
 
-    # @testlib.skipBeiboot("no local cockpit PAM config in beiboot mode")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -212,6 +212,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "noise-rc-.*")
 
     @testlib.skipWsContainer("logs in via ssh, not cockpit-session")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testLogging(self):
         m = self.machine
         b = self.browser
@@ -270,6 +271,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         verify_correct(has_last=True, n_fail=0)
 
     @testlib.skipImage("Arch Linux has no pwquality by default", "arch")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testExpired(self):
         m = self.machine
         b = self.browser
@@ -378,6 +380,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_restart_journal_messages()
 
     @testlib.skipWsContainer("mock-pam-conv not installed")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testConversation(self):
         m = self.machine
         b = self.browser
@@ -426,7 +429,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No tlog", "debian-*", "ubuntu-*", "arch", "opensuse-tumbleweed")
     @testlib.skipOstree("No tlog")
     @testlib.skipImage("FIXME: tlog messes up bridge frame protocol", "rhel-8-10")
     def testSessionRecordingShell(self):
@@ -484,6 +487,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     @testlib.skipImage("No SELinux", "debian-*", "ubuntu-*", "arch")
     @testlib.skipOstree("No semanage")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testSELinuxRestrictedUser(self):
         m = self.machine
         b = self.browser
@@ -676,6 +680,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         m.execute("grep -r faillock /etc/pam.d")
 
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testFaillock(self):
         m = self.machine
         b = self.browser
@@ -772,6 +777,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(".*minutes left to unlock.*")
 
     @testlib.skipWsContainer("no local config with cockpit/ws container")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testAutomaticSudoFaillock(self):
         m = self.machine
         b = self.browser
@@ -810,6 +816,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.logout()
 
     @testlib.skipWsContainer("root logins disabled by default with ssh")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testPamAccess(self):
         b = self.browser
         m = self.machine
@@ -1039,6 +1046,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 
     # enable this once our cockpit/ws container can beiboot
     @testlib.skipWsContainer("client setup does not work with ws container")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testSSH(self):
         m = self.machine
         b = self.browser

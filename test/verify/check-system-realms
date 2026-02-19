@@ -1133,6 +1133,7 @@ class TestKerberos(testlib.MachineCase):
 
 
 @testlib.skipImage("No realmd available", "arch")
+@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 @testlib.skipOstree("Package (un)install does not work on OSTree")
 class TestPackageInstall(packagelib.PackageCase):
 

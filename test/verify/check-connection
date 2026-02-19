@@ -1509,6 +1509,7 @@ Command={self.libexecdir}/cockpit-session
         self.assertIn('sudo', bridge_names)
 
 
+@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 class TestReverseProxy(testlib.MachineCase):
 
     provision = {

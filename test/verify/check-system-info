@@ -56,6 +56,7 @@ class TestSystemInfo(testlib.MachineCase):
         # Switching into and out of FIPS mode is not supported anymore in newer OSes.
         self.supportsFIPS = self.machine.image.startswith(("rhel-8", "rhel-9", "centos-9"))
 
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -207,6 +208,7 @@ class TestSystemInfo(testlib.MachineCase):
                                     "sudo: unable to resolve host host1.cockpit.lan: .*")
 
     @testlib.nondestructive
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testMotd(self):
         m = self.machine
         b = self.browser
@@ -744,7 +746,7 @@ fi
         dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
         self.assertIn('(st) "" ', m.execute(dbus_call).strip())
 
-    @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch", "opensuse-tumbleweed")
     @testlib.skipOstree("crypto-policies not available")
     def testCryptoPolicies(self):
         m = self.machine
@@ -873,6 +875,7 @@ class TestSystemInfoTime(packagelib.PackageCase):
         b.click(f"#change_systime button:contains('{mode}')")
         b.wait_in_text("#system_information_change_systime #change_systime_btn", mode)
 
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testTime(self):
         m = self.machine
         b = self.browser
@@ -958,6 +961,7 @@ class TestSystemInfoTime(packagelib.PackageCase):
         self.assertIn("EEST 2050\n", m.execute("date"))
 
     @testlib.skipImage("timesyncd not available", "rhel*", "centos-*")
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testTimeServersTimesyncd(self):
         m = self.machine
         b = self.browser

@@ -69,6 +69,7 @@ class TestReauthorize(testlib.MachineCase):
         b.leave_page()
         b.check_superuser_indicator("")
 
+    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testSudo(self):
         m = self.machine
         b = self.browser

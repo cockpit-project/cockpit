@@ -44,7 +44,7 @@ class TestSelinux(testlib.MachineCase):
         "ansible_machine": {"image": TEST_OS_DEFAULT}
     }
 
-    @testlib.skipImage("No setroubleshoot", "debian-*", "ubuntu-*", "arch")
+    @testlib.skipImage("No setroubleshoot", "debian-*", "ubuntu-*", "arch", "opensuse-tumbleweed")
     @testlib.skipOstree("No setroubleshoot")
     @testlib.skipBrowser("Firefox fails to recognize 'clipboard-read' permission", "firefox")
     def testTroubleshootAlerts(self):
@@ -294,7 +294,7 @@ class TestSelinux(testlib.MachineCase):
 
 # https://github.com/fedora-selinux/selinux-policy/issues/2947
 @testlib.skipDaily("nightly has selinux set to permissive")
-@testlib.skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch")
+@testlib.skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch", "opensuse-tumbleweed")
 @testlib.skipOstree("No cockpit-selinux")
 @testlib.nondestructive
 class TestSelinuxEnforcing(testlib.MachineCase):

@@ -1,0 +1,118 @@
+name: Release on flathub
+on:
+  # Trigger for other workflows
+  workflow_call:
+    inputs:
+      release_tag:
+        description: 'What release to take source file from.'
+        required: true
+        type: string
+      use_existing_branch:
+        description: 'Use existing branch (do not create a tag branch).'
+        required: false
+        type: boolean
+        default: false
+      checksum:
+        description: 'Checksum to verify against'
+        required: false
+        type: string
+  # Runs that are triggered manually
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'What release to take source file from.'
+        required: true
+        type: string
+      use_existing_branch:
+        description: 'Use existing branch (do not create a tag branch).'
+        required: false
+        type: boolean
+        default: false
+      checksum:
+        description: 'Checksum to verify against'
+        required: false
+        type: string
+
+jobs:
+  flathub:
+    environment: flathub
+    env:
+      COCKPITUOUS_TOKEN: ${{ secrets.COCKPITUOUS_TOKEN }}
+    permissions: {}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v6
+        with:
+          path: src
+          fetch-depth: 0
+
+      - name: Get release assets
+        id: release_assets
+        uses: ./src/.github/actions/get-release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          path: src
+          release: ${{ inputs.release_tag }}
+          checksum: ${{ inputs.checksum }}
+
+      - name: Checkout flathub repository
+        uses: actions/checkout@v6
+        with:
+          path: flathub
+          repository: flathub/org.cockpit_project.CockpitClient
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          # this is needed so we can push to a different repository
+          fetch-depth: 0
+      - name: Get tag body
+        id: tag
+        run: |
+          set -x
+          cd src
+          echo "body=$(git for-each-ref --format='%(contents:body)' refs/tags/${{ inputs.release_tag }} | jq --raw-input --compact-output --slurp)" >> "$GITHUB_OUTPUT"
+
+      - name: Configure flathub git defaults
+        run: |
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+
+          cd flathub
+          git remote rename origin upstream
+          git remote add origin git@github.com:cockpit-project/org.cockpit_project
+
+      - name: Create flathub branch
+        if: ${{ inputs.use_existing_branch == false }}
+        env:
+          # Construct the download URL
+          DOWNLOAD: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/cockpit-${{ inputs.release_tag }}.tar.xz
+          CHECKSUM: ${{ steps.release_assets.outputs.tarball_checksum }}
+          TAG_BODY: ${{ fromJson(steps.tag.outputs.body) }}
+        run: |
+          set -x
+
+          cd flathub
+          git checkout -b "${{ inputs.release_tag }}"
+          printf '%s\n' "${TAG_BODY}" | ../src/containers/flatpak/add-release \
+             org.cockpit_project.CockpitClient.releases.xml \
+             "${{ inputs.release_tag }}" \
+             "$(date +%Y-%m-%d)"
+          git add "$(../src/containers/flatpak/prepare --packages=upstream --sha256="${CHECKSUM}" "${DOWNLOAD}")"
+          git add org.cockpit_project.CockpitClient.packages.json
+          git add org.cockpit_project.CockpitClient.releases.xml
+          git commit -m "Update to version ${{ inputs.release_tag }}"
+          git show
+          git push origin HEAD
+
+      - name: Create flathub PR
+        run: |
+          cd flathub
+
+          echo ${{ env.COCKPITUOUS_TOKEN }} >> auth.txt
+          gh auth login --with-token < auth.txt
+
+          gh pr create \
+            --title "Update to version ${{ inputs.release_tag }}" \
+            --body "" \
+            --head cockpit-project:${{ inputs.release_tag }} \
+            --repo flathub/org.cockpit_project.CockpitClient

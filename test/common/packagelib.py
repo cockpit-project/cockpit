@@ -223,6 +223,16 @@ Description: dummy {name}
         m.execute(cmd)
         self.addCleanup(m.execute, f"dpkg -P --force-depends --force-remove-reinstreq {name} 2>/dev/null || true")
 
+    def setupLocalRPMKey(self) -> None:
+        """Fedora requires signed RPMs, set up local key"""
+
+        key = "~/.config/rpm/rpmbuild-*.asc"
+        self.machine.execute(
+            f"if [ -x /usr/lib/rpm/rpm-setup-autosign ] && ! [ -f {key} ]; then "
+            "    /usr/lib/rpm/rpm-setup-autosign; "
+            f"    rpmkeys --import {key}; "
+            "fi")
+
     def createRpm(self, name: str, version: str, release: str, requires: str, post: str | None = None, *,
                   install: bool,
                   content: Mapping[str, Mapping[str, str] | str] | None = None,
@@ -235,6 +245,7 @@ Description: dummy {name}
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
         """
+        self.setupLocalRPMKey()
         if post:
             postcode = '\n%%post\n' + post
         else:

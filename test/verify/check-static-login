@@ -271,7 +271,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         verify_correct(has_last=True, n_fail=0)
 
     @testlib.skipImage("Arch Linux has no pwquality by default", "arch")
-    @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
     def testExpired(self):
         m = self.machine
         b = self.browser
@@ -292,7 +291,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # test steps below assume a pam_pwquality config with retry > 1; on some images authselect drops that setting
         if not m.image.startswith('debian') and not m.image.startswith('ubuntu') and not m.image.startswith("arch"):
-            self.sed_file("/password.*requisite.*pam_pwquality/ s/$/ retry=3/", "/etc/pam.d/password-auth")
+            self.sed_file("/password.*requisite.*pam_pwquality/ s/$/ retry=3/",
+                          path="/etc/pam.d/common-password-pc" if "suse" in m.image else "/etc/pam.d/password-auth")
 
         m.execute("chage -d 0 admin")
         m.start_cockpit()

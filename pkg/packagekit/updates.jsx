@@ -7,6 +7,7 @@ import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
 import cockpit from "cockpit";
+import { fsinfo } from 'cockpit/fsinfo';
 import React from "react";
 import { createRoot } from 'react-dom/client';
 
@@ -1058,12 +1059,19 @@ class OsUpdates extends React.Component {
                     debug("tracer parsed restartPackages:", JSON.stringify(restartPackages));
                     this.setState({ checkRestartAvailable: true, checkRestartRunning: false, restartPackages });
                 })
-                .catch((exception, data) => {
+                .catch(async (exception, data) => {
                     // tracer not installed or supported (like on Arch)? then fall back to dnf needs-restarting
                     if (exception.message?.includes("ModuleNotFoundError") ||
                         exception.message?.includes("UnsupportedDistribution")) {
-                        debug('tracer not installed:', JSON.stringify(exception), "trying dnf needs-restarting");
-                        return this.checkDnfNeedsRestarting();
+                        try {
+                            // if there's a history for zypper, we can assume the system uses it
+                            await fsinfo("/var/log/zypp/history", [], { superuser: "require" });
+                            debug('tracer not installed:', JSON.stringify(exception), "trying zypper ps");
+                            return this.checkZypperNeedsRestarting();
+                        } catch {
+                            debug('tracer not installed:', JSON.stringify(exception), "trying dnf needs-restarting");
+                            return this.checkDnfNeedsRestarting();
+                        }
                     }
 
                     // log the error except for some common cases: polkit does not allow it
@@ -1082,6 +1090,80 @@ class OsUpdates extends React.Component {
                         checkRestartRunning: false,
                         restartPackages: { reboot: [], daemons: [], manual: [] },
                     });
+                });
+    }
+
+    checkZypperNeedsRestarting() {
+        const restartPackages = { reboot: [], daemons: [], manual: [] };
+        return cockpit.spawn(["zypper", "ps", "-ss", "--print", "%s"], { err: "message", superuser: "require" })
+                .then((serviceOut) => {
+                    debug("zypper ps -ss succeeded:", serviceOut);
+
+                    // set all the services to be manually restarted since it's
+                    // not always clear if it's safe to restart them via cockpit
+                    const data = serviceOut.trim();
+                    if (data.length !== 0) {
+                        serviceOut.trim()
+                                .split("\n")
+                                .forEach(line => restartPackages.manual.push(line));
+                    }
+
+                    // Check if any kernels are updated since system boot,
+                    // ignoring kernel-firmware updates as they can make things noisy
+                    //
+                    // /var/log/zypper.log can be quite big so it's better to
+                    // handle the processing on machine instead of fetching the data
+                    const kScript = `
+                          stat -c %z /proc/ | \\
+                          cut -d. -f 1 | \\
+                          xargs -i \\
+                          awk -F'|' -v boot="{}" \\
+                          '/install\\|kernel/{if (boot <= $1 && index($0, "firmware") == 0) {print $3"-"$4"."$5}}' \\
+                          /var/log/zypp/history
+                          `;
+
+                    cockpit.script(kScript, undefined, { err: "message", superuser: "require" })
+                            .then(kernels => {
+                                debug("zypper kernel scripts succeeded:", kernels);
+
+                                if (kernels.trim().length == 0) {
+                                    return;
+                                }
+
+                                kernels.trim()
+                                        .split("\n")
+                                        .forEach(line => { restartPackages.reboot.push(line.trim()) });
+                            })
+                            .catch(ex => {
+                                if (ex.problem !== "not-found" &&
+                                // polkit does not allow it
+                                ex.problem !== "access-denied" &&
+                                // or unprivileged session
+                                ex.problem !== "authentication-failed" &&
+                                // or the session goes away while checking
+                                ex.problem !== "terminated")
+                                    console.error("zypper kernel fetching failed:", ex.toString());
+                            })
+                            .then(() => {
+                                let checkRestartAvailable = false;
+                                if (restartPackages.reboot.length !== 0 || restartPackages.manual.length !== 0)
+                                    checkRestartAvailable = true;
+
+                                this.setState({ checkRestartAvailable, checkRestartRunning: false, restartPackages });
+                            });
+                }).catch((ex) => {
+                    // log the error except for some common cases: no zypper
+                    if (ex.problem !== "not-found" &&
+                    // polkit does not allow it
+                    ex.problem !== "access-denied" &&
+                    // or unprivileged session
+                    ex.problem !== "authentication-failed" &&
+                    // or the session goes away while checking
+                    ex.problem !== "terminated")
+                        console.error("zypper ps -ss failed:", ex);
+
+                    // act like it's not available (demand reboot after every update)
+                    this.setState({ checkRestartAvailable: false, checkRestartRunning: false, restartPackages });
                 });
     }
 

@@ -9,7 +9,6 @@ import errno
 import os
 import signal
 import subprocess
-import sys
 import unittest.mock
 from typing import Any, List, Optional, Tuple
 
@@ -289,13 +288,8 @@ class TestSubprocessTransport:
         assert transport.get_stderr(reset=True) == ''
 
     @pytest.mark.asyncio
-    async def test_safe_watcher_ENOSYS(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    async def test_pidfd_ENOSYS(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # this test disables pidfd support in order to force the fallback path
-        # which creates a SafeChildWatcher.  That's deprecated since 3.12 and
-        # removed in 3.14, so skip this test on those versions to avoid issues.
-        if sys.version_info >= (3, 12, 0):
-            pytest.skip()
-
         monkeypatch.setattr(os, 'pidfd_open', unittest.mock.Mock(side_effect=OSError), raising=False)
         protocol, _transport = self.subprocess(['true'])
         await protocol.eof_and_exited_with_code(0)

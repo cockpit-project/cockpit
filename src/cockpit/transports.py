@@ -17,6 +17,7 @@ import signal
 import struct
 import subprocess
 import termios
+from threading import Thread
 from typing import Any, ClassVar, Sequence
 
 from .jsonutil import JsonObject, get_int
@@ -33,6 +34,8 @@ SET_PDEATHSIG = 1
 
 
 logger = logging.getLogger(__name__)
+
+
 IOV_MAX = 1024  # man 2 writev
 
 
@@ -305,50 +308,38 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             return ''
 
     def watch_exit(self, process: 'subprocess.Popen[bytes]') -> None:
-        def flag_exit() -> None:
+        def child_exited(pid: int, status: int) -> None:
+            assert pid == process.pid
+            # os.waitstatus_to_exitcode() is only available since Python 3.9
+            if os.WIFEXITED(status):
+                self._returncode = os.WEXITSTATUS(status)
+            elif os.WIFSIGNALED(status):
+                self._returncode = -os.WTERMSIG(status)
+            else:
+                self._returncode = status
+
             assert isinstance(self._protocol, SubprocessProtocol)
             logger.debug('Process exited with status %d', self._returncode)
             if not self._closing:
                 self._protocol.process_exited()
 
         def pidfd_ready() -> None:
-            pid, status = os.waitpid(process.pid, 0)
-            assert pid == process.pid
-            try:
-                self._returncode = os.waitstatus_to_exitcode(status)
-            except ValueError:
-                self._returncode = status
+            pid, status = os.waitpid(process.pid, 0)  # should never block
             self._loop.remove_reader(pidfd)
             os.close(pidfd)
-            flag_exit()
+            child_exited(pid, status)
 
-        def child_watch_fired(pid: int, code: int) -> None:
-            assert process.pid == pid
-            self._returncode = code
-            flag_exit()
+        def waitpid_thread() -> None:
+            pid, status = os.waitpid(process.pid, 0)  # will block
+            self._loop.call_soon_threadsafe(child_exited, pid, status)
 
-        # We first try to create a pidfd to track the process manually.  If
-        # that does work, we need to create a SafeChildWatcher, which has been
-        # deprecated and removed in Python 3.14.  This effectively means that
-        # using Python 3.14 requires that we're running on a kernel with pidfd
-        # support, which is fine: the only place we still care about such old
-        # kernels is on RHEL8 and we have Python 3.6 there.
+        # We first try to create a pidfd to track the process.  If that doesn't
+        # work, we spawn a thread to do a blocking waitpid().
         try:
             pidfd = os.pidfd_open(process.pid)
             self._loop.add_reader(pidfd, pidfd_ready)
         except (AttributeError, OSError):
-            quark = '_cockpit_transports_child_watcher'
-            watcher = getattr(self._loop, quark, None)
-
-            if watcher is None:
-                try:
-                    watcher = asyncio.SafeChildWatcher()  # type: ignore[attr-defined]
-                except AttributeError as e:
-                    raise RuntimeError('pidfd support required on Python 3.14+') from e
-                watcher.attach_loop(self._loop)
-                setattr(self._loop, quark, watcher)
-
-            watcher.add_child_handler(process.pid, child_watch_fired)
+            Thread(name=f'cockpit-waitpid-{process.pid}', target=waitpid_thread, daemon=True).start()
 
     def __init__(self,
                  loop: asyncio.AbstractEventLoop,

@@ -369,10 +369,7 @@ class TestConnection(testlib.MachineCase):
 
             # c-tls respects crypto-policy: newer Fedora-like OSes use hybrid PQC+EC key exchange by default
             if (m.image.startswith(("fedora", "rhel", "centos")) and
-                    not m.image.startswith(("rhel-9", "centos-9")) and
-                    # HACK: current cockpit/ws container on fedora-coreos image is still F42 based
-                    # once cockpit >= 355 hits Fedora updates and ws rebuilds, that moves to "works"
-                    m.image not in ["fedora-42", "fedora-coreos"]):
+                not m.image.startswith(("rhel-9", "centos-9", "fedora-42"))):
                 self.assertIn("Negotiated TLS1.3 group: X25519MLKEM", output)
             else:
                 self.assertNotIn("Negotiated TLS1.3 group", output)

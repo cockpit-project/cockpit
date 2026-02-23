@@ -226,6 +226,33 @@ wpa_passphrase=hidden99""")
         # OpenNet is known but not connected
         b.wait_visible("tr[data-ssid='OpenNet'] .nm-icon-known")
 
+        # Test connection failure when password is not stored
+        # Disconnect first
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Disconnect']")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        # Remove the password from the connection file and restart NM
+        m.execute("sed -i '/^psk=/d' /etc/NetworkManager/system-connections/'ZE WIFI!.nmconnection'")
+        m.execute("systemctl restart NetworkManager")
+        b.reload()
+        b.enter_page("/network")
+        # Try to connect - shows error about missing password
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_in_text("#error-popup", "Failed to connect to ZE WIFI!")
+        b.wait_in_text("#error-popup", "Network password is not stored")
+        b.click("#error-popup button:contains('Close')")
+        b.wait_not_present("#error-popup")
+        # Restore the connection with password for subsequent tests
+        b.click("tr[data-ssid='ZE WIFI!'] button.pf-v6-c-menu-toggle")
+        b.click(".pf-v6-c-menu button[aria-label='Forget']")
+        b.wait_not_present("tr[data-ssid='ZE WIFI!'] .nm-icon-known")
+        b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
+        b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
+        b.set_input_text("#network-wifi-connect-password-input", "12345678")
+        b.click("#network-wifi-connect-connect")
+        b.wait_not_present("#network-wifi-connect-dialog")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Disconnect']")
+        b.wait_visible("tr[data-ssid='ZE WIFI!'] .nm-icon-connected")
+
         # connecting to OpenNet disconnects from ZE WIFI!
         self.assertIn("ZE WIFI!", m.execute("nmcli d show wlan1 | grep GENERAL.CONNECTION"))
         b.click("tr[data-ssid='OpenNet'] button[aria-label='Connect']")

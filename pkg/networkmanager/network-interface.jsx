@@ -60,6 +60,7 @@ import {
     is_managed,
     render_active_connection,
     settings_applier,
+    show_error_dialog,
     show_unexpected_error,
     syn_click,
     with_checkpoint,
@@ -274,6 +275,7 @@ export const NetworkInterfacePage = ({
     const [isScanning, setIsScanning] = useState(false);
     const [prevAPCount, setPrevAPCount] = useState(0);
     const [networkSearch, setNetworkSearch] = useState("");
+    const [pendingConnection, setPendingConnection] = useState(null); // ssid
 
     const dev_name = iface.Name;
     const dev = iface.Device;
@@ -290,6 +292,33 @@ export const NetworkInterfacePage = ({
             dev.request_scan();
         }
     });
+
+    // Monitor device state to detect connection success/failure
+    useEffect(() => {
+        if (!dev || !pendingConnection)
+            return;
+
+        // Successfully connected
+        if (dev.ActiveAccessPoint?.Ssid === pendingConnection && dev.State === 100) { // NM_DEVICE_STATE_ACTIVATED
+            setPendingConnection(null);
+            return;
+        }
+
+        // Check for failure - if there's a captured failure reason, the connection attempt failed
+        if (dev.State === 30 && !dev.ActiveConnection) { // NM_DEVICE_STATE_DISCONNECTED
+            const failureReason = dev.consume_failure_reason();
+            if (failureReason !== undefined) {
+                utils.debug("Connection to", pendingConnection, "failed with captured reason:", failureReason);
+                show_error_dialog(
+                    cockpit.format(_("Failed to connect to $0"), pendingConnection),
+                    failureReason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                        ? _("Network password is not stored. Please forget and reconnect to this network.")
+                        : _("Connection failed. Check your credentials.")
+                );
+                setPendingConnection(null);
+            }
+        }
+    }, [dev, dev?.State, dev?.StateReason, dev?.ActiveConnection, dev?.ActiveAccessPoint?.Ssid, pendingConnection]);
 
     // WiFi scanning: re-enable button when APs change or after timeout
     useEffect(() => {
@@ -861,9 +890,13 @@ export const NetworkInterfacePage = ({
             if (ap.Connection) {
                 // Activate existing connection (which already has password if needed)
                 utils.debug("Activating existing connection for", ap.Ssid);
+                setPendingConnection(ap.Ssid);
                 ap.Connection.activate(dev, ap)
-                        .then(() => utils.debug("Connected successfully to", ap.Ssid))
-                        .catch(show_unexpected_error);
+                        .then(() => utils.debug("Connection activation started for", ap.Ssid))
+                        .catch(error => {
+                            setPendingConnection(null);
+                            show_unexpected_error(error);
+                        });
                 return;
             }
 

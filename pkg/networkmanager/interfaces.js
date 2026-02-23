@@ -17,7 +17,7 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-function show_error_dialog(title, message) {
+export function show_error_dialog(title, message) {
     const props = {
         id: "error-popup",
         title,
@@ -332,7 +332,8 @@ export function NetworkManagerModel() {
 
             if (signal == "PropertiesChanged") {
                 push_refresh();
-                set_object_properties(obj, remove_signatures(args[0]));
+                const props = remove_signatures(args[0]);
+                set_object_properties(obj, props);
                 pop_refresh();
             } else if (type.signals && type.signals[signal])
                 type.signals[signal](obj, args);
@@ -398,6 +399,21 @@ export function NetworkManagerModel() {
 
             Object.keys(interfaces).forEach(iface => {
                 const props = interfaces[iface];
+
+                /* Capture connection failure reasons for devices
+                   NM transitions through PREPARE → CONFIG → NEED_AUTH → FAILED → DISCONNECTED very
+                   quickly, and React batches these updates, so the UI often misses the FAILED state.
+                   Store the failure reason here at the D-Bus event level so we can retrieve it later. */
+                if (path.includes("/Devices/") && props?.StateReason) {
+                    const obj = peek_object(path);
+                    if (obj) {
+                        const [state, reason] = props.StateReason;
+                        if (state === 120 && reason !== 0) {
+                            utils.debug("Captured", obj.Interface, "failure, reason:", reason);
+                            priv(obj).lastFailureReason = reason;
+                        }
+                    }
+                }
 
                 if (props)
                     interface_properties(path, iface, props);
@@ -1150,6 +1166,7 @@ export function NetworkManagerModel() {
             Interface: { },
             StateText: { prop: "State", conv: device_state_to_text, def: _("Unknown") },
             State: { },
+            StateReason: { def: [0, 0] }, // [state, reason] tuple
             HwAddress: { },
             AvailableConnections: { conv: conv_Array(conv_Object(type_Connection)), def: [] },
             ActiveConnection: { conv: conv_Object(type_ActiveConnection) },
@@ -1170,6 +1187,7 @@ export function NetworkManagerModel() {
 
         prototype: {
             activate: function(connection, specific_object) {
+                priv(this).lastFailureReason = undefined; // Clear stale failure reason from previous attempts
                 return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                           "org.freedesktop.NetworkManager", "ActivateConnection",
                                           objpath(connection), objpath(this), objpath(specific_object))
@@ -1177,6 +1195,7 @@ export function NetworkManagerModel() {
             },
 
             activate_with_settings: function(settings, specific_object) {
+                priv(this).lastFailureReason = undefined; // Clear stale failure reason from previous attempts
                 try {
                     return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                               "org.freedesktop.NetworkManager", "AddAndActivateConnection",
@@ -1203,6 +1222,13 @@ export function NetworkManagerModel() {
                             // RequestScan can fail if a scan was recently done, that's OK
                             console.warn("request_scan: scan failed for", this.Interface + ":", error.toString());
                         });
+            },
+
+            // Get and clear the last connection failure reason
+            consume_failure_reason: function() {
+                const reason = priv(this).lastFailureReason;
+                priv(this).lastFailureReason = undefined;
+                return reason;
             }
         },
 

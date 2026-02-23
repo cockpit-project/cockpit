@@ -164,18 +164,22 @@ export class Location {
             return;
         const hash = '#' + this.#href_for_go_or_replace(path, options);
 
-        // At least Firefox 146 and 147 will (sometimes) trigger a
-        // full force reload of the page when setting
-        // window.location.hash, even if it hasn't actually
-        // changed. If a page accidentally navigates to the current
-        // location on initial render, this can lead to a loop. Even
-        // if that is a bug in that page, let's protect us against
-        // this.  Firefox 148 does not do that anymore.
-        //
-        // See https://bugzilla.redhat.com/show_bug.cgi?id=2422331
-        //
-        if (window.location.hash != hash)
+        if (navigator.userAgent.includes("Firefox")) {
+            // At least Firefox 146 and 147 will (sometimes) trigger a
+            // full force reload of the page when setting
+            // window.location.hash.  We can work around that by
+            // clicking on a link.
+            //
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=2018546
+
+            const a = document.createElement('a');
+            a.href = hash;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } else {
             window.location.hash = hash;
+        }
     }
 
     invalidate() {

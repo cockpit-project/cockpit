@@ -295,6 +295,85 @@ class TestSubprocessTransport:
         await protocol.eof_and_exited_with_code(0)
 
     @pytest.mark.asyncio
+    async def test_pidfd_ENOSYS_nonzero_exit(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # test that non-zero exit codes are correctly reported via the threaded fallback path
+        monkeypatch.setattr(os, 'pidfd_open', unittest.mock.Mock(side_effect=OSError), raising=False)
+        protocol, _transport = self.subprocess(['false'])
+        await protocol.eof_and_exited_with_code(1)
+
+    @pytest.mark.asyncio
+    async def test_pidfd_ENOSYS_exit_code(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # test that specific exit codes are correctly reported via the threaded fallback path
+        monkeypatch.setattr(os, 'pidfd_open', unittest.mock.Mock(side_effect=OSError), raising=False)
+        protocol, _transport = self.subprocess(['sh', '-c', 'exit 42'])
+        await protocol.eof_and_exited_with_code(42)
+
+    @pytest.mark.asyncio
+    async def test_pidfd_ENOSYS_signal(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # test that signal termination is correctly reported via the threaded fallback path
+        monkeypatch.setattr(os, 'pidfd_open', unittest.mock.Mock(side_effect=OSError), raising=False)
+        protocol, transport = self.subprocess(['cat'])
+        transport.send_signal(signal.SIGTERM)
+        await protocol.eof_and_exited_with_code(-signal.SIGTERM)
+
+    @pytest.mark.asyncio
+    async def test_pidfd_ENOSYS_kill(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # test that SIGKILL is correctly reported via the threaded fallback path
+        monkeypatch.setattr(os, 'pidfd_open', unittest.mock.Mock(side_effect=OSError), raising=False)
+        protocol, transport = self.subprocess(['cat'])
+        transport.kill()
+        await protocol.eof_and_exited_with_code(-signal.SIGKILL)
+
+    @pytest.mark.asyncio
+    async def test_pidfd_ENOSYS_concurrent(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # test multiple concurrent subprocesses with different exit scenarios
+        # using the threaded fallback path, to ensure exit statuses don't get mixed up
+        monkeypatch.setattr(os, 'pidfd_open', unittest.mock.Mock(side_effect=OSError), raising=False)
+
+        # start processes that block on stdin - we control when they exit
+        proto_0, transport_0 = self.subprocess(['sh', '-c', 'read a; exit 0'])
+        proto_1, transport_1 = self.subprocess(['sh', '-c', 'read a; exit 1'])
+        proto_42, transport_42 = self.subprocess(['sh', '-c', 'read a; exit 42'])
+        proto_term, transport_term = self.subprocess(['sh', '-c', 'read a; exit 99'])
+        proto_kill, transport_kill = self.subprocess(['sh', '-c', 'read a; exit 99'])
+
+        # create tasks for each process
+        task_0 = asyncio.create_task(proto_0.eof_and_exited_with_code(0))
+        task_1 = asyncio.create_task(proto_1.eof_and_exited_with_code(1))
+        task_42 = asyncio.create_task(proto_42.eof_and_exited_with_code(42))
+        task_term = asyncio.create_task(proto_term.eof_and_exited_with_code(-signal.SIGTERM))
+        task_kill = asyncio.create_task(proto_kill.eof_and_exited_with_code(-signal.SIGKILL))
+        pending = {task_0, task_1, task_42, task_term, task_kill}
+
+        # exit them one by one in a specific order and verify each time
+        transport_kill.kill()
+        done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+        assert done == {task_kill}
+        task_kill.result()
+
+        transport_term.send_signal(signal.SIGTERM)
+        done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+        assert done == {task_term}
+        task_term.result()
+
+        transport_42.write_eof()
+        done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+        assert done == {task_42}
+        task_42.result()
+
+        transport_1.write_eof()
+        done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+        assert done == {task_1}
+        task_1.result()
+
+        transport_0.write_eof()
+        done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+        assert done == {task_0}
+        task_0.result()
+
+        assert not pending
+
+    @pytest.mark.asyncio
     async def test_true_pty(self) -> None:
         loop = asyncio.get_running_loop()
         protocol = Protocol()

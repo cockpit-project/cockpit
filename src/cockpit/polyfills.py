@@ -4,6 +4,7 @@
 
 
 import contextlib
+import os
 import socket
 
 
@@ -24,6 +25,18 @@ def install():
             return msg, list(fds), flags, addr
 
         socket.recv_fds = recv_fds
+
+    # introduced in 3.9
+    if not hasattr(os, 'waitstatus_to_exitcode'):
+        def waitstatus_to_exitcode(status: int) -> int:
+            if os.WIFEXITED(status):
+                return os.WEXITSTATUS(status)
+            elif os.WIFSIGNALED(status):
+                return -os.WTERMSIG(status)
+            else:
+                raise ValueError(f'Invalid wait status: {status}')
+
+        os.waitstatus_to_exitcode = waitstatus_to_exitcode
 
     # introduced in 3.7
     if not hasattr(contextlib, 'AsyncExitStack'):

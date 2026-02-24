@@ -310,15 +310,13 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     def watch_exit(self, process: 'subprocess.Popen[bytes]') -> None:
         def child_exited(pid: int, status: int) -> None:
             assert pid == process.pid
-            # os.waitstatus_to_exitcode() is only available since Python 3.9
-            if os.WIFEXITED(status):
-                self._returncode = os.WEXITSTATUS(status)
-            elif os.WIFSIGNALED(status):
-                self._returncode = -os.WTERMSIG(status)
-            else:
+            assert isinstance(self._protocol, SubprocessProtocol)
+
+            try:
+                self._returncode = os.waitstatus_to_exitcode(status)
+            except ValueError:
                 self._returncode = status
 
-            assert isinstance(self._protocol, SubprocessProtocol)
             logger.debug('Process exited with status %d', self._returncode)
             if not self._closing:
                 self._protocol.process_exited()

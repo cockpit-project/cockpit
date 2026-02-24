@@ -26,6 +26,13 @@ export const ContextMenu = ({ parentId, children } : {
 
     React.useEffect(() => {
         const _handleContextMenu = (event: MouseEvent) => {
+            /* In Firefox they explicitly prevent us from interrupting when holding shift while
+             * right-clicking for context. Lets make it default for all browsers so they can inspect et. al.
+             */
+            if (event.shiftKey) {
+                setVisible(false);
+                return;
+            }
             event.preventDefault();
 
             setVisible(true);

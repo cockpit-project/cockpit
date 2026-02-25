@@ -2652,7 +2652,7 @@ def skipOstree(reason: str) -> Callable[[_FT], _FT]:
 
 
 def isBeibootLogin() -> bool:
-    return "ws-container" in os.getenv("TEST_SCENARIO", "")
+    return True
 
 
 def skipWsContainer(reason: str) -> Callable[[_FT], _FT]:

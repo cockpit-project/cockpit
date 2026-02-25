@@ -155,7 +155,6 @@ def build_install_ostree(dist_tars: list[str], image: str, *, verbose: bool, qui
     args += [
         "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
         "--script", os.path.join(TEST_DIR, "ws-container.install"),
-        "--script", os.path.join(TEST_DIR, "ostree.install"),
         "--upload", os.path.join(BASE_DIR, "dist/playground") + ":/usr/local/share/cockpit/"]
     return args
 

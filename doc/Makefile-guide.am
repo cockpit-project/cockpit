@@ -1,68 +1,68 @@
 if ENABLE_DOC
 
-GUIDE_MAIN_ADOC_FILE = doc/guide/cockpit-guide.adoc
+GUIDE_MAIN_ADOC_FILE = doc/modules/guide/cockpit-guide.adoc
 
 GUIDE_ADOC_FILES = \
-	doc/guide/pages/api-base1.adoc \
-	doc/guide/pages/api-cockpit.adoc \
-	doc/guide/pages/api-logs-html.adoc \
-	doc/guide/pages/api-shell-html.adoc \
-	doc/guide/pages/api-shell.adoc \
-	doc/guide/pages/api-system.adoc \
-	doc/guide/pages/api-terminal-html.adoc \
-	doc/guide/pages/authentication.adoc \
-	doc/guide/pages/cert-authentication.adoc \
-	doc/guide/pages/cockpit-cache.adoc \
-	doc/guide/pages/cockpit-channels.adoc \
-	doc/guide/pages/cockpit-dbus.adoc \
-	doc/guide/pages/cockpit-error.adoc \
-	doc/guide/pages/cockpit-file.adoc \
-	doc/guide/pages/cockpit-http.adoc \
-	doc/guide/pages/cockpit-locale.adoc \
-	doc/guide/pages/cockpit-location.adoc \
-	doc/guide/pages/cockpit-login.adoc \
-	doc/guide/pages/cockpit-manifest.adoc \
-	doc/guide/pages/cockpit-manual.adoc \
-	doc/guide/pages/cockpit-metrics.adoc \
-	doc/guide/pages/cockpit-series-data.adoc \
-	doc/guide/pages/cockpit-spawn.adoc \
-	doc/guide/pages/cockpit-util.adoc \
-	doc/guide/pages/development.adoc \
-	doc/guide/pages/embedding.adoc \
-	doc/guide/pages/feature-firewall.adoc \
-	doc/guide/pages/feature-journal.adoc \
-	doc/guide/pages/feature-machines.adoc \
-	doc/guide/pages/feature-networkmanager.adoc \
-	doc/guide/pages/feature-packagekit.adoc \
-	doc/guide/pages/feature-pcp.adoc \
-	doc/guide/pages/feature-realmd.adoc \
-	doc/guide/pages/feature-selinux.adoc \
-	doc/guide/pages/feature-sosreport.adoc \
-	doc/guide/pages/feature-storaged.adoc \
-	doc/guide/pages/feature-systemd.adoc \
-	doc/guide/pages/feature-terminal.adoc \
-	doc/guide/pages/feature-tuned.adoc \
-	doc/guide/pages/feature-users.adoc \
-	doc/guide/pages/features.adoc \
-	doc/guide/pages/guide.adoc \
-	doc/guide/pages/https.adoc \
-	doc/guide/pages/listen.adoc \
-	doc/guide/pages/multi-host.adoc \
-	doc/guide/pages/packages.adoc \
-	doc/guide/pages/privileges.adoc \
-	doc/guide/pages/sso.adoc \
-	doc/guide/pages/startup.adoc \
-	doc/guide/pages/urls.adoc \
+	doc/modules/guide/pages/api-base1.adoc \
+	doc/modules/guide/pages/api-cockpit.adoc \
+	doc/modules/guide/pages/api-logs-html.adoc \
+	doc/modules/guide/pages/api-shell-html.adoc \
+	doc/modules/guide/pages/api-shell.adoc \
+	doc/modules/guide/pages/api-system.adoc \
+	doc/modules/guide/pages/api-terminal-html.adoc \
+	doc/modules/guide/pages/authentication.adoc \
+	doc/modules/guide/pages/cert-authentication.adoc \
+	doc/modules/guide/pages/cockpit-cache.adoc \
+	doc/modules/guide/pages/cockpit-channels.adoc \
+	doc/modules/guide/pages/cockpit-dbus.adoc \
+	doc/modules/guide/pages/cockpit-error.adoc \
+	doc/modules/guide/pages/cockpit-file.adoc \
+	doc/modules/guide/pages/cockpit-http.adoc \
+	doc/modules/guide/pages/cockpit-locale.adoc \
+	doc/modules/guide/pages/cockpit-location.adoc \
+	doc/modules/guide/pages/cockpit-login.adoc \
+	doc/modules/guide/pages/cockpit-manifest.adoc \
+	doc/modules/guide/pages/cockpit-manual.adoc \
+	doc/modules/guide/pages/cockpit-metrics.adoc \
+	doc/modules/guide/pages/cockpit-series-data.adoc \
+	doc/modules/guide/pages/cockpit-spawn.adoc \
+	doc/modules/guide/pages/cockpit-util.adoc \
+	doc/modules/guide/pages/development.adoc \
+	doc/modules/guide/pages/embedding.adoc \
+	doc/modules/guide/pages/feature-firewall.adoc \
+	doc/modules/guide/pages/feature-journal.adoc \
+	doc/modules/guide/pages/feature-machines.adoc \
+	doc/modules/guide/pages/feature-networkmanager.adoc \
+	doc/modules/guide/pages/feature-packagekit.adoc \
+	doc/modules/guide/pages/feature-pcp.adoc \
+	doc/modules/guide/pages/feature-realmd.adoc \
+	doc/modules/guide/pages/feature-selinux.adoc \
+	doc/modules/guide/pages/feature-sosreport.adoc \
+	doc/modules/guide/pages/feature-storaged.adoc \
+	doc/modules/guide/pages/feature-systemd.adoc \
+	doc/modules/guide/pages/feature-terminal.adoc \
+	doc/modules/guide/pages/feature-tuned.adoc \
+	doc/modules/guide/pages/feature-users.adoc \
+	doc/modules/guide/pages/features.adoc \
+	doc/modules/guide/pages/https.adoc \
+	doc/modules/guide/pages/index.adoc \
+	doc/modules/guide/pages/listen.adoc \
+	doc/modules/guide/pages/multi-host.adoc \
+	doc/modules/guide/pages/packages.adoc \
+	doc/modules/guide/pages/privileges.adoc \
+	doc/modules/guide/pages/sso.adoc \
+	doc/modules/guide/pages/startup.adoc \
+	doc/modules/guide/pages/urls.adoc \
 	$(NULL)
 
 MAN_ADOC_FILES = \
-	doc/man/pages/cockpit.1.adoc \
-	doc/man/pages/cockpit-bridge.1.adoc \
-	doc/man/pages/cockpit-desktop.1.adoc \
-	doc/man/pages/cockpit-ws.8.adoc \
-	doc/man/pages/cockpit-tls.8.adoc \
-	doc/man/pages/cockpit.conf.5.adoc \
-	doc/man/pages/pam_ssh_add.8.adoc \
+	doc/modules/man/pages/cockpit.1.adoc \
+	doc/modules/man/pages/cockpit-bridge.1.adoc \
+	doc/modules/man/pages/cockpit-desktop.1.adoc \
+	doc/modules/man/pages/cockpit-ws.8.adoc \
+	doc/modules/man/pages/cockpit-tls.8.adoc \
+	doc/modules/man/pages/cockpit.conf.5.adoc \
+	doc/modules/man/pages/pam_ssh_add.8.adoc \
 	$(NULL)
 
 dist_noinst_DATA += \
@@ -130,7 +130,6 @@ GUIDE_PAGES = \
 	doc/output/html/sso.html \
 	doc/output/html/startup.html \
 	doc/output/html/urls.html \
-	doc/output/html/guide.html \
 	doc/output/html/development.html \
 	$(NULL)
 
@@ -157,28 +156,28 @@ if HAS_ASCIIDOCTOR
 DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o $@ $<
 render-docs: $(GUIDE_ADOC_FILES) $(GUIDE_MAIN_ADOC_FILE) $(MAN_ADOC_FILES)
 	mkdir -p doc/output/html/
-	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o doc/output/html/index.html $(GUIDE_MAIN_ADOC_FILE)
 	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -D doc/output/html $(GUIDE_ADOC_FILES) $(MAN_ADOC_FILES)
+	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o doc/output/html/index.html $(GUIDE_MAIN_ADOC_FILE)
 else !HAS_ASCIIDOCTOR
 DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOC) $(GUIDE_ASCIIDOC_ARGS) -o $@ $<
 render-docs:
 	echo "Local doc rendering using asciidoc not implemented, install asciidoctor or use make check"
 endif !HAS_ASCIIDOCTOR
 
-doc/output/html/%.8.html: doc/man/pages/%.8.adoc
+doc/output/html/%.8.html: doc/modules/man/pages/%.8.adoc
 	$(AM_V_GEN) $(DOC_PROC)
 
-doc/output/html/%.1.html: doc/man/pages/%.1.adoc
+doc/output/html/%.1.html: doc/modules/man/pages/%.1.adoc
 	$(AM_V_GEN) $(DOC_PROC)
 
-doc/output/html/%.5.html: doc/man/pages/%.5.adoc
+doc/output/html/%.5.html: doc/modules/man/pages/%.5.adoc
 	$(AM_V_GEN) $(DOC_PROC)
 
 # HACK: $(DIST_STAMP) is required here in this order for docs to work. Automake rules needs refactoring.
-doc/output/html/index.html: doc/guide/cockpit-guide.adoc $(DIST_STAMP)
+doc/output/html/index.html: $(GUIDE_MAIN_ADOC_FILE) $(DIST_STAMP)
 	$(AM_V_GEN) $(DOC_PROC)
 
-doc/output/html/%.html: doc/guide/pages/%.adoc
+doc/output/html/%.html: doc/modules/guide/pages/%.adoc
 	$(AM_V_GEN) $(DOC_PROC)
 
 CLEAN_LOCAL_TARGETS += clean-guide

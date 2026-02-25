@@ -1,13 +1,13 @@
 EXTRA_DIST += \
-	doc/man/pages/cockpit.1.adoc \
-	doc/man/pages/cockpit-bridge.1.adoc \
-	doc/man/pages/cockpit-desktop.1.adoc \
-	doc/man/pages/cockpit-ws.8.adoc \
-	doc/man/pages/cockpit-tls.8.adoc \
-	doc/man/pages/cockpit.conf.5.adoc \
-	doc/man/pages/pam_ssh_add.8.adoc \
-	doc/man/pages/partials/author.adoc \
-	doc/man/pages/partials/bugs.adoc \
+	doc/modules/man/pages/cockpit.1.adoc \
+	doc/modules/man/pages/cockpit-bridge.1.adoc \
+	doc/modules/man/pages/cockpit-desktop.1.adoc \
+	doc/modules/man/pages/cockpit-ws.8.adoc \
+	doc/modules/man/pages/cockpit-tls.8.adoc \
+	doc/modules/man/pages/cockpit.conf.5.adoc \
+	doc/modules/man/pages/pam_ssh_add.8.adoc \
+	doc/modules/man/pages/partials/author.adoc \
+	doc/modules/man/pages/partials/bugs.adoc \
 	$(NULL)
 
 MANPAGES = \
@@ -40,14 +40,14 @@ if HAS_ASCIIDOCTOR
 MAN_PROC = mkdir -p doc/output/man/ && $(ASCIIDOCTOR) $(MAN_ASCIIDOC_ARGS) -b manpage -o $@ $<
 render-man:
 	mkdir -p doc/output/man
-	asciidoctor $(MAN_ASCIIDOC_ARGS) -b manpage -D doc/output/man doc/man/pages/*.adoc
+	asciidoctor $(MAN_ASCIIDOC_ARGS) -b manpage -D doc/output/man doc/modules/man/pages/*.adoc
 else !HAS_ASCIIDOCTOR
 MAN_PROC = mkdir -p doc/output/man/ && $(A2X) --no-xmllint -d manpage -f manpage $(MAN_ASCIIDOC_ARGS) -D doc/output/man $<
 render-man:
 	echo "Local manpage rendering using asciidoc not implemented, install asciidoctor or use make check"
 endif !HAS_ASCIIDOCTOR
 
-doc/output/man/%: doc/man/pages/%.adoc
+doc/output/man/%: doc/modules/man/pages/%.adoc
 	$(AM_V_GEN) $(MAN_PROC)
 
 CLEAN_LOCAL_TARGETS += clean-man

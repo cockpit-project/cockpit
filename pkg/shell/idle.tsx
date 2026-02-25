@@ -27,12 +27,14 @@ export class IdleTimeoutState extends EventEmitter<IdleTimeoutStateEvents> {
 
     #final_countdown_timer: number = -1;
     #session_timeout: number = 0;
-    #current_idle_time: number = 0;
+    #last_active_time: number;
 
     final_countdown: null | number = null;
 
     constructor() {
         super();
+
+        this.#last_active_time = Date.now();
 
         cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetUInt",
                                                      ["Session", "IdleTimeout", 0, 240, 0], {})
@@ -54,19 +56,17 @@ export class IdleTimeoutState extends EventEmitter<IdleTimeoutStateEvents> {
     }
 
     #idleTick = () => {
-        this.#current_idle_time += 5000;
+        const current_idle_time = Date.now() - this.#last_active_time;
         if (this.final_countdown === null &&
-            this.#current_idle_time >= this.#session_timeout - this.#final_countdown_secs * 1000) {
+            current_idle_time >= this.#session_timeout - this.#final_countdown_secs * 1000) {
             // It's the final countdown...
-            this.final_countdown = this.#final_countdown_secs;
             this.#final_countdown_timer = window.setInterval(this.#finalCountdownTick, 1000);
-            this.#update();
+            this.#finalCountdownTick();
         }
     };
 
     #finalCountdownTick = () => {
-        cockpit.assert(this.final_countdown !== null);
-        this.final_countdown -= 1;
+        this.final_countdown = Math.floor((this.#last_active_time + this.#session_timeout - Date.now()) / 1000);
         if (this.final_countdown <= 0)
             cockpit.logout(true, _("You have been logged out due to inactivity."));
         this.#update();
@@ -74,7 +74,7 @@ export class IdleTimeoutState extends EventEmitter<IdleTimeoutStateEvents> {
 
     #resetTimer = () => {
         if (this.final_countdown === null)
-            this.#current_idle_time = 0;
+            this.#last_active_time = Date.now();
     };
 
     setupIdleResetEventListeners(win: Window) {
@@ -92,8 +92,8 @@ export class IdleTimeoutState extends EventEmitter<IdleTimeoutStateEvents> {
     }
 
     cancel_final_countdown() {
-        this.#current_idle_time = 0;
         this.final_countdown = null;
+        this.#resetTimer();
         window.clearInterval(this.#final_countdown_timer);
         this.#update();
     }

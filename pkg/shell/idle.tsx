@@ -35,6 +35,7 @@ export class IdleTimeoutState extends EventEmitter<IdleTimeoutStateEvents> {
         super();
 
         this.#idle_start_time = Date.now();
+        this.#disarm_ws_timeout();
 
         cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetUInt",
                                                      ["Session", "IdleTimeout", 0, 240, 0], {})
@@ -43,6 +44,7 @@ export class IdleTimeoutState extends EventEmitter<IdleTimeoutStateEvents> {
                     if (this.#session_timeout > 0 && this.#standard_login) {
                         this.setupIdleResetEventListeners(window);
                         window.setInterval(this.#idleTick, 5000);
+                        this.#arm_ws_timeout();
                     }
                 })
                 .catch(e => {
@@ -72,9 +74,34 @@ export class IdleTimeoutState extends EventEmitter<IdleTimeoutStateEvents> {
     };
 
     #resetTimer = () => {
-        if (this.final_countdown === null)
-            this.#idle_start_time = Date.now();
+        if (this.final_countdown === null) {
+            const idle_time = Date.now() - this.#idle_start_time;
+            if (idle_time > 10 * 1000) {
+                this.#idle_start_time = Date.now();
+                this.#arm_ws_timeout();
+            }
+        }
     };
+
+    #arm_ws_timeout() {
+        // Tell cockpit-ws to kill the session 10 seconds after we are
+        // supposed to have logged out here. This is an emergency
+        // fallback mechanism for the case that the browser stops
+        // executing our JavaScript. Once JavaScript starts running
+        // again and the websocket has been closed by cockpit-ws and
+        // the Shell will show the "Disconnected" curtain. Then the
+        // timer ticks here will happen and will perform the browser
+        // side of the logout immediately and we end up on the login
+        // page with the expected "Logged out due to inactivity"
+        // message.
+
+        cockpit.assert(this.#session_timeout > 0);
+        cockpit.transport.control("set-session-timeout", { seconds: this.#session_timeout / 1000 + 10 });
+    }
+
+    #disarm_ws_timeout() {
+        cockpit.transport.control("set-session-timeout", { seconds: 0 });
+    }
 
     setupIdleResetEventListeners(win: Window) {
         // NOTE: This function will be called many many times for a

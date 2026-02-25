@@ -36,16 +36,10 @@ MAN_ASCIIDOC_ARGS = \
 	-a mansource="cockpit" \
 	$(NULL)
 
-if HAS_ASCIIDOCTOR
 MAN_PROC = mkdir -p doc/output/man/ && $(ASCIIDOCTOR) $(MAN_ASCIIDOC_ARGS) -b manpage -o $@ $<
 render-man:
 	mkdir -p doc/output/man
 	asciidoctor $(MAN_ASCIIDOC_ARGS) -b manpage -D doc/output/man doc/modules/man/pages/*.adoc
-else !HAS_ASCIIDOCTOR
-MAN_PROC = mkdir -p doc/output/man/ && $(A2X) --no-xmllint -d manpage -f manpage $(MAN_ASCIIDOC_ARGS) -D doc/output/man $<
-render-man:
-	echo "Local manpage rendering using asciidoc not implemented, install asciidoctor or use make check"
-endif !HAS_ASCIIDOCTOR
 
 doc/output/man/%: doc/modules/man/pages/%.adoc
 	$(AM_V_GEN) $(MAN_PROC)

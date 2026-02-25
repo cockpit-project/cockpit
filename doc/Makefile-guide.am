@@ -152,17 +152,11 @@ GUIDE_ASCIIDOC_ARGS = \
 	-b html5 \
 	$(NULL)
 
-if HAS_ASCIIDOCTOR
 DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o $@ $<
 render-docs: $(GUIDE_ADOC_FILES) $(GUIDE_MAIN_ADOC_FILE) $(MAN_ADOC_FILES)
 	mkdir -p doc/output/html/
 	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -D doc/output/html $(GUIDE_ADOC_FILES) $(MAN_ADOC_FILES)
 	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o doc/output/html/index.html $(GUIDE_MAIN_ADOC_FILE)
-else !HAS_ASCIIDOCTOR
-DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOC) $(GUIDE_ASCIIDOC_ARGS) -o $@ $<
-render-docs:
-	echo "Local doc rendering using asciidoc not implemented, install asciidoctor or use make check"
-endif !HAS_ASCIIDOCTOR
 
 doc/output/html/%.8.html: doc/modules/man/pages/%.8.adoc
 	$(AM_V_GEN) $(DOC_PROC)

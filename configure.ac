@@ -214,17 +214,6 @@ else
   if test "$ASCIIDOCTOR" != "no"; then
     has_asciidoctor="yes"
     AC_SUBST(ASCIIDOCTOR)
-  else
-    AC_PATH_PROG([ASCIIDOC], [asciidoc], [no])
-    AC_PATH_PROG([A2X], [a2x], [no])
-    if test "$ASCIIDOC" = "no"; then
-      AC_MSG_ERROR([neither asciidoctor nor asciidoc command was not found $disable_msg])
-    fi
-    if test "$A2X" = "no"; then
-      AC_MSG_ERROR([the a2x command was not found, needed for manpage generation $disable_msg])
-    fi
-    AC_SUBST(ASCIIDOC)
-    AC_SUBST(A2X)
   fi
 
 fi

@@ -15,7 +15,7 @@ SYSEXT_DIR="/run/extensions/$SYSEXT_NAME"
 build() {
     rm -rf tmp/sysext
     if [ ! -e Makefile ]; then
-        ./autogen.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-strict --enable-debug --disable-dependency-tracking
+        ./autogen.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-debug --disable-dependency-tracking
     fi
     make install DESTDIR=tmp/sysext
     install -D -m 644 $PAMFILE tmp/sysext/usr/lib/pam.d/cockpit

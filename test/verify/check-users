@@ -94,7 +94,6 @@ def createUser(
 
 
 @testlib.nondestructive
-@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 class TestAccounts(testlib.MachineCase):
 
     def testBasic(self):
@@ -212,7 +211,8 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible("#accounts-create")
 
         # Create a user from the UI
-        self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd')
+        self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd', absent_content="SHELL=/bin/true")
+
         b.click('#accounts-create')
         b.wait_visible('#accounts-create-dialog')
         b.set_input_text('#accounts-create-user-name', "Berta")
@@ -455,7 +455,7 @@ class TestAccounts(testlib.MachineCase):
 
         self.login_and_go("/users")
         # Create a locked user with weak password
-        self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd')
+        self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd', absent_content="SHELL=")
         self.allow_journal_messages(".*required to change your password immediately.*")
         self.allow_journal_messages(".*user account or password has expired.*")
 

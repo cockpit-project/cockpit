@@ -1448,7 +1448,7 @@ Command={self.libexecdir}/cockpit-session
         b.wait_text("#server-name", "ExDeeGee")
 
         # uses the expected certs
-        self.assertEqual(m.execute("readlink /run/cockpit/tls/server/key.source").strip(),
+        self.assertEqual(m.execute("readlink /run/cockpit/tls/server/0.key.source").strip(),
                          "/etc/test-xdg/cockpit/ws-certs.d/0-self-signed.key")
         # and did not generate new ones
         self.assertNotIn("ws-certs.d", m.execute("ls /etc/cockpit"))

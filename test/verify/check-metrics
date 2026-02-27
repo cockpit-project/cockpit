@@ -855,7 +855,7 @@ class TestCurrentMetrics(testlib.MachineCase):
         b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) < 5)
 
         m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
-                  "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=100K count=500 status=none & done'")
+                  "  'for i in `seq 50`; do dd if=/dev/urandom of=/dev/zero bs=100K status=none & done; sleep infinity'")
         try:
             with b.wait_timeout(120):
                 b.wait(lambda: float(b.text("#load-avg .pf-v6-l-flex div:first-child").split()[-1].rstrip(',')) > 15)

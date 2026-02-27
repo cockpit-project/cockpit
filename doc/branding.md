@@ -69,7 +69,7 @@ html body.login-pf {
 }
 
 /* The brand text above the login fields */
-#brand {
+#brand::before {
     font-size: 18pt;
     text-transform: uppercase;
     content: "${NAME} <b>${VARIANT}</b>";

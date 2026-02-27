@@ -1204,18 +1204,7 @@ export function NetworkManagerModel() {
                             console.warn("request_scan: scan failed for", this.Interface + ":", error.toString());
                         });
             }
-        },
-
-        exporters: [
-            function (obj) {
-                // Once we see any WiFi device, trigger one initial scan
-                if (obj.DeviceType === '802-11-wireless' && !priv(obj).wifi_scan_requested) {
-                    utils.debug("triggering initial WiFi scan for", obj.Interface);
-                    priv(obj).wifi_scan_requested = true;
-                    obj.request_scan();
-                }
-            }
-        ]
+        }
     };
 
     // The 'Interface' type does not correspond to any NetworkManager

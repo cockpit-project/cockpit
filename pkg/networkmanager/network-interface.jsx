@@ -869,25 +869,25 @@ export const NetworkInterfacePage = ({
         const visibleAPs = Array.from(apBySsid.values());
 
         function forgetNetwork(ap) {
-            const ssid = ap.Ssid || "";
-            utils.debug("Forgetting network", ssid);
+            utils.debug("Forgetting network", ap.Ssid);
 
             if (ap.Connection) {
                 ap.Connection.delete_()
-                        .then(() => utils.debug("Forgot network", ssid))
+                        .then(() => utils.debug("Forgot network", ap.Ssid))
                         .catch(show_unexpected_error);
             }
         }
 
         function connectToAP(ap) {
-            const ssid = ap.Ssid || "";
-            utils.debug("Connecting to", ssid);
+            // we don't show a Connect button for hidden networks
+            cockpit.assert(ap.Ssid);
+            utils.debug("Connecting to", ap.Ssid);
 
             if (ap.Connection) {
                 // Activate existing connection (which already has password if needed)
-                utils.debug("Activating existing connection for", ssid);
+                utils.debug("Activating existing connection for", ap.Ssid);
                 ap.Connection.activate(dev, ap)
-                        .then(() => utils.debug("Connected successfully to", ssid))
+                        .then(() => utils.debug("Connected successfully to", ap.Ssid))
                         .catch(show_unexpected_error);
                 return;
             }
@@ -897,27 +897,27 @@ export const NetworkInterfacePage = ({
 
             if (isSecured) {
                 // Show password dialog for secured networks
-                utils.debug("Showing password dialog for", ssid);
-                Dialogs.show(<WiFiConnectDialog dev={dev} ap={ap} ssid={ssid} model={model} />);
+                utils.debug("Showing password dialog for", ap.Ssid);
+                Dialogs.show(<WiFiConnectDialog dev={dev} ap={ap} ssid={ap.Ssid} model={model} />);
                 return;
             }
 
             // Create new connection for open networks
-            utils.debug("Creating new connection for", ssid);
+            utils.debug("Creating new connection for", ap.Ssid);
             const settings = {
                 connection: {
-                    id: ssid,
+                    id: ap.Ssid,
                     type: "802-11-wireless",
                     autoconnect: true,
                 },
                 "802-11-wireless": {
-                    ssid: utils.ssid_to_nm(ssid),
+                    ssid: utils.ssid_to_nm(ap.Ssid),
                     mode: "infrastructure",
                 }
             };
 
             dev.activate_with_settings(settings, ap)
-                    .then(result => utils.debug("Connected successfully to", ssid))
+                    .then(result => utils.debug("Connected successfully to", ap.Ssid))
                     .catch(show_unexpected_error);
         }
 
@@ -943,8 +943,7 @@ export const NetworkInterfacePage = ({
                 const unknownRows = [];
 
                 namedRows.forEach(r => {
-                    const ssid = r.props["data-ssid"];
-                    const isActive = activeSSID && ssid === activeSSID;
+                    const isActive = activeSSID && r.props["data-ssid"] === activeSSID;
                     if (isActive) {
                         activeRows.push(r);
                     } else {

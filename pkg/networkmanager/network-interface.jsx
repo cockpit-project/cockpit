@@ -921,16 +921,10 @@ export const NetworkInterfacePage = ({
                     const isActive = activeSSID && r.props["data-ssid"] === activeSSID;
                     if (isActive) {
                         activeRows.push(r);
+                    } else if (r.props["data-known"]) {
+                        knownRows.push(r);
                     } else {
-                        // Check if known by looking for Connection in the AP data
-                        // Search in all APs (not just filtered ones) to find by MAC
-                        const mac = r.props.key;
-                        const ap = accessPoints.find(ap => ap.HwAddress === mac);
-                        if (ap?.Connection) {
-                            knownRows.push(r);
-                        } else {
-                            unknownRows.push(r);
-                        }
+                        unknownRows.push(r);
                     }
                 });
 
@@ -1059,7 +1053,7 @@ export const NetworkInterfacePage = ({
                     { title: cockpit.format_bits_per_sec(ap.MaxBitrate * 1000) },
                     { title: actionColumn },
                 ],
-                props: { key: ap.HwAddress, "data-ssid": ap.Ssid }
+                props: { key: ap.HwAddress, "data-ssid": ap.Ssid, "data-known": !!ap.Connection }
             };
         });
 

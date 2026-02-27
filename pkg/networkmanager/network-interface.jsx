@@ -37,7 +37,6 @@ import {
     ThumbtackIcon,
 } from "@patternfly/react-icons";
 
-import { FormHelper } from "cockpit-components-form-helper";
 import { KebabDropdown } from "cockpit-components-dropdown";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -95,9 +94,7 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
 
     // Validation
     const passwordRequired = !isHidden || security !== "none";
-    const ssidInvalid = isHidden && inputSsid.trim() === "";
-    const passwordInvalid = passwordRequired && password.trim() === "";
-    const canConnect = !ssidInvalid && !passwordInvalid;
+    const canConnect = !(isHidden && inputSsid.trim() === "") && !(passwordRequired && password.trim() === "");
 
     useEvent(model, "changed");
 
@@ -208,10 +205,8 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
                                            type="text"
                                            value={inputSsid}
                                            onChange={(_event, value) => setInputSsid(value)}
-                                           validated={ssidInvalid ? "error" : "default"}
                                            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
                                            isDisabled={connecting} />
-                                <FormHelper helperTextInvalid={ssidInvalid ? _("Network name is required") : undefined} />
                             </FormGroup>
                             <FormGroup fieldId={idPrefix + "-security-select"} label={_("Security")}>
                                 <FormSelect id={idPrefix + "-security-select"}
@@ -232,7 +227,6 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
                                                type={passwordVisible ? "text" : "password"}
                                                value={password}
                                                onChange={(_event, value) => setPassword(value)}
-                                               validated={passwordInvalid ? "error" : "default"}
                                                autoFocus={!isHidden} // eslint-disable-line jsx-a11y/no-autofocus
                                                isDisabled={connecting} />
                                 </InputGroupItem>
@@ -245,7 +239,6 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
                                     </Button>
                                 </InputGroupItem>
                             </InputGroup>
-                            <FormHelper helperTextInvalid={passwordInvalid ? _("Password is required") : undefined} />
                         </FormGroup>
                     )}
                 </Form>

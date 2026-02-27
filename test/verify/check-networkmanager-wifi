@@ -180,11 +180,9 @@ wpa_passphrase=hidden99""")
         b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
         # Validation: Empty password
         b.wait_val("#network-wifi-connect-password-input", "")
-        b.wait_in_text("#network-wifi-connect-dialog", "Password is required")
         b.wait_visible("#network-wifi-connect-connect:disabled")
         # Test password reveal
         b.set_input_text("#network-wifi-connect-password-input", "wrong123")
-        b.wait_not_in_text("#network-wifi-connect-dialog", "Password is required")
         b.wait_visible("#network-wifi-connect-connect:not(:disabled)")
         self.assertEqual(b.attr("#network-wifi-connect-password-input", "type"), "password")
         b.click("#network-wifi-connect-dialog button[aria-label='Show password']")
@@ -311,27 +309,21 @@ wpa_passphrase=hidden99""")
         b.click("button:contains('Connect to hidden network')")
         b.wait_in_text("#network-wifi-connect-dialog", "Connect to hidden network")
 
-        # Validation: Empty network name
-        b.wait_val("#network-wifi-connect-ssid-input", "")
-        b.wait_in_text("#network-wifi-connect-dialog", "Network name is required")
+        # Validation: Connect button only becomes active with SSID and password
         b.wait_visible("#network-wifi-connect-connect:disabled")
-
-        # Validation: Empty password with WPA security
         b.set_input_text("#network-wifi-connect-ssid-input", "SomeNetwork")
-        b.wait_not_in_text("#network-wifi-connect-dialog", "Network name is required")
-        b.wait_val("#network-wifi-connect-password-input", "")
-        b.wait_in_text("#network-wifi-connect-dialog", "Password is required")
+        time.sleep(0.5)
         b.wait_visible("#network-wifi-connect-connect:disabled")
 
         # Validation: No password required for open networks
         b.set_val("#network-wifi-connect-security-select", "none")
         b.wait_not_present("#network-wifi-connect-password-input")
-        b.wait_not_in_text("#network-wifi-connect-dialog", "Password is required")
         b.wait_visible("#network-wifi-connect-connect:not(:disabled)")
 
-        # Reset for error cases
+        # Validation: Password required for WPA networks
         b.set_val("#network-wifi-connect-security-select", "wpa-psk")
         b.wait_visible("#network-wifi-connect-password-input")
+        b.wait_visible("#network-wifi-connect-connect:disabled")
 
         # Error case 1: Wrong SSID
         b.set_input_text("#network-wifi-connect-ssid-input", "WrongSSID")

@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Save image to artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: cockpit-ws-${{ matrix.build.label }}
           path: cockpit-ws-${{ matrix.build.label }}.tar

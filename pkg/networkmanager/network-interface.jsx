@@ -837,44 +837,11 @@ export const NetworkInterfacePage = ({
         if (!dev || dev.DeviceType !== '802-11-wireless')
             return null;
 
-        let accessPoints = dev.AccessPoints || [];
+        const accessPoints = dev.AccessPoints || [];
         if (accessPoints.length === 0)
             return null;
 
         const activeSSID = dev.ActiveAccessPoint ? dev.ActiveAccessPoint.Ssid : null;
-
-        // Deduplicate APs by MAC address, preferring ones with known SSID
-        // only if they are active or have a matching connection
-        const apByMac = new Map();
-        accessPoints.forEach(ap => {
-            const existing = apByMac.get(ap.HwAddress);
-            if (!existing) {
-                apByMac.set(ap.HwAddress, ap);
-            } else if (!existing.Ssid && ap.Ssid) {
-                // Prefer AP with SSID only if it's active or has a connection
-                const isActive = activeSSID && ap.Ssid === activeSSID;
-                if (isActive || ap.Connection) {
-                    apByMac.set(ap.HwAddress, ap);
-                }
-            }
-        });
-        accessPoints = Array.from(apByMac.values());
-
-        // Count hidden networks (those without SSID)
-        const hiddenCount = accessPoints.filter(ap => !ap.Ssid).length;
-
-        // Deduplicate visible APs by SSID, keeping only the strongest signal for each
-        const apBySsid = new Map();
-        accessPoints.forEach(ap => {
-            if (ap.Ssid) {
-                const existing = apBySsid.get(ap.Ssid);
-                if (!existing || ap.Strength > existing.Strength) {
-                    apBySsid.set(ap.Ssid, ap);
-                }
-            }
-        });
-
-        const visibleAPs = Array.from(apBySsid.values());
 
         function forgetNetwork(ap) {
             utils.debug("Forgetting network", ap.Ssid);
@@ -990,11 +957,11 @@ export const NetworkInterfacePage = ({
             }
         };
 
-        // Filter by search term (only apply to known networks)
-        let filteredVisibleAPs = visibleAPs;
+        // Filter by name
+        let filteredVisibleAPs = dev.visibleSsids;
         if (networkSearch) {
             const searchLower = networkSearch.toLowerCase();
-            filteredVisibleAPs = visibleAPs.filter(ap => ap.Ssid.toLowerCase().includes(searchLower));
+            filteredVisibleAPs = dev.visibleSsids.filter(ap => ap.Ssid.toLowerCase().includes(searchLower));
         }
 
         const rows = filteredVisibleAPs.map((ap, index) => {
@@ -1096,12 +1063,12 @@ export const NetworkInterfacePage = ({
             };
         });
 
-        // Add aggregated hidden networks row at the bottom
-        if (hiddenCount > 0) {
-            const hiddenLabel = cockpit.ngettext("$0 hidden network", "$0 hidden networks", hiddenCount);
+        // Add aggregated hidden access points row at the bottom
+        if (dev.hiddenAPCount > 0) {
+            const hiddenLabel = cockpit.ngettext("$0 hidden network", "$0 hidden networks", dev.hiddenAPCount);
             rows.push({
                 columns: [
-                    { title: cockpit.format(hiddenLabel, hiddenCount), sortKey: "zzz-hidden", header: true },
+                    { title: cockpit.format(hiddenLabel, dev.hiddenAPCount), sortKey: "zzz-hidden", header: true },
                     { title: "" },
                     { title: "" },
                     { title: "" },
@@ -1116,7 +1083,7 @@ export const NetworkInterfacePage = ({
                 <CardHeader actions={{
                     actions: (
                         <Flex>
-                            {visibleAPs.length >= 3 && (
+                            {dev.visibleSsids.length >= 3 && (
                                 <FlexItem>
                                     <SearchInput
                                         placeholder={_("Filter")}

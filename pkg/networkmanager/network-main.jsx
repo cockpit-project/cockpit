@@ -88,9 +88,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         // Details column: show type-specific information
         let detailsColumn = null;
         if (dev?.DeviceType === '802-11-wireless') {
-            // Count only non-hidden networks (ones with SSID), deduplicated by SSID
-            const visibleAPs = dev.AccessPoints?.filter(ap => ap.Ssid) || [];
-            const networkCount = new Set(visibleAPs.map(ap => ap.Ssid)).size;
+            const networkCount = dev.visibleSsids.length;
             if (networkCount > 0 || dev.ActiveAccessPoint?.Ssid) {
                 hasDetails = true;
                 detailsColumn = (

@@ -1204,7 +1204,42 @@ export function NetworkManagerModel() {
                             console.warn("request_scan: scan failed for", this.Interface + ":", error.toString());
                         });
             }
-        }
+        },
+
+        exporters: [
+            function (obj) {
+                if (obj.DeviceType === '802-11-wireless') {
+                    // When a hidden network (no SSID broadcast) has a saved connection, NetworkManager
+                    // duplicates it in AccessPoints: once without SSID (from the beacon), and once with
+                    // SSID (synthesized from the saved connection). Both have the same HwAddress (MAC).
+                    // We deduplicate by MAC first, preferring the one with a known connection
+                    const apByMac = new Map();
+                    (obj.AccessPoints || []).forEach(ap => {
+                        utils.debug(`AP: Ssid '${ap.Ssid}' HwAddress: ${ap.HwAddress}) Strength: ${ap.Strength} hasConnection: ${!!ap.Connection}`);
+                        if (!apByMac.get(ap.HwAddress) || ap.Connection)
+                            apByMac.set(ap.HwAddress, ap);
+                    });
+
+                    // Deduplicate visible APs by SSID, keeping the strongest signal for each network.
+                    // Count remaining hidden APs (those without SSID after MAC deduplication).
+                    const apBySsid = new Map();
+                    let hiddenCount = 0;
+                    Array.from(apByMac.values()).forEach(ap => {
+                        if (ap.Ssid) {
+                            const existing = apBySsid.get(ap.Ssid);
+                            if (!existing || ap.Strength > existing.Strength) {
+                                apBySsid.set(ap.Ssid, ap);
+                            }
+                        } else {
+                            hiddenCount++;
+                        }
+                    });
+                    obj.visibleSsids = Array.from(apBySsid.values());
+                    obj.hiddenAPCount = hiddenCount;
+                    utils.debug("Device exporter:", obj.Interface, "has", obj.visibleSsids.length, "visible SSIDs and", obj.hiddenAPCount, "hidden APs");
+                }
+            }
+        ]
     };
 
     // The 'Interface' type does not correspond to any NetworkManager

@@ -929,12 +929,16 @@ export const NetworkInterfacePage = ({
                 });
 
                 // Sort each group by stable signal order
+                // Build a map for O(1) lookups instead of O(n) indexOf
+                const orderMap = new Map();
+                stableAPOrder.current.forEach((mac, index) => orderMap.set(mac, index));
+
                 const sortByStableOrder = (a, b) => {
                     const aMAC = a.props.key;
                     const bMAC = b.props.key;
-                    const aOrder = stableAPOrder.current.indexOf(aMAC);
-                    const bOrder = stableAPOrder.current.indexOf(bMAC);
-                    if (aOrder === -1 || bOrder === -1) {
+                    const aOrder = orderMap.get(aMAC);
+                    const bOrder = orderMap.get(bMAC);
+                    if (aOrder === undefined || bOrder === undefined) {
                         return a.columns[2].sortKey.localeCompare(b.columns[2].sortKey);
                     }
                     return aOrder - bOrder;

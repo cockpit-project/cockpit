@@ -48,6 +48,8 @@ typedef struct {
   guint next_socket_id;
 } CockpitSockets;
 
+static gboolean on_session_timeout (gpointer user_data);
+
 static void
 cockpit_socket_free (gpointer data)
 {
@@ -187,6 +189,7 @@ struct _CockpitWebService {
   gboolean closing;
   GBytes *control_prefix;
   guint ping_timeout;
+  guint session_timeout;
   gint callers;
   guint next_internal_id;
 
@@ -270,6 +273,8 @@ cockpit_web_service_finalize (GObject *object)
   cockpit_creds_unref (self->creds);
   if (self->ping_timeout)
     g_source_remove (self->ping_timeout);
+  if (self->session_timeout)
+    g_source_remove (self->session_timeout);
 
   g_hash_table_destroy (self->host_by_checksum);
   g_hash_table_destroy (self->checksum_by_host);
@@ -285,6 +290,19 @@ cockpit_web_service_unique_channel (CockpitWebService *self)
 }
 
 static void
+set_session_timeout (CockpitWebService *self, gint64 seconds)
+{
+  if (self->session_timeout)
+    {
+      g_source_remove (self->session_timeout);
+      self->session_timeout = 0;
+    }
+  if (seconds > 0)
+    self->session_timeout = g_timeout_add_seconds (seconds, on_session_timeout, self);
+}
+
+
+static void
 caller_begin (CockpitWebService *self)
 {
   g_object_ref (self);
@@ -297,7 +315,10 @@ caller_end (CockpitWebService *self)
   g_return_if_fail (self->callers > 0);
   self->callers--;
   if (self->callers == 0)
-    g_signal_emit (self, sig_idling, 0);
+    {
+      g_signal_emit (self, sig_idling, 0);
+      set_session_timeout (self, 0);
+    }
   g_object_unref (self);
 }
 
@@ -933,6 +954,16 @@ process_logout (CockpitWebService *self,
   g_object_run_dispose (G_OBJECT (self));
 }
 
+static void
+process_set_session_timeout (CockpitWebService *self,
+                             JsonObject *options)
+{
+  gint64 seconds;
+  if (!cockpit_json_get_int (options, "seconds", 0, &seconds))
+    seconds = 0;
+  set_session_timeout (self, seconds);
+}
+
 static const gchar *
 process_socket_init (CockpitWebService *self,
                      CockpitSocket *socket,
@@ -1044,6 +1075,10 @@ dispatch_inbound_command (CockpitWebService *self,
     {
       valid = process_ping (self, socket, options);
     }
+  else if (!channel && g_strcmp0 (command, "set-session-timeout") == 0)
+    {
+      process_set_session_timeout (self, options);
+    }
   else if (channel)
     {
       /* Relay anything with a channel by default */
@@ -1084,6 +1119,16 @@ on_web_socket_message (WebSocketConnection *connection,
       if (!self->sent_done)
         cockpit_transport_send (self->transport, channel, payload);
     }
+}
+
+static gboolean
+on_session_timeout (gpointer user_data)
+{
+  CockpitWebService *self = user_data;
+  g_warning ("session idle for too long, logging out");
+  process_logout (self, NULL);
+  self->session_timeout = 0;
+  return G_SOURCE_REMOVE;
 }
 
 static void

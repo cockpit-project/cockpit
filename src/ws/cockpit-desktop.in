@@ -106,6 +106,13 @@ esac
 detect_browser
 
 # start the bridge; this needs to run in the normal user session/namespace
+echo "cockpit-desktop: attempting to start cockpit-bridge locally"
+
+if ! command -v cockpit-bridge >/dev/null 2>&1; then
+    echo "cockpit-desktop: error: cockpit-bridge was not found."
+    echo "cockpit-desktop: please install the cockpit package or ensure cockpit-bridge is in your PATH."
+fi
+
 coproc ${2:+ssh "$2"} cockpit-bridge
 trap "kill $COPROC_PID; wait $COPROC_PID || true" EXIT INT QUIT PIPE
 

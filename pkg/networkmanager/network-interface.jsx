@@ -142,7 +142,7 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
             setActiveConnection(null);
             setCreatedConnection(null);
         }
-    }, [activeConnection, dev.ActiveAccessPoint?.Ssid, ssid, createdConnection, Dialogs, isHidden]);
+    }, [activeConnection, activeConnection?.State, dev.ActiveAccessPoint?.Ssid, ssid, createdConnection, Dialogs, isHidden]);
 
     const onSubmit = (ev) => {
         if (ev) {

@@ -1229,6 +1229,82 @@ export function NetworkManagerModel() {
                 const reason = priv(this).lastFailureReason;
                 priv(this).lastFailureReason = undefined;
                 return reason;
+            },
+
+            // Mark that a pending connection is being cancelled by the user
+            cancel_pending_connection: function() {
+                priv(this).connectionCancelled = true;
+            },
+
+            // Wait for a connection to complete
+            // For WiFi, pass expected_ssid to verify we connected to the right network
+            // Returns a Promise that resolves on success or cancel, rejects with {reason} on failure
+            wait_connection: function(expected_ssid) {
+                priv(this).connectionCancelled = false;
+                utils.debug("wait_connection: starting, iface:", this.Interface, "expected:", expected_ssid, "initial state:", this.State);
+                return new Promise((resolve, reject) => {
+                    let activationStarted = false;
+
+                    const cleanup = () => self.removeEventListener("changed", check);
+
+                    const check = () => {
+                        utils.debug("wait_connection check: state:", this.State, "ssid:", this.ActiveAccessPoint?.Ssid,
+                                    "activeConn:", !!this.ActiveConnection, "activationStarted:", activationStarted,
+                                    "lastFailureReason:", priv(this).lastFailureReason,
+                                    "connectionCancelled:", priv(this).connectionCancelled);
+
+                        // captured a failure?
+                        const reason = this.consume_failure_reason();
+                        if (reason) {
+                            cleanup();
+                            console.warn("wait_connection: connection failed for", this.Interface, "reason:", reason);
+                            const error = new Error("Connection failed");
+                            error.reason = reason;
+                            reject(error);
+                            return;
+                        }
+
+                        // https://networkmanager.dev/docs/api/latest/nm-dbus-types.html#NMDeviceState
+                        switch (this.State) {
+                        case 100: // NM_DEVICE_STATE_ACTIVATED
+                            if (!expected_ssid || this.ActiveAccessPoint?.Ssid === expected_ssid) {
+                                utils.debug("wait_connection: success");
+                                cleanup();
+                                resolve();
+                            }
+                            break;
+
+                        case 30: // NM_DEVICE_STATE_DISCONNECTED; initial state, so wait for activation to start
+                        case 120: // NM_DEVICE_STATE_FAILED
+                            // Disconnected/failed after activation started means user cancelled or failure without reason
+                            if (activationStarted && !this.ActiveConnection) {
+                                cleanup();
+                                if (priv(this).connectionCancelled) {
+                                    utils.debug("wait_connection: cancelled by user");
+                                    resolve();
+                                } else {
+                                    console.warn("wait_connection: connection failed for", this.Interface, "without captured reason");
+                                    reject(new Error("Connection failed"));
+                                }
+                            }
+                            break;
+
+                        case 20: // NM_DEVICE_STATE_UNAVAILABLE
+                        case 110: // NM_DEVICE_STATE_DEACTIVATING
+                            break;
+
+                        // any other state means we're activating
+                        default:
+                            if (!activationStarted) {
+                                utils.debug("wait_connection: activation started");
+                                activationStarted = true;
+                            }
+                        }
+                    };
+
+                    self.addEventListener("changed", check);
+                    check(); // Check current state immediately in case already connected
+                });
             }
         },
 
@@ -1241,7 +1317,7 @@ export function NetworkManagerModel() {
                     // We deduplicate by MAC first, preferring the one with a known connection
                     const apByMac = new Map();
                     (obj.AccessPoints || []).forEach(ap => {
-                        utils.debug(`AP: Ssid '${ap.Ssid}' HwAddress: ${ap.HwAddress}) Strength: ${ap.Strength} hasConnection: ${!!ap.Connection}`);
+                        utils.debug(`AP: Ssid '${ap.Ssid}' HwAddress: ${ap.HwAddress} Strength: ${ap.Strength} hasConnection: ${!!ap.Connection}`);
                         if (!apByMac.get(ap.HwAddress) || ap.Connection)
                             apByMac.set(ap.HwAddress, ap);
                     });

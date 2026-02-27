@@ -86,7 +86,6 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [dialogError, setDialogError] = useState(null);
     const [connecting, setConnecting] = useState(false);
-    const [activeConnection, setActiveConnection] = useState(null);
     const [createdConnection, setCreatedConnection] = useState(null);
 
     const isHidden = !knownSsid;
@@ -100,52 +99,16 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
     useEvent(model, "changed");
 
     const onCancel = () => {
-        if (connecting) {
+        if (connecting && createdConnection) {
             utils.debug("Cancelling connection to", ssid);
-            // Deactivate the pending connection
-            if (activeConnection) {
-                activeConnection.deactivate()
-                        .catch(err => console.warn("Failed to deactivate connection:", err));
-            }
-            // Delete the created connection
-            if (createdConnection) {
-                createdConnection.delete_()
-                        .catch(err => console.warn("Failed to delete connection:", err));
-            }
+            dev.cancel_pending_connection();
+            createdConnection.delete_()
+                    .catch(err => console.warn("Failed to delete connection:", err));
         }
         Dialogs.close();
     };
 
-    // Monitor active connection state changes
-    useEffect(() => {
-        if (!activeConnection)
-            return;
-
-        const acState = activeConnection.State;
-        const currentSSID = dev.ActiveAccessPoint?.Ssid;
-
-        utils.debug("ActiveConnection state changed:", acState, "current SSID:", currentSSID, "target:", ssid);
-
-        // ActiveConnection states:
-        // 0 = UNKNOWN, 1 = ACTIVATING, 2 = ACTIVATED, 3 = DEACTIVATING, 4 = DEACTIVATED
-
-        if (acState === 2 && currentSSID === ssid) {
-            utils.debug("Connected successfully to", ssid);
-            Dialogs.close();
-        } else if (acState === 4) {
-            utils.debug("Connection failed for", ssid);
-            setConnecting(false);
-            setDialogError(isHidden ? _("Failed to connect. Check your credentials.") : _("Failed to connect. Check your password."));
-            if (createdConnection) {
-                createdConnection.delete_()
-                        .catch(err => console.warn("Failed to delete connection:", err));
-            }
-            setActiveConnection(null);
-            setCreatedConnection(null);
-        }
-    }, [activeConnection, activeConnection?.State, dev.ActiveAccessPoint?.Ssid, ssid, createdConnection, Dialogs, isHidden]);
-
-    const onSubmit = (ev) => {
+    const onSubmit = async (ev) => {
         if (ev) {
             ev.preventDefault();
         }
@@ -177,16 +140,28 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
             };
         }
 
-        dev.activate_with_settings(settings, isHidden ? null : ap)
-                .then(result => {
-                    utils.debug("Connection activation started");
-                    setCreatedConnection(result.connection);
-                    setActiveConnection(result.active_connection);
-                })
-                .catch(err => {
-                    setConnecting(false);
-                    setDialogError(typeof err === 'string' ? err : err.message);
-                });
+        let connection = null;
+        try {
+            // ap might be stale if there was a scan since opening the dialog, so pass NULL
+            // NM will find the right AP by SSID
+            const result = await dev.activate_with_settings(settings, null);
+            connection = result.connection;
+            utils.debug("Connection activation started");
+            setCreatedConnection(connection);
+            await dev.wait_connection(ssid);
+            utils.debug("Connected successfully to", ssid);
+            Dialogs.close();
+        } catch (err) {
+            setConnecting(false);
+            setDialogError(err.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                ? _("Failed to connect. Check your password.")
+                : err.toString());
+
+            // just in case something survived, clean up
+            connection?.delete_()
+                    .catch(err => utils.debug("Failed to delete failed connection:", err));
+            setCreatedConnection(null);
+        }
     };
 
     return (
@@ -275,7 +250,6 @@ export const NetworkInterfacePage = ({
     const [isScanning, setIsScanning] = useState(false);
     const [prevAPCount, setPrevAPCount] = useState(0);
     const [networkSearch, setNetworkSearch] = useState("");
-    const [pendingConnection, setPendingConnection] = useState(null); // ssid
 
     const dev_name = iface.Name;
     const dev = iface.Device;
@@ -292,33 +266,6 @@ export const NetworkInterfacePage = ({
             dev.request_scan();
         }
     });
-
-    // Monitor device state to detect connection success/failure
-    useEffect(() => {
-        if (!dev || !pendingConnection)
-            return;
-
-        // Successfully connected
-        if (dev.ActiveAccessPoint?.Ssid === pendingConnection && dev.State === 100) { // NM_DEVICE_STATE_ACTIVATED
-            setPendingConnection(null);
-            return;
-        }
-
-        // Check for failure - if there's a captured failure reason, the connection attempt failed
-        if (dev.State === 30 && !dev.ActiveConnection) { // NM_DEVICE_STATE_DISCONNECTED
-            const failureReason = dev.consume_failure_reason();
-            if (failureReason !== undefined) {
-                utils.debug("Connection to", pendingConnection, "failed with captured reason:", failureReason);
-                show_error_dialog(
-                    cockpit.format(_("Failed to connect to $0"), pendingConnection),
-                    failureReason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
-                        ? _("Network password is not stored. Please forget and reconnect to this network.")
-                        : _("Connection failed. Check your credentials.")
-                );
-                setPendingConnection(null);
-            }
-        }
-    }, [dev, dev?.State, dev?.StateReason, dev?.ActiveConnection, dev?.ActiveAccessPoint?.Ssid, pendingConnection]);
 
     // WiFi scanning: re-enable button when APs change or after timeout
     useEffect(() => {
@@ -882,51 +829,61 @@ export const NetworkInterfacePage = ({
             }
         }
 
-        function connectToAP(ap) {
+        async function connectToAP(ap) {
             // we don't show a Connect button for hidden networks
             cockpit.assert(ap.Ssid);
             utils.debug("Connecting to", ap.Ssid);
 
-            if (ap.Connection) {
-                // Activate existing connection (which already has password if needed)
-                utils.debug("Activating existing connection for", ap.Ssid);
-                setPendingConnection(ap.Ssid);
-                ap.Connection.activate(dev, ap)
-                        .then(() => utils.debug("Connection activation started for", ap.Ssid))
-                        .catch(error => {
-                            setPendingConnection(null);
-                            show_unexpected_error(error);
-                        });
-                return;
-            }
-
-            // Create new connection
-            const isSecured = !!(ap.WpaFlags || ap.RsnFlags);
-
-            if (isSecured) {
-                // Show password dialog for secured networks
-                utils.debug("Showing password dialog for", ap.Ssid);
-                Dialogs.show(<WiFiConnectDialog dev={dev} ap={ap} ssid={ap.Ssid} model={model} />);
-                return;
-            }
-
-            // Create new connection for open networks
-            utils.debug("Creating new connection for", ap.Ssid);
-            const settings = {
-                connection: {
-                    id: ap.Ssid,
-                    type: "802-11-wireless",
-                    autoconnect: true,
-                },
-                "802-11-wireless": {
-                    ssid: utils.ssid_to_nm(ap.Ssid),
-                    mode: "infrastructure",
+            try {
+                if (ap.Connection) {
+                    // Activate existing connection (which already has password if needed)
+                    utils.debug("Activating existing connection for", ap.Ssid);
+                    await ap.Connection.activate(dev, ap);
+                    utils.debug("Connection activation started for", ap.Ssid);
+                    await dev.wait_connection(ap.Ssid);
+                    utils.debug("Connected successfully to", ap.Ssid);
+                    return;
                 }
-            };
 
-            dev.activate_with_settings(settings, ap)
-                    .then(result => utils.debug("Connected successfully to", ap.Ssid))
-                    .catch(show_unexpected_error);
+                // Create new connection
+                const isSecured = !!(ap.WpaFlags || ap.RsnFlags);
+
+                if (isSecured) {
+                    // Show password dialog for secured networks
+                    utils.debug("Showing password dialog for", ap.Ssid);
+                    Dialogs.show(<WiFiConnectDialog dev={dev} ap={ap} ssid={ap.Ssid} model={model} />);
+                    return;
+                }
+
+                // Create new connection for open networks
+                utils.debug("Creating new connection for", ap.Ssid);
+                const settings = {
+                    connection: {
+                        id: ap.Ssid,
+                        type: "802-11-wireless",
+                        autoconnect: true,
+                    },
+                    "802-11-wireless": {
+                        ssid: utils.ssid_to_nm(ap.Ssid),
+                        mode: "infrastructure",
+                    }
+                };
+
+                // Pass null for specific_object - NM will find the right AP by SSID
+                await dev.activate_with_settings(settings, null);
+                utils.debug("Connection activation started for", ap.Ssid);
+                await dev.wait_connection(ap.Ssid);
+                utils.debug("Connected successfully to", ap.Ssid);
+            } catch (error) {
+                // Provide context-appropriate error message
+                const errorMsg = error.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                    ? _("Network password is not stored. Please forget and reconnect to this network.")
+                    : error.toString();
+                show_error_dialog(
+                    cockpit.format(_("Failed to connect to $0"), ap.Ssid),
+                    errorMsg
+                );
+            }
         }
 
         const networkSort = (rows, direction, columnIndex) => {

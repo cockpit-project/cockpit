@@ -1,0 +1,19 @@
+name: verify-antora
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+jobs:
+  verify-antora:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
+          cache-dependency-path: '**/.github/workflows/*.yml'
+      - run: pnpx antora antora-playbook.yml

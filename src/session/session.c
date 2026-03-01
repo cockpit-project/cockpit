@@ -136,6 +136,10 @@ pam_conv_func (int num_msg,
   int success = 1;
   int i;
 
+  /* For handling X-Conversation with newlines */
+  char *prompt_token = NULL;
+  char *prompt_token_ptr = NULL;
+
   /* Any messages from the last conversation pass? */
   txt_msg = last_txt_msg;
   last_txt_msg = NULL;
@@ -203,16 +207,22 @@ pam_conv_func (int num_msg,
               txt_msg = NULL;
             }
 
-          char *authorization = read_authorize_response (msg[i]->msg);
-          char *response = get_authorize_key (authorization, "response", true);
-          char *prompt_resp = cockpit_authorize_parse_x_conversation (response, NULL);
+          char *authorization, *response, *prompt_resp;
+          if (prompt_token == NULL) {
+            authorization = read_authorize_response(msg[i]->msg);
+            response = get_authorize_key(authorization, "response", true);
+            prompt_resp = cockpit_authorize_parse_x_conversation(response, NULL);
+            prompt_token = strtok_r(prompt_resp, "\n", &prompt_token_ptr);
+            debug("got prompt response");
+          } else {
+            prompt_token = strtok_r(NULL, "\n", &prompt_token_ptr);
+            debug("using prior prompt");
+          }
           cockpit_memory_clear (response, -1);
           free (response);
-
-          debug ("got prompt response");
-          if (prompt_resp)
+          if (prompt_token)
             {
-              resp[i].resp = prompt_resp;
+              resp[i].resp = prompt_token;
               resp[i].resp_retcode = 0;
               prompt_resp = NULL;
             }
@@ -978,6 +988,8 @@ main (int argc,
     pamh = perform_gssapi (rhost, response);
   else if (strcmp (type, "tls-cert") == 0)
     pamh = perform_tlscert (rhost, response);
+  else if (strcmp(type, "passkey") == 0)
+    pamh = perform_passkey(rhost, response);
 
   cockpit_memory_clear (response, -1);
   free (response);

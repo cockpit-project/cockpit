@@ -5,6 +5,7 @@
 
 import argparse
 import ast
+import base64
 import json
 import os
 import pydoc
@@ -37,6 +38,16 @@ class Printer:
     def control(self, command: str, **kwargs: Any) -> None:
         """Send a control message, build from **kwargs"""
         self.json('', command=command, **kwargs)
+
+    def authorize(self, cookie: str, b64_content: str, auth_type: str = "Basic", **kwargs: Any) -> None:
+        """Send an authorize message with extra **kwargs"""
+        encoded_response = f"{auth_type} {b64_content}"
+        self.json('', command="authorize", cookie=cookie, response=encoded_response, **kwargs)
+
+    def basic(self, cookie: str, user: str, password: str, **kwargs: Any) -> None:
+        """Send an authorize Basic message with base64 encoded username and password with extra **kwargs"""
+        userpass = base64.b64encode(f"{user}:{password}".encode('utf-8'))
+        self.authorize(cookie=cookie, b64_content=str(userpass, "utf-8"), auth_type="Basic", **kwargs)
 
     def init(self, host: str = 'localhost', version: int = 1, **kwargs: Any) -> None:
         """Send init.  This is normally done automatically, but you can override it."""

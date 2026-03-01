@@ -8,7 +8,6 @@
   <meta name="robots" content="noindex" />
   <meta insert="dynamic_content_here" />
   <script type="text/javascript">/*insert_translations_here*/</script>
-  <script type="text/javascript" src="cockpit/static/login.js"></script>
   <link href="cockpit/static/login.css" type="text/css" rel="stylesheet" />
   <link href="cockpit/static/branding.css" type="text/css" rel="stylesheet" />
 </head>
@@ -155,7 +154,16 @@
             </button>
             <a id="get-out-link" href="/" translate="yes">Cancel</a>
           </div>
+          <!--<div class="form-group login-actions details" id="passkey-group" hidden>
+            <button class="pf-v6-c-button pf-m-primary login-button" id="passkey-login" type="submit">
+              <span class="spinner"></span>
+              <span id="passkey-login-text" class="button-text" translate="yes">Log in with Passkey</span>
+            </button>
+          </div>-->
+
         </form>
+        <div style="padding-top: 1rem;"><button style="width: 100%;" class="pf-v6-c-button pf-m-primary" id="create-passkey">DEBUG: Create passkey</button></div>
+
       </div>
 
       <div id="login-wait-validating" hidden="true">
@@ -182,6 +190,8 @@
     </div>
   </div>
 
+  <script type="text/javascript" src="cockpit/static/cbor.js"></script>
+  <script type="text/javascript" src="cockpit/static/login.js"></script>
   <script type="text/javascript">
     /* Hide everything classed as "noscript" */
     document.querySelectorAll('.noscript').forEach(function(element){

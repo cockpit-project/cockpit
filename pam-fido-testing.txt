@@ -1,0 +1,61 @@
+TEST_BIND_GLOBAL=localhost bots/vm-run -s cockpit.socket fedora-43
+https://localhost:9091/
+
+ssh:
+sudo dnf install pam-u2f fido2-tools pamu2fcfg -y
+sudo vi /etc/pam.d/cockpit
+auth       required     pam_u2f.so authfile=/etc/u2f_mappings origin=localhost appid=cockpit manual debug webauthn webauthn_origin="https://localhost:9091"
+
+sudo vi /etc/u2f_mappings
+
+https://developers.yubico.com/libfido2/Manuals/fido2-assert.html
+
+PYTHONPATH=src python3 -m cockpit.misc.print --pretty-json control authorize cookie="session26151766064575" response="Basic YWRtaW46Zm9vYmFy"
+
+
+https://stackoverflow.com/a/78289834
+let c = new Uint8Array(64)
+c.set(dd['-2'])
+c.set(dd['-3'], 32)
+
+
+publicKey is concat -2 | -3, or X | Y respectively
+
+https://adricasti.github.io/libfido2-test/
+
+let att = ""
+let decodedAttestationObj = CBOR.decode(Uint8Array.fromHex(att).buffer)
+
+function key(decodedAttestationObject) {
+  const {authData} = decodedAttestationObject;
+
+  // get the length of the credential ID
+  const dataView = new DataView(
+      new ArrayBuffer(2));
+  const idLenBytes = authData.slice(53, 55);
+  idLenBytes.forEach(
+      (value, index) => dataView.setUint8(
+          index, value));
+  const credentialIdLength = dataView.getUint16();
+
+  // get the credential ID
+  const credentialId = authData.slice(
+      55, 55 + credentialIdLength);
+
+  // get the public key object
+  const publicKeyBytes = authData.slice(
+      55 + credentialIdLength);
+
+  // the publicKeyBytes are encoded again as CBOR
+  const publicKeyObject = CBOR.decode(
+      publicKeyBytes.buffer);
+  return publicKeyObject;
+}
+let dd = key(decodedAttestationObj)
+let c = new Uint8Array(64)
+c.set(dd['-2'])
+c.set(dd['-3'], 32)
+c.toBase64()
+
+Modify pam-u2f to support WebAuthn
+https://github.com/Yubico/pam-u2f/discussions/381#discussioncomment-15517125

@@ -1,0 +1,74 @@
+name: Update guide from release
+on:
+  # Trigger for other workflows
+  workflow_call:
+    inputs:
+      release_tag:
+        description: 'What release to take source file from.'
+        required: true
+        type: string
+      checksum:
+        description: 'Checksum to verify against'
+        required: false
+        type: string
+  # Runs that are triggered manually
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'What release to take source file from.'
+        required: true
+        type: string
+      checksum:
+        description: 'Checksum to verify against'
+        required: false
+        type: string
+
+jobs:
+  guide:
+    environment: website
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/cockpit-project/tasks:latest
+      options: --user root
+    steps:
+      - name: Checkout website repository
+        uses: actions/checkout@v6
+        with:
+          path: website
+          repository: cockpit-project/cockpit-project.github.io
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Checkout Cockpit repository
+        uses: actions/checkout@v6
+        with:
+          path: src
+          fetch-depth: 0
+
+      - name: Get release assets
+        id: release_assets
+        uses: ./src/.github/actions/get-release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          path: src
+          release: ${{ inputs.release_tag }}
+          checksum: ${{ inputs.checksum }}
+
+      - name: Extract guide from release tarball
+        run: |
+          mkdir source
+          tar --directory source --extract --strip-components=1 --file 'src/${{ steps.release_assets.outputs.tarball }}'
+
+      - name: Update the website
+        run: |
+          rm -rf website/guide/latest
+          cp -rT source/doc/output/html website/guide/latest
+
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+
+          cd website
+          git add guide/
+          git commit --message='Update guide to version ${{ github.ref_name }}'
+          git show --stat
+          git push origin main

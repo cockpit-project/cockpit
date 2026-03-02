@@ -11,9 +11,7 @@ import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/di
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { DropdownItem } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
-import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
-import { InputGroup, InputGroupItem } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
+import { Form } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
@@ -22,14 +20,11 @@ import { Progress } from "@patternfly/react-core/dist/esm/components/Progress/in
 import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
-import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { SortByDirection } from '@patternfly/react-table';
 import {
     ConnectedIcon,
     DisconnectedIcon,
-    EyeIcon,
-    EyeSlashIcon,
     LockIcon,
     LockOpenIcon,
     PlusIcon,
@@ -39,7 +34,6 @@ import {
 
 import { KebabDropdown } from "cockpit-components-dropdown";
 import { ListingTable } from "cockpit-components-table.jsx";
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { Privileged } from "cockpit-components-privileged.jsx";
 import { distanceToNow } from "timeformat";
 import { fmt_to_fragments } from 'utils.jsx';
@@ -75,47 +69,48 @@ import {
 
 import { get_ip_method_choices } from './ip-settings.jsx';
 
+import {
+    useDialogState,
+    DialogError, DialogErrorMessage,
+    DialogTextInput,
+    DialogPasswordInput,
+    DialogDropdownSelect,
+    DialogActionButton, DialogCancelButton,
+} from 'cockpit/dialog';
+
 const _ = cockpit.gettext;
 
 // known networks: with ssid; hidden networks: no ssid
 const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
+    useEvent(model, "changed");
     const Dialogs = useDialogs();
-    const [inputSsid, setInputSsid] = useState("");
-    const [security, setSecurity] = useState("wpa-psk");
-    const [password, setPassword] = useState("");
-    const [passwordVisible, setPasswordVisible] = useState(false);
-    const [dialogError, setDialogError] = useState(null);
-    const [connecting, setConnecting] = useState(false);
-    const [createdConnection, setCreatedConnection] = useState(null);
 
     const isHidden = !knownSsid;
-    const ssid = knownSsid || inputSsid;
     const idPrefix = "network-wifi-connect";
 
-    // Validation
-    const passwordRequired = !isHidden || security !== "none";
-    const canConnect = !(isHidden && inputSsid.trim() === "") && !(passwordRequired && password.trim() === "");
-
-    useEvent(model, "changed");
-
-    const onCancel = () => {
-        if (connecting && createdConnection) {
-            utils.debug("Cancelling connection to", ssid);
-            dev.cancel_pending_connection();
-            createdConnection.delete_()
-                    .catch(err => console.warn("Failed to delete connection:", err));
+    function validate() {
+        if (isHidden) {
+            dlg.field("ssid").validate(val => {
+                if (val.trim() === "")
+                    return _("SSID can not be empty");
+            });
         }
-        Dialogs.close();
-    };
-
-    const onSubmit = async (ev) => {
-        if (ev) {
-            ev.preventDefault();
+        if (!isHidden || dlg.values.security != "none") {
+            dlg.field("password").validate(val => {
+                if (val.trim() === "")
+                    return _("Password can not be empty");
+            });
         }
+    }
 
+    const dlg = useDialogState({
+        ssid: knownSsid || "",
+        security: "wpa-psk",
+        password: "",
+    }, validate);
+
+    const onConnect = async ({ ssid, security, password }) => {
         utils.debug("Connecting to", ssid, isHidden ? `with security ${security}` : "with password");
-        setConnecting(true);
-        setDialogError(null);
 
         const settings = {
             connection: {
@@ -146,21 +141,28 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
             // NM will find the right AP by SSID
             const result = await dev.activate_with_settings(settings, null);
             connection = result.connection;
+
+            dlg.set_cancel(
+                () => {
+                    utils.debug("Cancelling connection to", ssid);
+                    dev.cancel_pending_connection();
+                    connection.delete_()
+                            .catch(err => console.warn("Failed to delete connection:", err));
+                });
+
             utils.debug("Connection activation started");
-            setCreatedConnection(connection);
             await dev.wait_connection(ssid);
             utils.debug("Connected successfully to", ssid);
-            Dialogs.close();
         } catch (err) {
-            setConnecting(false);
-            setDialogError(err.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
-                ? _("Failed to connect. Check your password.")
-                : err.toString());
-
             // just in case something survived, clean up
             connection?.delete_()
                     .catch(err => utils.debug("Failed to delete failed connection:", err));
-            setCreatedConnection(null);
+
+            throw new DialogError(
+                _("Failed to connect"),
+                err.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                    ? _("Check your password.")
+                    : err.toString());
         }
     };
 
@@ -170,68 +172,40 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
                variant="small"
                isOpen
                onClose={Dialogs.close}>
-            <ModalHeader title={isHidden ? _("Connect to hidden network") : cockpit.format(_("Connect to $0"), ssid)} />
+            <ModalHeader title={isHidden ? _("Connect to hidden network") : cockpit.format(_("Connect to $0"), knownSsid)} />
             <ModalBody>
-                <Form id={idPrefix + "-body"} onSubmit={onSubmit} isHorizontal>
-                    {dialogError && <ModalError dialogError={_("Failed to connect")} dialogErrorDetail={dialogError} />}
+                <DialogErrorMessage dialog={dlg} />
+                <Form id={idPrefix + "-body"} onSubmit={ev => ev.preventDefault()} isHorizontal>
                     {isHidden && (
                         <>
-                            <FormGroup fieldId={idPrefix + "-ssid-input"} label={_("Network name")}>
-                                <TextInput id={idPrefix + "-ssid-input"}
-                                           type="text"
-                                           value={inputSsid}
-                                           onChange={(_event, value) => setInputSsid(value)}
-                                           autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-                                           isDisabled={connecting} />
-                            </FormGroup>
-                            <FormGroup fieldId={idPrefix + "-security-select"} label={_("Security")}>
-                                <FormSelect id={idPrefix + "-security-select"}
-                                            value={security}
-                                            onChange={(_event, value) => setSecurity(value)}
-                                            isDisabled={connecting}>
-                                    <FormSelectOption value="none" label={_("None")} />
-                                    <FormSelectOption value="wpa-psk" label={_("WPA/WPA2 Personal")} />
-                                </FormSelect>
-                            </FormGroup>
+                            <DialogTextInput
+                                label={_("Network name")}
+                                field={dlg.field("ssid")}
+                            />
+                            <DialogDropdownSelect
+                                label={_("Security")}
+                                field={dlg.field("security")}
+                                options={[
+                                    { value: "none", label: _("None") },
+                                    { value: "wpa-psk", label: _("WPA/WPA2 Personal") },
+                                ]}
+                            />
                         </>
                     )}
-                    {(!isHidden || security !== "none") && (
-                        <FormGroup fieldId={idPrefix + "-password-input"} label={_("Password")}>
-                            <InputGroup>
-                                <InputGroupItem isFill>
-                                    <TextInput id={idPrefix + "-password-input"}
-                                               type={passwordVisible ? "text" : "password"}
-                                               value={password}
-                                               onChange={(_event, value) => setPassword(value)}
-                                               autoFocus={!isHidden} // eslint-disable-line jsx-a11y/no-autofocus
-                                               isDisabled={connecting} />
-                                </InputGroupItem>
-                                <InputGroupItem>
-                                    <Button variant="control"
-                                            aria-label={passwordVisible ? _("Hide password") : _("Show password")}
-                                            onClick={() => setPasswordVisible(!passwordVisible)}
-                                            isDisabled={connecting}>
-                                        {passwordVisible ? <EyeSlashIcon /> : <EyeIcon />}
-                                    </Button>
-                                </InputGroupItem>
-                            </InputGroup>
-                        </FormGroup>
+                    {(!isHidden || dlg.values.security !== "none") && (
+                        <DialogPasswordInput
+                            label={_("Password")}
+                            field={dlg.field("password")}
+                            autoFocus={!isHidden} // eslint-disable-line jsx-a11y/no-autofocus
+                        />
                     )}
                 </Form>
             </ModalBody>
             <ModalFooter>
-                <Button variant='primary'
-                        id={idPrefix + "-connect"}
-                        onClick={onSubmit}
-                        isLoading={connecting}
-                        isDisabled={connecting || !canConnect}>
+                <DialogActionButton dialog={dlg} action={onConnect} onClose={Dialogs.close}>
                     {_("Connect")}
-                </Button>
-                <Button variant='link'
-                        id={idPrefix + "-cancel"}
-                        onClick={onCancel}>
-                    {_("Cancel")}
-                </Button>
+                </DialogActionButton>
+                <DialogCancelButton dialog={dlg} onClose={Dialogs.close} />
             </ModalFooter>
         </Modal>
     );

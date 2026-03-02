@@ -1276,13 +1276,16 @@ export function NetworkManagerModel() {
 
                         case 30: // NM_DEVICE_STATE_DISCONNECTED; initial state, so wait for activation to start
                         case 120: // NM_DEVICE_STATE_FAILED
-                            // Disconnected/failed after activation started means user cancelled or failure without reason
-                            if (activationStarted && !this.ActiveConnection) {
+                            if (priv(this).connectionCancelled) {
                                 cleanup();
-                                if (priv(this).connectionCancelled) {
-                                    utils.debug("wait_connection: cancelled by user");
-                                    resolve();
-                                } else {
+                                utils.debug("wait_connection: cancelled by user");
+                                resolve();
+                            } else {
+                                // Disconnected/failed after
+                                // activation started means user
+                                // cancelled or failure without reason
+                                if (activationStarted && !this.ActiveConnection) {
+                                    cleanup();
                                     console.warn("wait_connection: connection failed for", this.Interface, "without captured reason");
                                     reject(new Error("Connection failed"));
                                 }

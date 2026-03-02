@@ -624,7 +624,7 @@ import {
 } from "@patternfly/react-core/dist/esm/components/FormSelect";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio";
 import { InputGroup, InputGroupItem } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
-import { EyeIcon, EyeSlashIcon} from "@patternfly/react-icons";
+import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 
 const _ = cockpit.gettext;
 
@@ -1476,6 +1476,7 @@ export const DialogPasswordInput = ({
                         type={visible ? "text" : "password"}
                         value={field.get()}
                         onChange={(_event, value) => field.set(value)}
+                        isDisabled={!!excuse || isDisabled}
                         {...props}
                     />
                 </InputGroupItem>
@@ -1489,10 +1490,10 @@ export const DialogPasswordInput = ({
                     </Button>
                 </InputGroupItem>
             </InputGroup>
-            <DialogHelperText field={field} />
+            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
         </OptionalFormGroup>
     );
-}
+};
 
 export const DialogCheckbox = ({
     field_label = null,

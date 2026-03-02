@@ -1187,7 +1187,7 @@ export class DialogError {
     title: string;
     details: React.ReactNode;
 
-    constructor(title: string, details: React.ReactNode) {
+    constructor(title: string, details?: React.ReactNode) {
         this.title = title;
         this.details = details;
     }

@@ -8,6 +8,7 @@ import time
 
 import netlib
 import testlib
+from dialoglib import DialogHelpers
 
 
 @testlib.nondestructive
@@ -86,6 +87,7 @@ wpa_passphrase=hidden99""")
     def testWifi(self):
         m = self.machine
         b = self.browser
+        d = DialogHelpers(b)
 
         self.login_and_go("/network")
         b.wait_visible("#networking")
@@ -179,25 +181,26 @@ wpa_passphrase=hidden99""")
         b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
         b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
         # Validation: Empty password
-        b.wait_val("#network-wifi-connect-password-input", "")
-        b.wait_visible("#network-wifi-connect-connect:disabled")
+        d.wait_TextInput("password", "")
+        b.click(d.apply_button())
+        b.wait_visible(d.apply_button() + ":disabled")
         # Test password reveal
-        b.set_input_text("#network-wifi-connect-password-input", "wrong123")
-        b.wait_visible("#network-wifi-connect-connect:not(:disabled)")
-        self.assertEqual(b.attr("#network-wifi-connect-password-input", "type"), "password")
+        d.set_TextInput("password", "wrong123")
+        b.wait_visible(d.apply_button() + ":not(:disabled)")
+        self.assertEqual(b.attr(d.field("password"), "type"), "password")
         b.click("#network-wifi-connect-dialog button[aria-label='Show password']")
-        self.assertEqual(b.attr("#network-wifi-connect-password-input", "type"), "text")
-        self.assertEqual(b.val("#network-wifi-connect-password-input"), "wrong123")
+        self.assertEqual(b.attr(d.field("password"), "type"), "text")
+        self.assertEqual(d.get_TextInput("password"), "wrong123")
         b.click("#network-wifi-connect-dialog button[aria-label='Hide password']")
-        self.assertEqual(b.attr("#network-wifi-connect-password-input", "type"), "password")
+        self.assertEqual(b.attr(d.field("password"), "type"), "password")
         # Submit with wrong password
-        b.click("#network-wifi-connect-connect")
-        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
-        b.wait_visible("#network-wifi-connect-connect:disabled")
-        b.wait_in_text("#network-wifi-connect-dialog", "Failed to connect. Check your password")
+        b.click(d.apply_button())
+        b.wait_visible(d.apply_button() + ".pf-m-in-progress")
+        b.wait_visible(d.apply_button() + ":disabled")
+        b.wait_in_text("#network-wifi-connect-dialog", "Check your password")
         # correct password
-        b.set_input_text("#network-wifi-connect-password-input", "12345678")
-        b.click("#network-wifi-connect-connect")
+        d.set_TextInput("password", "12345678")
+        b.click(d.apply_button())
         b.wait_not_present("#network-wifi-connect-dialog")
 
         # connects, action changes
@@ -247,8 +250,8 @@ wpa_passphrase=hidden99""")
         b.wait_not_present("tr[data-ssid='ZE WIFI!'] .nm-icon-known")
         b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
         b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
-        b.set_input_text("#network-wifi-connect-password-input", "12345678")
-        b.click("#network-wifi-connect-connect")
+        d.set_TextInput("password", "12345678")
+        b.click(d.apply_button())
         b.wait_not_present("#network-wifi-connect-dialog")
         b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Disconnect']")
         b.wait_visible("tr[data-ssid='ZE WIFI!'] .nm-icon-connected")
@@ -281,7 +284,7 @@ wpa_passphrase=hidden99""")
         # Try to connect again - should ask for password; cancel
         b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
         b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
-        b.click("#network-wifi-connect-cancel")
+        b.click(d.cancel_button())
         b.wait_not_present("#network-wifi-connect-dialog")
         # Cancelling does not create a known connection
         b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
@@ -290,10 +293,12 @@ wpa_passphrase=hidden99""")
         # Cancel during connection attempt
         b.click("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
         b.wait_in_text("#network-wifi-connect-dialog", "Connect to ZE WIFI!")
-        b.set_input_text("#network-wifi-connect-password-input", "12345678")
-        b.click("#network-wifi-connect-connect")
-        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
-        b.click("#network-wifi-connect-cancel")
+        # Use a wrong password. Otherwise connecting might happen faster than we can click "cancel".
+        d.set_TextInput("password", "12345679")
+        b.click(d.apply_button())
+        b.wait_visible(d.apply_button() + ".pf-m-in-progress")
+        b.wait_visible(d.cancel_button() + ":not(:disabled)")
+        b.click(d.cancel_button())
         b.wait_not_present("#network-wifi-connect-dialog")
         # Cancelling did not create or deleted the known connection
         # This tests a negative -- ensure the connnection does not get created in the background
@@ -319,6 +324,7 @@ wpa_passphrase=hidden99""")
 
     def testHidden(self):
         b = self.browser
+        d = DialogHelpers(b)
 
         self.login_and_go("/network")
         b.wait_visible("#networking")
@@ -336,54 +342,62 @@ wpa_passphrase=hidden99""")
         b.click("button:contains('Connect to hidden network')")
         b.wait_in_text("#network-wifi-connect-dialog", "Connect to hidden network")
 
-        # Validation: Connect button only becomes active with SSID and password
-        b.wait_visible("#network-wifi-connect-connect:disabled")
-        b.set_input_text("#network-wifi-connect-ssid-input", "SomeNetwork")
-        time.sleep(0.5)
-        b.wait_visible("#network-wifi-connect-connect:disabled")
+        # Validation: SSID and password are required
+        b.click(d.apply_button())
+        b.wait_visible(d.apply_button() + ":disabled")
+        b.wait_in_text(d.helper_text("ssid"), "SSID can not be empty")
+        b.wait_in_text(d.helper_text("password"), "Password can not be empty")
+        d.set_TextInput("ssid", "SomeNetwork")
+        d.set_TextInput("password", "foobarfoo")
+        b.wait_visible(d.apply_button() + ":not(:disabled)")
+        b.wait_not_present(d.helper_text("ssid"))
+        b.wait_not_present(d.helper_text("password"))
+        d.set_TextInput("password", "")
+        b.wait_visible(d.apply_button() + ":disabled")
+        b.wait_in_text(d.helper_text("password"), "Password can not be empty")
 
         # Validation: No password required for open networks
-        b.set_val("#network-wifi-connect-security-select", "none")
-        b.wait_not_present("#network-wifi-connect-password-input")
-        b.wait_visible("#network-wifi-connect-connect:not(:disabled)")
+        d.set_DropdownSelect("security", "none")
+        b.wait_not_present(d.field("password"))
+        b.wait_visible(d.apply_button() + ":not(:disabled)")
 
         # Validation: Password required for WPA networks
-        b.set_val("#network-wifi-connect-security-select", "wpa-psk")
-        b.wait_visible("#network-wifi-connect-password-input")
-        b.wait_visible("#network-wifi-connect-connect:disabled")
+        d.set_DropdownSelect("security", "wpa-psk")
+        b.wait_visible(d.field("password"))
+        b.wait_visible(d.apply_button() + ":disabled")
 
         # Error case 1: Wrong SSID
-        b.set_input_text("#network-wifi-connect-ssid-input", "WrongSSID")
-        self.assertEqual(b.val("#network-wifi-connect-security-select"), "wpa-psk")
-        b.set_input_text("#network-wifi-connect-password-input", "password")
-        b.click("#network-wifi-connect-connect")
-        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
+        d.set_TextInput("ssid", "WrongSSID")
+        self.assertEqual(d.get_DropdownSelect("security"), "wpa-psk")
+        d.set_TextInput("password", "password")
+        b.click(d.apply_button())
+        b.wait_visible(d.apply_button() + ".pf-m-in-progress")
         with b.wait_timeout(30):
             b.wait_in_text("#network-wifi-connect-dialog", "Failed to connect")
-        b.wait_not_present("#network-wifi-connect-connect.pf-m-in-progress")
+        b.wait_not_present(d.apply_button() + ".pf-m-in-progress")
 
         # Error case 2: Wrong security (open instead of WPA)
-        b.set_input_text("#network-wifi-connect-ssid-input", "HiddenNet")
-        b.set_val("#network-wifi-connect-security-select", "none")
-        b.wait_not_present("#network-wifi-connect-password-input")
-        b.click("#network-wifi-connect-connect")
-        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
+        d.set_TextInput("ssid", "HiddenNet")
+        d.set_DropdownSelect("security", "none")
+        b.wait_not_present(d.field("password"))
+        b.click(d.apply_button())
+        b.wait_visible(d.apply_button() + ".pf-m-in-progress")
         with b.wait_timeout(30):
             b.wait_in_text("#network-wifi-connect-dialog", "Failed to connect")
-        b.wait_not_present("#network-wifi-connect-connect.pf-m-in-progress")
+        b.wait_not_present(d.apply_button() + ".pf-m-in-progress")
 
         # Error case 3: Wrong password
-        b.set_val("#network-wifi-connect-security-select", "wpa-psk")
-        b.wait_visible("#network-wifi-connect-password-input")
-        b.set_input_text("#network-wifi-connect-password-input", "wrongpassword")
-        b.click("#network-wifi-connect-connect")
-        b.wait_visible("#network-wifi-connect-connect.pf-m-in-progress")
+        d.set_DropdownSelect("security", "wpa-psk")
+        b.wait_visible(d.field("password"))
+        d.set_TextInput("password", "wrongpassword")
+        b.click(d.apply_button())
+        b.wait_visible(d.apply_button() + ".pf-m-in-progress")
         b.wait_in_text("#network-wifi-connect-dialog", "Failed to connect")
-        b.wait_not_present("#network-wifi-connect-connect.pf-m-in-progress")
+        b.wait_not_present(d.apply_button() + ".pf-m-in-progress")
 
         # Success case: Correct credentials
-        b.set_input_text("#network-wifi-connect-password-input", "hidden99")
-        b.click("#network-wifi-connect-connect")
+        d.set_TextInput("password", "hidden99")
+        b.click(d.apply_button())
         b.wait_not_present("#network-wifi-connect-dialog")
         # Hidden network connects and shows its real SSID
         b.wait_visible("tr[data-ssid='HiddenNet'] button[aria-label='Disconnect']")

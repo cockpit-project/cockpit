@@ -623,6 +623,8 @@ import {
     FormSelect, FormSelectOption, type FormSelectProps,
 } from "@patternfly/react-core/dist/esm/components/FormSelect";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio";
+import { InputGroup, InputGroupItem } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
+import { EyeIcon, EyeSlashIcon} from "@patternfly/react-icons";
 
 const _ = cockpit.gettext;
 
@@ -1446,6 +1448,51 @@ export const DialogTextInput = ({
         </OptionalFormGroup>
     );
 };
+
+export const DialogPasswordInput = ({
+    label = null,
+    field,
+    excuse,
+    warning,
+    explanation,
+    isDisabled = false,
+    ...props
+} : {
+    label?: React.ReactNode,
+    field: DialogField<string>,
+    excuse?: string | falsy,
+    warning?: React.ReactNode,
+    explanation?: React.ReactNode,
+    isDisabled?: boolean,
+} & Omit<TextInputProps, "id" | "label" | "value" | "onChange">) => {
+    const [visible, setVisible] = useState(false);
+
+    return (
+        <OptionalFormGroup label={label} fieldId={field.id()}>
+            <InputGroup>
+                <InputGroupItem isFill>
+                    <TextInput
+                        id={field.id()}
+                        type={visible ? "text" : "password"}
+                        value={field.get()}
+                        onChange={(_event, value) => field.set(value)}
+                        {...props}
+                    />
+                </InputGroupItem>
+                <InputGroupItem>
+                    <Button
+                        variant="control"
+                        aria-label={visible ? _("Hide password") : _("Show password")}
+                        onClick={() => setVisible(!visible)}
+                    >
+                        {visible ? <EyeSlashIcon /> : <EyeIcon />}
+                    </Button>
+                </InputGroupItem>
+            </InputGroup>
+            <DialogHelperText field={field} />
+        </OptionalFormGroup>
+    );
+}
 
 export const DialogCheckbox = ({
     field_label = null,

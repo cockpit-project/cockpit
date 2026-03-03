@@ -2,11 +2,55 @@
 # install/upgrade RPMs that apply to OSTree
 set -eu
 
+# keep in sync with containers/ws/install.sh
+PACKAGES="
+kdump
+networkmanager
+packagekit
+selinux
+sosreport
+storaged
+system
+"
+
 cd /var/tmp/
 
+# install/upgrade RPMs that apply to OSTree
 # Note: cockpit-selinux would be desirable, but needs setroubleshoot-server which isn't installed
 rpm-ostree install --cache-only cockpit-bridge-*.rpm \
     cockpit-networkmanager-*.rpm cockpit-system-*.rpm
+
+# update cockpit packages and install scripts in the container
+for rpm in ws bridge $PACKAGES; do
+    rpm2cpio /var/tmp/cockpit-$rpm-*.rpm | cpio -i --make-directories --directory=/var/tmp/install
+done
+
+# Sometimes the actual quay.io/cockpit/ws Fedora version lags behind containers/ws/Containerfile, i.e. in between
+# moving the latter to a new Fedora version, and releasing Cockpit and landing it in Fedora. Then the Python version
+# in the rpms does not match the actual Python version in the container. So remove any traces of the old Python
+# deployment first, unpack the new rpms, and move our Python module into place.
+ws_pyver=$(podman run --rm --entrypoint /usr/bin/python3 quay.io/cockpit/ws -c \
+           'import sys; print("%d.%d" % sys.version_info[:2])')
+ws_sitelib="/var/tmp/install/usr/lib/python${ws_pyver}"
+if ! [ -d "$ws_sitelib" ]; then
+    echo "Adjusting Python module location to $ws_sitelib" >&2
+    mv --verbose /var/tmp/install/usr/lib/python3.* "$ws_sitelib" >&2
+fi
+
+podman run --name build-cockpit -i \
+    -v /var/tmp/:/run/build:Z \
+    quay.io/cockpit/ws sh -exc '
+cp -a /run/build/install/* /
+cp /run/build/containers/ws/label-* /run/build/containers/ws/default-bastion.conf /run/build/containers/ws/cockpit-auth-ssh-key /container/
+# done in containers/ws/install.sh; this can be removed once that change is in our VM images
+rm -f /usr/libexec/cockpit-session
+'
+podman commit --change CMD=/container/label-run build-cockpit localhost/cockpit/ws
+podman rm -f build-cockpit
+
+# move original quay.io image away, to make sure that our tests use the updated one
+podman tag quay.io/cockpit/ws:latest quay.io/cockpit/original-ws:released
+podman rmi quay.io/cockpit/ws:latest
 
 # run cockpit/ws once to generate certificate; avoids slow down on every start
 podman container runlabel INSTALL cockpit/ws

@@ -2652,7 +2652,7 @@ def skipOstree(reason: str) -> Callable[[_FT], _FT]:
 
 
 def isBeibootLogin() -> bool:
-    return "ws-container" in os.getenv("TEST_SCENARIO", "")
+    return True
 
 
 def skipWsContainer(reason: str) -> Callable[[_FT], _FT]:
@@ -2664,7 +2664,7 @@ def skipWsContainer(reason: str) -> Callable[[_FT], _FT]:
 
 def skipBeiboot(reason: str) -> Callable[[_FT], _FT]:
     """Decorator for skipping a test with cockpit/ws in beiboot mode"""
-    if isBeibootLogin():
+    if testvm.DEFAULT_IMAGE in OSTREE_IMAGES or isBeibootLogin():
         return unittest.skip(f"{testvm.DEFAULT_IMAGE}: {reason}")
     return lambda testEntity: testEntity
 

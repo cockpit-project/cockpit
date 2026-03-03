@@ -155,7 +155,10 @@ def build_install_ostree(dist_tars: list[str], image: str, *, verbose: bool, qui
     args += [
         "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
         "--script", os.path.join(TEST_DIR, "ws-container.install"),
-        "--script", os.path.join(TEST_DIR, "ostree.install"),
+        "--run-command", ("rpm-ostree install -C --uninstall=cockpit-networkmanager --uninstall=cockpit-bridge "
+        "--uninstall=cockpit-system --uninstall=glib-networking python3"),
+        # run cockpit/ws once to generate certificate; avoids slow down on every start
+        "--run-command", "podman container runlabel INSTALL cockpit/ws",
         "--upload", os.path.join(BASE_DIR, "dist/playground") + ":/usr/local/share/cockpit/"]
     return args
 

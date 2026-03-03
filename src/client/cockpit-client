@@ -75,6 +75,10 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
 
         self.webview.get_settings().set_enable_developer_extras(enabled=True)
         self.webview.connect('decide-policy', self.decide_policy)
+        self.webview.connect('create', self.create_web_view)
+
+        app.network_session.connect('download-started', self.download_started)
+
         self.webview.load_uri(uri)
 
         history = self.webview.get_back_forward_list()
@@ -120,6 +124,39 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
             return True
 
         return False
+
+    def create_web_view(self, _web_view: WebKit.WebView, navigation_action: WebKit.NavigationAction) -> None:
+        """Called when JavaScript tries to create a new window (for cockpit-files downloads)"""
+
+        uri = navigation_action.get_request().get_uri()
+
+        # Only allow downloads from Cockpit pages
+        if uri.startswith('http://127'):
+            self.webview.download_uri(uri)
+
+    def download_started(self, _network_session: WebKit.NetworkSession, download: WebKit.Download) -> None:
+        logging.debug("download_started signal fired for download: %s", download)
+        download.connect('decide-destination', self.decide_download_destination)
+
+    def decide_download_destination(self, download: WebKit.Download, suggested_filename: str) -> bool:
+        logging.debug("decide_download signal fired for download: %s", download)
+
+        dialog = Gtk.FileDialog()
+        dialog.set_initial_name(suggested_filename)
+
+        def save_dialog_done(dialog: Gtk.FileDialog, result: Gio.AsyncResult):
+            file = dialog.save_finish(result)
+            file_path = file.get_path()
+            if file and file_path:
+                download.set_allow_overwrite(True)
+                download.set_destination(file_path)
+            else:
+                logging.debug("User cancelled download")
+                download.cancel()
+
+        dialog.save(self, None, save_dialog_done)
+
+        return True
 
     def zoom(self, _action, parameter, *_unused):
         current = self.webview.get_zoom_level()

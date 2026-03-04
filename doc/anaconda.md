@@ -149,7 +149,7 @@ types might appear:
  "filesystem". This might also be present when the crypto device is
  closed.
 
- It might also have a "cleartext_device" field if the encrpyted device
+ It might also have a "cleartext_device" field if the encrypted device
  is currently open.
 
 Cockpit does some magic (via the "x-parent" options in fstab and

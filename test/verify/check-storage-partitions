@@ -219,10 +219,10 @@ class TestStoragePartitions(storagelib.StorageCase):
         self.dialog_set_val("custom", "bla bla")
         self.dialog_apply()
         self.dialog_wait_error("custom", "Type must contain exactly two hexadecimal characters (0 to 9, A to F).")
-        self.dialog_set_val("custom", "C8")
+        self.dialog_set_val("custom", "C7")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_text(self.card_desc("Partition", "Type"), "c8")
+        b.wait_text(self.card_desc("Partition", "Type"), "c7")
 
 
 if __name__ == '__main__':

@@ -17,21 +17,14 @@ import textwrap
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import GLib, Gio, Gtk  # noqa: I001, E402
 
-try:
-    gi.require_version("WebKit2", "4.1")
-    from gi.repository import WebKit2
-except (ValueError, ImportError):
-    gi.require_version("WebKit2", "4.0")
-    from gi.repository import WebKit2
+gi.require_version("WebKit", "6.0")
+from gi.repository import WebKit  # noqa: E402
 
-try:
-    gi.require_version("Handy", "1")
-    from gi.repository import Handy
-except (ValueError, ImportError):
-    Handy = None
+gi.require_version("Adw", "1")
+from gi.repository import Adw  # noqa: E402
 
 libexecdir = os.path.realpath(__file__ + '/..')
 
@@ -60,10 +53,14 @@ SET_PDEATHSIG = 1
 @Gtk.Template(filename=f'{libexecdir}/cockpit-client.ui')
 class CockpitClientWindow(Gtk.ApplicationWindow):
     __gtype_name__ = 'CockpitClientWindow'
-    webview = Gtk.Template.Child()
+    webview_container = Gtk.Template.Child()
+    title = Gtk.Template.Child()
 
     def __init__(self, app, uri):
         super().__init__(application=app)
+
+        self.webview = WebKit.WebView(network_session=app.network_session, vexpand=True, hexpand=True)
+        self.webview_container.append(self.webview)
 
         self.add_action_entries([
             ('reload', self.reload),
@@ -84,6 +81,8 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         history.connect('changed', self.history_changed)
         self.history_changed()
 
+        self.webview.connect('notify::title', self.update_subtitle)
+
         if app.no_ui:
             self.set_titlebar(None)
             self.webview.bind_property('title', self, 'title')
@@ -91,6 +90,10 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
     def history_changed(self, *args):
         self.lookup_action('go-back').set_enabled(self.webview.can_go_back())
         self.lookup_action('go-forward').set_enabled(self.webview.can_go_forward())
+
+    def update_subtitle(self, webview, *args):
+        title = webview.get_title() or "Loading..."
+        self.title.set_label(title)
 
     def reload(self, *args):
         self.webview.reload()
@@ -105,13 +108,13 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         self.webview.go_forward()
 
     def decide_policy(self, _view, decision, decision_type):
-        if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
+        if decision_type == WebKit.PolicyDecisionType.NEW_WINDOW_ACTION:
             uri = decision.get_navigation_action().get_request().get_uri()
             if uri.startswith('http://127'):
                 logging.error('warning: no support for pop-ups')
             else:
-                # We can't get the timestamp from the request, so use Gdk.CURRENT_TIME (== 0)
-                Gtk.show_uri_on_window(self, uri, 0)
+                launcher = Gtk.UriLauncher.new(uri)
+                launcher.launch(self, None, None, None)
 
             decision.ignore()
             return True
@@ -165,13 +168,13 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         uc_manager = self.webview.get_user_content_manager()
         on_result_handler = uc_manager.connect(
             "script-message-received::result",
-            lambda _mgr, result: set_result(result.get_js_value().to_string()))
+            lambda _mgr, result: set_result(result.to_string()))
         uc_manager.register_script_message_handler("result")
 
         # wait for loads to complete, to avoid races and ensure that it did not fail
         on_load_handler = self.webview.connect(
             "load-changed",
-            lambda webview, event: set_result("page-load") if event == WebKit2.LoadEvent.FINISHED else None)
+            lambda webview, event: set_result("page-load") if event == WebKit.LoadEvent.FINISHED else None)
 
         self.webview.evaluate_javascript(parameter.get_string(), len(parameter.get_string()),
                                          None, None, None, run_js_ready, None)
@@ -195,8 +198,7 @@ class CockpitClient(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
-        if Handy and hasattr(Handy, 'StyleManager'):
-            Handy.StyleManager.get_default().set_color_scheme(Handy.ColorScheme.PREFER_LIGHT)
+        Adw.StyleManager.get_default().set_color_scheme(Adw.ColorScheme.PREFER_LIGHT)
 
         # .add_action_entries() binding is broken for GApplication
         # https://gitlab.gnome.org/GNOME/pygobject/-/issues/426
@@ -216,15 +218,12 @@ class CockpitClient(Gtk.Application):
         self.set_accels_for_action("win.zoom::default", ["<Primary>0"])
         self.set_accels_for_action("win.open-inspector", ["<Primary><Shift>i", "F12"])
 
-        context = WebKit2.WebContext.get_default()
-        data_manager = context.get_website_data_manager()
-        data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
-        context.set_sandbox_enabled(enabled=True)
-        context.set_cache_model(WebKit2.CacheModel.DOCUMENT_VIEWER)
+        self.network_session = WebKit.NetworkSession.get_default()
+        self.network_session.set_proxy_settings(WebKit.NetworkProxyMode.NO_PROXY)
 
         cookiesFile = os.path.join(get_user_state_dir(), "cockpit-client", "cookies.txt")
-        cookies = context.get_cookie_manager()
-        cookies.set_persistent_storage(cookiesFile, WebKit2.CookiePersistentStorage.TEXT)
+        cookie_manager = self.network_session.get_cookie_manager()
+        cookie_manager.set_persistent_storage(cookiesFile, WebKit.CookiePersistentStorage.TEXT)
 
         self.uri = self.ws.start()
 

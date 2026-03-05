@@ -153,7 +153,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
 
         def run_js_ready(webview, result, _user_data):
             try:
-                js_res = webview.run_javascript_finish(result).get_js_value()
+                js_res = webview.evaluate_javascript_finish(result)
                 print(f"run-js return value: {js_res.to_json(2)}")
             except GLib.GError as e:
                 sys.stderr.write(f"run-js error: {e.message}\n")
@@ -173,7 +173,8 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
             "load-changed",
             lambda webview, event: set_result("page-load") if event == WebKit2.LoadEvent.FINISHED else None)
 
-        self.webview.run_javascript(parameter.get_string(), None, run_js_ready, None)
+        self.webview.evaluate_javascript(parameter.get_string(), len(parameter.get_string()),
+                                         None, None, None, run_js_ready, None)
 
 
 class CockpitClient(Gtk.Application):

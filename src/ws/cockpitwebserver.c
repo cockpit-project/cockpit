@@ -1103,7 +1103,7 @@ cockpit_web_request_on_socket_input (GSocket *socket,
    * TLS streams are guaranteed to start with octet 22.. this way we can distinguish them
    * from regular HTTP requests. cockpit-ws no longer handles TLS.
    */
-  if (first_byte == 22 || first_byte == 0x80)
+  if (num_read && (first_byte == 22 || first_byte == 0x80))
     {
       g_warning ("Received unexpected TLS connection; use cockpit-tls for TLS termination");
       cockpit_web_request_finish (self);

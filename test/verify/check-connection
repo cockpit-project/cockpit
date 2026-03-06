@@ -543,7 +543,6 @@ class TestConnection(testlib.MachineCase):
             ".*Peer failed to perform TLS handshake",
             ".*Peer sent fatal TLS alert:.*",
             ".*invalid base64 data in Basic header",
-            "Received unexpected TLS connection and no certificate was configured",
             ".*Error performing TLS handshake: No supported cipher suites have been found.",
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")
 
@@ -577,10 +576,6 @@ class TestConnection(testlib.MachineCase):
         # now it should not redirect
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://172.27.0.15:9090"))
-
-        # FIXME: this message makes absolutely no sense in this test, and is not reproducible locally
-        # but it keeps happening in CI
-        self.allow_journal_messages("Received unexpected TLS connection; use cockpit-tls for TLS termination")
 
     @testlib.nondestructive
     @testlib.skipWsContainer("ws container doesn't have certs on the host")

@@ -609,9 +609,6 @@ class TestIPA(TestRealms, CommonTests):
         # does not leak any processes or the session itself
         wait_cockpit_sessions([])
 
-        # FIXME: Something above triggers this error message
-        self.allow_journal_messages("Received unexpected TLS connection and no certificate was configured")
-
     def checkBackendSpecificCleanup(self):
         """Check domain backend specific integration after leaving domain"""
 
@@ -841,9 +838,6 @@ ipa-advise enable-admins-sudo | sh -ex
         b.logout()
         m.execute("while ls /run/user/$(id -u alice)/*.ccache; do sleep 1; done")
         m.execute(f"! su -c '{ccache_env} klist' alice")
-
-        # FIXME: Something above triggers this error message
-        self.allow_journal_messages("Received unexpected TLS connection and no certificate was configured")
 
 
 @testlib.skipImage("adcli not on test images", "debian-*", "ubuntu-*")

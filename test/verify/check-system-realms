@@ -612,9 +612,6 @@ class TestIPA(TestRealms, CommonTests):
         # does not leak any processes or the session itself
         m.execute("while loginctl --no-legend list-sessions | grep -qi 'admin@COCKPIT.LAN.*web console'; do sleep 1; done", timeout=10)
 
-        # FIXME: Something above triggers this error message
-        self.allow_journal_messages("Received unexpected TLS connection and no certificate was configured")
-
     def checkBackendSpecificCleanup(self):
         """Check domain backend specific integration after leaving domain"""
 

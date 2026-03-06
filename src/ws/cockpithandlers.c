@@ -368,6 +368,9 @@ build_environment (CockpitAuth *auth, GHashTable *request_headers)
         json_object_set_string_member (object, "banner", contents);
     }
 
+  gboolean is_anaconda_mode = cockpit_conf_bool ("WebService", "Anaconda", FALSE);
+  json_object_set_boolean_member (object, "is_anaconda", is_anaconda_mode);
+
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);
 

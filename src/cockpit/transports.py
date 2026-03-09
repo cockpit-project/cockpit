@@ -387,7 +387,9 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
     def set_window_size(self, size: WindowSize) -> None:
         assert self._pty_fd is not None
-        fcntl.ioctl(self._pty_fd, termios.TIOCSWINSZ, struct.pack('2H4x', size.rows, size.cols))
+        rows = max(0, min(size.rows, 2**16 - 1))
+        cols = max(0, min(size.cols, 2**16 - 1))
+        fcntl.ioctl(self._pty_fd, termios.TIOCSWINSZ, struct.pack('2H4x', rows, cols))
 
     def can_write_eof(self) -> bool:
         assert self._process is not None

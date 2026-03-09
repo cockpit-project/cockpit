@@ -58,6 +58,7 @@ import logging
 import platform
 import sys
 import time
+from math import isclose
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, NamedTuple, Optional, Sequence, Union
 
 from cockpit.protocol import CockpitProblem
@@ -287,7 +288,7 @@ class PcpMetricsChannel(AsyncChannel):
 
             self.try_convert_unit(context, pm_desc, pm_units)
 
-            if units != parsed_units or factor != 1.0:
+            if units != parsed_units or not isclose(factor, 1.0):
                 pm_units = parsed_units
 
         return MetricInfo(pmid=pm_ids[0],
@@ -342,7 +343,7 @@ class PcpMetricsChannel(AsyncChannel):
             if metric_desc.derive:
                 desc['derive'] = metric_desc.derive
 
-            if metric_desc.factor == 1.0:
+            if isclose(metric_desc.factor, 1.0):
                 desc['units'] = str(metric_desc.units)
             else:
                 desc['units'] = f"{context.pmUnitsStr(metric_desc.units)}*{1.0 / metric_desc.factor}"

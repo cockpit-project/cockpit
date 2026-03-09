@@ -182,6 +182,23 @@ QUnit.test("pty window size", async assert => {
     assert.equal(await proc, '77\r\n88\r\n', 'Correct rows and columns');
 });
 
+QUnit.test("pty window size limits", async assert => {
+    let proc = cockpit.spawn(['stty', 'size'], {
+        pty: true,
+        environ: ["TERM=vt100"],
+        window: { rows: -1, cols: 65538 }
+    });
+    assert.equal(await proc, '0 65535\r\n', 'Clamps to 0x65535');
+
+    proc = cockpit.spawn(['stty', 'size'], {
+        pty: true,
+        environ: ["TERM=vt100"],
+        // HACK: tput fallback to 80 if cols are 0
+        window: { rows: 65538, cols: 0 }
+    });
+    assert.equal(await proc, '65535 0\r\n', 'Clamps to 65538x0');
+});
+
 QUnit.test("stream large output", async assert => {
     let lastblock = null;
     const resp = await cockpit.spawn(["seq", "10000000"])

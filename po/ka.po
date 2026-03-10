@@ -26,8 +26,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 09:10+0000\n"
-"PO-Revision-Date: 2026-02-13 12:58+0000\n"
+"POT-Creation-Date: 2026-03-04 09:17+0000\n"
+"PO-Revision-Date: 2026-03-07 01:58+0000\n"
 "Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
 "Language-Team: Georgian <https://translate.fedoraproject.org/projects/"
 "cockpit/cockpit/ka/>\n"
@@ -36,7 +36,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 5.15.2\n"
+"X-Generator: Weblate 5.16.2\n"
 
 #: pkg/users/accounts-list.js:236
 msgid "# of users"
@@ -160,13 +160,11 @@ msgstr "გადატარებულია $0 ფილტრი"
 msgid "$0 free"
 msgstr "$0 თავისუფალი"
 
-#: pkg/networkmanager/network-interface.jsx:1056
-#, fuzzy
-#| msgid "after network"
+#: pkg/networkmanager/network-interface.jsx:1030
 msgid "$0 hidden network"
 msgid_plural "$0 hidden networks"
-msgstr[0] "ქსელის ჩართვის შემდეგ"
-msgstr[1] "ქსელის ჩართვის შემდეგ"
+msgstr[0] "$0 დამალული ქსელი"
+msgstr[1] "$0 დამალული ქსელი"
 
 #: pkg/lib/cockpit-components-plot.jsx:217
 msgid "$0 hour"
@@ -249,12 +247,10 @@ msgid "$0 more..."
 msgstr "კიდევ $0..."
 
 #: pkg/networkmanager/network-main.jsx:99
-#, fuzzy
-#| msgid "network"
 msgid "$0 network"
 msgid_plural "$0 networks"
-msgstr[0] "ქსელი"
-msgstr[1] "ქსელი"
+msgstr[0] "$0 ქსელი"
+msgstr[1] "$0 ქსელი"
 
 #: pkg/packagekit/history.jsx:75
 msgid "$0 package"
@@ -656,16 +652,14 @@ msgid "A volume group with missing physical volumes can not be renamed."
 msgstr "ტომების ჯგუფს, რომელსაც ფიზიკური ტომები აკლია, სახელს ვერ გადაარქმევთ."
 
 #: pkg/networkmanager/interfaces.js:907
-#, fuzzy
-#| msgid "ARP"
 msgid "AP"
-msgstr "ARP"
+msgstr "AP"
 
 #: pkg/networkmanager/bond.jsx:41
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/network-interface.jsx:652
+#: pkg/networkmanager/network-interface.jsx:626
 msgid "ARP monitoring"
 msgstr "ARP-ის მონიტორინგი"
 
@@ -734,7 +728,7 @@ msgstr "ანგარიშები"
 msgid "Action"
 msgstr "ქმედება"
 
-#: pkg/networkmanager/network-interface.jsx:1111
+#: pkg/networkmanager/network-interface.jsx:1085
 #: pkg/networkmanager/firewall.jsx:198 pkg/apps/application-list.jsx:132
 #: pkg/users/accounts-list.js:360 pkg/storaged/pages.jsx:716
 #: pkg/storaged/drive/smart-details.jsx:92
@@ -985,11 +979,11 @@ msgstr "$target-ზე ფიზიკური მოცულობები�
 msgid "Adding rd.neednet=1 to kernel command line"
 msgstr "ბირთვის ბრძანების სტრიქონში rd.neednet=1 -ის დამატება"
 
-#: pkg/networkmanager/network-interface.jsx:533
+#: pkg/networkmanager/network-interface.jsx:507
 msgid "Additional DNS $val"
 msgstr "დამატებითი DNS $val"
 
-#: pkg/networkmanager/network-interface.jsx:536
+#: pkg/networkmanager/network-interface.jsx:510
 msgid "Additional DNS search domains $val"
 msgstr "DNS-ის დამატებითი საძებნი დომენები $val"
 
@@ -997,7 +991,7 @@ msgstr "DNS-ის დამატებითი საძებნი დო�
 msgid "Additional actions"
 msgstr "დამატებითი ქმედებები"
 
-#: pkg/networkmanager/network-interface.jsx:524
+#: pkg/networkmanager/network-interface.jsx:498
 msgid "Additional address $val"
 msgstr "დამატებითი მისამართი $val"
 
@@ -1015,7 +1009,7 @@ msgstr "დამატებითი პორტი"
 msgid "Address"
 msgstr "მისამართი"
 
-#: pkg/networkmanager/network-interface.jsx:524
+#: pkg/networkmanager/network-interface.jsx:498
 msgid "Address $val"
 msgstr "მისამართი $val"
 
@@ -1037,7 +1031,7 @@ msgstr "მისამართის ფორმატი არასწო�
 
 #: pkg/networkmanager/interfaces.js:903
 msgid "Adhoc"
-msgstr ""
+msgstr "Adhoc"
 
 #: src/systemd/org.cockpit-project.cockpit-bridge.policy.in:10
 msgid "Administration with Cockpit Web Console"
@@ -1310,7 +1304,7 @@ msgstr "SSH გასაღების ავტორიზაცია"
 msgid "Authorized public SSH keys"
 msgstr "ავტორიზებული საჯარო SSH გასაღებები"
 
-#: pkg/networkmanager/mtu.jsx:65 pkg/networkmanager/network-interface.jsx:608
+#: pkg/networkmanager/mtu.jsx:65 pkg/networkmanager/network-interface.jsx:582
 #: pkg/networkmanager/ip-settings.jsx:28 pkg/networkmanager/ip-settings.jsx:296
 #: pkg/networkmanager/ip-settings.jsx:342
 #: pkg/networkmanager/ip-settings.jsx:388
@@ -1349,12 +1343,10 @@ msgstr "მითითებული NTP სერვერების ავ
 msgid "Automation script"
 msgstr "ავტომატიზაციის სკრიპტი"
 
-#: pkg/networkmanager/network-interface.jsx:1102
-#: pkg/networkmanager/network-interface.jsx:1104
-#, fuzzy
-#| msgid "Available updates"
+#: pkg/networkmanager/network-interface.jsx:1076
+#: pkg/networkmanager/network-interface.jsx:1078
 msgid "Available networks"
-msgstr "ხელმისაწვდომი განახლებები"
+msgstr "ხელმისაწვდომი ქსელები"
 
 #: pkg/storaged/iscsi/create-dialog.jsx:94
 msgid "Available targets on $0"
@@ -1434,9 +1426,9 @@ msgstr "ბლოკური მოწყობილობები"
 msgid "Blocked"
 msgstr "დაბლოკილია"
 
-#: pkg/networkmanager/network-interface.jsx:402
-#: pkg/networkmanager/network-interface.jsx:416
-#: pkg/networkmanager/network-interface.jsx:658
+#: pkg/networkmanager/network-interface.jsx:376
+#: pkg/networkmanager/network-interface.jsx:390
+#: pkg/networkmanager/network-interface.jsx:632
 msgid "Bond"
 msgstr "ინტერფეისების გადაბმა"
 
@@ -1459,13 +1451,13 @@ msgstr "ჩატვირთვა გაგრძელდება, თუ �
 msgid "Bound by"
 msgstr "მიბმულია"
 
-#: pkg/networkmanager/network-interface.jsx:408
-#: pkg/networkmanager/network-interface.jsx:422
-#: pkg/networkmanager/network-interface.jsx:740
+#: pkg/networkmanager/network-interface.jsx:382
+#: pkg/networkmanager/network-interface.jsx:396
+#: pkg/networkmanager/network-interface.jsx:714
 msgid "Bridge"
 msgstr "ხიდი"
 
-#: pkg/networkmanager/network-interface.jsx:762
+#: pkg/networkmanager/network-interface.jsx:736
 msgid "Bridge port"
 msgstr "ხიდის პორტი"
 
@@ -1477,8 +1469,8 @@ msgstr "ხიდის პორტის მორგება"
 msgid "Broadcast"
 msgstr "გადაცემა"
 
-#: pkg/networkmanager/network-interface.jsx:671
-#: pkg/networkmanager/network-interface.jsx:707
+#: pkg/networkmanager/network-interface.jsx:645
+#: pkg/networkmanager/network-interface.jsx:681
 msgid "Broken configuration"
 msgstr "გაფუჭებული კონფიგურაცია"
 
@@ -1551,7 +1543,7 @@ msgstr ""
 #: pkg/packagekit/updates.jsx:515 pkg/packagekit/updates.jsx:548
 #: pkg/packagekit/kpatch.jsx:302 pkg/sosreport/sosreport.jsx:282
 #: pkg/sosreport/sosreport.jsx:370 pkg/metrics/metrics.jsx:1490
-#: pkg/lib/cockpit/dialog.tsx:1326 pkg/lib/cockpit-connect-ssh.tsx:175
+#: pkg/lib/cockpit/dialog.tsx:1350 pkg/lib/cockpit-connect-ssh.tsx:175
 #: pkg/lib/cockpit-connect-ssh.tsx:488
 #: pkg/lib/cockpit-components-dialog.jsx:114
 #: pkg/lib/cockpit-components-shutdown.jsx:223
@@ -1560,9 +1552,8 @@ msgstr ""
 #: pkg/shell/shell-modals.tsx:172 pkg/shell/credentials.tsx:229
 #: pkg/shell/hosts_dialog.jsx:275 pkg/shell/hosts_dialog.jsx:477
 #: pkg/shell/hosts_dialog.jsx:574 pkg/shell/hosts_dialog.jsx:710
-#: pkg/shell/hosts_dialog.jsx:1089 pkg/networkmanager/network-interface.jsx:233
-#: pkg/networkmanager/firewall.jsx:728 pkg/networkmanager/firewall.jsx:918
-#: pkg/networkmanager/firewall.jsx:942
+#: pkg/shell/hosts_dialog.jsx:1089 pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:918 pkg/networkmanager/firewall.jsx:942
 #: pkg/networkmanager/dialogs-common.jsx:146 pkg/apps/utils.tsx:78
 #: pkg/kdump/kdump-view.jsx:313 pkg/systemd/overview-cards/tuned-dialog.jsx:311
 #: pkg/systemd/overview-cards/motdCard.jsx:63
@@ -1609,7 +1600,7 @@ msgstr "მოვლენის წარსულ დროში დანი
 msgid "Capacity"
 msgstr "მოცულობა"
 
-#: pkg/networkmanager/network-interface.jsx:468
+#: pkg/networkmanager/network-interface.jsx:442
 msgid "Carrier"
 msgstr "გადამზიდი"
 
@@ -1674,7 +1665,7 @@ msgstr "სისტემური დროის შეცვლა"
 msgid "Change the password of $0"
 msgstr "$0-ის პაროლის შეცვლა"
 
-#: pkg/networkmanager/interfaces.js:1944
+#: pkg/networkmanager/interfaces.js:1947
 msgid "Change the settings"
 msgstr "პარამეტრების შეცვლა"
 
@@ -1702,7 +1693,7 @@ msgstr ""
 "საქაღალდის შეცვლა ამჟამად გაშვებულ პროცესს ნაძალადევად დაასრულებს. პროცესი, "
 "შეგიძლიათ, ხელით, ტერმინალიდანაც მოკლათ."
 
-#: pkg/networkmanager/interfaces.js:1943
+#: pkg/networkmanager/interfaces.js:1946
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1724,6 +1715,10 @@ msgstr ""
 #: pkg/storaged/crypto/tang.jsx:127
 msgid "Check the key hash with the Tang server."
 msgstr "გასაღების ჰეშის Tang სერვერთან შემოწმება."
+
+#: pkg/networkmanager/network-interface.jsx:164
+msgid "Check your password."
+msgstr "შეამოწმეთ თქვენი პაროლი."
 
 #: pkg/storaged/jobs-panel.jsx:38
 msgid "Checking $target"
@@ -2041,13 +2036,13 @@ msgstr "კონფლიქტშია"
 msgid "Conflicts"
 msgstr "კონფლიქტები"
 
-#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:228
-#: pkg/networkmanager/network-interface.jsx:1018
-#: pkg/networkmanager/network-interface.jsx:1019
+#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:206
+#: pkg/networkmanager/network-interface.jsx:992
+#: pkg/networkmanager/network-interface.jsx:993
 msgid "Connect"
 msgstr "დაკავშირება"
 
-#: pkg/networkmanager/network-interface.jsx:554
+#: pkg/networkmanager/network-interface.jsx:528
 msgid "Connect automatically"
 msgstr "ავტომატურად დაკავშირება"
 
@@ -2055,22 +2050,18 @@ msgstr "ავტომატურად დაკავშირება"
 msgid "Connect to"
 msgstr "დაკავშირება"
 
-#: pkg/networkmanager/network-interface.jsx:173
-#, fuzzy
-#| msgid "Connect to $0?"
+#: pkg/networkmanager/network-interface.jsx:175
 msgid "Connect to $0"
-msgstr "დავუკავშირდე $0-ს?"
+msgstr "$0-ისთან დაკავშირება"
 
 #: pkg/shell/hosts_dialog.jsx:253
 msgid "Connect to $0?"
 msgstr "დავუკავშირდე $0-ს?"
 
-#: pkg/networkmanager/network-interface.jsx:173
-#: pkg/networkmanager/network-interface.jsx:1088
-#, fuzzy
-#| msgid "Connecting to the machine"
+#: pkg/networkmanager/network-interface.jsx:175
+#: pkg/networkmanager/network-interface.jsx:1062
 msgid "Connect to hidden network"
-msgstr "მანქანასთან დაკავშირება"
+msgstr "დამალულ ქსელთან დაკავშირება"
 
 #: pkg/static/login.js:735
 msgid "Connect to:"
@@ -2456,7 +2447,7 @@ msgstr "DEFAULT-ი SHA-1 ხელმოწერის გადამოწ�
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/network-interface.jsx:533
+#: pkg/networkmanager/network-interface.jsx:507
 msgid "DNS $val"
 msgstr "DNS $val"
 
@@ -2464,7 +2455,7 @@ msgstr "DNS $val"
 msgid "DNS search domains"
 msgstr "DNS-ში საძებნი დომენები"
 
-#: pkg/networkmanager/network-interface.jsx:536
+#: pkg/networkmanager/network-interface.jsx:510
 msgid "DNS search domains $val"
 msgstr "DNS-ში საძებნი დომენები $val"
 
@@ -2621,7 +2612,7 @@ msgid "Delay must be a number"
 msgstr "დაყოვნება რიცხვი უნდა იყოს"
 
 #: pkg/sosreport/sosreport.jsx:364 pkg/sosreport/sosreport.jsx:463
-#: pkg/networkmanager/network-interface.jsx:1264
+#: pkg/networkmanager/network-interface.jsx:1238
 #: pkg/networkmanager/firewall.jsx:105 pkg/networkmanager/firewall.jsx:151
 #: pkg/networkmanager/firewall.jsx:165 pkg/networkmanager/firewall.jsx:939
 #: pkg/systemd/service-details.jsx:156 pkg/systemd/service-details.jsx:809
@@ -2646,7 +2637,7 @@ msgstr "დაყოვნება რიცხვი უნდა იყოს
 msgid "Delete"
 msgstr "წაშლა"
 
-#: pkg/networkmanager/network-interface.jsx:345
+#: pkg/networkmanager/network-interface.jsx:319
 #: pkg/users/delete-account-dialog.js:39
 msgid "Delete $0"
 msgstr "$0-ის წაშლა"
@@ -2675,7 +2666,7 @@ msgstr "პულის წაშლა"
 msgid "Delete report permanently?"
 msgstr "წავშალო ანგარიში სამუდამოდ?"
 
-#: pkg/networkmanager/network-interface.jsx:344
+#: pkg/networkmanager/network-interface.jsx:318
 msgid ""
 "Deleting $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -2836,8 +2827,8 @@ msgstr "პაროლით შესვლის აკრძალვა"
 msgid "Disallow running (mask)"
 msgstr "გაშვების აკრძალვა (შენიღბვა)"
 
-#: pkg/networkmanager/network-interface.jsx:1002
-#: pkg/networkmanager/network-interface.jsx:1003
+#: pkg/networkmanager/network-interface.jsx:976
+#: pkg/networkmanager/network-interface.jsx:977
 #: pkg/storaged/iscsi/session.jsx:41
 msgid "Disconnect"
 msgstr "გათიშვა"
@@ -3107,7 +3098,7 @@ msgstr "$target-ის დაცარიელება"
 msgid "Enable"
 msgstr "ჩართვა"
 
-#: pkg/networkmanager/network-interface.jsx:1223
+#: pkg/networkmanager/network-interface.jsx:1197
 msgid "Enable or disable the device"
 msgstr "მოწყობილობის ჩართვა ან გამორთვა"
 
@@ -3235,7 +3226,7 @@ msgstr "შეცდომა"
 msgid "Error and above"
 msgstr "შეცდომა და ზემოთ"
 
-#: pkg/lib/cockpit/dialog.tsx:1237
+#: pkg/lib/cockpit/dialog.tsx:1256
 msgid "Error during initialization"
 msgstr "შეცდომა ინიციალიზაციის მიმდინარეობისას"
 
@@ -3333,7 +3324,7 @@ msgstr "FIPS-ი სწორად არაა ჩართული"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "FIPS დამატებითი საერთო პირობის შეზღუდვებით."
 
-#: pkg/lib/cockpit/dialog.tsx:1261 pkg/lib/cockpit/dialog.tsx:1264
+#: pkg/lib/cockpit/dialog.tsx:1280 pkg/lib/cockpit/dialog.tsx:1283
 #: pkg/networkmanager/interfaces.js:895 pkg/storaged/mdraid/mdraid-disk.jsx:57
 msgid "Failed"
 msgstr "შეცდომით"
@@ -3383,23 +3374,13 @@ msgstr "პაროლის შეცვლის შეცდომა"
 msgid "Failed to configure PCP"
 msgstr "PCP-ის მორგების შეცდომა"
 
-#: pkg/networkmanager/network-interface.jsx:176
-#, fuzzy
-#| msgid "Failed to add zone"
+#: pkg/networkmanager/network-interface.jsx:162
 msgid "Failed to connect"
-msgstr "ზონის დამატების შეცდომა"
+msgstr "დაკავშირების შეცდომა"
 
-#: pkg/networkmanager/network-interface.jsx:883
-#, fuzzy
-#| msgid "Failed to delete alert: $0"
+#: pkg/networkmanager/network-interface.jsx:857
 msgid "Failed to connect to $0"
-msgstr "გაფრთხილების წაშლის შეცდომა: $0"
-
-#: pkg/networkmanager/network-interface.jsx:157
-#, fuzzy
-#| msgid "Failed to change password"
-msgid "Failed to connect. Check your password."
-msgstr "პაროლის შეცვლის შეცდომა"
+msgstr "$0-ისთან დაკავშირების შეცდომა"
 
 #: pkg/selinux/setroubleshoot-client.js:140
 #: pkg/selinux/setroubleshoot-client.js:144
@@ -3508,11 +3489,9 @@ msgstr "ფაილური სისტემა სამიზნის გ
 msgid "Filesystems are already mounted below this mountpoint."
 msgstr "ამ მიმაგრების წერტილის ქვეშ ფაილური სისტემები უკვე მიმაგრებულია."
 
-#: pkg/networkmanager/network-interface.jsx:1077
-#, fuzzy
-#| msgid "Filters"
+#: pkg/networkmanager/network-interface.jsx:1051
 msgid "Filter"
-msgstr "ფილტრები"
+msgstr "ფილტრი"
 
 #: pkg/systemd/services.jsx:810
 msgid "Filter by name or description"
@@ -3571,12 +3550,10 @@ msgstr "ძალით წაშლა"
 msgid "Force password change"
 msgstr "პაროლის ძალით შეცვლა"
 
-#: pkg/networkmanager/network-interface.jsx:1032
-#: pkg/networkmanager/network-interface.jsx:1033
-#, fuzzy
-#| msgid "Target"
+#: pkg/networkmanager/network-interface.jsx:1006
+#: pkg/networkmanager/network-interface.jsx:1007
 msgid "Forget"
-msgstr "სამიზნე"
+msgstr "დავიწყება"
 
 #: pkg/storaged/block/actions.jsx:17 pkg/storaged/block/format-dialog.jsx:261
 #: pkg/storaged/block/format-dialog.jsx:271
@@ -3604,7 +3581,7 @@ msgstr "მხოლოდ დაფორმატება"
 msgid "Formatting erases all data on a storage device."
 msgstr "ფორმატირება ბლოკურ მოწყობილობაზე მდებარე ყველა მონაცემს წაშლის."
 
-#: pkg/networkmanager/network-interface.jsx:732
+#: pkg/networkmanager/network-interface.jsx:706
 msgid "Forward delay $forward_delay"
 msgstr "გადაგზავნის დაყოვნება $forward_delay"
 
@@ -3634,11 +3611,11 @@ msgstr "სრული სახელი"
 msgid "Gateway"
 msgstr "რაუტერი"
 
-#: pkg/networkmanager/network-interface.jsx:529
+#: pkg/networkmanager/network-interface.jsx:503
 msgid "Gateway $gateway"
 msgstr "რაუტერი $gateway"
 
-#: pkg/networkmanager/network-interface.jsx:546
+#: pkg/networkmanager/network-interface.jsx:520
 msgid "General"
 msgstr "საერთო"
 
@@ -3666,7 +3643,7 @@ msgstr "გრაფიკის ხილვადობა"
 msgid "Graph visibility options menu"
 msgstr "გრაფიკის ხილვადობის პარამეტრების მენიუ"
 
-#: pkg/networkmanager/network-interface.jsx:631 pkg/users/accounts-list.js:359
+#: pkg/networkmanager/network-interface.jsx:605 pkg/users/accounts-list.js:359
 msgid "Group"
 msgstr "ჯგუფი"
 
@@ -3716,7 +3693,7 @@ msgstr "გადიდება მაქს. შესაძლო ზომ�
 msgid "Hair pin mode"
 msgstr "NAT Hairpin-ის რეჟიმი"
 
-#: pkg/networkmanager/network-interface.jsx:759
+#: pkg/networkmanager/network-interface.jsx:733
 msgid "Hairpin mode"
 msgstr "NAT hairpin რეჟიმი"
 
@@ -3736,7 +3713,7 @@ msgstr "ინფორმაცია აპარატურის შეს�
 msgid "Health"
 msgstr "ჯანმრთელობა"
 
-#: pkg/networkmanager/network-interface.jsx:734
+#: pkg/networkmanager/network-interface.jsx:708
 msgid "Hello time $hello_time"
 msgstr "მისალმების დრო $hello_time"
 
@@ -3749,8 +3726,7 @@ msgstr "დახმარება"
 msgid "Hide confirmation password"
 msgstr "დადასტურების პაროლის დამალვა"
 
-#: pkg/lib/cockpit-components-password.tsx:135
-#: pkg/networkmanager/network-interface.jsx:211
+#: pkg/lib/cockpit/dialog.tsx:1486 pkg/lib/cockpit-components-password.tsx:135
 msgid "Hide password"
 msgstr "პაროლის დამალვა"
 
@@ -3817,7 +3793,7 @@ msgstr "ვადასტურებ, მნებავს, ეს მონ�
 msgid "ID"
 msgstr "ID"
 
-#: pkg/networkmanager/network-interface.jsx:777
+#: pkg/networkmanager/network-interface.jsx:751
 msgid "ID $id"
 msgstr "ID $id"
 
@@ -3847,7 +3823,7 @@ msgstr ""
 msgid "IP addresses"
 msgstr "IP მისამართები"
 
-#: pkg/networkmanager/network-interface.jsx:799
+#: pkg/networkmanager/network-interface.jsx:773
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -3855,7 +3831,7 @@ msgstr "IPv4"
 msgid "IPv4 settings"
 msgstr "IPv4-ის მორგება"
 
-#: pkg/networkmanager/network-interface.jsx:800
+#: pkg/networkmanager/network-interface.jsx:774
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -3949,9 +3925,9 @@ msgstr "მიმდინარეობს"
 msgid "In sync"
 msgstr "სინქრონიზებულია"
 
-#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1624
-#: pkg/networkmanager/interfaces.js:1631
-#: pkg/networkmanager/network-interface.jsx:485
+#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1627
+#: pkg/networkmanager/interfaces.js:1634
+#: pkg/networkmanager/network-interface.jsx:459
 msgid "Inactive"
 msgstr "არააქტიური"
 
@@ -3996,7 +3972,7 @@ msgstr "ინფორმაცია და ზემოთ"
 
 #: pkg/networkmanager/interfaces.js:905
 msgid "Infra"
-msgstr ""
+msgstr "ინფრასტრუქტურა"
 
 #: pkg/storaged/partitions/format-disk-dialog.jsx:55
 msgid "Initialize"
@@ -4412,11 +4388,9 @@ msgstr "ბოლოს ვერ წაშლით"
 msgid "Last checked: $0"
 msgstr "ბოლოს შემოწმდა: $0"
 
-#: pkg/networkmanager/network-interface.jsx:974
-#, fuzzy
-#| msgid "Last checked: $0"
+#: pkg/networkmanager/network-interface.jsx:948
 msgid "Last connected: $0"
-msgstr "ბოლოს შემოწმდა: $0"
+msgstr "ბოლოს დაკავშირება: $0"
 
 #: pkg/storaged/mdraid/mdraid-disk.jsx:82
 msgid "Last disk can not be removed"
@@ -4800,7 +4774,7 @@ msgstr "MDRAID დისკები"
 msgid "MII (recommended)"
 msgstr "MII (რეკომენდებულია)"
 
-#: pkg/networkmanager/network-interface.jsx:611
+#: pkg/networkmanager/network-interface.jsx:585
 msgid "MTU"
 msgstr "MTU"
 
@@ -4925,7 +4899,7 @@ msgstr ""
 "იმაზე მეტი ეფექტი შეიძლება ჰქონეს, ვიდრე თქვენ გგონიათ. გთხოვთ დაადასტუროთ, "
 "რომ გნებავთ ამის გაკეთება."
 
-#: pkg/networkmanager/network-interface.jsx:736
+#: pkg/networkmanager/network-interface.jsx:710
 msgid "Maximum message age $max_age"
 msgstr "შეტყობინების მაქს. ვადა $max_age"
 
@@ -4958,7 +4932,7 @@ msgstr "შერწყმული"
 
 #: pkg/networkmanager/interfaces.js:909
 msgid "Mesh"
-msgstr ""
+msgstr "ბადე"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:182
 msgid "Message to logged in users"
@@ -5026,7 +5000,7 @@ msgstr "სარკისებური (RAID 1)"
 msgid "Mitigations"
 msgstr "დაცვის გეგმები"
 
-#: pkg/networkmanager/network-interface.jsx:1108
+#: pkg/networkmanager/network-interface.jsx:1082
 #: pkg/networkmanager/bond.jsx:164
 msgid "Mode"
 msgstr "რეჟიმი"
@@ -5264,7 +5238,7 @@ msgstr "საჭიროა ერთი NTP სერვერი მაი�
 
 #: pkg/metrics/metrics.jsx:929 pkg/metrics/metrics.jsx:1553
 #: pkg/metrics/metrics.jsx:1924 pkg/metrics/metrics.jsx:1937
-#: pkg/networkmanager/network-interface.jsx:1107
+#: pkg/networkmanager/network-interface.jsx:1081
 msgid "Network"
 msgstr "ქსელი"
 
@@ -5284,16 +5258,16 @@ msgstr "ქსელურ მოწყობილობებს და გრ
 msgid "Network logs"
 msgstr "ქსელის ჟურნალი"
 
-#: pkg/networkmanager/network-interface.jsx:179
-#, fuzzy
-#| msgid "Network usage"
+#: pkg/networkmanager/network-interface.jsx:182
 msgid "Network name"
-msgstr "ქსელის გამოყენება"
+msgstr "ქსელის სახელი"
 
-#: pkg/networkmanager/network-interface.jsx:880
+#: pkg/networkmanager/network-interface.jsx:854
 msgid ""
 "Network password is not stored. Please forget and reconnect to this network."
 msgstr ""
+"ქსელის პაროლის დამახსოვრება არ ხდება. დაივიწყეთ და დაუკავშირდით ამ ქსელს "
+"თავიდან."
 
 #: pkg/metrics/metrics.jsx:938
 msgid "Network usage"
@@ -5312,7 +5286,7 @@ msgid "Networked storage"
 msgstr "ქსელური საცავი"
 
 #: pkg/networkmanager/index.html:9
-#: pkg/networkmanager/network-interface.jsx:1244
+#: pkg/networkmanager/network-interface.jsx:1218
 #: pkg/networkmanager/firewall.jsx:1084 pkg/networkmanager/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_networkmanager.metainfo.xml.in:5
 msgid "Networking"
@@ -5371,7 +5345,7 @@ msgstr "ახალი პაროლი მიუღებელია"
 msgid "Next"
 msgstr "შემდეგი"
 
-#: pkg/networkmanager/network-interface.jsx:470
+#: pkg/networkmanager/network-interface.jsx:444
 msgid "No"
 msgstr "არა"
 
@@ -5399,7 +5373,7 @@ msgstr "ბლოკური მოწყობილობები ხელ�
 msgid "No block devices found"
 msgstr "ბლოკური მოწყობილობები აღმოჩენილი არაა"
 
-#: pkg/networkmanager/interfaces.js:1626
+#: pkg/networkmanager/interfaces.js:1629
 msgid "No carrier"
 msgstr "შეამოწმეთ კავშირი"
 
@@ -5598,7 +5572,7 @@ msgstr "განახლებების გარეშე"
 msgid "No user name specified"
 msgstr "მომხმარებელი მითითებული არაა"
 
-#: pkg/networkmanager/network-interface.jsx:192
+#: pkg/networkmanager/network-interface.jsx:189
 #: pkg/networkmanager/firewall.jsx:867 pkg/kdump/kdump-view.jsx:492
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:213
 msgid "None"
@@ -5654,7 +5628,7 @@ msgstr "ნაპოვნი არაა"
 msgid "Not installed"
 msgstr "დაყენებული არაა"
 
-#: pkg/networkmanager/network-interface.jsx:1218
+#: pkg/networkmanager/network-interface.jsx:1192
 msgid "Not permitted to configure network devices"
 msgstr "ქსელური მოწყობილობების მორგების უფლება არ გაქვთ"
 
@@ -5662,17 +5636,13 @@ msgstr "ქსელური მოწყობილობების მო�
 msgid "Not permitted to configure realms"
 msgstr "realm-ების მორგების წვდომა აკრძალულია"
 
-#: pkg/networkmanager/network-interface.jsx:1012
-#, fuzzy
-#| msgid "Not permitted to configure network devices"
+#: pkg/networkmanager/network-interface.jsx:986
 msgid "Not permitted to connect to network"
-msgstr "ქსელური მოწყობილობების მორგების უფლება არ გაქვთ"
+msgstr "ამ ქსელთან დაკავშირების უფლება არ გაქვთ"
 
-#: pkg/networkmanager/network-interface.jsx:992
-#, fuzzy
-#| msgid "Not permitted to configure network devices"
+#: pkg/networkmanager/network-interface.jsx:966
 msgid "Not permitted to disconnect network"
-msgstr "ქსელური მოწყობილობების მორგების უფლება არ გაქვთ"
+msgstr "ქსელთან კავშირის გაწყვეტის უფლება არ გაქვთ"
 
 #: pkg/lib/cockpit.js:2415
 msgid "Not permitted to perform this action."
@@ -5894,7 +5864,7 @@ msgstr "გვერდის სახელი"
 msgid "Parent"
 msgstr "მშობელი"
 
-#: pkg/networkmanager/network-interface.jsx:776
+#: pkg/networkmanager/network-interface.jsx:750
 msgid "Parent $parent"
 msgstr "მშობელი $parent"
 
@@ -5902,7 +5872,7 @@ msgstr "მშობელი $parent"
 msgid "Part of"
 msgstr "წარმოადგენს ნაწილს"
 
-#: pkg/networkmanager/interfaces.js:1655
+#: pkg/networkmanager/interfaces.js:1658
 msgid "Part of $0"
 msgstr "$0-ის ნაწილი"
 
@@ -5986,12 +5956,16 @@ msgstr "საკვანძო ფრაზები ერთმანეთ�
 #: pkg/lib/cockpit-connect-ssh.tsx:442 pkg/lib/superuser-dialogs.tsx:176
 #: pkg/shell/credentials.tsx:163 pkg/shell/credentials.tsx:222
 #: pkg/shell/credentials.tsx:309 pkg/shell/hosts_dialog.jsx:1036
-#: pkg/shell/hosts_dialog.jsx:1045 pkg/networkmanager/network-interface.jsx:199
+#: pkg/shell/hosts_dialog.jsx:1045 pkg/networkmanager/network-interface.jsx:197
 #: pkg/users/account-create-dialog.js:125 pkg/users/account-details.js:283
 #: pkg/storaged/iscsi/create-dialog.jsx:20
 #: pkg/storaged/iscsi/create-dialog.jsx:126
 msgid "Password"
 msgstr "პაროლი"
+
+#: pkg/networkmanager/network-interface.jsx:101
+msgid "Password can not be empty"
+msgstr "პაროლი არ შეიძლება, ცარიელი იყოს"
 
 #: pkg/shell/credentials.tsx:160
 msgid "Password changed successfully"
@@ -6049,7 +6023,7 @@ msgstr "ბილიკი"
 msgid "Path cost"
 msgstr "ბილიკის ღირებულება"
 
-#: pkg/networkmanager/network-interface.jsx:757
+#: pkg/networkmanager/network-interface.jsx:731
 msgid "Path cost $path_cost"
 msgstr "ბილიკის ფასი $path_cost"
 
@@ -6312,8 +6286,8 @@ msgstr "ძირითადი"
 msgid "Priority"
 msgstr "პრიორიტეტი"
 
-#: pkg/networkmanager/network-interface.jsx:730
-#: pkg/networkmanager/network-interface.jsx:755
+#: pkg/networkmanager/network-interface.jsx:704
+#: pkg/networkmanager/network-interface.jsx:729
 msgid "Priority $priority"
 msgstr "$priority პრიორიტეტი"
 
@@ -6465,9 +6439,9 @@ msgstr "დიაპაზონი მკაცრად უნდა იყო
 msgid "Rank"
 msgstr "რანგი"
 
-#: pkg/networkmanager/network-interface.jsx:1110
+#: pkg/networkmanager/network-interface.jsx:1084
 msgid "Rate"
-msgstr ""
+msgstr "სიჩქარე"
 
 #: pkg/kdump/kdump-view.jsx:463
 msgid "Raw to a device"
@@ -6574,9 +6548,9 @@ msgstr "აღდგენა"
 msgid "Recovering MDRAID device $target"
 msgstr "MDRAID მოწყობილობა $target-ის აღდგენა"
 
-#: pkg/networkmanager/network-interface.jsx:1096
+#: pkg/networkmanager/network-interface.jsx:1070
 msgid "Refresh"
-msgstr ""
+msgstr "განახლება"
 
 #: pkg/packagekit/updates.jsx:90
 msgid "Refreshing package information"
@@ -7114,6 +7088,10 @@ msgstr "SSH გასაღებით შესვლა"
 msgid "SSH keys"
 msgstr "SSH გასაღებები"
 
+#: pkg/networkmanager/network-interface.jsx:95
+msgid "SSID can not be empty"
+msgstr "SSID არ შეიძლება, ცარიელი იყოს"
+
 #: pkg/networkmanager/bridge.jsx:95
 msgid "STP forward delay"
 msgstr "STP გადამისამართების დაყოვნება"
@@ -7226,9 +7204,7 @@ msgstr "SSH-ის გასაღებები"
 msgid "Securely erasing $target"
 msgstr "$target-ის გარანტირებული წაშლა"
 
-#: pkg/networkmanager/network-interface.jsx:187
-#, fuzzy
-#| msgid "security"
+#: pkg/networkmanager/network-interface.jsx:186
 msgid "Security"
 msgstr "უსაფრთხოება"
 
@@ -7457,8 +7433,7 @@ msgstr "შეტყობინებების მითითებულ�
 msgid "Show more relationships"
 msgstr "მეტი ნათესაობის ჩვენება"
 
-#: pkg/lib/cockpit-components-password.tsx:135
-#: pkg/networkmanager/network-interface.jsx:211
+#: pkg/lib/cockpit/dialog.tsx:1486 pkg/lib/cockpit-components-password.tsx:135
 msgid "Show password"
 msgstr "პაროლის ჩვენება"
 
@@ -7493,13 +7468,13 @@ msgstr "გამორთვა"
 msgid "Shutdown"
 msgstr "გამორთვა"
 
-#: pkg/networkmanager/network-interface.jsx:1109
+#: pkg/networkmanager/network-interface.jsx:1083
 msgid "Signal"
-msgstr ""
+msgstr "სიგნალი"
 
-#: pkg/networkmanager/network-interface.jsx:983
+#: pkg/networkmanager/network-interface.jsx:957
 msgid "Signal strength"
-msgstr ""
+msgstr "სიგნალის სიძლიერე"
 
 #: pkg/systemd/logs.jsx:299
 msgid "Since"
@@ -7636,7 +7611,7 @@ msgstr "დალაგებულია ყველაზე ნაკლე�
 msgid "Space-saving computer"
 msgstr "პატარა ზომის კომპიუტერი"
 
-#: pkg/networkmanager/network-interface.jsx:728
+#: pkg/networkmanager/network-interface.jsx:702
 msgid "Spanning tree protocol"
 msgstr "Spanning tree protocol"
 
@@ -7714,7 +7689,7 @@ msgstr "მდგომარეობა"
 msgid "Static"
 msgstr "სტატიკური"
 
-#: pkg/packagekit/updates.jsx:886 pkg/networkmanager/network-interface.jsx:494
+#: pkg/packagekit/updates.jsx:886 pkg/networkmanager/network-interface.jsx:468
 #: pkg/systemd/service-details.jsx:728
 msgid "Status"
 msgstr "მდგომარეობა"
@@ -7887,13 +7862,13 @@ msgstr "სვოპის ზომას აქ ვერ შეცვლი�
 msgid "Swap out"
 msgstr "გამოყენებული სვაპი"
 
-#: pkg/networkmanager/network-interface.jsx:391
+#: pkg/networkmanager/network-interface.jsx:365
 #: pkg/networkmanager/network-interface-members.jsx:54
 #: pkg/networkmanager/network-interface-members.jsx:74
 msgid "Switch off $0"
 msgstr "$0-ის გამორთვა"
 
-#: pkg/networkmanager/network-interface.jsx:372
+#: pkg/networkmanager/network-interface.jsx:346
 #: pkg/networkmanager/network-interface-members.jsx:65
 msgid "Switch on $0"
 msgstr "$0-ის ჩართვა"
@@ -7906,7 +7881,7 @@ msgstr "ადმინისტრატორის წვდომაზე �
 msgid "Switch to limited access"
 msgstr "შეზღუდულ წვდომებზე გადართვა"
 
-#: pkg/networkmanager/network-interface.jsx:390
+#: pkg/networkmanager/network-interface.jsx:364
 #: pkg/networkmanager/network-interface-members.jsx:73
 msgid ""
 "Switching off $0 will break the connection to the server, and will make the "
@@ -7915,7 +7890,7 @@ msgstr ""
 "$0-ის გათიშვა დაარღვევს სერვერთან კავშირს და შეუძლებელს გახდის "
 "ადმინისტრირების ინტერფეისთან წვდომას."
 
-#: pkg/networkmanager/network-interface.jsx:371
+#: pkg/networkmanager/network-interface.jsx:345
 #: pkg/networkmanager/network-interface-members.jsx:64
 msgid ""
 "Switching on $0 will break the connection to the server, and will make the "
@@ -7989,13 +7964,13 @@ msgstr "სამიზნე"
 msgid "Targets"
 msgstr "სამიზნეები"
 
-#: pkg/networkmanager/network-interface.jsx:404
-#: pkg/networkmanager/network-interface.jsx:418
-#: pkg/networkmanager/network-interface.jsx:683
+#: pkg/networkmanager/network-interface.jsx:378
+#: pkg/networkmanager/network-interface.jsx:392
+#: pkg/networkmanager/network-interface.jsx:657
 msgid "Team"
 msgstr "გუნდი"
 
-#: pkg/networkmanager/network-interface.jsx:713
+#: pkg/networkmanager/network-interface.jsx:687
 msgid "Team port"
 msgstr "Team-ის პორტები"
 
@@ -8461,7 +8436,7 @@ msgstr "ეს ბრძანება შესრულდება პრო
 msgid "This device can not be used for the installation target."
 msgstr "ამ მოწყობილობას დაყენების სამიზნედ ვერ გამოიყენებთ."
 
-#: pkg/networkmanager/network-interface.jsx:1285
+#: pkg/networkmanager/network-interface.jsx:1259
 msgid "This device cannot be managed here."
 msgstr "მოწყობილობა აქედან ვერ იმართება."
 
@@ -9027,16 +9002,16 @@ msgstr "ერთეული"
 #: pkg/lib/machine-info.js:232 pkg/lib/machine-info.js:234
 #: pkg/lib/machine-info.js:238 pkg/networkmanager/interfaces.js:538
 #: pkg/networkmanager/interfaces.js:911 pkg/networkmanager/interfaces.js:1167
-#: pkg/networkmanager/network-interface.jsx:428
-#: pkg/networkmanager/network-interface.jsx:430 pkg/systemd/hw-detect.js:71
+#: pkg/networkmanager/network-interface.jsx:402
+#: pkg/networkmanager/network-interface.jsx:404 pkg/systemd/hw-detect.js:71
 #: pkg/systemd/hw-detect.js:80 pkg/systemd/hw-detect.js:87
 #: pkg/systemd/hw-detect.js:90 pkg/systemd/hw-detect.js:97
 #: pkg/systemd/hw-detect.js:98 pkg/storaged/swap/swap.jsx:102
 msgid "Unknown"
 msgstr "უცნობი"
 
-#: pkg/networkmanager/network-interface.jsx:412
-#: pkg/networkmanager/network-interface.jsx:426
+#: pkg/networkmanager/network-interface.jsx:386
+#: pkg/networkmanager/network-interface.jsx:400
 msgid "Unknown \"$0\""
 msgstr "უცნობი \"$0\""
 
@@ -9048,7 +9023,7 @@ msgstr "უცნობი ($0)"
 msgid "Unknown application"
 msgstr "უცნობი აპლიკაცია"
 
-#: pkg/networkmanager/network-interface.jsx:515
+#: pkg/networkmanager/network-interface.jsx:489
 msgid "Unknown configuration"
 msgstr "უცნობი კონფიგურაცია"
 
@@ -9338,9 +9313,9 @@ msgstr "VDO მოწყობილობა: $0"
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO ფაილური სისტემის საცავი (შეკუმშვა/დედუპლიკაცია)"
 
-#: pkg/networkmanager/network-interface.jsx:406
-#: pkg/networkmanager/network-interface.jsx:420
-#: pkg/networkmanager/network-interface.jsx:780
+#: pkg/networkmanager/network-interface.jsx:380
+#: pkg/networkmanager/network-interface.jsx:394
+#: pkg/networkmanager/network-interface.jsx:754
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -9485,9 +9460,9 @@ msgstr "ტომების ჯგუფს ფიზიკური ტომ
 msgid "Volume size is $0. Content size is $1."
 msgstr "საცავის ზომაა $0. შემცველობის კი $1."
 
-#: pkg/networkmanager/network-interface.jsx:193
+#: pkg/networkmanager/network-interface.jsx:190
 msgid "WPA/WPA2 Personal"
-msgstr ""
+msgstr "WPA/WPA2 Personal"
 
 #: pkg/networkmanager/interfaces.js:889
 msgid "Waiting"
@@ -9583,7 +9558,7 @@ msgstr "თეთრი"
 msgid "Will be set to \"Automatic\""
 msgstr "დაყენებული იქნება \"ავტომატურზე\""
 
-#: pkg/networkmanager/network-interface.jsx:793
+#: pkg/networkmanager/network-interface.jsx:767
 msgid "WireGuard"
 msgstr "WireGuard"
 
@@ -9616,7 +9591,7 @@ msgstr "XOR"
 msgid "Yearly"
 msgstr "წლიურად"
 
-#: pkg/networkmanager/network-interface.jsx:470
+#: pkg/networkmanager/network-interface.jsx:444
 msgid "Yes"
 msgstr "დიახ"
 
@@ -9847,7 +9822,7 @@ msgstr "coredump"
 msgid "cpu"
 msgstr "პროცესორი"
 
-#: pkg/kdump/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/kdump/manifest.json:0
 msgid "crash"
 msgstr "ავარია"
 
@@ -9911,7 +9886,7 @@ msgstr "დომენი"
 msgid "drive"
 msgstr "დისკი"
 
-#: pkg/networkmanager/network-interface.jsx:579
+#: pkg/networkmanager/network-interface.jsx:553
 #: pkg/networkmanager/dialogs-common.jsx:242
 #: pkg/systemd/overview-cards/configurationCard.jsx:43
 #: pkg/users/account-details.js:278 pkg/users/account-details.js:308
@@ -10206,7 +10181,7 @@ msgstr "მიმაგრება"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "ქსელი"
 
@@ -10252,9 +10227,9 @@ msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "$0-ზე"
 
-#: pkg/networkmanager/network-interface.jsx:961
+#: pkg/networkmanager/network-interface.jsx:935
 msgid "open"
-msgstr ""
+msgstr "ღია"
 
 #: pkg/systemd/manifest.json:0
 msgid "operating system"
@@ -10380,11 +10355,9 @@ msgstr "როლები"
 msgid "running $0"
 msgstr "$0-ის გაშვება"
 
-#: pkg/networkmanager/network-interface.jsx:960
-#, fuzzy
-#| msgid "security"
+#: pkg/networkmanager/network-interface.jsx:934
 msgid "secured"
-msgstr "უსაფრთხოება"
+msgstr "დაცული"
 
 #: pkg/packagekit/updates.jsx:183 pkg/packagekit/updates.jsx:280
 #: pkg/packagekit/manifest.json:0
@@ -10451,7 +10424,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "sos-ის ანგარიშის შეცდომა"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -10597,6 +10570,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "ზონა"
+
+#~ msgid "Failed to connect. Check your password."
+#~ msgstr "დაკავშირების შეცდომა. შეამოწმეთ თქვენი პაროლი."
 
 #~ msgid "Command not found"
 #~ msgstr "ბრძანება ნაპოვნი არაა"

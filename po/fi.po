@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 09:10+0000\n"
+"POT-Creation-Date: 2026-03-04 09:17+0000\n"
 "PO-Revision-Date: 2026-02-01 02:58+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -142,7 +142,7 @@ msgstr "$0 suodatinta toteutettu"
 msgid "$0 free"
 msgstr "$0 vapaa"
 
-#: pkg/networkmanager/network-interface.jsx:1056
+#: pkg/networkmanager/network-interface.jsx:1030
 #, fuzzy
 #| msgid "$0 network"
 msgid "$0 hidden network"
@@ -654,7 +654,7 @@ msgstr "ARP"
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/network-interface.jsx:652
+#: pkg/networkmanager/network-interface.jsx:626
 msgid "ARP monitoring"
 msgstr "ARP-monitorointi"
 
@@ -723,7 +723,7 @@ msgstr "Käyttäjätilit"
 msgid "Action"
 msgstr "Toiminto"
 
-#: pkg/networkmanager/network-interface.jsx:1111
+#: pkg/networkmanager/network-interface.jsx:1085
 #: pkg/networkmanager/firewall.jsx:198 pkg/apps/application-list.jsx:132
 #: pkg/users/accounts-list.js:360 pkg/storaged/pages.jsx:716
 #: pkg/storaged/drive/smart-details.jsx:92
@@ -977,11 +977,11 @@ msgstr "Lisätään fyysinen taltio $target:een"
 msgid "Adding rd.neednet=1 to kernel command line"
 msgstr "Lisätään rd.neednet=1 kernelin komentoriville"
 
-#: pkg/networkmanager/network-interface.jsx:533
+#: pkg/networkmanager/network-interface.jsx:507
 msgid "Additional DNS $val"
 msgstr "Ylimääräinen DNS $val"
 
-#: pkg/networkmanager/network-interface.jsx:536
+#: pkg/networkmanager/network-interface.jsx:510
 msgid "Additional DNS search domains $val"
 msgstr "Lisä DNS-hakutoimialueita $val"
 
@@ -989,7 +989,7 @@ msgstr "Lisä DNS-hakutoimialueita $val"
 msgid "Additional actions"
 msgstr "Ylimääräiset toimet"
 
-#: pkg/networkmanager/network-interface.jsx:524
+#: pkg/networkmanager/network-interface.jsx:498
 msgid "Additional address $val"
 msgstr "Ylimääräinen osoite $val"
 
@@ -1007,7 +1007,7 @@ msgstr "Ylimääräinen portti"
 msgid "Address"
 msgstr "Osoite"
 
-#: pkg/networkmanager/network-interface.jsx:524
+#: pkg/networkmanager/network-interface.jsx:498
 msgid "Address $val"
 msgstr "Osoite $val"
 
@@ -1305,7 +1305,7 @@ msgstr "Valtuuta SSH-avain"
 msgid "Authorized public SSH keys"
 msgstr "Valtuutetut julkiset SSH-avaimet"
 
-#: pkg/networkmanager/mtu.jsx:65 pkg/networkmanager/network-interface.jsx:608
+#: pkg/networkmanager/mtu.jsx:65 pkg/networkmanager/network-interface.jsx:582
 #: pkg/networkmanager/ip-settings.jsx:28 pkg/networkmanager/ip-settings.jsx:296
 #: pkg/networkmanager/ip-settings.jsx:342
 #: pkg/networkmanager/ip-settings.jsx:388
@@ -1344,8 +1344,8 @@ msgstr "Käytetään automaattisesti tiettyjä NTP-palvelimia"
 msgid "Automation script"
 msgstr "Automaatio-komentosarja"
 
-#: pkg/networkmanager/network-interface.jsx:1102
-#: pkg/networkmanager/network-interface.jsx:1104
+#: pkg/networkmanager/network-interface.jsx:1076
+#: pkg/networkmanager/network-interface.jsx:1078
 #, fuzzy
 #| msgid "No virtual networks"
 msgid "Available networks"
@@ -1429,9 +1429,9 @@ msgstr "Lohkolaitteet"
 msgid "Blocked"
 msgstr "Estetty"
 
-#: pkg/networkmanager/network-interface.jsx:402
-#: pkg/networkmanager/network-interface.jsx:416
-#: pkg/networkmanager/network-interface.jsx:658
+#: pkg/networkmanager/network-interface.jsx:376
+#: pkg/networkmanager/network-interface.jsx:390
+#: pkg/networkmanager/network-interface.jsx:632
 msgid "Bond"
 msgstr "Side"
 
@@ -1454,13 +1454,13 @@ msgstr "Käynnistys onnistuu vaikka tiedostojärjestelmä ei liity"
 msgid "Bound by"
 msgstr "Sillä sidottu"
 
-#: pkg/networkmanager/network-interface.jsx:408
-#: pkg/networkmanager/network-interface.jsx:422
-#: pkg/networkmanager/network-interface.jsx:740
+#: pkg/networkmanager/network-interface.jsx:382
+#: pkg/networkmanager/network-interface.jsx:396
+#: pkg/networkmanager/network-interface.jsx:714
 msgid "Bridge"
 msgstr "Silta"
 
-#: pkg/networkmanager/network-interface.jsx:762
+#: pkg/networkmanager/network-interface.jsx:736
 msgid "Bridge port"
 msgstr "Sillan portti"
 
@@ -1472,8 +1472,8 @@ msgstr "Sillan porttiasetukset"
 msgid "Broadcast"
 msgstr "Yleislähetys"
 
-#: pkg/networkmanager/network-interface.jsx:671
-#: pkg/networkmanager/network-interface.jsx:707
+#: pkg/networkmanager/network-interface.jsx:645
+#: pkg/networkmanager/network-interface.jsx:681
 msgid "Broken configuration"
 msgstr "Rikkinäinen kokoonpano"
 
@@ -1545,7 +1545,7 @@ msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 #: pkg/packagekit/updates.jsx:515 pkg/packagekit/updates.jsx:548
 #: pkg/packagekit/kpatch.jsx:302 pkg/sosreport/sosreport.jsx:282
 #: pkg/sosreport/sosreport.jsx:370 pkg/metrics/metrics.jsx:1490
-#: pkg/lib/cockpit/dialog.tsx:1326 pkg/lib/cockpit-connect-ssh.tsx:175
+#: pkg/lib/cockpit/dialog.tsx:1350 pkg/lib/cockpit-connect-ssh.tsx:175
 #: pkg/lib/cockpit-connect-ssh.tsx:488
 #: pkg/lib/cockpit-components-dialog.jsx:114
 #: pkg/lib/cockpit-components-shutdown.jsx:223
@@ -1554,9 +1554,8 @@ msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 #: pkg/shell/shell-modals.tsx:172 pkg/shell/credentials.tsx:229
 #: pkg/shell/hosts_dialog.jsx:275 pkg/shell/hosts_dialog.jsx:477
 #: pkg/shell/hosts_dialog.jsx:574 pkg/shell/hosts_dialog.jsx:710
-#: pkg/shell/hosts_dialog.jsx:1089 pkg/networkmanager/network-interface.jsx:233
-#: pkg/networkmanager/firewall.jsx:728 pkg/networkmanager/firewall.jsx:918
-#: pkg/networkmanager/firewall.jsx:942
+#: pkg/shell/hosts_dialog.jsx:1089 pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:918 pkg/networkmanager/firewall.jsx:942
 #: pkg/networkmanager/dialogs-common.jsx:146 pkg/apps/utils.tsx:78
 #: pkg/kdump/kdump-view.jsx:313 pkg/systemd/overview-cards/tuned-dialog.jsx:311
 #: pkg/systemd/overview-cards/motdCard.jsx:63
@@ -1605,7 +1604,7 @@ msgstr "Tapahtumaa ei voi aikatauluttaa menneisyyteen"
 msgid "Capacity"
 msgstr "Koko"
 
-#: pkg/networkmanager/network-interface.jsx:468
+#: pkg/networkmanager/network-interface.jsx:442
 msgid "Carrier"
 msgstr "Kuljetin"
 
@@ -1670,7 +1669,7 @@ msgstr "Vaihda järjestelmän aika"
 msgid "Change the password of $0"
 msgstr "Vaihda avaimen $0 salasana"
 
-#: pkg/networkmanager/interfaces.js:1944
+#: pkg/networkmanager/interfaces.js:1947
 msgid "Change the settings"
 msgstr "Vaihda asetuksia"
 
@@ -1698,7 +1697,7 @@ msgstr ""
 "prosessin. Prosessi voidaan pysäyttää myös manuaalisesti terminaalissa ennen "
 "jatkamista."
 
-#: pkg/networkmanager/interfaces.js:1943
+#: pkg/networkmanager/interfaces.js:1946
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1720,6 +1719,12 @@ msgstr ""
 #: pkg/storaged/crypto/tang.jsx:127
 msgid "Check the key hash with the Tang server."
 msgstr "Tarkasta avaimen tarkistussumma käyttäen Tang-palvelinta."
+
+#: pkg/networkmanager/network-interface.jsx:164
+#, fuzzy
+#| msgid "Key password"
+msgid "Check your password."
+msgstr "Avaimen salasana"
 
 #: pkg/storaged/jobs-panel.jsx:38
 msgid "Checking $target"
@@ -2035,13 +2040,13 @@ msgstr "Näiden kanssa ristiriitainen"
 msgid "Conflicts"
 msgstr "Ristiriidat"
 
-#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:228
-#: pkg/networkmanager/network-interface.jsx:1018
-#: pkg/networkmanager/network-interface.jsx:1019
+#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:206
+#: pkg/networkmanager/network-interface.jsx:992
+#: pkg/networkmanager/network-interface.jsx:993
 msgid "Connect"
 msgstr "Yhdistä"
 
-#: pkg/networkmanager/network-interface.jsx:554
+#: pkg/networkmanager/network-interface.jsx:528
 msgid "Connect automatically"
 msgstr "Yhdistä automaattisesti"
 
@@ -2049,7 +2054,7 @@ msgstr "Yhdistä automaattisesti"
 msgid "Connect to"
 msgstr "Yhdistä"
 
-#: pkg/networkmanager/network-interface.jsx:173
+#: pkg/networkmanager/network-interface.jsx:175
 #, fuzzy
 #| msgid "Connect to $0?"
 msgid "Connect to $0"
@@ -2059,8 +2064,8 @@ msgstr "Yhdistetäänkö $0:aan?"
 msgid "Connect to $0?"
 msgstr "Yhdistetäänkö $0:aan?"
 
-#: pkg/networkmanager/network-interface.jsx:173
-#: pkg/networkmanager/network-interface.jsx:1088
+#: pkg/networkmanager/network-interface.jsx:175
+#: pkg/networkmanager/network-interface.jsx:1062
 #, fuzzy
 #| msgid "Connecting to the machine"
 msgid "Connect to hidden network"
@@ -2450,7 +2455,7 @@ msgstr "OLETUS, SHA-1-allekirjoituksen vahvistus sallittu."
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/network-interface.jsx:533
+#: pkg/networkmanager/network-interface.jsx:507
 msgid "DNS $val"
 msgstr "DNS $val"
 
@@ -2458,7 +2463,7 @@ msgstr "DNS $val"
 msgid "DNS search domains"
 msgstr "DNS-hakutoimialueet"
 
-#: pkg/networkmanager/network-interface.jsx:536
+#: pkg/networkmanager/network-interface.jsx:510
 msgid "DNS search domains $val"
 msgstr "DNS-hakutoimialueet $val"
 
@@ -2617,7 +2622,7 @@ msgid "Delay must be a number"
 msgstr "Viiveen tulee olla numero"
 
 #: pkg/sosreport/sosreport.jsx:364 pkg/sosreport/sosreport.jsx:463
-#: pkg/networkmanager/network-interface.jsx:1264
+#: pkg/networkmanager/network-interface.jsx:1238
 #: pkg/networkmanager/firewall.jsx:105 pkg/networkmanager/firewall.jsx:151
 #: pkg/networkmanager/firewall.jsx:165 pkg/networkmanager/firewall.jsx:939
 #: pkg/systemd/service-details.jsx:156 pkg/systemd/service-details.jsx:809
@@ -2642,7 +2647,7 @@ msgstr "Viiveen tulee olla numero"
 msgid "Delete"
 msgstr "Poista"
 
-#: pkg/networkmanager/network-interface.jsx:345
+#: pkg/networkmanager/network-interface.jsx:319
 #: pkg/users/delete-account-dialog.js:39
 msgid "Delete $0"
 msgstr "Poista $0"
@@ -2671,7 +2676,7 @@ msgstr "Poista varanto"
 msgid "Delete report permanently?"
 msgstr "Poista raportti pysyvästi?"
 
-#: pkg/networkmanager/network-interface.jsx:344
+#: pkg/networkmanager/network-interface.jsx:318
 msgid ""
 "Deleting $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -2829,8 +2834,8 @@ msgstr "Kiellä salasanalla tunnistautuminen"
 msgid "Disallow running (mask)"
 msgstr "Estä suorittaminen (piilota)"
 
-#: pkg/networkmanager/network-interface.jsx:1002
-#: pkg/networkmanager/network-interface.jsx:1003
+#: pkg/networkmanager/network-interface.jsx:976
+#: pkg/networkmanager/network-interface.jsx:977
 #: pkg/storaged/iscsi/session.jsx:41
 msgid "Disconnect"
 msgstr "Katkaise yhteys"
@@ -3102,7 +3107,7 @@ msgstr "Tyhjennetään $target"
 msgid "Enable"
 msgstr "Ota käyttöön"
 
-#: pkg/networkmanager/network-interface.jsx:1223
+#: pkg/networkmanager/network-interface.jsx:1197
 msgid "Enable or disable the device"
 msgstr "Ota laite käyttöön tai poista se käytöstä"
 
@@ -3230,7 +3235,7 @@ msgstr "Virhe"
 msgid "Error and above"
 msgstr "Virhe ja yli"
 
-#: pkg/lib/cockpit/dialog.tsx:1237
+#: pkg/lib/cockpit/dialog.tsx:1256
 msgid "Error during initialization"
 msgstr ""
 
@@ -3330,7 +3335,7 @@ msgstr "FIPS ei ole otettu oikein käyttöön"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "FIPS jossa muita yleisiä kriteerejä koskevia rajoituksia."
 
-#: pkg/lib/cockpit/dialog.tsx:1261 pkg/lib/cockpit/dialog.tsx:1264
+#: pkg/lib/cockpit/dialog.tsx:1280 pkg/lib/cockpit/dialog.tsx:1283
 #: pkg/networkmanager/interfaces.js:895 pkg/storaged/mdraid/mdraid-disk.jsx:57
 msgid "Failed"
 msgstr "Epäonnistui"
@@ -3380,23 +3385,17 @@ msgstr "Salasanan vaihtaminen epäonnistui"
 msgid "Failed to configure PCP"
 msgstr "PCP:n määritys epäonnistui"
 
-#: pkg/networkmanager/network-interface.jsx:176
+#: pkg/networkmanager/network-interface.jsx:162
 #, fuzzy
 #| msgid "Failed to add zone"
 msgid "Failed to connect"
 msgstr "Vyöhykkeen lisääminen epäonnistui"
 
-#: pkg/networkmanager/network-interface.jsx:883
+#: pkg/networkmanager/network-interface.jsx:857
 #, fuzzy
 #| msgid "Failed to delete alert: $0"
 msgid "Failed to connect to $0"
 msgstr "Hälytyksen tuhoaminen epäonnistui: $0"
-
-#: pkg/networkmanager/network-interface.jsx:157
-#, fuzzy
-#| msgid "Failed to change password"
-msgid "Failed to connect. Check your password."
-msgstr "Salasanan vaihtaminen epäonnistui"
 
 #: pkg/selinux/setroubleshoot-client.js:140
 #: pkg/selinux/setroubleshoot-client.js:144
@@ -3507,7 +3506,7 @@ msgstr "Tiedostojärjestelmä kohteen ulkopuolella"
 msgid "Filesystems are already mounted below this mountpoint."
 msgstr "Tiedostojärjestelmät ovat jo liitetty tämän liitoskohdan alapuolelle."
 
-#: pkg/networkmanager/network-interface.jsx:1077
+#: pkg/networkmanager/network-interface.jsx:1051
 #, fuzzy
 #| msgid "Filters"
 msgid "Filter"
@@ -3570,8 +3569,8 @@ msgstr "Pakota poisto"
 msgid "Force password change"
 msgstr "Pakota salasanan vaihdos"
 
-#: pkg/networkmanager/network-interface.jsx:1032
-#: pkg/networkmanager/network-interface.jsx:1033
+#: pkg/networkmanager/network-interface.jsx:1006
+#: pkg/networkmanager/network-interface.jsx:1007
 #, fuzzy
 #| msgid "Target"
 msgid "Forget"
@@ -3603,7 +3602,7 @@ msgstr "Vain alustus"
 msgid "Formatting erases all data on a storage device."
 msgstr "Talletuslaitteen alustaminen tuhoaa kaiken sillä olevan datan."
 
-#: pkg/networkmanager/network-interface.jsx:732
+#: pkg/networkmanager/network-interface.jsx:706
 msgid "Forward delay $forward_delay"
 msgstr "Edelleenohjauksen viive $forward_delay"
 
@@ -3633,11 +3632,11 @@ msgstr "Koko nimi"
 msgid "Gateway"
 msgstr "Yhdyskäytävä"
 
-#: pkg/networkmanager/network-interface.jsx:529
+#: pkg/networkmanager/network-interface.jsx:503
 msgid "Gateway $gateway"
 msgstr "Yhdyskäytävä $gateway"
 
-#: pkg/networkmanager/network-interface.jsx:546
+#: pkg/networkmanager/network-interface.jsx:520
 msgid "General"
 msgstr "Yleinen"
 
@@ -3665,7 +3664,7 @@ msgstr "Kaavion näkyvyys"
 msgid "Graph visibility options menu"
 msgstr "Kaavion näkyvyysasetusvalikko"
 
-#: pkg/networkmanager/network-interface.jsx:631 pkg/users/accounts-list.js:359
+#: pkg/networkmanager/network-interface.jsx:605 pkg/users/accounts-list.js:359
 msgid "Group"
 msgstr "Ryhmä"
 
@@ -3715,7 +3714,7 @@ msgstr "Kasvata viemään koko tilan"
 msgid "Hair pin mode"
 msgstr "Hair Pin -tila"
 
-#: pkg/networkmanager/network-interface.jsx:759
+#: pkg/networkmanager/network-interface.jsx:733
 msgid "Hairpin mode"
 msgstr "Hairpin-tila"
 
@@ -3735,7 +3734,7 @@ msgstr "Laitteistotiedot"
 msgid "Health"
 msgstr "Terveys"
 
-#: pkg/networkmanager/network-interface.jsx:734
+#: pkg/networkmanager/network-interface.jsx:708
 msgid "Hello time $hello_time"
 msgstr "Tervehdysaika $hello_time"
 
@@ -3748,8 +3747,7 @@ msgstr "Ohje"
 msgid "Hide confirmation password"
 msgstr "Piilota salasanan vahvistus"
 
-#: pkg/lib/cockpit-components-password.tsx:135
-#: pkg/networkmanager/network-interface.jsx:211
+#: pkg/lib/cockpit/dialog.tsx:1486 pkg/lib/cockpit-components-password.tsx:135
 msgid "Hide password"
 msgstr "Piilota salasana"
 
@@ -3817,7 +3815,7 @@ msgstr "Vahvistan, että haluan menettää nämä tiedot lopullisesti"
 msgid "ID"
 msgstr "Tunniste"
 
-#: pkg/networkmanager/network-interface.jsx:777
+#: pkg/networkmanager/network-interface.jsx:751
 msgid "ID $id"
 msgstr "Tunnus $id"
 
@@ -3846,7 +3844,7 @@ msgstr ""
 msgid "IP addresses"
 msgstr "IP-osoitteet"
 
-#: pkg/networkmanager/network-interface.jsx:799
+#: pkg/networkmanager/network-interface.jsx:773
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -3854,7 +3852,7 @@ msgstr "IPv4"
 msgid "IPv4 settings"
 msgstr "IPv4-asetukset"
 
-#: pkg/networkmanager/network-interface.jsx:800
+#: pkg/networkmanager/network-interface.jsx:774
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -3949,9 +3947,9 @@ msgstr "Meneillään"
 msgid "In sync"
 msgstr "Synkronoitu"
 
-#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1624
-#: pkg/networkmanager/interfaces.js:1631
-#: pkg/networkmanager/network-interface.jsx:485
+#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1627
+#: pkg/networkmanager/interfaces.js:1634
+#: pkg/networkmanager/network-interface.jsx:459
 msgid "Inactive"
 msgstr "Epäaktiivinen"
 
@@ -4409,7 +4407,7 @@ msgstr "Viimeistä ei voida poistaa"
 msgid "Last checked: $0"
 msgstr "Viimeksi tarkistettu: $0 sitten"
 
-#: pkg/networkmanager/network-interface.jsx:974
+#: pkg/networkmanager/network-interface.jsx:948
 #, fuzzy
 #| msgid "Last checked: $0"
 msgid "Last connected: $0"
@@ -4797,7 +4795,7 @@ msgstr "MDRAID-levyt"
 msgid "MII (recommended)"
 msgstr "MII (suositeltu)"
 
-#: pkg/networkmanager/network-interface.jsx:611
+#: pkg/networkmanager/network-interface.jsx:585
 msgid "MTU"
 msgstr "MTU"
 
@@ -4921,7 +4919,7 @@ msgstr ""
 "Tällä voi olla odotettua suurempi vaikutus. Vahvista, että haluat piilottaa "
 "tämän yksikön."
 
-#: pkg/networkmanager/network-interface.jsx:736
+#: pkg/networkmanager/network-interface.jsx:710
 msgid "Maximum message age $max_age"
 msgstr "Viestin enimmäisikä $max_age"
 
@@ -5022,7 +5020,7 @@ msgstr "Peilattu (RAID 1)"
 msgid "Mitigations"
 msgstr "Lievennykset"
 
-#: pkg/networkmanager/network-interface.jsx:1108
+#: pkg/networkmanager/network-interface.jsx:1082
 #: pkg/networkmanager/bond.jsx:164
 msgid "Mode"
 msgstr "Tila"
@@ -5264,7 +5262,7 @@ msgstr "Tarvitaan vähintään yksi NTP-palvelin"
 
 #: pkg/metrics/metrics.jsx:929 pkg/metrics/metrics.jsx:1553
 #: pkg/metrics/metrics.jsx:1924 pkg/metrics/metrics.jsx:1937
-#: pkg/networkmanager/network-interface.jsx:1107
+#: pkg/networkmanager/network-interface.jsx:1081
 msgid "Network"
 msgstr "Verkko"
 
@@ -5284,13 +5282,13 @@ msgstr "Verkkolaitteet ja kaaviot vaativat NetworkManagerin"
 msgid "Network logs"
 msgstr "Verkkolokit"
 
-#: pkg/networkmanager/network-interface.jsx:179
+#: pkg/networkmanager/network-interface.jsx:182
 #, fuzzy
 #| msgid "Network usage"
 msgid "Network name"
 msgstr "Verkon käyttö"
 
-#: pkg/networkmanager/network-interface.jsx:880
+#: pkg/networkmanager/network-interface.jsx:854
 msgid ""
 "Network password is not stored. Please forget and reconnect to this network."
 msgstr ""
@@ -5312,7 +5310,7 @@ msgid "Networked storage"
 msgstr "Verkotettu tallennustila"
 
 #: pkg/networkmanager/index.html:9
-#: pkg/networkmanager/network-interface.jsx:1244
+#: pkg/networkmanager/network-interface.jsx:1218
 #: pkg/networkmanager/firewall.jsx:1084 pkg/networkmanager/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_networkmanager.metainfo.xml.in:5
 msgid "Networking"
@@ -5371,7 +5369,7 @@ msgstr "Uutta salasanaa ei hyväksytty"
 msgid "Next"
 msgstr "Seuraava"
 
-#: pkg/networkmanager/network-interface.jsx:470
+#: pkg/networkmanager/network-interface.jsx:444
 msgid "No"
 msgstr "Ei"
 
@@ -5399,7 +5397,7 @@ msgstr "Lohkolaitteita ei ole saatavilla."
 msgid "No block devices found"
 msgstr "Lohkolaitetta ei löytynyt"
 
-#: pkg/networkmanager/interfaces.js:1626
+#: pkg/networkmanager/interfaces.js:1629
 msgid "No carrier"
 msgstr "Ei kantajaa"
 
@@ -5597,7 +5595,7 @@ msgstr "Ei päivityksiä"
 msgid "No user name specified"
 msgstr "Käyttäjänimeä ei ole määritetty"
 
-#: pkg/networkmanager/network-interface.jsx:192
+#: pkg/networkmanager/network-interface.jsx:189
 #: pkg/networkmanager/firewall.jsx:867 pkg/kdump/kdump-view.jsx:492
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:213
 msgid "None"
@@ -5653,7 +5651,7 @@ msgstr "Ei löytynyt"
 msgid "Not installed"
 msgstr "Ei asennettu"
 
-#: pkg/networkmanager/network-interface.jsx:1218
+#: pkg/networkmanager/network-interface.jsx:1192
 msgid "Not permitted to configure network devices"
 msgstr "Verkkolaitteiden määrittäminen ei sallittu"
 
@@ -5661,13 +5659,13 @@ msgstr "Verkkolaitteiden määrittäminen ei sallittu"
 msgid "Not permitted to configure realms"
 msgstr "Alueen määrittäminen ei ole sallittua"
 
-#: pkg/networkmanager/network-interface.jsx:1012
+#: pkg/networkmanager/network-interface.jsx:986
 #, fuzzy
 #| msgid "Not permitted to configure network devices"
 msgid "Not permitted to connect to network"
 msgstr "Verkkolaitteiden määrittäminen ei sallittu"
 
-#: pkg/networkmanager/network-interface.jsx:992
+#: pkg/networkmanager/network-interface.jsx:966
 #, fuzzy
 #| msgid "Not permitted to configure network devices"
 msgid "Not permitted to disconnect network"
@@ -5894,7 +5892,7 @@ msgstr "Sivun nimi"
 msgid "Parent"
 msgstr "Vanhemmat"
 
-#: pkg/networkmanager/network-interface.jsx:776
+#: pkg/networkmanager/network-interface.jsx:750
 msgid "Parent $parent"
 msgstr "$parent-vanhempi"
 
@@ -5902,7 +5900,7 @@ msgstr "$parent-vanhempi"
 msgid "Part of"
 msgstr "Osa tätä"
 
-#: pkg/networkmanager/interfaces.js:1655
+#: pkg/networkmanager/interfaces.js:1658
 msgid "Part of $0"
 msgstr "Osa kokonaisuudesta $0"
 
@@ -5985,12 +5983,18 @@ msgstr "Tunnuslauseet eivät täsmää"
 #: pkg/lib/cockpit-connect-ssh.tsx:442 pkg/lib/superuser-dialogs.tsx:176
 #: pkg/shell/credentials.tsx:163 pkg/shell/credentials.tsx:222
 #: pkg/shell/credentials.tsx:309 pkg/shell/hosts_dialog.jsx:1036
-#: pkg/shell/hosts_dialog.jsx:1045 pkg/networkmanager/network-interface.jsx:199
+#: pkg/shell/hosts_dialog.jsx:1045 pkg/networkmanager/network-interface.jsx:197
 #: pkg/users/account-create-dialog.js:125 pkg/users/account-details.js:283
 #: pkg/storaged/iscsi/create-dialog.jsx:20
 #: pkg/storaged/iscsi/create-dialog.jsx:126
 msgid "Password"
 msgstr "Salasana"
+
+#: pkg/networkmanager/network-interface.jsx:101
+#, fuzzy
+#| msgid "The password can not be empty"
+msgid "Password can not be empty"
+msgstr "Salasana ei voi olla tyhjä"
 
 #: pkg/shell/credentials.tsx:160
 msgid "Password changed successfully"
@@ -6048,7 +6052,7 @@ msgstr "Polku"
 msgid "Path cost"
 msgstr "Polun kustannus"
 
-#: pkg/networkmanager/network-interface.jsx:757
+#: pkg/networkmanager/network-interface.jsx:731
 msgid "Path cost $path_cost"
 msgstr "Polun kustannus $path_cost"
 
@@ -6312,8 +6316,8 @@ msgstr "Ensisijainen"
 msgid "Priority"
 msgstr "Prioriteetti"
 
-#: pkg/networkmanager/network-interface.jsx:730
-#: pkg/networkmanager/network-interface.jsx:755
+#: pkg/networkmanager/network-interface.jsx:704
+#: pkg/networkmanager/network-interface.jsx:729
 msgid "Priority $priority"
 msgstr "Prioriteetti $priority"
 
@@ -6465,7 +6469,7 @@ msgstr "Alueen on oltava tiukasti järjestetty"
 msgid "Rank"
 msgstr "Sijoitus"
 
-#: pkg/networkmanager/network-interface.jsx:1110
+#: pkg/networkmanager/network-interface.jsx:1084
 msgid "Rate"
 msgstr ""
 
@@ -6574,7 +6578,7 @@ msgstr "Palautetaan"
 msgid "Recovering MDRAID device $target"
 msgstr "Palautetaan MDRAID-laite $target"
 
-#: pkg/networkmanager/network-interface.jsx:1096
+#: pkg/networkmanager/network-interface.jsx:1070
 msgid "Refresh"
 msgstr ""
 
@@ -7116,6 +7120,12 @@ msgstr "SSH-avaimen sisäänkirjautuminen"
 msgid "SSH keys"
 msgstr "SSH-avaimet"
 
+#: pkg/networkmanager/network-interface.jsx:95
+#, fuzzy
+#| msgid "Name can not be empty."
+msgid "SSID can not be empty"
+msgstr "Nimi ei voi olla tyhjä."
+
 #: pkg/networkmanager/bridge.jsx:95
 msgid "STP forward delay"
 msgstr "STP-ohjauksen viive"
@@ -7226,7 +7236,7 @@ msgstr "Secure shell -avaimet"
 msgid "Securely erasing $target"
 msgstr "Poistaa turvallisesti $target"
 
-#: pkg/networkmanager/network-interface.jsx:187
+#: pkg/networkmanager/network-interface.jsx:186
 #, fuzzy
 #| msgid "security"
 msgid "Security"
@@ -7458,8 +7468,7 @@ msgstr "Näytä viestit tietystä käynnistyksestä."
 msgid "Show more relationships"
 msgstr "Näytä lisää suhteita"
 
-#: pkg/lib/cockpit-components-password.tsx:135
-#: pkg/networkmanager/network-interface.jsx:211
+#: pkg/lib/cockpit/dialog.tsx:1486 pkg/lib/cockpit-components-password.tsx:135
 msgid "Show password"
 msgstr "Näytä salasana"
 
@@ -7494,11 +7503,11 @@ msgstr "Sammuta"
 msgid "Shutdown"
 msgstr "Sammuta"
 
-#: pkg/networkmanager/network-interface.jsx:1109
+#: pkg/networkmanager/network-interface.jsx:1083
 msgid "Signal"
 msgstr ""
 
-#: pkg/networkmanager/network-interface.jsx:983
+#: pkg/networkmanager/network-interface.jsx:957
 msgid "Signal strength"
 msgstr ""
 
@@ -7637,7 +7646,7 @@ msgstr "Lajiteltu vähiten luotettavista luotetuimpiin"
 msgid "Space-saving computer"
 msgstr "Tilaa säästävä tietokone"
 
-#: pkg/networkmanager/network-interface.jsx:728
+#: pkg/networkmanager/network-interface.jsx:702
 msgid "Spanning tree protocol"
 msgstr "Spanning tree -protokolla"
 
@@ -7717,7 +7726,7 @@ msgstr "Tila"
 msgid "Static"
 msgstr "Staattinen"
 
-#: pkg/packagekit/updates.jsx:886 pkg/networkmanager/network-interface.jsx:494
+#: pkg/packagekit/updates.jsx:886 pkg/networkmanager/network-interface.jsx:468
 #: pkg/systemd/service-details.jsx:728
 msgid "Status"
 msgstr "Tila"
@@ -7890,13 +7899,13 @@ msgstr "Sivutuksen kokoa ei voi muuttaa täällä"
 msgid "Swap out"
 msgstr "Sivutettu"
 
-#: pkg/networkmanager/network-interface.jsx:391
+#: pkg/networkmanager/network-interface.jsx:365
 #: pkg/networkmanager/network-interface-members.jsx:54
 #: pkg/networkmanager/network-interface-members.jsx:74
 msgid "Switch off $0"
 msgstr "Kytke $0 pois päältä"
 
-#: pkg/networkmanager/network-interface.jsx:372
+#: pkg/networkmanager/network-interface.jsx:346
 #: pkg/networkmanager/network-interface-members.jsx:65
 msgid "Switch on $0"
 msgstr "Kytke $0 päälle"
@@ -7909,7 +7918,7 @@ msgstr "Vaihda ylläpitäjän käyttöoikeuksiin"
 msgid "Switch to limited access"
 msgstr "Vaihda rajoitettuun käyttöön"
 
-#: pkg/networkmanager/network-interface.jsx:390
+#: pkg/networkmanager/network-interface.jsx:364
 #: pkg/networkmanager/network-interface-members.jsx:73
 msgid ""
 "Switching off $0 will break the connection to the server, and will make the "
@@ -7918,7 +7927,7 @@ msgstr ""
 "$0 kytkeminen pois päältä katkaisee yhteyden palvelimeen ja tekee hallinnon "
 "käyttöliittymän ei saataville."
 
-#: pkg/networkmanager/network-interface.jsx:371
+#: pkg/networkmanager/network-interface.jsx:345
 #: pkg/networkmanager/network-interface-members.jsx:64
 msgid ""
 "Switching on $0 will break the connection to the server, and will make the "
@@ -7992,13 +8001,13 @@ msgstr "Kohde"
 msgid "Targets"
 msgstr "Kohteet"
 
-#: pkg/networkmanager/network-interface.jsx:404
-#: pkg/networkmanager/network-interface.jsx:418
-#: pkg/networkmanager/network-interface.jsx:683
+#: pkg/networkmanager/network-interface.jsx:378
+#: pkg/networkmanager/network-interface.jsx:392
+#: pkg/networkmanager/network-interface.jsx:657
 msgid "Team"
 msgstr "Joukkue"
 
-#: pkg/networkmanager/network-interface.jsx:713
+#: pkg/networkmanager/network-interface.jsx:687
 msgid "Team port"
 msgstr "Joukkueen portti"
 
@@ -8473,7 +8482,7 @@ msgstr ""
 msgid "This device can not be used for the installation target."
 msgstr "Tätä laitetta ei voi käyttää asennuskohteeseen."
 
-#: pkg/networkmanager/network-interface.jsx:1285
+#: pkg/networkmanager/network-interface.jsx:1259
 msgid "This device cannot be managed here."
 msgstr "Tätä laitetta ei voida hallita täällä."
 
@@ -9042,16 +9051,16 @@ msgstr "Yksikkö"
 #: pkg/lib/machine-info.js:232 pkg/lib/machine-info.js:234
 #: pkg/lib/machine-info.js:238 pkg/networkmanager/interfaces.js:538
 #: pkg/networkmanager/interfaces.js:911 pkg/networkmanager/interfaces.js:1167
-#: pkg/networkmanager/network-interface.jsx:428
-#: pkg/networkmanager/network-interface.jsx:430 pkg/systemd/hw-detect.js:71
+#: pkg/networkmanager/network-interface.jsx:402
+#: pkg/networkmanager/network-interface.jsx:404 pkg/systemd/hw-detect.js:71
 #: pkg/systemd/hw-detect.js:80 pkg/systemd/hw-detect.js:87
 #: pkg/systemd/hw-detect.js:90 pkg/systemd/hw-detect.js:97
 #: pkg/systemd/hw-detect.js:98 pkg/storaged/swap/swap.jsx:102
 msgid "Unknown"
 msgstr "Tuntematon"
 
-#: pkg/networkmanager/network-interface.jsx:412
-#: pkg/networkmanager/network-interface.jsx:426
+#: pkg/networkmanager/network-interface.jsx:386
+#: pkg/networkmanager/network-interface.jsx:400
 msgid "Unknown \"$0\""
 msgstr "Tuntematon \"$0\""
 
@@ -9063,7 +9072,7 @@ msgstr "Tuntematon ($0)"
 msgid "Unknown application"
 msgstr "Tuntematon sovellus"
 
-#: pkg/networkmanager/network-interface.jsx:515
+#: pkg/networkmanager/network-interface.jsx:489
 msgid "Unknown configuration"
 msgstr "Tuntematon konfiguraatio"
 
@@ -9354,9 +9363,9 @@ msgstr "VDO-laite $0"
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO-tiedostojärjestelmän taltio (pakkaus/kopioiden poisto)"
 
-#: pkg/networkmanager/network-interface.jsx:406
-#: pkg/networkmanager/network-interface.jsx:420
-#: pkg/networkmanager/network-interface.jsx:780
+#: pkg/networkmanager/network-interface.jsx:380
+#: pkg/networkmanager/network-interface.jsx:394
+#: pkg/networkmanager/network-interface.jsx:754
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -9502,7 +9511,7 @@ msgstr "Taltioryhmästä puuttuu fyysisiä taltioita"
 msgid "Volume size is $0. Content size is $1."
 msgstr "Taltion koko on $0. Sisällön koko on $1."
 
-#: pkg/networkmanager/network-interface.jsx:193
+#: pkg/networkmanager/network-interface.jsx:190
 msgid "WPA/WPA2 Personal"
 msgstr ""
 
@@ -9599,7 +9608,7 @@ msgstr "Valkoinen"
 msgid "Will be set to \"Automatic\""
 msgstr "Asetetaan \"Automaattinen\""
 
-#: pkg/networkmanager/network-interface.jsx:793
+#: pkg/networkmanager/network-interface.jsx:767
 msgid "WireGuard"
 msgstr "WireGuard"
 
@@ -9632,7 +9641,7 @@ msgstr "XOR"
 msgid "Yearly"
 msgstr "Vuosittain"
 
-#: pkg/networkmanager/network-interface.jsx:470
+#: pkg/networkmanager/network-interface.jsx:444
 msgid "Yes"
 msgstr "Kyllä"
 
@@ -9865,7 +9874,7 @@ msgstr "ytimen tyhjennys"
 msgid "cpu"
 msgstr "suoritin"
 
-#: pkg/kdump/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/kdump/manifest.json:0
 msgid "crash"
 msgstr "kaatuminen"
 
@@ -9929,7 +9938,7 @@ msgstr "toimialue"
 msgid "drive"
 msgstr "asema"
 
-#: pkg/networkmanager/network-interface.jsx:579
+#: pkg/networkmanager/network-interface.jsx:553
 #: pkg/networkmanager/dialogs-common.jsx:242
 #: pkg/systemd/overview-cards/configurationCard.jsx:43
 #: pkg/users/account-details.js:278 pkg/users/account-details.js:308
@@ -10224,7 +10233,7 @@ msgstr "liitos"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "verkko"
 
@@ -10270,7 +10279,7 @@ msgctxt "on <terminal>"
 msgid "on $0"
 msgstr "päätteellä $0"
 
-#: pkg/networkmanager/network-interface.jsx:961
+#: pkg/networkmanager/network-interface.jsx:935
 msgid "open"
 msgstr ""
 
@@ -10398,7 +10407,7 @@ msgstr "roolit"
 msgid "running $0"
 msgstr "käyttöjärjestelmänä $0"
 
-#: pkg/networkmanager/network-interface.jsx:960
+#: pkg/networkmanager/network-interface.jsx:934
 #, fuzzy
 #| msgid "security"
 msgid "secured"
@@ -10469,7 +10478,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "sos-raportointi epäonnistui"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -10615,6 +10624,11 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "vyöhyke"
+
+#, fuzzy
+#~| msgid "Failed to change password"
+#~ msgid "Failed to connect. Check your password."
+#~ msgstr "Salasanan vaihtaminen epäonnistui"
 
 #~ msgid "Command not found"
 #~ msgstr "Komentoa ei löytynyt"

@@ -26,6 +26,7 @@ import { SuperuserAlert } from './superuser-alert.jsx';
 import { superuser_proxy, SuperuserIndicator } from "superuser-dialogs";
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 import { WithDialogs, DialogsContext } from "dialogs.jsx";
+import { SessionCountdownModal } from "cockpit/SessionCountdownModal";
 
 import "./overview.scss";
 
@@ -140,6 +141,7 @@ class OverviewPage extends React.Component {
         return (
             <Page className='pf-m-no-sidebar'>
                 <SuperuserAlert />
+                <SessionCountdownModal />
                 <PageSection hasBodyWrapper={false} className='ct-overview-header' padding={{ default: 'padding' }}>
                     <div className='ct-overview-header-hostname'>
                         <h1>

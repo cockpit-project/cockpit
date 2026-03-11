@@ -96,7 +96,7 @@ AllowMultiHost={"yes" if allow_multi_host else "no"}
 
         # X-Frame-Options sameorigin blocks frame
         if b.browser == "firefox":
-            b.wait_visible("body.neterror")
+            b.wait_visible("body.felt-privacy-body")
         self.assertFalse(b.is_present("#login"))
 
 

@@ -55,6 +55,7 @@ class CliOpts(testlib.TestlibArgs):
     nondestructive: bool
     nondestructive_cpus: int
     nondestructive_memory_mb: int
+    capacity_factor: float
     test_dir: str
     test_glob: str
     thorough: bool
@@ -510,13 +511,14 @@ def run(opts: CliOpts, image: str) -> int:
             sys.exit(f"Need {global_machine_ram_gb:.1f} GB per test, but only {available_ram_gb:.1f} GB available")
 
         max_global_by_cpu = max((os.cpu_count() or 0) // 2, 1)
-        test_slots = min(max_global_by_ram, max_global_by_cpu)
+        test_slots = int(min(max_global_by_ram, max_global_by_cpu) * opts.capacity_factor)
 
         num_global = min(nondestructive_tests_len, test_slots)
         logging.debug("ND capacity: %.1f GB available, %.1f GB/slot, "
-                      "max %d by RAM, max %d by CPU, %d tests → starting %d slots",
+                      "max %d by RAM, max %d by CPU, factor %f, %d tests → starting %d slots",
                       available_ram_gb, global_machine_ram_gb,
-                      max_global_by_ram, max_global_by_cpu, nondestructive_tests_len, num_global)
+                      max_global_by_ram, max_global_by_cpu, opts.capacity_factor,
+                      nondestructive_tests_len, num_global)
 
         for _ in range(num_global):
             global_machines.append(
@@ -694,6 +696,10 @@ def main() -> int:
     parser.add_argument(
         "--nondestructive-memory-mb", type=int, default=DEFAULT_MACHINE_MEMORY_MB,
         help="RAM size for nondestructive test global machines (default: %(default)s MB)",
+    )
+    parser.add_argument(
+        "--capacity-factor", type=float, default=1.0,
+        help="Multiply the detected capacity for running tests in parallel with this number (default: %(default)s)",
     )
     parser.add_argument(
         "--base",

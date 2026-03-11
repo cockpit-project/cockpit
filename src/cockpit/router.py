@@ -118,14 +118,97 @@ class RoutingRule:
         raise NotImplementedError
 
 
+class SessionController:
+    router: 'Router'
+    channels: 'set[str]'
+    timeout: int
+    deadline: 'float | None'
+    timer: 'asyncio.TimerHandle | None'
+
+    def __init__(self, timeout: int, router) -> None:
+        self.channels = set()
+        self.timeout = timeout
+        self.deadline = None
+        self.timer = None
+        self.router = router
+
+    def add_channel(self, channel: str) -> None:
+        self.channels.add(channel)
+        if self.deadline is None:
+            self._update(timeout=self.timeout)
+
+    def remove_channel(self, channel: str) -> None:
+        self.channels.remove(channel)
+        if not self.channels:
+            self._update(timeout=0)
+
+    def reset_session_timeout(self) -> None:
+        assert self.deadline is not None
+        self._update(timeout=self.timeout)
+
+    def _send_message(self, command, **kwargs):
+        for c in self.channels:
+            self.router.write_control(channel=c, command=command, **kwargs)
+
+    def _update(self, *, timeout: 'int | None' = None) -> None:
+        if self.timer is not None:
+            self.timer.cancel()
+            self.timer = None
+
+        loop = asyncio.get_running_loop()
+        now = loop.time()
+
+        if timeout == 0:
+            self.deadline = None  # cancel
+        elif timeout is not None:
+            self.deadline = now + timeout  # reset
+
+        if self.deadline is None:
+            return
+
+        remaining = self.deadline - now
+        logger.debug('SessionController: update with %.2fs remaining', remaining)
+
+        # We could be in 4 different states.  Each of these states does
+        # something and sets next_remaining to the "remaining" value at which
+        # we next expect something to happen.
+        if remaining > 30:
+            # normal state.  let's wait until the final countdown starts.
+            next_remaining = 30
+
+        elif remaining > 0:
+            # we're in the final countdown.  show the number and wait until
+            # it's time to show the next (integer) number.
+            counter = round(remaining)
+            self._send_message('countdown', counter=counter)
+            next_remaining = max(counter - 1, 0)  # next countdown tick, but no later than the deadline
+
+        elif remaining > -10:
+            # the final countdown has passed.  tell the browser to bring the
+            # session down and give it ten seconds to do so.
+            self._send_message('logout')
+            next_remaining = -10  # end of the grace period
+
+        else:
+            # the graceful shutdown period has passed.  kill the session.
+            self.router.close()
+            return
+
+        wake_at = self.deadline - next_remaining
+        assert wake_at > now
+        self.timer = loop.call_at(wake_at, self._update)
+
+
 class Router(CockpitProtocolServer):
     routing_rules: List[RoutingRule]
     open_channels: Dict[str, Endpoint]
     endpoints: 'dict[Endpoint, set[str]]'
     no_endpoints: asyncio.Event  # set if endpoints dict is empty
+    session_controller: 'SessionController | None'
+
     _eof: bool = False
 
-    def __init__(self, routing_rules: List[RoutingRule]):
+    def __init__(self, routing_rules: List[RoutingRule], *, session_timeout: 'int | None' = None):
         for rule in routing_rules:
             rule.router = self
         self.routing_rules = routing_rules
@@ -133,6 +216,9 @@ class Router(CockpitProtocolServer):
         self.endpoints = {}
         self.no_endpoints = asyncio.Event()
         self.no_endpoints.set()  # at first there are no endpoints
+        self.session_controller = None
+        if session_timeout is not None:
+            self.session_controller = SessionController(session_timeout, self)
 
     def info(self) -> JsonObject:
         """Used by the 'info' channel.  Gets overridden in Bridge."""

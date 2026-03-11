@@ -1345,6 +1345,70 @@ also contain these fields:
 Only numeric metrics are currently supported.  Non-numeric metrics
 have all their samples set to `false`.
 
+Payload: session-control
+------------------------
+
+Control aspects of the current session. Currently this is limited to
+the session idle timeout.
+
+When opening a channel with payload "session-control", the bridge that
+handles this channel switches on its idle timeout handling. After
+opening such a channel, you are then responsible for sending messages
+to the bridge that inform it of user activity. If no such message is
+received (while the channel is open) for the duration of the
+configured session idle timeout, the bridge will exit.
+If you close the channel, the bridge will stop its idle timeout
+handling.
+
+This might change in the future such that the idle timeout handling in
+the bridge is always active and cannot be switched off.
+
+The bridge is made responsible for implementing the session idle
+timeout to make sure it happens even when JavaScript stops executing
+or is severely throttled, maybe due to being stopped by the Browser,
+the user, or because it has crashed to such a degree that it wont
+handle the session timeout anymore.
+
+JavaScript still has to explicitly switch on the session idle timeout
+handling in the bridge however (by opening a "session-control"
+channel). This might change in the future and the bridge might start
+the session idle timeout unconditionally.
+
+The following channel control messages will be send by the bridge:
+
+```json
+{ "command": "ready", "timeout": N }
+```
+
+The first message will be "ready" and it will contain the configured
+session idle timeout in seconds.  A timeout value of zero means that
+no timeout has been configured.
+
+```json
+{ "command": "countdown", "counter": N }
+```
+
+The bridge will countdown the last 30 seconds of the session and will
+send these messages to announce that. You should show the countdown to
+the user somewhere.
+
+```json
+{ "command": "logout" }
+```
+
+After the countdown, the bridge will tell you to logout with this
+message. You should do a clean logout. If such a logout doesn't
+happen, the bridge will forcefully exit 10 seconds later.
+
+You can send these message to the bridge:
+
+```json
+{ "command": "active" }
+```
+
+This indicates that the user was active. The bridge will reset its
+idle timer.
+
 Problem codes
 -------------
 

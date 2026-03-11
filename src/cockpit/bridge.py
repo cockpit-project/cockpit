@@ -66,7 +66,8 @@ class Bridge(Router, PackagesListener):
         self.superuser_rule = SuperuserRoutingRule(self, privileged=args.privileged)
         self.internal_bus.export('/superuser', self.superuser_rule)
 
-        self.internal_bus.export('/config', Config())
+        config = Config()
+        self.internal_bus.export('/config', config)
         self.internal_bus.export('/environment', Environment())
 
         self.peers_rule = PeersRoutingRule(self)
@@ -96,12 +97,16 @@ class Bridge(Router, PackagesListener):
 
         self.channels = ChannelRoutingRule(self, CHANNEL_TYPES)
 
+        session_timeout = 0
+        if not args.privileged:
+            session_timeout = config.get_u_int("Session", "IdleTimeout", 0, 240, 0) * 60
+
         super().__init__([
             HostRoutingRule(self),
             self.superuser_rule,
             self.channels,
             self.peers_rule,
-        ])
+        ], session_timeout=session_timeout)
 
     def info(self) -> JsonObject:
         pw = pwd.getpwuid(os.getuid())

@@ -23,9 +23,9 @@
 import React, { useRef, useEffect } from 'react';
 
 import { ShellState, ShellFrame } from "./state";
-import { IdleTimeoutState } from "./idle";
+import { get_session_controller } from "./session";
 
-export const Frames = ({ state, idle_state, hidden }: { state: ShellState, idle_state: IdleTimeoutState, hidden: boolean }) => {
+export const Frames = ({ state, hidden }: { state: ShellState, hidden: boolean }) => {
     const content_ref = useRef<HTMLDivElement | null>(null);
     const { frames, current_frame } = state;
 
@@ -51,7 +51,7 @@ export const Frames = ({ state, idle_state, hidden }: { state: ShellState, idle_
             if (!iframe.contentWindow)
                 return;
 
-            idle_state.setupIdleResetEventListeners(iframe.contentWindow);
+            get_session_controller().add_window(iframe.contentWindow);
             iframe.contentWindow.addEventListener("unload", () => teardown_iframe(frame), { once: true });
 
             if (iframe.contentDocument && iframe.contentDocument.documentElement) {

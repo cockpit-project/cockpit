@@ -4,6 +4,7 @@ import { EventEmitter } from '../event';
 import type { JsonObject } from './common';
 import { calculate_application, calculate_url } from './location-utils';
 import { ParentWebSocket } from './parentwebsocket';
+import type { SessionController } from '../session';
 
 type ControlCallback = (message: JsonObject) => void;
 type MessageCallback = (data: string | Uint8Array) => void;
@@ -17,6 +18,7 @@ class TransportGlobals {
     default_host: string | null = null;
     process_hints: ControlCallback | null = null;
     incoming_filters: FilterCallback[] = [];
+    session_controller: null | SessionController = null;
 }
 
 // the transport globals must be a *real* global, across bundles -- i.e. a <script>ed cockpit.js and bundled

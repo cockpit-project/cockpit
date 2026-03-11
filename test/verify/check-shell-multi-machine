@@ -203,6 +203,26 @@ class TestMultiMachineAdd(testlib.MachineCase):
         m.execute("pgrep -af [s]sh.*10.111.113.3", stdout=None)
         m2.execute("! pgrep -af [s]sh.*10.111.113.3", stdout=None)
 
+    def testRemoteSessionTimeout(self):
+        b = self.browser
+        m2 = self.machine2
+
+        # Machine 1 does not have a session idle timeout, but machine
+        # 2 does. The bridge on machine 2 should not start its timeout
+        # sequence.
+
+        m2.write("/etc/cockpit/cockpit.conf", """
+[Session]
+IdleTimeout=1
+""")
+
+        self.login_and_go("/system")
+        b.add_machine("10.111.113.2", password=None)
+
+        # still logged in after 80 seconds
+        time.sleep(80)
+        b.wait_visible("#system_information_hostname_text")
+
     def testGlobalSSHConfig(self):
         b = self.browser
         m = self.machine

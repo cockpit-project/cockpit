@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 
 from .jsonutil import JsonObject, JsonValue
 from .protocol import CockpitProblem, CockpitProtocolError, CockpitProtocolServer
+from .session import SessionController
 
 logger = logging.getLogger(__name__)
 
@@ -123,9 +124,11 @@ class Router(CockpitProtocolServer):
     open_channels: Dict[str, Endpoint]
     endpoints: 'dict[Endpoint, set[str]]'
     no_endpoints: asyncio.Event  # set if endpoints dict is empty
+    session_controller: SessionController
+
     _eof: bool = False
 
-    def __init__(self, routing_rules: List[RoutingRule]):
+    def __init__(self, routing_rules: List[RoutingRule], session_timeout: int = 0):
         for rule in routing_rules:
             rule.router = self
         self.routing_rules = routing_rules
@@ -133,6 +136,7 @@ class Router(CockpitProtocolServer):
         self.endpoints = {}
         self.no_endpoints = asyncio.Event()
         self.no_endpoints.set()  # at first there are no endpoints
+        self.session_controller = SessionController(session_timeout, lambda: self.close())
 
     def info(self) -> JsonObject:
         """Used by the 'info' channel.  Gets overridden in Bridge."""

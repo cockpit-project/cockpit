@@ -53,7 +53,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         this.loader = this.#init_loader();
         this.router = this.#init_router();
 
-        this.#init_watch_dogs();
+        this.#init_oops();
         this.#init_page_status();
 
         this.#on_ready();
@@ -63,7 +63,6 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
      */
 
     ready: boolean = false;
-    problem: string | null = null;
     has_oops: boolean = false;
 
     #on_ready() {
@@ -162,18 +161,10 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         return machines_factory.loader(this.machines);
     }
 
-    /* WATCH DOGS
+    /* OOPS HANDLING
      */
 
-    #init_watch_dogs() {
-        const watchdog = cockpit.channel({ payload: "null" });
-        watchdog.addEventListener("close", (_, options) => {
-            const watchdog_problem = options.problem as string || "disconnected";
-            console.warn("transport closed: " + watchdog_problem);
-            this.problem = watchdog_problem;
-            this.update();
-        });
-
+    #init_oops() {
         const old_onerror = window.onerror;
         window.onerror = (msg, url, line) => {
             // Errors with url == "" are not logged apparently, so let's
@@ -575,7 +566,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
     current_frame: ShellFrame | null = null;
 
     update() {
-        if (!this.ready || this.problem) {
+        if (!this.ready) {
             this.emit("update");
             return;
         }

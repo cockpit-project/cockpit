@@ -36,8 +36,8 @@ jobs:
     identifier: self
     trigger: pull_request
     targets: &test_targets
-      fedora-42: {}
       fedora-43: {}
+      fedora-44: {}
       fedora-latest-aarch64: {}
       fedora-rawhide: {}
       centos-stream-9-x86_64:
@@ -108,19 +108,19 @@ jobs:
 
     dist_git_branches:
       - fedora-development
-      - fedora-42
       - fedora-43
+      - fedora-44
 
   - job: koji_build
     trigger: commit
     dist_git_branches:
       - fedora-development
-      - fedora-42
       - fedora-43
+      - fedora-44
 
   - job: bodhi_update
     trigger: commit
     dist_git_branches:
       # rawhide updates are created automatically
-      - fedora-42
       - fedora-43
+      - fedora-44

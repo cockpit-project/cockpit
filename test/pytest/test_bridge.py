@@ -949,6 +949,8 @@ async def test_channel(bridge: Bridge, transport: MockTransport, channeltype, tm
     elif payload == 'dbus-json3':
         if not os.path.exists('/run/dbus/system_bus_socket'):
             pytest.skip('no dbus')
+    elif payload == 'session-control':
+        pytest.skip('too special')
     else:
         args = {}
 

@@ -8,6 +8,11 @@ import cockpit from "cockpit";
 import React, { useEffect } from 'react';
 import { createRoot } from "react-dom/client";
 
+import {
+    Modal, ModalBody, ModalFooter, ModalHeader
+} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+
 import { WithDialogs } from "dialogs.jsx";
 import { useInit, useEvent, useOn, useLoggedInUser } from "hooks";
 
@@ -19,7 +24,7 @@ import { Frames } from "./frames.jsx";
 import { EarlyFailure, Disconnected, MachineTroubleshoot } from "./failures.jsx";
 
 import { ShellState } from "./state.jsx";
-import { IdleTimeoutState, FinalCountdownModal } from "./idle.jsx";
+import { get_session_controller } from "./session";
 
 import { SkipToContent } from '@patternfly/react-core/dist/esm/components/SkipToContent/index.js';
 
@@ -53,14 +58,41 @@ const SkipLink = ({ focus_id, children }: SkipLinkProps) => {
     );
 };
 
+const SessionCountdownModal = () => {
+    const controller = get_session_controller();
+    useOn(controller, "changed");
+
+    controller.inhibit_activity_reporting(controller.countdown > 0);
+
+    if (controller.countdown <= 0)
+        return null;
+
+    return (
+        <Modal isOpen position="top" variant="medium"
+               id="session-timeout-modal">
+            <ModalHeader title={_("Session is about to expire")} />
+            <ModalBody>
+                { cockpit.format(_("You will be logged out in $0 seconds."), controller.countdown) }
+            </ModalBody>
+            <ModalFooter>
+                <Button variant='primary'
+                    onClick={() => controller.continue_session()}
+                >
+                    {_("Continue session")}
+                </Button>
+            </ModalFooter>
+        </Modal>
+    );
+};
+
 const Shell = () => {
     const current_user = useLoggedInUser()?.name || "";
     const state = useInit(() => new ShellState());
-    const idle_state = useInit(() => new IdleTimeoutState());
+    const session_controller = get_session_controller();
     const host_modal_state = useInit(() => HostModalState());
 
     useOn(state, "update");
-    useOn(idle_state, "update");
+    useOn(session_controller, "changed");
     useEvent(host_modal_state, "changed");
 
     useEffect(() => {
@@ -70,13 +102,14 @@ const Shell = () => {
     }, [host_modal_state, state]);
 
     const {
-        ready, problem,
-
+        ready,
         config,
 
         current_machine,
         current_manifest_item,
     } = state;
+
+    const { countdown, problem } = session_controller;
 
     if (problem && !ready)
         return <EarlyFailure />;
@@ -92,8 +125,8 @@ const Shell = () => {
     title_parts.push((current_machine.user || current_user) + "@" + current_machine.label);
     document.title = title_parts.join(" - ");
 
-    if (idle_state.final_countdown)
-        document.title = "(" + idle_state.final_countdown + ") " + document.title;
+    if (countdown > 0)
+        document.title = "(" + countdown + ") " + document.title;
 
     document.documentElement.lang = config.language;
     if (config.language_direction)
@@ -141,7 +174,7 @@ const Shell = () => {
                 <TopNav state={state} />
             </div>
 
-            <Frames hidden={!!failure} state={state} idle_state={idle_state} />
+            <Frames hidden={!!failure} state={state} />
 
             { failure &&
             <div id="failure-content" className="area-ct-content" role="main" tabIndex={-1}>
@@ -149,7 +182,7 @@ const Shell = () => {
             </div>
             }
 
-            <FinalCountdownModal state={idle_state} />
+            <SessionCountdownModal />
             <HostModal state={host_modal_state} machines={state.machines} />
 
         </div>);

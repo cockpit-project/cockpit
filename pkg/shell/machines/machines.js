@@ -639,6 +639,8 @@ function Loader(machines, session_only) {
                     request_manifest();
                 watch_manifests();
                 request_hostname();
+                if (host != "localhost")
+                    cockpit.session_controller.add_host(machine.connection_string);
                 whirl();
             };
             channel.addEventListener("message", channels_listeners_message[host]);

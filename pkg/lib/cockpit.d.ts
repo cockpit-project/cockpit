@@ -5,6 +5,7 @@
 
 import '_internal/common'; // side-effecting import (`window` augmentations)
 import type { Info } from './cockpit/_internal/info';
+import type { SessionController } from './cockpit/_internal/session';
 
 declare module 'cockpit' {
     type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
@@ -431,6 +432,8 @@ declare module 'cockpit' {
 
     /* === Session ====================== */
     function logout(reload: boolean, reason?: string): void;
+
+    export const session_controller: SessionController;
 
     export let localStorage: Storage;
     export let sessionStorage: Storage;

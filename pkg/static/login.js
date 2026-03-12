@@ -295,10 +295,6 @@ function debug(...args) {
         }
     }
 
-    function trim(s) {
-        return s.replace(/^\s+|\s+$/g, '');
-    }
-
     /* Sets values for application, url_root and login_path */
     function setup_path_globals (path) {
         const parser = document.createElement('a');
@@ -625,7 +621,7 @@ function debug(...args) {
         login_failure(null);
         login_machine = id("server-field").value;
         login_data_host = null;
-        const user = trim(id("login-user-input").value);
+        const user = id("login-user-input").value.trim();
         if (user === "" && !environment.is_cockpit_client) {
             login_failure(_("User name cannot be empty"));
         } else if (need_host() && login_machine === "") {
@@ -1015,7 +1011,7 @@ function debug(...args) {
                     if (xhr.statusText.startsWith("captured-stderr:")) {
                         show_captured_stderr(decodeURIComponent(xhr.statusText.replace(/^captured-stderr:/, '')));
                     } else if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
-                        const user = trim(id("login-user-input").value);
+                        const user = id("login-user-input").value.trim();
                         fatal(format(_("The server refused to authenticate '$0' using password authentication, and no other supported authentication methods are available."), user));
                     } else if (xhr.statusText.indexOf("terminated") > -1) {
                         login_failure(_("Authentication failed"), _("Server closed connection"));

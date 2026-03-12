@@ -4,6 +4,7 @@
 # Copyright (C) 2015 Red Hat, Inc.
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
+import os
 
 import storagelib
 import testlib
@@ -143,7 +144,13 @@ ExecStart=/usr/bin/sleep infinity
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
 
         self.click_card_row("Storage", location=mount_point_bar)
-        b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), "8000")  # scsi_debug serial
+
+        if os.getenv("TEST_SCENARIO", "") in ["daily", "updates-testing"]:
+            # since systemd 260rc2 the scsi serial number uses different format
+            # see https://github.com/cockpit-project/cockpit/issues/22989
+            b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), "3333333000001f40")  # scsi_debug serial
+        else:
+            b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), "8000")  # scsi_debug serial
 
         # Remove fstab entry
 

@@ -7,6 +7,7 @@ dist_rhelbranding_DATA = \
 
 # Opportunistically use redhat-logos ... yes they're called 'fedora'
 install-data-hook::
-	ln -sTfr $(DESTDIR)/usr/share/pixmaps/system-logo-white.png $(DESTDIR)$(rhelbrandingdir)/logo.png
+	ln -sTfr $(DESTDIR)/usr/share/pixmaps/fedora-logo.png $(DESTDIR)$(rhelbrandingdir)/logo.png
+	ln -sTfr $(DESTDIR)/usr/share/pixmaps/system-logo-white.png $(DESTDIR)$(rhelbrandingdir)/logo-dark.png
 	ln -sTfr $(DESTDIR)/usr/share/pixmaps/fedora-logo-sprite.png $(DESTDIR)$(rhelbrandingdir)/apple-touch-icon.png
 	ln -sTfr $(DESTDIR)/etc/favicon.png $(DESTDIR)$(rhelbrandingdir)/favicon.ico

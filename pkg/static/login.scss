@@ -50,8 +50,8 @@
 }
 
 :root {
-  --color-background: #fff; // pf-t--global--background--color--100
-  --color-body-background: #f2f2f2; // pf-t--global--background--color--200
+  --color-background: #fff; /* pf-t--global--background--color--100 */
+  --color-body-background: #f2f2f2; /* pf-t--global--background--color--200 */
 
   --color-text: #151515;
   --color-text-light: #999;
@@ -120,8 +120,8 @@
 }
 
 .pf-v6-theme-dark {
-  --color-background: #292929; // pf-t--global--dark--background--color--200
-  --color-body-background: #151515; // pf-t--global--dark--background--color--100
+  --color-background: #292929; /* pf-t--global--dark--background--color--200 */
+  --color-body-background: #151515; /* pf-t--global--dark--background--color--100 */
 
   --color-text: #f0f0f0;
   --color-text-light: #999;
@@ -442,7 +442,7 @@ label.checkbox {
   }
 }
 
-// Alerts
+/* Alerts */
 .pf-v6-c-alert {
   display: grid;
   grid-template: "icon content" / auto 1fr;
@@ -465,7 +465,7 @@ label.checkbox {
   }
 
   .pf-v6-c-alert__icon {
-    // vertically align the icon's top edge with the text; https://blog.kizu.dev/cap-height-align/
+    /* vertically align the icon's top edge with the text; https://blog.kizu.dev/cap-height-align/ */
     margin-block-start: calc((1cap - 1ex) / 2);
 
     svg {
@@ -527,7 +527,7 @@ html body.login-pf {
   overflow: auto;
 }
 
-// Makes the borders and border-radius of the login cards look as it should
+/* Makes the borders and border-radius of the login cards look as it should */
 .login-pf .container {
   background: var(--color-background);
   color: var(--color-text);

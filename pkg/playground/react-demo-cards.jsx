@@ -27,7 +27,7 @@ const CardsDemo = () => {
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
         <Card isPlain key="card5">
-            <CardHeader actions={{
+            <CardHeader hasWrap actions={{
                 actions: <><input type="checkbox" />
                     <Button className="btn">click</Button></>,
             }} />

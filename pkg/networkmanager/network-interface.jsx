@@ -1042,7 +1042,7 @@ export const NetworkInterfacePage = ({
 
         return (
             <Card isPlain id="network-interface-wifi-networks">
-                <CardHeader actions={{
+                <CardHeader hasWrap actions={{
                     actions: (
                         <Flex>
                             {dev.visibleSsids.length >= 3 && (
@@ -1228,7 +1228,7 @@ export const NetworkInterfacePage = ({
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
                     <Card isPlain className="network-interface-details">
-                        <CardHeader actions={{
+                        <CardHeader hasWrap actions={{
                             actions: (
                                 <>
                                     {isDeletable && isManaged &&

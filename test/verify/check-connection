@@ -1380,6 +1380,13 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
             b.wait_visible("#login")
             b.assert_pixels("body", "login-screen-custom-background")
 
+            # An empty branding file does not crash cockpit-ws
+            self.allow_journal_messages("cockpit_template_expand: assertion 'data != NULL' failed")
+            m.write("/etc/cockpit/branding/branding.css", "")
+            m.restart_cockpit()
+            b.open("/system")
+            b.wait_visible("#login")
+
     @testlib.skipOstree("tests cockpit-ws package")
     @testlib.skipWsContainer("tests cockpit-ws package")
     @testlib.nondestructive

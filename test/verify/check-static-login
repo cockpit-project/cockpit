@@ -1182,5 +1182,80 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         m.execute("while loginctl --no-legend list-sessions | grep admin; do sleep 1; done")
 
 
+@testlib.skipOstree("/etc customization issues?")
+@testlib.nondestructive
+class TestCustomLogin(testlib.MachineCase):
+    def testBasic(self) -> None:
+        m = self.machine
+        b = self.browser
+
+        # Custom login page
+        static_dir = f"{self.vm_tmpdir}/static"
+        m.execute(f"printf '[WebService]\nCustomLoginPage = {static_dir}\n' > /etc/cockpit/cockpit.conf")
+        m.execute(f"mkdir -p {static_dir}")
+
+        m.write(f"{static_dir}/login.html", """
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Custom login page</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <link href="cockpit/static/login.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="cockpit/static/login.js" defer></script>
+</head>
+<body class="login">
+    <button type="button" id="login">Login</button>
+</body>
+</html>
+        """)
+
+        m.write(f"{static_dir}/login.js", """
+console.log('login page loaded');
+const button = document.getElementById('login');
+button.addEventListener("click", async function() {
+    const headers = {
+        Authorization: "Basic " + window.btoa(window.unescape(encodeURIComponent(("admin:foobar")))),
+    };
+
+    try {
+      const response = await fetch('/cockpit/login', { method: "GET", headers });
+      if (!response.ok)
+          throw new Error(`Response status: ${response.status}`);
+
+      const result = await response.json();
+      window.location.reload(true);
+    } catch(err) {
+      console.warn(err);
+    }
+});
+        """)
+
+        m.write(f"{static_dir}/login.css", """
+/* canary to test if css loaded */
+:root {
+    --css-loaded: true;
+}
+        """)
+
+        # allow cockpit-ws to read static_dir
+        m.execute(f"if selinuxenabled 2>&1; then chcon -R -t usr_t {static_dir}; fi")
+
+        m.start_cockpit()
+        b.open("/")
+
+        b.wait_visible("#login")
+        self.assertEqual(b.eval_js("getComputedStyle(document.documentElement).getPropertyValue('--css-loaded').trim()"),
+                         "true")
+        b.wait_js_cond('document.title === "Custom login page"')
+
+        b.click("#login")
+        b.wait_visible('#content')
+        b.enter_page('/system')
+        b.wait_visible('.system-information')
+
+
 if __name__ == '__main__':
     testlib.test_main()

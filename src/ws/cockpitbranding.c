@@ -81,6 +81,7 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
 {
   GPtrArray *dirs;
   gchar **roots;
+  const gchar *static_dir;
 
   dirs = g_ptr_array_new_with_free_func (g_free);
 
@@ -122,6 +123,9 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
 
   add_system_branding_dirs (dirs, "default");
   g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/branding/default"));
+  static_dir = cockpit_conf_string ("WebService", "CustomLoginPage");
+  if (static_dir)
+    g_ptr_array_add (dirs, g_strdup (static_dir));
   g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/static"));
   g_ptr_array_add (dirs, NULL);
 

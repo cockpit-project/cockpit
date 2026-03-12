@@ -148,10 +148,13 @@ main (int argc,
   data.auth = cockpit_auth_new (opt_local_ssh, opt_for_tls_proxy ? COCKPIT_AUTH_FOR_TLS_PROXY : COCKPIT_AUTH_NONE);
   roots = setup_static_roots (data.os_release);
 
+  const gchar *static_dir = cockpit_conf_string ("WebService", "CustomLoginPage");
+  const gchar *root_dir = static_dir ? static_dir : DATADIR "/cockpit/static";
   data.branding_roots = (const gchar **)roots;
-  login_html = g_strdup (DATADIR "/cockpit/static/login.html");
+
+  login_html = g_strconcat (root_dir, "/login.html", NULL);
   data.login_html = (const gchar *)login_html;
-  login_po_js = g_strdup (DATADIR "/cockpit/static/po.js");
+  login_po_js = g_strconcat (root_dir, "/po.js", NULL);
   data.login_po_js = (const gchar *)login_po_js;
 
   if (opt_for_tls_proxy)

@@ -148,7 +148,7 @@ export class LogsPanel extends React.Component {
 
         return (
             <Card isPlain className="cockpit-log-panel">
-                <CardHeader actions={{ actions }}>
+                <CardHeader hasWrap actions={{ actions }}>
                     <CardTitle>{this.props.title}</CardTitle>
                 </CardHeader>
                 <CardBody className={(!this.state.logs.length && this.props.emptyMessage.length) ? "empty-message" : "contains-list"}>

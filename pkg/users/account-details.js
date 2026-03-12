@@ -226,7 +226,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
                     <Card isPlain className="account-details" id="account-details">
-                        <CardHeader actions={{ actions }}>
+                        <CardHeader hasWrap actions={{ actions }}>
                             <CardTitle id="account-title" component="h2">{title_name}</CardTitle>
                         </CardHeader>
                         <CardBody>

@@ -397,7 +397,7 @@ export class SETroubleshootPage extends React.Component {
         );
         const troubleshooting = (
             <Card isPlain>
-                <CardHeader actions={{ actions }}>
+                <CardHeader hasWrap actions={{ actions }}>
                     <CardTitle component="h2">{title}</CardTitle>
                 </CardHeader>
                 <CardBody className="contains-list">

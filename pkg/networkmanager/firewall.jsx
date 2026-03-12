@@ -201,7 +201,7 @@ function ZoneSection(props) {
     ];
 
     return <Card isPlain className="zone-section" data-id={props.zone.id}>
-        <CardHeader actions={{ actions }} className="zone-section-heading">
+        <CardHeader hasWrap actions={{ actions }} className="zone-section-heading">
             <Flex alignItems={{ default: 'alignSelfBaseline' }} spaceItems={{ default: 'spaceItemsXl' }}>
                 <CardTitle component="h2">
                     { cockpit.format(_("$0 zone"), upperCaseFirstLetter(props.zone.name || props.zone.id)) }

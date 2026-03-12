@@ -169,7 +169,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
                     {firewall.installed && <Card isPlain id="networking-firewall-summary">
-                        <CardHeader actions={{
+                        <CardHeader hasWrap actions={{
                             actions: <Button variant="secondary" id="networking-firewall-link"
                                         component="a"
                                         onClick={() => cockpit.jump("/network/firewall", cockpit.transport.host)}>
@@ -191,7 +191,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
                         </CardBody>
                     </Card>}
                     <Card isPlain id="networking-interfaces">
-                        <CardHeader actions={{ actions }}>
+                        <CardHeader hasWrap actions={{ actions }}>
                             <CardTitle component="h2">{_("Interfaces")}</CardTitle>
                         </CardHeader>
                         <ListingTable aria-label={_("Managed interfaces")}

@@ -41,7 +41,7 @@ const LogDetails = ({ entry }) => {
     return (
         <GalleryItem>
             <Card isPlain>
-                <CardHeader actions={{ actions }}>
+                <CardHeader hasWrap actions={{ actions }}>
                     <h2 id="entry-heading">{id}</h2>
                 </CardHeader>
                 <CardTitle>{journal.printable(entry.MESSAGE, "MESSAGE")}</CardTitle>

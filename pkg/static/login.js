@@ -61,8 +61,6 @@ function debug(...args) {
     }
 
     function translate() {
-        if (!document.querySelectorAll)
-            return;
         const list = document.querySelectorAll("[translate]");
         for (let i = 0; i < list.length; i++)
             list[i].textContent = gettext(list[i].textContent);

@@ -135,6 +135,11 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
         </DataListItem>;
     }
 
+    const actions = !emptyRow &&
+        <Button variant="secondary" onClick={() => setShowDialog(true)}>
+            {_("View automation script")}
+        </Button>
+
     return (
         <>
             { showDialog &&
@@ -142,13 +147,8 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
                 onClose={() => setShowDialog(false)} />
             }
             <Card isPlain className="modifications-table">
-                <CardHeader>
+                <CardHeader actions={{ actions }}>
                     <CardTitle component="h2">{title}</CardTitle>
-                    { !emptyRow &&
-                        <Button variant="secondary" onClick={() => setShowDialog(true)}>
-                            {_("View automation script")}
-                        </Button>
-                    }
                 </CardHeader>
                 <CardBody className="contains-list">
                     <DataList aria-label={title} isCompact>

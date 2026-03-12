@@ -182,7 +182,7 @@ export const NetworkInterfaceMembers = ({
 
     return (
         <Card isPlain id="network-interface-members" className="network-interface-members">
-            <CardHeader actions={{ actions: add_btn }}>
+            <CardHeader hasWrap actions={{ actions: add_btn }}>
                 <CardTitle component="h2">{_("Interface members")}</CardTitle>
             </CardHeader>
             <ListingTable aria-label={_("Interface members")}

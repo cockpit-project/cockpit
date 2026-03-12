@@ -101,9 +101,11 @@ main (int argc,
   g_autoptr(GOptionContext) context = NULL;
   g_autoptr(GError) error = NULL;
   g_auto(GStrv) roots = NULL;
+  g_auto(GStrv) custom_roots = NULL;
   g_autoptr(GMainLoop) loop = NULL;
   g_autofree gchar *login_html = NULL;
   g_autofree gchar *login_po_js = NULL;
+  g_autofree gchar *root_dir = NULL;
   g_autoptr(CockpitWebServer) server = NULL;
   CockpitWebServerFlags server_flags = COCKPIT_WEB_SERVER_NONE;
   CockpitHandlerData data;
@@ -148,10 +150,24 @@ main (int argc,
   data.auth = cockpit_auth_new (opt_local_ssh, opt_for_tls_proxy ? COCKPIT_AUTH_FOR_TLS_PROXY : COCKPIT_AUTH_NONE);
   roots = setup_static_roots (data.os_release);
 
-  data.branding_roots = (const gchar **)roots;
-  login_html = g_strdup (DATADIR "/cockpit/static/login.html");
+  const gchar *static_dir = cockpit_conf_string ("WebService", "StaticDir");
+  root_dir = g_strdup (static_dir ? static_dir : DATADIR "/cockpit/static");
+  if (static_dir)
+    {
+      g_autoptr(GPtrArray) dirs = g_ptr_array_new_with_free_func (g_free);
+      g_ptr_array_add (dirs, g_strdup (root_dir));
+      g_ptr_array_add (dirs, NULL);
+      custom_roots = (gchar **) g_ptr_array_steal (dirs, NULL);
+      data.branding_roots = (const gchar **) custom_roots;
+    }
+  else
+    {
+      data.branding_roots = (const gchar **)roots;
+    }
+
+  login_html = g_strconcat (root_dir, "/login.html", NULL);
   data.login_html = (const gchar *)login_html;
-  login_po_js = g_strdup (DATADIR "/cockpit/static/po.js");
+  login_po_js = g_strconcat (root_dir, "/po.js", NULL);
   data.login_po_js = (const gchar *)login_po_js;
 
   if (opt_for_tls_proxy)

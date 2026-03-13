@@ -92,6 +92,12 @@ cockpit_template_expand (GBytes *input,
   data = g_bytes_get_data (input, NULL);
   end = data + g_bytes_get_size (input);
 
+  if (data == NULL)
+    {
+       g_warning ("Empty input passed to cockpit_template_expand");
+       return NULL;
+    }
+
   for (;;)
     {
       escaped = FALSE;

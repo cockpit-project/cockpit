@@ -50,8 +50,8 @@
 }
 
 :root {
-  --color-background: #fff; // pf-t--global--background--color--100
-  --color-body-background: #f2f2f2; // pf-t--global--background--color--200
+  --color-background: #fff; /* pf-t--global--background--color--100 */
+  --color-body-background: #f2f2f2; /* pf-t--global--background--color--200 */
 
   --color-text: #151515;
   --color-text-light: #999;
@@ -120,8 +120,8 @@
 }
 
 .pf-v6-theme-dark {
-  --color-background: #292929; // pf-t--global--dark--background--color--200
-  --color-body-background: #151515; // pf-t--global--dark--background--color--100
+  --color-background: #292929; /* pf-t--global--dark--background--color--200 */
+  --color-body-background: #151515; /* pf-t--global--dark--background--color--100 */
 
   --color-text: #f0f0f0;
   --color-text-light: #999;
@@ -442,7 +442,7 @@ label.checkbox {
   }
 }
 
-// Alerts
+/* Alerts */
 .pf-v6-c-alert {
   display: grid;
   grid-template: "icon content" / auto 1fr;
@@ -455,20 +455,20 @@ label.checkbox {
   background-color: var(--color-background);
   border-radius: var(--pf-t--global--border--radius--medium);
 
-  .pf-v6-c-alert__icon {
+  & .pf-v6-c-alert__icon {
     grid-column: icon;
   }
 
-  .pf-v6-c-alert__title,
-  .pf-v6-c-alert__description {
+  & .pf-v6-c-alert__title,
+  & .pf-v6-c-alert__description {
     grid-column: content;
   }
 
-  .pf-v6-c-alert__icon {
-    // vertically align the icon's top edge with the text; https://blog.kizu.dev/cap-height-align/
+  & .pf-v6-c-alert__icon {
+    /* vertically align the icon's top edge with the text; https://blog.kizu.dev/cap-height-align/ */
     margin-block-start: calc((1cap - 1ex) / 2);
 
-    svg {
+    & svg {
       display: block;
       block-size: var(--pf-t--global--icon--size--lg);
       inline-size: var(--pf-t--global--icon--size--lg);
@@ -476,11 +476,11 @@ label.checkbox {
     }
   }
 
-  .pf-v6-c-alert__title {
+  & .pf-v6-c-alert__title {
     font-weight: 500;
   }
 
-  p {
+  & p {
     margin: 0;
   }
 
@@ -527,18 +527,18 @@ html body.login-pf {
   overflow: auto;
 }
 
-// Makes the borders and border-radius of the login cards look as it should
+/* Makes the borders and border-radius of the login cards look as it should */
 .login-pf .container {
   background: var(--color-background);
   color: var(--color-text);
   inline-size: 100%;
   border-radius: var(--pf-t--global--border--radius--large) var(--pf-t--global--border--radius--large);
 
-  .container-body {
+  & .container-body {
     padding: var(--pf-t--global--spacer--2xl);
   }
 
-  .container-footer {
+  & .container-footer {
     padding-block: var(--pf-t--global--spacer--xl);
     padding-inline: var(--pf-t--global--spacer--2xl);
   }
@@ -670,7 +670,7 @@ html:not(.pf-v6-theme-dark) #login-wait-validating .spinner {
     transform: rotate(90deg);
   }
 
-  path {
+  & path {
     fill: var(--color-text);
   }
 }
@@ -859,11 +859,11 @@ details > summary:hover {
 }
 
 .unsupported-browser {
-  #brand {
+  & #brand {
     display: none;
   }
 
-  ul {
+  & ul {
     display: inline-block;
     text-align: start;
     color: var(--color-text-lighter);
@@ -871,7 +871,7 @@ details > summary:hover {
     margin-inline: 0;
   }
 
-  a {
+  & a {
     font-weight: 700;
   }
 }
@@ -954,7 +954,7 @@ body.login-pf {
     grid-template-columns: 1fr var(--content-width) auto 1fr;
     column-gap: var(--gap);
 
-    #brand img {
+    & #brand img {
       margin: 0;
       text-align: start;
     }
@@ -962,7 +962,7 @@ body.login-pf {
 
   /* Mobile-specific */
   @media (width < 900px) {
-    #badge {
+    & #badge {
       background-position: center;
       margin: 2rem;
     }

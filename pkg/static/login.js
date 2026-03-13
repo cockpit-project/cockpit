@@ -626,7 +626,7 @@ function debug(...args) {
         login_machine = id("server-field").value;
         login_data_host = null;
         const user = trim(id("login-user-input").value);
-        if (user === "" && !environment.is_cockpit_client) {
+        if (user === "" && !environment.is_cockpit_client && !environment.is_anaconda) {
             login_failure(_("User name cannot be empty"));
         } else if (need_host() && login_machine === "") {
             login_failure(_("Please specify the host to connect to"));
@@ -728,17 +728,20 @@ function debug(...args) {
 
         hide("#login-wait-validating");
         show("#login");
-        hideToggle("#login-details", environment.is_cockpit_client);
-        hideToggle("#server-field-label", environment.is_cockpit_client);
+        hideToggle("#login-details", environment.is_cockpit_client || environment.is_anaconda);
+        hideToggle("#server-field-label", environment.is_cockpit_client || environment.is_anaconda);
         if (environment.is_cockpit_client) {
             const brand = id("brand");
             brand.textContent = _("Connect to:");
             brand.classList.add("text-brand");
         }
 
-        hideToggle(["#user-group", "#password-group"], form != "login" || environment.is_cockpit_client);
+        hideToggle(["#user-group"], form != "login" || environment.is_cockpit_client || environment.is_anaconda);
+        hideToggle(["#password-group"], form != "login" || environment.is_cockpit_client || !environment.is_anaconda);
         hideToggle("#conversation-group", form != "conversation");
         hideToggle("#hostkey-group", form != "hostkey");
+        if (environment.is_anaconda)
+            document.querySelector("label[for='login-password-input']").textContent = "Pin";
 
         id("login-button-text").textContent = (form == "hostkey") ? _("Accept key and log in") : _("Log in");
         if (form != "login")
@@ -748,7 +751,7 @@ function debug(...args) {
             hide("#option-group");
             expanded = true;
         } else {
-            hideToggle("#option-group", !connectable || form != "login");
+            hideToggle("#option-group", !connectable || form != "login" || environment.is_anaconda);
         }
 
         if (!connectable || form != "login") {
@@ -776,7 +779,12 @@ function debug(...args) {
         /* Show the login screen */
         login_info(message);
         id("server-name").textContent = document.title;
-        login_note(_("Log in with your server user account."));
+        if (!environment.is_anaconda) {
+            login_note(_("Log in with your server user account."));
+        } else {
+            login_note(_("Enter your pin to log in."));
+        }
+
         id("login-user-input").addEventListener("keydown", function(e) {
             login_failure(null);
             clear_info();
@@ -1039,6 +1047,8 @@ function debug(...args) {
                         }
                     } else if (is_conversation) {
                         login_failure(_("Authentication failed"));
+                    } else if (environment.is_anaconda) {
+                        login_failure(_("Authentication failed"), _("Wrong pin"));
                     } else {
                         login_failure(_("Authentication failed"), _("Wrong user name or password"));
                     }

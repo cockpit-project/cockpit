@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
-import "./login.scss";
+import "./login.css";
 
 function debug(...args) {
     if (window.debugging === 'all' || window.debugging?.includes('login'))

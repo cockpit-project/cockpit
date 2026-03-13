@@ -95,7 +95,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         self.lookup_action('go-back').set_enabled(self.webview.can_go_back())
         self.lookup_action('go-forward').set_enabled(self.webview.can_go_forward())
 
-    def update_subtitle(self, webview, *args):
+    def update_subtitle(self, webview: WebKit.WebView, *args):
         title = webview.get_title() or "Loading..."
         self.title.set_label(title)
 
@@ -111,7 +111,9 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
     def go_forward(self, *args):
         self.webview.go_forward()
 
-    def decide_policy(self, _view, decision, decision_type):
+    def decide_policy(self, _view: WebKit.WebView, decision: WebKit.NavigationPolicyDecision,
+                      decision_type: WebKit.NavigationType) -> bool:
+
         if decision_type == WebKit.PolicyDecisionType.NEW_WINDOW_ACTION:
             uri = decision.get_navigation_action().get_request().get_uri()
             if uri.startswith('http://127'):
@@ -218,7 +220,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
 
 
 class CockpitClient(Gtk.Application):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(application_id='org.cockpit_project.CockpitClient')
 
         self.add_main_option('no-ui', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
@@ -264,19 +266,19 @@ class CockpitClient(Gtk.Application):
 
         self.uri = self.ws.start()
 
-    def new_window(self, *args):
+    def new_window(self, *args) -> None:
         self.activate()
 
-    def quit_action(self, *args):
+    def quit_action(self, *args) -> None:
         self.quit()
 
     def open_path(self, action, parameter, *args):
         CockpitClientWindow(self, self.uri + parameter.get_string()).present()
 
-    def do_activate(self):
+    def do_activate(self) -> None:
         CockpitClientWindow(self, self.uri).present()
 
-    def do_shutdown(self):
+    def do_shutdown(self) -> None:
         self.ws.stop()
 
         Gtk.Application.do_shutdown(self)
@@ -304,7 +306,7 @@ class CockpitClient(Gtk.Application):
 
         return -1
 
-    def safely_sandboxed(self):
+    def safely_sandboxed(self) -> bool:
         flatpak_info = configparser.ConfigParser()
 
         if not flatpak_info.read('/.flatpak-info'):
@@ -318,7 +320,7 @@ class CockpitClient(Gtk.Application):
 
 
 class ExternalCockpitWs:
-    def __init__(self, uri):
+    def __init__(self, uri: str):
         self.uri = uri
 
     def start(self):
@@ -329,7 +331,7 @@ class ExternalCockpitWs:
 
 
 class InternalCockpitWs:
-    def start(self):
+    def start(self) -> str:
         self.write_config()
         host = '127.0.0.90'
         port = '9090'
@@ -338,15 +340,15 @@ class InternalCockpitWs:
 
         return f'http://{host}:{port}/'
 
-    def preexec_fn(self):
+    def preexec_fn(self) -> None:
         os.environ['XDG_CONFIG_DIRS'] = self.config_dir.name
         prctl(SET_PDEATHSIG, signal.SIGKILL)
 
-    def stop(self):
+    def stop(self) -> None:
         self.ws.kill()
         self.config_dir.cleanup()
 
-    def write_config(self):
+    def write_config(self) -> None:
         self.config_dir = tempfile.TemporaryDirectory(prefix='cockpit-client-', suffix='-etc')
         os.mkdir(f'{self.config_dir.name}/cockpit')
         with open(f'{self.config_dir.name}/cockpit/cockpit.conf', 'x') as cockpit_conf:

@@ -19,7 +19,7 @@
 
 #include <string.h>
 
-#define VARCHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-"
+#define IS_WORDCHAR(c) (g_ascii_isalnum (c) || (c) == '_')
 
 static gchar *
 find_variable (const gchar *data,
@@ -27,45 +27,40 @@ find_variable (const gchar *data,
                const gchar **before,
                const gchar **after)
 {
-  const gchar *a;
-  const gchar *b;
-  const gchar *c;
-  const gchar *d;
+  const gchar *a, *b, *c;
 
-  for (;;)
+  g_return_val_if_fail (before != NULL, NULL);
+  g_return_val_if_fail (after != NULL, NULL);
+  g_return_val_if_fail (data <= end, NULL);
+
+  while ((a = memmem (data, end - data, "${", 2)))
     {
-      /* Look for ${ ... } */
-      a = memmem (data, strlen(data), "${", 2);
-      if (a == NULL)
-        return NULL;
-
-      data = a + 2;
-      b = data;
-
-      c = memmem (data, strlen(data), "}", 1);
-      if (c == NULL)
-        return NULL;
-
-      data = c + 1;
-      d = data;
-
       /*
-       * We've found a variable like this:
+       * Found "${". Scan for a valid variable name:
        *
-       * Some text ${variable.part} trailing.
-       *           a b            cd
+       *   Some text ${variable_name} trailing.
+       *             a b            c
        *
-       * Check that the name makes sense.
+       * a = "${"
+       * b = first char of variable name
+       * c = should be '}'
        */
-      if (b != c && b + strspn (b, VARCHARS) == c)
-        break;
+      b = a + 2;
+
+      for (c = b; c < end && IS_WORDCHAR (*c); c++)
+        ;
+
+      if (b < c && c < end && *c == '}')
+        {
+          *before = a;
+          *after = c + 1;
+          return g_strndup (b, c - b);
+        }
+
+      data = c;
     }
 
-  if (before)
-    *before = a;
-  if (after)
-    *after = d;
-  return g_strndup (b, c - b);
+  return NULL;
 }
 
 GList *

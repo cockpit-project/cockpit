@@ -239,24 +239,39 @@ class SuperuserRoutingRule(RoutingRule, CockpitResponder, bus.Object, interface=
         assert self.peer is None
         assert self.startup is None
 
-        for config in self.superuser_configs:
-            if name in (config.name, 'any'):
-                break
-        else:
+        matching_configs = [
+            config for config in self.superuser_configs
+            if name in (config.name, 'any')
+        ]
+
+        if not matching_configs:
             raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"')
 
-        self.current = 'init'
-        self.peer = SuperuserPeer(self.router, config, responder)
-        self.peer.add_done_callback(self.peer_done)
+        last_error = None
+        for config in matching_configs:
+            logger.debug("Trying superuser bridge '%s'", config.name)
+            self.current = 'init'
+            self.peer = SuperuserPeer(self.router, config, responder)
+            self.peer.add_done_callback(self.peer_done)
 
-        try:
-            await self.peer.start(init_host=self.router.init_host)
-        except asyncio.CancelledError:
-            raise bus.BusError('cockpit.Superuser.Error.Cancelled', 'Operation aborted') from None
-        except (OSError, PeerError) as exc:
-            raise bus.BusError('cockpit.Superuser.Error', str(exc)) from exc
+            try:
+                await self.peer.start(init_host=self.router.init_host)
+                logger.debug("Bridge '%s' succeeded", config.name)
+                self.current = self.peer.config.name
+                return
+            except asyncio.CancelledError:
+                raise bus.BusError('cockpit.Superuser.Error.Cancelled', 'Operation aborted') from None
+            except (OSError, PeerError) as exc:
+                logger.debug("Bridge '%s' failed: %s", config.name, exc)
+                last_error = exc
+                if self.peer is not None:
+                    self.peer.close()
+                    while self.peer is not None:
+                        await asyncio.sleep(0)
+                continue
 
-        self.current = self.peer.config.name
+        logger.debug("All %d bridge(s) failed", len(matching_configs))
+        raise bus.BusError('cockpit.Superuser.Error', str(last_error))
 
     def set_configs(self, configs: Sequence[BridgeConfig]) -> None:
         logger.debug("set_configs() with %d items", len(configs))

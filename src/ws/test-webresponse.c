@@ -163,11 +163,7 @@ test_return_error (TestCase *tc,
     "Content-Type: text/html; charset=utf8\r\n"
     "Transfer-Encoding: chunked\r\n"
     STATIC_HEADERS
-    "13\r\n<html><head><title>\r\n"
-    "13\r\nReason here: booyah\r\n"
-    "15\r\n</title></head><body>\r\n"
-    "13\r\nReason here: booyah\r\n"
-    "f\r\n</body></html>\n\r\n"
+    "5d\r\n<html><head><title>Reason here: booyah</title></head><body>Reason here: booyah</body></html>\n\r\n"
     "0\r\n\r\n");
 }
 

@@ -1346,7 +1346,7 @@ web_response_file (CockpitWebResponse *response,
   gint content_length = -1;
   if (template_func)
     {
-      output = cockpit_template_expand (body, "${", "}", template_func, user_data);
+      output = cockpit_template_expand (body, template_func, user_data);
     }
   else
     {

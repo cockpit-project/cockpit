@@ -13,8 +13,6 @@ typedef GBytes * (* CockpitTemplateFunc)          (const gchar *variable,
                                                    gpointer user_data);
 
 GList *           cockpit_template_expand         (GBytes *input,
-                                                   const gchar *start_marker,
-                                                   const gchar *end_marker,
                                                    CockpitTemplateFunc func,
                                                    gpointer user_data);
 

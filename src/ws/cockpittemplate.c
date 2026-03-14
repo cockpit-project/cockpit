@@ -22,9 +22,7 @@
 #define VARCHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-"
 
 static gchar *
-find_variable (const gchar *start_marker,
-               const gchar *end_marker,
-               const gchar *data,
+find_variable (const gchar *data,
                const gchar *end,
                const gchar **before,
                const gchar **after)
@@ -36,26 +34,26 @@ find_variable (const gchar *start_marker,
 
   for (;;)
     {
-      /* Look for start_marker to end_marker */
-      a = memmem (data, strlen(data), start_marker, strlen (start_marker));
+      /* Look for ${ ... } */
+      a = memmem (data, strlen(data), "${", 2);
       if (a == NULL)
         return NULL;
 
-      data = a + strlen (start_marker);
+      data = a + 2;
       b = data;
 
-      c = memmem (data, strlen(data), end_marker, strlen (end_marker));
+      c = memmem (data, strlen(data), "}", 1);
       if (c == NULL)
         return NULL;
 
-      data = c + strlen (end_marker);
+      data = c + 1;
       d = data;
 
       /*
        * We've found a variable like this:
        *
-       * Some text @@variable.part@@ trailing.
-       *           a b            c d
+       * Some text ${variable.part} trailing.
+       *           a b            cd
        *
        * Check that the name makes sense.
        */
@@ -72,8 +70,6 @@ find_variable (const gchar *start_marker,
 
 GList *
 cockpit_template_expand (GBytes *input,
-                         const gchar *start_marker,
-                         const gchar *end_marker,
                          CockpitTemplateFunc func,
                          gpointer user_data)
 {
@@ -95,7 +91,7 @@ cockpit_template_expand (GBytes *input,
   for (;;)
     {
       escaped = FALSE;
-      name = find_variable (start_marker, end_marker, data, end, &before, &after);
+      name = find_variable (data, end, &before, &after);
       if (name == NULL)
         break;
 

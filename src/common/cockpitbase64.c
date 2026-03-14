@@ -70,7 +70,7 @@ cockpit_base64_pton (const char *src,
                      size_t targsize)
 {
   int tarindex, state, ch;
-  char *pos;
+  const char *pos;
   const char *end;
 
   state = 0;

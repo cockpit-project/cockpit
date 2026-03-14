@@ -1033,16 +1033,6 @@ cockpit_web_response_content (CockpitWebResponse *self,
 }
 
 static GBytes *
-substitute_message (const gchar *variable,
-                    gpointer user_data)
-{
-  const gchar *message = user_data;
-  if (g_str_equal (variable, "message"))
-    return g_bytes_new (message, strlen (message));
-  return NULL;
-}
-
-static GBytes *
 substitute_hash_value (const gchar *variable,
                        gpointer user_data)
 {
@@ -1178,15 +1168,11 @@ cockpit_web_response_error_with_body (CockpitWebResponse *self,
         {
           // Otherwise, show our fail.html page...
           extern const char *cockpit_webresponse_fail_html_text;
-          g_autoptr(GBytes) input = g_bytes_new_static (cockpit_webresponse_fail_html_text, strlen (cockpit_webresponse_fail_html_text));
-          g_autolist(GBytes) output = cockpit_template_expand (input, "@@", "@@", substitute_message, (gpointer) message);
-
-          for (GList *l = output; l != NULL; l = g_list_next (l))
-            {
-              if (!cockpit_web_response_queue (self, l->data))
-                /* error: early exit */
-                return;
-            }
+          GString *html = g_string_new (cockpit_webresponse_fail_html_text);
+          g_string_replace (html, "@@message@@", message, 0);
+          g_autoptr(GBytes) bytes = g_string_free_to_bytes (html);
+          if (!cockpit_web_response_queue (self, bytes))
+            return;
         }
     }
 

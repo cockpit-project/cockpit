@@ -36,6 +36,7 @@ import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 import { ModificationsExportDialog } from "cockpit-components-modifications.jsx";
+import { SessionCountdownModal } from "cockpit/SessionCountdownModal";
 
 const _ = cockpit.gettext;
 const DEFAULT_KDUMP_PATH = "/var/crash";
@@ -579,6 +580,7 @@ ${enableCrashKernel}
         }
         return (
             <Page className="pf-m-no-sidebar">
+                <SessionCountdownModal />
                 <PageSection hasBodyWrapper={false}>
                     <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
                         <Title headingLevel="h2" size="3xl">

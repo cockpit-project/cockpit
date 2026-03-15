@@ -26,6 +26,7 @@ import { DescriptionListDescription, DescriptionListGroup, DescriptionListTerm }
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Icon } from "@patternfly/react-core/dist/esm/components/Icon";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover";
+import { SessionCountdownModal } from "cockpit/SessionCountdownModal";
 
 import {
     decode_filename, block_short_name, fmt_size,
@@ -850,6 +851,7 @@ export const StoragePage = ({ location, plot_state }) => {
 
     return (
         <Page id="storage" className={"pf-m-no-sidebar" + (client.in_anaconda_mode() ? " anaconda" : "")}>
+            <SessionCountdownModal />
             { (!client.in_anaconda_mode() && page.parent) &&
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <StorageBreadcrumb page={page} />

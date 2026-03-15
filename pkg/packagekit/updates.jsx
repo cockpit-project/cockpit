@@ -70,6 +70,7 @@ import "./updates.scss";
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
 import { Severity } from '_internal/packagemanager-abstract';
 import { getPackageManager } from 'packagemanager';
+import { SessionCountdownModal } from "cockpit/SessionCountdownModal";
 
 const _ = cockpit.gettext;
 
@@ -1590,6 +1591,7 @@ class OsUpdates extends React.Component {
         return (
             <WithDialogs>
                 <Page className="pf-m-no-sidebar">
+                    <SessionCountdownModal />
                     {content}
                 </Page>
             </WithDialogs>

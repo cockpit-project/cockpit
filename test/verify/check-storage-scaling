@@ -9,6 +9,7 @@ import storagelib
 import testlib
 
 
+@testlib.nondestructive
 class TestStorageScaling(storagelib.StorageCase):
 
     def testScaling(self):
@@ -26,6 +27,7 @@ class TestStorageScaling(storagelib.StorageCase):
             b.wait_in_text(self.card("Storage"), "lib/machines")
         n_rows = count_rows()
 
+        self.addCleanup(m.execute, "rmmod scsi_debug")
         m.execute("modprobe scsi_debug num_tgts=200")
         with b.wait_timeout(60):
             b.click(self.card_button("Storage", f"Show all {n_rows + 200} rows"))

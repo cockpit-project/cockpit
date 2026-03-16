@@ -14,8 +14,10 @@ export const cockpitTestHtmlPlugin = ({ testFiles }) => ({
             testFiles.forEach(file => {
                 const test = path.parse(file).name;
                 const builddir = file.split("/").map(() => "../").join("");
-                const output = data.toString().replace("%title%", test).replace("%builddir%", builddir)
-                        .replace("%script%", test + '.js');
+                const output = data.toString()
+                        .replaceAll("%title%", test)
+                        .replaceAll("%builddir%", builddir)
+                        .replaceAll("%script%", test + '.js');
                 const outdir = './qunit/' + path.dirname(file);
                 const outfile = test + ".html";
 

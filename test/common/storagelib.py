@@ -48,7 +48,7 @@ class StorageHelpers(MachineCase):
         # sanity test: should not yet be loaded
         self.machine.execute("test ! -e /sys/module/scsi_debug")
         delay_option = f'ndelay={delay}' if delay else ''
-        self.machine.execute(f"modprobe scsi_debug dev_size_mb={size} {delay_option}")
+        self.machine.execute(f"modprobe scsi_debug dev_size_mb={size} vpd_use_hostno=0 {delay_option}")
         dev = self.machine.execute('while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
                                    '[ -n "$O" ] && break || sleep 0.1; done; echo "/dev/$O"').strip()
         # don't use addCleanup() here, this is often busy and needs to be cleaned up late; done in MachineCase.nonDestructiveSetup()

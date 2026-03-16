@@ -143,7 +143,7 @@ ExecStart=/usr/bin/sleep infinity
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
 
         self.click_card_row("Storage", location=mount_point_bar)
-        b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), "8000")  # scsi_debug serial
+        b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), "2000")  # scsi_debug serial
 
         # Remove fstab entry
 

@@ -18,7 +18,7 @@ import textwrap
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import GLib, Gio, Gtk  # noqa: I001, E402
+from gi.repository import GLib, GObject, Gio, Gtk, Pango  # noqa: I001, E402
 
 gi.require_version("WebKit", "6.0")
 from gi.repository import WebKit  # noqa: E402
@@ -50,17 +50,69 @@ def get_user_state_dir():
 SET_PDEATHSIG = 1
 
 
+class DownloadRow(Gtk.ListBoxRow):
+    __gtype_name__ = 'DownloadRow'
+
+    download = GObject.Property(type=WebKit.Download)
+
+    def __init__(self, download: WebKit.Download, filename: str):
+        super().__init__()
+        self.download = download
+        self.filename = filename
+        self.completed_text: str | None = None
+        self.file_path: str | None = None
+
+        self.set_activatable(False)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        box.set_margin_start(12)
+        box.set_margin_end(12)
+        box.set_margin_top(12)
+        box.set_margin_bottom(12)
+
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+
+        filename_label = Gtk.Label(label=filename, xalign=0)
+        filename_label.set_ellipsize(Pango.EllipsizeMode.END)
+        filename_label.set_hexpand(True)
+        header.append(filename_label)
+
+        self.remove_button = Gtk.Button(icon_name='window-close-symbolic')
+        self.remove_button.add_css_class('flat')
+        header.append(self.remove_button)
+
+        box.append(header)
+
+        self.progress = Gtk.ProgressBar()
+        self.progress.set_show_text(True)
+        box.append(self.progress)
+
+        self.status_label = Gtk.Label(label="Starting...", xalign=0)
+        self.status_label.add_css_class('dim-label')
+        self.status_label.add_css_class('caption')
+        self.status_label.add_css_class('monospace')
+        box.append(self.status_label)
+
+        self.set_child(box)
+
+
 @Gtk.Template(filename=f'{libexecdir}/cockpit-client.ui')
 class CockpitClientWindow(Gtk.ApplicationWindow):
     __gtype_name__ = 'CockpitClientWindow'
     webview_container = Gtk.Template.Child()
     title = Gtk.Template.Child()
+    downloads_button = Gtk.Template.Child()
+    downloads_list = Gtk.Template.Child()
 
     def __init__(self, app, uri):
         super().__init__(application=app)
 
+        self.downloads: dict[WebKit.Download, DownloadRow] = {}
+
         self.webview = WebKit.WebView(network_session=app.network_session, vexpand=True, hexpand=True)
         self.webview_container.append(self.webview)
+
+        self.downloads_list.connect('row-activated', self.download_row_activated)
 
         self.add_action_entries([
             ('reload', self.reload),
@@ -146,12 +198,13 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         dialog = Gtk.FileDialog()
         dialog.set_initial_name(suggested_filename)
 
-        def save_dialog_done(dialog: Gtk.FileDialog, result: Gio.AsyncResult):
+        def save_dialog_done(dialog: Gtk.FileDialog, result: Gio.AsyncResult) -> None:
             file = dialog.save_finish(result)
             file_path = file.get_path()
             if file and file_path:
                 download.set_allow_overwrite(True)
                 download.set_destination(file_path)
+                self.add_download_to_list(download, suggested_filename)
             else:
                 logging.debug("User cancelled download")
                 download.cancel()
@@ -159,6 +212,99 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         dialog.save(self, None, save_dialog_done)
 
         return True
+
+    def add_download_to_list(self, download: WebKit.Download, filename: str) -> None:
+        row = DownloadRow(download, filename)
+        row.remove_button.connect('clicked', lambda _: self.remove_download(download))
+
+        self.downloads_list.append(row)
+        self.downloads[download] = row
+
+        self.downloads_button.set_visible(True)
+        self._update_downloads_button()
+
+        download.bind_property('estimated-progress', row.progress, 'fraction',
+                                GObject.BindingFlags.SYNC_CREATE)
+
+        def format_progress(_binding: GObject.Binding, _value: float) -> str:
+            received = download.get_received_data_length()
+            total = download.get_response().get_content_length()
+            if total > 0:
+                return f"{GLib.format_size(received)} of {GLib.format_size(total)}"
+            return f"{GLib.format_size(received)} downloaded"
+
+        download.bind_property('estimated-progress', row.status_label, 'label',
+                                GObject.BindingFlags.SYNC_CREATE,
+                                format_progress)
+
+        download.connect('failed', self.download_failed)
+        download.connect('finished', self.download_finished)
+
+    def download_finished(self, download: WebKit.Download) -> None:
+        if download not in self.downloads:
+            return
+
+        row = self.downloads[download]
+        row.progress.set_visible(False)
+
+        received = download.get_received_data_length()
+        if received > 0:
+            row.completed_text = f"Completed - {GLib.format_size(received)}"
+        else:
+            row.completed_text = "Completed"
+
+        row.status_label.set_label(row.completed_text)
+        row.set_activatable(True)
+        row.file_path = download.get_destination()
+
+        motion_controller = Gtk.EventControllerMotion()
+        motion_controller.connect('enter', lambda *args: row.status_label.set_label("Open file"))
+        motion_controller.connect('leave', lambda *args: row.status_label.set_label(row.completed_text))
+        row.add_controller(motion_controller)
+
+        logging.info("Download completed: %s", row.filename)
+        self._update_downloads_button()
+
+    def download_failed(self, download: WebKit.Download, error: GLib.Error) -> None:
+        if download not in self.downloads:
+            return
+
+        row = self.downloads[download]
+        row.progress.set_fraction(0.0)
+        row.status_label.set_label(f"Failed: {error.message}")
+
+        logging.error("Download failed: %s - %s", row.filename, error.message)
+        self._update_downloads_button()
+
+    def _update_downloads_button(self) -> None:
+        has_active = any(row.progress.get_visible() for row in self.downloads.values())
+        if has_active:
+            self.downloads_button.add_css_class('suggested-action')
+        else:
+            self.downloads_button.remove_css_class('suggested-action')
+
+    def download_row_activated(self, _list_box: Gtk.ListBox, row: DownloadRow) -> None:
+        if row.file_path:
+            launcher = Gtk.FileLauncher.new(Gio.File.new_for_path(row.file_path))
+            launcher.launch(self, None, self.downloads_button.popdown(), None)
+
+    def remove_download(self, download: WebKit.Download) -> None:
+        if download not in self.downloads:
+            return
+
+        row = self.downloads[download]
+
+        if row.progress.get_visible():
+            download.cancel()
+
+        self.downloads_list.remove(row)
+        del self.downloads[download]
+
+        # Hide downloads button if no downloads remain
+        if not self.downloads:
+            self.downloads_button.set_visible(False)
+
+        self._update_downloads_button()
 
     def zoom(self, _action, parameter, *_unused):
         current = self.webview.get_zoom_level()

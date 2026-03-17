@@ -67,11 +67,12 @@ jobs:
     targets: *test_targets
 
   # run extra build/unit tests on some interesting architectures
-  - job: copr_build
-    trigger: pull_request
-    targets:
-      # big-endian
-      - fedora-latest-stable-s390x
+  # https://github.com/fedora-copr/copr/issues/4219
+  # - job: copr_build
+  #   trigger: pull_request
+  #   targets:
+  #     # big-endian
+  #     - fedora-latest-stable-s390x
 
   # for cross-project testing
   - job: copr_build

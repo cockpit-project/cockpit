@@ -459,6 +459,9 @@ ExecStart=/usr/local/bin/{package} infinity
 
         startTime = m.execute(f"systemctl show {package}.service --property=ExecMainStartTimestamp")
 
+        # For good measure
+        m.execute("systemctl restart packagekit")
+
         self.addCleanup(m.execute, ("pacman -R --noconfirm " if m.image == "arch" else "rpm -e ") + package)
         self.addCleanup(m.execute, f"systemctl stop {package}")
 

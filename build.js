@@ -157,6 +157,9 @@ async function build() {
             loadPaths: [...nodePaths, 'node_modules'],
             filter: /\.scss/,
             quietDeps: true,
+            silenceDeprecations: [
+                "if-function" // https://github.com/patternfly/patternfly/issues/8077
+            ]
         })
     ];
 

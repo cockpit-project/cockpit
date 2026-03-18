@@ -71,6 +71,8 @@ static const Fixture expand_fixtures[] = {
       { "Oh ", "marmalade", " says Scruffy ", " the ", "janitor", NULL }
   },
   { "unsupported-var", "${ig.nore} ${💩} ${Kōhī}", { "${ig.nore} ${💩} ${Kōhī}" } },
+  { "var-in-string", "te${oh}st", { "te", "marmalade", "st" } },
+  { "var-in-var-string", "te${test${oh}st", { "te${test", "marmalade", "st" } },
 };
 
 static void

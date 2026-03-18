@@ -1170,7 +1170,7 @@ cockpit_web_request_on_socket_input (GSocket *socket,
    * TLS streams are guaranteed to start with octet 22.. this way we can distinguish them
    * from regular HTTP requests
    */
-  if (first_byte == 22 || first_byte == 0x80)
+  if (num_read && (first_byte == 22 || first_byte == 0x80))
     {
       if (self->web_server->certificate == NULL)
         {

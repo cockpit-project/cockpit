@@ -2402,15 +2402,20 @@ class MachineCase(unittest.TestCase):
                 break
             time.sleep(3)
 
-    def sed_file(self, expr: str, path: str, apply_change_action: str | None = None) -> None:
+    def sed_file(self, expr: str, path: str, apply_change_action: str | None = None, absent_content: str | None = None) -> None:
         """sed a file on primary machine
 
         This is safe for @nondestructive tests, the file will be restored during cleanup.
 
         The optional apply_change_action will be run both after sedding and after restoring the file.
+
+        The optional absent_content will create a file in path with the specified contents should the file not exist
         """
         m = self.machine
-        m.execute(f"sed -i.cockpittest '{expr}' {path}")
+        if absent_content and not self.file_exists(path):
+            m.write(path, absent_content)
+        else:
+            m.execute(f"sed -i.cockpittest '{expr}' {path}")
         if apply_change_action:
             m.execute(apply_change_action)
 

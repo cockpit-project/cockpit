@@ -71,6 +71,59 @@ AllowMultiHost={"yes" if allow_multi_host else "no"}
     def testNoMultiHost(self):
         self.testBasic(allow_multi_host=False)
 
+    def testModernSessionTimeout(self):
+        b = self.browser
+        m = self.machine
+
+        self.restore_dir("/home/admin")
+        m.execute("mkdir -p /home/admin/.local/share/cockpit/embed-cockpit")
+        m.upload(["verify/files/embed-cockpit/index.html",
+                  "verify/files/embed-cockpit/embed.js",
+                  "verify/files/embed-cockpit/embed.css",
+                  "verify/files/embed-cockpit/manifest.json"],
+                 "/home/admin/.local/share/cockpit/embed-cockpit/")
+
+        # replace the shell with our embedding page, this way we can avoid
+        # cross-origin errors when executing js in the iframe
+        m.write("/etc/cockpit/cockpit.conf", """
+[WebService]
+Shell=/embed-cockpit/index.html
+
+[Session]
+IdleTimeout=1
+""")
+        m.start_cockpit()
+        self.login_and_go()
+
+        b.wait_visible("#embed-loaded")
+        b.wait_visible("#embed-address")
+        b.set_val("#embed-address", f"http://{m.web_address}:{m.web_port}")
+        b.click("#embed-modern")
+        b.wait_visible("iframe[name='embed-modern'][loaded]")
+        b.switch_to_frame("embed-modern")
+
+        # We have a session controller
+        b.wait_text("#active", "Active")
+
+        # does not time out immediately
+        time.sleep(20)
+        b.wait_text("#countdown", "0")
+
+        # a mouse event resets the timer
+        b.mouse("#active", "mousemove", 24, 24)
+
+        # 30s before the 1 min timeout the countdown begins
+        time.sleep(35)
+        self.assertGreater(int(b.text("#countdown")), 15)
+
+        # wait for it finish
+        time.sleep(30)
+
+        # that logs you out
+        b.wait_visible("#login")
+        b.wait_visible("#login-info-message")
+        b.wait_text("#login-info-message", "You have been logged out due to inactivity.")
+
     @testlib.skipBrowser("Chromium cannot inspect cross-origin frames", "chromium")
     def testCrossOrigin(self):
         b = self.browser

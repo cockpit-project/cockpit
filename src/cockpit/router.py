@@ -184,6 +184,9 @@ class Router(CockpitProtocolServer):
             endpoint.do_kill(host, group, message)
 
     def channel_control_received(self, channel: str, command: str, message: JsonObject) -> None:
+        if self.init_host is None:
+            raise CockpitProtocolError('channel control message received before init')
+
         # If this is an open message then we need to apply the routing rules to
         # figure out the correct endpoint to connect.  If it's not an open
         # message, then we expect the endpoint to already exist.
@@ -211,6 +214,9 @@ class Router(CockpitProtocolServer):
         endpoint.do_channel_control(channel, command, message)
 
     def channel_data_received(self, channel: str, data: bytes) -> None:
+        if self.init_host is None:
+            raise CockpitProtocolError('channel data message received before init')
+
         try:
             endpoint = self.open_channels[channel]
         except KeyError:

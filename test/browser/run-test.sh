@@ -207,6 +207,12 @@ if [ "$PLAN" = "storage-extra" ]; then
            TestStorageMountingLUKS
            TestStorageLvm
            "
+    if [ "$TEST_OS" = "fedora-eln" ]; then
+       EXCLUDES="$EXCLUDES
+              TestStorageAnaconda.testBtrfs
+              TestStorageAnaconda.testDegradedBtrfs
+              "
+    fi
 
     # These don't test more external APIs
     EXCLUDES="$EXCLUDES

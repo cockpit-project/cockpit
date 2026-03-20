@@ -113,6 +113,11 @@ ForwardedForHeader = X-Forwarded-For
 *Shell*::
   The relative URL to top level component to display in Cockpit once
   logged in. Defaults to `+/shell/index.html+`
+*StaticDir*::
+  Load the login page from an alternative directory. The directory must
+  contain a `+login.html+` file and may optionally include `+login.css+`,
+  `+login.js+`, `+po.js+`, and `+branding.css+`. When not set, the
+  default `+/usr/share/cockpit/static+` directory is used.
 
 == Log
 

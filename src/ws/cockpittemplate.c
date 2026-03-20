@@ -83,6 +83,8 @@ cockpit_template_expand (GBytes *input,
   data = g_bytes_get_data (input, NULL);
   end = data + g_bytes_get_size (input);
 
+  g_return_val_if_fail (data != NULL, NULL);
+
   for (;;)
     {
       escaped = FALSE;

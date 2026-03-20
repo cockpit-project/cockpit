@@ -108,20 +108,15 @@ jobs:
     actions: *official_release_actions
 
     dist_git_branches:
-      - fedora-development
-      - fedora-43
-      - fedora-44
+      - fedora-all
 
   - job: koji_build
     trigger: commit
     dist_git_branches:
-      - fedora-development
-      - fedora-43
-      - fedora-44
+      - fedora-all
 
   - job: bodhi_update
     trigger: commit
     dist_git_branches:
       # rawhide updates are created automatically
-      - fedora-43
-      - fedora-44
+      - fedora-branched

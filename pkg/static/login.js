@@ -927,7 +927,7 @@ function debug(...args) {
             return null;
 
         const parts = header.split(' ');
-        if (parts[0].toLowerCase() !== 'x-conversation' && parts.length != 3)
+        if (parts[0].toLowerCase() !== 'x-conversation' || parts.length !== 3)
             return null;
 
         const id = parts[1];

@@ -230,6 +230,7 @@ optional_policy(`
         type pidfs_t;
     ')
     allow cockpit_session_t pidfs_t:filesystem getattr;
+    allow cockpit_ws_t pidfs_t:filesystem getattr;
 ')
 
 #########################################################

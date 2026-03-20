@@ -86,6 +86,10 @@ if [ -e /sysroot/ostree ]; then
     mount -t tmpfs tmpfs /usr/local
 fi
 
+if [ "${VARIANT_ID:-}" = "eln" ]; then
+    TEST_OS="fedora-eln"
+fi
+
 # Run tests in the cockpit tasks container, as unprivileged user
 CONTAINER="$(cat .cockpit-ci/container)"
 exec podman \

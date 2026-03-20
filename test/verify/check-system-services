@@ -305,6 +305,7 @@ WantedBy=default.target
                                    ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"],
                                    enabled=True)
         if not user:
+            b.wait_not_present("#memory")
             b.assert_pixels("#service-details-unit", "details-test-fail",
                             # in medium layout we sometimes get a scrollbar depending on how many test-fail logs exist
                             skip_layouts=["medium"],

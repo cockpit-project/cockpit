@@ -35,6 +35,7 @@ import { JournalBox } from "./logsJournal.jsx";
 import { LogEntry } from "./logDetails.jsx";
 
 import { usePageLocation } from "hooks";
+import { SessionCountdownModal } from "cockpit/SessionCountdownModal";
 
 import "./logs.scss";
 
@@ -168,6 +169,7 @@ export const LogsPage = () => {
 
     return (
         <Page className='pf-m-no-sidebar'>
+            <SessionCountdownModal />
             <PageSection hasBodyWrapper={false} id="journal" className="journal-filters">
                 <Toolbar hasNoPadding>
                     <ToolbarContent>

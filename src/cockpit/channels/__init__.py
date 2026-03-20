@@ -10,6 +10,7 @@ from .info import InfoChannel
 from .metrics import InternalMetricsChannel
 from .packages import PackagesChannel
 from .pcp import PcpMetricsChannel
+from .session import SessionControlChannel
 from .stream import SocketStreamChannel, SubprocessStreamChannel
 from .trivial import EchoChannel, NullChannel
 
@@ -27,6 +28,7 @@ CHANNEL_TYPES = [  # noqa: RUF067
     NullChannel,
     PackagesChannel,
     PcpMetricsChannel,
+    SessionControlChannel,
     SubprocessStreamChannel,
     SocketStreamChannel,
 ]

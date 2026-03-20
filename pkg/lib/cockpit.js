@@ -17,6 +17,9 @@ import { Location } from 'cockpit/_internal/location';
 import { ensure_transport, transport_globals } from './cockpit/_internal/transport';
 import { FsInfoClient } from "./cockpit/fsinfo";
 import { fetch_info } from './cockpit/_internal/info';
+import { logout, get_session_controller } from './cockpit/session';
+import { localStorage, sessionStorage } from './cockpit/_internal/storage';
+import { gettext, ngettext, language, language_direction, translate, locale } from './cockpit/_internal/gettext';
 
 function factory() {
     const cockpit = { };
@@ -275,62 +278,8 @@ function factory() {
         return format_units(bit_suffixes, number, ...args);
     };
 
-    /* ---------------------------------------------------------------------
-     * Storage Helper.
-     *
-     * Use application to prefix data stored in browser storage
-     * with helpers for compatibility.
-     */
-    function StorageHelper(storageName) {
-        const self = this;
-        let storage;
-
-        try {
-            storage = window[storageName];
-        } catch (e) { }
-
-        self.prefixedKey = function (key) {
-            return cockpit.transport.application() + ":" + key;
-        };
-
-        self.getItem = function (key, both) {
-            let value = storage.getItem(self.prefixedKey(key));
-            if (!value && both)
-                value = storage.getItem(key);
-            return value;
-        };
-
-        self.setItem = function (key, value, both) {
-            storage.setItem(self.prefixedKey(key), value);
-            if (both)
-                storage.setItem(key, value);
-        };
-
-        self.removeItem = function(key, both) {
-            storage.removeItem(self.prefixedKey(key));
-            if (both)
-                storage.removeItem(key);
-        };
-
-        /* Instead of clearing, purge anything that isn't prefixed with an application
-         * and anything prefixed with our application.
-         */
-        self.clear = function(full) {
-            let i = 0;
-            while (i < storage.length) {
-                const k = storage.key(i);
-                if (full && k.indexOf("cockpit") !== 0)
-                    storage.removeItem(k);
-                else if (k.indexOf(cockpit.transport.application()) === 0)
-                    storage.removeItem(k);
-                else
-                    i++;
-            }
-        };
-    }
-
-    cockpit.localStorage = new StorageHelper("localStorage");
-    cockpit.sessionStorage = new StorageHelper("sessionStorage");
+    cockpit.localStorage = localStorage;
+    cockpit.sessionStorage = sessionStorage;
 
     /* ---------------------------------------------------------------------
      * Shared data cache.
@@ -1030,25 +979,7 @@ function factory() {
         };
     }
 
-    cockpit.logout = function logout(reload, reason) {
-        /* fully clear session storage */
-        cockpit.sessionStorage.clear(true);
-
-        /* Only clean application data from localStorage,
-         * except for login-data. Clear that completely */
-        cockpit.localStorage.removeItem('login-data', true);
-        cockpit.localStorage.clear(false);
-
-        if (reload !== false)
-            transport_globals.reload_after_disconnect = true;
-        ensure_transport(function(transport) {
-            if (!transport.send_control({ command: "logout", disconnect: true }))
-                window.location.reload(transport_globals.reload_after_disconnect);
-        });
-        window.sessionStorage.setItem("logout-intent", "explicit");
-        if (reason)
-            window.sessionStorage.setItem("logout-reason", reason);
-    };
+    cockpit.logout = logout;
 
     /* Not public API ... yet? */
     cockpit.drop_privileges = function drop_privileges() {
@@ -2263,133 +2194,17 @@ function factory() {
      * Localization
      */
 
-    let po_data = { };
-    let po_plural;
+    cockpit.language = language;
+    cockpit.language_direction = language_direction;
 
-    cockpit.language = "en";
-    cockpit.language_direction = "ltr";
-    const test_l10n = window.localStorage.test_l10n;
-
-    cockpit.locale = function locale(po) {
-        let lang = cockpit.language;
-        let lang_dir = cockpit.language_direction;
-        let header;
-
-        if (po) {
-            Object.assign(po_data, po);
-            header = po[""];
-        } else if (po === null) {
-            po_data = { };
-        }
-
-        if (header) {
-            if (header["plural-forms"])
-                po_plural = header["plural-forms"];
-            if (header.language)
-                lang = header.language;
-            if (header["language-direction"])
-                lang_dir = header["language-direction"];
-        }
-
-        cockpit.language = lang;
-        cockpit.language_direction = lang_dir;
+    cockpit.locale = (po) => {
+        locale(po);
+        cockpit.language = language;
+        cockpit.language_direction = language_direction;
     };
-
-    cockpit.translate = function translate(/* ... */) {
-        let what;
-
-        /* Called without arguments, entire document */
-        if (arguments.length === 0)
-            what = [document];
-
-        /* Called with a single array like argument */
-        else if (arguments.length === 1 && arguments[0].length)
-            what = arguments[0];
-
-        /* Called with 1 or more element arguments */
-        else
-            what = arguments;
-
-        /* Translate all the things */
-        const wlen = what.length;
-        for (let w = 0; w < wlen; w++) {
-            /* The list of things to translate */
-            let list = null;
-            if (what[w].querySelectorAll)
-                list = what[w].querySelectorAll("[translate]");
-            if (!list)
-                continue;
-
-            /* Each element */
-            for (let i = 0; i < list.length; i++) {
-                const el = list[i];
-
-                let val = el.getAttribute("translate") || "yes";
-                if (val == "no")
-                    continue;
-
-                /* Each thing to translate */
-                const tasks = val.split(" ");
-                val = el.getAttribute("translate-context") || el.getAttribute("context");
-                for (let t = 0; t < tasks.length; t++) {
-                    if (tasks[t] == "yes" || tasks[t] == "translate")
-                        el.textContent = cockpit.gettext(val, el.textContent);
-                    else if (tasks[t])
-                        el.setAttribute(tasks[t], cockpit.gettext(val, el.getAttribute(tasks[t]) || ""));
-                }
-
-                /* Mark this thing as translated */
-                el.removeAttribute("translate");
-            }
-        }
-    };
-
-    cockpit.gettext = function gettext(context, string) {
-        /* Missing first parameter */
-        if (arguments.length == 1) {
-            string = context;
-            context = undefined;
-        }
-
-        const key = context ? context + '\u0004' + string : string;
-        if (po_data) {
-            const translated = po_data[key];
-            if (translated?.[1])
-                string = translated[1];
-        }
-
-        if (test_l10n === 'true')
-            return "»" + string + "«";
-
-        return string;
-    };
-
-    function imply(val) {
-        return (val === true ? 1 : val || 0);
-    }
-
-    cockpit.ngettext = function ngettext(context, string1, stringN, num) {
-        /* Missing first parameter */
-        if (arguments.length == 3) {
-            num = stringN;
-            stringN = string1;
-            string1 = context;
-            context = undefined;
-        }
-
-        const key = context ? context + '\u0004' + string1 : string1;
-        if (po_data && po_plural) {
-            const translated = po_data[key];
-            if (translated) {
-                const i = imply(po_plural(num)) + 1;
-                if (translated[i])
-                    return translated[i];
-            }
-        }
-        if (num == 1)
-            return string1;
-        return stringN;
-    };
+    cockpit.translate = translate;
+    cockpit.gettext = gettext;
+    cockpit.ngettext = ngettext;
 
     cockpit.noop = function noop(arg0, arg1) {
         return arguments[arguments.length - 1];
@@ -3000,6 +2815,11 @@ function factory() {
             throw new Error(`Assertion failed: ${message}`);
         }
     };
+
+    /* Session timeout handling
+     */
+
+    cockpit.session_controller = get_session_controller();
 
     return cockpit;
 }

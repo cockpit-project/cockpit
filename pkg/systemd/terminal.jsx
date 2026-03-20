@@ -17,6 +17,7 @@ import "./terminal.scss";
 
 import { Terminal } from "cockpit-components-terminal.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { SessionCountdownModal } from "cockpit/SessionCountdownModal";
 
 const _ = cockpit.gettext;
 
@@ -234,6 +235,7 @@ const _ = cockpit.gettext;
 
             return (
                 <Page className="pf-m-no-sidebar">
+                    <SessionCountdownModal />
                     <PageSection hasShadowBottom>
                         <div className="terminal-group">
                             <code className="terminal-title">{this.state.title}</code>

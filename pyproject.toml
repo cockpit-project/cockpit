@@ -165,6 +165,9 @@ mark-parentheses = false
 [tool.ruff.lint.isort]
 known-first-party = ["cockpit"]
 
+[tool.ty.environment]
+extra-paths = ["src", "test/common", "bots"]
+
 [tool.pytest.ini_options]
 addopts = ['--strict-markers']  # cf. https://github.com/cockpit-project/cockpit/pull/18584#issuecomment-1490243994
 pythonpath = ["src", "test/common", "bots"]

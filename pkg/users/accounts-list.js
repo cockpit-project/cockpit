@@ -286,7 +286,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
 
     return (
         <Card className="ct-card card-groups" isExpanded={isExpanded}>
-            <CardHeader actions={{ actions: tableToolbar, hasNoOffset: true }}
+            <CardHeader hasWrap actions={{ actions: tableToolbar, hasNoOffset: true }}
                 className="ct-card-expandable-header"
                 onExpand={() => setIsExpanded(!isExpanded)}
                 toggleButtonProps={{
@@ -419,7 +419,7 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
 
     return (
         <Card isPlain className="ct-card">
-            <CardHeader actions={{ actions: tableToolbar }}>
+            <CardHeader hasWrap actions={{ actions: tableToolbar }}>
                 <CardTitle component="h2">{_("Accounts")}</CardTitle>
             </CardHeader>
             <ListingTable columns={columns}

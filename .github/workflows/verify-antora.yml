@@ -1,0 +1,32 @@
+name: verify-antora
+on:
+  pull_request:
+    # Only run when a file has changed in doc/ directory
+    paths:
+      - doc/**
+    branches:
+      - main
+jobs:
+  verify-antora:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+            version: 10
+
+      - name: Setup Node with Cache
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
+          cache-dependency-path: '**/.github/workflows/*.yml'
+
+      - name: Verify Antora can build
+        run: pnpx antora antora-playbook.yml
+
+      - name: Show generated Antora files
+        run: tree doc/output/antora/ -h

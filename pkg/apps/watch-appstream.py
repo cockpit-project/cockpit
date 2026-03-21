@@ -91,187 +91,377 @@ def attr_lang(elt):
     return elt.attrib.get('{http://www.w3.org/XML/1998/namespace}lang')
 
 
-def element(xml, tag):
-    if lang:
-        for elt in xml.iter(tag):
-            if attr_lang(elt) == lang:
-                return elt
-    return xml.find(tag)
+class Appstream:
+    @staticmethod
+    def element(xml, tag):
+        if lang:
+            for elt in xml.iter(tag):
+                if attr_lang(elt) == lang:
+                    return elt
+        return xml.find(tag)
 
+    @staticmethod
+    def element_value(xml, tag):
+        elt = element(xml, tag)
+        return elt.text if elt is not None else None
 
-def element_value(xml, tag):
-    elt = element(xml, tag)
-    return elt.text if elt is not None else None
+    @staticmethod
+    def convert_description(xml, *, use_lang=True):
+        if xml is None:
+            return None
 
+        want_lang = lang if use_lang else None
 
-def convert_description(xml, *, use_lang=True):
-    if xml is None:
+        # Only the following constructs are allowed, and they all appear
+        # at the top level:
+        #
+        # <p>text</p>
+        # <ul><li>text</li>...</ul>
+        # <ol><li>text</li>...</ol>
+
+        # A description can have 'lang' attributes both on the actual
+        # <description> element and on the contained <p>, <ul>, and <ol>
+        # elements, but probably not on the <li> elements.
+
+        def text(xml):
+            return " ".join(xml.itertext())
+
+        res = []
+        for c in xml:
+            if attr_lang(c) != want_lang:
+                continue
+            if c.tag == 'p':
+                res.append(text(c))
+            elif c.tag == 'ul' or c.tag == 'ol':
+                res.append({'tag': c.tag, 'items': list(map(text, c.findall('li')))})
+
+        # If we found nothing that matches lang, fall back to default
+        if lang is not None and len(res) == 0:
+            res = convert_description(xml, use_lang=False)
+
+        return res
+
+    @staticmethod
+    def convert_cached_icon(directory, origin, xml):
+        icon = xml.text
+
+        def try_size(sz):
+            path = os.path.join(directory, "..", "icons", origin, sz, icon)
+            return path if os.path.exists(path) else None
+
+        return try_size("64x64") or try_size("128x128")
+
+    @staticmethod
+    def convert_remote_icon(xml):
+        url = xml.text
+        if url.startswith(('http://', 'https://')):
+            return url
         return None
 
-    want_lang = lang if use_lang else None
-
-    # Only the following constructs are allowed, and they all appear
-    # at the top level:
-    #
-    # <p>text</p>
-    # <ul><li>text</li>...</ul>
-    # <ol><li>text</li>...</ol>
-
-    # A description can have 'lang' attributes both on the actual
-    # <description> element and on the contained <p>, <ul>, and <ol>
-    # elements, but probably not on the <li> elements.
-
-    def text(xml):
-        return " ".join(xml.itertext())
-
-    res = []
-    for c in xml:
-        if attr_lang(c) != want_lang:
-            continue
-        if c.tag == 'p':
-            res.append(text(c))
-        elif c.tag == 'ul' or c.tag == 'ol':
-            res.append({'tag': c.tag, 'items': list(map(text, c.findall('li')))})
-
-    # If we found nothing that matches lang, fall back to default
-    if lang is not None and len(res) == 0:
-        res = convert_description(xml, use_lang=False)
-
-    return res
-
-
-def convert_cached_icon(directory, origin, xml):
-    icon = xml.text
-
-    def try_size(sz):
-        path = os.path.join(directory, "..", "icons", origin, sz, icon)
-        return path if os.path.exists(path) else None
-
-    return try_size("64x64") or try_size("128x128")
-
-
-def convert_remote_icon(xml):
-    url = xml.text
-    if url.startswith(('http://', 'https://')):
-        return url
-    return None
-
-
-def convert_local_icon(xml):
-    path = xml.text
-    if path.startswith("/"):
-        return path
-    return None
-
-
-def convert_stock_icon(xml):
-    icon = xml.text
-
-    def try_size(size: str, extension: str):
-        path = os.path.join("/usr/share/icons/hicolor", size, "apps", f"{icon}.{extension}")
-        return path if os.path.exists(path) else None
-
-    return (try_size("64x64", "svg") or try_size("64x64", "png") or
-            try_size("128x128", "svg") or try_size("128x128", "png"))
-
-
-def find_and_convert_icon(directory, origin, xml):
-    if xml is None:
+    @staticmethod
+    def convert_local_icon(xml):
+        path = xml.text
+        if path.startswith("/"):
+            return path
         return None
 
-    # Just use the first icon.
-    icon = xml.find('icon')
+    @staticmethod
+    def convert_stock_icon(xml):
+        icon = xml.text
 
-    if icon is not None:
-        if icon.attrib['type'] == 'cached':
-            return convert_cached_icon(directory, origin, icon)
-        elif icon.attrib['type'] == 'remote':
-            return convert_remote_icon(icon)
-        elif icon.attrib['type'] == 'local':
-            return convert_local_icon(icon)
-        elif icon.attrib['type'] == 'stock':
-            return convert_stock_icon(icon)
+        def try_size(size: str, extension: str):
+            path = os.path.join("/usr/share/icons/hicolor", size, "apps", f"{icon}.{extension}")
+            return path if os.path.exists(path) else None
 
-    return None
+        return (try_size("64x64", "svg") or try_size("64x64", "png") or
+                try_size("128x128", "svg") or try_size("128x128", "png"))
 
+    @staticmethod
+    def find_and_convert_icon(directory, origin, xml):
+        if xml is None:
+            return None
 
-def convert_screenshots(xml):
-    if xml is None:
-        return []
+        # Just use the first icon.
+        icon = xml.find('icon')
 
-    shots = []
-    for sh in xml.iter('screenshot'):
-        for img in sh.iter('image'):
-            if img.attrib['type'] == 'source':
-                shots.append({'full': img.text})
+        if icon is not None:
+            if icon.attrib['type'] == 'cached':
+                return convert_cached_icon(directory, origin, icon)
+            elif icon.attrib['type'] == 'remote':
+                return convert_remote_icon(icon)
+            elif icon.attrib['type'] == 'local':
+                return convert_local_icon(icon)
+            elif icon.attrib['type'] == 'stock':
+                return convert_stock_icon(icon)
 
-    return shots
-
-
-def convert_launchables(xml):
-    ables = []
-
-    for elt in xml.iter('launchable'):
-        launchable_type = elt.attrib['type']
-        if launchable_type == "cockpit-manifest":
-            ables.append({'name': elt.text, 'type': launchable_type})
-
-    return ables
-
-
-def convert_urls(xml):
-    urls = []
-
-    for url in xml.iter('url'):
-        urls.append({'type': url.attrib['type'], 'link': url.text})
-
-    return urls
-
-
-def convert_collection_component(directory, origin, xml):
-    component_id = element_value(xml, 'id')
-    pkgname = element_value(xml, 'pkgname')
-    launchables = convert_launchables(xml)
-    urls = convert_urls(xml)
-
-    if not component_id or not pkgname or len(launchables) == 0:
         return None
 
-    return {
-        'id': component_id,
-        'pkgname': pkgname,
-        'name': element_value(xml, 'name'),
-        'summary': element_value(xml, 'summary'),
-        'description': convert_description(element(xml, 'description')),
-        'icon': find_and_convert_icon(directory, origin, xml),
-        'screenshots': convert_screenshots(element(xml, 'screenshots')),
-        'launchables': launchables,
-        'urls': urls
-    }
+    @staticmethod
+    def convert_screenshots(xml):
+        if xml is None:
+            return []
 
+        shots = []
+        for sh in xml.iter('screenshot'):
+            for img in sh.iter('image'):
+                if img.attrib['type'] == 'source':
+                    shots.append({'full': img.text})
 
-def convert_upstream_component(file, xml):
-    if xml.tag != 'component':
+        return shots
+
+    @staticmethod
+    def convert_launchables(xml):
+        ables = []
+
+        for elt in xml.iter('launchable'):
+            launchable_type = elt.attrib['type']
+            if launchable_type == "cockpit-manifest":
+                ables.append({'name': elt.text, 'type': launchable_type})
+
+        return ables
+
+    @staticmethod
+    def convert_urls(xml):
+        urls = []
+
+        for url in xml.iter('url'):
+            urls.append({'type': url.attrib['type'], 'link': url.text})
+
+        return urls
+
+    @staticmethod
+    def convert_collection_component(directory, origin, xml):
+        component_id = element_value(xml, 'id')
+        pkgname = element_value(xml, 'pkgname')
+        launchables = convert_launchables(xml)
+        urls = convert_urls(xml)
+
+        if not component_id or not pkgname or len(launchables) == 0:
+            return None
+
+        return {
+            'id': component_id,
+            'pkgname': pkgname,
+            'name': element_value(xml, 'name'),
+            'summary': element_value(xml, 'summary'),
+            'description': convert_description(element(xml, 'description')),
+            'icon': find_and_convert_icon(directory, origin, xml),
+            'screenshots': convert_screenshots(element(xml, 'screenshots')),
+            'launchables': launchables,
+            'urls': urls
+        }
+
+    @staticmethod
+    def convert_upstream_component(file, xml):
+        if xml.tag != 'component':
+            return None
+
+        launchables = convert_launchables(xml)
+        if len(launchables) == 0:
+            return None
+
+        urls = convert_urls(xml)
+
+        return {
+            'id': element_value(xml, 'id'),
+            'name': element_value(xml, 'name'),
+            'summary': element_value(xml, 'summary'),
+            'description': convert_description(element(xml, 'description')),
+            'icon': find_and_convert_icon(dir, '', xml),
+            'screenshots': convert_screenshots(element(xml, 'screenshots')),
+            'launchables': launchables,
+            'installed': True,
+            'file': file,
+            'urls': urls
+        }
+
+class AppstreamYaml:
+    @staticmethod
+    def element(xml, tag):
+        if lang:
+            for elt in xml.iter(tag):
+                if attr_lang(elt) == lang:
+                    return elt
+        return xml.find(tag)
+
+    @staticmethod
+    def element_value(xml, tag):
+        elt = element(xml, tag)
+        return elt.text if elt is not None else None
+
+    @staticmethod
+    def convert_description(xml, *, use_lang=True):
+        if xml is None:
+            return None
+
+        want_lang = lang if use_lang else None
+
+        # Only the following constructs are allowed, and they all appear
+        # at the top level:
+        #
+        # <p>text</p>
+        # <ul><li>text</li>...</ul>
+        # <ol><li>text</li>...</ol>
+
+        # A description can have 'lang' attributes both on the actual
+        # <description> element and on the contained <p>, <ul>, and <ol>
+        # elements, but probably not on the <li> elements.
+
+        def text(xml):
+            return " ".join(xml.itertext())
+
+        res = []
+        for c in xml:
+            if attr_lang(c) != want_lang:
+                continue
+            if c.tag == 'p':
+                res.append(text(c))
+            elif c.tag == 'ul' or c.tag == 'ol':
+                res.append({'tag': c.tag, 'items': list(map(text, c.findall('li')))})
+
+        # If we found nothing that matches lang, fall back to default
+        if lang is not None and len(res) == 0:
+            res = convert_description(xml, use_lang=False)
+
+        return res
+
+    @staticmethod
+    def convert_cached_icon(directory, origin, xml):
+        icon = xml.text
+
+        def try_size(sz):
+            path = os.path.join(directory, "..", "icons", origin, sz, icon)
+            return path if os.path.exists(path) else None
+
+        return try_size("64x64") or try_size("128x128")
+
+    @staticmethod
+    def convert_remote_icon(xml):
+        url = xml.text
+        if url.startswith(('http://', 'https://')):
+            return url
         return None
 
-    launchables = convert_launchables(xml)
-    if len(launchables) == 0:
+    @staticmethod
+    def convert_local_icon(xml):
+        path = xml.text
+        if path.startswith("/"):
+            return path
         return None
 
-    urls = convert_urls(xml)
+    @staticmethod
+    def convert_stock_icon(xml):
+        icon = xml.text
 
-    return {
-        'id': element_value(xml, 'id'),
-        'name': element_value(xml, 'name'),
-        'summary': element_value(xml, 'summary'),
-        'description': convert_description(element(xml, 'description')),
-        'icon': find_and_convert_icon(dir, '', xml),
-        'screenshots': convert_screenshots(element(xml, 'screenshots')),
-        'launchables': launchables,
-        'installed': True,
-        'file': file,
-        'urls': urls
-    }
+        def try_size(size: str, extension: str):
+            path = os.path.join("/usr/share/icons/hicolor", size, "apps", f"{icon}.{extension}")
+            return path if os.path.exists(path) else None
+
+        return (
+            try_size("64x64", "svg")
+            or try_size("64x64", "png")
+            or try_size("128x128", "svg")
+            or try_size("128x128", "png")
+        )
+
+    @staticmethod
+    def find_and_convert_icon(directory, origin, xml):
+        if xml is None:
+            return None
+
+        # Just use the first icon.
+        icon = xml.find('icon')
+
+        if icon is not None:
+            if icon.attrib['type'] == 'cached':
+                return convert_cached_icon(directory, origin, icon)
+            elif icon.attrib['type'] == 'remote':
+                return convert_remote_icon(icon)
+            elif icon.attrib['type'] == 'local':
+                return convert_local_icon(icon)
+            elif icon.attrib['type'] == 'stock':
+                return convert_stock_icon(icon)
+
+        return None
+
+    @staticmethod
+    def convert_screenshots(xml):
+        if xml is None:
+            return []
+
+        shots = []
+        for sh in xml.iter('screenshot'):
+            for img in sh.iter('image'):
+                if img.attrib['type'] == 'source':
+                    shots.append({'full': img.text})
+
+        return shots
+
+    @staticmethod
+    def convert_launchables(yaml):
+        ables = []
+
+        for elt in yaml.iter('launchable'):
+            launchable_type = elt.attrib['type']
+            if launchable_type == "cockpit-manifest":
+                ables.append({'name': elt.text, 'type': launchable_type})
+
+        return ables
+
+    @staticmethod
+    def convert_urls(xml):
+        urls = []
+
+        for url in xml.iter('url'):
+            urls.append({'type': url.attrib['type'], 'link': url.text})
+
+        return urls
+
+    @staticmethod
+    def convert_collection_component(directory, origin, xml):
+        component_id = element_value(xml, 'id')
+        pkgname = element_value(xml, 'pkgname')
+        launchables = convert_launchables(xml)
+        urls = convert_urls(xml)
+
+        if not component_id or not pkgname or len(launchables) == 0:
+            return None
+
+        return {
+            'id': component_id,
+            'pkgname': pkgname,
+            'name': element_value(xml, 'name'),
+            'summary': element_value(xml, 'summary'),
+            'description': convert_description(element(xml, 'description')),
+            'icon': find_and_convert_icon(directory, origin, xml),
+            'screenshots': convert_screenshots(element(xml, 'screenshots')),
+            'launchables': launchables,
+            'urls': urls,
+        }
+
+    @staticmethod
+    def convert_upstream_component(file, xml):
+        if xml.tag != 'component':
+            return None
+
+        launchables = AppstreamYaml.convert_launchables(xml)
+        if len(launchables) == 0:
+            return None
+
+        urls = convert_urls(xml)
+
+        return {
+            'id': element_value(xml, 'id'),
+            'name': element_value(xml, 'name'),
+            'summary': element_value(xml, 'summary'),
+            'description': convert_description(element(xml, 'description')),
+            'icon': find_and_convert_icon(dir, '', xml),
+            'screenshots': convert_screenshots(element(xml, 'screenshots')),
+            'launchables': launchables,
+            'installed': True,
+            'file': file,
+            'urls': urls,
+        }
 
 
 class MetainfoDB:
@@ -282,7 +472,17 @@ class MetainfoDB:
 
     def notice_installed(self, file, xml_root):
         if xml_root is not None:
-            comp = convert_upstream_component(file, xml_root)
+            comp = Appstream.convert_upstream_component(file, xml_root)
+            if comp is not None:
+                self.installed_by_file[file] = comp
+        elif file in self.installed_by_file:
+            del self.installed_by_file[file]
+        if self.dumping:
+            self.dump()
+
+    def notice_installed_yaml(self, file, yaml_root):
+        if yaml_root is not None:
+            comp = AppstreamYaml.convert_upstream_component(file, yaml_root)
             if comp is not None:
                 self.installed_by_file[file] = comp
         elif file in self.installed_by_file:
@@ -297,6 +497,26 @@ class MetainfoDB:
             for xml_comp in xml_root.iter('component'):
                 try:
                     comp = convert_collection_component(os.path.dirname(file), origin, xml_comp)
+                    if comp is not None:
+                        if comp['id'] in info:
+                            pass  # warning: duplicate id
+                        else:
+                            info[comp['id']] = comp
+                except KeyError:
+                    pass
+            self.available_by_file[file] = info
+        elif file in self.available_by_file:
+            del self.available_by_file[file]
+        if self.dumping:
+            self.dump()
+
+    def notice_available_yaml(self, file, yaml_root):
+        if yaml_root is not None:
+            info = {}
+            origin = yaml_root['Origin']
+            for element in yaml_root:
+                try:
+                    comp = convert_collection_component(os.path.dirname(file), origin, element)
                     if comp is not None:
                         if comp['id'] in info:
                             pass  # warning: duplicate id
@@ -354,6 +574,8 @@ def watch_db():
                 callback(path, ET.parse(path).getroot())
             elif path.endswith('.xml.gz'):
                 callback(path, ET.parse(gzip.open(path)).getroot())
+            elif path.endswith('.yml.gz'):
+                callback(path, json.load(gzip.open(path)))
         except Exception:
             # If we hit an exception during handling a file, pretend
             # that it doesn't exist instead of keeping old data.  This
@@ -370,6 +592,12 @@ def watch_db():
     def available_callback(path):
         process_file(path, lambda path, xml: db.notice_available(path, xml))
 
+    # def installed_callback_yaml(path):
+    #     process_file(path, lambda path, xml: db.notice_installed(path, xml))
+
+    def available_callback_yaml(path):
+        process_file(path, lambda path, xml: db.notice_available_yaml(path, xml))
+
     # https://www.freedesktop.org/software/appstream/docs/chap-CatalogData.html
     watcher.watch_directory('/usr/share/swcatalog/xml', available_callback)
     watcher.watch_directory('/var/cache/swcatalog/xml', available_callback)
@@ -379,6 +607,12 @@ def watch_db():
     watcher.watch_directory('/var/cache/app-info/xmls', available_callback)
     # installed packages
     watcher.watch_directory('/usr/share/metainfo', installed_callback)
+    # yaml path for special handling of Debian/Ubuntu
+    # https://www.freedesktop.org/software/appstream/docs/sect-AppStream-YAML.html#spec-dep11-filenaming
+    watcher.watch_directory('/usr/share/swcatalog/yaml', available_callback_yaml)
+    watcher.watch_directory('/var/cache/swcatalog/yaml', available_callback_yaml)
+    watcher.watch_directory('/var/lib/swcatalog/yaml', available_callback_yaml)
+
     db.start_dumping()
     watcher.run()
 

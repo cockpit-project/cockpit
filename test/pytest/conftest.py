@@ -1,6 +1,7 @@
 import asyncio
 import os
 import subprocess
+import sys
 from importlib.metadata import version
 from pathlib import Path
 from typing import TYPE_CHECKING, AsyncGenerator
@@ -10,6 +11,11 @@ import pytest_asyncio
 from packaging.specifiers import SpecifierSet
 
 from cockpit._vendor.systemd_ctypes import EventLoopPolicy
+
+collect_ignore: list[str] = []
+if sys.version_info < (3, 12):
+    # Not used from cockpit-bridge and only intended for Python 3.12+
+    collect_ignore.append("ws")
 
 
 def any_subprocesses() -> bool:
@@ -27,13 +33,12 @@ def any_subprocesses() -> bool:
 #   - even sourcing this requires aiohttp, which isn't available everywhere
 #   - there are general issues running under tox which need investigation
 #   - this also requires a bots/ checkout which we don't have in distros
-if 'NO_QUNIT' in os.environ:
-    @pytest.hookimpl
-    def pytest_ignore_collect(collection_path: Path) -> bool:
-        return collection_path.name == "test_browser.py"
+if "NO_QUNIT" in os.environ:
+    collect_ignore.append("test_browser.py")
 
     # if m.image in ['ubuntu-2204', '🙃']:
     if not TYPE_CHECKING and version("pytest") not in SpecifierSet(">=7.0"):
+
         @pytest.hookimpl
         def pytest_ignore_collect(path: object) -> bool:
             return Path(str(path)).name == "test_browser.py"

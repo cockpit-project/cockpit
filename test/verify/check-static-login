@@ -1181,6 +1181,82 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # cleans up session
         m.execute("while loginctl --no-legend list-sessions | grep admin; do sleep 1; done")
 
+    # @testlib.skipWsContainer("sssd/cockpit-session not available with ws container")
+    # @testlib.skipImage("sssd not currently in testing", "debian-testing")
+    def testSessionUserCommand(self):
+        m = self.machine
+
+        m.execute("useradd alice; echo alice:foobar123 | chpasswd")
+
+        # These tests have to be run with curl, as this is a backend-auth feature, likely implemented by a middleware proxy
+        def do_test(authopts, expected, not_expected=None):
+            # avoid running into start-limit-hit
+            m.execute("systemctl reset-failed")
+            m.start_cockpit(tls=True)
+            output = m.execute(['curl', '-ksS', '-D-', *authopts, 'https://localhost:9090/cockpit/login'])
+            for s in expected:
+                self.assertIn(s, output)
+            for s in (not_expected or []):
+                self.assertNotIn(s, output)
+
+            m.stop_cockpit()
+
+        # sample auth method should not be enabled by default
+        do_test(['-H', 'Authorization: x-my-auth-method some-auth-data'], ["HTTP/1.1 401 Authentication disabled"])
+        # password auth should work
+        do_test(['-u', 'alice:foobar123'], ['HTTP/1.1 200 OK', '"csrf-token"'])
+
+        # enable cert based auth
+        m.write("/etc/cockpit/cockpit.conf", '[x-my-auth-method]\nSessionUserCommand = /etc/cockpit/test-session-user\n', append=True)
+        m.write("/etc/cockpit/test-session-user", """
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+dbg() {
+    # STDERR debug logging
+    printf "my-auth-method-script DEBUG: %s\n" "$1" >&2
+}
+
+exit_with_problem() {
+    printf "my-auth-method-script ERROR: %s\n" "$1" >&2
+    exit 1
+}
+
+main() {
+    if [[ $# -ne 2 ]]; then
+        exit_with_problem "Invalid number of arguments, pass rhost and auth value"
+    fi
+
+    local rhost="$1"
+    local auth_data="$2"
+
+    dbg "Got auth_data ${auth_data} for rhost ${rhost}"
+
+    if [[ "$auth_data" != "some-auth-data" ]]; then
+        exit_with_problem "Invalid auth data"
+    fi
+
+    echo "alice"
+}
+
+main "$@"
+
+""", perm="0755")
+
+        self.allow_journal_messages("my-auth-method-script DEBUG: Got auth_data some-auth-data for rhost .*")
+        # cert auth should work now
+        do_test(['-H', 'Authorization: x-my-auth-method some-auth-data'], ['HTTP/1.1 200 OK', '"csrf-token"'])
+        # password auth, too
+        do_test(['-u', 'alice:foobar123'], ['HTTP/1.1 200 OK', '"csrf-token"'])
+
+        # Other auth data fails
+        self.allow_journal_messages("my-auth-method-script DEBUG: Got auth_data bad-auth-data for rhost .*")
+        self.allow_journal_messages("my-auth-method-script ERROR: Invalid auth data")
+        do_test(['-H', 'Authorization: x-my-auth-method bad-auth-data'],
+                ["HTTP/1.1 401 Authentication failed"],
+                not_expected=["crsf-token"])
+
 
 if __name__ == '__main__':
     testlib.test_main()

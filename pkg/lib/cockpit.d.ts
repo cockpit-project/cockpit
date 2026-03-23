@@ -446,4 +446,11 @@ declare module 'cockpit' {
 
     export let localStorage: Storage;
     export let sessionStorage: Storage;
+
+    /* === Base64 ====================== */
+    export function base64_encode(data: string | Array<number> | Uint8Array | ArrayBuffer): string;
+
+    export function base64_decode(str: string, constructor: StringConstructor): string;
+    export function base64_decode(str: string, constructor?: ArrayConstructor): Array<number>;
+    export function base64_decode(str: string, constructor?: Uint8ArrayConstructor): Uint8Array;
 }

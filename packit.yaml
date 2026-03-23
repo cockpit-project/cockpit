@@ -93,6 +93,17 @@ jobs:
       post-upstream-clone:
         - cp tools/cockpit.spec .
 
+      # Download the real GitHub release tarball instead of creating git archive
+      create-archive:
+        - |
+          bash -exc '
+          # Download Source0 from GitHub releases
+          curl -L -o "cockpit-${PACKIT_PROJECT_VERSION}.tar.xz" \
+            "https://github.com/cockpit-project/cockpit/releases/download/${PACKIT_PROJECT_VERSION}/cockpit-${PACKIT_PROJECT_VERSION}.tar.xz"
+          # Output the filename for Packit (required by create-archive)
+          echo "cockpit-${PACKIT_PROJECT_VERSION}.tar.xz"
+          '
+
       # resolve NPM_PROVIDES, but otherwise keep packit's %changelog
       post-modifications:
         - |
@@ -103,6 +114,9 @@ jobs:
           tools/fix-spec "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit.spec" "${PACKIT_PROJECT_VERSION}"
           '
 
+      fix-spec-file:
+        # packit needs local file names, not URLs
+        - sed -i 's|^\(Source[0-9]*:\s*\).*\/|\1|' cockpit.spec
   - job: propose_downstream
     trigger: release
     actions: *official_release_actions

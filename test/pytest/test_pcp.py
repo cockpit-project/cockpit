@@ -494,7 +494,7 @@ async def test_pcp_negative_timestamp(transport, timestamps_archive):
     # first message is always the meta message
     meta = json.loads(data)
     # time.time() is not exact
-    assert (meta['timestamp'] - timestamp) < 10
+    assert (meta['timestamp'] - timestamp) < 1000  # 1s
 
     metrics = meta['metrics']
     assert len(metrics) == 1

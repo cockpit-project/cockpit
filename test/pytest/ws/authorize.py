@@ -3,16 +3,10 @@
 
 import base64
 import logging
-import os
 import re
+import secrets
 
 logger = logging.getLogger(__name__)
-
-
-def nonce(length: int) -> bytes:
-    """Generate random bytes for use as a nonce."""
-    logger.debug("generating nonce of length %r", length)
-    return os.urandom(length)
 
 
 def parse_type(challenge: str) -> tuple[str, str]:
@@ -173,7 +167,7 @@ def build_x_conversation(
     )
 
     if conversation is None:
-        conversation = base64.b64encode(nonce(128)).decode("ascii")
+        conversation = secrets.token_urlsafe(16)
         logger.debug("generated new conversation id %r", conversation)
 
     if not conversation:

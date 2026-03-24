@@ -223,11 +223,3 @@ def test_build_x_conversation_roundtrip() -> None:
     parsed_conv, parsed_prompt = authorize.parse_x_conversation(result)
     assert parsed_conv == conv
     assert parsed_prompt == prompt
-
-
-def test_nonce_length() -> None:
-    assert len(authorize.nonce(32)) == 32
-
-
-def test_nonce_random() -> None:
-    assert authorize.nonce(32) != authorize.nonce(32)

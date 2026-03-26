@@ -261,7 +261,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.confirm()
         m.execute("! findmnt --fstab -n /sysroot/var")
 
-    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*', 'fedora-eln')
     def testBtrfs(self):
         b = self.browser
 
@@ -345,7 +345,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
                                       }
                                   })
 
-    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*', 'fedora-eln')
     def testDegradedBtrfs(self):
         b = self.browser
         m = self.machine

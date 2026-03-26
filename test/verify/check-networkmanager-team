@@ -13,7 +13,7 @@ import testlib
 
 @testlib.skipOstree("NetworkManager-team not installed")
 @testlib.skipImage("TODO: networkmanager fails on Arch Linux", "arch")
-@testlib.skipImage("team not supported", "centos-10*", "rhel-10*")
+@testlib.skipImage("team not supported", "centos-10*", "rhel-10*", "fedora-eln")
 @testlib.nondestructive
 class TestTeam(netlib.NetworkCase):
     def testBasic(self):

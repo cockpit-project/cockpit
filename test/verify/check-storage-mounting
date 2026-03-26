@@ -22,7 +22,7 @@ class TestStorageMounting(storagelib.StorageCase):
     def testMounting(self):
         self._testMounting()
 
-    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*', 'fedora-eln')
     def testMountingBtrfs(self):
         self._testMounting("btrfs", "btrfs subvolume")
 
@@ -155,7 +155,7 @@ ExecStart=/usr/bin/sleep infinity
         self.assertEqual(self.configuration_field("/dev/sda", "fstab", "dir"), "")
         b.wait_in_text(self.card_desc(filesystem, "Mount point"), "The filesystem has no permanent mount point.")
 
-    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*', 'fedora-eln')
     def testMountingHelpBtrfs(self):
         self._testMountingHelp("btrfs", "btrfs subvolume")
 
@@ -249,7 +249,7 @@ ExecStart=/usr/bin/sleep infinity
     def testFstabOptions(self):
         self._testFstabOptions()
 
-    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+    @testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*', 'fedora-eln')
     def testFsabOptionsBtrfs(self):
         self._testFstabOptions("btrfs", "btrfs subvolume")
 

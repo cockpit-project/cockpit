@@ -1878,6 +1878,7 @@ export function with_checkpoint(model, modify, options) {
     // We also switch off checkpoints for most of the integration
     // tests.
 
+    console.log(options.hack_does_add_or_remove || window.cockpit_tests_disable_checkpoints);
     if (options.hack_does_add_or_remove || window.cockpit_tests_disable_checkpoints) {
         modify();
         return;
@@ -1886,6 +1887,7 @@ export function with_checkpoint(model, modify, options) {
     if (window.cockpit_tests_checkpoints_settle_time)
         settle_time = window.cockpit_tests_checkpoints_settle_time;
 
+    console.log("Creating checkpint");
     manager.checkpoint_create(options.devices || [], rollback_time)
             .then(function (cp) {
                 if (!cp) {

@@ -290,7 +290,7 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                                      ...(type != 'vlan' && {
                                          devices: (membersChanged ? [] : connection_devices(connection))
                                      }),
-                                     hack_does_add_or_remove: type == 'vlan' || membersChanged || isNonPersistentMultiCon(connection),
+                                     hack_does_add_or_remove: type == 'vlan' || membersChanged,
                                      rollback_on_failure: type !== 'vlan' && membersChanged
                                  });
     } else {

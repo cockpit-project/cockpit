@@ -206,7 +206,8 @@
    - handle.validation_text()
 
    Get the current validation error message for this value. This is
-   "undefined" when there is no message.
+   "undefined" when there is no message or when the dialog is not in a
+   state where validation errors should be shown.
 
    - handle.set(val)
 
@@ -253,7 +254,8 @@
    array, so you are not strictly required to use this function. But
    doing so might look to the validation machinery as if each and
    every element of the array has just changed, and it will do a lot
-   of needless validations all over again.
+   of needless validations all over again, which will likely look
+   janky in the UI.
 
    - handle.map(func)
 
@@ -312,6 +314,9 @@
    within "dlg.run_action", the cancel function is automatically
    reset.
 
+
+   VALIDATION
+
    Let's now finally talk about input validation.
 
    Input validation is done by a single, central function for the
@@ -331,9 +336,10 @@
    validate function now that duplicates this, sorry!
 
    The formal job of the validation function is to call the "validate"
-   method (or "validate_async") of all relevant dialog value handles.
-   If and only if the render function instantiates a component for a
-   dialog value, should the validate function visit it.
+   method (or "validate_async", "validate_always", etc.) of all
+   relevant dialog value handles.  If and only if the render function
+   instantiates a component for a dialog value, should the validate
+   function visit it.
 
    - handle.validate(v => ...)
 
@@ -352,10 +358,10 @@
    "set()" on any value handle.
 
    If your validation function needs to communicate out-of-band with
-   your action function (maybe to pass the results of some expensive
-   operations that you don't want to repeat in your action function),
-   then you need to find some other way. Maybe with a memoized
-   function or an explicit cache.
+   your action function or with the porcelain, you can return a
+   DialogValidationResult (or something derived from it) instead of a
+   string or undefined.  See the section on "Advanced validation
+   results".
 
    - handle.validate_async(debounce, async v >= ...)
 
@@ -367,6 +373,54 @@
 
    See the documentation for "handle.validate" above for more rules
    that apply to validation functions.
+
+   - handle.validate_always(debounce, async v >= ...)
+
+   Like "validate_async", but will be called even if the dialog isn't
+   currently in the mode where it shows validation errors.  This is
+   useful if you want to display a "success" indicator immediately
+   once the user has input a valid value.  For example, you might want
+   to try contacting a server whose IP the user is typing and show a
+   green checkmark once that is successful.  This goes together well
+   with "Advanced validation results", explained below.
+
+
+   ADVANCED VALIDATION RESULTS
+
+   A validation function passed to "handle.validate", etc., is
+   responsible to come up with a string that describes what is wrong
+   with the current value of that handle.  But sometimes the
+   validation of multiple values has to be done together and has to be
+   triggered when any of them changes.
+
+   The way to do this is to write a single validation function that
+   works on a handle that is the parent of all the ones that need to
+   be considered together. That function can return a
+   DialogValidationResult object with validation results for multiple
+   of its children in the "errors" field.
+
+   You might also want to compute more things at the same time and
+   somehow communicate them to your porcelain or your action
+   functions. This is especially useful when validation is actually
+   successful.
+
+   For this purpose, a validation function can put a arbitrary value
+   into the "result" field of the DialogValidationResult object.  You
+   can get at it with the "handle.validation_result" function.
+
+   - handle.validation_result()
+   - handle.validation_result(klass)
+
+   This returns the "result" value of the most recent call to a
+   validation function for this handle, regardless of whether the
+   dialog is in the mode where it shows validation errors in the UI.
+
+   If you want help with types, you can use class instances as your
+   validation results, and pass that class into
+   "validation_result". In that case, the function will check at
+   run-time that the returned value is an instance of that class (or
+   undefined), and TypeScript also knows about this.
+
 
    TESTING
 
@@ -642,6 +696,12 @@ function toSpliced<T>(arr: T[], start: number, deleteCount: number, ...rest: T[]
     return copy;
 }
 
+export interface DialogValidationResult {
+    error?: undefined | string;
+    errors?: unknown; // TODO - Shape of T but all leaves are strings
+    result?: unknown;
+}
+
 export class DialogField<T> {
     /* eslint-disable no-use-before-define */
     #dialog: DialogState<unknown>;
@@ -663,7 +723,19 @@ export class DialogField<T> {
     }
 
     validation_text(): string | undefined {
-        return this.#dialog._get_validation(this.#path);
+        return this.#dialog._get_validation_text(this.#path);
+    }
+
+    validation_result(): unknown;
+    validation_result<C extends abstract new (...args: any) => any>(klass: C): InstanceType<C> | undefined;
+    validation_result(klass?: Function) {
+        const r = this.#dialog._get_validation_result(this.#path);
+        if (r && r.result) {
+            if (klass)
+                cockpit.assert(r.result instanceof klass);
+            return r.result;
+        }
+        return undefined;
     }
 
     get(): T {
@@ -738,21 +810,26 @@ export class DialogField<T> {
         );
     }
 
-    validate(func: (val: T) => string | undefined): void {
+    validate(func: (val: T) => DialogValidationResult | string | undefined): void {
         const val = this.get();
         this.#dialog._validate_value(this.#path, val, () => func(val));
     }
 
-    validate_async(debounce: number, func: (val: T) => Promise<string | undefined>): void {
+    validate_async(debounce: number, func: (val: T) => Promise<DialogValidationResult | string | undefined>): void {
         const val = this.get();
         this.#dialog._validate_value_async(this.#path, val, debounce, () => func(val));
+    }
+
+    validate_always(debounce: number, func: (val: T) => Promise<DialogValidationResult | string | undefined>): void {
+        const val = this.get();
+        this.#dialog._validate_value_always(this.#path, val, debounce, () => func(val));
     }
 }
 
 interface DialogValidationState {
     path: string;
     cached_value: unknown;
-    cached_result: string | undefined;
+    cached_result: DialogValidationResult | string | undefined;
     timeout_id: number;
     promise: Promise<void> | undefined;
     round_id: unknown;
@@ -775,7 +852,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     #validation_failed: boolean = false;
     #online_validation: boolean = false;
     #action_running: boolean = false;
-    #validation: Record<string, string | undefined> = { };
+    #validation: Record<string, DialogValidationResult | undefined> = { };
     #validation_state: Record<string, DialogValidationState> = { };
 
     /* eslint-disable no-use-before-define */
@@ -786,6 +863,10 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         super();
         this.#validate_callback = validate;
         this.values = init;
+        this.#action_running = true;
+        this.#trigger_validation();
+        this.#action_running = false;
+        this.#update();
     }
 
     #update() {
@@ -818,21 +899,43 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         this.#update();
     }
 
-    #set_validation(path: string, result: string | undefined) {
+    #set_errors(path: string, errors: unknown) {
+        if (typeof errors === "string") {
+            this.#validation[path] = { error: errors };
+            if (this.#online_validation)
+                this.#validation_failed = true;
+        } else if (errors && typeof errors === "object") {
+            for (const [k, v] of Object.entries(errors)) {
+                this.#set_errors((path && k) ? path + "." + k : path || k, v);
+            }
+        }
+    }
+
+    #set_validation(path: string, result: DialogValidationResult | string | undefined) {
         if (result) {
-            this.#validation[path] = result;
-            this.#validation_failed = true;
-            this.#online_validation = true;
+            const r = typeof result === "string" ? { error: result } : result;
+            this.#validation[path] = r;
+            if (this.#online_validation)
+                this.#validation_failed = !!r.error;
+            this.#set_errors(path, r.errors);
             this.#update();
         }
     }
 
-    _get_validation(path: string): string | undefined {
+    _get_validation_result(path: string): DialogValidationResult | undefined {
         if (path in this.#validation)
             return this.#validation[path];
         else
             return undefined;
     }
+
+    _get_validation_text(path: string): string | undefined {
+        if (this.#online_validation && path in this.#validation)
+            return this.#validation[path]?.error;
+        else
+            return undefined;
+    }
+
 
     /* In between #trigger_validation and #set_validation, a lot is
        going on, especially with asynchronous validation.
@@ -868,7 +971,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     #set_validation_state_result(
         state: DialogValidationState,
         val: unknown,
-        result: string | undefined,
+        result: DialogValidationResult | string | undefined,
     ) {
         state.cached_value = val;
         state.cached_result = result;
@@ -900,7 +1003,10 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     /* And in fact, _validate_value does exactly those two things.
      */
 
-    _validate_value(path: string, val: unknown, func: () => string | undefined): void {
+    _validate_value(path: string, val: unknown, func: () => DialogValidationResult | string | undefined): void {
+        if (!this.#online_validation)
+            return;
+
         const state = this.#get_validation_state(path);
         if (!this.#probe_validation_state_cache(state, val)) {
             const result = func();
@@ -1036,10 +1142,17 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         );
     }
 
-    /* _validate_value_async puts this all together.
+    /* _validate_value_async and its variant _validate_value_always put this all together.
      */
 
-    _validate_value_async(path: string, val: unknown, debounce: number, func: () => Promise<string | undefined>): void {
+    _validate_value_async(path: string, val: unknown, debounce: number, func: () => Promise<DialogValidationResult | string | undefined>): void {
+        if (!this.#online_validation)
+            return;
+
+        this._validate_value_always(path, val, debounce, func);
+    }
+
+    _validate_value_always(path: string, val: unknown, debounce: number, func: () => Promise<DialogValidationResult | string | undefined>): void {
         const state = this.#get_validation_state(path);
         if (!this.#probe_validation_state_cache(state, val)) {
             debug("async validate start debounce", state.path, val);
@@ -1113,6 +1226,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
 
     async validate(): Promise<boolean> {
         this.#cancel_all_validation_timeouts();
+        this.#online_validation = true;
         this.#trigger_validation();
         await this.#wait_for_validation_promises();
         return !this.#validation_failed;
@@ -1189,8 +1303,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 }
                 this.values = val;
                 this.#update();
-                if (this.#online_validation)
-                    this.#trigger_validation();
+                this.#trigger_validation();
                 if (update_func)
                     update_func(val);
             },

@@ -25,6 +25,7 @@ import { WithDialogs, useDialogs } from 'dialogs';
 import {
     useDialogState, DialogState,
     useDialogState_async,
+    DialogValidationResult,
     DialogError,
     DialogErrorMessage,
     DialogField,
@@ -205,6 +206,7 @@ const colors: Color[] = [
 interface ExampleValues {
     flag: boolean;
     text: string;
+    atext: string;
     radio: string;
     dropdown: string;
     color: Color,
@@ -212,6 +214,16 @@ interface ExampleValues {
     async: Name[];
     alternative: false | string;
     error: string;
+}
+
+class ATextResult {
+    error: string | undefined;
+    length: number;
+
+    constructor(error: string | undefined, length: number) {
+        this.error = error;
+        this.length = length;
+    }
 }
 
 const ExampleDialog = ({
@@ -226,6 +238,7 @@ const ExampleDialog = ({
     const init: ExampleValues = {
         flag: false,
         text: "",
+        atext: "",
         radio: "one",
         dropdown: "one",
         color: colors[0],
@@ -242,6 +255,14 @@ const ExampleDialog = ({
                     return "Text can not be empty";
             });
         }
+        dlg.field("atext").validate_always(500, async (v) => {
+            return {
+                result: new ATextResult(
+                    !v ? "Text can not be empty" : undefined,
+                    v.length,
+                )
+            };
+        });
         dlg.field("list").forEach(v => {
             v.validate(vv => {
                 if (vv == ".")
@@ -279,6 +300,8 @@ const ExampleDialog = ({
         dlg.field("text").set(color.name);
     }
 
+    const atext_result = dlg.field("atext").validation_result(ATextResult);
+
     return (
         <Modal
             id="dialog"
@@ -307,6 +330,11 @@ const ExampleDialog = ({
                         // Calling "map" on a non-array should just do nothing.
                         dlg.field("text").map((v, i) => <span key={i}>{v.get()}</span>)
                     }
+                    <DialogTextInput
+                        label="Always validating text"
+                        field={dlg.field("atext")}
+                        explanation={"Length: " + (atext_result ? atext_result.length : "?")}
+                    />
                     <DialogRadioSelect
                         label="Radio"
                         field={dlg.field("radio")}
@@ -425,6 +453,7 @@ const ExampleButton = () => {
 
 interface ExampleWithInitFuncValues {
     text: string;
+    text2: string;
 }
 
 const ExampleDialogWithInitFunc = () => {
@@ -433,10 +462,22 @@ const ExampleDialogWithInitFunc = () => {
     function init(): ExampleWithInitFuncValues {
         return {
             text: "foo",
+            text2: "bar",
         };
     }
 
-    const dlg = useDialogState(init);
+    function validate(dlg: DialogState<ExampleWithInitFuncValues>) {
+        dlg.top().validate(v => {
+            if (v.text != "foo" && v.text2 == "bar")
+                return {
+                    errors: {
+                        text2: "No bar without foo",
+                    }
+                }
+        });
+    }
+
+    const dlg = useDialogState(init, validate);
 
     return (
         <Modal
@@ -454,9 +495,16 @@ const ExampleDialogWithInitFunc = () => {
                         label="Text"
                         field={dlg.field("text")}
                     />
+                    <DialogTextInput
+                        label="Text 2"
+                        field={dlg.field("text2")}
+                    />
                 </Form>
             </ModalBody>
             <ModalFooter>
+                <DialogActionButton dialog={dlg} action={async () => {}}onClose={Dialogs.close}>
+                    Apply
+                </DialogActionButton>
                 <DialogCancelButton dialog={dlg} onClose={Dialogs.close} />
             </ModalFooter>
         </Modal>

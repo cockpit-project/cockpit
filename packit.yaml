@@ -66,6 +66,24 @@ jobs:
     trigger: pull_request
     targets: *test_targets
 
+  # manual Fedora ELN test trigger /packit test --labels eln
+  - job: tests
+    trigger: pull_request
+    identifier: eln
+    targets: &manual_test_targets
+      fedora-eln-x86_64: {}
+    manual_trigger: true
+    labels:
+      - eln
+
+  # HACK: packit does not support labels for builds https://github.com/packit/packit-service/issues/3079
+  - job: copr_build
+    trigger: pull_request
+    identifier: eln
+    targets: *manual_test_targets
+    labels:
+      - eln
+
   # run extra build/unit tests on some interesting architectures
   # https://github.com/fedora-copr/copr/issues/4219
   # - job: copr_build

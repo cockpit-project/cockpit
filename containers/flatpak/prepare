@@ -94,9 +94,28 @@ def create_manifest(
             '--socket=wayland',
             '--socket=fallback-x11',
             '--device=dri',
-            '--share=ipc'
+            '--share=ipc',
+            '--env=XDG_DATA_DIRS=/app/share:/app/extensions/share'
         ],
+        'add-extensions': {
+            f'{FLATPAK_ID}.Plugin': {
+                'subdirectories': True,
+                'directory': 'extensions',
+                'merge-dirs': 'share/cockpit',
+                'version': 'master',
+                'versions': 'master',
+                'no-autodownload': True,
+                'autodelete': True
+            }
+        },
         'modules': [
+            {
+                'name': 'cockpit-extensions',
+                'buildsystem': 'simple',
+                'build-commands': [
+                    'mkdir -p /app/extensions/share/cockpit'
+                ]
+            },
             {
                 'name': 'cockpit-client',
                 'buildsystem': 'autotools',

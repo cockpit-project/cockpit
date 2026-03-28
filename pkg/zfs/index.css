@@ -1,0 +1,81 @@
+body {
+    margin: 0;
+    padding: 24px;
+    background: var(--pf-t--global--background--color--secondary--default);
+}
+
+.zfs-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.zfs-hero h1,
+.zfs-card h2 {
+    margin: 0 0 8px;
+}
+
+.zfs-muted {
+    margin: 0;
+    color: var(--pf-t--global--text--color--subtle);
+}
+
+.zfs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.zfs-card {
+    background: var(--pf-t--global--background--color--primary--default);
+    border: 1px solid var(--pf-t--global--border--color--default);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.zfs-table-wrap {
+    overflow-x: auto;
+}
+
+.zfs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.zfs-table th,
+.zfs-table td {
+    text-align: left;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--pf-t--global--border--color--default);
+}
+
+.zfs-terminal {
+    margin: 0;
+    padding: 16px;
+    min-height: 120px;
+    background: #111827;
+    color: #e5e7eb;
+    border-radius: 10px;
+    overflow: auto;
+    white-space: pre-wrap;
+    font: 13px/1.45 ui-monospace, monospace;
+}
+
+.zfs-state-ok {
+    color: #166534;
+    font-weight: 700;
+}
+
+.zfs-state-bad {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.zfs-error {
+    color: #b91c1c;
+    font-weight: 600;
+}

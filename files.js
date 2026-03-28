@@ -36,6 +36,7 @@ const info = {
         "sosreport/sosreport.jsx",
         "static/login.js",
         "storaged/storaged.jsx",
+        "zfs/index.js",
 
         "systemd/services.jsx",
         "systemd/logs.jsx",
@@ -143,6 +144,7 @@ const info = {
         "static/login.html",
 
         "storaged/index.html",
+        "zfs/index.html",
 
         "systemd/index.html",
         "systemd/logs.html",

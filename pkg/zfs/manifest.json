@@ -1,0 +1,18 @@
+{
+    "name": "zfs",
+    "requires": {
+        "cockpit": "287"
+    },
+    "menu": {
+        "index": {
+            "label": "ZFS",
+            "order": 35,
+            "keywords": [
+                {
+                    "matches": ["zfs", "pool", "dataset", "raidz", "snapshot", "tank"]
+                }
+            ]
+        }
+    },
+    "content-security-policy": "default-src 'self'; connect-src 'self' ws: wss:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"
+}

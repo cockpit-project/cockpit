@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--
+Copyright (C) 2026
+SPDX-License-Identifier: LGPL-2.1-or-later
+-->
+<html id="zfs-page" lang="en">
+<head>
+    <title translate="yes">ZFS</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="index.css" />
+    <link href="../../static/branding.css" rel="stylesheet" />
+
+    <script src="../base1/cockpit.js"></script>
+    <script src="../manifests.js"></script>
+    <script src="../base1/po.js"></script>
+    <script src="index.js"></script>
+</head>
+<body class="pf-v6-m-tabular-nums">
+    <header class="zfs-hero">
+        <div>
+            <h1>ZFS</h1>
+            <p class="zfs-muted">Pool, dataset, and service status from the host.</p>
+        </div>
+        <button id="refresh" class="pf-v6-c-button pf-m-primary" type="button">Refresh</button>
+    </header>
+
+    <section class="zfs-grid">
+        <article class="zfs-card">
+            <h2>Pool Summary</h2>
+            <div id="pool-summary" class="zfs-table-wrap"></div>
+        </article>
+        <article class="zfs-card">
+            <h2>Services</h2>
+            <div id="service-summary" class="zfs-table-wrap"></div>
+        </article>
+    </section>
+
+    <section class="zfs-card">
+        <h2>Datasets</h2>
+        <div id="dataset-summary" class="zfs-table-wrap"></div>
+    </section>
+
+    <section class="zfs-card">
+        <h2>Pool Health</h2>
+        <pre id="pool-status" class="zfs-terminal">Loading...</pre>
+    </section>
+
+    <section class="zfs-card">
+        <h2>Recent Events</h2>
+        <pre id="zed-log" class="zfs-terminal">Loading...</pre>
+    </section>
+</body>
+</html>

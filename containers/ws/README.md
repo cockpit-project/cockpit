@@ -90,6 +90,11 @@ host with SSH.
 podman run -d --name cockpit-bastion -p 9090:9090 quay.io/cockpit/ws
 ```
 
+To change the port, adjust the `-p HOST_PORT:9090` argument, for example
+`-p 443:9090`. See the
+[podman-run documentation](https://docs.podman.io/en/latest/markdown/podman-run.1.html)
+for details.
+
 This mode is suitable for deploying to e.g. Kubernetes or similar environments
 where you cannot have or want privileged containers. In this "bastion host
 mode", you can get a Cockpit for servers in your data center without opening an

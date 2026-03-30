@@ -266,10 +266,17 @@ class TestDialog(testlib.MachineCase):
         b.click(d.cancel_button())
         b.wait_not_present("#dialog")
 
-        # init func
+        # init func and sub-field validation
 
         b.click("#open-with-func")
         d.wait_TextInput("text", "foo")
+        d.wait_TextInput("text2", "bar")
+        d.set_TextInput("text2", "bart")
+        b.click(d.apply_button())
+        b.wait_in_text(d.helper_text("text"), "No foo without bar")
+        d.set_TextInput("text", "food")
+        d.set_TextInput("text2", "bar")
+        b.wait_in_text(d.helper_text("text2"), "No bar without foo")
         b.click(d.cancel_button())
         b.wait_not_present("#dialog")
 

@@ -351,6 +351,15 @@
    anything involved in the dialog. Specifically, it should not call
    "set()" on any value handle.
 
+   A validation function can also return an object with validation
+   errors for its sub-fields.  This is useful if multiple fields need
+   to be validated together.  Consider this example:
+
+       field.validate(v => {
+         if (v.mode != "auto" && v.size == 0)
+           return { "size": "Can't be zero in manual mode." }
+       });
+
    If your validation function needs to communicate out-of-band with
    your action function (maybe to pass the results of some expensive
    operations that you don't want to repeat in your action function),
@@ -642,6 +651,46 @@ function toSpliced<T>(arr: T[], start: number, deleteCount: number, ...rest: T[]
     return copy;
 }
 
+/* It would be nice to make it so that TypeScript complains when you
+   try to return errors for sub-fields that don't exist.  We can
+   construct a type that describes this (by recursively mapping all
+   field to strings, essentially), but TypeScript will not ordinarily
+   prevent a validation function from returning something that also
+   has other fields, because it does only do "excessive property
+   checks" for literals that are assigned to locations with a known
+   type.  Example:
+
+      interface ComboValue {
+        size: number;
+        unit: string;
+      }
+
+      dlg.field("combo").validate(v => {
+        return {
+          size: true,           // TypeScript error here as expected, because true is not a string
+          unt: "No such unit",  // Want a TypeScript error here bc there is no "unt" in the type, but wont happen
+        }
+      });
+
+   We would need to explicitly annotate the validation function with
+   the right return type like so:
+
+      dlg.field("combo").validate((v): DialogValidationResult<ComboValue> => {
+        return {
+          unt: "No such unit",  // Now we get an error.
+        }
+      });
+
+   But I doubt that people will be happy to write out their type like
+   this every time...
+ */
+
+export type DialogValidationResult<T> = (
+   T extends object
+    ? ({ [Property in keyof T]+?: DialogValidationResult<T[Property]> } & { ""?: undefined | string }) | undefined | string
+    : undefined | string | { ""?: undefined | string }
+);
+
 export class DialogField<T> {
     /* eslint-disable no-use-before-define */
     #dialog: DialogState<unknown>;
@@ -738,21 +787,30 @@ export class DialogField<T> {
         );
     }
 
-    validate(func: (val: T) => string | undefined): void {
+    validate(func: (val: T) => DialogValidationResult<T>): void {
         const val = this.get();
         this.#dialog._validate_value(this.#path, val, () => func(val));
     }
 
-    validate_async(debounce: number, func: (val: T) => Promise<string | undefined>): void {
+    validate_async(debounce: number, func: (val: T) => Promise<DialogValidationResult<T>>): void {
         const val = this.get();
         this.#dialog._validate_value_async(this.#path, val, debounce, () => func(val));
     }
 }
 
+function get_validation_result_own_string(result: unknown): string | undefined {
+    if (typeof result == "string")
+        return result;
+    else if (result && typeof result == "object" && "" in result && typeof result[""] == "string")
+        return result[""];
+    else
+        return undefined;
+}
+
 interface DialogValidationState {
     path: string;
     cached_value: unknown;
-    cached_result: string | undefined;
+    cached_result: unknown;
     timeout_id: number;
     promise: Promise<void> | undefined;
     round_id: unknown;
@@ -818,12 +876,21 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         this.#update();
     }
 
-    #set_validation(path: string, result: string | undefined) {
+    #set_validation(path: string, result: unknown) {
         if (result) {
-            this.#validation[path] = result;
-            this.#validation_failed = true;
-            this.#online_validation = true;
-            this.#update();
+            const own = get_validation_result_own_string(result);
+            if (own) {
+                this.#validation[path] = own;
+                this.#validation_failed = true;
+                this.#online_validation = true;
+                this.#update();
+            }
+            if (typeof result == "object") {
+                for (const [k, v] of Object.entries(result)) {
+                    if (k)
+                        this.#set_validation(path ? path + "." + k : k, v);
+                }
+            }
         }
     }
 
@@ -868,7 +935,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     #set_validation_state_result(
         state: DialogValidationState,
         val: unknown,
-        result: string | undefined,
+        result: unknown,
     ) {
         state.cached_value = val;
         state.cached_result = result;
@@ -900,7 +967,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     /* And in fact, _validate_value does exactly those two things.
      */
 
-    _validate_value(path: string, val: unknown, func: () => string | undefined): void {
+    _validate_value(path: string, val: unknown, func: () => unknown): void {
         const state = this.#get_validation_state(path);
         if (!this.#probe_validation_state_cache(state, val)) {
             const result = func();
@@ -1039,7 +1106,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     /* _validate_value_async puts this all together.
      */
 
-    _validate_value_async(path: string, val: unknown, debounce: number, func: () => Promise<string | undefined>): void {
+    _validate_value_async(path: string, val: unknown, debounce: number, func: () => Promise<unknown>): void {
         const state = this.#get_validation_state(path);
         if (!this.#probe_validation_state_cache(state, val)) {
             debug("async validate start debounce", state.path, val);

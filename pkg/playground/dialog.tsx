@@ -425,6 +425,7 @@ const ExampleButton = () => {
 
 interface ExampleWithInitFuncValues {
     text: string;
+    text2: string;
 }
 
 const ExampleDialogWithInitFunc = () => {
@@ -433,10 +434,26 @@ const ExampleDialogWithInitFunc = () => {
     function init(): ExampleWithInitFuncValues {
         return {
             text: "foo",
+            text2: "bar",
         };
     }
 
-    const dlg = useDialogState(init);
+    function validate(dlg: DialogState<ExampleWithInitFuncValues>) {
+        dlg.top().validate(v => {
+            if (v.text == "foo" && v.text2 != "bar") {
+                return {
+                    text: "No foo without bar",
+                };
+            }
+            if (v.text2 == "bar" && v.text != "foo") {
+                return {
+                    text2: { "": "No bar without foo" },
+                };
+            }
+        });
+    }
+
+    const dlg = useDialogState(init, validate);
 
     return (
         <Modal
@@ -454,9 +471,16 @@ const ExampleDialogWithInitFunc = () => {
                         label="Text"
                         field={dlg.field("text")}
                     />
+                    <DialogTextInput
+                        label="Text 2"
+                        field={dlg.field("text2")}
+                    />
                 </Form>
             </ModalBody>
             <ModalFooter>
+                <DialogActionButton dialog={dlg} action={async () => {}} onClose={Dialogs.close}>
+                    Apply
+                </DialogActionButton>
                 <DialogCancelButton dialog={dlg} onClose={Dialogs.close} />
             </ModalFooter>
         </Modal>

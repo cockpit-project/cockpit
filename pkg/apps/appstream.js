@@ -22,7 +22,7 @@ export function get_metainfo_db() {
 
         let buf = "";
         python.spawn([inotify_py, watch_appstream_py], [],
-                     { environ: ["LANGUAGE=" + (cockpit.language || "en")] })
+                     { environ: ["LANGUAGE=" + (cockpit.language || "en")], superuser: "try" })
                 .stream(function (data) {
                     buf += data;
                     const lines = buf.split("\n");

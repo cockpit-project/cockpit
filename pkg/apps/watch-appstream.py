@@ -2,6 +2,7 @@
 import gzip
 import json
 import os
+import subprocess
 import sys
 import traceback
 import xml.etree.ElementTree as ET
@@ -100,9 +101,17 @@ def attr_lang(elt):
 
 def element(xml, tag):
     if lang:
+        # If there is an element without a lang attribute we use that
+        # as a fallback when we can't match to the selected language.
+        empty_lang = None
         for elt in xml.iter(tag):
             if attr_lang(elt) == lang:
                 return elt
+            elif attr_lang(elt) is None and empty_lang is None:
+                empty_lang = elt
+
+        if empty_lang is not None:
+            return empty_lang
     return xml.find(tag)
 
 
@@ -377,10 +386,35 @@ def watch_db():
     def available_callback(path):
         process_file(path, lambda path, xml: db.notice_available(path, xml))
 
+    def convert_yaml_to_xml(path: str):
+        try:
+            filename = os.path.basename(path).removesuffix('.yml.gz')
+            if path.endswith('.yml.gz'):
+                subprocess.check_call([
+                    "appstreamcli",
+                    "convert",
+                    path,
+                    f'/var/lib/swcatalog/xml/{filename}.xml'
+                ])
+
+        except Exception:
+            # If we hit an exception during handling a file, pretend
+            # that it doesn't exist instead of keeping old data.  This
+            # makes the behavior consistent across restarts of this
+            # watcher.
+            sys.stderr.write("%s: " % path)
+            sys.stderr.write("".join(traceback.format_exception_only(sys.exc_info()[0], sys.exc_info()[1])))
+            sys.stderr.flush()
+
+    # If distro uses yaml they might not have this directory
+    if not os.path.exists('/var/lib/swcatalog/xml'):
+        os.makedirs('/var/lib/swcatalog/xml')
+
     # https://www.freedesktop.org/software/appstream/docs/chap-CatalogData.html
     watcher.watch_directory('/usr/share/swcatalog/xml', available_callback)
     watcher.watch_directory('/var/cache/swcatalog/xml', available_callback)
     watcher.watch_directory('/var/lib/swcatalog/xml', available_callback)
+    watcher.watch_directory('/var/lib/swcatalog/yaml', convert_yaml_to_xml)
     # legacy paths
     watcher.watch_directory('/usr/share/app-info/xmls', available_callback)
     watcher.watch_directory('/var/cache/app-info/xmls', available_callback)

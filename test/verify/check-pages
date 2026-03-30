@@ -667,6 +667,14 @@ OnCalendar=daily
         self.addCleanup(m.execute, "systemctl stop pmcd")
         m.execute("systemctl start pmcd")
 
+        # packagekit/dnf often eats a lot of CPU/Memory; silence it to have better control over memory usage
+        packagekitd = "/usr/lib/packagekitd" if m.image == "arch" else "/usr/libexec/packagekitd"
+        m.execute(f"systemctl mask packagekit && killall -9 {packagekitd} && killall -9 dnf || true")
+        self.addCleanup(m.execute, "systemctl unmask packagekit")
+
+        # packagekitd consumes tons of memory on logging into Cockpit
+        self.disable_preload("packagekit")
+
         self.login_and_go("/playground/plot")
         b.wait_visible("#plot-direct")
         b.wait_visible("#plot-pmcd")

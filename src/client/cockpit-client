@@ -296,8 +296,10 @@ class InternalCockpitWs:
         self.write_config()
         host = '127.0.0.90'
         port = '9090'
-        self.ws = subprocess.Popen([f'{libexecdir}/cockpit-ws', f'--address={host}', f'--port={port}'],
-                                   preexec_fn=self.preexec_fn, pass_fds=[3])
+        self.ws = subprocess.Popen(
+            [f'{libexecdir}/cockpit-ws', f'--address={host}', f'--port={port}'],
+            preexec_fn=self.preexec_fn
+        )
 
         return f'http://{host}:{port}/'
 

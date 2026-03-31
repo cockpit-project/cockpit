@@ -109,18 +109,30 @@ class TestDialog(testlib.MachineCase):
         b.click(d.apply_button())
         b.wait_not_present("#dialog")
 
-        # DialogDropdownSelectObject, with update_func
+        # DialogDropdownSelectObject, with asynchronous updates
 
         b.click("#open")
+        d.set_Checkbox("flag", val=True)
         d.wait_DropdownSelect("color", "red")
         self.assertEqual(d.get_TextInput("text"), "")
         d.set_DropdownSelect("color", "green")
         self.assertEqual(d.get_DropdownSelect("color"), "green")
-        self.assertEqual(d.get_TextInput("text"), "green")
+        # Text does not react immediately.
+        self.assertEqual(d.get_TextInput("text"), "")
+        # Wait a bit and then change color again. This cancels the update.
+        time.sleep(1)
+        d.set_DropdownSelect("color", "blue")
+        self.assertEqual(d.get_DropdownSelect("color"), "blue")
+        self.assertEqual(d.get_TextInput("text"), "")
+        # Apply while the update is still running. It should finish (1 update)
         b.click(d.apply_button())
         b.wait_not_present("#dialog")
 
-        b.wait_text("#color", "0/1/0")
+        b.wait_text("#text", "blue")
+        b.wait_text("#text2", "blue")
+        b.wait_text("#color", "0/0/1")
+        b.wait_text("#asyncUps", "1")
+        b.wait_text("#asyncCancels", "1")
 
         # List of DialogTextInputs
 

@@ -44,7 +44,7 @@
         const Dialogs = useDialogs();
 
         function validate() {
-            dlg.value("text").validate(v => {
+            dlg.field("text").validate(v => {
                 if (!v)
                     return "Text can not be empty";
             });
@@ -222,6 +222,52 @@
    array, pass the index of the desired element.  See "dlg.field()"
    above for more information about handles.
 
+   - handle.get_async(debounce, (val, signal) => ...)
+   - handle.set_async(debounce, (val, signal) => new_val)
+
+   These are for running debounced, asynchronous code.  Both functions
+   will run the given function after "debounce" milliseconds, but only
+   if the value of the field hasn't changed in the meantime.  The
+   dialog waits for all asynchronous tasks started by these functions
+   to be finished before running the action function.  When the dialog
+   is cancelled, they all get cancelled.
+
+   The return value of "handle.set_async" is made the new value of the
+   field, but only if the value of the field hasn't changed in the
+   meantime.  There can only be one currently active "set_async" call.
+   If you call it again before the previous one has finished, that
+   previous call will be cancelled at that point, just as if the field
+   value had changed.
+
+   The "handle.get_async" function is a slight variation on this. It
+   is meant to perform asynchronous computations that do not modify
+   the field value itself, but have some other side effects.  Maybe
+   they modify multiple other field values or some React state. There
+   can be more than one call active at a given time. They only get
+   cancelled when the value of the field changes.
+
+   The asynchronous tasks must be careful to only perform their side
+   effects when they have not been cancelled yet.  This can be done
+   with the help of their "signal" parameter, which is a standard
+   AbortSignal.
+
+   Because of the way JavaScript works, the asynchronous functions
+   keep running and they need to voluntarily inspect "signal.aborted"
+   to figure out when they should stop.  They can also use all other
+   features of a AbortSignal, of course, such as setting
+   "signal.onabort", adding event listeners, etc.
+
+   As an example, here is how you might implement set_async on top of
+   get_async:
+
+      function set_async(handle, debounce, func) {
+          handle.get_async(debounce, (val, signal) => {
+              const new_val = await func(val, signal);
+              if (!signal.aborted)
+                  handle.set(new_val);
+          })
+      }
+
    - handle.at(witness)
 
    Get a handle with a narrowed type for "handle".  The new handle
@@ -247,7 +293,8 @@
    It is important to use this function instead of just "handle.set()"
    with an appropriately modified array. By using this function, the
    plumbing is able to keep its internal state in synch, which is
-   especially important for asynchronous validation functions.
+   especially important for asynchronous validation and update
+   functions.
 
    However, it is okay to just replace an array with a different
    array, so you are not strictly required to use this function. But
@@ -285,19 +332,19 @@
 
    - dlg.run_action(func)
 
-   Performs input validation (if necessary) and if that was
-   successful, calls "func" and puts the dialog into a "busy" state
-   while it runs. When "func" throws an error, it is caught and stored
-   in "dlg.error".
+   Waits for all asynchronous updates and input validation to be done
+   and if that was successful, calls "func" and puts the dialog into a
+   "busy" state while it runs. When "func" throws an error, it is
+   caught and stored in "dlg.error".
 
    "dlg.run_action" returns true when validation has passed and "func"
    has completed without throwing an error.
 
-   All state changes via "field.set()" are denied while
-   "dlg.run_action" is running. This is done to prevent the user from
-   interacting with the dialog while an action runs. But there is
-   nothing fundamentally wrong with programmatically changing dialog
-   state as part of an action. If you want to do that, write code like
+   All state changes via "field.set()" are denied while "func" is
+   running. This is done to prevent the user from interacting with the
+   dialog while an action runs. But there is nothing fundamentally
+   wrong with programmatically changing dialog state as part of an
+   action. If you want to do that, write code like
 
      if (dlg.run_action(...))
        dlg.field("xxx").set(...)
@@ -317,8 +364,7 @@
    Input validation is done by a single, central function for the
    whole dialog.  This has been done so that there is a central place
    that establishes the "shape" of the dialog values. This is
-   important for dialogs that have expander areas or other optional
-   things.
+   important for dialogs that have optional parts.
 
    If such an optional part of the values has failed validation
    earlier, but has subsequently been removed from the dialog by the
@@ -366,7 +412,7 @@
    then you need to find some other way. Maybe with a memoized
    function or an explicit cache.
 
-   - handle.validate_async(debounce, async v >= ...)
+   - handle.validate_async(debounce, async (v, task) >= ...)
 
    Calls the given async function "debounce" milliseconds after the
    value represented by the handle has last been changed. (Or
@@ -376,6 +422,60 @@
 
    See the documentation for "handle.validate" above for more rules
    that apply to validation functions.
+
+   UPDATES
+
+   Sometimes dialog values need to be changed in reaction to other
+   changes.  For example, when the user selects a ISO for creating a
+   new virtual machine, you might want to run some code that detects
+   the OS on that ISO and then adapts the rest of the dialog to the
+   minimum storage requirements of the OS.  Sometimes you can do
+   everything at render time, but sometimes you might want to run some
+   code as part of the event handler for the user action, and
+   sometimes you need to run asynchornous code.
+
+   (Don't use useEffect, please, just stick the code into the event
+   handler.)
+
+   It's okay and simplest to just put that code right next to the call
+   to "handler.set()".  If that call is in a porcelain component (as
+   it probably often will be), you can pass a "update_func" when
+   creating the handle for that porcelain component with
+   "handler.sub()" or "dialog.field()".  For example:
+
+       function on_plate_change(val: string) {
+           console.log("NEW LICENSE PLATE", val);
+       }
+
+       return (
+           <DialogTextInput
+               label="License plate number"
+               field={dlg.field("plate", on_plate_change)}
+           />
+       );
+
+   The function "on_plate_change" will be called whenever the user
+   changes the "plate" field via the DialogTextInput.  The
+   "on_plate_change" function will not be called when the "plate" is
+   changed in other places.  If that should happen, you have to
+   arrange for it explicitly.
+
+   Functions like "on_plate_change" can and should modify the dialog
+   fields via calls to "handle.set()".
+
+   If you want to run asynchronous code, you can do so with
+   "handle.set_async()" or "handle.get_async()".  For example, if you
+   want to asynchronously fetch the car model for a given license
+   plate from a database, you can do it like this:
+
+       function on_plate_change(val: string) {
+           dlg.field("model").set_async(1000, async () => await fetch_model(val));
+       }
+
+   When arrays are involved, dialog fields can move around while your
+   asynchronous update function runs.  To help with this, handles will
+   keep referring to the same field even if it moves around in its
+   array.
 
    TESTING
 
@@ -492,126 +592,6 @@
   data model. A simple case is selecting from an array of strings. In
   that case you can omit the "option_label" function.
 
-  WRITING COMPLEX PORCELAIN COMPONENTS
-
-  Here is a pattern that you might want to follow when writing
-  complicated components. Even if they are not meant to be reused
-  much, it pays of to try to encapsulate their behavior.
-
-  Let's write a component for two level selection.  Parameter is
-  something like
-
-     {
-       "Fruit": [ "Apple", "Banana" ],
-       "Bread": [ "Toast", "Rye" ],
-       "Meat": [ "Chicken", "Pork" ],
-     }
-
-  and there will be two dropdowns in the dialog, one for selecting
-  between "Fruit", "Bread", and "Meat"; and one for selecting "Apple"
-  or "Banana" when the first is "Fruit", etc.
-
-  First, declare the type of the value that the component works with.
-  It should store everything needed by the component, to simplify
-  initialization and validation.
-
-    export interface TwoLevelSelectValue {
-      first: string;
-      second: string;
-
-      _firsts: string[],
-      _options: Record<string, string[]>,
-    }
-
-  Write a "init" function to create such a value:
-
-    export function init_TwoLevelSelect(options: Record<string, string[]>): TwoLevelValue {
-      const _firsts = Object.keys(options);
-      const _seconds = options[_firsts[0]];
-
-      return {
-        first: _firsts[0],
-        second: _seconds[0],
-
-        _firsts,
-        _seconds,
-        _options: options,
-      };
-    }
-
-  And the component itself:
-
-    export const TwoLevelSelect = ({ field } : { field: DialogField<TwoLevelSelectValue> }) => {
-      const { _firsts, _seconds, _options } = field.get();
-
-      function update_first(f: string) {
-        const _seconds = _options[f];
-        value.sub("second").set(_seconds[0]);
-        value.sub("_seconds").set(_seconds);
-      }
-
-      return (
-        <>
-          <DialogDropdownSelectObject
-            label="First"
-            field={field.sub("first", update_first)}
-            options={_firsts}
-          />
-          <DialogDropdownSelectObject
-            label="Second"
-            field={field.sub("second")}
-            options={_seconds}
-          />
-        </>
-      );
-    }
-
-  It would be used in a dialog like this:
-
-    interface DialogValues {
-      food: TwoLevelSelectValue;
-    }
-
-    function init() {
-      return {
-        food: init_TwoLevelSelect({ "Fruit": [ "Apple", "Banana" ], "Bread": [ "Toast", "Rye" ], "Meat": [ "Chicken", "Pork" ] }),
-      }
-    }
-
-    const dlg = useDialogState(init);
-
-    return (
-      ...
-      <TwoLevelSelect field={dlg.field("food")} />
-      ...
-    );
-
-  Here is a pattern for handling types that include alternatives, such
-  as "TwoLevelSelectValue | string".  This could be used to encode
-  either the state for a working TwoLevelSelect component, or an
-  excuse message that explains why it can't work.
-
-    function init_TwoLevelSelect(options: Record<string, string[]>): TwoLevelSelectValue | string {
-      if (Object.keys(options).length == 0)
-        return _("Nothing to select.");
-
-      return { ... };
-    }
-
-    export const TwoLevel = ({ field } : { field: DialogField<TwoLevelValue | string> }) => {
-      const val = field.get();
-      if (typeof val == "string")
-          return null;
-
-      const tls_field = field.at(val);
-
-      const { _firsts, _seconds, _options } = tls_field.get();
-      ...
-    }
-
-  Note the use of the "field.at()" function to get a handle for a
-  TwoLevelSelectValue that can be used to access the "first" sub
-  value, etc.
  */
 
 import React, { useState } from "react";
@@ -726,6 +706,7 @@ export class DialogField<T> {
     }
 
     set(val: T): void {
+        this.#dialog._abort_state_tasks(this.#state, true);
         this.#setter(val);
     }
 
@@ -764,14 +745,14 @@ export class DialogField<T> {
                 }
             }
             this.#state.sub.delete(val.length - 1);
-            this.set(toSpliced(val, index, 1) as T);
+            this.#setter(toSpliced(val, index, 1) as T);
         }
     }
 
     add(item: ArrayElement<T>) {
         const val = this.get();
         if (Array.isArray(val)) {
-            this.set(val.concat(item) as T);
+            this.#setter(val.concat(item) as T);
         }
     }
 
@@ -795,7 +776,6 @@ export class DialogField<T> {
                 } else {
                     this.#setter({ ...container, [tag]: val });
                 }
-                this.#dialog._abort_state_tasks(this.#state);
                 if (update_func)
                     update_func(val);
             },
@@ -815,6 +795,20 @@ export class DialogField<T> {
     validate_async(debounce: number, func: (val: T, signal: AbortSignal) => Promise<DialogValidationResult<T>>): void {
         const val = this.get();
         this.#dialog._validate_value_async(this.#state, val, debounce, signal => func(val, signal));
+    }
+
+    set_async(debounce: number, func: (val: T, signal: AbortSignal) => Promise<T>): void {
+        const val = this.get();
+        this.#dialog._set_value_async(this.#state, debounce, async signal => {
+            const new_val = await func(val, signal);
+            if (!signal.aborted)
+                this.set(new_val);
+        });
+    }
+
+    get_async(debounce: number, func: (val: T, signal: AbortSignal) => Promise<void>): void {
+        const val = this.get();
+        this.#dialog._get_value_async(this.#state, debounce, signal => func(val, signal));
     }
 }
 
@@ -901,7 +895,8 @@ export class DialogTask {
    for example, and calling handle.get() will return
    dlg.values["name"].
 
-   Other members of a DialogFieldState relate to validation.
+   Other members of a DialogFieldState relate to validation and
+   asynchronous updates.
  */
 
 interface DialogFieldState {
@@ -914,6 +909,9 @@ interface DialogFieldState {
     cached_value: unknown;
     cached_result: unknown;
     validation_task: DialogTask | null;
+    // updates
+    update_task: DialogTask | null;
+    update_tasks: Set<DialogTask>;
 }
 
 interface DialogStateEvents {
@@ -955,6 +953,8 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             cached_value: undefined,
             cached_result: undefined,
             validation_task: null,
+            update_task: null,
+            update_tasks: new Set(),
         };
     }
 
@@ -990,6 +990,8 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 cached_value: undefined,
                 cached_result: undefined,
                 validation_task: null,
+                update_task: null,
+                update_tasks: new Set(),
             };
             state.sub.set(tag, sub);
         }
@@ -1027,6 +1029,10 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             this._for_each_field_state(state => {
                 if (state.validation_task)
                     state.validation_task.start_now();
+                if (state.update_task)
+                    state.update_task.start_now();
+                for (const task of state.update_tasks.values())
+                    task.start_now();
             });
 
             awaited = false;
@@ -1035,16 +1041,28 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                     await state.validation_task.wait();
                     awaited = true;
                 }
+                if (state.update_task) {
+                    await state.update_task.wait();
+                    awaited = true;
+                }
+                for (const task of state.update_tasks.values()) {
+                    await task.wait();
+                    awaited = true;
+                }
             });
         } while (awaited);
     }
 
-    _abort_state_tasks(state: DialogFieldState) {
-        debug("aborting state tasks", state_path(state));
-        if (state.validation_task)
+    _abort_state_tasks(state: DialogFieldState, only_updates: boolean = false) {
+        debug("cancelling state tasks", state_path(state), only_updates);
+        if (state.validation_task && !only_updates)
             state.validation_task.abort();
+        if (state.update_task)
+            state.update_task.abort();
+        for (const task of state.update_tasks.values())
+            task.abort();
         for (const sub of state.sub.values())
-            this._abort_state_tasks(sub);
+            this._abort_state_tasks(sub, only_updates);
     }
 
     /* VALIDATION
@@ -1197,6 +1215,55 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         }
     }
 
+    _set_value_async(
+        state: DialogFieldState,
+        debounce: number,
+        func: (signal: AbortSignal) => Promise<void>
+    ): void {
+        const task = new DialogTask(
+            state_path(state) + ":set",
+            debounce,
+            async task => {
+                try {
+                    await func(task.get_abort_signal());
+                } catch (ex) {
+                    console.error(ex);
+                }
+            },
+            task => {
+                if (state.update_task == task)
+                    state.update_task = null;
+            }
+        );
+
+        if (state.update_task)
+            state.update_task.abort();
+        state.update_task = task;
+    }
+
+    _get_value_async(
+        state: DialogFieldState,
+        debounce: number,
+        func: (signal: AbortSignal) => Promise<void>
+    ): void {
+        const task = new DialogTask(
+            state_path(state) + ":get",
+            debounce,
+            async task => {
+                try {
+                    await func(task.get_abort_signal());
+                } catch (ex) {
+                    console.error(ex);
+                }
+            },
+            task => {
+                state.update_tasks.delete(task);
+            }
+        );
+
+        state.update_tasks.add(task);
+    }
+
     /* The first thing run_action does is to trigger a new validation
        round and then wait for all the asynchronous results to have
        come in.
@@ -1208,6 +1275,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
      */
 
     async validate(): Promise<boolean> {
+        this.#online_validation = true;
         this.#trigger_validation();
         await this._run_all_tasks_now();
         return !this.#validation_failed;

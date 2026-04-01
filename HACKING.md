@@ -149,18 +149,29 @@ You can run unit tests of the current checkout:
 These should finish very quickly. It is a good practice to do this often.
 
 For debugging individual tests, there are compiled binaries in the build
-directory. For QUnit tests (JavaScript), you can run
+directory. For QUnit tests (JavaScript), you can compile and run
 
     ./test-server
 
 which will output a URL to connect to with a browser, such as
 <http://localhost:8765/qunit/base1/test-dbus.html>. Adjust the path for different
-tests and inspect the results there.
+tests and inspect the results there.  Although the QUnit tests are mostly about testing the client side API, they also indirectly test the webserver, and test-server is written using many of the same components as cockpit-ws.
+
+There is also an experimental Python test server.  You can use it without
+compiling any C code, but it has the disadvantage that you're not testing the
+same technology stack that will be used in production.  It's still very useful
+if you're mostly interested in testing client API and its interaction with the
+bridge.  You can use it like so:
+
+    PYTHONPATH=src python3 -m test.pytest.mockwebserver
 
 QUnit tests are run as part of a pytest test called `test_browser`.  You can
 run individual tests via `pytest -k`, like so:
 
     pytest -k test-fsinfo.html
+
+This will try to run the tests using both test-server (if it has been built)
+and the experimental Python test server (unconditionally).
 
 You can see JavaScript code coverage information for QUnit tests.  For a
 summary table:

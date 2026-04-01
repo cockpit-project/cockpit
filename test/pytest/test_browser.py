@@ -1,17 +1,34 @@
+# Copyright (C) 2022 Red Hat, Inc.
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import contextlib
 import glob
 import os
 import re
 import subprocess
 from collections.abc import AsyncIterator
+from typing import Literal
 
 import lcov
 import pytest
 from js_coverage import CoverageReport
 from webdriver_bidi import ChromiumBidi
 
+from .ws.mockdbusservice import direct_dbus_server, mock_dbus_service_on_user_bus
+from .ws.mockwebserver import mock_webserver
+
 SRCDIR = os.path.realpath(f'{__file__}/../../..')
 BUILDDIR = os.environ.get('abs_builddir', SRCDIR)
+
+
+@contextlib.asynccontextmanager
+async def mock_webserver_with_dbus() -> AsyncIterator[str]:
+    async with (
+        mock_dbus_service_on_user_bus(),
+        direct_dbus_server() as direct_address,
+        mock_webserver(direct_address=direct_address) as url,
+    ):
+        yield url
 
 
 @contextlib.asynccontextmanager
@@ -44,13 +61,14 @@ async def spawn_test_server() -> AsyncIterator[str]:  # noqa:RUF029
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('html', glob.glob('**/test-*.html', root_dir=f'{SRCDIR}/qunit', recursive=True))
-async def test_browser(coverage_report: CoverageReport, html: str) -> None:
+@pytest.mark.parametrize('server', ['C-ws', 'py-ws'])
+async def test_browser(coverage_report: CoverageReport, html: str, server: Literal["C-ws", "py-ws"]) -> None:
     if html == 'base1/test-websocket.html':
         pytest.xfail("python bridge never implemented websocket-stream1 payload")
 
     async with (
-        spawn_test_server() as base_url,
-        ChromiumBidi(headless=os.environ.get('TEST_SHOW_BROWSER', '0') == '0') as browser
+        mock_webserver_with_dbus() if server == 'py-ws' else spawn_test_server() as base_url,
+        ChromiumBidi(headless=os.environ.get('TEST_SHOW_BROWSER', '0') == '0') as browser,
     ):
         await browser.cdp("Profiler.enable")
         await browser.cdp("Profiler.startPreciseCoverage", callCount=False, detailed=True)
@@ -108,4 +126,4 @@ async def test_timeformat_timezones(
     coverage_report: CoverageReport, tz: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv('TZ', tz)
-    await test_browser(coverage_report, 'base1/test-timeformat.html')
+    await test_browser(coverage_report, 'base1/test-timeformat.html', 'mock_webserver')

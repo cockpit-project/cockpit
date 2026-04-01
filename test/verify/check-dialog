@@ -94,6 +94,21 @@ class TestDialog(testlib.MachineCase):
 
         b.wait_text("#dropdown", "two")
 
+        # Cancelling of irrelevant validations
+
+        b.click("#open")
+        d.set_DropdownSelect("dropdown", "three")
+        b.click(d.apply_button())
+        b.wait_in_text(d.helper_text("text3"), "Can't be empty")
+        # start a debounced validation of text3 and remove it from the
+        # dialog before it has finished.
+        d.set_TextInput("text3", "x")
+        time.sleep(0.5)
+        d.set_TextInput("text3", "")
+        d.set_DropdownSelect("dropdown", "one")
+        b.click(d.apply_button())
+        b.wait_not_present("#dialog")
+
         # DialogDropdownSelectObject, with update_func
 
         b.click("#open")

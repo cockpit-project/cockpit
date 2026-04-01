@@ -9,7 +9,6 @@ import lcov
 import pytest
 from js_coverage import CoverageReport
 from webdriver_bidi import ChromiumBidi
-from yarl import URL
 
 SRCDIR = os.path.realpath(f'{__file__}/../../..')
 BUILDDIR = os.environ.get('abs_builddir', SRCDIR)
@@ -24,7 +23,7 @@ XFAIL = {
 
 
 @contextlib.asynccontextmanager
-async def spawn_test_server() -> AsyncIterator[URL]:  # noqa:RUF029
+async def spawn_test_server() -> AsyncIterator[str]:  # noqa:RUF029
     if 'COVERAGE_RCFILE' in os.environ:
         coverage = ['coverage', 'run', '--parallel-mode', '--module']
     else:
@@ -45,7 +44,7 @@ async def spawn_test_server() -> AsyncIterator[URL]:  # noqa:RUF029
     os.close(addr_r)
 
     try:
-        yield URL(address)
+        yield address
     finally:
         server.kill()
         server.wait()
@@ -69,7 +68,7 @@ async def test_browser(coverage_report: CoverageReport, html: str) -> None:
         await browser.bidi(
             'browsingContext.navigate',
             context=browser.context,
-            url=str(base_url / 'qunit' / html),
+            url=f'{base_url}qunit/{html}',
             wait='complete'
         )
 

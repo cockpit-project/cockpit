@@ -4,7 +4,7 @@
 
 import pytest
 
-from test.pytest.ws import authorize
+from . import authorize
 
 
 @pytest.mark.parametrize(

@@ -17,7 +17,7 @@ def parse_type(challenge: str) -> tuple[str, str]:
     """
     logger.debug("parsing type from challenge %r", challenge)
 
-    auth_type, *remainder = re.split(r'[: ] *', challenge, maxsplit=1)
+    auth_type, *remainder = re.split(r"[: ] *", challenge, maxsplit=1)
     if not auth_type:
         raise ValueError('invalid "authorize" message')
 

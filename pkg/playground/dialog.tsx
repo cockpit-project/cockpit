@@ -207,6 +207,7 @@ interface ExampleValues {
     text: string;
     radio: string;
     dropdown: string;
+    text3: string;
     color: Color,
     list: string[];
     async: Name[];
@@ -228,6 +229,7 @@ const ExampleDialog = ({
         text: "",
         radio: "one",
         dropdown: "one",
+        text3: "",
         color: colors[0],
         list: [],
         async: [],
@@ -240,6 +242,12 @@ const ExampleDialog = ({
             dlg.field("text").validate(v => {
                 if (!v)
                     return "Text can not be empty";
+            });
+        }
+        if (dlg.values.dropdown == "three") {
+            dlg.field("text3").validate_async(1000, async v => {
+                if (!v)
+                    return "Can't be empty";
             });
         }
         dlg.field("list").forEach(v => {
@@ -342,6 +350,10 @@ const ExampleDialog = ({
                         }
                         warning={dlg.field("dropdown").get() == "two" ? "There is a discount if you buy three." : null}
                     />
+                    {
+                        dlg.values.dropdown == "three" &&
+                            <DialogTextInput label="Text3" field={dlg.field("text3")} />
+                    }
                     <DialogDropdownSelectObject
                         label="DropdownObject"
                         field={dlg.field("color", update_color)}

@@ -38,8 +38,13 @@ function parent_window(assert) {
             done();
         } else if (message.indexOf('"init"') !== -1) {
             initialized = true;
-            frame.postMessage('\n{ "command": "init", "version": 1, "a": "b", "host" : "localhost"  }',
-                              cockpit.transport.origin);
+            frame.postMessage("\n" + JSON.stringify({
+                command: "init",
+                version: 1,
+                a: "b",
+                host: "localhost",
+                "channel-seed": cockpit.transport.options["channel-seed"] + "1!",
+            }), cockpit.transport.origin);
         } else {
             const ret = cockpit.transport.inject(message);
             if (!ret) console.error("inject failed");

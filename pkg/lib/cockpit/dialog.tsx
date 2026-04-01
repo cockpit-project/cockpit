@@ -691,28 +691,34 @@ export type DialogValidationResult<T> = (
     : undefined | string | { ""?: undefined | string }
 );
 
+function state_path(state: DialogFieldState): string {
+    const p = state.parent ? state_path(state.parent) : "";
+    const t = String(state.tag);
+    return p ? p + "." + t : t;
+}
+
 export class DialogField<T> {
     /* eslint-disable no-use-before-define */
     #dialog: DialogState<unknown>;
+    #state: DialogFieldState;
     /* eslint-enable */
     #getter: () => T;
     #setter: (val: T) => void;
-    #path: string;
 
     constructor(
         dialog: DialogState<unknown>,
+        state: DialogFieldState,
         getter: () => T,
         setter: (val: T) => void,
-        path: string
     ) {
         this.#dialog = dialog;
+        this.#state = state;
         this.#getter = getter;
         this.#setter = setter;
-        this.#path = path;
     }
 
     validation_text(): string | undefined {
-        return this.#dialog._get_validation(this.#path);
+        return this.#state.validation_text;
     }
 
     get(): T {
@@ -724,7 +730,7 @@ export class DialogField<T> {
     }
 
     id(tag: string = "field"): string {
-        return "dialog-" + tag + "-" + this.#path;
+        return "dialog-" + tag + "-" + state_path(this.#state);
     }
 
     map<X>(func: (val: DialogField<ArrayElement<T>>, index: number) => X): X[] {
@@ -745,8 +751,17 @@ export class DialogField<T> {
     remove(index: number) {
         const val = this.get();
         if (Array.isArray(val)) {
-            for (let j = index; j < val.length - 1; j++)
-                this.#dialog._rename_validation_state(this.#path, j + 1, j);
+            const sub = this.#state.sub.get(index);
+            if (sub)
+                sub.tag = -1;
+            for (let j = index; j < val.length - 1; j++) {
+                const sub = this.#state.sub.get(j + 1);
+                if (sub) {
+                    sub.tag = j;
+                    this.#state.sub.set(j, sub);
+                }
+                this.#state.sub.delete(val.length - 1);
+            }
             this.set(toSpliced(val, index, 1) as T);
         }
     }
@@ -759,19 +774,34 @@ export class DialogField<T> {
     }
 
     sub<K extends keyof T>(tag: K, update_func?: ((val: T[K]) => void) | undefined): DialogField<T[K]> {
+        const sub = this.#dialog._get_sub_state(this.#state, tag);
         return new DialogField<T[K]>(
             this.#dialog,
-            () => this.get()[tag],
+            sub,
+            () => {
+                const container = this.get();
+                if (Array.isArray(container) && typeof sub.tag == "number") {
+                    if (sub.tag >= 0) {
+                        return container[sub.tag];
+                    } else {
+                        debug("not getting removed field");
+                    }
+                } else
+                    return container[tag];
+            },
             (val) => {
                 const container = this.get();
-                if (Array.isArray(container) && typeof tag == "number")
-                    this.#setter(toSpliced(container, tag, 1, val) as T);
-                else
+                if (Array.isArray(container) && typeof sub.tag == "number") {
+                    if (sub.tag >= 0) {
+                        this.#setter(toSpliced(container, sub.tag, 1, val) as T);
+                    } else {
+                        debug("not modifying removed field");
+                    }
+                } else
                     this.#setter({ ...container, [tag]: val });
                 if (update_func)
                     update_func(val);
             },
-            this.#path ? this.#path + "." + String(tag) : String(tag)
         );
     }
 
@@ -779,22 +809,22 @@ export class DialogField<T> {
         cockpit.assert(Object.is(witness, this.get()));
         return new DialogField<TT>(
             this.#dialog,
+            this.#state,
             () => this.get() as TT,
             (val) => {
                 this.#setter(val);
             },
-            this.#path,
         );
     }
 
     validate(func: (val: T) => DialogValidationResult<T>): void {
         const val = this.get();
-        this.#dialog._validate_value(this.#path, val, () => func(val));
+        this.#dialog._validate_value(this.#state, val, () => func(val));
     }
 
     validate_async(debounce: number, func: (val: T) => Promise<DialogValidationResult<T>>): void {
         const val = this.get();
-        this.#dialog._validate_value_async(this.#path, val, debounce, () => func(val));
+        this.#dialog._validate_value_async(this.#state, val, debounce, () => func(val));
     }
 }
 
@@ -807,13 +837,16 @@ function get_validation_result_own_string(result: unknown): string | undefined {
         return undefined;
 }
 
-interface DialogValidationState {
-    path: string;
+interface DialogFieldState {
+    parent: DialogFieldState | null,
+    tag: string | number | symbol;
+    sub: Map<string | number | symbol, DialogFieldState>;
+    validation_text: string | undefined;
     cached_value: unknown;
     cached_result: unknown;
     timeout_id: number;
     promise: Promise<void> | undefined;
-    round_id: unknown;
+    validation_round: number;
 }
 
 interface DialogStateEvents {
@@ -833,17 +866,29 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     #validation_failed: boolean = false;
     #online_validation: boolean = false;
     #action_running: boolean = false;
-    #validation: Record<string, string | undefined> = { };
-    #validation_state: Record<string, DialogValidationState> = { };
+    #top_state: DialogFieldState;
+    #validation_round: number = 0;
 
     /* eslint-disable no-use-before-define */
     #validate_callback: undefined | ((dlg: DialogState<V>) => void);
     /* eslint-enable */
 
     constructor(init: V, validate: undefined | ((dlg: DialogState<V>) => void)) {
+        debug("open");
         super();
         this.#validate_callback = validate;
         this.values = init;
+        this.#top_state = {
+            parent: null,
+            sub: new Map(),
+            tag: "",
+            validation_text: undefined,
+            cached_value: undefined,
+            cached_result: undefined,
+            timeout_id: 0,
+            promise: undefined,
+            validation_round: -1,
+        };
     }
 
     #update() {
@@ -853,87 +898,111 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         this.emit("changed");
     }
 
+    /* FIELD STATES
+
+       During validation and asynchronous updates, a lot is going on.
+
+       We use a DialogFieldState object to keep the necessary
+       state for that, such as cached results, and timeouts and
+       promises.
+
+       These state objects keep their identity when arrays elements
+       move around.  Their "index" field will be changed when that
+       happens.
+     */
+
+    _get_sub_state(state: DialogFieldState, tag: string | number | symbol): DialogFieldState {
+        let sub = state.sub.get(tag);
+        if (!sub) {
+            sub = {
+                parent: state,
+                sub: new Map(),
+                tag,
+                validation_text: undefined,
+                cached_value: undefined,
+                cached_result: undefined,
+                timeout_id: 0,
+                promise: undefined,
+                validation_round: -1,
+            };
+            state.sub.set(tag, sub);
+        }
+        return sub;
+    }
+
+    _for_each_field_state(func: (state: DialogFieldState) => void) {
+        function visit(state:DialogFieldState) {
+            func(state);
+            for (const sub of state.sub.values())
+                visit(sub);
+        }
+        visit(this.#top_state);
+    }
+
+    async _for_each_field_state_async(func: (state: DialogFieldState) => Promise<void>) {
+        async function visit(state:DialogFieldState) {
+            await func(state);
+            for (const sub of state.sub.values())
+                visit(sub);
+        }
+        await visit(this.#top_state);
+    }
+
     /* VALIDATION
      */
 
     /* Validation is started by calling the #trigger_validation
-       method. This will reset all validation errors and then call the
-       provided "validate" callback, which in turn will (eventually
-       but synchronously) call the "_validate_value" or
-       "_validate_value_async" methods of all relevant value paths.
-       Those functions will eventually call #set_validation to install
-       the validation results in the fresh #validation object created
-       by #trigger_validation.
+       method. This will reset all validation errors, increment the
+       "round number" and then call the provided "validate" callback,
+       which in turn will (eventually but synchronously) call the
+       "_validate_value" or "_validate_value_async" methods of all
+       relevant value paths.  Those functions will eventually call
+       #set_validation to install the validation results in the field
+       states.
      */
 
     #trigger_validation(): void {
         debug("trigger validation");
         if (!this.#validate_callback)
             return;
-        this.#validation = { };
         this.#validation_failed = false;
+        this._for_each_field_state(state => { state.validation_text = undefined });
+        this.#validation_round += 1;
         this.#validate_callback(this);
         this.#update();
     }
 
-    #set_validation(path: string, result: unknown) {
+    #set_validation(state: DialogFieldState, result: unknown) {
         if (result) {
             const own = get_validation_result_own_string(result);
             if (own) {
-                this.#validation[path] = own;
+                state.validation_text = own;
                 this.#validation_failed = true;
                 this.#online_validation = true;
                 this.#update();
             }
             if (typeof result == "object") {
                 for (const [k, v] of Object.entries(result)) {
-                    if (k)
-                        this.#set_validation(path ? path + "." + k : k, v);
+                    const sub = k && state.sub.get(k);
+                    if (sub)
+                        this.#set_validation(sub, v);
                 }
             }
         }
     }
 
-    _get_validation(path: string): string | undefined {
-        if (path in this.#validation)
-            return this.#validation[path];
-        else
-            return undefined;
-    }
+    /* The field state has a cache of the most recently validated
+       value.  If the current calue is still the same, actual
+       validation is skipped and the cached result from last time is
+       used.
 
-    /* In between #trigger_validation and #set_validation, a lot is
-       going on, especially with asynchronous validation.
-
-       We use a DialogValidationState object to keep the necessary
-       state for that, such as cached results, and timeouts and
-       promises.
-
-       Note that a DialogValidationState object can change which path
-       it is for, see _rename_validation_state below. So we have to be
-       careful to always get the path out of the DialogValidationState
-       object.
-     */
-
-    #get_validation_state(path: string): DialogValidationState {
-        if (!(path in this.#validation_state))
-            this.#validation_state[path] = {
-                path,
-                cached_value: undefined,
-                cached_result: undefined,
-                timeout_id: 0,
-                promise: undefined,
-                round_id: undefined,
-            };
-        return this.#validation_state[path];
-    }
-
-    /* Calling #set_validation_state_result is the final thing that
-       should happen when validating a given path. It will install the
+       Calling #set_validation_state_result is the final thing that
+       should happen when validating a field. It will install the
        result in the cache and then call #set_validation.
      */
 
     #set_validation_state_result(
-        state: DialogValidationState,
+        state: DialogFieldState,
         val: unknown,
         result: unknown,
     ) {
@@ -941,24 +1010,24 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         state.cached_result = result;
         state.timeout_id = 0;
         state.promise = undefined;
-        state.round_id = undefined;
-        this.#set_validation(state.path, result);
+        state.validation_round = -1;
+        this.#set_validation(state, result);
     }
 
     /* The first thing should be of course to probe that cache.  If we
        get a hit, it is used immediately to call #set_validation.
 
-       In that case, the DialogValidationState is also made part of
+       In that case, the DialogFieldState is also made part of
        the current round since any asynchronous validation that is
        currently running is still relevant. See below for more about
        that.
      */
 
-    #probe_validation_state_cache(state: DialogValidationState, val: unknown): boolean {
+    #probe_validation_state_cache(state: DialogFieldState, val: unknown): boolean {
         if (Object.is(state.cached_value, val)) {
-            state.round_id = this.#get_current_validation_round_id();
-            debug("cache hit", state.path, state.cached_result);
-            this.#set_validation(state.path, state.cached_result);
+            state.validation_round = this.#validation_round;
+            debug("cache hit", state_path(state), JSON.stringify(val), state.cached_result);
+            this.#set_validation(state, state.cached_result);
             return true;
         } else
             return false;
@@ -967,11 +1036,10 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     /* And in fact, _validate_value does exactly those two things.
      */
 
-    _validate_value(path: string, val: unknown, func: () => unknown): void {
-        const state = this.#get_validation_state(path);
+    _validate_value(state: DialogFieldState, val: unknown, func: () => unknown): void {
         if (!this.#probe_validation_state_cache(state, val)) {
             const result = func();
-            debug("sync validate", state.path, result);
+            debug("sync validate", state_path(state), result);
             this.#set_validation_state_result(state, val, result);
         }
     }
@@ -979,7 +1047,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     /* Now asynchronous validation.
 
        Each call to #trigger_validation starts a new "validation
-       round" and a DialogValidationState keeps track to which round
+       round" and a DialogFieldState keeps track to which round
        it applies to.  This matters of course for asynchronous
        validation: If async validation for a given path was started in
        one round, and then the next round happens but the path is no
@@ -987,19 +1055,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
        is no longer relevant for the dialog), then this asynchronous
        validation should have no effect.
 
-       We use the #validation object as the round identifier, since it
-       is created fresh by each call to #trigger_validation.
-     */
-
-    #get_current_validation_round_id(): unknown {
-        return this.#validation;
-    }
-
-    #is_current_validation_round_id(id: unknown): boolean {
-        return Object.is(id, this.#validation);
-    }
-
-    /* If there was no cache hit, asynchronous validation starts with
+       If there was no cache hit, asynchronous validation starts with
        a timeout, followed by letting a asynchronous function run to
        resolution.
 
@@ -1015,13 +1071,13 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
      */
 
     #set_validation_state_timeout(
-        state: DialogValidationState,
+        state: DialogFieldState,
         val: unknown,
         delay: number,
         func: () => void,
     ) {
         if (state.timeout_id) {
-            debug("timeout cancel", state.path);
+            debug("timeout cancel", state_path(state));
             window.clearTimeout(state.timeout_id);
             state.timeout_id = 0;
         }
@@ -1032,27 +1088,27 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             state.cached_result = undefined;
             state.timeout_id = window.setTimeout(
                 () => {
-                    debug("timeout", state.path);
+                    debug("timeout", state_path(state));
                     if (!this.#validation_state_is_current(state)) {
-                        debug("timeout outdated", state.path);
+                        debug("timeout outdated", state_path(state));
                         return;
                     }
                     func();
                 },
                 delay);
             state.promise = undefined;
-            state.round_id = this.#get_current_validation_round_id();
+            state.validation_round = this.#validation_round;
         }
     }
 
     /* Once the timeout is over (and the path is still relevant to the
        current round), the actual asynchronous validation is launched.
        This promise that represents it is simply installed in the
-       DialogValidationState.
+       DialogFieldState.
      */
 
     #set_validation_state_promise(
-        state: DialogValidationState,
+        state: DialogFieldState,
         val: unknown,
         prom: Promise<void>,
     ) {
@@ -1060,7 +1116,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         state.cached_result = undefined;
         state.timeout_id = 0;
         state.promise = prom;
-        state.round_id = this.#get_current_validation_round_id();
+        state.validation_round = this.#validation_round;
     }
 
     /* Unlike with the timeout, we can not cancel the old promise when
@@ -1096,26 +1152,22 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
          promise. Its result will be ignored, as it should.
      */
 
-    #validation_state_is_current(state: DialogValidationState, prom?: Promise<void>): boolean {
-        return (
-            (!prom || Object.is(state.promise, prom)) &&
-                this.#is_current_validation_round_id(state.round_id)
-        );
+    #validation_state_is_current(state: DialogFieldState, prom?: Promise<void>): boolean {
+        return (!prom || Object.is(state.promise, prom)) && this.#validation_round === state.validation_round;
     }
 
     /* _validate_value_async puts this all together.
      */
 
-    _validate_value_async(path: string, val: unknown, debounce: number, func: () => Promise<unknown>): void {
-        const state = this.#get_validation_state(path);
+    _validate_value_async(state: DialogFieldState, val: unknown, debounce: number, func: () => Promise<unknown>): void {
         if (!this.#probe_validation_state_cache(state, val)) {
-            debug("async validate start debounce", state.path, val);
+            debug("async validate start debounce", state_path(state), val);
             this.#set_validation_state_timeout(
                 state,
                 val,
                 debounce,
                 () => {
-                    debug("async validate start promise", state.path, val);
+                    debug("async validate start promise", state_path(state), val);
                     const prom =
                         func()
                                 .catch(
@@ -1127,10 +1179,10 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                                 .then(
                                     result => {
                                         if (this.#validation_state_is_current(state, prom)) {
-                                            debug("async validate done", state.path, result);
+                                            debug("async validate done", state_path(state), result);
                                             this.#set_validation_state_result(state, val, result);
                                         } else {
-                                            debug("promise outdated", state.path);
+                                            debug("promise outdated", state_path(state));
                                         }
                                     }
                                 );
@@ -1140,39 +1192,11 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         }
     }
 
-    /* Since the DialogValidationState for a path is so important, it
-       is also important to keep them firmly associated with each
-       other when the path of a value changes.
-
-       A path might change when there are arrays involved, and
-       elements get new indices without actually changing identity.
-     */
-
-    _rename_validation_state(path: string, from: number, to: number) {
-        const from_path = path + "." + String(from);
-        const to_path = path + "." + String(to);
-        if (from_path in this.#validation_state) {
-            debug("rename", from_path, to_path);
-            this.#validation_state[to_path] = this.#validation_state[from_path];
-            this.#validation_state[to_path].path = to_path;
-            delete this.#validation_state[from_path];
-        }
-        for (const k in this.#validation_state) {
-            if (k.indexOf(from_path + ".") == 0) {
-                const to = to_path + k.substring(from_path.length);
-                debug("rename", k, to);
-                this.#validation_state[to] = this.#validation_state[k];
-                this.#validation_state[to].path = to;
-                delete this.#validation_state[k];
-            }
-        }
-    }
-
     /* The first thing run_action does is to trigger a new validation
        round and then wait for all the asynchronous results to have
        come in.
 
-       If there are any DialogValidationState objects that are waiting
+       If there are any DialogFieldState objects that are waiting
        for a timeout, we want to cancel those and start over, so that
        their validation starts immediately. (Also, it would be hairy
        to wait for those timeouts to be over from here.)
@@ -1186,25 +1210,24 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     }
 
     #cancel_all_validation_timeouts() {
-        for (const p in this.#validation_state) {
-            const state = this.#validation_state[p];
+        this._for_each_field_state(state => {
             if (state.timeout_id) {
-                debug("timeout bulk cancel", p);
+                debug("timeout bulk cancel", state_path(state));
                 window.clearTimeout(state.timeout_id);
-                delete this.#validation_state[p];
+                state.validation_round = -1;
+                state.cached_value = undefined;
             }
-        }
+        });
     }
 
     async #wait_for_validation_promises(): Promise<void> {
-        for (const path in this.#validation_state) {
-            const state = this.#validation_state[path];
-            if (state.promise) {
-                debug("waiting for promise", path);
+        await this._for_each_field_state_async(async state => {
+            if (state.validation_round === this.#validation_round && state.promise) {
+                debug("waiting for promise", state_path(state));
                 await state.promise;
-                debug("waiting for promise done", path);
+                debug("waiting for promise done", state_path(state));
             }
-        }
+        });
     }
 
     set_cancel(cancel: (() => void) | null) {
@@ -1240,6 +1263,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     top(update_func?: ((val: V) => void) | undefined): DialogField<V> {
         return new DialogField<V>(
             this as DialogState<unknown>,
+            this.#top_state,
             () => this.values,
             (val) => {
                 debug("set", val);
@@ -1261,7 +1285,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 if (update_func)
                     update_func(val);
             },
-            "");
+        );
     }
 
     field<K extends keyof V>(tag: K, update_func?: ((val: V[K]) => void) | undefined): DialogField<V[K]> {

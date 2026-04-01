@@ -287,7 +287,7 @@ class SshPeer(Peer):
 
     async def do_connect_transport(self) -> None:
         # Choose your own adventure...
-        if os.path.exists('/.flatpak-info'):
+        if os.path.exists('/.flatpak-info') or os.environ.get('COCKPIT_BEIBOOT_FLATPAK_MODE'):
             await self.connect_from_flatpak()
         else:
             await self.connect_from_bastion_host()

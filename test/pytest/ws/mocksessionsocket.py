@@ -10,6 +10,7 @@ import secrets
 import socket
 import sys
 from collections.abc import Awaitable, Callable, Sequence
+from pathlib import Path
 
 from cockpit.bridge import Bridge
 from cockpit.jsonutil import JsonObject, get_str, typechecked
@@ -195,7 +196,7 @@ async def handle_session(
 
 
 async def run_session_server(
-    socket_path: str,
+    socket_path: str | Path,
     bridge_cmd: list[str] | None = None,
     auth_func: AuthorizeFunction | None = None,
 ) -> None:
@@ -206,7 +207,7 @@ async def run_session_server(
     logger.debug("run_session_server: starting on %r", socket_path)
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     sock.setblocking(False)  # needed by .sock_accept()  # noqa: FBT003
-    sock.bind(socket_path)
+    sock.bind(str(socket_path))
     sock.listen()
     logger.debug("run_session_server: listening")
 

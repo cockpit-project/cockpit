@@ -807,14 +807,7 @@ export class DialogField<T> {
 
     at<TT extends T>(witness: TT): DialogField<TT> {
         cockpit.assert(Object.is(witness, this.get()));
-        return new DialogField<TT>(
-            this.#dialog,
-            this.#state,
-            () => this.get() as TT,
-            (val) => {
-                this.#setter(val);
-            },
-        );
+        return this as unknown as DialogField<TT>;
     }
 
     validate(func: (val: T) => DialogValidationResult<T>): void {

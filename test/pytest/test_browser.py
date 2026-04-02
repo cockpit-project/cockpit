@@ -13,14 +13,6 @@ from webdriver_bidi import ChromiumBidi
 SRCDIR = os.path.realpath(f'{__file__}/../../..')
 BUILDDIR = os.environ.get('abs_builddir', SRCDIR)
 
-SKIP = {
-    'base1/test-dbus-address.html',
-}
-
-XFAIL = {
-    'base1/test-websocket.html',
-}
-
 
 @contextlib.asynccontextmanager
 async def spawn_test_server() -> AsyncIterator[str]:  # noqa:RUF029
@@ -53,10 +45,8 @@ async def spawn_test_server() -> AsyncIterator[str]:  # noqa:RUF029
 @pytest.mark.asyncio
 @pytest.mark.parametrize('html', glob.glob('**/test-*.html', root_dir=f'{SRCDIR}/qunit', recursive=True))
 async def test_browser(coverage_report: CoverageReport, html: str) -> None:
-    if html in SKIP:
-        pytest.skip()
-    elif html in XFAIL:
-        pytest.xfail()
+    if html == 'base1/test-websocket.html':
+        pytest.xfail("python bridge never implemented websocket-stream1 payload")
 
     async with (
         spawn_test_server() as base_url,

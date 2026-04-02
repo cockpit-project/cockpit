@@ -9,6 +9,21 @@ const test_server = {
     port: parseInt(window.location.port, 10)
 };
 
+/* Normalize header keys to lowercase for comparison (py-ws returns lowercase) */
+function lc_headers(headers) {
+    return Object.fromEntries(Object.entries(headers).map(([k, v]) => [k.toLowerCase(), v]));
+}
+
+/* Case-insensitive check that expected headers are present (ignores extras like date, server) */
+function assert_headers_contain(assert, actual, expected, message) {
+    const actual_lc = lc_headers(actual);
+    const expected_lc = lc_headers(expected);
+    const filtered = Object.fromEntries(
+        Object.entries(actual_lc).filter(([k]) => k in expected_lc)
+    );
+    assert.deepEqual(filtered, expected_lc, message);
+}
+
 QUnit.test("public api", assert => {
     const client = cockpit.http("/test");
     assert.equal(typeof client, "object", "http is an object");
@@ -190,7 +205,7 @@ QUnit.test("headers", async assert => {
             .get("/mock/headers", null, { Header1: "booo", Header2: "yay value" })
             .response((s, h) => { status = s; headers = h });
     assert.equal(status, 201, "status code");
-    assert.deepEqual(headers, {
+    assert_headers_contain(assert, headers, {
         Header1: "booo",
         Header2: "yay value",
         Header3: "three",
@@ -209,7 +224,7 @@ QUnit.test("escape host header", async assert => {
             .get("/mock/host", null, { })
             .response((s, h) => { status = s; headers = h });
     assert.equal(status, 201, "status code");
-    assert.deepEqual(headers.Host, window.location.host, "got back escaped headers");
+    assert.deepEqual(lc_headers(headers).host, window.location.host, "got back escaped headers");
 });
 
 QUnit.test("connection headers", async assert => {
@@ -218,7 +233,7 @@ QUnit.test("connection headers", async assert => {
             .get("/mock/headers", null, { Header2: "yay value", Header0: "extra" })
             .response((s, h) => { status = s; headers = h });
     assert.equal(status, 201, "status code");
-    assert.deepEqual(headers, {
+    assert_headers_contain(assert, headers, {
         Header0: "extra",
         Header1: "booo",
         Header2: "yay value",
@@ -277,7 +292,7 @@ QUnit.test("HEAD method", async assert => {
     })
             .response((s, h) => { status = s; headers = h });
     assert.equal(status, 200);
-    assert.equal(headers.InputDataLength, InputData.length);
+    assert.equal(lc_headers(headers).inputdatalength, InputData.length);
     assert.equal(data, "");
 });
 

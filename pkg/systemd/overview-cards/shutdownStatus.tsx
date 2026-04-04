@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { PowerOffIcon, RedoIcon } from "@patternfly/react-icons";
+import { PowerOffIcon, RedoIcon, MoonIcon } from "@patternfly/react-icons";
 
 import * as timeformat from "timeformat";
 
@@ -36,6 +36,33 @@ const cancelShutdownAction = () => {
                 }
             })
             .catch(err => console.warn("Failed to cancel shutdown", err.toString()));
+};
+
+const getSuspendTimerInfo = (setSuspendScheduled: (s: boolean) => void, setSuspendTime: (t: string | null) => void) => {
+    // Check if the cockpit-suspend.timer unit is active
+    cockpit.spawn(["systemctl", "is-active", "cockpit-suspend.timer"], { err: "ignore" })
+            .then(() => {
+                // Timer is active, get the activation time
+                cockpit.spawn(["systemctl", "show", "cockpit-suspend.timer", "--property=NextElapseUSecRealtime", "--value"], { err: "ignore" })
+                        .then(output => {
+                            const timeStr = output.trim();
+                            setSuspendScheduled(true);
+                            setSuspendTime(timeStr || null);
+                        })
+                        .catch(() => {
+                            setSuspendScheduled(true);
+                            setSuspendTime(null);
+                        });
+            })
+            .catch(() => {
+                setSuspendScheduled(false);
+                setSuspendTime(null);
+            });
+};
+
+const cancelSuspendAction = () => {
+    return cockpit.spawn(["systemctl", "stop", "cockpit-suspend.timer"], { superuser: "require", err: "message" })
+            .catch(err => console.warn("Failed to cancel suspend timer", err.toString()));
 };
 
 export const ShutDownStatus = () => {
@@ -95,6 +122,72 @@ export const ShutDownStatus = () => {
                                 className="pf-v6-u-font-size-sm"
                                 onClick={cancelShutdownAction}>
                             {cancelText}
+                        </Button>
+                    </FlexItem>
+                </Flex>
+            </Flex>
+        </li>);
+};
+
+export const SuspendStatus = () => {
+    const [suspendScheduled, setSuspendScheduled] = useState(false);
+    const [suspendTime, setSuspendTime] = useState<string | null>(null);
+
+    useEffect(() => {
+        const checkTimer = () => getSuspendTimerInfo(setSuspendScheduled, setSuspendTime);
+
+        checkTimer();
+
+        // Watch for transient unit changes — poll periodically since there's no
+        // reliable file-watch for transient timers
+        const interval = window.setInterval(checkTimer, 5000);
+        return () => window.clearInterval(interval);
+    }, []);
+
+    if (!suspendScheduled) {
+        return null;
+    }
+
+    let displayDate: string | null = null;
+    if (suspendTime) {
+        // systemctl shows NextElapseUSecRealtime in a format like "Wed 2025-04-05 10:30:00 UTC"
+        const date = new Date(suspendTime);
+        if (!isNaN(date.getTime())) {
+            const now = new Date();
+            if (date.getFullYear() == now.getFullYear()) {
+                displayDate = timeformat.dateTimeNoYear(date);
+            } else {
+                displayDate = timeformat.dateTime(date);
+            }
+        } else {
+            // If parsing fails, show the raw string
+            displayDate = suspendTime;
+        }
+    }
+
+    const handleCancel = () => {
+        cancelSuspendAction().then(() => {
+            setSuspendScheduled(false);
+            setSuspendTime(null);
+        });
+    };
+
+    const text = displayDate
+        ? cockpit.format(_("Scheduled suspend at $0"), displayDate)
+        : _("Suspend scheduled");
+
+    return (
+        <li id="system-health-suspend-status">
+            <Flex flexWrap={{ default: 'nowrap' }}>
+                <FlexItem><MoonIcon className="suspend-status-icon" /></FlexItem>
+                <Flex id="system-health-suspend-status-text" spaceItems={{ default: 'spaceItemsNone' }} direction={{ default: 'column' }}>
+                    {text}
+                    <FlexItem>
+                        <Button variant="link" isInline
+                                id="system-health-suspend-status-cancel-btn"
+                                className="pf-v6-u-font-size-sm"
+                                onClick={handleCancel}>
+                            {_("Cancel suspend")}
                         </Button>
                     </FlexItem>
                 </Flex>

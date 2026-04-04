@@ -10,6 +10,7 @@ import {
     Modal, ModalBody, ModalFooter, ModalHeader
 } from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
@@ -138,13 +139,28 @@ export class ShutdownModal extends React.Component {
 
     onSubmit(event) {
         const Dialogs = this.context;
-        const arg = this.props.shutdown ? "--poweroff" : "--reboot";
-        if (!this.props.shutdown)
-            cockpit.hint("restart");
 
-        cockpit.spawn(["shutdown", arg, this.state.when, this.state.message], { superuser: "require", err: "message" })
-                .then(this.props.onClose || Dialogs.close)
-                .catch(e => this.setState({ error: e.toString() }));
+        if (this.props.suspend) {
+            const delay = this.state.when; // "+N" where N is minutes
+            const minutes = parseInt(delay.substring(1), 10);
+            let cmd;
+            if (minutes === 0) {
+                cmd = ["systemctl", "suspend"];
+            } else {
+                cmd = ["systemd-run", "--unit=cockpit-suspend", "--on-active=" + minutes + "m", "systemctl", "suspend"];
+            }
+            cockpit.spawn(cmd, { superuser: "require", err: "message" })
+                    .then(this.props.onClose || Dialogs.close)
+                    .catch(e => this.setState({ error: e.toString() }));
+        } else {
+            const arg = this.props.shutdown ? "--poweroff" : "--reboot";
+            if (!this.props.shutdown)
+                cockpit.hint("restart");
+
+            cockpit.spawn(["shutdown", arg, this.state.when, this.state.message], { superuser: "require", err: "message" })
+                    .then(this.props.onClose || Dialogs.close)
+                    .catch(e => this.setState({ error: e.toString() }));
+        }
 
         event.preventDefault();
         return false;
@@ -157,7 +173,14 @@ export class ShutdownModal extends React.Component {
         return '';
     }
 
+    _getMode() {
+        if (this.props.suspend) return "suspend";
+        if (this.props.shutdown) return "shutdown";
+        return "reboot";
+    }
+
     render() {
+        const mode = this._getMode();
         const Dialogs = this.context;
         const options = [
             { value: "0", content: _("No delay") },
@@ -176,11 +199,12 @@ export class ShutdownModal extends React.Component {
                    onClose={this.props.onClose || Dialogs.close}
                    id="shutdown-dialog"
             >
-                <ModalHeader title={this.props.shutdown ? _("Shut down") : _("Reboot")} />
+                <ModalHeader title={mode === "suspend" ? _("Suspend to RAM") : (mode === "shutdown" ? _("Shut down") : _("Reboot"))} />
                 <ModalBody>
                     <Form isHorizontal onSubmit={this.onSubmit}>
                         <FormGroup fieldId="message" label={_("Message to logged in users")}>
                             <TextArea id="message" resizeOrientation="vertical" value={this.state.message} onChange={(_, v) => this.setState({ message: v })} />
+                            {mode === "suspend" && <HelperText><HelperTextItem variant="indeterminate">{_("Note: This message will not be sent for suspend operations.")}</HelperTextItem></HelperText>}
                         </FormGroup>
                         <FormGroup fieldId="delay" label={_("Delay")}>
                             <Flex className="shutdown-delay-group" alignItems={{ default: 'alignItemsCenter' }}>
@@ -219,7 +243,7 @@ export class ShutdownModal extends React.Component {
                     {this.state.error && <Alert isInline variant='danger' title={this.state.error} />}
                 </ModalBody>
                 <ModalFooter>
-                    <Button variant='danger' isDisabled={this.state.error || this.state.dateError} onClick={this.onSubmit}>{this.props.shutdown ? _("Shut down") : _("Reboot")}</Button>
+                    <Button variant='danger' isDisabled={this.state.error || this.state.dateError} onClick={this.onSubmit}>{mode === "suspend" ? _("Suspend") : (mode === "shutdown" ? _("Shut down") : _("Reboot"))}</Button>
                     <Button variant='link' onClick={this.props.onClose || Dialogs.close}>{_("Cancel")}</Button>
                 </ModalFooter>
             </Modal>

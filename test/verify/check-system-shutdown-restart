@@ -133,6 +133,78 @@ class TestShutdownRestart(testlib.MachineCase):
         m.wait_poweroff()
 
 
+class TestSuspendDialog(testlib.MachineCase):
+
+    @testlib.nondestructive
+    def testSuspendDialogBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # Mock systemctl suspend to prevent actual suspend in test
+        self.restore_dir("/usr/local/bin")
+        m.write("/usr/local/bin/systemctl",
+                "#!/bin/sh\nif [ \"$1\" = 'suspend' ]; then echo 'suspend-mocked'; exit 0; fi\nexec /usr/bin/systemctl \"$@\"\n")
+        m.execute("chmod +x /usr/local/bin/systemctl")
+
+        self.login_and_go("/system")
+
+        # Open the dropdown and click Suspend
+        b.click("#shutdown-group")  # caret
+        b.click("#suspend")
+        b.wait_popup("shutdown-dialog")
+
+        # Check dialog title
+        b.wait_in_text("#shutdown-dialog .pf-v6-c-modal-box__title-text", "Suspend to RAM")
+
+        # Check the submit button text
+        b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", "Suspend")
+
+        # Check the helper note about messages
+        b.wait_in_text("#shutdown-dialog", "Note: This message will not be sent for suspend operations.")
+
+        # Check delay options work
+        b.click("#delay")
+        b.click("button:contains('5 minutes')")
+        b.wait_text("#delay .pf-v6-c-menu-toggle__text", "5 minutes")
+
+        # Cancel the dialog
+        b.click("#shutdown-dialog button.pf-m-link")
+        b.wait_not_present("#shutdown-dialog")
+
+    @testlib.nondestructive
+    def testSuspendDelayed(self):
+        m = self.machine
+        b = self.browser
+
+        # Mock systemctl suspend to prevent actual suspend
+        self.restore_dir("/usr/local/bin")
+        m.write("/usr/local/bin/systemctl",
+                "#!/bin/sh\nif [ \"$1\" = 'suspend' ]; then echo 'suspend-mocked'; exit 0; fi\nexec /usr/bin/systemctl \"$@\"\n")
+        m.execute("chmod +x /usr/local/bin/systemctl")
+
+        self.login_and_go("/system")
+
+        # Open suspend dialog with a delay
+        b.click("#shutdown-group")  # caret
+        b.click("#suspend")
+        b.wait_popup("shutdown-dialog")
+
+        # Select 5 minutes delay
+        b.click("#delay")
+        b.click("button:contains('5 minutes')")
+        b.wait_text("#delay .pf-v6-c-menu-toggle__text", "5 minutes")
+
+        # Submit
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
+        b.wait_not_present("#shutdown-dialog")
+
+        # Verify systemd-run created the timer
+        timer_active = m.execute("systemctl is-active cockpit-suspend.timer 2>/dev/null || echo inactive").strip()
+        self.assertEqual(timer_active, "active")
+
+        # Clean up
+        m.execute("systemctl stop cockpit-suspend.timer 2>/dev/null || true")
+
 class TestUncleanShutdownStatus(testlib.MachineCase):
 
     def _cleanReboot(self):

@@ -162,10 +162,12 @@ class TestSuspendDialog(testlib.MachineCase):
         # Check the helper note about messages
         b.wait_in_text("#shutdown-dialog", "Note: This message will not be sent for suspend operations.")
 
-        # Check delay options work
+        # Check delay options work — use nth-child to avoid locale-sensitive text matching
         b.click("#delay")
-        b.click("button:contains('5 minutes')")
-        b.wait_text("#delay .pf-v6-c-menu-toggle__text", "5 minutes")
+        # 4th item in the list (No delay, divider, 1 minute, 5 minutes)
+        b.click(".pf-v6-c-menu__list li:nth-child(4) button")
+        # Wait for menu to close after selection
+        b.wait_not_present(".pf-v6-c-menu__list li:nth-child(4)")
 
         # Cancel the dialog
         b.click("#shutdown-dialog button.pf-m-link")
@@ -189,10 +191,12 @@ class TestSuspendDialog(testlib.MachineCase):
         b.click("#suspend")
         b.wait_popup("shutdown-dialog")
 
-        # Select 5 minutes delay
+        # Select 5 minutes delay — use nth-child to avoid locale-sensitive text matching
         b.click("#delay")
-        b.click("button:contains('5 minutes')")
-        b.wait_text("#delay .pf-v6-c-menu-toggle__text", "5 minutes")
+        # 4th item in the list (No delay, divider, 1 minute, 5 minutes)
+        b.click(".pf-v6-c-menu__list li:nth-child(4) button")
+        # Wait for menu to close after selection
+        b.wait_not_present(".pf-v6-c-menu__list li:nth-child(4)")
 
         # Submit
         b.click(f"#shutdown-dialog button{self.danger_btn_class}")

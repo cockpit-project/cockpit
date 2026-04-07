@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 import QUnit from "qunit-tests";
 
-function connect() {
+interface ControlMessage {
+    command: string;
+    problem?: string;
+    [key: string]: unknown;
+}
+
+function connect(): Promise<WebSocket> {
     const ws = new WebSocket(`ws://${window.location.host}/cockpit/socket`, "cockpit1");
     return new Promise((resolve, reject) => {
         ws.onopen = () => resolve(ws);
@@ -9,14 +15,14 @@ function connect() {
     });
 }
 
-function send_control(ws, message) {
+function send_control(ws: WebSocket, message: ControlMessage): void {
     ws.send("\n" + JSON.stringify(message));
 }
 
-function read_control(ws) {
+function read_control(ws: WebSocket): Promise<ControlMessage> {
     return new Promise(resolve => {
         ws.onmessage = event => {
-            const message = event.data;
+            const message = event.data as string;
             const pos = message.indexOf("\n");
             if (pos < 0)
                 throw new Error("invalid message");
@@ -25,14 +31,14 @@ function read_control(ws) {
             const data = message.substring(pos + 1);
 
             if (channel === "") {
-                resolve(JSON.parse(data));
+                resolve(JSON.parse(data) as ControlMessage);
             }
         };
     });
 }
 
 /* Wait for close, returning the last message received */
-async function wait_close(ws) {
+async function wait_close(ws: WebSocket): Promise<ControlMessage> {
     const close_promise = new Promise(resolve => {
         ws.onclose = resolve;
     });

@@ -367,3 +367,12 @@ $phone: 767px;
 .pf-v6-c-table .pf-v6-c-table__tbody :where(.pf-v6-c-table__th, .pf-v6-c-table__td)[data-label]::before {
     font-weight: var(--pf-t--global--font--weight--body--bold);
 }
+
+// NOTE: Though Patternfly includes the icon content important severity color
+// it is primarily used for severity icons that are not exposed in PF React but
+// instead part of a different PF Component Group
+// https://www.patternfly.org/patterns/status-and-severity/#severity-icons
+// https://www.patternfly.org/component-groups/status-and-state-indicators/severity
+.pf-v6-c-icon.pf-m-important {
+  --pf-v6-c-icon__content--Color: var(--pf-t--global--icon--color--severity--important--default);
+}

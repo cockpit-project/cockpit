@@ -593,6 +593,19 @@ class TestStorageNBDE(storagelib.StorageCase, packagelib.PackageCase):
         b.wait_in_text(self.card_desc("Filesystem", "Mount point"), "after network")
         b.wait_in_text(self.card_desc("Encryption", "Options"), "_netdev")
 
+        # Add a clevis config that Cockpit doesn't understand, make
+        # sure it can't be edited but can be removed.
+        #
+        thp = tang_m.execute("tang-show-keys").strip()
+        m.execute(f"""echo vainu-reku-toma-rolle-kaja | clevis luks bind -d /dev/sda sss '{{"t":1,"pins":{{"tang":[{{"url":"10.111.112.5","thp":"{thp}"}}]}}}}'""")
+        b.wait_in_text(panel + "tr:nth-child(3)", "Unknown type")
+        b.wait_in_text(panel + "tr:nth-child(3)", "sss")
+        b.wait_visible(panel + "tr:nth-child(3) [aria-label='Edit']:disabled")
+        b.click(panel + 'tr:nth-child(3) button[aria-label="Remove"]')
+        b.wait_in_text("#dialog", "Remove key in slot 2?")
+        self.confirm()
+        b.wait_not_present(panel + "tr:nth-child(3)")
+
         # Mount it.  This should succeed without passphrase.
         #
         b.click(self.card_button("Filesystem", "Mount"))

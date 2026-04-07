@@ -75,6 +75,35 @@ QUnit.test("host must ensure that init is the first message", async assert => {
     assert.equal(message.problem, "protocol-error");
 });
 
+QUnit.test("server accepts extra init messages", async assert => {
+    /* Old versions of the shell used to accidentally forward the init message
+     * from each iframe to the webserver, and since a new webserver may be used
+     * with old versions of the shell, we need to make sure the webserver
+     * continues to accept multiple init messages without error.
+     */
+    const ws = await connect();
+
+    try {
+        // skip the init
+        const init = await read_control(ws);
+        assert.strictEqual(init.command, "init");
+
+        // we need to send init first
+        send_control(ws, { command: "init", version: 1 });
+
+        // but after that additional init is ignored
+        send_control(ws, { command: "init", version: 1 });
+
+        // send a ping: if we get the pong then we survived the extra inits
+        send_control(ws, { command: "ping", still: "alive" });
+        const pong = await read_control(ws);
+        assert.equal(pong.command, "pong", "got pong");
+        assert.equal(pong.still, "alive", "still alive");
+    } finally {
+        ws.close();
+    }
+});
+
 QUnit.module("tests that need test-server warnings disabled", hooks => {
     /*
      * Some of these tests will trigger cockpit-ws or cockpit-bridge to print out

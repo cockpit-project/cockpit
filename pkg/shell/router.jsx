@@ -220,6 +220,7 @@ export function Router(callbacks) {
 
                     callbacks.frame_is_initialized(child.frameElement.name);
                 }
+                return;
             } else if (control.command === "jump") {
                 perform_jump(child, control);
                 return;

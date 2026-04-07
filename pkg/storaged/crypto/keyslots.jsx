@@ -637,8 +637,8 @@ const RemoveClevisField = (tag, key, dev) => {
         render: (val, change) => {
             return (
                 <div data-field={tag}>
-                    <p>{ fmt_to_fragments(_("Remove $0?"), <b>{key.url}</b>) }</p>
-                    <p className="slot-warning">{ fmt_to_fragments(_("Keyserver removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
+                    { key.url && <p>{ fmt_to_fragments(_("Remove $0?"), <b>{key.url}</b>) }</p> }
+                    <p className="slot-warning">{ fmt_to_fragments(_("Removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
                 </div>
             );
         }
@@ -647,7 +647,7 @@ const RemoveClevisField = (tag, key, dev) => {
 
 function remove_clevis_dialog(client, block, key) {
     dialog_open({
-        Title: _("Remove Tang keyserver?"),
+        Title: key.url ? _("Remove Tang keyserver?") : cockpit.format(_("Remove key in slot $0?"), key.slot),
         Fields: [
             RemoveClevisField("keyserver", key, block_name(block))
         ],
@@ -720,11 +720,16 @@ export class CryptoKeyslots extends React.Component {
                         <Td>{desc}</Td>
                         <Td>{cockpit.format(_("Slot $0"), slot)}</Td>
                         <Td modifier="nowrap" className="pf-v6-c-table__action">
-                            <StorageButton onClick={edit}
+                            <StorageButton
+                                onClick={edit}
                                 ariaLabel={_("Edit")}
-                                excuse={(keys.length == max_slots)
-                                    ? _("Editing a key requires a free slot")
-                                    : null}>
+                                excuse={
+                                    edit_excuse ||
+                                        ((keys.length == max_slots)
+                                            ? _("Editing a key requires a free slot")
+                                            : null)
+                                }
+                            >
                                 <EditIcon />
                             </StorageButton>
                             { "\n" }
@@ -751,7 +756,7 @@ export class CryptoKeyslots extends React.Component {
                             () => remove_clevis_dialog(client, block, key));
                 } else {
                     add_row(key.slot,
-                            _("Unknown type"), "",
+                            _("Unknown type"), key.pin,
                             null, _("Key slots with unknown types can not be edited here"),
                             () => remove_clevis_dialog(client, block, key));
                 }

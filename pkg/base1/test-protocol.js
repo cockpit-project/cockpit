@@ -3,84 +3,73 @@ import QUnit from "qunit-tests";
 
 function connect() {
     const ws = new WebSocket(`ws://${window.location.host}/cockpit/socket`, "cockpit1");
-
-    const connection = {
-        oncontrol: () => {},
-        onmessage: () => {},
-        onclose: () => {},
-        send: (channel, data) => ws.send(channel + "\n" + data),
-        control: message => connection.send("", JSON.stringify(message)),
-        close: () => ws.close()
-    };
-
-    ws.onmessage = event => {
-        const message = event.data;
-
-        const pos = message.indexOf("\n");
-        if (pos < 0)
-            throw new Error("invalid message");
-
-        const channel = message.substring(0, pos);
-        const data = message.substring(pos + 1);
-
-        if (channel === "")
-            connection.oncontrol(JSON.parse(data));
-        else
-            connection.onmessage(channel, data);
-    };
-
-    ws.onclose = () => connection.onclose();
-
     return new Promise((resolve, reject) => {
-        ws.onopen = () => resolve(connection);
-        ws.onerror = () => reject();
+        ws.onopen = () => resolve(ws);
+        ws.onerror = () => reject(new Error("WebSocket connection failed"));
     });
 }
 
-QUnit.test("first message from host is init", async function (assert) {
-    assert.expect(5);
-    const done = assert.async();
+function send_control(ws, message) {
+    ws.send("\n" + JSON.stringify(message));
+}
 
-    const connection = await connect();
+function read_control(ws) {
+    return new Promise(resolve => {
+        ws.onmessage = event => {
+            const message = event.data;
+            const pos = message.indexOf("\n");
+            if (pos < 0)
+                throw new Error("invalid message");
 
-    connection.oncontrol = message => {
+            const channel = message.substring(0, pos);
+            const data = message.substring(pos + 1);
+
+            if (channel === "") {
+                resolve(JSON.parse(data));
+            }
+        };
+    });
+}
+
+/* Wait for close, returning the last message received */
+async function wait_close(ws) {
+    const close_promise = new Promise(resolve => {
+        ws.onclose = resolve;
+    });
+    const message = await read_control(ws);
+    await close_promise;
+    return message;
+}
+
+QUnit.test("first message from host is init", async assert => {
+    const ws = await connect();
+
+    try {
+        const message = await read_control(ws);
         assert.strictEqual(message.command, "init");
         assert.strictEqual(message.version, 1);
         assert.ok("channel-seed" in message);
         assert.ok("host" in message);
         assert.ok("csrf-token" in message);
-
-        connection.close();
-        done();
-    };
-
-    connection.onmessage = () => { throw new Error("should not be reached") };
+    } finally {
+        ws.close();
+    }
 });
 
-QUnit.test("host must ensure that init is the first message", async function (assert) {
-    assert.expect(2);
-    const done = assert.async(2);
-
-    const connection = await connect();
-
-    // ensure that the server closes the connection on protocol error
-    connection.onclose = () => done();
+QUnit.test("host must ensure that init is the first message", async assert => {
+    const ws = await connect();
+    await read_control(ws); // skip the init
 
     // send something first that's not "init"
-    connection.control({ command: "ping" });
+    send_control(ws, { command: "ping" });
 
-    connection.oncontrol = message => {
-        if (message.command === "init")
-            return;
-
-        assert.equal(message.command, "close");
-        assert.equal(message.problem, "protocol-error");
-
-        done();
-    };
+    // make sure we get shut down
+    const message = await wait_close(ws);
+    assert.equal(message.command, "close");
+    assert.equal(message.problem, "protocol-error");
 });
 
-QUnit.module("tests that need test-server warnings disabled", function (hooks) {
+QUnit.module("tests that need test-server warnings disabled", hooks => {
     /*
      * Some of these tests will trigger cockpit-ws or cockpit-bridge to print out
      * warnings (on protocol errors, for example). Let the test server know that
@@ -88,30 +77,22 @@ QUnit.module("tests that need test-server warnings disabled", function (hooks) {
      */
 
     // hooks wait for the promise to be resolved before continuing
-    hooks.before(() => fetch("/mock/expect-warnings"));
-    hooks.after(() => fetch("/mock/dont-expect-warnings"));
+    hooks.before(async () => { await fetch("/mock/expect-warnings") });
+    hooks.after(async () => { await fetch("/mock/dont-expect-warnings") });
 
-    QUnit.test("host must return an error when 'channel' is not given in 'open'", async function (assert) {
-        assert.expect(2);
-        const done = assert.async(2);
+    QUnit.test("host must return an error when 'channel' is not given in 'open'", async assert => {
+        const ws = await connect();
+        await read_control(ws); // skip the init
 
-        const connection = await connect();
+        send_control(ws, { command: "init", version: 1 });
 
-        // ensure that the server closes the connection on protocol error
-        connection.onclose = () => done();
+        // this is broken
+        send_control(ws, { command: "open", payload: "fsread", path: "/etc/passwd" });
 
-        connection.oncontrol = message => {
-            if (message.command === "init")
-                return;
-
-            assert.equal(message.command, "close");
-            assert.equal(message.problem, "protocol-error");
-
-            done();
-        };
-
-        connection.control({ command: "init", version: 1 });
-        connection.control({ command: "open", payload: "fsread", path: "/etc/passwd" });
+        // wait for the shutdown
+        const message = await wait_close(ws);
+        assert.equal(message.command, "close");
+        assert.equal(message.problem, "protocol-error");
     });
 });
 

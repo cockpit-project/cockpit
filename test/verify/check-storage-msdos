@@ -61,8 +61,20 @@ class TestStorageMsDOS(storagelib.StorageCase):
         self.click_dropdown(self.card_row("DOS partitions", 3), "Create partition")
         self.dialog_wait_open()
         b.wait_not_present("select option[value='dos-extended']")
-        self.dialog_cancel()
+        self.dialog_set_val("size", 10)
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("name", "LOGICAL")
+        self.dialog_apply_secondary()
         self.dialog_wait_close()
+
+        # Check that we can navigate to the logical partition. This is
+        # interesting since the intervening "Extended partition" row
+        # can not be navigated to and should be omitted from the
+        # breadcrumb.
+
+        self.click_card_row("DOS partitions", 4)
+        b.wait_text(self.card_desc("ext4 filesystem", "Name"), "LOGICAL")
+        b.click(self.card_parent_link())
 
         # Delete it
 

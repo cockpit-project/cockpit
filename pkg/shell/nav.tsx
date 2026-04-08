@@ -212,15 +212,21 @@ function PageStatus({ status, name } : { status: Status, name: string }) {
     desc_parts.push(status.type || "");
     const desc = desc_parts.join("-");
 
+    let statusIcon = <Icon status="info"><InfoCircleIcon /></Icon>;
+    switch (status.type) {
+    case "error":
+        statusIcon = <Icon status="danger"><ExclamationCircleIcon /></Icon>;
+        break;
+    case "warning":
+        statusIcon = <Icon status="warning"><ExclamationTriangleIcon /></Icon>;
+        break;
+    }
+
     return (
         <Tooltip id={desc + "-tooltip"} content={status.title}
                  position={TooltipPosition.right}>
             <span id={desc} className="nav-item-status">
-                {status.type == "error"
-                    ? <ExclamationCircleIcon color="#f54f42" />
-                    : status.type == "warning"
-                        ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" color="#f0ab00" />
-                        : <InfoCircleIcon color="#73bcf7" />}
+                {statusIcon}
             </span>
         </Tooltip>
     );

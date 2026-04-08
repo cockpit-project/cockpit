@@ -143,7 +143,9 @@ ExecStart=/usr/bin/sleep infinity
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
 
         self.click_card_row("Storage", location=mount_point_bar)
-        b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), "2000")  # scsi_debug serial
+        # On rhel-9 we don't use the 'vpd_use_hostno=0' option so S/N is different
+        serial_num = "8000" if b.machine.image.startswith("rhel-9") else "2000"
+        b.wait_in_text(self.card_desc("Solid State Drive", "Serial number"), serial_num)  # scsi_debug serial
 
         # Remove fstab entry
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
-import { Channel } from "../lib/cockpit/channel";
+import { Channel, ChannelPayload } from "../lib/cockpit/channel";
 import QUnit from "qunit-tests";
 
 const QS_REQUEST = "HEAD /mock/qs HTTP/1.0\nHOST: localhost\n\n";
@@ -9,7 +9,7 @@ const test_server = {
     port: parseInt(window.location.port, 10)
 };
 
-function read_data(channel) {
+function read_data<P extends ChannelPayload>(channel: Channel<P>): Promise<P> {
     return new Promise(resolve => {
         const disconnect = channel.on('data', data => {
             disconnect();
@@ -56,7 +56,7 @@ QUnit.test("TCP text stream", async assert => {
 });
 
 QUnit.test("TCP binary stream", async assert => {
-    const channel = new Channel({
+    const channel = new Channel<Uint8Array>({
         payload: "stream",
         binary: true,
         address: test_server.address,

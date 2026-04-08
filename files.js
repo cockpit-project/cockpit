@@ -77,7 +77,7 @@ const info = {
         "base1/test-series.js",
         "base1/test-spawn-proc.js",
         "base1/test-spawn.js",
-        "base1/test-stream.js",
+        "base1/test-stream.ts",
         "base1/test-timeformat.ts",
         "base1/test-types.ts",
         "base1/test-user.js",

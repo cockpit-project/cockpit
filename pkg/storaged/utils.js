@@ -713,7 +713,25 @@ export function get_children(client, path) {
     return children;
 }
 
-export function find_children_for_mount_point(client, mount_point, self) {
+/**
+ * True if `active_mount` refers to a path strictly below `parent_mount`.
+ *
+ * Examples: `/home` is below `/`; `/srv/jail` is below `/srv`.  `/etc` is not below `/srv`.
+ *
+ * Root is special: the only character shared by `/` and `/home` is the leading slash, so we
+ * cannot require a "/" immediately after the parent string (that would look at `h` in `/home`).
+ */
+function is_strict_descendant_mount_path(parent_mount, active_mount) {
+    if (active_mount.length <= parent_mount.length)
+        return false;
+    if (!active_mount.startsWith(parent_mount))
+        return false;
+    if (parent_mount === "/")
+        return true;
+    return active_mount[parent_mount.length] === "/";
+}
+
+export function find_children_for_mount_point(client, mount_point, self, self_subvol) {
     const children = {};
 
     function is_self(b) {
@@ -724,15 +742,21 @@ export function find_children_for_mount_point(client, mount_point, self) {
         const b = client.blocks[p];
         const fs = client.blocks_fsys[p];
 
-        if (is_self(b))
+        if (!fs)
             continue;
 
-        if (fs) {
-            for (const mp of fs.MountPoints) {
-                const mpd = decode_filename(mp);
-                if (mpd.length > mount_point.length && mpd.indexOf(mount_point) == 0 && mpd[mount_point.length] == "/")
-                    children[mpd] = b;
-            }
+        // Skip self block except btrfs (subvolumes share one block); then ignore only this subvol's mounts.
+        if (is_self(b) && !client.blocks_fsys_btrfs[self.path])
+            continue;
+
+        const skip = is_self(b) && self_subvol ? get_mount_points(client, fs, self_subvol) : [];
+
+        for (const mp of fs.MountPoints) {
+            const active = decode_filename(mp);
+            if (skip.includes(active))
+                continue;
+            if (is_strict_descendant_mount_path(mount_point, active))
+                children[active] = b;
         }
     }
 

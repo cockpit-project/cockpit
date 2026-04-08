@@ -107,7 +107,7 @@ export function is_valid_mount_point(client, block, val, will_not_mount, allow_e
         return cockpit.format(_("Mount point is already used for $0"), other_blocks.join(", "));
 
     if (!will_not_mount) {
-        const children = find_children_for_mount_point(client, val, block);
+        const children = find_children_for_mount_point(client, val, block, subvol);
         if (Object.keys(children).length > 0)
             return <>
                 {_("Filesystems are already mounted below this mountpoint.")}

@@ -111,7 +111,7 @@ jobs:
           # for debugging of official runs, CLI is different from packit service
           env | grep PACKIT
           tar -xJf "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit-${PACKIT_PROJECT_VERSION}.tar.xz" "cockpit-*/runtime-npm-modules.txt" --strip-components=1
-          tools/fix-spec "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit.spec" "${PACKIT_PROJECT_VERSION}"
+          tools/fix-spec "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit.spec"
           '
 
       fix-spec-file:

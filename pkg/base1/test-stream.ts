@@ -2,7 +2,7 @@
 import { Channel, ChannelPayload } from "../lib/cockpit/channel";
 import QUnit from "qunit-tests";
 
-const QS_REQUEST = "HEAD /mock/qs HTTP/1.0\nHOST: localhost\n\n";
+const QS_REQUEST = "HEAD /mock/qs HTTP/1.0\r\nHOST: localhost\r\n\r\n";
 
 const test_server = {
     address: window.location.hostname,

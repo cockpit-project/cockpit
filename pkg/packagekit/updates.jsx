@@ -70,6 +70,7 @@ import "./updates.scss";
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
 import { Severity } from '_internal/packagemanager-abstract';
 import { getPackageManager } from 'packagemanager';
+import { Icon } from '@patternfly/react-core/dist/esm/components/Icon/index.js';
 
 const _ = cockpit.gettext;
 
@@ -180,11 +181,11 @@ function getSeverityIcon(info, secSeverity) {
     if (secSeverity)
         classes += " severity-" + secSeverity;
     if (info == Severity.CRITICAL)
-        return <SecurityIcon aria-label={ secSeverity || _("security") } className={classes} />;
+        return <Icon isInline status="danger"><SecurityIcon aria-label={secSeverity || _("security")} className={classes} /></Icon>;
     else if (info >= Severity.IMPORTANT)
-        return <BugIcon className={classes} aria-label={ _("bug fix") } />;
+        return <Icon isInline className='pf-m-important'><BugIcon className={classes} aria-label={_("bug fix")} /></Icon>;
     else
-        return <EnhancementIcon className={classes} aria-label={ _("enhancement") } />;
+        return <Icon isInline status="custom"><EnhancementIcon className={classes} aria-label={_("enhancement")} /></Icon>;
 }
 
 function getPageStatusSeverityIcon(severity) {

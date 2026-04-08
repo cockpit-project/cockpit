@@ -56,7 +56,7 @@ function get_pficon(name) {
     if (name == "check")
         return <Icon isInline status="success"><CheckIcon data-pficon={name} /></Icon>;
     if (name == "spinner")
-        return <Spinner size="md" data-pficon={name} />;
+        return <Spinner diameter="1em" data-pficon={name} />;
 
     throw new Error(`get_pficon(): unknown icon name ${name}`);
 }

@@ -46,7 +46,6 @@ QUnit.test("TCP text stream", async assert => {
     });
 
     channel.send_data(QS_REQUEST);
-    channel.done();
 
     const data = await read_data(channel);
     assert.ok(data.startsWith("HTTP/1.1 200 OK"), "got successful HTTP response");
@@ -64,7 +63,6 @@ QUnit.test("TCP binary stream", async assert => {
     });
 
     channel.send_data(new TextEncoder().encode(QS_REQUEST));
-    channel.done();
 
     const data = await read_data(channel);
     const text = new TextDecoder().decode(data);

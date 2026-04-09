@@ -6,7 +6,7 @@ interface ChannelOptions {
     payload: string;
     path?: string;
     watch?: boolean;
-    binary?: string;
+    binary?: string | boolean | null;
     external?: Record<string, string>;
 }
 
@@ -47,6 +47,74 @@ QUnit.test("external fsread1", async assert => {
     assert.equal(resp.headers.get("Content-Type"), "application/octet-stream", "expected type");
     assert.equal(resp.headers.get("Content-Disposition"), 'attachment; filename="foo"', "expected disposition");
     assert.equal(resp.headers.get("Content-Length"), filesize, "expected file size");
+});
+
+QUnit.test("external content-type default with binary:raw", async assert => {
+    const resp = await fetch(channel_url({
+        payload: "fslist1",
+        path: "/tmp",
+        watch: false,
+        binary: "raw",
+    }));
+
+    assert.equal(resp.status, 200, "got right status");
+    assert.equal(resp.headers.get("Content-Type"), "application/octet-stream", "default type for binary channel");
+});
+
+QUnit.module("tests that need test-server warnings disabled", hooks => {
+    hooks.before(async () => { await fetch("/mock/expect-warnings") });
+    hooks.after(async () => { await fetch("/mock/dont-expect-warnings") });
+
+    QUnit.test("external rejects binary:empty-string", async assert => {
+        const resp = await fetch(channel_url({
+            payload: "fslist1",
+            path: "/tmp",
+            watch: false,
+            binary: "",
+        }));
+
+        // This should ideally be a 400 (rejected by -ws itself), but
+        // currently -ws accepts any string and forwards it to the bridge,
+        // which rejects it as a protocol error, resulting in a 500.
+        assert.ok(resp.status === 400 || resp.status === 500, "empty string rejected");
+    });
+
+    QUnit.test("external rejects binary:false", async assert => {
+        const resp = await fetch(channel_url({
+            payload: "fslist1",
+            path: "/tmp",
+            watch: false,
+            binary: false,
+        }));
+
+        assert.equal(resp.status, 400, "false rejected");
+    });
+
+    QUnit.test("external rejects binary:null", async assert => {
+        const resp = await fetch(channel_url({
+            payload: "fslist1",
+            path: "/tmp",
+            watch: false,
+            binary: null,
+        }));
+
+        assert.equal(resp.status, 400, "null rejected");
+    });
+});
+
+QUnit.test("external ignores mixed-case Content-Type", async assert => {
+    const resp = await fetch(channel_url({
+        payload: "fslist1",
+        path: "/tmp",
+        watch: false,
+        external: {
+            "Content-Type": "text/fancy",
+        },
+    }));
+
+    assert.equal(resp.status, 200, "got right status");
+    assert.equal(resp.headers.get("Content-Type"), "application/octet-stream",
+                 "only lowercase 'content-type' key is recognized");
 });
 
 QUnit.test("external headers", async assert => {

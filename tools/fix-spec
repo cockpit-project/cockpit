@@ -12,7 +12,7 @@ PROVIDES=$(awk '{print "Provides: bundled(npm(" $1 ")) = " $2}' "${ROOT_DIR}/run
 awk -v p="$PROVIDES" 'gsub(/#NPM_PROVIDES/, p) 1' "$spec" > "$spec".new
 
 if [ -n "$version" ]; then
-    sed -i '/Version/ s/0/'"$version"'/' "$spec".new
+    sed -i '/Version/ s/\b0\b/'"$version"'/' "$spec".new
 fi
 
 mv -f "$spec".new "$spec"

@@ -2,7 +2,15 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
-function channel_url(query) {
+interface ChannelOptions {
+    payload: string;
+    path?: string;
+    watch?: boolean;
+    binary?: string;
+    external?: Record<string, string>;
+}
+
+function channel_url(query: ChannelOptions): string {
     return "/cockpit/channel/" + cockpit.transport.csrf_token + "?" + window.btoa(JSON.stringify(query));
 }
 
@@ -81,19 +89,19 @@ QUnit.test("external websocket", async assert => {
     const ws = new WebSocket("ws://" + window.location.host + "/cockpit/channel/" +
                              cockpit.transport.csrf_token + '?' + query, "protocol-unused");
 
-    await new Promise((resolve, reject) => {
-        ws.onopen = resolve;
-        ws.onerror = reject;
+    await new Promise<void>((resolve, reject) => {
+        ws.onopen = () => resolve();
+        ws.onerror = () => reject(new Error("WebSocket connection failed"));
     });
     assert.ok(true, "websocket is open");
 
     try {
         ws.send("oh marmalade");
-        let ev = await new Promise(resolve => { ws.onmessage = resolve });
+        let ev = await new Promise<MessageEvent>(resolve => { ws.onmessage = resolve });
         assert.equal(ev.data, "oh marmalade", "got payload");
 
         ws.send("another test");
-        ev = await new Promise(resolve => { ws.onmessage = resolve });
+        ev = await new Promise<MessageEvent>(resolve => { ws.onmessage = resolve });
         assert.equal(ev.data, "another test", "got payload again");
     } finally {
         ws.close(1000);

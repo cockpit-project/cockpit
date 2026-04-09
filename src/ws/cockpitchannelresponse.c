@@ -770,7 +770,11 @@ cockpit_channel_response_open (CockpitWebService *service,
   if (!content_type)
     {
       if (!cockpit_web_service_parse_binary (open, &data_type))
-        g_return_if_reached ();
+        {
+          cockpit_web_response_error (response, 400, NULL, "Bad channel request");
+          g_hash_table_unref (headers);
+          return;
+        }
       if (data_type == WEB_SOCKET_DATA_TEXT)
         content_type = "text/plain";
       else

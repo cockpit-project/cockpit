@@ -75,6 +75,25 @@ QUnit.test("host must ensure that init is the first message", async assert => {
     assert.equal(message.problem, "protocol-error");
 });
 
+QUnit.test("host tolerates payload message before init", async assert => {
+    const ws = await connect();
+    await read_control(ws); // skip the init
+
+    // send payload message before init — the server should reject this
+    // with a protocol-error (like it does for control messages before
+    // init) but currently it silently ignores it.
+    ws.send("somechannel\npayload");
+
+    // connection should still work
+    send_control(ws, { command: "init", version: 1 });
+    send_control(ws, { command: "ping", still: "alive" });
+    const pong = await read_control(ws);
+    assert.equal(pong.command, "pong");
+    assert.equal(pong.still, "alive");
+
+    ws.close();
+});
+
 QUnit.test("server accepts extra init messages", async assert => {
     /* Old versions of the shell used to accidentally forward the init message
      * from each iframe to the webserver, and since a new webserver may be used
@@ -125,6 +144,95 @@ QUnit.module("tests that need test-server warnings disabled", hooks => {
         send_control(ws, { command: "open", payload: "fsread", path: "/etc/passwd" });
 
         // wait for the shutdown
+        const message = await wait_close(ws);
+        assert.equal(message.command, "close");
+        assert.equal(message.problem, "protocol-error");
+    });
+
+    QUnit.test("host ignores frame without newline", async assert => {
+        const ws = await connect();
+        await read_control(ws); // skip the init
+
+        send_control(ws, { command: "init", version: 1 });
+
+        // send a frame without a newline — this should be a
+        // protocol-error, but currently it's silently ignored.
+        ws.send("no newline here");
+
+        // connection should still work - verify with ping/pong
+        send_control(ws, { command: "ping", test: "still-alive" });
+        const pong = await read_control(ws);
+        assert.equal(pong.command, "pong");
+        assert.equal(pong.test, "still-alive");
+
+        ws.close();
+    });
+
+    QUnit.test("host rejects control message that is not an object (array)", async assert => {
+        const ws = await connect();
+        await read_control(ws); // skip the init
+
+        send_control(ws, { command: "init", version: 1 });
+
+        // send a control message that's an array, not an object
+        ws.send("\n[1, 2, 3]");
+
+        const message = await wait_close(ws);
+        assert.equal(message.command, "close");
+        assert.equal(message.problem, "protocol-error");
+    });
+
+    QUnit.test("host rejects control message that is not an object (null)", async assert => {
+        const ws = await connect();
+        await read_control(ws); // skip the init
+
+        send_control(ws, { command: "init", version: 1 });
+
+        // send a control message that's null
+        ws.send("\nnull");
+
+        const message = await wait_close(ws);
+        assert.equal(message.command, "close");
+        assert.equal(message.problem, "protocol-error");
+    });
+
+    QUnit.test("host rejects control message with invalid JSON", async assert => {
+        const ws = await connect();
+        await read_control(ws); // skip the init
+
+        send_control(ws, { command: "init", version: 1 });
+
+        // send invalid JSON
+        ws.send("\n{not valid json}");
+
+        const message = await wait_close(ws);
+        assert.equal(message.command, "close");
+        assert.equal(message.problem, "protocol-error");
+    });
+
+    QUnit.test("host rejects control message without command", async assert => {
+        const ws = await connect();
+        await read_control(ws); // skip the init
+
+        send_control(ws, { command: "init", version: 1 });
+
+        // send a control message without "command" field
+        ws.send('\n{"channel": "test"}');
+
+        const message = await wait_close(ws);
+        assert.equal(message.command, "close");
+        assert.equal(message.problem, "protocol-error");
+    });
+
+    QUnit.test("host rejects empty control message", async assert => {
+        const ws = await connect();
+        await read_control(ws); // skip the init
+
+        send_control(ws, { command: "init", version: 1 });
+
+        // send an empty object as a control message
+        ws.send("\n{}");
+
         const message = await wait_close(ws);
         assert.equal(message.command, "close");
         assert.equal(message.problem, "protocol-error");

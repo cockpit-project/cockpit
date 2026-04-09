@@ -58,7 +58,7 @@ const info = {
         "base1/test-dbus.js",
         "base1/test-echo.js",
         "base1/test-events.js",
-        "base1/test-external.js",
+        "base1/test-external.ts",
         "base1/test-file.ts",
         "base1/test-format.ts",
         "base1/test-framed-cache.js",

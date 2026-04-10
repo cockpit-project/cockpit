@@ -101,13 +101,11 @@ class TestStorageAnaconda(storagelib.StorageCase):
         b.wait_in_text(self.card_desc("Encryption", "Cleartext device"), "/dev/mapper")
         b.wait_in_text(self.card_desc("ext4 filesystem", "Mount point"), "/var")
 
-        b.click(self.card_button("ext4 filesystem", "Mount"))
-        self.dialog_wait_open()
-        self.dialog_wait_val("mount_point", "/var")
-        self.dialog_apply()
-        self.dialog_wait_close()
-        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot/var"))
+        # Cockpit hides its "Mount" action in Anaconda mode...
+        b.wait_not_present(self.card_button("ext4 filesystem", "Mount"))
+        m.execute("mkdir -p /sysroot/var; mount /sysroot/var")
 
+        # ...but unmounting is still there.
         b.click(self.card_button("ext4 filesystem", "Unmount"))
         self.dialog_wait_open()
         b.wait_text("#dialog .pf-v6-c-modal-box__title-text", "Unmount filesystem /var")

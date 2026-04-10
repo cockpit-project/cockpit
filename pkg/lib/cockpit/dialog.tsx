@@ -353,7 +353,7 @@
    within "dlg.run_action", the cancel function is automatically
    reset.
 
-   Let's now finally talk about input validation.
+   VALIDATION
 
    Input validation is done by a single, central function for the
    whole dialog.  This has been done so that there is a central place
@@ -373,8 +373,8 @@
 
    The formal job of the validation function is to call the "validate"
    method (or "validate_async") of all relevant dialog value handles.
-   If and only if the render function instantiates a component for a
-   dialog value, should the validate function visit it.
+   If and only if a validation failure of a field should prevent
+   running the action function, should the validate function visit it.
 
    - handle.validate(v => ...)
 
@@ -383,14 +383,11 @@
    "undefined". If it fails, the function should return a string with
    the appropriate message. This message will be available from the
    "handle.validation_text" method and should be shown by the React
-   component for this value, of course.
+   component for this value, of course. Returning an error here will
+   also disable the action buttons.
 
    The "v => ..." function is only called when necessary, when the
    value has actually changed.
-
-   The "v => ..." function should not make any modifications to
-   anything involved in the dialog. Specifically, it should not call
-   "set()" on any value handle.
 
    A validation function can also return an object with validation
    errors for its sub-fields.  This is useful if multiple fields need
@@ -404,8 +401,8 @@
    If your validation function needs to communicate out-of-band with
    your action function (maybe to pass the results of some expensive
    operations that you don't want to repeat in your action function),
-   then you need to find some other way. Maybe with a memoized
-   function or an explicit cache.
+   then you can modify field values via calls to "handle.set". (Be
+   careful not to create endless validation loops!)
 
    - handle.validate_async(debounce, async (v, task) >= ...)
 
@@ -1065,22 +1062,39 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
        cancelled.
      */
 
+    #validation_needed: boolean = false;
+    #validation_running: boolean = false;
+
     #trigger_validation(): void {
         debug("trigger validation");
         if (!this.#validate_callback)
             return;
-        this.#validation_failed = false;
-        this._for_each_field_state(state => {
-            state.relevant = false;
-            state.validation_text = undefined;
-        });
-        this.#validate_callback(this);
-        this._for_each_field_state(state => {
-            if (!state.relevant && state.validation_task) {
-                debug("cancelling irrelevant validation task", state_path(state));
-                state.validation_task.cancel();
-            }
-        });
+
+        this.#validation_needed = true;
+        if (this.#validation_running) {
+            debug("validation postponed");
+            return;
+        }
+
+        this.#validation_running = true;
+        while (this.#validation_needed) {
+            debug("running validation");
+            this.#validation_needed = false;
+            this.#validation_failed = false;
+            this._for_each_field_state(state => {
+                state.relevant = false;
+                state.validation_text = undefined;
+            });
+            this.#validate_callback(this);
+            this._for_each_field_state(state => {
+                if (!state.relevant && state.validation_task) {
+                    debug("cancelling irrelevant validation task", state_path(state));
+                    state.validation_task.cancel();
+                }
+            });
+        }
+        this.#validation_running = false;
+
         this.#update();
     }
 

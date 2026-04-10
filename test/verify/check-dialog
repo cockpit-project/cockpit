@@ -153,11 +153,12 @@ class TestDialog(testlib.MachineCase):
         d.wait_TextInput("list.1", "bar")
         b.wait_not_present(d.field("list.2"))
         b.click(d.id("list", "add"))
-        d.set_TextInput("list.2", "baz")
+        d.set_TextInput("list.2", "magic")
+        d.wait_TextInput("text", "magic")
         b.click(d.apply_button())
         b.wait_not_present("#dialog")
 
-        b.wait_text("#list", "foo/bar/baz")
+        b.wait_text("#list", "foo/bar/magic")
 
         # Debounced and asynchronous validation
 

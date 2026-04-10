@@ -99,7 +99,7 @@ const StringList = ({
 
 interface Name {
     name: string;
-    _length_cache: Record<string, number>;
+    _length: number;
 }
 
 const NameInput = ({
@@ -111,11 +111,11 @@ const NameInput = ({
 };
 
 function validate_Name(field: DialogField<Name>, countAsyncValidation: () => void) {
-    const { _length_cache } = field.get();
-    field.sub("name").validate_async(1000, async n => {
+    field.sub("name").validate_async(1000, async (n, task) => {
         await async_sleep(2000);
         countAsyncValidation();
-        _length_cache[n] = n.length;
+        if (!task.is_cancelled())
+            field.sub("_length").set(n.length);
         if (n.length % 2)
             return "Must have even number of characters";
     });
@@ -133,7 +133,7 @@ const NameList = ({
             label={label}
             field={field}
             Component={NameInput}
-            init={{ name: "", _length_cache: { } }}
+            init={{ name: "", _length: 0 }}
         />
     );
 };
@@ -258,6 +258,8 @@ const ExampleDialog = ({
         }
         dlg.field("list").forEach(v => {
             v.validate(vv => {
+                if (vv == "magic")
+                    dlg.field("text").set("magic");
                 if (vv == ".")
                     return "No dots";
             });
@@ -456,7 +458,7 @@ const ExampleButton = () => {
                     { entry("dropdown", values.dropdown) }
                     { entry("color", values.color.red + "/" + values.color.green + "/" + values.color.blue) }
                     { entry("list", values.list.join("/")) }
-                    { entry("async", values.async.map(n => n.name + ":" + String(n._length_cache[n.name])).join("/")) }
+                    { entry("async", values.async.map(n => n.name + ":" + String(n._length)).join("/")) }
                     { entry("asyncVals", String(asyncValidations - asyncValidationsBase)) }
                     { entry("asyncUps", String(asyncUpdates - asyncUpdatesBase)) }
                     { entry("asyncCancels", String(asyncCancels - asyncCancelsBase)) }

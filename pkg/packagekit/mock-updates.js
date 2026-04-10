@@ -108,4 +108,13 @@ export function injectMockUpdates(updates) {
         severity: 6,
         description: "This is FUBAR",
     };
+
+    updates["tracker-links;1-1"] = {
+        name: "tracker-links",
+        version: "1-1",
+        bug_urls: [],
+        cve_urls: [],
+        severity: 4,
+        description: "Fixes rhbz#12345 and jira#67890 in one update.",
+    };
 }

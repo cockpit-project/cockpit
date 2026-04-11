@@ -15,11 +15,12 @@ import os
 import platform
 import re
 import secrets
+import shlex
 import socket
-import sys
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Callable, Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, NamedTuple
 
 from starlette.applications import Starlette
@@ -32,13 +33,15 @@ from starlette.websockets import WebSocket
 from cockpit.bridge import Bridge
 from cockpit.data import read_cockpit_data_file
 from cockpit.jsonutil import (
+    JsonError,
     JsonObject,
     JsonValue,
     create_object,
-    get_dict,
     get_enum,
     get_int,
+    get_nested,
     get_str,
+    get_str_map,
     typechecked,
 )
 from cockpit.protocol import CockpitProblem, CockpitProtocolError
@@ -48,12 +51,85 @@ from . import authorize
 logger = logging.getLogger(__name__)
 
 
+# Good morning and welcome to the Python webserver code!
+#
+# This is currently a work in progress.  Some notes:
+#
+#   - comments starting with `# C-COMPAT` mark places where we match cockpit-ws
+#     (C) behaviour for compatibility, but would prefer to do something
+#     stricter/better in the future.  Some of these points are tested by qunit
+#     tests which will need to be changed if/when we decide to change the
+#     behaviour.
+
+
+# TODO: consider moving to jsonutil
+def parse_json_object(data: str | bytes) -> JsonObject:
+    """Parse JSON, ensuring it's an object.
+
+    Raises json.JSONDecodeError or JsonError on invalid input.
+    """
+    return typechecked(json.loads(data), dict)
+
+
 # === Configuration ===
 
 
 @dataclass(kw_only=True)
 class Config:
+    is_https: bool = False
     for_cockpit_client: bool = False
+    local_ssh: bool = False
+    login_to: bool = True
+
+    default_unix_path: str = "/run/cockpit/session"
+    default_ssh_command: str = "python3 -m cockpit.beiboot --remote-bridge=supported --"
+    default_ssh_host: str = "127.0.0.1"
+
+    # cockpit.conf sections, keyed by section name
+    sections: Mapping[str, JsonObject] | None = None
+
+    @staticmethod
+    def load_cockpit_conf() -> Mapping[str, JsonObject] | None:
+        """Parse cockpit.conf and return its sections, or None."""
+        import configparser
+
+        from cockpit.config import lookup_config
+
+        parser = configparser.ConfigParser(interpolation=None)
+        conf_path = lookup_config("cockpit.conf")
+        logger.debug("load_cockpit_conf: loading %r", conf_path)
+        try:
+            parser.read(conf_path)
+        except configparser.Error:
+            logger.warning(
+                "load_cockpit_conf: failed to parse %r", conf_path, exc_info=True
+            )
+            return None
+
+        if not parser.sections():
+            return None
+
+        return {name: dict(parser[name]) for name in parser.sections()}
+
+    def get_ssh_spawn(self, host: str | None) -> tuple[Sequence[str], str]:
+        """Get (command, host) for an SSH session."""
+        with get_nested(self.sections or {}, "Ssh-Login", {}) as section:
+            command = get_str(section, "Command", self.default_ssh_command)
+            target = host or get_str(section, "host", self.default_ssh_host)
+            return shlex.split(command) + [target], target
+
+    def get_session_backend(self, auth_type: str) -> tuple[str | None, str | None]:
+        """Get (command, unix_path) for an auth type, with fallback to defaults.
+
+        Returns the Command or UnixPath from the auth type's config section,
+        falling back to (None, default_unix_path) if neither is configured.
+        """
+        with get_nested(self.sections or {}, auth_type, {}) as section:
+            command = get_str(section, "Command", None)
+            unix_path = get_str(section, "UnixPath", None)
+            if command is None and unix_path is None:
+                unix_path = self.default_unix_path
+            return command, unix_path
 
 
 # === Routing ===
@@ -128,78 +204,78 @@ class ExternalChannelOrigin(NamedTuple):
     enqueue: Callable[[JsonObject | bytes], None]
 
 
-ChannelOrigin = TextChannelOrigin | BinaryChannelOrigin | ExternalChannelOrigin
-
-
-SESSION_IDLE_TIMEOUT = 15  # seconds
+type ChannelOrigin = TextChannelOrigin | BinaryChannelOrigin | ExternalChannelOrigin
 
 
 class Session:
-    """Manages a connection to a bridge and multiplexes websockets/channels."""
+    """Corresponds to a single connection to a bridge.  Can have multiple
+    associated websockets and external channels, and keeps track of which
+    channel came from which origin.  It has a number of possible states:
+
+      - initial state (no bridge started)
+      - pre-init (possibly handling authorize messages)
+      - running
+      - closed
+
+    on_control receives control messages.  On close, `None` is sent instead
+    of the message.  The caller can change the callback at runtime (which
+    happens with authenticated servers when the init message is received,
+    for example.
+
+    The session is responsible for ensuring channel names remain unique over
+    the life of a particular bridge connection: it hands out the `channel-seed`
+    to websockets (creating a namespace for all channels originating via that
+    socket) and also names external channels.
+
+    The session tracks active vs. idle state.  A session is idle if it has
+    no websockets attached and will be closed if the idle timeout (15s by
+    default) elapses. This allows pressing ^R in the browser without losing the
+    session. TODO: think about idle before the websocket connects (during auth
+    and after /login finishes but before websocket shows up).
+    """
 
     def __init__(
         self,
         on_control: Callable[[Session, JsonObject | None], bool],
         *,
-        idle_timeout: float | None = SESSION_IDLE_TIMEOUT,
+        idle_timeout: float | None = 15,  # seconds
     ):
-        """Create a session.
-
-        on_control receives control messages and close (None). Can be swapped.
-        """
         self.on_control = on_control
         self.idle_timeout = idle_timeout
-        self.websocket_count = 0
-        self._idle_handle: asyncio.TimerHandle | None = None
+        self.csrf_token = secrets.token_urlsafe(32)
 
-        # Mux/demux state
-        self.origins: dict[str | None, ChannelOrigin] = {}
-        self.channel_sequence = 0
-        self.init_received: JsonObject | None = None
+        self.active = 0
+        self.idle_handle: asyncio.TimerHandle | None = None
+
+        # map each channel to where it came from (websocket, external)
+        self.channels: dict[str | None, ChannelOrigin] = {}
+        self.next_channel_seed = 1
+        self.next_external_id = 1
 
         # Connection to bridge (set by start_in_process or start_with_socket)
         self.connection: BridgeTransport | SocketProtocol | None = None
-        self._was_connected = False
+        self.was_connected = False
+        self.init_received: JsonObject | None = None
 
-        # Generate csrf token
-        self.csrf_token = secrets.token_urlsafe(32)
-
-        # Socket ID counter for channel seeds
-        self._next_socket_id = 1
-
-    def allocate_channel_seed(self) -> str:
-        """Allocate a unique channel seed for a new websocket."""
-        seed = f"{self._next_socket_id}:"
-        self._next_socket_id += 1
-        return seed
-
-    def _send_init(self) -> None:
-        self.send_control("init", version=1, host="localhost")
-
-    def start_in_process(self) -> None:
-        """Connect to an in-process Bridge."""
+    def start_bridge_in_process(self) -> None:
+        # NB: this requires the systemd_ctypes event loop to be active.
+        # Use start_with_subprocess() instead for normal operation.
         router = Bridge(argparse.Namespace(privileged=False, beipack=False))
-        self.start_with_router(router)
-
-    def start_with_router(self, router: asyncio.Protocol) -> None:
-        """Connect to any in-process Router (Bridge, SshBridge, etc.)."""
         transport = BridgeTransport(self, router)
         self.connection = transport
-        self._was_connected = True
+        self.was_connected = True
         router.connection_made(transport)
 
     async def start_with_subprocess(self, cmd: Sequence[str]) -> None:
-        """Start session by spawning a subprocess (e.g., beiboot)."""
+        """Start session by spawning a subprocess (e.g., cockpit-bridge)."""
         logger.debug("start_with_subprocess: cmd=%r", cmd)
         ours, theirs = socket.socketpair()
         try:
             with theirs:
-                env = {**os.environ, "PYTHONPATH": ":".join(sys.path)}
                 self._subprocess = await asyncio.create_subprocess_exec(
                     *cmd,
                     stdin=theirs.fileno(),
                     stdout=theirs.fileno(),
-                    env=env,
                 )
             # theirs is now closed, subprocess owns the fd
 
@@ -208,7 +284,7 @@ class Session:
                 lambda: SocketProtocol(self), sock=ours
             )
             self.connection = protocol
-            self._was_connected = True
+            self.was_connected = True
             # ours is now owned by the transport
         except BaseException:
             ours.close()
@@ -223,90 +299,108 @@ class Session:
             lambda: SocketProtocol(self), path
         )
         self.connection = protocol
-        self._was_connected = True
+        self.was_connected = True
         logger.debug("start_with_socket: connected")
+
+    def allocate_channel_seed(self) -> str:
+        """Allocate a unique channel seed for a new websocket."""
+        seed = f"{self.next_channel_seed}:"
+        self.next_channel_seed += 1
+        return seed
 
     def attach_websocket(self) -> None:
         """Called when a websocket connects to this session."""
-        self.websocket_count += 1
-        if self._idle_handle:
-            self._idle_handle.cancel()
-            self._idle_handle = None
+        self.active += 1
+        if self.idle_handle:
+            self.idle_handle.cancel()
+            self.idle_handle = None
 
     def detach_websocket(self) -> None:
         """Called when a websocket disconnects from this session."""
-        self.websocket_count -= 1
-        if self.websocket_count == 0 and self.idle_timeout is not None:
+        self.active -= 1
+        if self.active == 0 and self.idle_timeout is not None:
             loop = asyncio.get_running_loop()
-            self._idle_handle = loop.call_later(self.idle_timeout, self.close)
+            self.idle_handle = loop.call_later(self.idle_timeout, self.close)
 
     def close(self) -> None:
         """Close the session and clean up."""
-        if self._idle_handle:
-            self._idle_handle.cancel()
-            self._idle_handle = None
-        # TODO: close the router/transport properly
-        self.connection = None
+        if self.idle_handle:
+            self.idle_handle.cancel()
+            self.idle_handle = None
+
+        if self.connection is not None:
+            self.connection.shutdown()
+            self.connection = None
+
         self.on_control(self, None)
 
-    # Mux/demux: messages from router to origins
     def frame_received(self, frame: bytes) -> None:
         """Called by transport when a frame is received from the router."""
         logger.debug("frame_received: %d bytes: %r", len(frame), frame[:200])
-        channel_id, _, body = frame.partition(b"\n")
+        try:
+            nl = frame.index(b"\n")
+        except ValueError:
+            # C-COMPAT: should be a protocol error, but C ignores it
+            logger.info("received invalid message without channel prefix")
+            return
 
-        if channel_id:
+        if nl > 0:
             # Data message on a named channel
+            channel_id = frame[:nl]
             logger.debug("frame_received: data on channel %s", channel_id)
-            origin = self.origins.get(channel_id.decode())
+            origin = self.channels.get(channel_id.decode())
             match origin:
                 case BinaryChannelOrigin(enqueue):
                     enqueue(frame)
                 case TextChannelOrigin(enqueue):
                     enqueue(frame.decode())
                 case ExternalChannelOrigin(enqueue):
-                    enqueue(body)
+                    enqueue(frame[nl + 1 :])
                 case None:
                     pass
         else:
             # Control message
-            message = json.loads(body)
-            command = get_str(message, "command")
-            logger.debug("frame_received: control command=%s", command)
+            try:
+                message = parse_json_object(frame)
+                command = get_str(message, "command")
+                logger.debug("frame_received: control command=%s", command)
 
-            if self.init_received is None:
-                # Pre-init: all control messages go through on_control
-                if command == "init":
-                    logger.debug(
-                        "frame_received: init, problem=%r",
-                        get_str(message, "problem", None),
-                    )
-                    self.init_received = message
-                    self.on_control(self, message)
-                    self._send_init()
-                elif not self.on_control(self, message):
-                    logger.debug("frame_received: control rejected, closing")
-                    self.close()
-                return
+                if self.init_received is None:
+                    # Pre-init: all control messages go through on_control
+                    if command == "init":
+                        logger.debug(
+                            "frame_received: init, problem=%r",
+                            get_str(message, "problem", None),
+                        )
+                        self.init_received = message
+                        self.on_control(self, message)
+                        self.send_control("init", version=1, host="localhost")
+                    elif not self.on_control(self, message):
+                        logger.debug("frame_received: control rejected, closing")
+                        self.close()
+                    return
 
-            channel = get_str(message, "channel", None)
-            origin = self.origins.get(channel)
+                channel = get_str(message, "channel", None)
+                origin = self.channels.get(channel)
 
-            match origin:
-                case BinaryChannelOrigin(enqueue) | TextChannelOrigin(enqueue):
-                    enqueue(frame.decode())
-                case ExternalChannelOrigin(enqueue):
-                    enqueue(message)
-                case None:
-                    pass
+                match origin:
+                    case BinaryChannelOrigin(enqueue) | TextChannelOrigin(enqueue):
+                        enqueue(frame.decode())
+                    case ExternalChannelOrigin(enqueue):
+                        enqueue(message)
+                    case None:
+                        pass
 
-            if origin is not None and command == "close":
-                del self.origins[channel]
+                if origin is not None and command == "close":
+                    del self.channels[channel]
+            except (json.JSONDecodeError, JsonError) as exc:
+                logger.info("closing session due to json error from bridge: %s", exc)
+                self.close()
 
-    # Mux/demux: messages from origins to router
+    # Mux/demux: messages from channels to router
     def send_data(self, data: bytes) -> None:
         """Send data to the router. No-op if connection closed."""
-        assert self._was_connected
+        assert self.was_connected
         if self.connection is not None:
             self.connection.send_data(data)
 
@@ -321,10 +415,10 @@ class Session:
         """Register an origin for a channel. Allocates channel ID for external
         channels."""
         if channel is None:
-            channel = f"external{self.channel_sequence}"
-            self.channel_sequence += 1
+            channel = f"external{self.next_external_id}"
+            self.next_external_id += 1
 
-        self.origins[channel] = origin
+        self.channels[channel] = origin
         return channel
 
     def open_channel(
@@ -335,6 +429,31 @@ class Session:
         channel = self.register_origin(ExternalChannelOrigin(queue.put_nowait))
         self.send_control("open", options, channel=channel, flow_control=True)
         return channel, queue
+
+    async def wait_channel_ready(
+        self, queue: asyncio.Queue[JsonObject | bytes]
+    ) -> JsonObject:
+        """Wait for a channel to become ready.
+
+        Raises CockpitProblem if the channel fails to open.
+        """
+        open_result = await queue.get()
+        if not isinstance(open_result, Mapping):
+            logger.warning(
+                "wait_channel_ready: expected control message, got %r",
+                type(open_result),
+            )
+            raise CockpitProblem("protocol-error")
+        try:
+            command = get_str(open_result, "command")
+        except JsonError as exc:
+            logger.warning("wait_channel_ready: invalid response: %s", exc)
+            raise CockpitProblem("protocol-error") from exc
+        if command != "ready":
+            raise CockpitProblem(
+                get_str(open_result, "problem", "internal-error"), open_result
+            )
+        return open_result
 
     async def stream_channel(
         self, queue: asyncio.Queue[JsonObject | bytes]
@@ -375,7 +494,10 @@ class BridgeTransport(asyncio.Transport):
         self.protocol.data_received(header + data)
 
     def close(self) -> None:
-        pass  # Session manages lifecycle
+        pass
+
+    def shutdown(self) -> None:
+        pass
 
 
 class SocketProtocol(asyncio.Protocol):
@@ -419,6 +541,11 @@ class SocketProtocol(asyncio.Protocol):
         header = f"{len(data)}\n".encode()
         self._transport.write(header + data)
 
+    def shutdown(self) -> None:
+        """Close the connection to the bridge."""
+        if self._transport is not None:
+            self._transport.close()
+
     def connection_lost(self, exc: Exception | None) -> None:
         logger.debug("SocketProtocol: connection_lost exc=%s", exc)
         self.session.close()
@@ -429,6 +556,7 @@ class CockpitWebSocket:
         self.ws = ws
         self.session = session
         self.closed = False
+        self.init_received = False
         self.outgoing_queue: asyncio.Queue[str | bytes | None] = asyncio.Queue()
         self.channels: set[str] = set()
         self.channel_seed = session.allocate_channel_seed()
@@ -445,6 +573,19 @@ class CockpitWebSocket:
         self.outgoing_queue.put_nowait("\n" + json.dumps(message))
 
     def transport_control_received(self, command: str, message: JsonObject) -> None:
+        if command == "init":
+            if message.get("version") != 1:
+                raise CockpitProtocolError("expected init version 1")
+            if self.init_received:
+                # Due to a historical bug in the shell we are unfortunately
+                # forced to accept and ignore extra init messages.
+                return
+            self.init_received = True
+            return
+
+        if not self.init_received:
+            raise CockpitProtocolError("expected init message first")
+
         match command:
             case "ping":
                 self.send_control("pong", message)
@@ -453,11 +594,6 @@ class CockpitWebSocket:
                 logger.debug("logout received, closing session")
                 self.session.close()
                 self.closed = True
-
-            case "init":
-                # Due to a historical bug in the shell we are unfortunately
-                # forced to accept and ignore extra init messages.
-                pass
 
             case other:
                 logger.debug("Unknown transport control message %r", message)
@@ -479,8 +615,7 @@ class CockpitWebSocket:
         self.session.send_data(frame.encode())
 
     def control_frame_received(self, frame: str) -> None:
-        control = json.loads(frame)
-        # TODO: verify control is dict
+        control = parse_json_object(frame)
         command = get_str(control, "command")
         channel = get_str(control, "channel", None)
         if channel is not None:
@@ -490,12 +625,18 @@ class CockpitWebSocket:
             self.transport_control_received(command, control)
 
     def text_data_frame_received(self, frame: str) -> None:
-        if not frame.startswith(self.channel_seed):
-            raise CockpitProtocolError(
-                "text data frame doesn't start with channel seed"
-            )
         if "\n" not in frame:
-            raise CockpitProtocolError("text data frame doesn't contain a newline")
+            # C-COMPAT: should be a protocol error, but C ignores it
+            logger.info("received invalid message without channel prefix")
+            return
+        if not self.init_received:
+            # C-COMPAT: C forwards(!) this to the bridge.  We just drop it.
+            return
+        if not frame.startswith(self.channel_seed):
+            # C-COMPAT: should be a protocol error, but C allows(!) it
+            logger.info("received message with invalid channel prefix")
+
+        # Otherwise there's only one place to send it...
         self.session.send_data(frame.encode())
 
     def text_frame_received(self, frame: str) -> None:
@@ -505,12 +646,18 @@ class CockpitWebSocket:
             self.text_data_frame_received(frame)
 
     def binary_data_frame_received(self, frame: bytes) -> None:
-        if not frame.startswith(self.channel_seed.encode()):
-            raise CockpitProtocolError(
-                "binary data frame doesn't start with channel seed"
-            )
         if b"\n" not in frame:
-            raise CockpitProtocolError("binary data frame doesn't contain a newline")
+            # C-COMPAT: should be a protocol error, but C ignores it
+            logger.info("received invalid message without channel prefix")
+            return
+        if not self.init_received:
+            # C-COMPAT: C forwards to bridge, but bridge discards; just ignore
+            return
+        if not frame.startswith(self.channel_seed.encode()):
+            # C-COMPAT: should be a protocol error, but C allows(!) it
+            logger.info("received message with invalid channel prefix")
+
+        # Otherwise there's only one place to send it...
         self.session.send_data(frame)
 
     async def communicate(self) -> None:
@@ -524,7 +671,8 @@ class CockpitWebSocket:
                 elif isinstance(item, bytes):
                     await self.ws.send_bytes(item)
                 else:
-                    await self.ws.close()
+                    if not self.closed:
+                        await self.ws.close()
                     break
 
         write_task = asyncio.create_task(process_outgoing_queue())
@@ -542,12 +690,6 @@ class CockpitWebSocket:
                 system={"version": "0"},
             )
 
-            # receive "init" from the websocket
-            try:
-                assert await self.ws.receive_json() == {"command": "init", "version": 1}
-            except (TypeError, json.JSONDecodeError, AssertionError) as exc:
-                raise CockpitProtocolError("expected init message, version 1") from exc
-
             while not self.closed:
                 match await self.ws.receive():
                     case {"type": "websocket.disconnect"}:
@@ -563,6 +705,10 @@ class CockpitWebSocket:
             logger.debug("closing websocket due to error: %r", exc)
             if not self.closed:
                 self.send_control("close", exc.get_attrs())
+        except (json.JSONDecodeError, JsonError) as exc:
+            logger.info("closing websocket due to json error: %s", exc)
+            if not self.closed:
+                self.send_control("close", problem="protocol-error", message=str(exc))
 
         finally:
             for channel in self.channels:
@@ -608,11 +754,19 @@ class CockpitMiddleware(BaseHTTPMiddleware):
             content = read_cockpit_data_file("fail.html").replace(
                 b"@@message@@", message.encode()
             )
-            logger.debug("wrapping 404 in fail.html, message=%r", message)
+            logger.debug(
+                "wrapping %d in fail.html, message=%r", response.status_code, message
+            )
+            original_headers = {
+                k: v
+                for k, v in response.headers.items()
+                if k.lower() != "content-length"
+            }
             response = Response(
                 content,
                 status_code=response.status_code,
                 media_type="text/html; charset=utf-8",
+                headers=original_headers,
             )
 
         return response
@@ -645,7 +799,7 @@ class Server(ABC):
 
     def serve_login_html(self, app_ctx: AppContext) -> Response:
         try:
-            with open("dist/static/login.html") as f:
+            with open(Path(__file__).parent / "static" / "login.html") as f:
                 content = f.read()
         except OSError:
             return Response(status_code=404)
@@ -703,11 +857,13 @@ class Server(ABC):
         # First data message has HTTP status and headers (as JSON-encoded data)
         stream = session.stream_channel(queue)
         first = await anext(stream)
-        msg = json.loads(first)
-        status = get_int(msg, "status", 500)
-        response_headers = {
-            k: typechecked(v, str) for k, v in get_dict(msg, "headers", {}).items()
-        }
+        try:
+            msg = parse_json_object(first)
+            status = get_int(msg, "status", 500)
+            response_headers = get_str_map(msg, "headers", {})
+        except (json.JSONDecodeError, JsonError) as exc:
+            logger.info("invalid http-stream1 response: %s", exc)
+            return Response(status_code=502, content="Invalid response from bridge")
 
         async def with_injection() -> AsyncIterator[bytes]:
             if inject_base is not None:
@@ -731,9 +887,12 @@ class Server(ABC):
         if ".." in path:
             return Response(status_code=404)
         content_type, _encoding = mimetypes.guess_type(path)
-        for root in ["dist/static", "src/branding/default"]:
+        for root in [
+            Path(__file__).parent / "static",
+            Path(__file__).parent / "branding" / "default",
+        ]:
             try:
-                with open(f"{root}/{path}", "rb") as f:
+                with open(root / path, "rb") as f:
                     content = f.read()
                 return Response(content, media_type=content_type)
             except FileNotFoundError:
@@ -748,7 +907,7 @@ class Server(ABC):
 
     async def handle_root_file(self, filename: str) -> Response:
         logger.debug("handle_root_file: %r", filename)
-        return FileResponse(f"src/branding/default/{filename}")
+        return FileResponse(Path(__file__).parent / "branding" / "default" / filename)
 
     async def handle_ca_cert(self) -> Response:
         logger.debug("handle_ca_cert")
@@ -786,7 +945,7 @@ class Server(ABC):
             return Response(status_code=401)
 
         # TODO: checksums?
-        target_host = host[:1]
+        target_host = host[1:]  # strip @ prefix
 
         headers = {
             "X-Forwarded-Proto": request.url.scheme,
@@ -824,31 +983,41 @@ class Server(ABC):
             logger.debug("handle_channel: no session or token mismatch")
             return Response(status_code=404)
 
-        # Decode the request
+        # Decode and validate the request before opening the channel
         try:
-            options = json.loads(binascii.a2b_base64(request.scope["query_string"]))
-        except (json.JSONDecodeError, binascii.Error) as exc:
-            return Response(status_code=400, content=f"Invalid query string {exc!s}")
+            options = parse_json_object(
+                binascii.a2b_base64(request.scope["query_string"])
+            )
+            with get_nested(options, "external", {}) as external:
+                headers: dict[str, str] = {
+                    "content-type": get_str(
+                        external, "content-type", "application/octet-stream"
+                    )
+                }
+                if content_disposition := get_str(
+                    external, "content-disposition", None
+                ):
+                    headers["content-disposition"] = content_disposition
+                if content_encoding := get_str(external, "content-encoding", None):
+                    headers["content-encoding"] = content_encoding
+        except (json.JSONDecodeError, JsonError, binascii.Error) as exc:
+            return Response(
+                status_code=400, content=f"Invalid channel options: {exc!s}"
+            )
 
         # Open the channel
         _channel, queue = session.open_channel(options)
 
         # Wait for ready or close
-        open_result = await queue.get()
-        assert isinstance(open_result, Mapping)
-        if get_str(open_result, "command") != "ready":
-            return JSONResponse(open_result, status_code=400)
+        try:
+            open_result = await session.wait_channel_ready(queue)
+        except CockpitProblem as exc:
+            return JSONResponse(dict(exc.attrs), status_code=400)
 
-        # Build response headers from 'external' field
-        headers = {
-            k: typechecked(v, str) for k, v in get_dict(options, "external", {}).items()
-        }
-        # Case-insensitive check for Content-Type
-        has_content_type = any(k.lower() == "content-type" for k in headers)
-        if not has_content_type:
-            headers["Content-Type"] = "application/octet-stream"
-        if size_hint := get_int(open_result, "size-hint", None):
-            headers["Content-Length"] = f"{size_hint}"
+        try:
+            headers["content-length"] = str(get_int(open_result, "size-hint"))
+        except JsonError:
+            pass  # C-COMPAT: silently ignore bad size-hint
 
         return StreamingResponse(
             session.stream_channel(queue), status_code=200, headers=headers
@@ -874,8 +1043,8 @@ class Server(ABC):
 
         # Decode the query string
         try:
-            options = json.loads(binascii.a2b_base64(ws.scope["query_string"]))
-        except (json.JSONDecodeError, binascii.Error) as exc:
+            options = parse_json_object(binascii.a2b_base64(ws.scope["query_string"]))
+        except (json.JSONDecodeError, JsonError, binascii.Error) as exc:
             logger.debug("handle_channel_websocket: invalid query string: %s", exc)
             await ws.accept()
             await ws.close(1002)  # Protocol Error
@@ -895,13 +1064,13 @@ class Server(ABC):
         logger.debug("handle_channel_websocket: opened channel %r", channel)
 
         # Wait for ready
-        open_result = await queue.get()
-        logger.debug("handle_channel_websocket: open_result=%r", open_result)
-        assert isinstance(open_result, Mapping)
-        if get_str(open_result, "command") != "ready":
+        try:
+            open_result = await session.wait_channel_ready(queue)
+        except CockpitProblem:
             logger.debug("handle_channel_websocket: channel not ready, closing")
             await ws.close(1011)  # Internal Error
             return
+        logger.debug("handle_channel_websocket: open_result=%r", open_result)
 
         logger.debug("handle_channel_websocket: channel ready, forwarding messages")
 
@@ -988,7 +1157,7 @@ class Server(ABC):
         cws = CockpitWebSocket(ws, session)
         await cws.communicate()
 
-    def create_app(self, extra_routes: Sequence[BaseRoute] = ()) -> Starlette:
+    def create_asgi_app(self, extra_routes: Sequence[BaseRoute] = ()) -> Starlette:
         """Create the ASGI application."""
         routes = [
             # WebSocket routes - need explicit patterns for all */socket paths
@@ -1007,19 +1176,13 @@ class Server(ABC):
         app.add_middleware(CockpitMiddleware)
         return app
 
-    @classmethod
-    def factory(cls) -> Starlette:
-        """Factory for uvicorn --factory."""
-        server = cls(Config())
-        asyncio.run(server.start())
-        return server.create_app()
-
 
 class LocalSessionServer(Server):
     """Server with a single pre-authenticated session. No login required."""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, bridge_cmd: Sequence[str]):
         super().__init__(config)
+        self.bridge_cmd = bridge_cmd
         self.session = Session(self._on_control, idle_timeout=None)
         self.startup_event = asyncio.Event()
 
@@ -1033,7 +1196,7 @@ class LocalSessionServer(Server):
         return True
 
     async def start(self) -> None:
-        self.session.start_in_process()
+        await self.session.start_with_subprocess(self.bridge_cmd)
         await self.startup_event.wait()
         if self.session.init_received is None:
             raise RuntimeError("Bridge startup failed")
@@ -1086,8 +1249,17 @@ class PendingLogin:
 
         if auth_type == "*":
             # Credentials request - respond and keep waiting
+            # cockpit-session uses a hand-rolled parser that requires compact JSON
             logger.debug("PendingLogin.handle: sending credentials")
-            session.send_control("authorize", cookie=cookie, response=self.credentials)
+            msg = json.dumps(
+                {
+                    "command": "authorize",
+                    "cookie": cookie,
+                    "response": self.credentials,
+                },
+                separators=(",", ":"),
+            )
+            session.send_data(b"\n" + msg.encode())
             return True
         elif auth_type == "x-conversation":
             # Multi-step auth - signal caller
@@ -1117,18 +1289,17 @@ class AuthenticatedServer(Server):
 
     Supports two modes:
     - socket_path set: authenticate via external session socket
-    - socket_path None: authenticate via in-process beiboot (for host connections)
+    Session backends are determined by Config: cockpit.conf sections provide
+    Command or UnixPath per auth type, with fallback to the session socket.
     """
 
     def __init__(
         self,
         config: Config,
-        socket_path: str | None = None,
         *,
         auth_timeout: float = 60.0,
     ):
         super().__init__(config)
-        self.socket_path = socket_path
         self.auth_timeout = auth_timeout
         self.authenticated_sessions: dict[str, Session] = {}  # cookie → session
         self.pending_logins: dict[str, PendingLogin] = {}  # conversation_id → pending
@@ -1168,16 +1339,35 @@ class AuthenticatedServer(Server):
             self.authenticated_sessions.pop(cookie, None)
         return True
 
-    async def _start_session(self, pending: PendingLogin, app_ctx: AppContext) -> None:
-        """Start session connection (subprocess or socket)."""
+    async def _start_session(
+        self, pending: PendingLogin, app_ctx: AppContext, auth_type: str
+    ) -> None:
+        """Start session connection based on config.
+
+        Decision tree (matches C cockpit-ws):
+          - remote host → Ssh-Login section
+          - local_ssh + basic → Ssh-Login section
+          - otherwise → look up auth_type section, fallback to session socket
+        """
         session = pending.session
+
         if app_ctx.host is not None:
-            cmd = [sys.executable, "-m", "cockpit.beiboot", app_ctx.host]
+            if not self.config.login_to:
+                raise ValueError("Direct remote login is disabled")
+            cmd, _host = self.config.get_ssh_spawn(app_ctx.host)
             await session.start_with_subprocess(cmd)
-        elif self.socket_path:
-            await session.start_with_socket(self.socket_path)
+        elif self.config.local_ssh and auth_type.lower() == "basic":
+            cmd, _host = self.config.get_ssh_spawn(None)
+            await session.start_with_subprocess(cmd)
         else:
-            raise ValueError("No auth backend available")
+            command, unix_path = self.config.get_session_backend(auth_type.lower())
+            if command is not None:
+                cmd = shlex.split(command) + ["localhost"]
+                await session.start_with_subprocess(cmd)
+            elif unix_path is not None:
+                await session.start_with_socket(unix_path)
+            else:
+                raise ValueError("No auth backend configured")
 
     async def login(self, app_ctx: AppContext, request: Request) -> Response:
         logger.debug("AuthenticatedServer.login: app_ctx=%r", app_ctx)
@@ -1193,6 +1383,7 @@ class AuthenticatedServer(Server):
             return Response(status_code=401)
 
         # Check for ongoing conversation
+        auth_type = ""
         conversation_id = None
         try:
             auth_type, _ = authorize.parse_type(credentials)
@@ -1211,7 +1402,12 @@ class AuthenticatedServer(Server):
                 pending = self.pending_logins.pop(conversation_id)
                 if handle := self._pending_timeouts.pop(conversation_id, None):
                     handle.cancel()
-                pending.session.send_control("authorize", response=credentials)
+                # cockpit-session uses a hand-rolled parser that requires compact JSON
+                msg = json.dumps(
+                    {"command": "authorize", "response": credentials},
+                    separators=(",", ":"),
+                )
+                pending.session.send_data(b"\n" + msg.encode())
             else:
                 # Conversation expired or never existed
                 logger.debug(
@@ -1230,7 +1426,7 @@ class AuthenticatedServer(Server):
             logger.debug("AuthenticatedServer.login: new auth attempt")
             pending = PendingLogin(credentials)
             try:
-                await self._start_session(pending, app_ctx)
+                await self._start_session(pending, app_ctx, auth_type)
             except (OSError, ValueError) as exc:
                 logger.debug("AuthenticatedServer.login: error %s", exc)
                 if isinstance(exc, ValueError):
@@ -1266,6 +1462,7 @@ class AuthenticatedServer(Server):
                     self._cookie_name(app_ctx),
                     cookie,
                     httponly=True,
+                    secure=self.config.is_https,
                     samesite="strict",
                 )
                 return response
@@ -1288,39 +1485,72 @@ class AuthenticatedServer(Server):
 def main() -> None:
     import uvicorn
 
-    parser = argparse.ArgumentParser(description="Cockpit web server")
-    parser.add_argument("--addr", "-a", default="127.0.0.1", help="Address to bind to")
-    parser.add_argument("--port", "-p", type=int, default=9090, help="Port to bind to")
+    from cockpit._version import __version__
 
-    mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument(
-        "--internal-bridge", action="store_true", help="Use in-process bridge (no auth)"
-    )
-    mode.add_argument(
-        "--auth-socket", metavar="PATH", help="Unix socket for session authentication"
-    )
-    mode.add_argument(
-        "--beiboot",
-        action="store_true",
-        help="Authenticated mode for remote hosts only",
-    )
+    version = f"cockpit-ws {__version__ or '(git)'}"
+
+    parser = argparse.ArgumentParser(description="Cockpit web server")
+    parser.add_argument("--debug", "-d", action="store_true", help="Debug output")
+    parser.add_argument("--version", action="version", version=version)
+    parser.add_argument("--addr", "-a", default="127.0.0.1", help="Address to bind to")
+    parser.add_argument("--port", "-p", type=int, help="Port to bind to")
+
+    # fmt:off
+    tls = parser.add_mutually_exclusive_group(required=True)
+    tls.add_argument("--http", "--no-tls", action="store_true",
+                     help="HTTP mode (ie: connection without TLS, or no proxy)")
+    tls.add_argument("--https", "--for-tls-proxy", action="store_true",
+                     help="HTTPS mode (ie: TLS connection via a TLS-stripping proxy)")
+
+    session_type = parser.add_mutually_exclusive_group()
+    session_type.add_argument("--local-ssh", action="store_true",
+                              help="Log in locally via SSH")
+    session_type.add_argument("--local-session", metavar="CMD",
+                              help="Launch a bridge in the local session (no auth)")
+    # fmt:on
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.WARNING)
 
-    if args.internal_bridge:
-        config = Config()
-        server: Server = LocalSessionServer(config)
-    elif args.beiboot:
-        config = Config(for_cockpit_client=True)
-        server = AuthenticatedServer(config)
+    config = Config(
+        is_https=args.https,
+        local_ssh=args.local_ssh,
+        sections=Config.load_cockpit_conf(),
+    )
+
+    if args.local_session:
+        server: Server = LocalSessionServer(config, shlex.split(args.local_session))
     else:
-        config = Config()
-        server = AuthenticatedServer(config, args.auth_socket)
+        server = AuthenticatedServer(config)
 
-    asyncio.run(server.start())
-    uvicorn.run(server.create_app(), host=args.addr, port=args.port)
+    listen_pid = os.environ.get("LISTEN_PID", "x")
+    listen_fds = os.environ.get("LISTEN_FDS", "x")
+    if listen_pid == f"{os.getpid()}" and listen_fds.isdecimal():
+        del os.environ["LISTEN_PID"]
+        del os.environ["LISTEN_FDS"]
+
+        listeners = [socket.socket(fileno=3 + i) for i in range(int(listen_fds))]
+    elif args.port:
+        listener = socket.socket()
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind((args.addr, args.port))
+        listener.listen()
+        listeners = [listener]
+    else:
+        parser.error("--port is mandatory unless LISTEN_FDS are present")
+
+    logger.debug("listeners: pid/%r n/%r %r", listen_pid, listen_fds, listeners)
+
+    async def run() -> None:
+        await server.start()
+
+        asgi_app = server.create_asgi_app()
+        uvicorn_config = uvicorn.Config(asgi_app)
+        uvicorn_server = uvicorn.Server(uvicorn_config)
+        await uvicorn_server.serve(listeners)
+
+    asyncio.run(run(), debug=args.debug)
 
 
 if __name__ == "__main__":

@@ -5,15 +5,19 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 
+import asyncio
 import configparser
 import ctypes
 import logging
 import os
-import signal
-import subprocess
+import socket
 import sys
+import threading
 
 import gi
+import uvicorn
+
+from cockpit.ws.webserver import AuthenticatedServer, Config
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import GLib, Gio, Gtk  # noqa: I001, E402
@@ -292,22 +296,33 @@ class ExternalCockpitWs:
 class InternalCockpitWs:
     def start(self):
         host = '127.0.0.90'
-        port = '9090'
-        env = {**os.environ, 'COCKPIT_BEIBOOT_FLATPAK_MODE': '1'}
-        self.ws = subprocess.Popen(
-            [sys.executable, '-m', 'test.pytest.ws.webserver',
-             '--beiboot', f'--addr={host}', f'--port={port}'],
-            preexec_fn=self.preexec_fn,
-            env=env,
+        config = Config(
+            for_cockpit_client=True,
+            default_ssh_command="python3 -m cockpit.beiboot --interactive --remote-bridge=supported --",
         )
+        server = AuthenticatedServer(config)
+
+        listener = socket.socket()
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind((host, 9090))
+        listener.listen()
+        _, port = listener.getsockname()
+
+        uconfig = uvicorn.Config(server.create_asgi_app())
+        self.uvicorn_server = uvicorn.Server(uconfig)
+
+        async def run():
+            await server.start()
+            await self.uvicorn_server.serve([listener])
+
+        self.thread = threading.Thread(target=asyncio.run, args=(run(),), daemon=True)
+        self.thread.start()
 
         return f'http://{host}:{port}/'
 
-    def preexec_fn(self):
-        prctl(SET_PDEATHSIG, signal.SIGKILL)
-
     def stop(self):
-        self.ws.kill()
+        self.uvicorn_server.should_exit = True
+        self.thread.join()
 
 
 if __name__ == "__main__":

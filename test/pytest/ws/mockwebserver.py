@@ -7,6 +7,7 @@ import logging
 import os
 import pwd
 import socket
+import sys
 import tempfile
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
@@ -232,7 +233,8 @@ async def mock_webserver(
         os.makedirs(os.path.join(config_dir, "cockpit", "machines.d"), exist_ok=True)
         os.environ["XDG_CONFIG_DIRS"] = config_dir
 
-        server = LocalSessionServer(Config())
+        os.environ["PYTHONPATH"] = ":".join(sys.path)
+        server = LocalSessionServer(Config(), (sys.executable, "-m", "cockpit.bridge"))
         await server.start()
 
         listener = socket.socket()
@@ -242,12 +244,8 @@ async def mock_webserver(
 
         addr, port = listener.getsockname()
 
-        config = uvicorn.Config(
-            server.create_app(make_mock_routes(direct_address)), lifespan="off"
-        )
-        uvicorn_server = uvicorn.Server(config)
-        uvicorn_server.servers = []  # prevent uvicorn from binding its own sockets
-
+        asgi_app = server.create_asgi_app(make_mock_routes(direct_address))
+        uvicorn_server = uvicorn.Server(config=uvicorn.Config(asgi_app))
         serve_task = asyncio.create_task(uvicorn_server.serve([listener]))
 
         try:

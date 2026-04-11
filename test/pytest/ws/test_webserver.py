@@ -6,6 +6,7 @@ import base64
 import json
 import os
 import socket
+import sys
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -24,6 +25,7 @@ from .webserver import (
 )
 
 SRCDIR = Path(__file__).parent.parent.parent.parent
+BRIDGE_CMD = (sys.executable, '-m', 'cockpit.bridge')
 
 
 @pytest.fixture(autouse=True)
@@ -38,6 +40,7 @@ def package_env(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
             f"{tmpdir}:{os.environ.get('XDG_DATA_DIRS', '/usr/local/share:/usr/share')}"
         )
         monkeypatch.setenv("XDG_DATA_DIRS", xdg_dirs)
+        monkeypatch.setenv("PYTHONPATH", ":".join(sys.path))
 
         yield tmppath
 
@@ -68,10 +71,11 @@ async def run_server(server: Server) -> AsyncIterator[str]:
 @pytest_asyncio.fixture
 async def local_server() -> AsyncIterator[str]:
     """Run a LocalSessionServer with uvicorn and yield the base URL."""
-    srv = LocalSessionServer(Config())
+    srv = LocalSessionServer(Config(), BRIDGE_CMD)
     await srv.start()
     async for url in run_server(srv):
         yield url
+    srv.session.close()
 
 
 @pytest_asyncio.fixture
@@ -84,7 +88,7 @@ async def auth_server(package_env: Path) -> AsyncIterator[str]:
         )
     )
     try:
-        srv = AuthenticatedServer(Config(), str(socket_path))
+        srv = AuthenticatedServer(Config(default_unix_path=str(socket_path)))
         await srv.start()
         async for url in run_server(srv):
             yield url
@@ -278,7 +282,7 @@ async def test_auth_timeout(package_env: Path) -> None:
         run_session_server(socket_path, auth_func=auth_basic_then_2fa)
     )
     try:
-        srv = AuthenticatedServer(Config(), str(socket_path), auth_timeout=0.1)
+        srv = AuthenticatedServer(Config(default_unix_path=str(socket_path)), auth_timeout=0.1)
         await srv.start()
         async for url in run_server(srv):
             async with httpx.AsyncClient() as client:

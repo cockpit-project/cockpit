@@ -279,6 +279,7 @@ class SshPeer(Peer):
 
     def __init__(self, router: Router, destination: str, args: argparse.Namespace):
         self.destination = destination
+        self.interactive = args.interactive
         self.remote_bridge = args.remote_bridge
         self.tmpdir = tempfile.TemporaryDirectory()
         self.known_hosts_file = Path(self.tmpdir.name) / 'user-known-hosts'
@@ -287,12 +288,12 @@ class SshPeer(Peer):
 
     async def do_connect_transport(self) -> None:
         # Choose your own adventure...
-        if os.path.exists('/.flatpak-info') or os.environ.get('COCKPIT_BEIBOOT_FLATPAK_MODE'):
-            await self.connect_from_flatpak()
+        if self.interactive:
+            await self.connect_interactive()
         else:
             await self.connect_from_bastion_host()
 
-    async def connect_from_flatpak(self) -> None:
+    async def connect_interactive(self) -> None:
         # We want to run a python interpreter somewhere...
         cmd, env = python_interpreter('cockpit-bridge')
 
@@ -301,7 +302,8 @@ class SshPeer(Peer):
             # we run ssh and thus the helper on the host, always use the xdg-cache helper
             cmd, env = via_ssh(cmd, self.destination, ensure_ferny_askpass())
 
-        cmd, env = flatpak_spawn(cmd, env)
+        if os.path.exists('/.flatpak-info'):
+            cmd, env = flatpak_spawn(cmd, env)
 
         await self.boot(cmd, env)
 
@@ -501,6 +503,8 @@ def main() -> None:
                         "never: always copy the local one; "
                         "supported: if not installed, copy local one for compatible OSes, fail otherwise; "
                         "always: fail if not installed")
+    parser.add_argument('--interactive', action='store_true',
+                        help="Interactive mode: use SSH keys/agent instead of web login credentials")
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('destination', help="Name of the remote host to connect to, or 'localhost'")
     args = parser.parse_args()

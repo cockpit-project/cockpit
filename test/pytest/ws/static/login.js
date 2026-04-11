@@ -1,0 +1,1 @@
+../../../../dist/static/login.js

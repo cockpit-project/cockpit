@@ -3,6 +3,13 @@ requires = []
 backend-path = ['src']
 build-backend = 'build_backend'
 
+[project]
+dependencies = [
+    "starlette",
+    "uvicorn",
+    "websockets",
+]
+
 [tool.mypy]
 follow_imports = 'silent'  # https://github.com/python-lsp/pylsp-mypy/issues/81
 scripts_are_modules = true  # allow checking all scripts in one invocation

@@ -4,17 +4,10 @@ import QUnit, { mock_info } from "qunit-tests";
 
 const EXPECT_MOCK_STREAM = "0 1 2 3 4 5 6 7 8 9 ";
 
-/* Set this to a regexp to ignore that warning once */
-/*
-function console_ignore_warning(exp) {
-    const console_warn = console.warn;
-    console.warn = function() {
-        if (!exp.exec(arguments[0]))
-            console_warn.apply(console, arguments);
-        console.warn = console_warn;
-    };
-}
-*/
+const test_server = {
+    address: window.location.hostname,
+    port: parseInt(window.location.port, 10)
+};
 
 QUnit.test("public api", assert => {
     const client = cockpit.http("/test");
@@ -22,11 +15,6 @@ QUnit.test("public api", assert => {
     assert.equal(typeof client.get, "function", "http.get() is a function");
     assert.equal(typeof client.post, "function", "http.post() is a function");
 });
-
-const test_server = {
-    address: window.location.hostname,
-    port: parseInt(window.location.port, 10)
-};
 
 QUnit.test("simple request", assert => {
     const done = assert.async();

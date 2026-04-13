@@ -52,11 +52,11 @@ class Watcher:
 
         def handler(mask, name):
             if ((mask & IN_CREATE or mask & IN_MOVED_TO) and
-                    cur_wait and name == cur_wait):
+                    cur_wait_name and name == cur_wait_name):
                 reset()
             elif mask & (IN_DELETE_SELF | IN_MOVE_SELF):
                 reset()
-            elif not cur_wait and len(name) > 0:
+            elif not cur_wait_name and len(name) > 0:
                 if mask & (IN_CLOSE_WRITE | IN_MOVED_TO | IN_DELETE | IN_MOVED_FROM):
                     callback(os.path.join(path, name))
 
@@ -65,14 +65,21 @@ class Watcher:
             self.watch_directory(path, callback)
 
         cur_path = path
-        cur_wait = None
+        cur_wait_path = None
+        cur_wait_name = None
         while not os.path.exists(cur_path):
-            cur_wait = os.path.basename(cur_path)
+            cur_wait_path = cur_path
+            cur_wait_name = os.path.basename(cur_wait_path)
             cur_path = os.path.dirname(cur_path)
 
         self.__add_watch(cur_path, events, handler)
 
-        if not cur_wait:
+        if cur_wait_path and os.path.exists(cur_wait_path):
+            # Directory was created between our check and the watch setup
+            reset()
+            return
+
+        if not cur_wait_name:
             for f in os.listdir(cur_path):
                 callback(os.path.join(cur_path, f))
 

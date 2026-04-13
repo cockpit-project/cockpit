@@ -106,6 +106,10 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitstream.h \
 	src/bridge/cockpitwebsocketstream.c \
 	src/bridge/cockpitwebsocketstream.h \
+	src/bridge/cockpitsessioncontrolchannel.c \
+	src/bridge/cockpitsessioncontrolchannel.h \
+	src/bridge/sessioncontroller.c \
+	src/bridge/sessioncontroller.h \
 	$(NULL)
 
 if WITH_POLKIT

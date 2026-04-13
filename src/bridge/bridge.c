@@ -35,9 +35,12 @@
 #include "cockpitinternalmetrics.h"
 #include "cockpitpolkitagent.h"
 #include "cockpitrouter.h"
+#include "cockpitsessioncontrolchannel.h"
 #include "cockpitwebsocketstream.h"
+#include "sessioncontroller.h"
 
 #include "common/cockpitchannel.h"
+#include "common/cockpitconf.h"
 #include "common/cockpitfdpassing.h"
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"
@@ -77,6 +80,7 @@ static CockpitPayloadType payload_types[] = {
   { "fslist1", cockpit_fslist_get_type },
   { "null", cockpit_null_channel_get_type },
   { "echo", cockpit_echo_channel_get_type },
+  { "session-control", cockpit_session_control_channel_get_type },
   { "websocket-stream1", cockpit_web_socket_stream_get_type },
   { NULL },
 };
@@ -419,6 +423,11 @@ run_bridge (const gchar *interactive,
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
   send_init_command (transport, interactive ? TRUE : FALSE);
 
+  /* Initialize configuration and create session controller singleton */
+  cockpit_conf_init ();
+  gint session_timeout = cockpit_conf_uint ("Session", "IdleTimeout", 0, G_MAXUINT, 0);
+  session_controller_new (session_timeout * 60, transport);
+
   while (!terminated && !closed && !interrupted)
     g_main_context_iteration (NULL, TRUE);
 
@@ -427,6 +436,8 @@ run_bridge (const gchar *interactive,
     cockpit_polkit_agent_unregister (polkit_agent);
 #endif
 
+  if (session_controller_get_instance ())
+    g_object_unref (session_controller_get_instance ());
   g_object_unref (router);
   g_object_unref (transport);
 
@@ -434,6 +445,7 @@ run_bridge (const gchar *interactive,
 
   cockpit_dbus_machines_cleanup ();
   cockpit_dbus_internal_cleanup ();
+  cockpit_conf_cleanup ();
 
   if (dbus_daemon_process)
     g_subprocess_send_signal (dbus_daemon_process, SIGTERM);

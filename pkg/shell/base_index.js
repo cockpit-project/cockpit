@@ -531,59 +531,42 @@ function Index() {
         throw Error("Index requires a prototype with a navigate function");
 
     /* Session timing out after inactivity */
-    let session_final_timer = null;
-    let session_timeout = 0;
-    let current_idle_time = 0;
-    let final_countdown = 30000; // last 30 seconds
     let title = "";
-    const standard_login = window.localStorage['standard-login'];
 
     self.has_oops = false;
 
-    function sessionTimeout() {
-        current_idle_time += 5000;
-        if (!session_final_timer && current_idle_time >= session_timeout - final_countdown) {
-            title = document.title;
-            sessionFinalTimeout();
-        }
-    }
-
+    let session_timeout = 0;
     let session_timeout_dialog_root = null;
 
-    function updateFinalCountdown() {
-        const remaining_secs = Math.floor(final_countdown / 1000);
+    function updateFinalCountdown(remaining_secs) {
         const timeout_text = cockpit.format(_("You will be logged out in $0 seconds."), remaining_secs);
         document.title = "(" + remaining_secs + ") " + title;
         if (!session_timeout_dialog_root)
             session_timeout_dialog_root = createRoot(document.getElementById('session-timeout-dialog'));
         session_timeout_dialog_root.render(React.createElement(TimeoutModal, {
             onClose: () => {
-                window.clearTimeout(session_final_timer);
-                session_final_timer = null;
                 document.title = title;
-                resetTimer();
                 session_timeout_dialog_root.unmount();
                 session_timeout_dialog_root = null;
-                final_countdown = 30000;
+                resetTimer();
             },
             text: timeout_text,
         }));
     }
 
-    function sessionFinalTimeout() {
-        final_countdown -= 1000;
-        if (final_countdown > 0) {
-            updateFinalCountdown();
-            session_final_timer = window.setTimeout(sessionFinalTimeout, 1000);
-        } else {
-            cockpit.logout(true, _("You have been logged out due to inactivity."));
-        }
-    }
-
     /* Auto-logout idle timer */
+    let last_activity_notification = 0;
     function resetTimer(ev) {
-        if (!session_final_timer) {
-            current_idle_time = 0;
+        /* Don't report activity while countdown dialog is open */
+        if (session_timeout_dialog_root || session_timeout == 0) {
+            return;
+        }
+
+        /* Send activity notification to session controller, but throttle to once per 10 seconds */
+        const now = Date.now();
+        if (now - last_activity_notification > 10000) {
+            last_activity_notification = now;
+            watchdog.control({ command: "active" });
         }
     }
 
@@ -595,28 +578,38 @@ function Index() {
         win.addEventListener("scroll", resetTimer, false);
     }
 
-    cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetUInt", ["Session", "IdleTimeout", 0, 240, 0], [])
-            .then(result => {
-                session_timeout = result[0] * 60000;
-                if (session_timeout > 0 && standard_login) {
-                    setupIdleResetTimers(window);
-                    window.setInterval(sessionTimeout, 5000);
-                }
-            })
-            .catch(e => {
-                if (e.message.indexOf("GetUInt not available") === -1)
-                    console.warn(e.message);
-            });
+    /* Watchdog for disconnect */
+    const watchdog = cockpit.channel({ payload: "session-control" });
 
     self.frames = new Frames(self, setupIdleResetTimers);
     self.router = new Router(self);
-
-    /* Watchdog for disconnect */
-    const watchdog = cockpit.channel({ payload: "null" });
     watchdog.addEventListener("close", (event, options) => {
         const watchdog_problem = options.problem || "disconnected";
         console.warn("transport closed: " + watchdog_problem);
         self.dispatchEvent("disconnect", watchdog_problem);
+    });
+
+    watchdog.addEventListener("control", (event, options) => {
+        if (options.command === "ready") {
+            session_timeout = parseInt(options.timeout || "0", 10);
+            console.log("Session controller ready, timeout:", session_timeout, "seconds");
+
+            setupIdleResetTimers(window);
+        } else if (options.command === "countdown") {
+            const remaining = parseInt(options.remaining || "30", 10);
+            console.log("Session countdown:", remaining, "seconds remaining");
+
+            /* Set up countdown based on server-side countdown */
+            if (remaining > 0) {
+                if (!title) {
+                    title = document.title;
+                }
+                updateFinalCountdown(remaining);
+            }
+        } else if (options.command === "logout") {
+            console.log("Session logout message received");
+            cockpit.logout(true, _("You have been logged out due to inactivity."));
+        }
     });
 
     const old_onerror = window.onerror;

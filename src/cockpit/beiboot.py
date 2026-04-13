@@ -250,9 +250,9 @@ def via_ssh(cmd: Sequence[str], dest: str, ssh_askpass: Path, *ssh_opts: str) ->
         # strip off [] IPv6 brackets
         if host.startswith('[') and host.endswith(']'):
             host = host[1:-1]
-        destination = ['-p', port, host]
+        destination = ['-p', port, '--', host]
     else:
-        destination = [dest]
+        destination = ['--', dest]
 
     return (
         'ssh', *ssh_opts, *destination, shlex.join(cmd)

@@ -36,7 +36,7 @@
 
 /* we only support beibooting machines with a known/vetted OS, as it's impossible to guarantee
  * forward compatibility for all pages */
-const gchar *cockpit_ws_ssh_program = "/usr/bin/env python3 -m cockpit.beiboot --remote-bridge=supported";
+const gchar *cockpit_ws_ssh_program = "/usr/bin/env python3 -m cockpit.beiboot --remote-bridge=supported --";
 
 /* Some tunables that can be set from tests */
 const gchar *cockpit_ws_session_program = NULL;

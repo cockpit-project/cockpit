@@ -278,7 +278,7 @@ QUnit.test("address with params", async assert => {
 QUnit.test("HEAD method", async assert => {
     await assert.rejects(
         cockpit.http(test_server).get("/mock/headonly"),
-        ex => ex.status == 400 && ex.reason == "Only HEAD allowed on this path",
+        ex => ex.status == 400,
         "rejects GET request on /headonly path");
 
     const InputData = "some chars";

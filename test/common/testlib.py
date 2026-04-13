@@ -831,6 +831,7 @@ class Browser:
                     "execution contexts cleared",
                     # firefox
                     "MessageHandlerFrame' destroyed",
+                    "DiscardedBrowsingContextError",
                     # page helpers not yet loaded
                     "ph_wait_cond is not defined",
                    ]):

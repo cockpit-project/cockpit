@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 # Pretend like this is a little bit functional
 def element(tag, text=None, children=(), **kwargs):
     tag = ET.Element(tag, kwargs)
-    tag.text = text
+    tag.text = text if text is None else re.sub(r'\S+http\S+', '', text).strip()
     tag.extend(children)
     return tag
 

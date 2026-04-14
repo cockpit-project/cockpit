@@ -134,6 +134,25 @@ class TestDialog(testlib.MachineCase):
         b.wait_text("#asyncUps", "1")
         b.wait_text("#asyncCancels", "1")
 
+        # Cancelling of asynchronous tasks when the dialog is
+        # cancelled
+
+        b.click("#open")
+        d.wait_DropdownSelect("color", "red")
+        self.assertEqual(d.get_TextInput("text"), "")
+        d.set_DropdownSelect("color", "green")
+        self.assertEqual(d.get_DropdownSelect("color"), "green")
+        # Text does not react immediately.
+        self.assertEqual(d.get_TextInput("text"), "")
+        b.click(d.cancel_button())
+        b.wait_not_present("#dialog")
+
+        # Wait for update to definitely be done if it wouldn't have
+        # been cancelled
+        time.sleep(3)
+        b.wait_text("#asyncUps", "0")
+        b.wait_text("#asyncCancels", "1")
+
         # List of DialogTextInputs
 
         b.click("#open")

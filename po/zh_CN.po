@@ -19,9 +19,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-31 11:52+0000\n"
-"PO-Revision-Date: 2026-03-18 21:59+0000\n"
-"Last-Translator: Luke Na <narukeu@outlook.com>\n"
+"POT-Creation-Date: 2026-04-08 12:34+0000\n"
+"PO-Revision-Date: 2026-04-13 22:58+0000\n"
+"Last-Translator: Jesse Guo <jesseguotech@outlook.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
 "projects/cockpit/cockpit/zh_CN/>\n"
 "Language: zh_CN\n"
@@ -92,8 +92,8 @@ msgid "$0 disk is failing"
 msgid_plural "$0 disks are failing"
 msgstr[0] "$0 磁盘失败"
 
-#: pkg/storaged/mdraid/mdraid.jsx:260 pkg/playground/translate.js:27
-#: pkg/playground/translate.js:30
+#: pkg/playground/translate.js:27 pkg/playground/translate.js:30
+#: pkg/storaged/mdraid/mdraid.jsx:260
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "找不到 $0 个磁盘"
@@ -168,18 +168,17 @@ msgstr[0] "$0 次命中（含关键命中）"
 msgid "$0 is an existing file"
 msgstr "$0 是一个已存在的文件"
 
-#: pkg/storaged/stratis/filesystem.jsx:102 pkg/storaged/stratis/pool.jsx:438
-#: pkg/storaged/btrfs/volume.jsx:56
+#: pkg/storaged/btrfs/volume.jsx:56 pkg/storaged/stratis/pool.jsx:438
+#: pkg/storaged/stratis/filesystem.jsx:102 pkg/storaged/crypto/actions.jsx:57
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:36
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:70
 #: pkg/storaged/partitions/format-disk-dialog.jsx:25
-#: pkg/storaged/partitions/partition.jsx:33
+#: pkg/storaged/partitions/partition.jsx:33 pkg/storaged/mdraid/mdraid.jsx:49
+#: pkg/storaged/mdraid/mdraid.jsx:109 pkg/storaged/block/format-dialog.jsx:198
+#: pkg/storaged/block/resize.jsx:423 pkg/storaged/block/resize.jsx:573
+#: pkg/storaged/lvm2/volume-group.jsx:73 pkg/storaged/lvm2/volume-group.jsx:304
 #: pkg/storaged/lvm2/block-logical-volume.jsx:54
 #: pkg/storaged/lvm2/block-logical-volume.jsx:137
-#: pkg/storaged/lvm2/volume-group.jsx:73 pkg/storaged/lvm2/volume-group.jsx:304
-#: pkg/storaged/mdraid/mdraid.jsx:49 pkg/storaged/mdraid/mdraid.jsx:109
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:36
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:70 pkg/storaged/crypto/actions.jsx:57
-#: pkg/storaged/block/resize.jsx:423 pkg/storaged/block/resize.jsx:573
-#: pkg/storaged/block/format-dialog.jsx:198
 msgid "$0 is in use"
 msgstr "$0 正在使用"
 
@@ -187,12 +186,12 @@ msgstr "$0 正在使用"
 msgid "$0 is not a directory"
 msgstr "$0 不是目录"
 
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:28
 #: pkg/lib/cockpit-components-install-dialog.jsx:139
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:28
 msgid "$0 is not available from any repository."
 msgstr "没有提供 $0 组件的仓库。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:113 pkg/static/login.js:824
+#: pkg/static/login.js:824 pkg/lib/cockpit-connect-ssh.tsx:113
 #: pkg/shell/hosts_dialog.jsx:653
 msgid "$0 key changed"
 msgstr "已更改 $0 个密钥"
@@ -326,8 +325,8 @@ msgstr "（不是目标的一部分）"
 msgid "(no assigned mount point)"
 msgstr "（没有分配的挂载点）"
 
-#: pkg/storaged/filesystem/utils.jsx:222 pkg/storaged/filesystem/utils.jsx:227
-#: pkg/storaged/nfs/nfs.jsx:280
+#: pkg/storaged/nfs/nfs.jsx:280 pkg/storaged/filesystem/utils.jsx:222
+#: pkg/storaged/filesystem/utils.jsx:227
 msgid "(not mounted)"
 msgstr "（未挂载）"
 
@@ -681,8 +680,8 @@ msgstr "账号使用期限设置"
 msgid "Account not available or cannot be edited."
 msgstr "此帐户不可用或不可编辑。"
 
-#: pkg/users/accounts-list.js:237 pkg/users/accounts-list.js:423
-#: pkg/users/account-details.js:222 pkg/users/manifest.json:0
+#: pkg/users/account-details.js:222 pkg/users/accounts-list.js:237
+#: pkg/users/accounts-list.js:423 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "用户账户"
 
@@ -690,10 +689,10 @@ msgstr "用户账户"
 msgid "Action"
 msgstr "操作"
 
-#: pkg/apps/application-list.jsx:132
+#: pkg/users/accounts-list.js:360 pkg/storaged/drive/smart-details.jsx:92
+#: pkg/storaged/pages.jsx:716 pkg/networkmanager/firewall.jsx:198
 #: pkg/networkmanager/network-interface.jsx:1085
-#: pkg/networkmanager/firewall.jsx:198 pkg/storaged/pages.jsx:716
-#: pkg/storaged/drive/smart-details.jsx:92 pkg/users/accounts-list.js:360
+#: pkg/apps/application-list.jsx:132
 msgid "Actions"
 msgstr "操作"
 
@@ -713,7 +712,7 @@ msgstr "正在启用逻辑卷 $target"
 msgid "Active"
 msgstr "已启用"
 
-#: pkg/networkmanager/team.jsx:27 pkg/networkmanager/bond.jsx:30
+#: pkg/networkmanager/bond.jsx:30 pkg/networkmanager/team.jsx:27
 msgid "Active backup"
 msgstr "已启用的备用接口"
 
@@ -739,19 +738,18 @@ msgstr "自适应性负载均衡"
 msgid "Adaptive transmit load balancing"
 msgstr "自适应性传输负载均衡"
 
-#: pkg/networkmanager/dialogs-common.jsx:143 pkg/storaged/stratis/pool.jsx:512
+#: pkg/systemd/timer-dialog.jsx:340 pkg/users/authorized-keys-panel.js:54
 #: pkg/storaged/iscsi/create-dialog.jsx:106
-#: pkg/storaged/iscsi/create-dialog.jsx:130
-#: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/mdraid/mdraid.jsx:160
+#: pkg/storaged/iscsi/create-dialog.jsx:130 pkg/storaged/stratis/pool.jsx:512
 #: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:779
-#: pkg/storaged/nfs/nfs.jsx:174 pkg/systemd/timer-dialog.jsx:340
-#: pkg/users/authorized-keys-panel.js:54 pkg/shell/hosts_dialog.jsx:437
-#: pkg/shell/credentials.tsx:78
+#: pkg/storaged/nfs/nfs.jsx:174 pkg/storaged/mdraid/mdraid.jsx:160
+#: pkg/storaged/lvm2/volume-group.jsx:197 pkg/shell/hosts_dialog.jsx:437
+#: pkg/shell/credentials.tsx:78 pkg/networkmanager/dialogs-common.jsx:143
 msgid "Add"
 msgstr "添加"
 
-#: pkg/networkmanager/network-interface-members.jsx:151
 #: pkg/lib/cockpit-components-firewalld-request.jsx:131
+#: pkg/networkmanager/network-interface-members.jsx:151
 msgid "Add $0"
 msgstr "添加 $0"
 
@@ -768,7 +766,7 @@ msgstr "添加网络绑定磁盘加密"
 msgid "Add Tang keyserver"
 msgstr "添加 Tang 密钥服务器"
 
-#: pkg/networkmanager/vlan.jsx:76 pkg/networkmanager/network-main.jsx:160
+#: pkg/networkmanager/network-main.jsx:160 pkg/networkmanager/vlan.jsx:76
 msgid "Add VLAN"
 msgstr "添加 VLAN"
 
@@ -801,7 +799,7 @@ msgstr "添加块设备"
 msgid "Add bond"
 msgstr "添加绑定"
 
-#: pkg/networkmanager/bridge.jsx:81 pkg/networkmanager/network-main.jsx:159
+#: pkg/networkmanager/network-main.jsx:159 pkg/networkmanager/bridge.jsx:81
 msgid "Add bridge"
 msgstr "添加网桥"
 
@@ -809,7 +807,7 @@ msgstr "添加网桥"
 msgid "Add disk"
 msgstr "添加磁盘"
 
-#: pkg/storaged/lvm2/volume-group.jsx:184 pkg/storaged/mdraid/mdraid.jsx:147
+#: pkg/storaged/mdraid/mdraid.jsx:147 pkg/storaged/lvm2/volume-group.jsx:184
 msgid "Add disks"
 msgstr "添加磁盘"
 
@@ -818,7 +816,7 @@ msgstr "添加磁盘"
 msgid "Add iSCSI portal"
 msgstr "添加 iSCSI 门户"
 
-#: pkg/storaged/crypto/keyslots.jsx:428 pkg/users/authorized-keys-panel.js:98
+#: pkg/users/authorized-keys-panel.js:98 pkg/storaged/crypto/keyslots.jsx:428
 #: pkg/shell/credentials.tsx:280
 msgid "Add key"
 msgstr "添加密钥"
@@ -886,7 +884,7 @@ msgstr "添加系统服务到安全区域 $0"
 msgid "Add services to zone $0"
 msgstr "添加系统服务到安全区域 $0"
 
-#: pkg/networkmanager/team.jsx:139 pkg/networkmanager/network-main.jsx:158
+#: pkg/networkmanager/network-main.jsx:158 pkg/networkmanager/team.jsx:139
 msgid "Add team"
 msgstr "添加组合"
 
@@ -962,9 +960,9 @@ msgstr "额外软件包："
 msgid "Additional port"
 msgstr "额外端口"
 
+#: pkg/storaged/iscsi/session.jsx:77 pkg/storaged/iscsi/create-dialog.jsx:97
 #: pkg/networkmanager/ip-settings.jsx:249
 #: pkg/networkmanager/ip-settings.jsx:404
-#: pkg/storaged/iscsi/create-dialog.jsx:97 pkg/storaged/iscsi/session.jsx:77
 msgid "Address"
 msgstr "地址"
 
@@ -1112,8 +1110,8 @@ msgstr "外观"
 msgid "Application information is missing"
 msgstr "缺少应用程序信息"
 
-#: pkg/apps/index.html:9 pkg/apps/application-list.jsx:214
-#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
+#: pkg/apps/index.html:9 pkg/apps/application.jsx:147
+#: pkg/apps/application-list.jsx:214 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "应用程序"
 
@@ -1178,8 +1176,9 @@ msgstr[0] "至少需要 $0 块磁盘。"
 msgid "At least one block device is needed."
 msgstr "至少需要 1 个块设备。"
 
-#: pkg/storaged/stratis/pool.jsx:503 pkg/storaged/lvm2/volume-group.jsx:191
-#: pkg/storaged/lvm2/create-dialog.jsx:43 pkg/storaged/mdraid/mdraid.jsx:154
+#: pkg/storaged/stratis/pool.jsx:503 pkg/storaged/mdraid/mdraid.jsx:154
+#: pkg/storaged/lvm2/volume-group.jsx:191
+#: pkg/storaged/lvm2/create-dialog.jsx:43
 msgid "At least one disk is needed."
 msgstr "至少需要 1 块磁盘。"
 
@@ -1256,10 +1255,10 @@ msgstr "授权 SSH 密钥"
 msgid "Authorized public SSH keys"
 msgstr "授权公共 SSH 密钥"
 
-#: pkg/networkmanager/network-interface.jsx:582 pkg/networkmanager/mtu.jsx:65
 #: pkg/networkmanager/ip-settings.jsx:28 pkg/networkmanager/ip-settings.jsx:296
 #: pkg/networkmanager/ip-settings.jsx:342
 #: pkg/networkmanager/ip-settings.jsx:388
+#: pkg/networkmanager/network-interface.jsx:582 pkg/networkmanager/mtu.jsx:65
 msgid "Automatic"
 msgstr "自动"
 
@@ -1370,8 +1369,8 @@ msgid "Block device for filesystems"
 msgstr "文件系统的块设备"
 
 #: pkg/storaged/stratis/pool.jsx:499 pkg/storaged/stratis/pool.jsx:1051
-#: pkg/storaged/stratis/stopped-pool.jsx:190
 #: pkg/storaged/stratis/create-dialog.jsx:79
+#: pkg/storaged/stratis/stopped-pool.jsx:190
 msgid "Block devices"
 msgstr "块设备"
 
@@ -1385,7 +1384,7 @@ msgstr "受阻"
 msgid "Bond"
 msgstr "绑定"
 
-#: pkg/metrics/metrics.jsx:1100 pkg/systemd/logs.jsx:319
+#: pkg/systemd/logs.jsx:319 pkg/metrics/metrics.jsx:1100
 msgid "Boot"
 msgstr "引导"
 
@@ -1416,7 +1415,7 @@ msgstr "网桥端口"
 msgid "Bridge port settings"
 msgstr "网桥端口设置"
 
-#: pkg/networkmanager/team.jsx:29 pkg/networkmanager/bond.jsx:32
+#: pkg/networkmanager/bond.jsx:32 pkg/networkmanager/team.jsx:29
 msgid "Broadcast"
 msgstr "广播"
 
@@ -1450,9 +1449,9 @@ msgstr ""
 msgid "Bypass browser check"
 msgstr "禁用浏览器检查"
 
+#: pkg/systemd/hwinfo.jsx:102 pkg/systemd/overview-cards/usageCard.jsx:119
 #: pkg/metrics/metrics.jsx:100 pkg/metrics/metrics.jsx:770
 #: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1934
-#: pkg/systemd/overview-cards/usageCard.jsx:119 pkg/systemd/hwinfo.jsx:102
 msgid "CPU"
 msgstr "CPU"
 
@@ -1488,29 +1487,30 @@ msgstr "可以是主机名、IP 地址、别名或者 ssh:// URI"
 msgid "Can not find any logs using the current combination of filters."
 msgstr "使用当前的过滤器组合找不到任何日志。"
 
-#: pkg/static/login.html:156 pkg/apps/utils.tsx:78 pkg/metrics/metrics.jsx:1490
-#: pkg/packagekit/kpatch.jsx:302 pkg/packagekit/updates.jsx:515
-#: pkg/packagekit/updates.jsx:548 pkg/packagekit/autoupdates.jsx:441
-#: pkg/networkmanager/dialogs-common.jsx:146
-#: pkg/networkmanager/firewall.jsx:728 pkg/networkmanager/firewall.jsx:918
-#: pkg/networkmanager/firewall.jsx:942 pkg/storaged/jobs-panel.jsx:126
+#: pkg/static/login.html:156 pkg/sosreport/sosreport.jsx:282
+#: pkg/sosreport/sosreport.jsx:370 pkg/kdump/kdump-view.jsx:313
+#: pkg/systemd/hwinfo.jsx:221 pkg/systemd/terminal.jsx:304
+#: pkg/systemd/overview-cards/realmd.jsx:441
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:217
 #: pkg/systemd/overview-cards/configurationCard.jsx:292
 #: pkg/systemd/overview-cards/motdCard.jsx:63
-#: pkg/systemd/overview-cards/realmd.jsx:441
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:311 pkg/systemd/hwinfo.jsx:221
-#: pkg/systemd/terminal.jsx:304 pkg/systemd/timer-dialog.jsx:376
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:311
 #: pkg/systemd/service-details.jsx:83 pkg/systemd/service-details.jsx:811
-#: pkg/sosreport/sosreport.jsx:282 pkg/sosreport/sosreport.jsx:370
+#: pkg/systemd/timer-dialog.jsx:376 pkg/metrics/metrics.jsx:1490
 #: pkg/lib/cockpit-components-shutdown.jsx:223
+#: pkg/lib/cockpit-connect-ssh.tsx:175 pkg/lib/cockpit-connect-ssh.tsx:488
+#: pkg/lib/cockpit-components-dialog.jsx:114 pkg/lib/cockpit/dialog.tsx:1350
 #: pkg/lib/superuser-dialogs.tsx:213 pkg/lib/superuser-dialogs.tsx:250
-#: pkg/lib/superuser-dialogs.tsx:306 pkg/lib/cockpit-components-dialog.jsx:114
-#: pkg/lib/cockpit/dialog.tsx:1350 pkg/lib/cockpit-connect-ssh.tsx:175
-#: pkg/lib/cockpit-connect-ssh.tsx:488 pkg/kdump/kdump-view.jsx:313
+#: pkg/lib/superuser-dialogs.tsx:306 pkg/storaged/jobs-panel.jsx:126
 #: pkg/shell/hosts_dialog.jsx:275 pkg/shell/hosts_dialog.jsx:477
 #: pkg/shell/hosts_dialog.jsx:574 pkg/shell/hosts_dialog.jsx:710
 #: pkg/shell/hosts_dialog.jsx:1089 pkg/shell/active-pages-modal.tsx:112
 #: pkg/shell/shell-modals.tsx:172 pkg/shell/credentials.tsx:229
+#: pkg/networkmanager/dialogs-common.jsx:146
+#: pkg/networkmanager/firewall.jsx:728 pkg/networkmanager/firewall.jsx:918
+#: pkg/networkmanager/firewall.jsx:942 pkg/packagekit/kpatch.jsx:302
+#: pkg/packagekit/autoupdates.jsx:441 pkg/packagekit/updates.jsx:515
+#: pkg/packagekit/updates.jsx:548 pkg/apps/utils.tsx:78
 msgid "Cancel"
 msgstr "取消"
 
@@ -1543,8 +1543,8 @@ msgstr "无法加入域，因为 realmd 在此系统上不可用"
 msgid "Cannot schedule event in the past"
 msgstr "无法调度以前的事件"
 
-#: pkg/storaged/btrfs/volume.jsx:192 pkg/storaged/lvm2/volume-group.jsx:355
-#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/drive/drive.jsx:113
+#: pkg/storaged/btrfs/volume.jsx:192 pkg/storaged/drive/drive.jsx:113
+#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/lvm2/volume-group.jsx:355
 msgid "Capacity"
 msgstr "容量"
 
@@ -1556,11 +1556,11 @@ msgstr "载体"
 msgid "Category"
 msgstr "类别"
 
-#: pkg/storaged/stratis/pool.jsx:693 pkg/storaged/stratis/pool.jsx:774
-#: pkg/storaged/iscsi/create-dialog.jsx:157
 #: pkg/systemd/overview-cards/configurationCard.jsx:291
 #: pkg/users/shell-dialog.js:64 pkg/users/expiration-dialogs.js:101
 #: pkg/users/expiration-dialogs.js:203 pkg/lib/serverTime.js:709
+#: pkg/storaged/iscsi/create-dialog.jsx:157 pkg/storaged/stratis/pool.jsx:693
+#: pkg/storaged/stratis/pool.jsx:774
 msgid "Change"
 msgstr "变更"
 
@@ -1693,8 +1693,8 @@ msgstr "在 initrd 中检查 NBDE 支持"
 msgid "Checking for package updates..."
 msgstr "正在检查软件包更新..."
 
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:24
 #: pkg/lib/cockpit-components-install-dialog.jsx:131
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:24
 msgid "Checking installed software"
 msgstr "检查安装的软件"
 
@@ -1750,15 +1750,15 @@ msgstr "Clevis \"$0\""
 msgid "Client software"
 msgstr "客户端软件"
 
-#: pkg/apps/utils.tsx:126 pkg/networkmanager/interfaces.js:29
-#: pkg/storaged/dialog.jsx:490
+#: pkg/systemd/overview-cards/realmd.jsx:307
 #: pkg/systemd/overview-cards/configurationCard.jsx:188
-#: pkg/systemd/overview-cards/realmd.jsx:307 pkg/users/dialog-utils.js:44
-#: pkg/lib/cockpit-components-modifications.jsx:65
+#: pkg/users/dialog-utils.js:44 pkg/lib/cockpit-components-modifications.jsx:65
 #: pkg/lib/cockpit-components-terminal.tsx:349
-#: pkg/lib/superuser-dialogs.tsx:221 pkg/lib/superuser-dialogs.tsx:229
-#: pkg/lib/cockpit-connect-ssh.tsx:513 pkg/shell/hosts_dialog.jsx:206
-#: pkg/shell/shell-modals.tsx:198 pkg/shell/credentials.tsx:336
+#: pkg/lib/cockpit-connect-ssh.tsx:513 pkg/lib/superuser-dialogs.tsx:221
+#: pkg/lib/superuser-dialogs.tsx:229 pkg/storaged/dialog.jsx:490
+#: pkg/shell/hosts_dialog.jsx:206 pkg/shell/shell-modals.tsx:198
+#: pkg/shell/credentials.tsx:336 pkg/networkmanager/interfaces.js:29
+#: pkg/apps/utils.tsx:126
 msgid "Close"
 msgstr "关闭"
 
@@ -1887,9 +1887,9 @@ msgstr "已完成，但有一个或多个段失败"
 msgid "Compress crash dumps to save space"
 msgstr "对崩溃转储数据进行压缩以节省空间"
 
+#: pkg/kdump/kdump-view.jsx:292 pkg/storaged/legacy-vdo/legacy-vdo.jsx:311
+#: pkg/storaged/lvm2/vdo-pool.jsx:70
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
-#: pkg/storaged/lvm2/vdo-pool.jsx:70 pkg/storaged/legacy-vdo/legacy-vdo.jsx:311
-#: pkg/kdump/kdump-view.jsx:292
 msgid "Compression"
 msgstr "压缩"
 
@@ -1927,7 +1927,7 @@ msgstr "配置系统设置"
 msgid "Confirm"
 msgstr "确认"
 
-#: pkg/storaged/stratis/filesystem.jsx:110 pkg/systemd/service-details.jsx:796
+#: pkg/systemd/service-details.jsx:796 pkg/storaged/stratis/filesystem.jsx:110
 msgid "Confirm deletion of $0"
 msgstr "确认删除 $0"
 
@@ -1955,7 +1955,7 @@ msgstr "确认移除 $0"
 msgid "Confirm removal with an alternate passphrase"
 msgstr "使用一个备用密码短语确认删除"
 
-#: pkg/storaged/mdraid/mdraid.jsx:57 pkg/storaged/legacy-vdo/legacy-vdo.jsx:44
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:44 pkg/storaged/mdraid/mdraid.jsx:57
 msgid "Confirm stopping of $0"
 msgstr "确认停止 $0"
 
@@ -1967,9 +1967,9 @@ msgstr "冲突"
 msgid "Conflicts"
 msgstr "冲突"
 
-#: pkg/networkmanager/network-interface.jsx:206
+#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:206
 #: pkg/networkmanager/network-interface.jsx:992
-#: pkg/networkmanager/network-interface.jsx:993 pkg/shell/hosts_dialog.jsx:272
+#: pkg/networkmanager/network-interface.jsx:993
 msgid "Connect"
 msgstr "连接"
 
@@ -2073,23 +2073,23 @@ msgstr "可转换"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:121 pkg/lib/cockpit-connect-ssh.tsx:124
 #: pkg/lib/cockpit-connect-ssh.tsx:139 pkg/lib/cockpit-connect-ssh.tsx:141
-#: pkg/shell/hosts_dialog.jsx:664 pkg/shell/hosts_dialog.jsx:667
-#: pkg/shell/hosts_dialog.jsx:682 pkg/shell/hosts_dialog.jsx:684
-#: pkg/shell/credentials.tsx:106 pkg/shell/failures.tsx:37
+#: pkg/shell/failures.tsx:37 pkg/shell/hosts_dialog.jsx:664
+#: pkg/shell/hosts_dialog.jsx:667 pkg/shell/hosts_dialog.jsx:682
+#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/credentials.tsx:106
 msgid "Copied"
 msgstr "复制的"
 
 #: pkg/lib/cockpit-components-terminal.tsx:327
 #: pkg/lib/cockpit-connect-ssh.tsx:121 pkg/lib/cockpit-connect-ssh.tsx:124
 #: pkg/lib/cockpit-connect-ssh.tsx:139 pkg/lib/cockpit-connect-ssh.tsx:141
-#: pkg/shell/hosts_dialog.jsx:664 pkg/shell/hosts_dialog.jsx:667
-#: pkg/shell/hosts_dialog.jsx:682 pkg/shell/hosts_dialog.jsx:684
-#: pkg/shell/credentials.tsx:106 pkg/shell/failures.tsx:37
+#: pkg/shell/failures.tsx:37 pkg/shell/hosts_dialog.jsx:664
+#: pkg/shell/hosts_dialog.jsx:667 pkg/shell/hosts_dialog.jsx:682
+#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/credentials.tsx:106
 msgid "Copy"
 msgstr "复制"
 
-#: pkg/storaged/crypto/tang.jsx:131 pkg/systemd/logs.jsx:376
-#: pkg/lib/cockpit-components-modifications.jsx:62
+#: pkg/systemd/logs.jsx:376 pkg/lib/cockpit-components-modifications.jsx:62
+#: pkg/storaged/crypto/tang.jsx:131
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
@@ -2109,16 +2109,16 @@ msgstr "崩溃信息存放在"
 msgid "Crash system"
 msgstr "导致系统崩溃"
 
-#: pkg/storaged/stratis/pool.jsx:357 pkg/storaged/stratis/create-dialog.jsx:142
-#: pkg/storaged/btrfs/subvolume.jsx:136
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
-#: pkg/storaged/lvm2/volume-group.jsx:108
-#: pkg/storaged/lvm2/create-dialog.jsx:49
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:263
+#: pkg/users/group-create-dialog.js:127 pkg/users/account-create-dialog.js:467
+#: pkg/storaged/btrfs/subvolume.jsx:136 pkg/storaged/stratis/pool.jsx:357
+#: pkg/storaged/stratis/create-dialog.jsx:142
 #: pkg/storaged/mdraid/create-dialog.jsx:98
 #: pkg/storaged/block/format-dialog.jsx:261
 #: pkg/storaged/block/format-dialog.jsx:271
-#: pkg/users/group-create-dialog.js:127 pkg/users/account-create-dialog.js:467
+#: pkg/storaged/lvm2/volume-group.jsx:108
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
+#: pkg/storaged/lvm2/create-dialog.jsx:49
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:263
 msgid "Create"
 msgstr "创建"
 
@@ -2163,7 +2163,7 @@ msgstr "创建具有弱密码的帐户"
 msgid "Create and change ownership of home directory"
 msgstr "创建并更改主目录的所有权"
 
-#: pkg/storaged/stratis/pool.jsx:352 pkg/storaged/btrfs/subvolume.jsx:130
+#: pkg/storaged/btrfs/subvolume.jsx:130 pkg/storaged/stratis/pool.jsx:352
 #: pkg/storaged/block/format-dialog.jsx:256
 msgid "Create and mount"
 msgstr "创建并挂载"
@@ -2208,7 +2208,7 @@ msgstr "使用此内容创建新的任务文件。"
 msgid "Create new thinly provisioned logical volume"
 msgstr "创建新的精简配置逻辑卷"
 
-#: pkg/storaged/stratis/pool.jsx:353 pkg/storaged/btrfs/subvolume.jsx:131
+#: pkg/storaged/btrfs/subvolume.jsx:131 pkg/storaged/stratis/pool.jsx:353
 #: pkg/storaged/block/format-dialog.jsx:257
 #: pkg/storaged/block/format-dialog.jsx:266
 msgid "Create only"
@@ -2350,7 +2350,7 @@ msgstr "自定义"
 msgid "Custom cryptographic policy"
 msgstr "自定义加密策略"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:50 pkg/storaged/nfs/nfs.jsx:159
+#: pkg/storaged/nfs/nfs.jsx:159 pkg/storaged/filesystem/mounting-dialog.jsx:50
 msgid "Custom mount options"
 msgstr "自定义挂载选项"
 
@@ -2505,8 +2505,8 @@ msgstr "减一"
 msgid "Dedicated parity (RAID 4)"
 msgstr "专用奇偶校验 (RAID 4)"
 
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:320 pkg/storaged/lvm2/vdo-pool.jsx:74
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:228
-#: pkg/storaged/lvm2/vdo-pool.jsx:74 pkg/storaged/legacy-vdo/legacy-vdo.jsx:320
 msgid "Deduplication"
 msgstr "复制"
 
@@ -2527,34 +2527,33 @@ msgstr "延时"
 msgid "Delay must be a number"
 msgstr "延迟必须是一个数字"
 
-#: pkg/networkmanager/network-interface.jsx:1238
-#: pkg/networkmanager/firewall.jsx:105 pkg/networkmanager/firewall.jsx:151
-#: pkg/networkmanager/firewall.jsx:165 pkg/networkmanager/firewall.jsx:939
-#: pkg/storaged/stratis/filesystem.jsx:114
-#: pkg/storaged/stratis/filesystem.jsx:155 pkg/storaged/stratis/pool.jsx:450
+#: pkg/sosreport/sosreport.jsx:364 pkg/sosreport/sosreport.jsx:463
+#: pkg/systemd/service-details.jsx:156 pkg/systemd/service-details.jsx:809
+#: pkg/users/account-details.js:213 pkg/users/delete-group-dialog.js:37
+#: pkg/users/delete-account-dialog.js:46 pkg/storaged/btrfs/volume.jsx:67
 #: pkg/storaged/btrfs/subvolume.jsx:239 pkg/storaged/btrfs/subvolume.jsx:386
-#: pkg/storaged/btrfs/volume.jsx:67
-#: pkg/storaged/partitions/partition-table.jsx:48
+#: pkg/storaged/stratis/pool.jsx:450 pkg/storaged/stratis/filesystem.jsx:114
+#: pkg/storaged/stratis/filesystem.jsx:155
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:108
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:138
 #: pkg/storaged/partitions/partition.jsx:44
 #: pkg/storaged/partitions/partition.jsx:98
+#: pkg/storaged/partitions/partition-table.jsx:48
+#: pkg/storaged/mdraid/mdraid.jsx:119 pkg/storaged/mdraid/mdraid.jsx:226
+#: pkg/storaged/lvm2/volume-group.jsx:85
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:95
+#: pkg/storaged/lvm2/inactive-logical-volume.jsx:28
 #: pkg/storaged/lvm2/unsupported-logical-volume.jsx:30
 #: pkg/storaged/lvm2/block-logical-volume.jsx:65
 #: pkg/storaged/lvm2/block-logical-volume.jsx:208
-#: pkg/storaged/lvm2/volume-group.jsx:85
-#: pkg/storaged/lvm2/inactive-logical-volume.jsx:28
-#: pkg/storaged/mdraid/mdraid.jsx:119 pkg/storaged/mdraid/mdraid.jsx:226
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:108
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:138
-#: pkg/systemd/service-details.jsx:156 pkg/systemd/service-details.jsx:809
-#: pkg/sosreport/sosreport.jsx:364 pkg/sosreport/sosreport.jsx:463
-#: pkg/users/delete-group-dialog.js:37 pkg/users/delete-account-dialog.js:46
-#: pkg/users/account-details.js:213
+#: pkg/networkmanager/firewall.jsx:105 pkg/networkmanager/firewall.jsx:151
+#: pkg/networkmanager/firewall.jsx:165 pkg/networkmanager/firewall.jsx:939
+#: pkg/networkmanager/network-interface.jsx:1238
 msgid "Delete"
 msgstr "删除"
 
-#: pkg/networkmanager/network-interface.jsx:319
 #: pkg/users/delete-account-dialog.js:39
+#: pkg/networkmanager/network-interface.jsx:319
 msgid "Delete $0"
 msgstr "删除 $0"
 
@@ -2570,7 +2569,7 @@ msgstr "删除文件"
 msgid "Delete filesystem"
 msgstr "删除文件系统"
 
-#: pkg/storaged/lvm2/volume-group.jsx:236 pkg/users/group-actions.jsx:31
+#: pkg/users/group-actions.jsx:31 pkg/storaged/lvm2/volume-group.jsx:236
 msgid "Delete group"
 msgstr "删除用户组"
 
@@ -2636,8 +2635,8 @@ msgstr "删除会擦除这个子卷上的所有数据，包括它的所有嵌套
 msgid "Deletion will remove the following files:"
 msgstr "删除操作会删除以下文件："
 
+#: pkg/systemd/timer-dialog.jsx:139 pkg/storaged/dialog.jsx:1504
 #: pkg/networkmanager/firewall.jsx:710 pkg/networkmanager/firewall.jsx:859
-#: pkg/storaged/dialog.jsx:1504 pkg/systemd/timer-dialog.jsx:139
 msgid "Description"
 msgstr "描述"
 
@@ -2649,9 +2648,9 @@ msgstr "桌面"
 msgid "Detachable"
 msgstr "可拆开"
 
-#: pkg/packagekit/updates.jsx:419 pkg/networkmanager/network-main.jsx:204
-#: pkg/networkmanager/network-main.jsx:220
 #: pkg/systemd/overview-cards/realmd.jsx:404 pkg/shell/credentials.tsx:299
+#: pkg/networkmanager/network-main.jsx:204
+#: pkg/networkmanager/network-main.jsx:220 pkg/packagekit/updates.jsx:419
 msgid "Details"
 msgstr "详情"
 
@@ -2659,8 +2658,8 @@ msgstr "详情"
 msgid "Development"
 msgstr "开发"
 
-#: pkg/metrics/metrics.jsx:735 pkg/storaged/mdraid/mdraid.jsx:295
-#: pkg/storaged/dialog.jsx:1217 pkg/storaged/dialog.jsx:1336
+#: pkg/metrics/metrics.jsx:735 pkg/storaged/dialog.jsx:1217
+#: pkg/storaged/dialog.jsx:1336 pkg/storaged/mdraid/mdraid.jsx:295
 msgid "Device"
 msgstr "设备"
 
@@ -2668,8 +2667,8 @@ msgstr "设备"
 msgid "Device contains unrecognized data"
 msgstr "设备包含无法被识别的数据"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:273 pkg/storaged/block/other.jsx:48
-#: pkg/storaged/drive/drive.jsx:119
+#: pkg/storaged/drive/drive.jsx:119 pkg/storaged/legacy-vdo/legacy-vdo.jsx:273
+#: pkg/storaged/block/other.jsx:48
 msgid "Device file"
 msgstr "设备文件"
 
@@ -2715,12 +2714,12 @@ msgstr "禁用防火墙"
 msgid "Disable tuned"
 msgstr "禁用 tuned"
 
-#: pkg/packagekit/kpatch.jsx:236 pkg/packagekit/autoupdates.jsx:456
+#: pkg/kdump/kdump-view.jsx:544 pkg/systemd/services.jsx:231
+#: pkg/systemd/services.jsx:680 pkg/systemd/service-details.jsx:505
 #: pkg/networkmanager/firewall-switch.jsx:50
 #: pkg/networkmanager/firewall-switch.jsx:60
-#: pkg/networkmanager/ip-settings.jsx:34 pkg/systemd/service-details.jsx:505
-#: pkg/systemd/services.jsx:231 pkg/systemd/services.jsx:680
-#: pkg/kdump/kdump-view.jsx:544
+#: pkg/networkmanager/ip-settings.jsx:34 pkg/packagekit/kpatch.jsx:236
+#: pkg/packagekit/autoupdates.jsx:456
 msgid "Disabled"
 msgstr "禁用"
 
@@ -2736,9 +2735,9 @@ msgstr "不允许密码验证"
 msgid "Disallow running (mask)"
 msgstr "不允许运行 (屏蔽)"
 
+#: pkg/storaged/iscsi/session.jsx:41
 #: pkg/networkmanager/network-interface.jsx:976
 #: pkg/networkmanager/network-interface.jsx:977
-#: pkg/storaged/iscsi/session.jsx:41
 msgid "Disconnect"
 msgstr "断开"
 
@@ -2765,10 +2764,10 @@ msgstr "磁盘失败"
 msgid "Disk passphrase"
 msgstr "磁盘密码"
 
-#: pkg/metrics/metrics.jsx:868 pkg/storaged/lvm2/volume-group.jsx:186
+#: pkg/metrics/metrics.jsx:868 pkg/storaged/mdraid/mdraid.jsx:149
+#: pkg/storaged/mdraid/mdraid.jsx:299 pkg/storaged/mdraid/create-dialog.jsx:85
+#: pkg/storaged/lvm2/volume-group.jsx:186
 #: pkg/storaged/lvm2/create-dialog.jsx:38
-#: pkg/storaged/mdraid/create-dialog.jsx:85 pkg/storaged/mdraid/mdraid.jsx:149
-#: pkg/storaged/mdraid/mdraid.jsx:299
 msgid "Disks"
 msgstr "磁盘"
 
@@ -2776,8 +2775,8 @@ msgstr "磁盘"
 msgid "Disks usage"
 msgstr "磁盘使用率"
 
-#: pkg/storaged/lvm2/volume-group.jsx:339
 #: pkg/systemd/overview-cards/uncleanShutdownStatus.jsx:78
+#: pkg/storaged/lvm2/volume-group.jsx:339
 msgid "Dismiss"
 msgstr "清除"
 
@@ -2794,8 +2793,8 @@ msgstr "解除所选的警报"
 msgid "Display language"
 msgstr "显示语言"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:250
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:80
+#: pkg/storaged/lvm2/block-logical-volume.jsx:250
 msgid "Distributed parity (RAID 5)"
 msgstr "分布式奇偶校验 (RAID 5)"
 
@@ -2820,8 +2819,8 @@ msgstr "不自动启动"
 msgid "Does not mount during boot"
 msgstr "在引导过程中不挂载"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:67
 #: pkg/systemd/overview-cards/realmd.jsx:267
+#: pkg/systemd/overview-cards/configurationCard.jsx:67
 msgid "Domain"
 msgstr "域"
 
@@ -2854,8 +2853,8 @@ msgstr "不支持域"
 msgid "Don't repeat"
 msgstr "不要重复"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:251
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:85
+#: pkg/storaged/lvm2/block-logical-volume.jsx:251
 msgid "Double distributed parity (RAID 6)"
 msgstr "双重分布式奇偶校验 (RAID 6)"
 
@@ -2875,8 +2874,8 @@ msgstr "已下载"
 msgid "Downloading"
 msgstr "正在下载"
 
-#: pkg/storaged/crypto/keyslots.jsx:243
 #: pkg/lib/cockpit-components-install-dialog.jsx:164
+#: pkg/storaged/crypto/keyslots.jsx:243
 msgid "Downloading $0"
 msgstr "正在下载 $0"
 
@@ -2894,10 +2893,11 @@ msgstr "双通道"
 msgid "EFI system partition"
 msgstr "EFI 系统分区"
 
-#: pkg/packagekit/kpatch.jsx:215 pkg/packagekit/autoupdates.jsx:519
-#: pkg/networkmanager/firewall.jsx:103 pkg/storaged/crypto/keyslots.jsx:724
-#: pkg/storaged/nfs/nfs.jsx:298 pkg/systemd/service-details.jsx:149
-#: pkg/kdump/kdump-view.jsx:480 pkg/shell/nav.tsx:407 pkg/shell/hosts.tsx:247
+#: pkg/kdump/kdump-view.jsx:480 pkg/systemd/service-details.jsx:149
+#: pkg/storaged/crypto/keyslots.jsx:724 pkg/storaged/nfs/nfs.jsx:298
+#: pkg/shell/nav.tsx:407 pkg/shell/hosts.tsx:247
+#: pkg/networkmanager/firewall.jsx:103 pkg/packagekit/kpatch.jsx:215
+#: pkg/packagekit/autoupdates.jsx:519
 msgid "Edit"
 msgstr "编辑"
 
@@ -2941,7 +2941,7 @@ msgstr "编辑多个主机"
 msgid "Edit motd"
 msgstr "编辑 motd"
 
-#: pkg/storaged/stratis/filesystem.jsx:144 pkg/storaged/btrfs/subvolume.jsx:337
+#: pkg/storaged/btrfs/subvolume.jsx:337 pkg/storaged/stratis/filesystem.jsx:144
 #: pkg/storaged/filesystem/filesystem.jsx:86
 msgid "Edit mount point"
 msgstr "编辑挂载点"
@@ -3016,10 +3016,10 @@ msgstr "启用服务"
 msgid "Enable the firewall"
 msgstr "启用防火墙"
 
-#: pkg/packagekit/kpatch.jsx:239 pkg/networkmanager/firewall-switch.jsx:50
-#: pkg/networkmanager/firewall-switch.jsx:60 pkg/systemd/services.jsx:229
+#: pkg/kdump/kdump-view.jsx:544 pkg/systemd/services.jsx:229
 #: pkg/systemd/services.jsx:230 pkg/systemd/services.jsx:679
-#: pkg/kdump/kdump-view.jsx:544
+#: pkg/networkmanager/firewall-switch.jsx:50
+#: pkg/networkmanager/firewall-switch.jsx:60 pkg/packagekit/kpatch.jsx:239
 msgid "Enabled"
 msgstr "启用"
 
@@ -3119,10 +3119,10 @@ msgstr "擦除 $target"
 msgid "Errata"
 msgstr "勘误"
 
-#: pkg/apps/utils.tsx:120 pkg/storaged/multipath.jsx:46
+#: pkg/sosreport/sosreport.jsx:385 pkg/systemd/services.jsx:209
+#: pkg/systemd/service-details.jsx:293 pkg/storaged/multipath.jsx:46
 #: pkg/storaged/storage-controls.jsx:92 pkg/storaged/storage-controls.jsx:145
-#: pkg/storaged/overview/overview.jsx:80 pkg/systemd/service-details.jsx:293
-#: pkg/systemd/services.jsx:209 pkg/sosreport/sosreport.jsx:385
+#: pkg/storaged/overview/overview.jsx:80 pkg/apps/utils.tsx:120
 msgid "Error"
 msgstr "错误"
 
@@ -3226,8 +3226,8 @@ msgstr "FIPS 没有被正确启用"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "具有进一步通用标准限制的 FIPS。"
 
-#: pkg/networkmanager/interfaces.js:895 pkg/storaged/mdraid/mdraid-disk.jsx:57
 #: pkg/lib/cockpit/dialog.tsx:1280 pkg/lib/cockpit/dialog.tsx:1283
+#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/networkmanager/interfaces.js:895
 msgid "Failed"
 msgstr "失败"
 
@@ -3353,7 +3353,7 @@ msgstr "保存 /etc/motd 中的更改失败"
 msgid "Failed to save settings"
 msgstr "保存设置失败"
 
-#: pkg/systemd/service-details.jsx:516 pkg/systemd/services.jsx:220
+#: pkg/systemd/services.jsx:220 pkg/systemd/service-details.jsx:516
 msgid "Failed to start"
 msgstr "启动失败"
 
@@ -3456,8 +3456,8 @@ msgstr "强制密码变更"
 msgid "Forget"
 msgstr "忘记"
 
-#: pkg/storaged/block/actions.jsx:17 pkg/storaged/block/format-dialog.jsx:261
-#: pkg/storaged/block/format-dialog.jsx:271
+#: pkg/storaged/block/format-dialog.jsx:261
+#: pkg/storaged/block/format-dialog.jsx:271 pkg/storaged/block/actions.jsx:17
 msgid "Format"
 msgstr "格式化"
 
@@ -3494,7 +3494,7 @@ msgstr "空闲空间"
 msgid "Free-form search"
 msgstr "自由形式搜索"
 
-#: pkg/packagekit/autoupdates.jsx:412 pkg/systemd/timer-dialog.jsx:295
+#: pkg/systemd/timer-dialog.jsx:295 pkg/packagekit/autoupdates.jsx:412
 msgid "Fridays"
 msgstr "周五"
 
@@ -3502,8 +3502,8 @@ msgstr "周五"
 msgid "From"
 msgstr "自"
 
-#: pkg/users/account-create-dialog.js:54 pkg/users/accounts-list.js:356
-#: pkg/users/account-details.js:234
+#: pkg/users/account-details.js:234 pkg/users/account-create-dialog.js:54
+#: pkg/users/accounts-list.js:356
 msgid "Full name"
 msgstr "全名"
 
@@ -3520,7 +3520,7 @@ msgstr "网关 $gateway"
 msgid "General"
 msgstr "通用"
 
-#: pkg/networkmanager/wireguard.jsx:239 pkg/systemd/services.jsx:240
+#: pkg/systemd/services.jsx:240 pkg/networkmanager/wireguard.jsx:239
 msgid "Generated"
 msgstr "生成的"
 
@@ -3544,7 +3544,7 @@ msgstr "图形可见性"
 msgid "Graph visibility options menu"
 msgstr "图形可见性选项菜单"
 
-#: pkg/networkmanager/network-interface.jsx:605 pkg/users/accounts-list.js:359
+#: pkg/users/accounts-list.js:359 pkg/networkmanager/network-interface.jsx:605
 msgid "Group"
 msgstr "组"
 
@@ -3552,16 +3552,17 @@ msgstr "组"
 msgid "Group name"
 msgstr "用户组名称"
 
-#: pkg/users/accounts-list.js:294 pkg/users/accounts-list.js:298
-#: pkg/users/account-details.js:412
+#: pkg/users/account-details.js:412 pkg/users/accounts-list.js:294
+#: pkg/users/accounts-list.js:298
 msgid "Groups"
 msgstr "用户组"
 
-#: pkg/storaged/partitions/partition.jsx:93
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:245
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:301
+#: pkg/storaged/partitions/partition.jsx:93 pkg/storaged/block/resize.jsx:519
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:90
+#: pkg/storaged/lvm2/vdo-pool.jsx:34
 #: pkg/storaged/lvm2/block-logical-volume.jsx:197
-#: pkg/storaged/lvm2/vdo-pool.jsx:34 pkg/storaged/legacy-vdo/legacy-vdo.jsx:245
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:301 pkg/storaged/block/resize.jsx:519
 msgid "Grow"
 msgstr "增长"
 
@@ -3639,7 +3640,7 @@ msgstr "更高的互操作性会增加被安全攻击的面积。"
 msgid "History package count"
 msgstr "历史软件包数量"
 
-#: pkg/users/account-create-dialog.js:70 pkg/users/account-details.js:313
+#: pkg/users/account-details.js:313 pkg/users/account-create-dialog.js:70
 msgid "Home directory"
 msgstr "家目录"
 
@@ -3687,10 +3688,10 @@ msgstr "如何检查"
 msgid "I confirm I want to lose this data forever"
 msgstr "我确认我希望永久删除这些数据"
 
-#: pkg/networkmanager/firewall.jsx:704 pkg/storaged/pages.jsx:712
-#: pkg/storaged/btrfs/subvolume.jsx:457 pkg/systemd/hwinfo.jsx:281
-#: pkg/users/group-create-dialog.js:33 pkg/users/accounts-list.js:235
-#: pkg/users/accounts-list.js:357
+#: pkg/systemd/hwinfo.jsx:281 pkg/users/group-create-dialog.js:33
+#: pkg/users/accounts-list.js:235 pkg/users/accounts-list.js:357
+#: pkg/storaged/btrfs/subvolume.jsx:457 pkg/storaged/pages.jsx:712
+#: pkg/networkmanager/firewall.jsx:704
 msgid "ID"
 msgstr "ID"
 
@@ -3780,8 +3781,8 @@ msgid ""
 "passphrase."
 msgstr "若密钥服务器 $0 不可达，您可以提供一个现有密码。"
 
-#: pkg/packagekit/updates.jsx:653 pkg/packagekit/updates.jsx:737
-#: pkg/networkmanager/ip-settings.jsx:32
+#: pkg/networkmanager/ip-settings.jsx:32 pkg/packagekit/updates.jsx:653
+#: pkg/packagekit/updates.jsx:737
 msgid "Ignore"
 msgstr "忽略"
 
@@ -3881,9 +3882,9 @@ msgstr "初始化中..."
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/apps/application-list.jsx:236 pkg/apps/application.jsx:53
-#: pkg/packagekit/kpatch.jsx:233
 #: pkg/lib/cockpit-components-install-dialog.jsx:105
+#: pkg/packagekit/kpatch.jsx:233 pkg/apps/application.jsx:53
+#: pkg/apps/application-list.jsx:236
 msgid "Install"
 msgstr "安装"
 
@@ -3943,17 +3944,17 @@ msgstr ""
 msgid "Installed"
 msgstr "已安装"
 
-#: pkg/apps/application.jsx:41 pkg/packagekit/updates.jsx:97
+#: pkg/packagekit/updates.jsx:97 pkg/apps/application.jsx:41
 msgid "Installing"
 msgstr "正在安装"
 
-#: pkg/storaged/crypto/keyslots.jsx:247
 #: pkg/lib/cockpit-components-install-dialog.jsx:168
+#: pkg/storaged/crypto/keyslots.jsx:247
 msgid "Installing $0"
 msgstr "正在安装 $0"
 
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:32
 #: pkg/storaged/crypto/keyslots.jsx:263
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:32
 msgid "Installing $0 would remove $1."
 msgstr "安装 $0 将删除 $1 。"
 
@@ -3971,9 +3972,9 @@ msgstr[0] "接口"
 msgid "Interface members"
 msgstr "接口成员"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
-#: pkg/networkmanager/bond.jsx:158 pkg/networkmanager/firewall.jsx:872
+#: pkg/networkmanager/firewall.jsx:872 pkg/networkmanager/bond.jsx:158
 #: pkg/networkmanager/network-main.jsx:195
+#: pkg/networkmanager/network-interface-members.jsx:192
 msgid "Interfaces"
 msgstr "接口"
 
@@ -4013,7 +4014,7 @@ msgstr "无效的IP地址: $0"
 msgid "Invalid address $0"
 msgstr "无效的地址 $0"
 
-#: pkg/lib/serverTime.js:667 pkg/lib/cockpit-components-shutdown.jsx:106
+#: pkg/lib/cockpit-components-shutdown.jsx:106 pkg/lib/serverTime.js:667
 msgid "Invalid date format"
 msgstr "无效的日期格式"
 
@@ -4065,8 +4066,8 @@ msgstr "无效的前缀或掩码 $0"
 msgid "Invalid range"
 msgstr "无效范围"
 
-#: pkg/packagekit/autoupdates.jsx:422 pkg/lib/serverTime.js:670
-#: pkg/lib/cockpit-components-shutdown.jsx:103
+#: pkg/lib/cockpit-components-shutdown.jsx:103 pkg/lib/serverTime.js:670
+#: pkg/packagekit/autoupdates.jsx:422
 msgid "Invalid time format"
 msgstr "无效的时间格式"
 
@@ -4296,17 +4297,16 @@ msgstr "最后成功的登录："
 msgid "Last token can not be removed"
 msgstr "不能删除最后一个令牌"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:280
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:185
+#: pkg/storaged/lvm2/block-logical-volume.jsx:280
 msgid "Layout"
 msgstr "布局"
 
-#: pkg/networkmanager/bond.jsx:147
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:133
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:282
 #: pkg/lib/cockpit-components-dialog.jsx:214
-#: pkg/lib/cockpit-components-dialog.jsx:221
+#: pkg/lib/cockpit-components-dialog.jsx:221 pkg/networkmanager/bond.jsx:147
 msgid "Learn more"
 msgstr "了解更多"
 
@@ -4358,7 +4358,7 @@ msgstr "限制访问模式会限制管理员权限。Web 控制台部分功能�
 msgid "Linear"
 msgstr "线性"
 
-#: pkg/networkmanager/team.jsx:180 pkg/networkmanager/bond.jsx:194
+#: pkg/networkmanager/bond.jsx:194 pkg/networkmanager/team.jsx:180
 msgid "Link down delay"
 msgstr "链路断开延时"
 
@@ -4370,7 +4370,7 @@ msgstr "本地链路"
 msgid "Link monitoring"
 msgstr "链路监控"
 
-#: pkg/networkmanager/team.jsx:177 pkg/networkmanager/bond.jsx:191
+#: pkg/networkmanager/bond.jsx:191 pkg/networkmanager/team.jsx:177
 msgid "Link up delay"
 msgstr "链路启用延时"
 
@@ -4461,12 +4461,12 @@ msgstr "加载系统改变..."
 msgid "Loading unit failed"
 msgstr "加载单元失败"
 
-#: pkg/metrics/metrics.jsx:1969 pkg/storaged/storaged.jsx:52
-#: pkg/systemd/logDetails.jsx:102 pkg/systemd/service.jsx:118
-#: pkg/systemd/services.jsx:676 pkg/systemd/logsJournal.jsx:254
+#: pkg/kdump/kdump-view.jsx:442 pkg/systemd/services.jsx:676
+#: pkg/systemd/logsJournal.jsx:254 pkg/systemd/logDetails.jsx:102
+#: pkg/systemd/service.jsx:118 pkg/users/account-details.js:179
 #: pkg/users/accounts-list.js:299 pkg/users/accounts-list.js:320
-#: pkg/users/accounts-list.js:429 pkg/users/account-details.js:179
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/users/accounts-list.js:429 pkg/metrics/metrics.jsx:1969
+#: pkg/storaged/storaged.jsx:52
 msgid "Loading..."
 msgstr "加载中……"
 
@@ -4490,13 +4490,13 @@ msgstr "本地存储"
 msgid "Local, $0"
 msgstr "本地，$0"
 
-#: pkg/storaged/pages.jsx:714 pkg/storaged/dialog.jsx:1218
-#: pkg/storaged/dialog.jsx:1337 pkg/kdump/kdump-view.jsx:219
+#: pkg/kdump/kdump-view.jsx:219 pkg/storaged/dialog.jsx:1218
+#: pkg/storaged/dialog.jsx:1337 pkg/storaged/pages.jsx:714
 msgid "Location"
 msgstr "位置"
 
-#: pkg/storaged/crypto/actions.jsx:67 pkg/storaged/crypto/actions.jsx:84
-#: pkg/users/lock-account-dialog.js:22
+#: pkg/users/lock-account-dialog.js:22 pkg/storaged/crypto/actions.jsx:67
+#: pkg/storaged/crypto/actions.jsx:84
 msgid "Lock"
 msgstr "锁定"
 
@@ -4524,9 +4524,9 @@ msgstr "已锁定的加密设备可能含有数据"
 msgid "Locking $target"
 msgstr "锁定 $target"
 
-#: pkg/static/login.html:154 pkg/lib/cockpit-connect-ssh.tsx:380
-#: pkg/static/login.js:730 pkg/shell/hosts_dialog.jsx:955
-#: pkg/shell/failures.tsx:81
+#: pkg/static/login.html:154 pkg/static/login.js:730
+#: pkg/lib/cockpit-connect-ssh.tsx:380 pkg/shell/failures.tsx:81
+#: pkg/shell/hosts_dialog.jsx:955
 msgid "Log in"
 msgstr "登录"
 
@@ -4550,7 +4550,7 @@ msgstr "注销"
 msgid "Log user out"
 msgstr "注销用户"
 
-#: pkg/users/accounts-list.js:147 pkg/users/account-details.js:198
+#: pkg/users/account-details.js:198 pkg/users/accounts-list.js:147
 msgid "Logged in"
 msgstr "登录"
 
@@ -4563,8 +4563,8 @@ msgstr "逻辑"
 msgid "Logical Volume Manager partition"
 msgstr "逻辑卷管理器分区"
 
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:207
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:235
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:207
 msgid "Logical size"
 msgstr "逻辑大小"
 
@@ -4624,12 +4624,12 @@ msgstr "低调桌面"
 msgid "Lunch box"
 msgstr "主机类型"
 
-#: pkg/networkmanager/mac.jsx:59 pkg/networkmanager/bond.jsx:161
+#: pkg/networkmanager/bond.jsx:161 pkg/networkmanager/mac.jsx:59
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/storaged/mdraid/mdraid-disk.jsx:111 pkg/storaged/mdraid/mdraid.jsx:196
-#: pkg/storaged/mdraid/mdraid.jsx:204
+#: pkg/storaged/mdraid/mdraid.jsx:196 pkg/storaged/mdraid/mdraid.jsx:204
+#: pkg/storaged/mdraid/mdraid-disk.jsx:111
 msgid "MDRAID device"
 msgstr "MDRAID 设备"
 
@@ -4765,8 +4765,8 @@ msgstr "标记 $target 为故障"
 msgid "Mask service"
 msgstr "屏蔽服务"
 
-#: pkg/systemd/service-details.jsx:493 pkg/systemd/services.jsx:235
-#: pkg/systemd/services.jsx:236
+#: pkg/systemd/services.jsx:235 pkg/systemd/services.jsx:236
+#: pkg/systemd/service-details.jsx:493
 msgid "Masked"
 msgstr "已屏蔽"
 
@@ -4787,10 +4787,11 @@ msgstr "最大消息有效期 $max_age"
 msgid "Media drive"
 msgstr "介质驱动器"
 
-#: pkg/metrics/metrics.jsx:114 pkg/metrics/metrics.jsx:830
-#: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1935
-#: pkg/systemd/overview-cards/usageCard.jsx:131 pkg/systemd/hwinfo.jsx:280
-#: pkg/systemd/hwinfo.jsx:324 pkg/systemd/service-details.jsx:739
+#: pkg/systemd/hwinfo.jsx:280 pkg/systemd/hwinfo.jsx:324
+#: pkg/systemd/overview-cards/usageCard.jsx:131
+#: pkg/systemd/service-details.jsx:739 pkg/metrics/metrics.jsx:114
+#: pkg/metrics/metrics.jsx:830 pkg/metrics/metrics.jsx:1553
+#: pkg/metrics/metrics.jsx:1935
 msgid "Memory"
 msgstr "内存"
 
@@ -4871,8 +4872,8 @@ msgstr "每分钟"
 msgid "Minutes"
 msgstr "分钟"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:247
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:70
+#: pkg/storaged/lvm2/block-logical-volume.jsx:247
 msgid "Mirrored (RAID 1)"
 msgstr "镜像 (RAID 1)"
 
@@ -4880,14 +4881,14 @@ msgstr "镜像 (RAID 1)"
 msgid "Mitigations"
 msgstr "缓解"
 
-#: pkg/networkmanager/network-interface.jsx:1082
 #: pkg/networkmanager/bond.jsx:164
+#: pkg/networkmanager/network-interface.jsx:1082
 msgid "Mode"
 msgstr "模式"
 
-#: pkg/storaged/drive/drive.jsx:109
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:97
 #: pkg/systemd/hwinfo.jsx:267
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:97
+#: pkg/storaged/drive/drive.jsx:109
 msgid "Model"
 msgstr "型号"
 
@@ -4896,7 +4897,7 @@ msgstr "型号"
 msgid "Modifying $target"
 msgstr "修改 $target"
 
-#: pkg/packagekit/autoupdates.jsx:408 pkg/systemd/timer-dialog.jsx:291
+#: pkg/systemd/timer-dialog.jsx:291 pkg/packagekit/autoupdates.jsx:408
 msgid "Mondays"
 msgstr "周一"
 
@@ -4916,9 +4917,9 @@ msgstr "每月"
 msgid "More info..."
 msgstr "更多信息..."
 
-#: pkg/storaged/stratis/filesystem.jsx:147 pkg/storaged/btrfs/subvolume.jsx:349
+#: pkg/storaged/btrfs/subvolume.jsx:349 pkg/storaged/stratis/filesystem.jsx:147
+#: pkg/storaged/nfs/nfs.jsx:296 pkg/storaged/filesystem/mounting-dialog.jsx:342
 #: pkg/storaged/filesystem/filesystem.jsx:89
-#: pkg/storaged/filesystem/mounting-dialog.jsx:342 pkg/storaged/nfs/nfs.jsx:296
 msgid "Mount"
 msgstr "挂载"
 
@@ -4963,15 +4964,15 @@ msgstr "现在挂载"
 msgid "Mount on $0 now"
 msgstr "现在在 $0 挂载"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:38 pkg/storaged/nfs/nfs.jsx:154
+#: pkg/storaged/nfs/nfs.jsx:154 pkg/storaged/filesystem/mounting-dialog.jsx:38
 msgid "Mount options"
 msgstr "挂载选项"
 
+#: pkg/storaged/btrfs/subvolume.jsx:466 pkg/storaged/stratis/pool.jsx:404
 #: pkg/storaged/stratis/filesystem.jsx:67
-#: pkg/storaged/stratis/filesystem.jsx:238 pkg/storaged/stratis/pool.jsx:404
-#: pkg/storaged/btrfs/subvolume.jsx:466
+#: pkg/storaged/stratis/filesystem.jsx:238 pkg/storaged/nfs/nfs.jsx:315
+#: pkg/storaged/filesystem/mounting-dialog.jsx:312
 #: pkg/storaged/filesystem/filesystem.jsx:133
-#: pkg/storaged/filesystem/mounting-dialog.jsx:312 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/block/format-dialog.jsx:285
 msgid "Mount point"
 msgstr "挂载点"
@@ -4992,7 +4993,7 @@ msgstr "挂载点已用于 $0"
 msgid "Mount point must start with \"/\"."
 msgstr "挂载点必须以“/”开头。"
 
-#: pkg/storaged/filesystem/mounting-dialog.jsx:47 pkg/storaged/nfs/nfs.jsx:158
+#: pkg/storaged/nfs/nfs.jsx:158 pkg/storaged/filesystem/mounting-dialog.jsx:47
 msgid "Mount read only"
 msgstr "只读挂载"
 
@@ -5041,34 +5042,33 @@ msgstr "NSNA ping"
 msgid "NTP server"
 msgstr "NTP 服务器"
 
-#: pkg/packagekit/updates.jsx:416 pkg/networkmanager/dialogs-common.jsx:120
-#: pkg/networkmanager/network-main.jsx:200
-#: pkg/networkmanager/network-main.jsx:216
+#: pkg/systemd/hwinfo.jsx:74 pkg/systemd/timer-dialog.jsx:129
+#: pkg/users/group-create-dialog.js:25 pkg/users/authorized-keys-panel.js:113
+#: pkg/storaged/iscsi/create-dialog.jsx:97
+#: pkg/storaged/iscsi/create-dialog.jsx:154 pkg/storaged/btrfs/volume.jsx:131
+#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:456
+#: pkg/storaged/stratis/pool.jsx:364 pkg/storaged/stratis/pool.jsx:467
+#: pkg/storaged/stratis/pool.jsx:1023 pkg/storaged/stratis/create-dialog.jsx:74
 #: pkg/storaged/stratis/filesystem.jsx:62
 #: pkg/storaged/stratis/filesystem.jsx:173
-#: pkg/storaged/stratis/filesystem.jsx:233 pkg/storaged/stratis/pool.jsx:364
-#: pkg/storaged/stratis/pool.jsx:467 pkg/storaged/stratis/pool.jsx:1023
-#: pkg/storaged/stratis/create-dialog.jsx:74
-#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:456
-#: pkg/storaged/btrfs/volume.jsx:131 pkg/storaged/iscsi/create-dialog.jsx:97
-#: pkg/storaged/iscsi/create-dialog.jsx:154
-#: pkg/storaged/partitions/partition.jsx:213
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:30
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:123
-#: pkg/storaged/lvm2/block-logical-volume.jsx:35
-#: pkg/storaged/lvm2/block-logical-volume.jsx:224
-#: pkg/storaged/lvm2/block-logical-volume.jsx:272
-#: pkg/storaged/lvm2/volume-group.jsx:49 pkg/storaged/lvm2/volume-group.jsx:104
-#: pkg/storaged/lvm2/volume-group.jsx:348
-#: pkg/storaged/lvm2/create-dialog.jsx:33
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:159
-#: pkg/storaged/lvm2/vdo-pool.jsx:64 pkg/storaged/mdraid/create-dialog.jsx:33
-#: pkg/storaged/mdraid/mdraid.jsx:288
+#: pkg/storaged/stratis/filesystem.jsx:233
 #: pkg/storaged/filesystem/filesystem.jsx:105
 #: pkg/storaged/filesystem/filesystem.jsx:127
-#: pkg/storaged/block/format-dialog.jsx:279 pkg/systemd/hwinfo.jsx:74
-#: pkg/systemd/timer-dialog.jsx:129 pkg/users/group-create-dialog.js:25
-#: pkg/users/authorized-keys-panel.js:113 pkg/shell/credentials.tsx:291
+#: pkg/storaged/partitions/partition.jsx:213 pkg/storaged/mdraid/mdraid.jsx:288
+#: pkg/storaged/mdraid/create-dialog.jsx:33
+#: pkg/storaged/block/format-dialog.jsx:279
+#: pkg/storaged/lvm2/volume-group.jsx:49 pkg/storaged/lvm2/volume-group.jsx:104
+#: pkg/storaged/lvm2/volume-group.jsx:348
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:30
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:123
+#: pkg/storaged/lvm2/create-dialog.jsx:33 pkg/storaged/lvm2/vdo-pool.jsx:64
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:159
+#: pkg/storaged/lvm2/block-logical-volume.jsx:35
+#: pkg/storaged/lvm2/block-logical-volume.jsx:224
+#: pkg/storaged/lvm2/block-logical-volume.jsx:272 pkg/shell/credentials.tsx:291
+#: pkg/networkmanager/dialogs-common.jsx:120
+#: pkg/networkmanager/network-main.jsx:200
+#: pkg/networkmanager/network-main.jsx:216 pkg/packagekit/updates.jsx:416
 msgid "Name"
 msgstr "名称"
 
@@ -5163,9 +5163,9 @@ msgstr "NetworkManager 未运行"
 msgid "Networked storage"
 msgstr "网络存储"
 
-#: pkg/networkmanager/index.html:9
+#: pkg/networkmanager/index.html:9 pkg/networkmanager/firewall.jsx:1084
 #: pkg/networkmanager/network-interface.jsx:1218
-#: pkg/networkmanager/firewall.jsx:1084 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_networkmanager.metainfo.xml.in:5
 msgid "Networking"
 msgstr "网络"
@@ -5174,11 +5174,11 @@ msgstr "网络"
 msgid "Never"
 msgstr "从不"
 
-#: pkg/users/expiration-dialogs.js:28 pkg/users/account-details.js:61
+#: pkg/users/account-details.js:61 pkg/users/expiration-dialogs.js:28
 msgid "Never expire account"
 msgstr "账号从不过期"
 
-#: pkg/users/expiration-dialogs.js:140 pkg/users/account-details.js:53
+#: pkg/users/account-details.js:53 pkg/users/expiration-dialogs.js:140
 msgid "Never expire password"
 msgstr "密码从不过期"
 
@@ -5186,7 +5186,7 @@ msgstr "密码从不过期"
 msgid "Never logged in"
 msgstr "从未登录"
 
-#: pkg/storaged/overview/overview.jsx:137 pkg/storaged/nfs/nfs.jsx:119
+#: pkg/storaged/nfs/nfs.jsx:119 pkg/storaged/overview/overview.jsx:137
 msgid "New NFS mount"
 msgstr "新的 NFS 挂载"
 
@@ -5283,9 +5283,10 @@ msgstr "没有提供说明。"
 msgid "No devices found"
 msgstr "没有找到设备"
 
-#: pkg/storaged/stratis/pool.jsx:500 pkg/storaged/lvm2/volume-group.jsx:188
+#: pkg/storaged/stratis/pool.jsx:500 pkg/storaged/mdraid/mdraid.jsx:151
+#: pkg/storaged/mdraid/create-dialog.jsx:87
+#: pkg/storaged/lvm2/volume-group.jsx:188
 #: pkg/storaged/lvm2/create-dialog.jsx:40
-#: pkg/storaged/mdraid/create-dialog.jsx:87 pkg/storaged/mdraid/mdraid.jsx:151
 msgid "No disks are available."
 msgstr "没有可用的磁盘。"
 
@@ -5345,12 +5346,12 @@ msgstr "没有添加密钥"
 msgid "No languages match"
 msgstr "没有语言匹配"
 
-#: pkg/metrics/metrics.jsx:1112 pkg/systemd/service.jsx:152
+#: pkg/systemd/service.jsx:152 pkg/metrics/metrics.jsx:1112
 msgid "No log entries"
 msgstr "无日志条目"
 
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:112
 #: pkg/storaged/lvm2/volume-group.jsx:268
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:112
 msgid "No logical volumes"
 msgstr "没有逻辑卷"
 
@@ -5396,10 +5397,9 @@ msgstr "没有找到物理卷"
 msgid "No real name specified"
 msgstr "未指定真实姓名"
 
-#: pkg/lib/cockpit-components-typeahead-select.tsx:180
-#: pkg/lib/cockpit-components-typeahead-select.tsx:181
 #: pkg/lib/cockpit-components-multi-typeahead-select.tsx:87
-#: pkg/shell/nav.tsx:201
+#: pkg/lib/cockpit-components-typeahead-select.tsx:180
+#: pkg/lib/cockpit-components-typeahead-select.tsx:181 pkg/shell/nav.tsx:201
 msgid "No results found"
 msgstr "没有找到结果"
 
@@ -5420,14 +5420,14 @@ msgstr "找不到快照"
 msgid "No storage found"
 msgstr "没有找到存储"
 
-#: pkg/storaged/btrfs/filesystem.jsx:57 pkg/storaged/btrfs/subvolume.jsx:474
-#: pkg/storaged/btrfs/volume.jsx:220
+#: pkg/storaged/btrfs/filesystem.jsx:57 pkg/storaged/btrfs/volume.jsx:220
+#: pkg/storaged/btrfs/subvolume.jsx:474
 msgid "No subvolumes"
 msgstr "没有子卷"
 
+#: pkg/lib/credentials.ts:174
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:147
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:148
-#: pkg/lib/credentials.ts:174
 msgid "No such file or directory"
 msgstr "没有该文件或目录"
 
@@ -5447,9 +5447,9 @@ msgstr "没有更新"
 msgid "No user name specified"
 msgstr "未指定用户名"
 
-#: pkg/networkmanager/network-interface.jsx:189
+#: pkg/kdump/kdump-view.jsx:492 pkg/systemd/overview-cards/tuned-dialog.jsx:213
 #: pkg/networkmanager/firewall.jsx:867
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:213 pkg/kdump/kdump-view.jsx:492
+#: pkg/networkmanager/network-interface.jsx:189
 msgid "None"
 msgstr "无"
 
@@ -5465,7 +5465,7 @@ msgstr "无权禁用防火墙"
 msgid "Not authorized to enable the firewall"
 msgstr "无权启用防火墙"
 
-#: pkg/packagekit/kpatch.jsx:224 pkg/networkmanager/interfaces.js:875
+#: pkg/networkmanager/interfaces.js:875 pkg/packagekit/kpatch.jsx:224
 msgid "Not available"
 msgstr "不可用"
 
@@ -5481,7 +5481,7 @@ msgstr "没有连接到 Insights"
 msgid "Not connected to host"
 msgstr "没有连接到主机"
 
-#: pkg/storaged/stratis/filesystem.jsx:152 pkg/storaged/stratis/pool.jsx:603
+#: pkg/storaged/stratis/pool.jsx:603 pkg/storaged/stratis/filesystem.jsx:152
 #: pkg/storaged/lvm2/physical-volume.jsx:67
 msgid "Not enough free space"
 msgstr "没有足够的可用空间"
@@ -5494,8 +5494,8 @@ msgstr "没有足够空间"
 msgid "Not enough space to grow"
 msgstr "没有足够的空间来增长"
 
-#: pkg/storaged/pages.jsx:271 pkg/storaged/pages.jsx:276
-#: pkg/systemd/services.jsx:207
+#: pkg/systemd/services.jsx:207 pkg/storaged/pages.jsx:271
+#: pkg/storaged/pages.jsx:276
 msgid "Not found"
 msgstr "未找到"
 
@@ -5531,9 +5531,9 @@ msgstr "未就绪"
 msgid "Not registered"
 msgstr "没有注册"
 
-#: pkg/storaged/mdraid/mdraid.jsx:290 pkg/systemd/service-details.jsx:541
 #: pkg/systemd/services.jsx:219 pkg/systemd/services.jsx:222
-#: pkg/systemd/services.jsx:690
+#: pkg/systemd/services.jsx:690 pkg/systemd/service-details.jsx:541
+#: pkg/storaged/mdraid/mdraid.jsx:290
 msgid "Not running"
 msgstr "未运行"
 
@@ -5641,11 +5641,12 @@ msgstr "在防火墙中打开 pmproxy 服务以共享指标。"
 msgid "Operation '$operation' on $target"
 msgstr "对 $target 的操作 '$operation'"
 
-#: pkg/networkmanager/bridge.jsx:89 pkg/storaged/stratis/filesystem.jsx:193
+#: pkg/sosreport/sosreport.jsx:317 pkg/users/account-details.js:255
 #: pkg/storaged/stratis/create-dialog.jsx:88
+#: pkg/storaged/stratis/filesystem.jsx:193
+#: pkg/storaged/crypto/encryption.jsx:221
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:217
-#: pkg/storaged/crypto/encryption.jsx:221 pkg/sosreport/sosreport.jsx:317
-#: pkg/users/account-details.js:255
+#: pkg/networkmanager/bridge.jsx:89
 msgid "Options"
 msgstr "选项"
 
@@ -5657,7 +5658,7 @@ msgstr "或者使用捆绑的浏览器"
 msgid "Other"
 msgstr "其他"
 
-#: pkg/users/account-create-dialog.js:117 pkg/users/account-details.js:266
+#: pkg/users/account-details.js:266 pkg/users/account-create-dialog.js:117
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -5676,7 +5677,7 @@ msgstr "出"
 msgid "Overprovisioning"
 msgstr "过度置备"
 
-#: pkg/metrics/metrics.jsx:1993 pkg/systemd/hwinfo.jsx:297
+#: pkg/systemd/hwinfo.jsx:297 pkg/metrics/metrics.jsx:1993
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "概览"
@@ -5782,10 +5783,9 @@ msgid "Passive"
 msgstr "被动"
 
 #: pkg/storaged/stratis/pool.jsx:678 pkg/storaged/stratis/pool.jsx:771
-#: pkg/storaged/stratis/pool.jsx:856 pkg/storaged/stratis/stopped-pool.jsx:114
-#: pkg/storaged/stratis/create-dialog.jsx:97
+#: pkg/storaged/stratis/pool.jsx:856 pkg/storaged/stratis/create-dialog.jsx:97
+#: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:744
-#: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/block/format-dialog.jsx:322
 #: pkg/storaged/block/format-dialog.jsx:350
@@ -5822,14 +5822,14 @@ msgstr "删除密码可能会阻止解锁 $0。"
 msgid "Passphrases do not match"
 msgstr "密码不匹配"
 
-#: pkg/static/login.html:113 pkg/networkmanager/network-interface.jsx:197
+#: pkg/static/login.html:113 pkg/users/account-details.js:283
+#: pkg/users/account-create-dialog.js:125 pkg/lib/cockpit-connect-ssh.tsx:432
+#: pkg/lib/cockpit-connect-ssh.tsx:442 pkg/lib/superuser-dialogs.tsx:176
 #: pkg/storaged/iscsi/create-dialog.jsx:20
-#: pkg/storaged/iscsi/create-dialog.jsx:126
-#: pkg/users/account-create-dialog.js:125 pkg/users/account-details.js:283
-#: pkg/lib/superuser-dialogs.tsx:176 pkg/lib/cockpit-connect-ssh.tsx:432
-#: pkg/lib/cockpit-connect-ssh.tsx:442 pkg/shell/hosts_dialog.jsx:1036
+#: pkg/storaged/iscsi/create-dialog.jsx:126 pkg/shell/hosts_dialog.jsx:1036
 #: pkg/shell/hosts_dialog.jsx:1045 pkg/shell/credentials.tsx:163
 #: pkg/shell/credentials.tsx:222 pkg/shell/credentials.tsx:309
+#: pkg/networkmanager/network-interface.jsx:197
 msgid "Password"
 msgstr "密码"
 
@@ -5971,10 +5971,10 @@ msgstr "永久的"
 msgid "Permanently delete $0 group?"
 msgstr "永久删除 $0 组？"
 
-#: pkg/storaged/stratis/pool.jsx:446 pkg/storaged/btrfs/volume.jsx:63
-#: pkg/storaged/partitions/partition.jsx:40
-#: pkg/storaged/lvm2/volume-group.jsx:81 pkg/storaged/mdraid/mdraid.jsx:116
+#: pkg/storaged/btrfs/volume.jsx:63 pkg/storaged/stratis/pool.jsx:446
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:105
+#: pkg/storaged/partitions/partition.jsx:40 pkg/storaged/mdraid/mdraid.jsx:116
+#: pkg/storaged/lvm2/volume-group.jsx:81
 msgid "Permanently delete $0?"
 msgstr "永久删除 $0？"
 
@@ -5998,14 +5998,14 @@ msgstr "持久性内存已变为只读"
 msgid "Physical"
 msgstr "物理"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:116
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:173
 #: pkg/storaged/block/resize.jsx:434
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:173
+#: pkg/storaged/lvm2/block-logical-volume.jsx:116
 msgid "Physical Volumes"
 msgstr "物理卷"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:342
 #: pkg/storaged/lvm2/volume-group.jsx:358
+#: pkg/storaged/lvm2/block-logical-volume.jsx:342
 msgid "Physical volumes"
 msgstr "物理卷"
 
@@ -6014,7 +6014,7 @@ msgid "Physical volumes can not be resized here"
 msgstr "此处无法调整物理卷的大小"
 
 #: pkg/systemd/timer-dialog.jsx:321 pkg/users/expiration-dialogs.js:34
-#: pkg/lib/serverTime.js:582 pkg/lib/cockpit-components-shutdown.jsx:194
+#: pkg/lib/cockpit-components-shutdown.jsx:194 pkg/lib/serverTime.js:582
 msgid "Pick date"
 msgstr "选择日期"
 
@@ -6100,9 +6100,8 @@ msgstr "端口"
 msgid "Portable"
 msgstr "手提"
 
-#: pkg/networkmanager/bridge.jsx:86
+#: pkg/networkmanager/bridge.jsx:86 pkg/networkmanager/team.jsx:144
 #: pkg/networkmanager/network-interface-members.jsx:192
-#: pkg/networkmanager/team.jsx:144
 msgid "Ports"
 msgstr "端口"
 
@@ -6142,12 +6141,12 @@ msgstr "易读主机名"
 msgid "Previous boot"
 msgstr "以前启动"
 
-#: pkg/networkmanager/team.jsx:159 pkg/networkmanager/bond.jsx:170
+#: pkg/networkmanager/bond.jsx:170 pkg/networkmanager/team.jsx:159
 msgid "Primary"
 msgstr "主"
 
-#: pkg/networkmanager/teamport.jsx:70 pkg/networkmanager/bridgeport.jsx:66
 #: pkg/systemd/logs.jsx:186 pkg/systemd/logs.jsx:191
+#: pkg/networkmanager/bridgeport.jsx:66 pkg/networkmanager/teamport.jsx:70
 msgid "Priority"
 msgstr "优先级"
 
@@ -6202,8 +6201,8 @@ msgstr "防止近期被安全攻击会降低互操作性。"
 msgid "Provide the passphrase for the pool on these block devices:"
 msgstr "为这些块设备上的池提供密码短语："
 
-#: pkg/networkmanager/wireguard.jsx:262 pkg/networkmanager/wireguard.jsx:325
-#: pkg/shell/credentials.tsx:304
+#: pkg/shell/credentials.tsx:304 pkg/networkmanager/wireguard.jsx:262
+#: pkg/networkmanager/wireguard.jsx:325
 msgid "Public key"
 msgstr "公钥"
 
@@ -6271,7 +6270,7 @@ msgstr "RAID 6 (双倍奇偶校验)"
 msgid "RAID chassis"
 msgstr "RAID 机箱"
 
-#: pkg/storaged/mdraid/create-dialog.jsx:37 pkg/storaged/mdraid/mdraid.jsx:289
+#: pkg/storaged/mdraid/mdraid.jsx:289 pkg/storaged/mdraid/create-dialog.jsx:37
 msgid "RAID level"
 msgstr "RAID 级别"
 
@@ -6320,7 +6319,7 @@ msgstr "读取"
 msgid "Read more"
 msgstr "读取更多"
 
-#: pkg/metrics/metrics.jsx:1446 pkg/systemd/hwinfo.jsx:196
+#: pkg/systemd/hwinfo.jsx:196 pkg/metrics/metrics.jsx:1446
 msgid "Read more..."
 msgstr "读取更多..."
 
@@ -6364,9 +6363,9 @@ msgid "Reapply and reboot"
 msgstr "重新应用并重启"
 
 #: pkg/systemd/overview.jsx:96 pkg/systemd/overview.jsx:119
-#: pkg/lib/cockpit-components-logs-panel.jsx:92
 #: pkg/lib/cockpit-components-shutdown.jsx:179
 #: pkg/lib/cockpit-components-shutdown.jsx:222
+#: pkg/lib/cockpit-components-logs-panel.jsx:92
 msgid "Reboot"
 msgstr "重启"
 
@@ -6383,9 +6382,9 @@ msgstr "推荐重新引导"
 msgid "Reboot system..."
 msgstr "重新引导系统......"
 
-#: pkg/networkmanager/network-interface-members.jsx:194
 #: pkg/networkmanager/plots.js:30 pkg/networkmanager/network-main.jsx:203
 #: pkg/networkmanager/network-main.jsx:219
+#: pkg/networkmanager/network-interface-members.jsx:194
 msgid "Receiving"
 msgstr "接收"
 
@@ -6497,17 +6496,17 @@ msgstr "删除可能会阻止解锁 $0。"
 msgid "Removals:"
 msgstr "移除："
 
-#: pkg/apps/application.jsx:51 pkg/storaged/stratis/pool.jsx:701
+#: pkg/systemd/timer-dialog.jsx:336 pkg/users/authorized-keys-panel.js:128
+#: pkg/users/authorized-keys-panel.js:136 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:728 pkg/storaged/stratis/pool.jsx:778
 #: pkg/storaged/stratis/pool.jsx:789 pkg/storaged/stratis/pool.jsx:800
 #: pkg/storaged/stratis/pool.jsx:919 pkg/storaged/stratis/pool.jsx:965
+#: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
+#: pkg/storaged/crypto/keyslots.jsx:732 pkg/storaged/nfs/nfs.jsx:301
+#: pkg/storaged/mdraid/mdraid-disk.jsx:87
 #: pkg/storaged/lvm2/volume-group.jsx:315
-#: pkg/storaged/lvm2/physical-volume.jsx:77
-#: pkg/storaged/mdraid/mdraid-disk.jsx:87 pkg/storaged/crypto/keyslots.jsx:621
-#: pkg/storaged/crypto/keyslots.jsx:656 pkg/storaged/crypto/keyslots.jsx:732
-#: pkg/storaged/nfs/nfs.jsx:301 pkg/systemd/timer-dialog.jsx:336
-#: pkg/users/authorized-keys-panel.js:128
-#: pkg/users/authorized-keys-panel.js:136 pkg/shell/hosts.tsx:250
+#: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/shell/hosts.tsx:250
+#: pkg/apps/application.jsx:51
 msgid "Remove"
 msgstr "删除"
 
@@ -6570,8 +6569,8 @@ msgstr "移除区 $0"
 msgid "Removing"
 msgstr "删除"
 
-#: pkg/storaged/crypto/keyslots.jsx:245
 #: pkg/lib/cockpit-components-install-dialog.jsx:166
+#: pkg/storaged/crypto/keyslots.jsx:245
 msgid "Removing $0"
 msgstr "正在删除 $0"
 
@@ -6610,10 +6609,11 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr "删除区将删除其中的所有服务。"
 
-#: pkg/storaged/stratis/filesystem.jsx:180 pkg/storaged/stratis/pool.jsx:474
+#: pkg/users/rename-group-dialog.jsx:54 pkg/storaged/stratis/pool.jsx:474
+#: pkg/storaged/stratis/filesystem.jsx:180
+#: pkg/storaged/lvm2/volume-group.jsx:56
 #: pkg/storaged/lvm2/block-logical-volume.jsx:39
 #: pkg/storaged/lvm2/block-logical-volume.jsx:228
-#: pkg/storaged/lvm2/volume-group.jsx:56 pkg/users/rename-group-dialog.jsx:54
 msgid "Rename"
 msgstr "重命名"
 
@@ -6812,7 +6812,7 @@ msgstr "检查加密策略"
 msgid "Reviewing logs"
 msgstr "回顾日志"
 
-#: pkg/networkmanager/team.jsx:26 pkg/networkmanager/bond.jsx:29
+#: pkg/networkmanager/bond.jsx:29 pkg/networkmanager/team.jsx:26
 msgid "Round robin"
 msgstr "轮循"
 
@@ -6862,9 +6862,9 @@ msgstr "通过一个可信网络运行这个命令，或在远程机器上运行
 msgid "Runner"
 msgstr "运行者"
 
-#: pkg/storaged/mdraid/mdraid.jsx:290 pkg/systemd/service-details.jsx:531
 #: pkg/systemd/services.jsx:217 pkg/systemd/services.jsx:221
-#: pkg/systemd/services.jsx:689
+#: pkg/systemd/services.jsx:689 pkg/systemd/service-details.jsx:531
+#: pkg/storaged/mdraid/mdraid.jsx:290
 msgid "Running"
 msgstr "正在运行"
 
@@ -6918,7 +6918,7 @@ msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "SOS 报告会收集系统信息，以帮助诊断问题。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:438 pkg/kdump/kdump-view.jsx:273
+#: pkg/kdump/kdump-view.jsx:273 pkg/lib/cockpit-connect-ssh.tsx:438
 #: pkg/shell/hosts_dialog.jsx:1041
 msgid "SSH key"
 msgstr "SSH 密钥"
@@ -6931,8 +6931,8 @@ msgstr "SSH 密钥不是路径"
 msgid "SSH key login"
 msgstr "SSH 密钥登录"
 
-#: pkg/shell/credentials.tsx:271 pkg/shell/credentials.tsx:285
-#: pkg/shell/topnav.tsx:211
+#: pkg/shell/topnav.tsx:211 pkg/shell/credentials.tsx:271
+#: pkg/shell/credentials.tsx:285
 msgid "SSH keys"
 msgstr "SSH 密钥"
 
@@ -6961,20 +6961,20 @@ msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr "Safari 用户需要导入并信任自签名 CA 证书："
 
-#: pkg/packagekit/autoupdates.jsx:413 pkg/systemd/timer-dialog.jsx:296
+#: pkg/systemd/timer-dialog.jsx:296 pkg/packagekit/autoupdates.jsx:413
 msgid "Saturdays"
 msgstr "周六"
 
-#: pkg/metrics/metrics.jsx:1487 pkg/packagekit/kpatch.jsx:297
-#: pkg/networkmanager/dialogs-common.jsx:143 pkg/storaged/stratis/pool.jsx:863
+#: pkg/systemd/timer-dialog.jsx:373 pkg/metrics/metrics.jsx:1487
+#: pkg/storaged/btrfs/volume.jsx:138 pkg/storaged/stratis/pool.jsx:863
 #: pkg/storaged/stratis/pool.jsx:892 pkg/storaged/stratis/pool.jsx:940
-#: pkg/storaged/btrfs/volume.jsx:138 pkg/storaged/partitions/partition.jsx:183
-#: pkg/storaged/crypto/keyslots.jsx:503 pkg/storaged/crypto/keyslots.jsx:522
 #: pkg/storaged/crypto/encryption.jsx:155
-#: pkg/storaged/crypto/encryption.jsx:182
+#: pkg/storaged/crypto/encryption.jsx:182 pkg/storaged/crypto/keyslots.jsx:503
+#: pkg/storaged/crypto/keyslots.jsx:522 pkg/storaged/nfs/nfs.jsx:174
+#: pkg/storaged/filesystem/mounting-dialog.jsx:344
 #: pkg/storaged/filesystem/filesystem.jsx:112
-#: pkg/storaged/filesystem/mounting-dialog.jsx:344 pkg/storaged/nfs/nfs.jsx:174
-#: pkg/systemd/timer-dialog.jsx:373
+#: pkg/storaged/partitions/partition.jsx:183
+#: pkg/networkmanager/dialogs-common.jsx:143 pkg/packagekit/kpatch.jsx:297
 msgid "Save"
 msgstr "保存"
 
@@ -6982,8 +6982,8 @@ msgstr "保存"
 msgid "Save and reboot"
 msgstr "保存并重启"
 
+#: pkg/kdump/kdump-view.jsx:307 pkg/systemd/overview-cards/motdCard.jsx:59
 #: pkg/packagekit/autoupdates.jsx:436
-#: pkg/systemd/overview-cards/motdCard.jsx:59 pkg/kdump/kdump-view.jsx:307
 msgid "Save changes"
 msgstr "保存更改"
 
@@ -7088,9 +7088,9 @@ msgstr "选择应该用来修复逻辑卷的物理卷。最少需要 $0。"
 msgid "Self-test status"
 msgstr "自检状态"
 
-#: pkg/networkmanager/network-interface-members.jsx:193
 #: pkg/networkmanager/network-main.jsx:202
 #: pkg/networkmanager/network-main.jsx:218
+#: pkg/networkmanager/network-interface-members.jsx:193
 msgid "Sending"
 msgstr "发送"
 
@@ -7098,9 +7098,9 @@ msgstr "发送"
 msgid "Serial number"
 msgstr "序列号"
 
-#: pkg/static/login.html:173 pkg/networkmanager/ip-settings.jsx:312
-#: pkg/storaged/nfs/nfs.jsx:314 pkg/kdump/kdump-view.jsx:243
-#: pkg/kdump/kdump-view.jsx:267
+#: pkg/static/login.html:173 pkg/kdump/kdump-view.jsx:243
+#: pkg/kdump/kdump-view.jsx:267 pkg/storaged/nfs/nfs.jsx:314
+#: pkg/networkmanager/ip-settings.jsx:312
 msgid "Server"
 msgstr "服务器"
 
@@ -7131,7 +7131,7 @@ msgstr "服务器软件"
 #: pkg/metrics/metrics.jsx:762 pkg/metrics/metrics.jsx:763
 #: pkg/metrics/metrics.jsx:818 pkg/metrics/metrics.jsx:856
 #: pkg/metrics/metrics.jsx:916 pkg/metrics/metrics.jsx:922
-#: pkg/networkmanager/firewall.jsx:177 pkg/storaged/dialog.jsx:1502
+#: pkg/storaged/dialog.jsx:1502 pkg/networkmanager/firewall.jsx:177
 msgid "Service"
 msgstr "服务"
 
@@ -7143,8 +7143,8 @@ msgstr "服务有一个错误"
 msgid "Service logs"
 msgstr "服务日志"
 
-#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:636
-#: pkg/systemd/service-tabs.jsx:27 pkg/systemd/service.jsx:137
+#: pkg/systemd/services.html:4 pkg/systemd/service-tabs.jsx:27
+#: pkg/systemd/service.jsx:137 pkg/networkmanager/firewall.jsx:636
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "服务"
@@ -7181,8 +7181,8 @@ msgstr "设置虚拟文件系统大小的限制"
 msgid "Set partition type of $0"
 msgstr "设置分区类型 $0"
 
-#: pkg/users/password-dialogs.js:212 pkg/users/password-dialogs.js:219
-#: pkg/users/account-details.js:288
+#: pkg/users/account-details.js:288 pkg/users/password-dialogs.js:212
+#: pkg/users/password-dialogs.js:219
 msgid "Set password"
 msgstr "设置密码"
 
@@ -7227,7 +7227,7 @@ msgstr "严重性"
 msgid "Shared"
 msgstr "共享"
 
-#: pkg/users/account-create-dialog.js:79 pkg/users/account-details.js:316
+#: pkg/users/account-details.js:316 pkg/users/account-create-dialog.js:79
 msgid "Shell"
 msgstr "Shell"
 
@@ -7279,9 +7279,8 @@ msgstr "显示密码"
 msgid "Show relationships"
 msgstr "显示关系"
 
-#: pkg/storaged/partitions/partition.jsx:87
+#: pkg/storaged/partitions/partition.jsx:87 pkg/storaged/block/resize.jsx:637
 #: pkg/storaged/lvm2/block-logical-volume.jsx:191
-#: pkg/storaged/block/resize.jsx:637
 msgid "Shrink"
 msgstr "缩小"
 
@@ -7322,15 +7321,16 @@ msgstr "自从"
 msgid "Single rank"
 msgstr "单 rank"
 
-#: pkg/storaged/pages.jsx:715 pkg/storaged/partitions/partition.jsx:221
+#: pkg/systemd/hwinfo.jsx:281 pkg/storaged/nfs/nfs.jsx:316
+#: pkg/storaged/partitions/partition.jsx:221
+#: pkg/storaged/block/format-dialog.jsx:301 pkg/storaged/block/resize.jsx:446
+#: pkg/storaged/block/resize.jsx:583
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:35
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:128
-#: pkg/storaged/lvm2/block-logical-volume.jsx:277
+#: pkg/storaged/lvm2/vdo-pool.jsx:65
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:193
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:200
-#: pkg/storaged/lvm2/vdo-pool.jsx:65 pkg/storaged/nfs/nfs.jsx:316
-#: pkg/storaged/block/resize.jsx:446 pkg/storaged/block/resize.jsx:583
-#: pkg/storaged/block/format-dialog.jsx:301 pkg/systemd/hwinfo.jsx:281
+#: pkg/storaged/lvm2/block-logical-volume.jsx:277 pkg/storaged/pages.jsx:715
 msgid "Size"
 msgstr "大小"
 
@@ -7348,7 +7348,7 @@ msgstr "大小太大"
 
 #: pkg/storaged/dialog.jsx:1138
 msgid "Size must be a number"
-msgstr "大小必须是一个数字"
+msgstr "大小必须是数字。"
 
 #: pkg/storaged/dialog.jsx:1146
 msgid "Size must be at least $0"
@@ -7366,8 +7366,8 @@ msgstr "跳至内容"
 msgid "Slot"
 msgstr "插槽"
 
-#: pkg/storaged/stratis/pool.jsx:810 pkg/storaged/mdraid/mdraid-disk.jsx:69
-#: pkg/storaged/crypto/keyslots.jsx:721
+#: pkg/storaged/stratis/pool.jsx:810 pkg/storaged/crypto/keyslots.jsx:721
+#: pkg/storaged/mdraid/mdraid-disk.jsx:69
 msgid "Slot $0"
 msgstr "插槽 $0"
 
@@ -7473,10 +7473,10 @@ msgstr "速度"
 msgid "Stable"
 msgstr "稳定的"
 
-#: pkg/storaged/stratis/stopped-pool.jsx:175 pkg/storaged/swap/swap.jsx:84
-#: pkg/storaged/mdraid/mdraid.jsx:213
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:136
 #: pkg/systemd/service-details.jsx:139
+#: pkg/storaged/stratis/stopped-pool.jsx:175
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:136
+#: pkg/storaged/mdraid/mdraid.jsx:213 pkg/storaged/swap/swap.jsx:84
 msgid "Start"
 msgstr "启动"
 
@@ -7488,7 +7488,7 @@ msgstr "开始并启用"
 msgid "Start multipath"
 msgstr "启用多路径"
 
-#: pkg/networkmanager/networkmanager.jsx:64 pkg/systemd/service-details.jsx:518
+#: pkg/systemd/service-details.jsx:518 pkg/networkmanager/networkmanager.jsx:64
 msgid "Start service"
 msgstr "启动服务"
 
@@ -7500,8 +7500,8 @@ msgstr "显示指定日期及以后的条目。"
 msgid "Start showing entries on or older than the specified date."
 msgstr "显示指定日期及以前的条目。"
 
-#: pkg/storaged/dialog.jsx:1485 pkg/storaged/dialog.jsx:1505
-#: pkg/users/account-logs-panel.jsx:63
+#: pkg/users/account-logs-panel.jsx:63 pkg/storaged/dialog.jsx:1485
+#: pkg/storaged/dialog.jsx:1505
 msgid "Started"
 msgstr "启动"
 
@@ -7513,18 +7513,18 @@ msgstr "启动 MDRAID 设备 $target"
 msgid "Starting swapspace $target"
 msgstr "启动交换空间 $target"
 
-#: pkg/storaged/mdraid/mdraid.jsx:290 pkg/systemd/hwinfo.jsx:281
-#: pkg/systemd/services-list.jsx:26 pkg/systemd/services-list.jsx:32
+#: pkg/systemd/hwinfo.jsx:281 pkg/systemd/services-list.jsx:26
+#: pkg/systemd/services-list.jsx:32 pkg/storaged/mdraid/mdraid.jsx:290
 msgid "State"
 msgstr "状态"
 
-#: pkg/systemd/service-details.jsx:553 pkg/systemd/services.jsx:237
-#: pkg/systemd/services.jsx:681
+#: pkg/systemd/services.jsx:237 pkg/systemd/services.jsx:681
+#: pkg/systemd/service-details.jsx:553
 msgid "Static"
 msgstr "静态"
 
-#: pkg/packagekit/updates.jsx:886 pkg/networkmanager/network-interface.jsx:468
 #: pkg/systemd/service-details.jsx:728
+#: pkg/networkmanager/network-interface.jsx:468 pkg/packagekit/updates.jsx:886
 msgid "Status"
 msgstr "状态"
 
@@ -7536,10 +7536,10 @@ msgstr "PC 棒"
 msgid "Sticky"
 msgstr "粘性的"
 
-#: pkg/storaged/swap/swap.jsx:81 pkg/storaged/mdraid/mdraid.jsx:292
+#: pkg/systemd/service-details.jsx:135
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:48
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:135
-#: pkg/systemd/service-details.jsx:135
+#: pkg/storaged/mdraid/mdraid.jsx:292 pkg/storaged/swap/swap.jsx:81
 msgid "Stop"
 msgstr "停止"
 
@@ -7612,7 +7612,7 @@ msgstr "Stratis 块设备"
 msgid "Stratis blockdevs can not be made smaller"
 msgstr "Stratis blockdevs 无法变得更小"
 
-#: pkg/storaged/stratis/filesystem.jsx:132 pkg/storaged/stratis/pool.jsx:368
+#: pkg/storaged/stratis/pool.jsx:368 pkg/storaged/stratis/filesystem.jsx:132
 msgid "Stratis filesystem"
 msgstr "Stratis 文件系统"
 
@@ -7629,13 +7629,13 @@ msgstr "Stratis 文件系统池"
 msgid "Stratis pool"
 msgstr "Stratis 池"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:246
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:65
+#: pkg/storaged/lvm2/block-logical-volume.jsx:246
 msgid "Striped (RAID 0)"
 msgstr "条带 (RAID 0)"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:248
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:75
+#: pkg/storaged/lvm2/block-logical-volume.jsx:248
 msgid "Striped and mirrored (RAID 10)"
 msgstr "条带和镜像 (RAID 10)"
 
@@ -7679,7 +7679,7 @@ msgstr "成功复制到剪贴板"
 msgid "Successfully copied to clipboard!"
 msgstr "成功复制到剪贴板！"
 
-#: pkg/packagekit/autoupdates.jsx:414 pkg/systemd/timer-dialog.jsx:297
+#: pkg/systemd/timer-dialog.jsx:297 pkg/packagekit/autoupdates.jsx:414
 msgid "Sundays"
 msgstr "周日"
 
@@ -7753,8 +7753,8 @@ msgstr "系统"
 msgid "System diagnostics"
 msgstr "系统诊断"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:92
 #: pkg/systemd/hwinfo.jsx:305
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:92
 msgid "System information"
 msgstr "系统信息"
 
@@ -8419,7 +8419,7 @@ msgid ""
 msgstr ""
 "这个区包括 cockpit 服务。请确认这个区不会应用到您当前的 web 控制台连接。"
 
-#: pkg/packagekit/autoupdates.jsx:411 pkg/systemd/timer-dialog.jsx:294
+#: pkg/systemd/timer-dialog.jsx:294 pkg/packagekit/autoupdates.jsx:411
 msgid "Thursdays"
 msgstr "周四"
 
@@ -8427,7 +8427,7 @@ msgstr "周四"
 msgid "Tier"
 msgstr "层"
 
-#: pkg/packagekit/history.jsx:96 pkg/systemd/logs.jsx:179
+#: pkg/systemd/logs.jsx:179 pkg/packagekit/history.jsx:96
 msgid "Time"
 msgstr "时间"
 
@@ -8471,7 +8471,7 @@ msgid ""
 msgstr ""
 "为了获取软件更新，该系统需要通过红帽客户门户网站或本地订阅服务器注册到红帽。"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:123 pkg/static/login.js:835
+#: pkg/static/login.js:835 pkg/lib/cockpit-connect-ssh.tsx:123
 #: pkg/shell/hosts_dialog.jsx:666
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -8489,7 +8489,7 @@ msgid "Toggle"
 msgstr "切换"
 
 #: pkg/systemd/timer-dialog.jsx:322 pkg/users/expiration-dialogs.js:35
-#: pkg/lib/serverTime.js:583 pkg/lib/cockpit-components-shutdown.jsx:195
+#: pkg/lib/cockpit-components-shutdown.jsx:195 pkg/lib/serverTime.js:583
 msgid "Toggle date picker"
 msgstr "切换日期选择器"
 
@@ -8573,7 +8573,7 @@ msgstr "重试"
 msgid "Trying to synchronize with $0"
 msgstr "正在尝试与 $0 同步"
 
-#: pkg/packagekit/autoupdates.jsx:409 pkg/systemd/timer-dialog.jsx:292
+#: pkg/systemd/timer-dialog.jsx:292 pkg/packagekit/autoupdates.jsx:409
 msgid "Tuesdays"
 msgstr "周二"
 
@@ -8606,12 +8606,12 @@ msgstr "Tuned 已关闭"
 msgid "Turn on administrative access"
 msgstr "开启管理员权限"
 
-#: pkg/packagekit/autoupdates.jsx:378 pkg/storaged/pages.jsx:713
+#: pkg/systemd/hwinfo.jsx:69 pkg/systemd/hwinfo.jsx:281
 #: pkg/storaged/partitions/partition.jsx:169
 #: pkg/storaged/partitions/partition.jsx:215
 #: pkg/storaged/block/unrecognized-data.jsx:37
-#: pkg/storaged/block/format-dialog.jsx:296 pkg/systemd/hwinfo.jsx:69
-#: pkg/systemd/hwinfo.jsx:281 pkg/shell/credentials.tsx:93
+#: pkg/storaged/block/format-dialog.jsx:296 pkg/storaged/pages.jsx:713
+#: pkg/shell/credentials.tsx:93 pkg/packagekit/autoupdates.jsx:378
 msgid "Type"
 msgstr "类型"
 
@@ -8635,11 +8635,12 @@ msgstr "输入内容来过滤"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/storaged/stratis/pool.jsx:1028 pkg/storaged/stratis/stopped-pool.jsx:187
 #: pkg/storaged/btrfs/filesystem.jsx:48 pkg/storaged/btrfs/volume.jsx:191
-#: pkg/storaged/btrfs/device.jsx:67 pkg/storaged/partitions/partition.jsx:214
+#: pkg/storaged/btrfs/device.jsx:67 pkg/storaged/stratis/pool.jsx:1028
+#: pkg/storaged/stratis/stopped-pool.jsx:187
+#: pkg/storaged/partitions/partition.jsx:214 pkg/storaged/mdraid/mdraid.jsx:294
 #: pkg/storaged/lvm2/volume-group.jsx:354
-#: pkg/storaged/lvm2/physical-volume.jsx:106 pkg/storaged/mdraid/mdraid.jsx:294
+#: pkg/storaged/lvm2/physical-volume.jsx:106
 msgid "UUID"
 msgstr "UUID"
 
@@ -8740,8 +8741,8 @@ msgstr "撤消"
 msgid "Unexpected PackageManager error during installation of $0: $1"
 msgstr "安装 $0 过程中出现意外的 PackageManager 错误：$1"
 
-#: pkg/networkmanager/interfaces.js:36 pkg/users/dialog-utils.js:51
-#: pkg/shell/shell-modals.tsx:187
+#: pkg/users/dialog-utils.js:51 pkg/shell/shell-modals.tsx:187
+#: pkg/networkmanager/interfaces.js:36
 msgid "Unexpected error"
 msgstr "意外的错误"
 
@@ -8758,17 +8759,17 @@ msgstr "未格式化的数据"
 msgid "Unit"
 msgstr "单元"
 
-#: pkg/networkmanager/network-interface.jsx:402
-#: pkg/networkmanager/network-interface.jsx:404
-#: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
-#: pkg/networkmanager/interfaces.js:1167 pkg/storaged/swap/swap.jsx:102
 #: pkg/systemd/hw-detect.js:71 pkg/systemd/hw-detect.js:80
 #: pkg/systemd/hw-detect.js:87 pkg/systemd/hw-detect.js:90
 #: pkg/systemd/hw-detect.js:97 pkg/systemd/hw-detect.js:98
 #: pkg/lib/machine-info.js:49 pkg/lib/machine-info.js:215
 #: pkg/lib/machine-info.js:223 pkg/lib/machine-info.js:225
 #: pkg/lib/machine-info.js:232 pkg/lib/machine-info.js:234
-#: pkg/lib/machine-info.js:238
+#: pkg/lib/machine-info.js:238 pkg/storaged/swap/swap.jsx:102
+#: pkg/networkmanager/network-interface.jsx:402
+#: pkg/networkmanager/network-interface.jsx:404
+#: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
+#: pkg/networkmanager/interfaces.js:1167
 msgid "Unknown"
 msgstr "未知"
 
@@ -8805,9 +8806,9 @@ msgstr "未知的服务名"
 msgid "Unknown type"
 msgstr "未知类型"
 
-#: pkg/storaged/stratis/stopped-pool.jsx:117 pkg/storaged/crypto/actions.jsx:26
-#: pkg/storaged/crypto/actions.jsx:31
+#: pkg/storaged/stratis/stopped-pool.jsx:117
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:22
+#: pkg/storaged/crypto/actions.jsx:26 pkg/storaged/crypto/actions.jsx:31
 #: pkg/shell/credentials.tsx:228
 msgid "Unlock"
 msgstr "解锁"
@@ -8841,9 +8842,9 @@ msgstr "解锁磁盘"
 msgid "Unmanaged interfaces"
 msgstr "未管理的接口"
 
-#: pkg/storaged/stratis/filesystem.jsx:146 pkg/storaged/btrfs/subvolume.jsx:344
+#: pkg/storaged/btrfs/subvolume.jsx:344 pkg/storaged/stratis/filesystem.jsx:146
+#: pkg/storaged/nfs/nfs.jsx:295 pkg/storaged/filesystem/mounting-dialog.jsx:343
 #: pkg/storaged/filesystem/filesystem.jsx:88
-#: pkg/storaged/filesystem/mounting-dialog.jsx:343 pkg/storaged/nfs/nfs.jsx:295
 msgid "Unmount"
 msgstr "卸载"
 
@@ -8956,14 +8957,14 @@ msgstr "更新状态 ..."
 msgid "Upload"
 msgstr "上传"
 
-#: pkg/metrics/metrics.jsx:1934 pkg/metrics/metrics.jsx:1935
-#: pkg/metrics/metrics.jsx:1936 pkg/metrics/metrics.jsx:1937
-#: pkg/storaged/stratis/filesystem.jsx:242 pkg/storaged/stratis/pool.jsx:1030
-#: pkg/storaged/btrfs/filesystem.jsx:50 pkg/storaged/btrfs/volume.jsx:193
-#: pkg/storaged/btrfs/device.jsx:69 pkg/storaged/lvm2/physical-volume.jsx:108
+#: pkg/systemd/overview-cards/usageCard.jsx:114 pkg/metrics/metrics.jsx:1934
+#: pkg/metrics/metrics.jsx:1935 pkg/metrics/metrics.jsx:1936
+#: pkg/metrics/metrics.jsx:1937 pkg/storaged/btrfs/filesystem.jsx:50
+#: pkg/storaged/btrfs/volume.jsx:193 pkg/storaged/btrfs/device.jsx:69
+#: pkg/storaged/stratis/pool.jsx:1030 pkg/storaged/stratis/filesystem.jsx:242
 #: pkg/storaged/filesystem/filesystem.jsx:138
 #: pkg/storaged/block/unrecognized-data.jsx:36
-#: pkg/systemd/overview-cards/usageCard.jsx:114
+#: pkg/storaged/lvm2/physical-volume.jsx:108
 msgid "Usage"
 msgstr "占用率"
 
@@ -8975,15 +8976,15 @@ msgstr "$0 的用法"
 msgid "Use"
 msgstr "使用"
 
-#: pkg/networkmanager/dialogs-common.jsx:94 pkg/storaged/dialog.jsx:702
+#: pkg/storaged/dialog.jsx:702 pkg/networkmanager/dialogs-common.jsx:94
 msgid "Use $0"
 msgstr "使用 $0"
 
-#: pkg/storaged/lvm2/vdo-pool.jsx:71 pkg/storaged/legacy-vdo/legacy-vdo.jsx:314
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:314 pkg/storaged/lvm2/vdo-pool.jsx:71
 msgid "Use compression"
 msgstr "使用压缩"
 
-#: pkg/storaged/lvm2/vdo-pool.jsx:75 pkg/storaged/legacy-vdo/legacy-vdo.jsx:323
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:323 pkg/storaged/lvm2/vdo-pool.jsx:75
 msgid "Use deduplication"
 msgstr "使用 deduplication"
 
@@ -9013,7 +9014,7 @@ msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr "对于可选或需要交互的挂载（如密码短语）很有用"
 
-#: pkg/storaged/dialog.jsx:1484 pkg/systemd/services.jsx:915
+#: pkg/systemd/services.jsx:915 pkg/storaged/dialog.jsx:1484
 msgid "User"
 msgstr "用户"
 
@@ -9037,8 +9038,8 @@ msgstr "用户 ID 不得大于 $0"
 msgid "User ID must not be lower than $0"
 msgstr "用户 ID 不得小于 $0"
 
-#: pkg/static/login.html:108 pkg/users/account-create-dialog.js:62
-#: pkg/users/account-details.js:248 pkg/shell/hosts_dialog.jsx:449
+#: pkg/static/login.html:108 pkg/users/account-details.js:248
+#: pkg/users/account-create-dialog.js:62 pkg/shell/hosts_dialog.jsx:449
 msgid "User name"
 msgstr "用户名"
 
@@ -9046,8 +9047,8 @@ msgstr "用户名"
 msgid "User name cannot be empty"
 msgstr "用户名不能为空"
 
-#: pkg/storaged/iscsi/create-dialog.jsx:19
-#: pkg/storaged/iscsi/create-dialog.jsx:124 pkg/users/accounts-list.js:355
+#: pkg/users/accounts-list.js:355 pkg/storaged/iscsi/create-dialog.jsx:19
+#: pkg/storaged/iscsi/create-dialog.jsx:124
 msgid "Username"
 msgstr "用户名"
 
@@ -9089,7 +9090,7 @@ msgstr "验证地址"
 msgid "Validating authentication token"
 msgstr "正在校验验证口令"
 
-#: pkg/storaged/drive/drive.jsx:108 pkg/systemd/hwinfo.jsx:268
+#: pkg/systemd/hwinfo.jsx:268 pkg/storaged/drive/drive.jsx:108
 msgid "Vendor"
 msgstr "厂商"
 
@@ -9109,7 +9110,7 @@ msgstr "验证密钥"
 msgid "Verifying"
 msgstr "正在验证"
 
-#: pkg/packagekit/updates.jsx:417 pkg/systemd/hwinfo.jsx:79
+#: pkg/systemd/hwinfo.jsx:79 pkg/packagekit/updates.jsx:417
 msgid "Version"
 msgstr "版本"
 
@@ -9137,8 +9138,8 @@ msgstr "查看所有日志"
 msgid "View all services"
 msgstr "查看所有服务"
 
-#: pkg/lib/cockpit-components-modifications.jsx:149
 #: pkg/kdump/kdump-view.jsx:530
+#: pkg/lib/cockpit-components-modifications.jsx:149
 msgid "View automation script"
 msgstr "查看自动化脚本"
 
@@ -9154,8 +9155,8 @@ msgstr "查看硬件详细信息"
 msgid "View login history"
 msgstr "查看登录历史记录"
 
-#: pkg/storaged/stratis/pool.jsx:643
 #: pkg/systemd/overview-cards/uncleanShutdownStatus.jsx:72
+#: pkg/storaged/stratis/pool.jsx:643
 msgid "View logs"
 msgstr "查看日志"
 
@@ -9233,9 +9234,9 @@ msgstr "等待详情..."
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr "正在等待其他程序来结束使用软件包管理器..."
 
-#: pkg/storaged/crypto/keyslots.jsx:239
 #: pkg/lib/cockpit-components-install-dialog.jsx:129
 #: pkg/lib/cockpit-components-install-dialog.jsx:160
+#: pkg/storaged/crypto/keyslots.jsx:239
 msgid "Waiting for other software management operations to finish"
 msgstr "等待其他软件管理操作完成"
 
@@ -9275,7 +9276,7 @@ msgstr "Web 控制台正运行于限制访问模式。"
 msgid "Web console logo"
 msgstr "Web 控制台徽标"
 
-#: pkg/packagekit/autoupdates.jsx:410 pkg/systemd/timer-dialog.jsx:293
+#: pkg/systemd/timer-dialog.jsx:293 pkg/packagekit/autoupdates.jsx:410
 msgid "Wednesdays"
 msgstr "周三"
 
@@ -9349,7 +9350,7 @@ msgstr "每年"
 msgid "Yes"
 msgstr "是"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:134 pkg/static/login.js:832
+#: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:134
 #: pkg/shell/hosts_dialog.jsx:677
 msgid "You are connecting to $0 for the first time."
 msgstr "您第一次连接到 $0。"
@@ -9522,8 +9523,8 @@ msgstr "btrfs 子卷"
 msgid "btrfs subvolume $0 of $1"
 msgstr "btrfs 子卷 $0（共 $1）"
 
-#: pkg/storaged/btrfs/filesystem.jsx:58 pkg/storaged/btrfs/subvolume.jsx:475
-#: pkg/storaged/btrfs/volume.jsx:209 pkg/storaged/btrfs/volume.jsx:221
+#: pkg/storaged/btrfs/filesystem.jsx:58 pkg/storaged/btrfs/volume.jsx:209
+#: pkg/storaged/btrfs/volume.jsx:221 pkg/storaged/btrfs/subvolume.jsx:475
 msgid "btrfs subvolumes"
 msgstr "btrfs 子卷"
 
@@ -9592,14 +9593,14 @@ msgstr "取消激活"
 msgid "debug"
 msgstr "故障调试"
 
-#: pkg/storaged/stratis/filesystem.jsx:98 pkg/storaged/stratis/pool.jsx:434
-#: pkg/storaged/btrfs/subvolume.jsx:221 pkg/storaged/btrfs/volume.jsx:52
+#: pkg/storaged/btrfs/volume.jsx:52 pkg/storaged/btrfs/subvolume.jsx:221
+#: pkg/storaged/stratis/pool.jsx:434 pkg/storaged/stratis/filesystem.jsx:98
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:66
 #: pkg/storaged/partitions/format-disk-dialog.jsx:21
-#: pkg/storaged/partitions/partition.jsx:29
-#: pkg/storaged/lvm2/block-logical-volume.jsx:50
-#: pkg/storaged/lvm2/volume-group.jsx:69 pkg/storaged/lvm2/volume-group.jsx:297
-#: pkg/storaged/mdraid/mdraid.jsx:105 pkg/storaged/legacy-vdo/legacy-vdo.jsx:66
+#: pkg/storaged/partitions/partition.jsx:29 pkg/storaged/mdraid/mdraid.jsx:105
 #: pkg/storaged/block/format-dialog.jsx:194
+#: pkg/storaged/lvm2/volume-group.jsx:69 pkg/storaged/lvm2/volume-group.jsx:297
+#: pkg/storaged/lvm2/block-logical-volume.jsx:50
 msgid "delete"
 msgstr "删除"
 
@@ -9635,20 +9636,20 @@ msgstr "域"
 msgid "drive"
 msgstr "驱动"
 
-#: pkg/networkmanager/network-interface.jsx:553
-#: pkg/networkmanager/dialogs-common.jsx:242
-#: pkg/storaged/stratis/filesystem.jsx:236
-#: pkg/storaged/stratis/filesystem.jsx:251 pkg/storaged/stratis/pool.jsx:1026
-#: pkg/storaged/btrfs/volume.jsx:178 pkg/storaged/partitions/partition.jsx:218
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:126
-#: pkg/storaged/lvm2/block-logical-volume.jsx:274
-#: pkg/storaged/lvm2/volume-group.jsx:352
-#: pkg/storaged/crypto/encryption.jsx:220
-#: pkg/storaged/crypto/encryption.jsx:223
-#: pkg/storaged/filesystem/filesystem.jsx:131
-#: pkg/storaged/filesystem/utils.jsx:207
 #: pkg/systemd/overview-cards/configurationCard.jsx:43
 #: pkg/users/account-details.js:278 pkg/users/account-details.js:308
+#: pkg/storaged/btrfs/volume.jsx:178 pkg/storaged/stratis/pool.jsx:1026
+#: pkg/storaged/stratis/filesystem.jsx:236
+#: pkg/storaged/stratis/filesystem.jsx:251
+#: pkg/storaged/crypto/encryption.jsx:220
+#: pkg/storaged/crypto/encryption.jsx:223 pkg/storaged/filesystem/utils.jsx:207
+#: pkg/storaged/filesystem/filesystem.jsx:131
+#: pkg/storaged/partitions/partition.jsx:218
+#: pkg/storaged/lvm2/volume-group.jsx:352
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:126
+#: pkg/storaged/lvm2/block-logical-volume.jsx:274
+#: pkg/networkmanager/dialogs-common.jsx:242
+#: pkg/networkmanager/network-interface.jsx:553
 msgid "edit"
 msgstr "编辑"
 
@@ -9930,7 +9931,7 @@ msgstr "挂载"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
 msgid "network"
 msgstr "网络"
 
@@ -9958,10 +9959,10 @@ msgstr "nfs 服务器不是有效的 IPv6"
 msgid "nice"
 msgstr "良好"
 
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:72
 #: pkg/storaged/stratis/filesystem.jsx:249
 #: pkg/storaged/crypto/encryption.jsx:219
 #: pkg/storaged/crypto/encryption.jsx:222
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:72
 msgid "none"
 msgstr "空"
 
@@ -10172,7 +10173,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "sos 报告失败"
 
-#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -10184,7 +10185,7 @@ msgstr "ssh 密钥不是一个路径"
 msgid "ssh server is empty"
 msgstr "ssh 服务器为空"
 
-#: pkg/storaged/mdraid/mdraid.jsx:45 pkg/storaged/legacy-vdo/legacy-vdo.jsx:32
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:32 pkg/storaged/mdraid/mdraid.jsx:45
 #: pkg/storaged/utils.js:877
 msgid "stop"
 msgstr "停止"
@@ -10245,8 +10246,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "单元"
 
-#: pkg/systemd/hw-detect.js:115 pkg/systemd/services.jsx:541
-#: pkg/systemd/services.jsx:551
+#: pkg/systemd/services.jsx:541 pkg/systemd/services.jsx:551
+#: pkg/systemd/hw-detect.js:115
 msgid "unknown"
 msgstr "未知"
 

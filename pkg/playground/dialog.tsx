@@ -542,8 +542,10 @@ interface AsyncExampleValues {
 
 const AsyncExampleDialog = ({
     throwError = 0,
+    cancelCallback = null,
 } : {
     throwError?: number,
+    cancelCallback?: null | (() => void),
 }) => {
     const Dialogs = useDialogs();
 
@@ -568,6 +570,10 @@ const AsyncExampleDialog = ({
     const dlg = useDialogState_async(init, validate);
 
     async function apply() {
+        cockpit.assert(dlg instanceof DialogState);
+
+        dlg.set_cancel(cancelCallback);
+
         await async_sleep(1000);
         Dialogs.close();
     }
@@ -619,6 +625,7 @@ const AsyncExampleDialog = ({
 
 const SimpleExampleButtons = () => {
     const Dialogs = useDialogs();
+    const [cancelled, setCancelled] = useState(false);
 
     return (
         <>
@@ -630,10 +637,18 @@ const SimpleExampleButtons = () => {
             </Button>
             <Button
                 id="open-async"
-                onClick={() => Dialogs.show(<AsyncExampleDialog />)}
+                onClick={
+                    () => {
+                        setCancelled(false);
+                        Dialogs.show(<AsyncExampleDialog cancelCallback={() => setCancelled(true)} />);
+                    }
+                }
             >
                 Open async dialog
             </Button>
+            <div id="cancelled">
+                Cancelled: {cancelled ? "yes" : "no"}
+            </div>
             <Button
                 id="open-error"
                 onClick={() => Dialogs.show(<AsyncExampleDialog throwError={1} />)}

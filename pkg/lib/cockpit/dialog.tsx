@@ -349,6 +349,13 @@
      if (dlg.run_action(...))
        dlg.field("xxx").set(...)
 
+   - dlg.cancel(onClose)
+
+   Does whatever should happen when the "Cancel" button is
+   clicked. When an action is running, it will call the "cancel
+   function" (see below).  Otherwise all validation and update tasks
+   are cancelled and the dialog is closed by calling "onClose".
+
    - dlg.set_cancel(func)
 
    Arranges for "func" to be called when the cancel button is clicked.
@@ -921,7 +928,6 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     busy: boolean = false;
     actions_disabled: boolean = false;
     cancel_disabled: boolean = false;
-    cancel_function: (() => void) | null = null;
 
     error: unknown = null;
 
@@ -929,6 +935,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     #online_validation: boolean = false;
     #action_running: boolean = false;
     #block_updates: boolean = false;
+    #cancel_function: (() => void) | null = null;
 
     #top_state: DialogFieldState;
 
@@ -958,7 +965,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     #update() {
         this.busy = this.#action_running;
         this.actions_disabled = this.#action_running || this.#validation_failed;
-        this.cancel_disabled = this.#action_running && !this.cancel_function;
+        this.cancel_disabled = this.#action_running && !this.#cancel_function;
         this.emit("changed");
     }
 
@@ -1296,13 +1303,13 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     }
 
     set_cancel(cancel: (() => void) | null) {
-        this.cancel_function = cancel;
+        this.#cancel_function = cancel;
         this.#update();
     }
 
     async run_action(func: (vals: V) => Promise<void>): Promise<boolean> {
         this.error = null;
-        this.cancel_function = null;
+        this.#cancel_function = null;
         this.#action_running = true;
         this.#update();
         if (!await this.validate()) {
@@ -1319,12 +1326,22 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             this.error = ex;
         }
 
-        this.cancel_function = null;
+        this.#cancel_function = null;
         this.#action_running = false;
         this.#block_updates = false;
         this.#update();
 
         return !this.error;
+    }
+
+    cancel(onClose: () => void): void {
+        if (this.#action_running) {
+            if (this.#cancel_function)
+                this.#cancel_function();
+        } else {
+            this._abort_state_tasks(this.#top_state);
+            onClose();
+        }
     }
 
     top(update_func?: ((val: V) => void) | undefined): DialogField<V> {
@@ -1498,8 +1515,8 @@ export function DialogCancelButton<V>({
             isDisabled={!dialog || (dialog instanceof DialogState && dialog.cancel_disabled)}
             variant="link"
             onClick={() => {
-                if (dialog instanceof DialogState && dialog.cancel_function)
-                    dialog.cancel_function();
+                if (dialog instanceof DialogState)
+                    dialog.cancel(onClose);
                 else
                     onClose();
             }}

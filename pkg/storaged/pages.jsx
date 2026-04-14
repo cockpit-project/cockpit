@@ -776,11 +776,13 @@ const StorageBreadcrumb = ({ page }) => {
     const parent_crumbs = [];
     let pp = page.parent;
     while (pp) {
-        parent_crumbs.unshift(
-            <BreadcrumbItem key={pp.name} to={"#" + cockpit.location.encode(pp.location)}>
-                {page_display_name(pp)}
-            </BreadcrumbItem>
-        );
+        if (pp.location) {
+            parent_crumbs.unshift(
+                <BreadcrumbItem key={pp.name} to={"#" + cockpit.location.encode(pp.location)}>
+                    {page_display_name(pp)}
+                </BreadcrumbItem>
+            );
+        }
         pp = pp.parent;
     }
 

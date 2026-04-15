@@ -18,7 +18,7 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { CheckIcon, ExclamationCircleIcon, InProgressIcon } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";
-import { Privileged } from "cockpit-components-privileged.jsx";
+import { Privileged } from "cockpit-components-privileged";
 import { superuser } from "superuser";
 import { useEvent } from "hooks.js";
 import { FormHelper } from "cockpit-components-form-helper";

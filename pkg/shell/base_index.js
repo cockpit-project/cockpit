@@ -533,15 +533,15 @@ function Index() {
     /* Session timing out after inactivity */
     let session_final_timer = null;
     let session_timeout = 0;
-    let current_idle_time = 0;
-    let final_countdown = 30000; // last 30 seconds
+    let idle_start_time;
+    const final_countdown = 30000; // last 30 seconds
     let title = "";
     const standard_login = window.localStorage['standard-login'];
 
     self.has_oops = false;
 
     function sessionTimeout() {
-        current_idle_time += 5000;
+        const current_idle_time = Date.now() - idle_start_time;
         if (!session_final_timer && current_idle_time >= session_timeout - final_countdown) {
             title = document.title;
             sessionFinalTimeout();
@@ -550,8 +550,7 @@ function Index() {
 
     let session_timeout_dialog_root = null;
 
-    function updateFinalCountdown() {
-        const remaining_secs = Math.floor(final_countdown / 1000);
+    function updateFinalCountdown(remaining_secs) {
         const timeout_text = cockpit.format(_("You will be logged out in $0 seconds."), remaining_secs);
         document.title = "(" + remaining_secs + ") " + title;
         if (!session_timeout_dialog_root)
@@ -564,16 +563,15 @@ function Index() {
                 resetTimer();
                 session_timeout_dialog_root.unmount();
                 session_timeout_dialog_root = null;
-                final_countdown = 30000;
             },
             text: timeout_text,
         }));
     }
 
     function sessionFinalTimeout() {
-        final_countdown -= 1000;
-        if (final_countdown > 0) {
-            updateFinalCountdown();
+        const remaining_secs = Math.floor((idle_start_time + session_timeout - Date.now()) / 1000);
+        if (remaining_secs > 0) {
+            updateFinalCountdown(remaining_secs);
             session_final_timer = window.setTimeout(sessionFinalTimeout, 1000);
         } else {
             cockpit.logout(true, _("You have been logged out due to inactivity."));
@@ -583,7 +581,7 @@ function Index() {
     /* Auto-logout idle timer */
     function resetTimer(ev) {
         if (!session_final_timer) {
-            current_idle_time = 0;
+            idle_start_time = Date.now();
         }
     }
 
@@ -600,6 +598,7 @@ function Index() {
                 session_timeout = result[0] * 60000;
                 if (session_timeout > 0 && standard_login) {
                     setupIdleResetTimers(window);
+                    idle_start_time = Date.now();
                     window.setInterval(sessionTimeout, 5000);
                 }
             })

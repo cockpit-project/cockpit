@@ -34,7 +34,7 @@ import {
 
 import { KebabDropdown } from "cockpit-components-dropdown";
 import { ListingTable } from "cockpit-components-table.jsx";
-import { Privileged } from "cockpit-components-privileged.jsx";
+import { Privileged } from "cockpit-components-privileged";
 import { distanceToNow } from "timeformat";
 import { fmt_to_fragments } from 'utils.jsx';
 import { useDialogs } from "dialogs.jsx";

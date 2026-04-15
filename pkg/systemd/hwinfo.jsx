@@ -37,7 +37,7 @@ import kernelopt_sh from "kernelopt.sh";
 import detect from "./hw-detect.js";
 
 import { superuser } from "superuser";
-import { PrivilegedButton } from "cockpit-components-privileged.jsx";
+import { PrivilegedButton } from "cockpit-components-privileged";
 import { useInit } from "hooks";
 
 import "./hwinfo.scss";

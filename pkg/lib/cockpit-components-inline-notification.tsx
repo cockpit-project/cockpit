@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import { Alert, AlertActionCloseButton, AlertProps } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
@@ -44,15 +43,6 @@ export const InlineNotification = ({ text, detail, type = "danger", onDismiss, i
             {isDetail && (<p>{detail}</p>)}
         </Alert>
     );
-};
-
-InlineNotification.propTypes = {
-    onDismiss: PropTypes.func,
-    isInline: PropTypes.bool,
-    text: PropTypes.string.isRequired, // main information to render
-    detail: PropTypes.string, // optional, more detailed information. If empty, the more/less button is not rendered.
-    type: PropTypes.string,
-    isLiveRegion: PropTypes.bool,
 };
 
 export const ModalError = ({ dialogError, dialogErrorDetail, id, isExpandable }: {

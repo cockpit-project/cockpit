@@ -4,7 +4,6 @@
  */
 
 import React, { useState } from 'react';
-import PropTypes from "prop-types";
 
 import { MenuToggle } from "@patternfly/react-core/dist/esm/components/MenuToggle";
 import { Dropdown, DropdownList, DropdownPopperProps } from "@patternfly/react-core/dist/esm/components/Dropdown";
@@ -57,13 +56,4 @@ export const KebabDropdown = ({ dropdownItems, position = "end", isDisabled = fa
             </DropdownList>
         </Dropdown>
     );
-};
-
-KebabDropdown.propTypes = {
-    dropdownItems: PropTypes.array.isRequired,
-    isDisabled: PropTypes.bool,
-    toggleButtonId: PropTypes.string,
-    position: PropTypes.oneOf(['right', 'left', 'center', 'start', 'end']),
-    isOpen: PropTypes.bool,
-    setIsOpen: PropTypes.func,
 };

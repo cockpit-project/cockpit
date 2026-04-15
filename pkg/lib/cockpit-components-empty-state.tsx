@@ -4,7 +4,6 @@
  */
 
 import React from "react";
-import PropTypes from 'prop-types';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import type { ButtonProps } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import {
@@ -59,16 +58,4 @@ export const EmptyStatePanel = ({
                 </EmptyStateFooter>}
         </EmptyState>
     );
-};
-
-EmptyStatePanel.propTypes = {
-    loading: PropTypes.bool,
-    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.func]),
-    title: PropTypes.string,
-    paragraph: PropTypes.node,
-    action: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
-    actionVariant: PropTypes.string,
-    isActionInProgress: PropTypes.bool,
-    onAction: PropTypes.func,
-    secondary: PropTypes.node,
 };

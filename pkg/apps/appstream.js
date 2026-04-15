@@ -21,7 +21,7 @@ export function get_metainfo_db() {
         });
 
         let buf = "";
-        python.spawn([inotify_py, watch_appstream_py], [],
+        python.spawn([inotify_py, watch_appstream_py], ["list"],
                      { environ: ["LANGUAGE=" + (cockpit.language || "en")], superuser: "try" })
                 .stream(function (data) {
                     buf += data;
@@ -29,6 +29,7 @@ export function get_metainfo_db() {
                     buf = lines[lines.length - 1];
                     if (lines.length >= 2) {
                         const metadata = JSON.parse(lines[lines.length - 2]);
+                        console.log(metadata);
                         metainfo_db.components = metadata.components;
                         metainfo_db.origin_files = metadata.origin_files;
                         metainfo_db.ready = true;
@@ -38,6 +39,5 @@ export function get_metainfo_db() {
                 })
                 .catch(error => console.warn("watch-appstream.py failed:", error));
     }
-
     return metainfo_db;
 }

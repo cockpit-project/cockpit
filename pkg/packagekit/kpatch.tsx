@@ -4,7 +4,6 @@
  */
 
 import React from "react";
-import PropTypes from "prop-types";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -26,12 +25,39 @@ import cockpit from "cockpit";
 import { proxy as serviceProxy } from "service";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { getPackageManager } from "packagemanager";
+import type { PackageManager } from "_internal/packagemanager-abstract";
 
 const _ = cockpit.gettext;
 
-export class KpatchSettings extends React.Component {
-    constructor() {
-        super();
+type ServiceProxy = ReturnType<typeof serviceProxy> & cockpit.EventSource<{ changed(): void }>;
+
+interface KpatchSettingsProps {
+    privileged?: boolean;
+}
+
+interface KpatchSettingsState {
+    loaded: boolean;
+    auto: boolean | null;
+    enabled: boolean | null;
+    missing: string[];
+    unavailable: string[];
+    error: string;
+    updating: boolean;
+    showModal: boolean;
+    applyCheckbox: boolean;
+    justCurrent: boolean | null;
+    kernelName: string;
+    patchName: string | null;
+    patchInstalled: boolean | null;
+    patchUnavailable: boolean | null;
+    packageManager: PackageManager | null;
+}
+
+export class KpatchSettings extends React.Component<KpatchSettingsProps, KpatchSettingsState> {
+    kpatchService: ServiceProxy;
+
+    constructor(props: KpatchSettingsProps) {
+        super(props);
 
         this.state = {
             loaded: false,
@@ -55,7 +81,7 @@ export class KpatchSettings extends React.Component {
             packageManager: null,
         };
 
-        this.kpatchService = serviceProxy("kpatch");
+        this.kpatchService = serviceProxy("kpatch") as ServiceProxy;
 
         this.checkSetup = this.checkSetup.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -64,7 +90,7 @@ export class KpatchSettings extends React.Component {
     }
 
     // Only current patches or also future ones
-    current(enabled, installed, unavailable) {
+    current(enabled: boolean | null, installed: boolean | null, unavailable: boolean | null) {
         return enabled && (installed || unavailable);
     }
 
@@ -75,7 +101,7 @@ export class KpatchSettings extends React.Component {
                 return ({
                     enabled: this.kpatchService.enabled,
                     justCurrent: current && !state.auto,
-                    applyCheckbox: current,
+                    applyCheckbox: !!current,
                 });
             });
         });
@@ -92,7 +118,7 @@ export class KpatchSettings extends React.Component {
                         })
                     )
                 )
-                .catch(e => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
+                .catch((e: cockpit.BasicError) => console.log("Could not determine kpatch availability:", JSON.stringify(e)));
     }
 
     checkSetup() {
@@ -106,7 +132,7 @@ export class KpatchSettings extends React.Component {
                             return ({
                                 auto: !!auto,
                                 justCurrent: current && !auto,
-                                applyCheckbox: current,
+                                applyCheckbox: !!current,
                             });
                         });
                     }
@@ -124,6 +150,7 @@ export class KpatchSettings extends React.Component {
                     release = release.slice(0, release.length - 2); // remove el8.x86_64
                     const kpp_kernel_release = release.join("_");
                     const patch_name = ["kpatch-patch", kpp_kernel_version, kpp_kernel_release].join("-");
+                    cockpit.assert(this.state.packageManager, "packageManager not initialised");
                     return this.state.packageManager.check_missing_packages([patch_name])
                             .then(d =>
                                 this.setState((state, _) => {
@@ -136,7 +163,7 @@ export class KpatchSettings extends React.Component {
                                         patchInstalled: installed,
                                         patchUnavailable: unavailable,
                                         justCurrent: current && !state.auto,
-                                        applyCheckbox: current,
+                                        applyCheckbox: !!current,
                                     });
                                 })
                             );
@@ -158,7 +185,7 @@ export class KpatchSettings extends React.Component {
             const current = this.current(state.enabled, state.patchInstalled, state.patchUnavailable);
             return ({
                 justCurrent: current && !state.auto,
-                applyCheckbox: current,
+                applyCheckbox: !!current,
                 showModal: false,
                 error: "",
             });
@@ -171,12 +198,12 @@ export class KpatchSettings extends React.Component {
         if (this.state.applyCheckbox) {
             let install;
             if (this.state.justCurrent) {
-                install = new Promise((resolve, reject) => {
+                install = new Promise<void>((resolve, reject) => {
                     cockpit.spawn(["dnf", "-y", "kpatch", "manual"], { superuser: "require", err: "message" })
                             .then(() => {
                                 if (!this.state.patchUnavailable && !this.state.patchInstalled)
                                     // TODO - replace with `dnf kpatch install` once https://github.com/dynup/kpatch-dnf/pull/8 lands
-                                    cockpit.spawn(["dnf", "-y", "install", this.state.patchName], { superuser: "require", err: "message" }).then(resolve)
+                                    cockpit.spawn(["dnf", "-y", "install", this.state.patchName!], { superuser: "require", err: "message" }).then(() => resolve())
                                             .catch(reject);
                                 else
                                     resolve();
@@ -194,7 +221,7 @@ export class KpatchSettings extends React.Component {
                             )
                         )
                     )
-                    .catch(e => this.setState({ error: e.toString() }))
+                    .catch((e: cockpit.BasicError) => this.setState({ error: e.toString() }))
                     .finally(() => this.checkSetup().then(() => this.setState({ updating: false })));
         } else {
             cockpit.spawn(["dnf", "-y", "kpatch", "manual"], { superuser: "require", err: "message" })
@@ -205,7 +232,7 @@ export class KpatchSettings extends React.Component {
                             )
                         )
                     )
-                    .catch(e => this.setState({ error: e.toString() }))
+                    .catch((e: cockpit.BasicError) => this.setState({ error: e.toString() }))
                     .finally(() => this.checkSetup().then(() => this.setState({ updating: false })));
         }
     }
@@ -309,13 +336,15 @@ export class KpatchSettings extends React.Component {
     }
 }
 
-KpatchSettings.propTypes = {
-    privileged: PropTypes.bool,
-};
+interface KpatchStatusState {
+    loaded: string[];
+    installed: string[];
+    changelog: string | null;
+}
 
-export class KpatchStatus extends React.Component {
-    constructor() {
-        super();
+export class KpatchStatus extends React.Component<Record<string, never>, KpatchStatusState> {
+    constructor(props: Record<string, never>) {
+        super(props);
 
         this.state = {
             loaded: [],
@@ -347,7 +376,7 @@ export class KpatchStatus extends React.Component {
     }
 
     render() {
-        let text = [];
+        let text: React.ReactNode[] = [];
         text = this.state.loaded.map(i =>
             <Content key={i} component={ContentVariants.p}>
                 { cockpit.format(_("Kernel live patch $0 is active"), i) }

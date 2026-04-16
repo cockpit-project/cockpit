@@ -258,7 +258,7 @@ export class KpatchSettings extends React.Component {
                                           label={_("for current kernel only") + kernel_name}
                                           onChange={() => this.setState({ justCurrent: true })}
                                           isDisabled={!this.state.applyCheckbox}
-                                          isChecked={this.state.justCurrent} />
+                                          isChecked={!!this.state.justCurrent} />
                                </>}
         /></Form>;
 

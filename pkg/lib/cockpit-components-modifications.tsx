@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-import PropTypes from 'prop-types';
 import React from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
@@ -26,12 +25,16 @@ const _ = cockpit.gettext;
  * Enables showing shell and ansible script. Shell one is mandatory and ansible one can be omitted.
  *
  */
-export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
-    const [active_tab, setActiveTab] = React.useState(ansible ? "ansible" : "shell");
+export const ModificationsExportDialog = ({ onClose, shell, ansible }: {
+    onClose: () => void;
+    shell: string;
+    ansible?: string | undefined;
+}) => {
+    const [active_tab, setActiveTab] = React.useState<string | number>(ansible ? "ansible" : "shell");
     const [copied, setCopied] = React.useState(false);
-    const [timeoutId, setTimeoutId] = React.useState(null);
+    const [timeoutId, setTimeoutId] = React.useState<number | null>(null);
 
-    const handleSelect = (_event, active_tab) => {
+    const handleSelect = (_event: React.MouseEvent, active_tab: string | number) => {
         setCopied(false);
         setActiveTab(active_tab);
         if (timeoutId !== null) {
@@ -42,7 +45,7 @@ export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
 
     const copyToClipboard = () => {
         try {
-            navigator.clipboard.writeText((active_tab === "ansible" ? ansible : shell).trim())
+            navigator.clipboard.writeText((active_tab === "ansible" ? ansible! : shell).trim())
                     .then(() => {
                         setCopied(true);
                         setTimeoutId(setTimeout(() => {
@@ -52,7 +55,7 @@ export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
                     })
                     .catch(e => console.error('Text could not be copied: ', e ? e.toString() : ""));
         } catch (error) {
-            console.error('Text could not be copied: ', error.toString());
+            console.error('Text could not be copied: ', String(error));
         }
     };
 
@@ -74,8 +77,8 @@ export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
             <ModalHeader title={_("Automation script") } />
             <ModalBody>
                 <Tabs activeKey={active_tab} onSelect={handleSelect}>
-                    { ansible &&
-                        <Tab eventKey="ansible" title={_("Ansible")}>
+                    { ansible
+                        ? <Tab eventKey="ansible" title={_("Ansible")}>
                             <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={ansible.trim()} />
                             <div className="ansible-docs-link">
                                 <OutlinedQuestionCircleIcon />
@@ -87,6 +90,7 @@ export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
                                 </Button>
                             </div>
                         </Tab>
+                        : undefined
                     }
                     <Tab eventKey="shell" title={_("Shell script")}>
                         <TextArea resizeOrientation='vertical' readOnlyVariant="default" defaultValue={shell.trim()} />
@@ -96,12 +100,6 @@ export const ModificationsExportDialog = ({ onClose, shell, ansible }) => {
             {footer}
         </Modal>
     );
-};
-
-ModificationsExportDialog.propTypes = {
-    shell: PropTypes.string.isRequired,
-    ansible: PropTypes.string.isRequired,
-    onClose: PropTypes.func.isRequired,
 };
 
 /* Display list of modifications in human readable format
@@ -114,7 +112,14 @@ ModificationsExportDialog.propTypes = {
  * Pass string `shell` and `ansible` with scripts.
  *
  */
-export const Modifications = ({ entries, failed, permitted, title, shell, ansible }) => {
+export const Modifications = ({ entries, failed, permitted, title, shell, ansible }: {
+    entries: string[] | null;
+    failed?: string;
+    permitted: boolean;
+    title: string;
+    shell: string;
+    ansible?: string;
+}) => {
     const [showDialog, setShowDialog] = React.useState(false);
 
     let emptyRow = null;
@@ -153,7 +158,7 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
                 <CardBody className="contains-list">
                     <DataList aria-label={title} isCompact>
                         { emptyRow ||
-                            entries.map(entry => <DataListItem key={entry}>
+                            entries?.map(entry => <DataListItem key={entry}>
                                 <DataListItemRow>
                                     <DataListItemCells dataListCells={[<DataListCell key={entry}>{entry}</DataListCell>]} />
                                 </DataListItemRow>
@@ -165,13 +170,4 @@ export const Modifications = ({ entries, failed, permitted, title, shell, ansibl
             </Card>
         </>
     );
-};
-
-Modifications.propTypes = {
-    failed: PropTypes.string,
-    title: PropTypes.string.isRequired,
-    permitted: PropTypes.bool.isRequired,
-    entries: PropTypes.arrayOf(PropTypes.string),
-    shell: PropTypes.string.isRequired,
-    ansible: PropTypes.string,
 };

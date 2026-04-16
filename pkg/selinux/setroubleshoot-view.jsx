@@ -21,7 +21,7 @@ import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import { CodeBlock, CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 
-import { Modifications } from "cockpit-components-modifications.jsx";
+import { Modifications } from "cockpit-components-modifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';

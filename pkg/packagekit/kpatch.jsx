@@ -248,11 +248,13 @@ export class KpatchSettings extends React.Component {
                                onChange={(_event, checked) => this.setState({ applyCheckbox: checked })}
                                body={<>
                                    <Radio id="current-future"
+                                          name="policy"
                                           label={_("for current and future kernels")}
                                           onChange={() => this.setState({ justCurrent: false })}
                                           isDisabled={!this.state.applyCheckbox}
                                           isChecked={!this.state.justCurrent} />
                                    <Radio id="current-only"
+                                          name="policy"
                                           label={_("for current kernel only") + kernel_name}
                                           onChange={() => this.setState({ justCurrent: true })}
                                           isDisabled={!this.state.applyCheckbox}

@@ -15,7 +15,7 @@ import { ExclamationTriangleIcon, ExternalLinkSquareAltIcon, HelpIcon } from '@p
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { PrivilegedButton } from "cockpit-components-privileged";
-import { ProfilesMenuDialogBody } from "./profiles-menu-dialog-body.jsx";
+import { ProfilesMenuDialogBody } from "./profiles-menu-dialog-body";
 import { useDialogs } from "dialogs.jsx";
 import { useInit } from "hooks";
 

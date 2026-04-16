@@ -48,8 +48,8 @@ import { TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
 
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
-import { KpatchSettings, KpatchStatus } from "./kpatch.jsx";
-import { History, PackageList } from "./history.jsx";
+import { KpatchSettings, KpatchStatus } from "./kpatch";
+import { History, PackageList } from "./history";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';

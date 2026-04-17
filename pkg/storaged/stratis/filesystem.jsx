@@ -144,7 +144,10 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
                 { title: _("Edit mount point"), action: () => edit_mount_point(block, forced_options) },
             (fs_is_mounted
                 ? { title: _("Unmount"), action: unmount }
-                : { title: _("Mount"), action: mount }),
+                : null),
+            (!fs_is_mounted && !client.in_anaconda_mode()
+                ? { title: _("Mount"), action: mount }
+                : null),
             {
                 title: _("Snapshot"),
                 action: snapshot_fsys,

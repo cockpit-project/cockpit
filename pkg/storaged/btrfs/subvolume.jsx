@@ -344,7 +344,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
             title: _("Unmount"),
             action: () => subvolume_unmount(volume, subvol, forced_options),
         });
-    } else {
+    } else if (!client.in_anaconda_mode()) {
         actions.push({
             title: _("Mount"),
             action: () => subvolume_mount(volume, subvol, forced_options),

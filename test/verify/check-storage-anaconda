@@ -171,6 +171,10 @@ class TestStorageAnaconda(storagelib.StorageCase):
         m.execute("systemctl start stratisd")
         self.addCleanup(m.execute, "systemctl stop stratisd")
 
+        # Forcefully remove all Stratis pools. This also gets rid of partially constructed pools.
+        self.addCleanup(m.execute,
+                        "dmsetup ls | cut -f1 | grep ^stratis | xargs  -n1 --no-run-if-empty dmsetup remove --force")
+
         PV_SIZE = 4000  # 4 GB in MB
 
         disk = self.add_loopback_disk(PV_SIZE, name="loop10")

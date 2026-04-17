@@ -61,6 +61,10 @@ class TestStorageStratis(storagelib.StorageCase):
 
         self.stop_type_opt = get_stratis_stop_type_opt(exe)
 
+        # Also remove partially constructed pools
+        self.addCleanup(exe,
+                        "dmsetup ls | cut -f1 | grep ^stratis | xargs  -n1 --no-run-if-empty dmsetup remove --force")
+
         self.addCleanup(exe,
                         "stratis report | jq -r '.pools[] | .name' |"
                         "xargs -n1 --no-run-if-empty stratis pool destroy")

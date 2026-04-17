@@ -92,7 +92,7 @@ class Printer:
         if headers is not None:
             our_headers.update(headers)
         # mypy is right: kwargs could include  `done` or `method`, but codifying that is really awkward
-        self.http(path, internal='packages', channel=channel, headers=our_headers, **kwargs)  # type: ignore[arg-type]
+        self.http(path, internal='packages', channel=channel, headers=our_headers, **kwargs)
 
     def spawn(self, *args: str, channel: Optional[str] = None, **kwargs: object) -> None:
         """Open a stream channel with a spawned command"""

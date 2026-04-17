@@ -42,7 +42,7 @@ function sudo_polish(msg: string | null): string | null {
     if (!msg)
         return msg;
 
-    msg = msg.replace(/^\[sudo] /, "");
+    msg = msg.replace(/^\[sudo(: authenticate)?] /, "");
     msg = msg[0].toUpperCase() + msg.slice(1);
 
     return msg;

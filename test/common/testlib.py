@@ -1149,7 +1149,7 @@ class Browser:
                 self.click("div[role=dialog] .pf-v6-c-modal-box__footer button")
             else:
                 self.wait_in_text("div[role=dialog]", "Switch to administrative access")
-                self.wait_in_text("div[role=dialog]", f"Password for {user}:")
+                self.wait_in_text("div[role=dialog]", "Password")
                 self.set_input_text("div[role=dialog] input", password or "foobar")
                 self.click("div[role=dialog] button.pf-m-primary")
 

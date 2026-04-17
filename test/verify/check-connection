@@ -1228,7 +1228,13 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         m.spawn(f"runuser -u cockpit-session-socket -- {self.ws_executable} --for-tls-proxy -p 9099 -a 127.0.0.1",
                 "ws-fortlsproxy.log")
         m.wait_for_cockpit_running(tls=True)
-        b.open(f"https://{b.address}:{b.port}/system")
+        # Firefox does not handle connection interruptions well, retry once when opening fails.
+        try:
+            b.open(f"https://{b.address}:{b.port}/system")
+        except testlib.Error as exc:
+            if 'NS_ERROR' in str(exc):
+                b.open(f"https://{b.address}:{b.port}/system")
+
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")

@@ -51,6 +51,11 @@ updates:
       - dependency-name: "eslint"
         update-types: ["version-update:semver-major"]
 
+      # The TypeScript toolchain takes a while to update to a major version
+      # Manually update to major TypeScript versions
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     open-pull-requests-limit: 3

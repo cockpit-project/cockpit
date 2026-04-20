@@ -48,6 +48,7 @@ import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { FirewalldRequest } from "cockpit-components-firewalld-request.jsx";
+import { SessionCountdownModal } from "cockpit-components-session-countdown-modal";
 
 import "./metrics.scss";
 import "journal.css";
@@ -1982,6 +1983,7 @@ export const Application = () => {
     return (
         <WithDialogs>
             <Page className="pf-m-no-sidebar">
+                <SessionCountdownModal />
                 <PageBreadcrumb
                     id='metrics-header-section'
                     hasBodyWrapper={false}

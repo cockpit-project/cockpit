@@ -26,6 +26,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import * as timeformat from 'timeformat';
+import { SessionCountdownModal } from "cockpit-components-session-countdown-modal";
 
 const _ = cockpit.gettext;
 
@@ -443,6 +444,7 @@ export class SETroubleshootPage extends React.Component {
             <>
                 {errorMessage}
                 <Page className="pf-m-no-sidebar">
+                    <SessionCountdownModal />
                     <PageSection hasBodyWrapper={false} padding={{ default: "padding" }}>
                         <SELinuxStatus
                             selinuxStatus={this.props.selinuxStatus}

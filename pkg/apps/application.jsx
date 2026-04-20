@@ -17,6 +17,7 @@ import { icon_url, launch, ProgressBar, CancelButton, reload_bridge_packages, Pr
 
 import "./application.scss";
 import { getPackageManager } from "packagemanager.js";
+import { SessionCountdownModal } from "cockpit-components-session-countdown-modal";
 
 const _ = cockpit.gettext;
 
@@ -142,6 +143,7 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
     return (
         <Page id="app-page"
               className="application-details pf-m-no-sidebar">
+            <SessionCountdownModal />
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to="#/">{_("Applications")}</BreadcrumbItem>

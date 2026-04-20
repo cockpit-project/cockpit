@@ -38,6 +38,7 @@ import { Privileged } from "cockpit-components-privileged.jsx";
 import { distanceToNow } from "timeformat";
 import { fmt_to_fragments } from 'utils.jsx';
 import { useDialogs } from "dialogs.jsx";
+import { SessionCountdownModal } from "cockpit-components-session-countdown-modal";
 
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
@@ -1212,6 +1213,7 @@ export const NetworkInterfacePage = ({
         <Page id="network-interface"
               data-test-wait={operationInProgress}
               className="pf-m-no-sidebar">
+            <SessionCountdownModal />
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to='#/'>

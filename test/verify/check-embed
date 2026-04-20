@@ -6,6 +6,7 @@
 
 
 import subprocess
+import time
 
 import testlib
 
@@ -70,6 +71,66 @@ AllowMultiHost={"yes" if allow_multi_host else "no"}
 
     def testNoMultiHost(self):
         self.testBasic(allow_multi_host=False)
+
+    def testSessionTimeout(self):
+        b = self.browser
+        m = self.machine
+
+        self.restore_dir("/home/admin")
+        m.execute("mkdir -p /home/admin/.local/share/cockpit/embed-cockpit")
+        m.upload(["verify/files/embed-cockpit/index.html",
+                  "verify/files/embed-cockpit/embed.js",
+                  "verify/files/embed-cockpit/embed.css",
+                  "verify/files/embed-cockpit/manifest.json"],
+                 "/home/admin/.local/share/cockpit/embed-cockpit/")
+
+        # replace the shell with our embedding page, this way we can avoid
+        # cross-origin errors when executing js in the iframe
+        m.write("/etc/cockpit/cockpit.conf", """
+[WebService]
+Shell=/embed-cockpit/index.html
+
+[Session]
+IdleTimeout=1
+""")
+        m.start_cockpit()
+        self.login_and_go()
+
+        b.wait_visible("#embed-loaded")
+        b.wait_visible("#embed-address")
+        b.set_val("#embed-address", f"http://{m.web_address}:{m.web_port}")
+        b.click("#embed-full")
+        b.wait_visible("iframe[name='embed-full'][loaded]")
+        b.switch_to_frame("embed-full")
+        b.wait_visible("#system_information_os_text")
+
+        # does not time out immediately
+        time.sleep(20)
+        self.assertFalse(b.is_present("#session-timeout-modal"))
+
+        # a mouse event resets the timer
+        b.mouse("#system_information_hardware_text", "mousemove", 24, 24)
+
+        # 30s before the 1 min timeout the dialog pops up
+        time.sleep(35)
+        with b.wait_timeout(3):
+            b.wait_visible("#session-timeout-modal")
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-v6-c-modal-box__body").split()[-2]), 15)
+        # click on "Continue session"
+        b.click("#session-timeout-modal footer button")
+        b.wait_not_present("#session-timeout-modal")
+
+        # now wait for timeout dialog again, but don't click; instead, wait for the full minute
+        time.sleep(30)
+        with b.wait_timeout(8):
+            b.wait_popup("session-timeout-modal")
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-v6-c-modal-box__body").split()[-2]), 20)
+
+        time.sleep(30)
+        # that logs you out
+        b.wait_visible("#login")
+        b.wait_visible("#login-info-message")
+        b.wait_text("#login-info-message", "You have been logged out due to inactivity.")
 
     def testModernSessionTimeout(self):
         b = self.browser

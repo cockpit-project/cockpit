@@ -445,7 +445,7 @@ class StorageHelpers(MachineCase):
                         f"""#!/bin/sh
 # Sleep a bit to avoid starting this agent too quickly over and over,
 # and so that other agents get a chance as well.
-sleep 30
+sleep 10
 
 for s in $(grep -h ^Socket= /run/systemd/ask-password/ask.* | sed 's/^Socket=//'); do
   printf '%s' '{password}' | /usr/lib/systemd/systemd-reply-password 1 $s

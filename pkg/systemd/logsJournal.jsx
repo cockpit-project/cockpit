@@ -205,7 +205,8 @@ export class JournalBox extends React.Component {
         const service_options = Object.assign({ output: "verbose" }, options);
         let cmd = journal.build_cmd(match, service_options);
 
-        cmd = cmd.map(i => i.replaceAll(" ", "\\ ")).join(" ");
+        // cribbed from Python's shlex.quote()
+        cmd = cmd.map(i => `'` + i.replaceAll(`'`, `'"'"'`) + `'`).join(" ");
         cmd = "set -o pipefail; " + cmd + " | grep SYSLOG_IDENTIFIER= | sort -u";
         cockpit.spawn(["/bin/bash", "-ec", cmd], { superuser: "try", err: "message" })
                 .then(entries => {

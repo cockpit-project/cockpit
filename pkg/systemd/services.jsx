@@ -20,7 +20,7 @@ import { ExclamationCircleIcon, FilterIcon } from '@patternfly/react-icons';
 import { CheckboxSelect } from "cockpit-components-checkbox-select";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
-import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
+import { ServiceTabs, service_tabs_suffixes } from "./service-tabs";
 import { ServicesList } from "./services-list.jsx";
 import { CreateTimerDialogButton } from "./timer-dialog.jsx";
 import { page_status } from "notifications";

@@ -801,7 +801,7 @@ export const StorageCard = ({ card, alert, alerts, actions, children }) => {
                 <StorageBreadcrumb page={card.page} />
             </CardBody>
             }
-            <CardHeader actions={{ actions: actions || <Actions actions={card.actions} /> }}>
+            <CardHeader hasWrap actions={{ actions: actions || <Actions actions={card.actions} /> }}>
                 <CardTitle>{card.title}</CardTitle>
             </CardHeader>
             {(alert || (alerts && alerts.length > 0)) && <CardBody><AlertGroup>{alert}{alerts}</AlertGroup></CardBody>}

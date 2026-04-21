@@ -77,39 +77,14 @@ $phone: 767px;
 
 
 .pf-v6-c-card {
-  // FIXME: Using an expandable content within a card would cause the card to be scrollable while nothing
-  // would be in view. Makes it look like there is something to scroll to when there isn't anything.
-  // PF deliberately makes expandable `[hidden]` content have `display: revert` which would make them have
-  // `display: block` or whatever is default from the browser. They do this to make animations work.
-  // Until fixed upstream we revert their `display: revert` rule.
-  // https://github.com/patternfly/patternfly/issues/7746
-  .pf-v6-c-expandable-section__content:where([hidden]) {
-    display: none;
-  }
-
-  // https://github.com/patternfly/patternfly/issues/3959
-  // TODO @Venefilyn: Change so we use .pf-m-no-offset, then remove this
-  // --pf-v6-c-card__header-toggle--MarginTop: 0;
-
-  .pf-v6-c-card__header:not(.ct-card-expandable-header),
-  .pf-v6-c-card__header:not(.ct-card-expandable-header) .pf-v6-c-card__header-main {
-    // upstream fix (pending): https://github.com/patternfly/patternfly/pull/3714
-    display: flex;
-    flex-wrap: wrap;
-    row-gap: var(--pf-t--global--spacer--sm);
-    justify-content: space-between;
-  }
-
+  // HACK: We change the size of our card headers so our card actions are not aligned as it should
+  // Unsetting margin makes the title aligned with the buttons
   .pf-v6-c-card__header:not(.ct-card-expandable-header) {
     > .pf-v6-c-card__actions {
-      flex-wrap: wrap;
-      row-gap: var(--pf-t--global--spacer--sm);
-
       // PF4 CardActions act up when using buttons while the title is large of font
       // https://github.com/patternfly/patternfly/issues/3713
       // https://github.com/patternfly/patternfly/issues/4362
       margin: unset;
-      padding-inline: var(--pf-v6-c-card__actions--PaddingLeft) unset;
     }
   }
 }

@@ -770,7 +770,7 @@ export class CryptoKeyslots extends React.Component {
 
         return (
             <>
-                <CardHeader actions={{
+                <CardHeader hasWrap actions={{
                     actions: <>
                         <span className="key-slot-panel-remaining">
                             { remaining < 6 ? (remaining ? cockpit.format(cockpit.ngettext("$0 slot remains", "$0 slots remain", remaining), remaining) : _("No available slots")) : null }

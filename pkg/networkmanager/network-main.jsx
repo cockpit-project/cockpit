@@ -25,6 +25,8 @@ import { in_anaconda_mode } from "utils";
 import firewall from './firewall-client.js';
 import {
     device_state_text,
+    has_group,
+    is_loopback,
     is_managed,
     render_active_connection,
 } from './interfaces.js';
@@ -39,23 +41,17 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
     const unmanaged = [];
     const plot_ifaces = [];
     let hasDetails = false;
+    const anaconda_mode = JSON.parse(window.sessionStorage.getItem("cockpit_anaconda"));
+
 
     interfaces.forEach(iface => {
-        function hasGroup(iface) {
-            return ((iface.Device &&
-                     iface.Device.ActiveConnection &&
-                     iface.Device.ActiveConnection.Group &&
-                     iface.Device.ActiveConnection.Group.Members.length > 0) ||
-                    (iface.MainConnection &&
-                     iface.MainConnection.Groups.length > 0));
-        }
 
         // Skip loopback
-        if (iface.Name == "lo" || (iface.Device && iface.Device.DeviceType == 'loopback'))
+        if (is_loopback(iface))
             return;
 
         // Skip members
-        if (hasGroup(iface))
+        else if (has_group(iface))
             return;
 
         const dev = iface.Device;

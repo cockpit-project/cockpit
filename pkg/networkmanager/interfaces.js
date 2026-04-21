@@ -2107,6 +2107,24 @@ export function apply_group_member(choices, model, apply_group, group_connection
     });
 }
 
+export function is_loopback(iface) {
+    return iface.Name == "lo" || (iface.Device && iface.Device.DeviceType == "loopback");
+}
+
+export function has_group(iface) {
+    return (
+        (iface.Device &&
+            iface.Device.ActiveConnection &&
+            iface.Device.ActiveConnection.Group &&
+            iface.Device.ActiveConnection.Group.Members.length > 0) ||
+        (iface.MainConnection && iface.MainConnection.Groups.length > 0)
+    );
+}
+
+export function is_wireless(iface) {
+    return iface.Device?.DeviceType === '802-11-wireless';
+}
+
 export function init() {
     cockpit.translate();
 }

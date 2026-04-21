@@ -685,7 +685,7 @@ export class ServiceDetails extends React.Component {
                     name={this.props.unit.Description}
                     handleCancel={() => this.setState({ showDeleteDialog: false })}
                     handleDelete={this.deleteTimer}
-                    reason={<Flex flex={{ default: 'column' }}>
+                    reason={<Flex>
                         <p>{_("Deletion will remove the following files:")}</p>
                         <List>
                             {this.state.unitPaths.map(item => <ListItem key={item}>{item}</ListItem>)}

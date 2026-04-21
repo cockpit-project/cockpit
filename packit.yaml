@@ -103,7 +103,7 @@ jobs:
           tools/fix-spec "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit.spec"
           '
 
-      fix-spec-file: null
+      fix-spec-file: ""
   - job: propose_downstream
     trigger: release
     actions: *official_release_actions

@@ -453,7 +453,7 @@ class RestartServices extends React.Component {
                 return 1;
             return a.localeCompare(b);
         });
-        const restarts = daemons.map(service => cockpit.spawn(["systemctl", "restart", service], { superuser: "required", err: "message" }));
+        const restarts = daemons.map(service => cockpit.spawn(["systemctl", "restart", service], { superuser: "require", err: "message" }));
         this.setState({ restartInProgress: true });
         Promise.all(restarts)
                 .then(() => {

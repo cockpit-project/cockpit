@@ -460,7 +460,7 @@ export class ServiceDetails extends React.Component {
 
         return Promise.all(promises).then(() => {
             const deletions = this.state.unitPaths.filter(path => path.startsWith("/etc/systemd/system"))
-                    .map(path => cockpit.file(path, { superuser: "required" }).replace(null));
+                    .map(path => cockpit.file(path, { superuser: "require" }).replace(null));
 
             // Reload after unit/timer removal
             return Promise.all(deletions).then(() =>

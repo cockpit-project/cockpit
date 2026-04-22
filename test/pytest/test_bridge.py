@@ -419,7 +419,10 @@ async def test_internal_metrics(transport: MockTransport) -> None:
 
 @pytest.mark.asyncio
 async def test_fsread1_errors(transport: MockTransport, tmp_path: Path) -> None:
-    await transport.check_open('fsread1', path='/etc/shadow', problem='access-denied')
+    if os.geteuid() != 0:
+        await transport.check_open('fsread1', path='/etc/shadow', problem='access-denied')
+    else:
+        print('running as root, skipping access-denied check')
     await transport.check_open('fsread1', path='/', problem='internal-error',
                                reply_keys={'message': "[Errno 21] Is a directory: '/'"})
     await transport.check_open('fsread1', path='/etc/passwd', max_read_size="lol",

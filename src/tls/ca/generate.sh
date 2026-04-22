@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # SPDX-License-Identifier: LGPL-2.1-or-later
 # Generate CA and certificates for testing
 set -eux
@@ -26,3 +26,18 @@ openssl ca -batch -config ca.conf -in alice.csr -days 1 -notext -extensions usr_
 
 rm -r certs
 rm index.txt* serial* *.csr
+
+# Update fingerprints in testing.h
+update_fingerprint() { # args: MACRO_NAME CERT_FILE
+    local macro="$1"
+    local fp
+    fp="$(openssl x509 -in "$2" -noout -fingerprint -sha256)"
+    local fpc
+    fpc="$(cut -d= -f2 <<< "$fp" | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+    sed -i "s/^#define $macro.*/#define $macro \"$fpc\"/" ../testing.h
+    echo "  $macro: $fp"
+}
+
+update_fingerprint CLIENT_CERT_FINGERPRINT alice.pem
+update_fingerprint CLIENT_EXPIRED_FINGERPRINT alice-expired.pem
+update_fingerprint ALTERNATE_FINGERPRINT bob.pem

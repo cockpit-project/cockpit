@@ -83,7 +83,7 @@ static const TestFixture fixture_expired_client_cert = {
   .cert_request_mode = GNUTLS_CERT_REQUEST,
   .client_crt = CLIENT_EXPIRED_CERTFILE,
   .client_key = CLIENT_KEYFILE,
-  .client_fingerprint = CLIENT_CERT_FINGERPRINT,
+  .client_fingerprint = CLIENT_EXPIRED_FINGERPRINT,
 };
 
 static const TestFixture fixture_alternate_client_cert = {
@@ -528,6 +528,7 @@ teardown (TestCase *tc, gconstpointer data)
   g_assert_cmpint (unlinkat (socket_dir_fd, "https-factory.sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "https@" SHA256_NIL ".sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "https@" CLIENT_CERT_FINGERPRINT ".sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "https@" CLIENT_EXPIRED_FINGERPRINT ".sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "https@" ALTERNATE_FINGERPRINT ".sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "ready", 0), ==, 0);
   close (socket_dir_fd);

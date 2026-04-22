@@ -30,9 +30,10 @@ static struct instance_type
   const char *argv[MAX_COCKPIT_WS_ARGS];
 } instance_types[] = {
   {"https-factory.sock", {}}, /* treated specially */
-  /* support up to 2 ws instances (+1 special); increase this if the unit test needs more */
+  /* support up to 3 ws instances (+1 special); increase this if the unit test needs more */
   {"https@" SHA256_NIL ".sock", {"--for-tls-proxy", "--port=0"}},
   {"https@" CLIENT_CERT_FINGERPRINT ".sock", {"--for-tls-proxy", "--port=0"}},
+  {"https@" CLIENT_EXPIRED_FINGERPRINT ".sock", {"--for-tls-proxy", "--port=0"}},
   {"https@" ALTERNATE_FINGERPRINT ".sock", {}}, /* treated specially */
   {"http.sock", {"--no-tls", "--port", "0"}},
 };

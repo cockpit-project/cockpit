@@ -339,39 +339,47 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # should only have one button (no security updates)
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
 
-        # stall the download of chocolate by replacing the package with a pipe, so that we can test cancelling
-        chocolate = m.execute(f"""set -ux;
-            p=$(ls {self.vm_tmpdir}/repo/chocolate*2.0*2*)
-            f={self.vm_tmpdir}/fifo
-            mkfifo $f
-            mount -o bind $f $p
-            echo $p""").strip()
-        try:
-            b.click("#available-updates button#install-all")
+        if m.image in ["fedora-44"]:
+            # dnf5backend only makes it until "Initializing..." and doesn't show a Cancel button.
+            pass
+        else:
+            # stall the download of chocolate by replacing the package with a pipe, so that we can test cancelling
+            chocolate = m.execute(f"""set -ux;
+                p=$(ls {self.vm_tmpdir}/repo/chocolate*2.0*2*)
+                f={self.vm_tmpdir}/fifo
+                mkfifo $f
+                mount -o bind $f $p
+                echo $p""").strip()
+            try:
+                b.click("#available-updates button#install-all")
 
-            # applying updates panel present
-            b.wait_visible("#app div.pf-v6-c-progress__bar")
+                # applying updates panel present
+                b.wait_visible("#app div.pf-v6-c-progress__bar")
 
-            # cancel the installation
-            b.wait_in_text(".progress-main-view button.pf-m-secondary", "Cancel")
-            b.click(".progress-main-view button.pf-m-secondary")
-            # abort the current download, so that read calls don't hang indefinitely
-            m.spawn(f"echo > {self.vm_tmpdir}/fifo", "fifo")
+                # cancel the installation
+                b.wait_in_text(".progress-main-view button.pf-m-secondary", "Cancel")
+                b.click(".progress-main-view button.pf-m-secondary")
+                # abort the current download, so that read calls don't hang indefinitely
+                m.spawn(f"echo > {self.vm_tmpdir}/fifo", "fifo")
 
-            # going back to overview, nothing happened just yet
-            b.wait_not_present(".progress-main-view")
-            self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
-            self.assertFalse(b.is_present("table.updates-history"))
-            m.execute("test -f /stamp-vanilla-1.0-1; test -f /stamp-chocolate-2.0-1")
-        finally:
-            # avoid keeping the rpm file busy
-            m.execute("systemctl stop packagekit")
-            m.execute(f"umount {chocolate}")
+                # going back to overview, nothing happened just yet
+                b.wait_not_present(".progress-main-view")
+                self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
+                self.assertFalse(b.is_present("table.updates-history"))
+                m.execute("test -f /stamp-vanilla-1.0-1; test -f /stamp-chocolate-2.0-1")
+            finally:
+                # avoid keeping the rpm file busy
+                m.execute("systemctl stop packagekit")
+                m.execute(f"umount {chocolate}")
 
-        # update again; Cancel button should eventually disappear
+        # update again; Cancel button should eventually disappear, on some OSes
         b.click("#available-updates button#install-all")
         b.wait_visible(".progress-main-view")
-        b.wait_not_present(".progress-main-view button.pf-m-secondary")
+        if m.image in ["fedora-44"]:
+            # dnf5backend allows "Cancel" during setup
+            pass
+        else:
+            b.wait_not_present(".progress-main-view button.pf-m-secondary")
         # gets stuck at vanilla, which needs install_lockfile
         b.wait_in_text("#app div.progress-description", "vanilla 1.0-2")
 
@@ -866,16 +874,21 @@ ExecStart=/usr/local/bin/{packageName}
 
         # check xeroxed
         if self.backend.startswith("dnf"):
-            # see RHEL-109155 above; can't load update details, so no bugs nor description;
-            # realistically this won't ever get fixed, but if it does, surprise us!
-            self.check_nth_update(6, "xeroxed", "12-1", self.enhancement_severity)
+            if "dnf5" in m.execute("pkcon backend-details"):
+                # The new "dnf5" backend gets it right, and even uses severity "enhancement".
+                self.check_nth_update(6, "xeroxed", "12-1", self.enhancement_severity, 1, bugs=["789"],
+                                      desc_matches=["Uniqueness is boring"])
+            else:
+                # see RHEL-109155 above; can't load update details, so no bugs nor description;
+                # realistically this won't ever get fixed, but if it does, surprise us!
+                self.check_nth_update(6, "xeroxed", "12-1", self.enhancement_severity)
         elif m.image == "ubuntu-2204":
             # different PK bug: It sees *two* bugs, the first one being invalid
             self.check_nth_update(6, "xeroxed", "12-1", "bug", 2,
                                   bugs=["http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=", "789"],
                                   desc_matches=["Uniqueness is boring"])
         else:
-            # apt works fine
+            # apt works fine, except it uses severity "bug".
             self.check_nth_update(6, "xeroxed", "12-1", "bug", 1, bugs=["789"],
                                   desc_matches=["Uniqueness is boring"])
 

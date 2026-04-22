@@ -1,8 +1,12 @@
 #!/bin/bash
 # SPDX-License-Identifier: LGPL-2.1-or-later
-# Generate CA and certificates for testing
+# Generate CA and certificates for testing; these are static due to the expired cert (see below)
 set -eux
-openssl req -config ca.conf -x509  -newkey rsa:2048 -out ca.pem -subj '/O=Cockpit/OU=test/CN=CA/' -nodes -days 3650
+
+# Their lifetimes need to be long enough for long-term support distributions, i.e. > 15 years
+DAYS=10000
+
+openssl req -config ca.conf -x509  -newkey rsa:2048 -out ca.pem -subj '/O=Cockpit/OU=test/CN=CA/' -nodes -days "$DAYS"
 mkdir certs
 touch index.txt
 echo 01 > serial
@@ -12,7 +16,7 @@ for user in alice bob; do
 
     openssl req -new -key ${user}.key -out ${user}.csr -config ca.conf -subj "/CN=${user}/DC=COCKPIT/DC=LAN/"
     openssl req -in ${user}.csr -text
-    openssl ca -batch -config ca.conf -in ${user}.csr -days 3650 -notext -extensions usr_cert -out ${user}.pem -subj "/CN=${user}/DC=COCKPIT/DC=LAN/"
+    openssl ca -batch -config ca.conf -in ${user}.csr -days "$DAYS" -notext -extensions usr_cert -out ${user}.pem -subj "/CN=${user}/DC=COCKPIT/DC=LAN/"
     # for browser or smart card import
     openssl pkcs12 -export -password pass:foo -in ${user}.pem -inkey ${user}.key -out ${user}.p12
 done

@@ -32,7 +32,7 @@ touch index.txt
 openssl ca -batch -config ca.conf -in alice.csr -days 1 -notext -extensions usr_cert -out alice-expired.pem -subj "/CN=alice/DC=COCKPIT/DC=LAN/"
 
 rm -r certs
-rm index.txt* serial* *.csr
+rm -- index.txt* serial* *.csr
 
 # Update fingerprints in testing.h
 update_fingerprint() { # args: MACRO_NAME CERT_FILE

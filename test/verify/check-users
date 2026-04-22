@@ -1064,7 +1064,7 @@ class TestAccounts(testlib.MachineCase):
 
         # Try to expire a password
         b.wait_text("#password-expiration-text", "Never expire password")
-        self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Maximum number of days between password change"), "99999")
         b.click("#password-expiration-button")
         b.wait_visible("#password-expiration")
         b.click("#password-expiration-expires")
@@ -1089,6 +1089,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present("#password-expiration")
         b.wait_text("#password-expiration-text", "Never expire password")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Maximum number of days between password change"), "-1")
 
         # Now change it to expire again
         b.click("#password-expiration-button")

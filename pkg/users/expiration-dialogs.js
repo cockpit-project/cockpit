@@ -160,9 +160,6 @@ export function password_expiration_dialog(account, expire_days) {
     /* TRANSLATORS: This is split up and therefore cannot use ngettext plurals */
     const parts = _("Require password change every $0 days").split("$0");
 
-    if (parseInt(expire_days) >= 99999)
-        expire_days = null;
-
     const state = {
         mode: expire_days ? "expires" : "never",
         before: parts[0],
@@ -204,7 +201,7 @@ export function password_expiration_dialog(account, expire_days) {
                     style: "primary",
                     clicked: () => {
                         if (validate()) {
-                            const days = state.mode == "expires" ? parseInt(state.days) : 99999;
+                            const days = state.mode == "expires" ? parseInt(state.days) : -1;
                             return cockpit.spawn(["passwd", "-x", String(days), account.name],
                                                  { superuser: "require", err: "message" });
                         } else {

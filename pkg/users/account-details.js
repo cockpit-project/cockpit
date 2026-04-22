@@ -68,6 +68,25 @@ function get_expire(name) {
             }
         });
 
+        // 99999 traditionally meant "never" but the modern value for
+        // that is -1.
+        //
+        // Modern versions of "chage" will not treat 99999 any special
+        // and will output bogus expiration dates somewhere in 2300.
+        // But let's recognize both, since old accounts will still use
+        // 99999, and /etc/login.def also still uses 99999 as the
+        // default for new accounts.
+        //
+        // Passord expiration is being removed completely from
+        // shadow-utils, and we probably should continue to recognize
+        // 99999 as "never" until we stop supporting password expiry
+        // entirely.
+
+        if (parseInt(password_days) >= 99999 || parseInt(password_days) < 0) {
+            password_days = null;
+            password_expiration = _("Never expire password");
+        }
+
         return {
             account_text: account_expiration,
             account_date,

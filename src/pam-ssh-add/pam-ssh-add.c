@@ -860,8 +860,12 @@ start_agent (pam_handle_t *pamh,
       /* parse and store the agent pid for later cleanup */
       if (strncmp (auth_pid, "SSH_AGENT_PID=", 14) == 0)
         {
-          unsigned long pid = strtoul (auth_pid + 14, NULL, 10);
-          if (pid > 0 && pid != ULONG_MAX)
+          char *endptr;
+          unsigned long pid;
+
+          errno = 0;
+          pid = strtoul (auth_pid + 14, &endptr, 10);
+          if (pid > 0 && *endptr == '\0' && !(pid == ULONG_MAX && errno == ERANGE))
             {
               ssh_agent_pid = pid;
               ssh_agent_uid = auth_pwd->pw_uid;

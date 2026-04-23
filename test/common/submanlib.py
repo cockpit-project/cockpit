@@ -15,7 +15,7 @@ class SubscriptionCase(testlib.MachineCase):
         m = self.machine
 
         # wait for candlepin to be active and verify
-        candlepin_machine.execute("/root/run-candlepin")
+        candlepin_machine.execute("/root/run-candlepin", timeout=360)
 
         # remove all existing products (RHEL server), as we can't control them
         m.execute("rm -f /etc/pki/product-default/*.pem /etc/pki/product/*.pem")

@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
+#include <limits.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -58,8 +59,9 @@ check_sd_listen_pid (void)
       return false;
     }
 
+  errno = 0;
   pid = strtol (pid_str, &endptr, 10);
-  if (pid <= 0 || *endptr != '\0')
+  if (pid <= 0 || *endptr != '\0' || errno != 0)
     errx (EXIT_FAILURE, "$LISTEN_PID contains invalid value '%s'", pid_str);
   if ((pid_t) pid != getpid ())
     {
@@ -202,9 +204,10 @@ server_init (const char *wsinstance_sockdir,
   if (env_listen_fds && check_sd_listen_pid ())
     {
       char *endptr = NULL;
+      errno = 0;
       unsigned long n = strtoul (env_listen_fds, &endptr, 10);
 
-      if (n < 1 || n > INT_MAX || *endptr != '\0')
+      if (n < 1 || n > INT_MAX || *endptr != '\0' || errno != 0)
         errx (EXIT_FAILURE, "Invalid $LISTEN_FDS value '%s'", env_listen_fds);
 
       server.first_listener = SD_LISTEN_FDS_START;

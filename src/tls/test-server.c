@@ -724,6 +724,42 @@ test_tls_redirect (TestCase *tc, gconstpointer data)
 }
 
 static void
+test_tls_redirect_header_safety (TestCase *tc, gconstpointer data)
+{
+  /* verify that the redirect response doesn't contain any headers from the request,
+   * possibly through crafted host/path values. */
+  int fd = do_connect_ipv4_mapped (tc, "::ffff:127.0.0.2");
+  g_assert_cmpint (fd, >, 0);
+
+  const char *res = do_request_fd (fd, "GET /test HTTP/1.0\r\nHost: some.remote:1234\r\nX-Injected: evil\r\n\r\n");
+
+  cockpit_assert_strmatch (res, "HTTP/1.1 301 Moved Permanently*");
+  cockpit_assert_strmatch (res, "*Location: https://some.remote:1234/test*");
+  g_assert_null (strstr (res, "X-Injected"));
+  g_assert_null (strstr (res, "evil"));
+
+  /* Request headers should not leak into response */
+  fd = do_connect_ipv4_mapped (tc, "::ffff:127.0.0.2");
+  g_assert_cmpint (fd, >, 0);
+
+  res = do_request_fd (fd, "GET /path?query HTTP/1.0\r\nHost: example.org\r\nCookie: secret=data\r\n\r\n");
+  cockpit_assert_strmatch (res, "HTTP/1.1 301 Moved Permanently*");
+  cockpit_assert_strmatch (res, "*Location: https://example.org/path?query*");
+  g_assert_null (strstr (res, "Cookie"));
+  g_assert_null (strstr (res, "secret"));
+
+  /* Verify URL-encoded CRLF in path is safely handled (preserved as literal %0D%0A) */
+  fd = do_connect_ipv4_mapped (tc, "::ffff:127.0.0.2");
+  g_assert_cmpint (fd, >, 0);
+  res = do_request_fd (fd, "GET /path%0D%0A HTTP/1.0\r\nHost: example.org\r\n\r\n");
+  cockpit_assert_strmatch (res, "HTTP/1.1 301 Moved Permanently*");
+  cockpit_assert_strmatch (res, "*Location: https://example.org/path%0D%0A*");
+  /* The URL encoding should not be decoded into actual CRLF */
+  g_assert_null (strstr (res, "path\r\n"));
+  g_assert_null (strstr (res, "path\n"));
+}
+
+static void
 test_tls_client_cert (TestCase *tc, gconstpointer data)
 {
   assert_https (tc, data, 1);
@@ -952,6 +988,8 @@ main (int argc, char *argv[])
               setup, test_tls_no_server_cert, teardown);
   g_test_add ("/server/tls/redirect", TestCase, &fixture_separate_crt_key,
               setup, test_tls_redirect, teardown);
+  g_test_add ("/server/tls/redirect-header-safety", TestCase, &fixture_separate_crt_key,
+              setup, test_tls_redirect_header_safety, teardown);
   g_test_add ("/server/tls/blocked-handshake", TestCase, &fixture_separate_crt_key,
               setup, test_tls_blocked_handshake, teardown);
   g_test_add ("/server/mixed-protocols", TestCase, &fixture_separate_crt_key,

@@ -45,9 +45,16 @@
 #ifndef COCKPIT_BASE64_H_
 #define COCKPIT_BASE64_H_
 
+#include <assert.h>
+#include <stdint.h>
 #include <sys/types.h>
 
-#define   cockpit_base64_size(len)     ((len) * 4 / 3 + 9)
+static inline size_t
+cockpit_base64_size (size_t len)
+{
+  assert (len <= SIZE_MAX / 4);
+  return len * 4 / 3 + 9;
+}
 
 ssize_t   cockpit_base64_pton          (const char *src,
                                         size_t length,

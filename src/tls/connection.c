@@ -589,6 +589,7 @@ connection_handshake (Connection *self)
       if (ret != GNUTLS_E_SUCCESS)
         {
           warnx ("gnutls_init failed: %s", gnutls_strerror (ret));
+          self->tls = NULL;
           return false;
         }
 
@@ -596,6 +597,8 @@ connection_handshake (Connection *self)
       if (ret != GNUTLS_E_SUCCESS)
         {
           warnx ("gnutls_set_default_priority failed: %s", gnutls_strerror (ret));
+          gnutls_deinit (self->tls);
+          self->tls = NULL;
           return false;
         }
 
@@ -604,6 +607,8 @@ connection_handshake (Connection *self)
       if (ret != GNUTLS_E_SUCCESS)
         {
           warnx ("gnutls_credentials_set failed: %s", gnutls_strerror (ret));
+          gnutls_deinit (self->tls);
+          self->tls = NULL;
           return false;
         }
 
@@ -621,6 +626,8 @@ connection_handshake (Connection *self)
       if (ret != GNUTLS_E_SUCCESS)
         {
           warnx ("gnutls_handshake failed: %s", gnutls_strerror (ret));
+          gnutls_deinit (self->tls);
+          self->tls = NULL;
           return false;
         }
 

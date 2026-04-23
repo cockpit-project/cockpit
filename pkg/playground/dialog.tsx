@@ -99,7 +99,7 @@ const StringList = ({
 
 interface Name {
     name: string;
-    _length_cache: Record<string, number>;
+    _length: number;
 }
 
 const NameInput = ({
@@ -111,11 +111,11 @@ const NameInput = ({
 };
 
 function validate_Name(field: DialogField<Name>, countAsyncValidation: () => void) {
-    const { _length_cache } = field.get();
-    field.sub("name").validate_async(1000, async n => {
+    field.sub("name").validate_async(1000, async (n, task) => {
         await async_sleep(2000);
         countAsyncValidation();
-        _length_cache[n] = n.length;
+        if (!task.is_cancelled())
+            field.sub("_length").set(n.length);
         if (n.length % 2)
             return "Must have even number of characters";
     });
@@ -133,7 +133,7 @@ const NameList = ({
             label={label}
             field={field}
             Component={NameInput}
-            init={{ name: "", _length_cache: { } }}
+            init={{ name: "", _length: 0 }}
         />
     );
 };
@@ -205,8 +205,10 @@ const colors: Color[] = [
 interface ExampleValues {
     flag: boolean;
     text: string;
+    text2: string;
     radio: string;
     dropdown: string;
+    text3: string;
     color: Color,
     list: string[];
     async: Name[];
@@ -217,17 +219,23 @@ interface ExampleValues {
 const ExampleDialog = ({
     setResult,
     countAsyncValidation,
+    countAsyncUpdate,
+    countAsyncCancel,
 } : {
     setResult: (values: ExampleValues) => void,
     countAsyncValidation: () => void,
+    countAsyncUpdate: () => void,
+    countAsyncCancel: () => void,
 }) => {
     const Dialogs = useDialogs();
 
     const init: ExampleValues = {
         flag: false,
         text: "",
+        text2: "",
         radio: "one",
         dropdown: "one",
+        text3: "",
         color: colors[0],
         list: [],
         async: [],
@@ -242,8 +250,16 @@ const ExampleDialog = ({
                     return "Text can not be empty";
             });
         }
+        if (dlg.values.dropdown == "three") {
+            dlg.field("text3").validate_async(1000, async v => {
+                if (!v)
+                    return "Can't be empty";
+            });
+        }
         dlg.field("list").forEach(v => {
             v.validate(vv => {
+                if (vv == "magic")
+                    dlg.field("text").set("magic");
                 if (vv == ".")
                     return "No dots";
             });
@@ -276,7 +292,18 @@ const ExampleDialog = ({
     }
 
     function update_color(color: Color) {
-        dlg.field("text").set(color.name);
+        dlg.field("color").get_async(0, async (val, task) => {
+            task.set_cancel(countAsyncCancel);
+            await async_sleep(2000);
+            if (!task.is_cancelled()) {
+                countAsyncUpdate();
+                dlg.field("text").set(val.name);
+            }
+        });
+        dlg.field("text2").set_async(0, async () => {
+            await async_sleep(2000);
+            return color.name;
+        });
     }
 
     return (
@@ -302,6 +329,10 @@ const ExampleDialog = ({
                         excuse={!dlg.values.flag && "Disabled"}
                         explanation="Explanation"
                         warning={dlg.values.text == "warn" ? "Warning" : null}
+                    />
+                    <DialogTextInput
+                        label="Text2"
+                        field={dlg.field("text2")}
                     />
                     {
                         // Calling "map" on a non-array should just do nothing.
@@ -342,6 +373,10 @@ const ExampleDialog = ({
                         }
                         warning={dlg.field("dropdown").get() == "two" ? "There is a discount if you buy three." : null}
                     />
+                    {
+                        dlg.values.dropdown == "three" &&
+                            <DialogTextInput label="Text3" field={dlg.field("text3")} />
+                    }
                     <DialogDropdownSelectObject
                         label="DropdownObject"
                         field={dlg.field("color", update_color)}
@@ -376,8 +411,12 @@ const ExampleDialog = ({
 const ExampleButton = () => {
     const Dialogs = useDialogs();
     const [values, setValues] = useState<ExampleValues | null>(null);
-    const [asyncValidationsBase, setAsycountAsyncValidationsBase] = useState<number>(0);
+    const [asyncValidationsBase, setAsyncValidationsBase] = useState<number>(0);
     const [asyncValidations, countAsyncValidation] = useReducer(x => x + 1, 0);
+    const [asyncUpdatesBase, setAsyncUpdatesBase] = useState<number>(0);
+    const [asyncUpdates, countAsyncUpdate] = useReducer(x => x + 1, 0);
+    const [asyncCancelsBase, setAsyncCancelsBase] = useState<number>(0);
+    const [asyncCancels, countAsyncCancel] = useReducer(x => x + 1, 0);
 
     function entry(id: string, val: string) {
         return (
@@ -394,11 +433,15 @@ const ExampleButton = () => {
                 id="open"
                 onClick={
                     () => {
-                        setAsycountAsyncValidationsBase(asyncValidations);
+                        setAsyncValidationsBase(asyncValidations);
+                        setAsyncUpdatesBase(asyncUpdates);
+                        setAsyncCancelsBase(asyncCancels);
                         Dialogs.show(
                             <ExampleDialog
                                 setResult={setValues}
                                 countAsyncValidation={countAsyncValidation}
+                                countAsyncUpdate={countAsyncUpdate}
+                                countAsyncCancel={countAsyncCancel}
                             />
                         );
                     }
@@ -410,12 +453,15 @@ const ExampleButton = () => {
                 <DescriptionList isHorizontal>
                     { entry("flag", String(values.flag)) }
                     { values.flag && entry("text", values.text) }
+                    { entry("text2", values.text2) }
                     { entry("radio", values.radio) }
                     { entry("dropdown", values.dropdown) }
                     { entry("color", values.color.red + "/" + values.color.green + "/" + values.color.blue) }
                     { entry("list", values.list.join("/")) }
-                    { entry("async", values.async.map(n => n.name + ":" + String(n._length_cache[n.name])).join("/")) }
+                    { entry("async", values.async.map(n => n.name + ":" + String(n._length)).join("/")) }
                     { entry("asyncVals", String(asyncValidations - asyncValidationsBase)) }
+                    { entry("asyncUps", String(asyncUpdates - asyncUpdatesBase)) }
+                    { entry("asyncCancels", String(asyncCancels - asyncCancelsBase)) }
                     { entry("alternative", JSON.stringify(values.alternative)) }
                 </DescriptionList>
             }

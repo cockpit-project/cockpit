@@ -222,6 +222,47 @@
    array, pass the index of the desired element.  See "dlg.field()"
    above for more information about handles.
 
+   - handle.get_async(debounce, (val, task) => ...)
+   - handle.set_async(debounce, (val, task) => new_val)
+
+   These are for running debounced, asynchronous code.  Both functions
+   will run the given function after "debounce" milliseconds, but only
+   if the value of the field hasn't changed in the mean time.  The
+   dialog waits for all asynchronous tasks started by these functions
+   to be finished before running the action function.  When the dialog
+   is cancelled, they all get cancelled.
+
+   The return value of "handle.set_async" is made the new value of the
+   field, but only if the value of the field hasn't changed in the
+   mean time.  There can only be one currently active "set_async"
+   call.  If you call it again before the previous one has finished.
+   That previous call will be cancelled at that point, just as if the
+   field value had changed.
+
+   The "handle.get_async" function is a slight variation on this. It
+   is meant to perform asynchronous computations that do not modify
+   the field value itself, but have some other side effects.  Maybe
+   they modifiy other field values or some React state. There can be
+   more than one call active at a given time. They only get cancelled
+   when the value of the field changes.
+
+   The asynchronous tasks must be careful to only perform their side
+   effects when they have not been cancelled yet.  Because of the way
+   JavaScript works, the asynchornous functions keep running and they
+   need to voluntarily call "task.is_cancelled()" to figure out when
+   they should stop.
+
+   As an example, here is how you might (almost) implement set_async
+   on top of get_async:
+
+      function set_async(handle, debounce, func) {
+          handle.get_async(debounce, (val, task) => {
+              const new_val = await func(val, task);
+              if (!task.is_cancelled())
+                  handle.set(new_val);
+          })
+      }
+
    - handle.at(witness)
 
    Get a handle with a narrowed type for "handle".  The new handle
@@ -302,6 +343,13 @@
      if (dlg.run_action(...))
        dlg.field("xxx").set(...)
 
+   - dlg.cancel(onClose)
+
+   Does whatever should happen when the "Cancel" button is
+   clicked. When an action is running, it will call the "cancel
+   function" (see below).  Otherwise all validation and update tasks
+   are cancelled and the dialog is closed by calling "onClose".
+
    - dlg.set_cancel(func)
 
    Arranges for "func" to be called when the cancel button is clicked.
@@ -312,7 +360,7 @@
    within "dlg.run_action", the cancel function is automatically
    reset.
 
-   Let's now finally talk about input validation.
+   VALIDATION
 
    Input validation is done by a single, central function for the
    whole dialog.  This has been done so that there is a central place
@@ -332,8 +380,8 @@
 
    The formal job of the validation function is to call the "validate"
    method (or "validate_async") of all relevant dialog value handles.
-   If and only if the render function instantiates a component for a
-   dialog value, should the validate function visit it.
+   If and only if a validation failure of a field should prevent
+   running the action function, should the validate function visit it.
 
    - handle.validate(v => ...)
 
@@ -342,14 +390,11 @@
    "undefined". If it fails, the function should return a string with
    the appropriate message. This message will be available from the
    "handle.validation_text" method and should be shown by the React
-   component for this value, of course.
+   component for this value, of course. Returning an error here will
+   also disable the action buttons.
 
    The "v => ..." function is only called when necessary, when the
    value has actually changed.
-
-   The "v => ..." function should not make any modifications to
-   anything involved in the dialog. Specifically, it should not call
-   "set()" on any value handle.
 
    A validation function can also return an object with validation
    errors for its sub-fields.  This is useful if multiple fields need
@@ -363,10 +408,10 @@
    If your validation function needs to communicate out-of-band with
    your action function (maybe to pass the results of some expensive
    operations that you don't want to repeat in your action function),
-   then you need to find some other way. Maybe with a memoized
-   function or an explicit cache.
+   then you can modify field values via calls to "handle.set". (Be
+   careful not to create endless validation loops!)
 
-   - handle.validate_async(debounce, async v >= ...)
+   - handle.validate_async(debounce, async (v, task) >= ...)
 
    Calls the given async function "debounce" milliseconds after the
    value represented by the handle has last been changed. (Or
@@ -376,6 +421,58 @@
 
    See the documentation for "handle.validate" above for more rules
    that apply to validation functions.
+
+   UPDATES
+
+   Sometimes dialog values need to be changed in reaction to other
+   changes.  For example, when the user selects a OS for creating a
+   new virtual machine, you might want to run some code that adapts
+   the rest of the dialog to that.  Sometimes you can do everything at
+   render time, but sometimes you might want to run some code as part
+   of the event handler for the user action.
+
+   (Don't use useEffect, please, just stick the code into the event
+   handler.)
+
+   It's okay and simplest to just put that code right next to the call
+   to "handler.set()".  If that call is in a porcelain component (as
+   it probably often will be), you can pass a "update_func" when
+   creating the handle for that porcelain component with
+   "handler.sub()" or "dialog.field()".  For example:
+
+       function on_plate_change(val: string) {
+           console.log("NEW LICENSE PLATE", val);
+       }
+
+       return (
+           <DialogTextInput
+               label="License plate number"
+               field={dlg.field("plate", on_plate_change)}
+           />
+       );
+
+   The function "on_plate_change" will be called whenever the user
+   changes the "plate" field via the DialogTextInput.  The
+   "on_plate_change" function will not be called when the "plate" is
+   changed in other places.  If that should happen, you have to
+   arrange for it explicitly.
+
+   Functions like "on_plate_change" can and should modify the dialog
+   fields via calls to "handle.set()".
+
+   If you want to run asynchronous code, you can do so with
+   "handle.set_async()" or "handle.get_async()".  For example, if you
+   want to asynchronously fetch the car model for a given license
+   plate from a database, you can do it like this:
+
+       function on_plate_change(val: string) {
+           dlg.field("model").set_async(1000, async () => await fetch_model(val));
+       }
+
+   When arrays are involved, dialog fields can move around while your
+   asynchronous update function runs.  To help with this, handles will
+   keep referring to the same field even if it moves around in its
+   array.
 
    TESTING
 
@@ -492,126 +589,6 @@
   data model. A simple case is selecting from an array of strings. In
   that case you can omit the "option_label" function.
 
-  WRITING COMPLEX PORCELAIN COMPONENTS
-
-  Here is a pattern that you might want to follow when writing
-  complicated components. Even if they are not meant to be reused
-  much, it pays of to try to encapsulate their behavior.
-
-  Let's write a component for two level selection.  Parameter is
-  something like
-
-     {
-       "Fruit": [ "Apple", "Banana" ],
-       "Bread": [ "Toast", "Rye" ],
-       "Meat": [ "Chicken", "Pork" ],
-     }
-
-  and there will be two dropdowns in the dialog, one for selecting
-  between "Fruit", "Bread", and "Meat"; and one for selecting "Apple"
-  or "Banana" when the first is "Fruit", etc.
-
-  First, declare the type of the value that the component works with.
-  It should store everything needed by the component, to simplify
-  initialization and validation.
-
-    export interface TwoLevelSelectValue {
-      first: string;
-      second: string;
-
-      _firsts: string[],
-      _options: Record<string, string[]>,
-    }
-
-  Write a "init" function to create such a value:
-
-    export function init_TwoLevelSelect(options: Record<string, string[]>): TwoLevelValue {
-      const _firsts = Object.keys(options);
-      const _seconds = options[_firsts[0]];
-
-      return {
-        first: _firsts[0],
-        second: _seconds[0],
-
-        _firsts,
-        _seconds,
-        _options: options,
-      };
-    }
-
-  And the component itself:
-
-    export const TwoLevelSelect = ({ field } : { field: DialogField<TwoLevelSelectValue> }) => {
-      const { _firsts, _seconds, _options } = field.get();
-
-      function update_first(f: string) {
-        const _seconds = _options[f];
-        value.sub("second").set(_seconds[0]);
-        value.sub("_seconds").set(_seconds);
-      }
-
-      return (
-        <>
-          <DialogDropdownSelectObject
-            label="First"
-            field={field.sub("first", update_first)}
-            options={_firsts}
-          />
-          <DialogDropdownSelectObject
-            label="Second"
-            field={field.sub("second")}
-            options={_seconds}
-          />
-        </>
-      );
-    }
-
-  It would be used in a dialog like this:
-
-    interface DialogValues {
-      food: TwoLevelSelectValue;
-    }
-
-    function init() {
-      return {
-        food: init_TwoLevelSelect({ "Fruit": [ "Apple", "Banana" ], "Bread": [ "Toast", "Rye" ], "Meat": [ "Chicken", "Pork" ] }),
-      }
-    }
-
-    const dlg = useDialogState(init);
-
-    return (
-      ...
-      <TwoLevelSelect field={dlg.field("food")} />
-      ...
-    );
-
-  Here is a pattern for handling types that include alternatives, such
-  as "TwoLevelSelectValue | string".  This could be used to encode
-  either the state for a working TwoLevelSelect component, or an
-  excuse message that explains why it can't work.
-
-    function init_TwoLevelSelect(options: Record<string, string[]>): TwoLevelSelectValue | string {
-      if (Object.keys(options).length == 0)
-        return _("Nothing to select.");
-
-      return { ... };
-    }
-
-    export const TwoLevel = ({ field } : { field: DialogField<TwoLevelValue | string> }) => {
-      const val = field.get();
-      if (typeof val == "string")
-          return null;
-
-      const tls_field = field.at(val);
-
-      const { _firsts, _seconds, _options } = tls_field.get();
-      ...
-    }
-
-  Note the use of the "field.at()" function to get a handle for a
-  TwoLevelSelectValue that can be used to access the "first" sub
-  value, etc.
  */
 
 import React, { useState } from "react";
@@ -691,28 +668,34 @@ export type DialogValidationResult<T> = (
     : undefined | string | { ""?: undefined | string }
 );
 
+function state_path(state: DialogFieldState): string {
+    const p = state.parent ? state_path(state.parent) : "";
+    const t = String(state.tag);
+    return p ? p + "." + t : t;
+}
+
 export class DialogField<T> {
     /* eslint-disable no-use-before-define */
     #dialog: DialogState<unknown>;
+    #state: DialogFieldState;
     /* eslint-enable */
     #getter: () => T;
     #setter: (val: T) => void;
-    #path: string;
 
     constructor(
         dialog: DialogState<unknown>,
+        state: DialogFieldState,
         getter: () => T,
         setter: (val: T) => void,
-        path: string
     ) {
         this.#dialog = dialog;
+        this.#state = state;
         this.#getter = getter;
         this.#setter = setter;
-        this.#path = path;
     }
 
     validation_text(): string | undefined {
-        return this.#dialog._get_validation(this.#path);
+        return this.#state.validation_text;
     }
 
     get(): T {
@@ -720,11 +703,12 @@ export class DialogField<T> {
     }
 
     set(val: T): void {
+        this.#dialog._cancel_state_tasks(this.#state, true);
         this.#setter(val);
     }
 
     id(tag: string = "field"): string {
-        return "dialog-" + tag + "-" + this.#path;
+        return "dialog-" + tag + "-" + state_path(this.#state);
     }
 
     map<X>(func: (val: DialogField<ArrayElement<T>>, index: number) => X): X[] {
@@ -745,56 +729,89 @@ export class DialogField<T> {
     remove(index: number) {
         const val = this.get();
         if (Array.isArray(val)) {
-            for (let j = index; j < val.length - 1; j++)
-                this.#dialog._rename_validation_state(this.#path, j + 1, j);
-            this.set(toSpliced(val, index, 1) as T);
+            const sub = this.#state.sub.get(index);
+            if (sub) {
+                this.#dialog._cancel_state_tasks(sub);
+                sub.tag = -1;
+            }
+            for (let j = index; j < val.length - 1; j++) {
+                const sub = this.#state.sub.get(j + 1);
+                if (sub) {
+                    sub.tag = j;
+                    this.#state.sub.set(j, sub);
+                }
+                this.#state.sub.delete(val.length - 1);
+            }
+            this.#setter(toSpliced(val, index, 1) as T);
         }
     }
 
     add(item: ArrayElement<T>) {
         const val = this.get();
         if (Array.isArray(val)) {
-            this.set(val.concat(item) as T);
+            this.#setter(val.concat(item) as T);
         }
     }
 
     sub<K extends keyof T>(tag: K, update_func?: ((val: T[K]) => void) | undefined): DialogField<T[K]> {
+        const sub = this.#dialog._get_sub_state(this.#state, tag);
         return new DialogField<T[K]>(
             this.#dialog,
-            () => this.get()[tag],
+            sub,
+            () => {
+                const container = this.get();
+                if (Array.isArray(container) && typeof sub.tag == "number") {
+                    if (sub.tag >= 0) {
+                        return container[sub.tag];
+                    } else {
+                        debug("not getting removed field");
+                    }
+                } else
+                    return container[tag];
+            },
             (val) => {
                 const container = this.get();
-                if (Array.isArray(container) && typeof tag == "number")
-                    this.#setter(toSpliced(container, tag, 1, val) as T);
-                else
+                if (Array.isArray(container) && typeof sub.tag == "number") {
+                    if (sub.tag >= 0) {
+                        this.#setter(toSpliced(container, sub.tag, 1, val) as T);
+                    } else {
+                        debug("not modifying removed field");
+                    }
+                } else
                     this.#setter({ ...container, [tag]: val });
                 if (update_func)
                     update_func(val);
             },
-            this.#path ? this.#path + "." + String(tag) : String(tag)
         );
     }
 
     at<TT extends T>(witness: TT): DialogField<TT> {
         cockpit.assert(Object.is(witness, this.get()));
-        return new DialogField<TT>(
-            this.#dialog,
-            () => this.get() as TT,
-            (val) => {
-                this.#setter(val);
-            },
-            this.#path,
-        );
+        return this as unknown as DialogField<TT>;
     }
 
     validate(func: (val: T) => DialogValidationResult<T>): void {
         const val = this.get();
-        this.#dialog._validate_value(this.#path, val, () => func(val));
+        this.#dialog._validate_value(this.#state, val, () => func(val));
     }
 
-    validate_async(debounce: number, func: (val: T) => Promise<DialogValidationResult<T>>): void {
+    validate_async(debounce: number, func: (val: T, task: DialogTask) => Promise<DialogValidationResult<T>>): void {
         const val = this.get();
-        this.#dialog._validate_value_async(this.#path, val, debounce, () => func(val));
+        this.#dialog._validate_value_async(this.#state, val, debounce, task => func(val, task));
+    }
+
+    set_async(debounce: number, func: (val: T, task: DialogTask) => Promise<T>): void {
+        const val = this.get();
+        this.#dialog._update_value_async(this.#state, true, debounce, async task => {
+            const new_val = await func(val, task);
+            if (!task.is_cancelled())
+                this.set(new_val);
+        });
+    }
+
+    get_async(debounce: number, func: (val: T, task: DialogTask) => Promise<void>): void {
+        const val = this.get();
+        this.#dialog._update_value_async(this.#state, false, debounce, task => func(val, task));
     }
 }
 
@@ -807,13 +824,83 @@ function get_validation_result_own_string(result: unknown): string | undefined {
         return undefined;
 }
 
-interface DialogValidationState {
-    path: string;
+export class DialogTask {
+    #name: string;
+    #cancelled: boolean = false;
+    #on_cancel: (() => void) | null = null;
+    #timeout_id: number = 0;
+    #promise: Promise<void> | null = null;
+    #start: () => void;
+    #done: (task: DialogTask) => void;
+
+    constructor(
+        name: string,
+        debounce: number,
+        func: (task: DialogTask) => Promise<void>,
+        done: (task: DialogTask) => void,
+    ) {
+        this.#name = name;
+        this.#done = done;
+        this.#start = () => {
+            debug("starting task", this.#name);
+            cockpit.assert(!this.#cancelled);
+            this.#promise = func(this);
+            this.#promise.finally(() => {
+                debug("task done", this.#name);
+                done(this);
+            });
+        };
+        this.#timeout_id = window.setTimeout(this.#start, debounce);
+        debug("creating task", this.#name, debounce);
+    }
+
+    start_now() {
+        if (!this.#promise && !this.#cancelled) {
+            debug("skipping debounce of task", this.#name);
+            window.clearTimeout(this.#timeout_id);
+            this.#start();
+        }
+    }
+
+    async wait() {
+        // Waiting is only allowed for tasks that have actually been started.
+        cockpit.assert(this.#promise);
+        debug("waiting for task", this.#name);
+        await this.#promise;
+    }
+
+    set_cancel(cancel: (() => void) | null) {
+        this.#on_cancel = cancel;
+    }
+
+    is_cancelled() {
+        return this.#cancelled;
+    }
+
+    cancel() {
+        debug("cancellig task", this.#name);
+        window.clearTimeout(this.#timeout_id);
+        if (this.#on_cancel)
+            this.#on_cancel();
+        this.#cancelled = true;
+        if (!this.#promise) {
+            debug("cancelled task done", this.#name);
+            this.#done(this);
+        }
+    }
+}
+
+interface DialogFieldState {
+    parent: DialogFieldState | null,
+    tag: string | number | symbol;
+    sub: Map<string | number | symbol, DialogFieldState>;
+    relevant: boolean;
+    validation_text: string | undefined;
     cached_value: unknown;
     cached_result: unknown;
-    timeout_id: number;
-    promise: Promise<void> | undefined;
-    round_id: unknown;
+    validation_task: DialogTask | null;
+    update_task: DialogTask | null;
+    update_tasks: Set<DialogTask>;
 }
 
 interface DialogStateEvents {
@@ -826,139 +913,244 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     busy: boolean = false;
     actions_disabled: boolean = false;
     cancel_disabled: boolean = false;
-    cancel_function: (() => void) | null = null;
 
     error: unknown = null;
 
     #validation_failed: boolean = false;
     #online_validation: boolean = false;
     #action_running: boolean = false;
-    #validation: Record<string, string | undefined> = { };
-    #validation_state: Record<string, DialogValidationState> = { };
+    #block_updates: boolean = false;
+    #cancel_function: (() => void) | null = null;
+
+    #top_state: DialogFieldState;
 
     /* eslint-disable no-use-before-define */
     #validate_callback: undefined | ((dlg: DialogState<V>) => void);
     /* eslint-enable */
 
     constructor(init: V, validate: undefined | ((dlg: DialogState<V>) => void)) {
+        debug("open");
         super();
         this.#validate_callback = validate;
         this.values = init;
+        this.#top_state = {
+            parent: null,
+            tag: "",
+            sub: new Map(),
+            relevant: false,
+            validation_text: undefined,
+            cached_value: undefined,
+            cached_result: undefined,
+            validation_task: null,
+            update_task: null,
+            update_tasks: new Set(),
+        };
     }
 
     #update() {
         this.busy = this.#action_running;
         this.actions_disabled = this.#action_running || this.#validation_failed;
-        this.cancel_disabled = this.#action_running && !this.cancel_function;
+        this.cancel_disabled = this.#action_running && !this.#cancel_function;
         this.emit("changed");
     }
 
-    /* VALIDATION
+    /* FIELD STATES
+
+       During validation and asynchronous updates, a lot is going on.
+
+       We use a DialogFieldState object to keep the necessary
+       state for that, such as cached results, and timeouts and
+       promises.
+
+       These state objects keep their identity when arrays elements
+       move around.  Their "index" field will be changed when that
+       happens.
      */
 
-    /* Validation is started by calling the #trigger_validation
-       method. This will reset all validation errors and then call the
-       provided "validate" callback, which in turn will (eventually
-       but synchronously) call the "_validate_value" or
-       "_validate_value_async" methods of all relevant value paths.
-       Those functions will eventually call #set_validation to install
-       the validation results in the fresh #validation object created
-       by #trigger_validation.
+    _get_sub_state(state: DialogFieldState, tag: string | number | symbol): DialogFieldState {
+        let sub = state.sub.get(tag);
+        if (!sub) {
+            sub = {
+                parent: state,
+                tag,
+                sub: new Map(),
+                relevant: false,
+                validation_text: undefined,
+                cached_value: undefined,
+                cached_result: undefined,
+                validation_task: null,
+                update_task: null,
+                update_tasks: new Set(),
+            };
+            state.sub.set(tag, sub);
+        }
+        return sub;
+    }
+
+    _for_each_field_state(func: (state: DialogFieldState) => void) {
+        function visit(state:DialogFieldState) {
+            func(state);
+            for (const sub of state.sub.values())
+                visit(sub);
+        }
+        visit(this.#top_state);
+    }
+
+    async _for_each_field_state_async(func: (state: DialogFieldState) => Promise<void>) {
+        async function visit(state:DialogFieldState) {
+            await func(state);
+            for (const sub of state.sub.values())
+                await visit(sub);
+        }
+        await visit(this.#top_state);
+    }
+
+    /* TASKS
+
+       Tasks are a little abstraction that runs a asynchronous
+       function after a debounce timeout.  Before running the action
+       function, we need to wait for them all to finish.
      */
+
+    async _run_all_tasks_now() {
+        let awaited: boolean = false;
+        do {
+            this._for_each_field_state(state => {
+                if (state.validation_task)
+                    state.validation_task.start_now();
+                if (state.update_task)
+                    state.update_task.start_now();
+                for (const task of state.update_tasks.values())
+                    task.start_now();
+            });
+
+            awaited = false;
+            await this._for_each_field_state_async(async state => {
+                if (state.validation_task) {
+                    await state.validation_task.wait();
+                    awaited = true;
+                }
+                if (state.update_task) {
+                    await state.update_task.wait();
+                    awaited = true;
+                }
+                for (const task of state.update_tasks.values()) {
+                    await task.wait();
+                    awaited = true;
+                }
+            });
+        } while (awaited);
+    }
+
+    _cancel_state_tasks(state: DialogFieldState, only_updates: boolean = false) {
+        debug("cancelling state tasks", state_path(state), only_updates);
+        if (state.validation_task && !only_updates)
+            state.validation_task.cancel();
+        if (state.update_task)
+            state.update_task.cancel();
+        for (const task of state.update_tasks.values())
+            task.cancel();
+        for (const sub of state.sub.values())
+            this._cancel_state_tasks(sub, only_updates);
+    }
+
+    /* VALIDATION
+
+       Validation is started by calling the #trigger_validation
+       method. This will reset all validation errors and mark all
+       fields as "irrelevant". Then it calls the provided "validate"
+       callback, which in turn will (eventually but synchronously)
+       call the "_validate_value" or "_validate_value_async" methods
+       of all relevant value paths.  Those functions will mark their
+       fields as relevant and eventually call #set_validation to
+       install the validation results in the field states.
+
+       After this, all irrelevant asynchronous validation tasks are
+       cancelled.
+     */
+
+    #validation_needed: boolean = false;
+    #validation_running: boolean = false;
 
     #trigger_validation(): void {
         debug("trigger validation");
         if (!this.#validate_callback)
             return;
-        this.#validation = { };
-        this.#validation_failed = false;
-        this.#validate_callback(this);
+
+        this.#validation_needed = true;
+        if (this.#validation_running) {
+            debug("validation postponed");
+            return;
+        }
+
+        this.#validation_running = true;
+        while (this.#validation_needed) {
+            debug("running validation");
+            this.#validation_needed = false;
+            this.#validation_failed = false;
+            this._for_each_field_state(state => {
+                state.relevant = false;
+                state.validation_text = undefined;
+            });
+            this.#validate_callback(this);
+            this._for_each_field_state(state => {
+                if (!state.relevant && state.validation_task) {
+                    debug("cancelling irrelevant validation task", state_path(state));
+                    state.validation_task.cancel();
+                }
+            });
+        }
+        this.#validation_running = false;
+
         this.#update();
     }
 
-    #set_validation(path: string, result: unknown) {
+    #set_validation(state: DialogFieldState, result: unknown) {
         if (result) {
             const own = get_validation_result_own_string(result);
             if (own) {
-                this.#validation[path] = own;
+                state.validation_text = own;
                 this.#validation_failed = true;
                 this.#online_validation = true;
-                this.#update();
             }
             if (typeof result == "object") {
                 for (const [k, v] of Object.entries(result)) {
-                    if (k)
-                        this.#set_validation(path ? path + "." + k : k, v);
+                    const sub = k && state.sub.get(k);
+                    if (sub)
+                        this.#set_validation(sub, v);
                 }
             }
         }
     }
 
-    _get_validation(path: string): string | undefined {
-        if (path in this.#validation)
-            return this.#validation[path];
-        else
-            return undefined;
-    }
+    /* The field state has a cache of the most recently validated
+       value.  If the current calue is still the same, actual
+       validation is skipped and the cached result from last time is
+       used.
 
-    /* In between #trigger_validation and #set_validation, a lot is
-       going on, especially with asynchronous validation.
-
-       We use a DialogValidationState object to keep the necessary
-       state for that, such as cached results, and timeouts and
-       promises.
-
-       Note that a DialogValidationState object can change which path
-       it is for, see _rename_validation_state below. So we have to be
-       careful to always get the path out of the DialogValidationState
-       object.
-     */
-
-    #get_validation_state(path: string): DialogValidationState {
-        if (!(path in this.#validation_state))
-            this.#validation_state[path] = {
-                path,
-                cached_value: undefined,
-                cached_result: undefined,
-                timeout_id: 0,
-                promise: undefined,
-                round_id: undefined,
-            };
-        return this.#validation_state[path];
-    }
-
-    /* Calling #set_validation_state_result is the final thing that
-       should happen when validating a given path. It will install the
+       Calling #set_validation_state_result is the final thing that
+       should happen when validating a field. It will install the
        result in the cache and then call #set_validation.
      */
 
     #set_validation_state_result(
-        state: DialogValidationState,
+        state: DialogFieldState,
         val: unknown,
         result: unknown,
     ) {
         state.cached_value = val;
         state.cached_result = result;
-        state.timeout_id = 0;
-        state.promise = undefined;
-        state.round_id = undefined;
-        this.#set_validation(state.path, result);
+        this.#set_validation(state, result);
     }
 
     /* The first thing should be of course to probe that cache.  If we
        get a hit, it is used immediately to call #set_validation.
-
-       In that case, the DialogValidationState is also made part of
-       the current round since any asynchronous validation that is
-       currently running is still relevant. See below for more about
-       that.
      */
 
-    #probe_validation_state_cache(state: DialogValidationState, val: unknown): boolean {
+    #probe_validation_state_cache(state: DialogFieldState, val: unknown): boolean {
         if (Object.is(state.cached_value, val)) {
-            state.round_id = this.#get_current_validation_round_id();
-            debug("cache hit", state.path, state.cached_result);
-            this.#set_validation(state.path, state.cached_result);
+            debug("cache hit", state_path(state), JSON.stringify(val), state.cached_result);
+            this.#set_validation(state, state.cached_result);
             return true;
         } else
             return false;
@@ -967,204 +1159,99 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     /* And in fact, _validate_value does exactly those two things.
      */
 
-    _validate_value(path: string, val: unknown, func: () => unknown): void {
-        const state = this.#get_validation_state(path);
+    _validate_value(state: DialogFieldState, val: unknown, func: () => unknown): void {
+        state.relevant = true;
         if (!this.#probe_validation_state_cache(state, val)) {
             const result = func();
-            debug("sync validate", state.path, result);
+            debug("sync validate", state_path(state), JSON.stringify(result));
             this.#set_validation_state_result(state, val, result);
         }
     }
 
     /* Now asynchronous validation.
 
-       Each call to #trigger_validation starts a new "validation
-       round" and a DialogValidationState keeps track to which round
-       it applies to.  This matters of course for asynchronous
-       validation: If async validation for a given path was started in
-       one round, and then the next round happens but the path is no
-       longer enumerated by the validation callback (i.e., its value
-       is no longer relevant for the dialog), then this asynchronous
-       validation should have no effect.
-
-       We use the #validation object as the round identifier, since it
-       is created fresh by each call to #trigger_validation.
-     */
-
-    #get_current_validation_round_id(): unknown {
-        return this.#validation;
-    }
-
-    #is_current_validation_round_id(id: unknown): boolean {
-        return Object.is(id, this.#validation);
-    }
-
-    /* If there was no cache hit, asynchronous validation starts with
+       If there was no cache hit, asynchronous validation starts with
        a timeout, followed by letting a asynchronous function run to
-       resolution.
+       resolution.  This is managed by a DialogTask.
 
-       Setting a new timeout of course cancels any previously set
-       one. It also installs the current value in the cache, so that
-       subsequent validation rounds do nothing until the value
-       actually changes.
+       Starting a new task of course cancels any previous one. It also
+       installs the current value in the cache, so that subsequent
+       validation rounds do nothing until the value actually changes.
 
-       One interesting thing to note is that when doing the final
-       validation before running an action function, no debouncing
-       delay should be applied of course. We want to get on with
-       validation immediately.
+       When the validation result has been computed, we need to check
+       whether we have been cancelled so that we don't install
+       out-dated results.
      */
 
-    #set_validation_state_timeout(
-        state: DialogValidationState,
+    _validate_value_async(
+        state: DialogFieldState,
         val: unknown,
-        delay: number,
-        func: () => void,
-    ) {
-        if (state.timeout_id) {
-            debug("timeout cancel", state.path);
-            window.clearTimeout(state.timeout_id);
-            state.timeout_id = 0;
-        }
-        if (this.#action_running || delay == 0) {
-            func();
-        } else {
+        debounce: number,
+        func: (task: DialogTask) => Promise<unknown>
+    ): void {
+        state.relevant = true;
+        if (!this.#probe_validation_state_cache(state, val)) {
             state.cached_value = val;
             state.cached_result = undefined;
-            state.timeout_id = window.setTimeout(
-                () => {
-                    debug("timeout", state.path);
-                    if (!this.#validation_state_is_current(state)) {
-                        debug("timeout outdated", state.path);
-                        return;
-                    }
-                    func();
-                },
-                delay);
-            state.promise = undefined;
-            state.round_id = this.#get_current_validation_round_id();
-        }
-    }
 
-    /* Once the timeout is over (and the path is still relevant to the
-       current round), the actual asynchronous validation is launched.
-       This promise that represents it is simply installed in the
-       DialogValidationState.
-     */
-
-    #set_validation_state_promise(
-        state: DialogValidationState,
-        val: unknown,
-        prom: Promise<void>,
-    ) {
-        state.cached_value = val;
-        state.cached_result = undefined;
-        state.timeout_id = 0;
-        state.promise = prom;
-        state.round_id = this.#get_current_validation_round_id();
-    }
-
-    /* Unlike with the timeout, we can not cancel the old promise when
-       installing a new one. Instead we check at the end whether it is
-       still really us that is supposed to deliver the result, by
-       comparing promises.
-
-       To summarize:
-
-       - The round id check will fail if the value is no longer
-         relevant to the dialog.  For example, say there is a text
-         input that can be toggled in and out of the dialog via a
-         checkbox. Now a validation round is started while the text
-         input is part of the dialog. During the debounce timeout or
-         while the asynchronous validation function runs, the user
-         toggles the checkbox (which triggers a new validation round)
-         and the text input is no longer part of the dialog. Now when
-         the timeout or validation for the text input concludes, the
-         round id check fails and the result is ignored, as it should.
-
-       - The promise check will fail when a asynchronous validation
-         takes longer than the debounce timeout.  Let's say there is a
-         text input with a debounce timeout of 1 second and a
-         validation function that takes 2 seconds. The user makes a
-         change that triggers validation and then remains idle for
-         more than a second. After one second, the timeout expires and
-         the promise is created and starts running. It will finish at
-         second 3, but we are not there yet. At second 1.5 the user
-         makes another change, a new timeout expires at 2.5 and a new
-         promise is created. At second 3 the original promise finally
-         comes to a conclusion, and the path is still relevant to the
-         dialog, but this promise is no longer the current
-         promise. Its result will be ignored, as it should.
-     */
-
-    #validation_state_is_current(state: DialogValidationState, prom?: Promise<void>): boolean {
-        return (
-            (!prom || Object.is(state.promise, prom)) &&
-                this.#is_current_validation_round_id(state.round_id)
-        );
-    }
-
-    /* _validate_value_async puts this all together.
-     */
-
-    _validate_value_async(path: string, val: unknown, debounce: number, func: () => Promise<unknown>): void {
-        const state = this.#get_validation_state(path);
-        if (!this.#probe_validation_state_cache(state, val)) {
-            debug("async validate start debounce", state.path, val);
-            this.#set_validation_state_timeout(
-                state,
-                val,
+            if (state.validation_task)
+                state.validation_task.cancel();
+            state.validation_task = new DialogTask(
+                state_path(state) + ":validate",
                 debounce,
-                () => {
-                    debug("async validate start promise", state.path, val);
-                    const prom =
-                        func()
-                                .catch(
-                                    ex => {
-                                        console.error(ex);
-                                        return undefined;
-                                    }
-                                )
-                                .then(
-                                    result => {
-                                        if (this.#validation_state_is_current(state, prom)) {
-                                            debug("async validate done", state.path, result);
-                                            this.#set_validation_state_result(state, val, result);
-                                        } else {
-                                            debug("promise outdated", state.path);
-                                        }
-                                    }
-                                );
-                    this.#set_validation_state_promise(state, val, prom);
+                async task => {
+                    let result;
+                    try {
+                        result = await func(task);
+                    } catch (ex) {
+                        console.error(ex);
+                    }
+                    if (!task.is_cancelled()) {
+                        debug("async validate result", state_path(state), result);
+                        this.#set_validation_state_result(state, val, result);
+                        this.#update();
+                    }
+                },
+                task => {
+                    if (state.validation_task == task)
+                        state.validation_task = null;
                 }
             );
         }
     }
 
-    /* Since the DialogValidationState for a path is so important, it
-       is also important to keep them firmly associated with each
-       other when the path of a value changes.
-
-       A path might change when there are arrays involved, and
-       elements get new indices without actually changing identity.
-     */
-
-    _rename_validation_state(path: string, from: number, to: number) {
-        const from_path = path + "." + String(from);
-        const to_path = path + "." + String(to);
-        if (from_path in this.#validation_state) {
-            debug("rename", from_path, to_path);
-            this.#validation_state[to_path] = this.#validation_state[from_path];
-            this.#validation_state[to_path].path = to_path;
-            delete this.#validation_state[from_path];
-        }
-        for (const k in this.#validation_state) {
-            if (k.indexOf(from_path + ".") == 0) {
-                const to = to_path + k.substring(from_path.length);
-                debug("rename", k, to);
-                this.#validation_state[to] = this.#validation_state[k];
-                this.#validation_state[to].path = to;
-                delete this.#validation_state[k];
+    _update_value_async(
+        state: DialogFieldState,
+        only_one: boolean,
+        debounce: number,
+        func: (task: DialogTask) => Promise<void>
+    ): void {
+        const task = new DialogTask(
+            state_path(state) + ":update",
+            debounce,
+            async ctxt => {
+                try {
+                    await func(ctxt);
+                } catch (ex) {
+                    console.error(ex);
+                }
+            },
+            task => {
+                if (only_one) {
+                    if (state.update_task == task)
+                        state.update_task = null;
+                } else {
+                    state.update_tasks.delete(task);
+                }
             }
+        );
+
+        if (only_one) {
+            if (state.update_task)
+                state.update_task.cancel();
+            state.update_task = task;
+        } else {
+            state.update_tasks.add(task);
         }
     }
 
@@ -1172,49 +1259,27 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
        round and then wait for all the asynchronous results to have
        come in.
 
-       If there are any DialogValidationState objects that are waiting
+       If there are any DialogFieldState objects that are waiting
        for a timeout, we want to cancel those and start over, so that
        their validation starts immediately. (Also, it would be hairy
        to wait for those timeouts to be over from here.)
      */
 
     async validate(): Promise<boolean> {
-        this.#cancel_all_validation_timeouts();
+        this.#online_validation = true;
         this.#trigger_validation();
-        await this.#wait_for_validation_promises();
+        await this._run_all_tasks_now();
         return !this.#validation_failed;
     }
 
-    #cancel_all_validation_timeouts() {
-        for (const p in this.#validation_state) {
-            const state = this.#validation_state[p];
-            if (state.timeout_id) {
-                debug("timeout bulk cancel", p);
-                window.clearTimeout(state.timeout_id);
-                delete this.#validation_state[p];
-            }
-        }
-    }
-
-    async #wait_for_validation_promises(): Promise<void> {
-        for (const path in this.#validation_state) {
-            const state = this.#validation_state[path];
-            if (state.promise) {
-                debug("waiting for promise", path);
-                await state.promise;
-                debug("waiting for promise done", path);
-            }
-        }
-    }
-
     set_cancel(cancel: (() => void) | null) {
-        this.cancel_function = cancel;
+        this.#cancel_function = cancel;
         this.#update();
     }
 
     async run_action(func: (vals: V) => Promise<void>): Promise<boolean> {
         this.error = null;
-        this.cancel_function = null;
+        this.#cancel_function = null;
         this.#action_running = true;
         this.#update();
         if (!await this.validate()) {
@@ -1224,26 +1289,39 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         }
 
         try {
+            this.#block_updates = true;
             await func(this.values);
         } catch (ex) {
             console.error(String(ex));
             this.error = ex;
         }
 
-        this.cancel_function = null;
+        this.#cancel_function = null;
         this.#action_running = false;
+        this.#block_updates = false;
         this.#update();
 
         return !this.error;
     }
 
+    cancel(onClose: () => void): void {
+        if (this.#action_running) {
+            if (this.#cancel_function)
+                this.#cancel_function();
+        } else {
+            this._cancel_state_tasks(this.#top_state);
+            onClose();
+        }
+    }
+
     top(update_func?: ((val: V) => void) | undefined): DialogField<V> {
         return new DialogField<V>(
             this as DialogState<unknown>,
+            this.#top_state,
             () => this.values,
             (val) => {
                 debug("set", val);
-                if (this.#action_running) {
+                if (this.#block_updates) {
                     // Deny state changes while actions run.  This
                     // prevents the user from interacting with the
                     // dialog while it is busy. The alternative would
@@ -1261,7 +1339,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 if (update_func)
                     update_func(val);
             },
-            "");
+        );
     }
 
     field<K extends keyof V>(tag: K, update_func?: ((val: V[K]) => void) | undefined): DialogField<V[K]> {
@@ -1407,8 +1485,8 @@ export function DialogCancelButton<V>({
             isDisabled={!dialog || (dialog instanceof DialogState && dialog.cancel_disabled)}
             variant="link"
             onClick={() => {
-                if (dialog instanceof DialogState && dialog.cancel_function)
-                    dialog.cancel_function();
+                if (dialog instanceof DialogState)
+                    dialog.cancel(onClose);
                 else
                     onClose();
             }}

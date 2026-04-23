@@ -369,11 +369,10 @@ request_dynamic_wsinstance (const char *fingerprint)
 {
   bool status = false;
   char reply[20];
-  int fd;
 
   debug (CONNECTION, "requesting dynamic wsinstance for %s:\n", fingerprint);
 
-  fd = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  int fd = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd == -1)
     {
       warn ("socket() failed");

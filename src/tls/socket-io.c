@@ -173,7 +173,10 @@ recv_all (int     fd,
     }
 
   /* either the buffer overflowed or we timed out */
-  warnx ("recv_all() failed: buffer is full and no EOF received");
+  if (count >= size)
+    warnx ("recv_all() failed: buffer is full and no EOF received");
+  else
+    warnx ("recv_all() failed: timeout; got %zu bytes, size == %zu", count, size);
   return -1;
 }
 

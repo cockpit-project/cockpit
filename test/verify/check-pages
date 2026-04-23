@@ -667,6 +667,9 @@ OnCalendar=daily
         self.addCleanup(m.execute, "systemctl stop pmcd")
         m.execute("systemctl start pmcd")
 
+        # packagekitd consumes tons of memory on logging into Cockpit
+        self.disable_preload("packagekit")
+
         self.login_and_go("/playground/plot")
         b.wait_visible("#plot-direct")
         b.wait_visible("#plot-pmcd")

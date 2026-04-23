@@ -569,10 +569,13 @@ pam_ssh_add_load (pam_handle_t *pamh,
     }
 
   /* Wait for the initial process to exit */
-  if (waitid (P_PID, pid, &result, WEXITED) < 0)
+  while (waitid (P_PID, pid, &result, WEXITED) < 0)
     {
-      error ("couldn't wait on ssh-add process: %m");
-      goto done;
+      if (errno != EINTR)
+        {
+          error ("couldn't wait on ssh-add process: %m");
+          goto done;
+        }
     }
 
   success = result.si_code == CLD_EXITED && result.si_status == 0;
@@ -679,10 +682,13 @@ pam_ssh_add_start_agent (pam_handle_t *pamh,
     }
 
   /* Wait for the initial process to exit */
-  if (waitid (P_PID, pid, &result, WEXITED) < 0)
+  while (waitid (P_PID, pid, &result, WEXITED) < 0)
     {
-      error ("couldn't wait on ssh-agent process: %m");
-      goto done;
+      if (errno != EINTR)
+        {
+          error ("couldn't wait on ssh-agent process: %m");
+          goto done;
+        }
     }
 
   success = result.si_code == CLD_EXITED && result.si_status == 0;

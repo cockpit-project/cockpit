@@ -6,16 +6,13 @@ set -eux
 # Their lifetimes need to be long enough for long-term support distributions, i.e. > 15 years
 DAYS=10000
 
-# OpenSSL 3.x defaults to PKCS#8 format, but we need traditional RSA format for GnuTLS compatibility
-openssl genrsa -traditional -out ca.key 2048
-openssl req -config ca.conf -x509 -key ca.key -out ca.pem -subj '/O=Cockpit/OU=test/CN=CA/' -days "$DAYS"
-
+openssl req -config ca.conf -x509  -newkey rsa:2048 -out ca.pem -subj '/O=Cockpit/OU=test/CN=CA/' -nodes -days "$DAYS"
 mkdir certs
 touch index.txt
 echo 01 > serial
 
 for user in alice bob; do
-    openssl genrsa -traditional -out ${user}.key 2048
+    openssl genrsa -out ${user}.key 2048
 
     openssl req -new -key ${user}.key -out ${user}.csr -config ca.conf -subj "/CN=${user}/DC=COCKPIT/DC=LAN/"
     openssl req -in ${user}.csr -text

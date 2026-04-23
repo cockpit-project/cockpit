@@ -60,6 +60,14 @@ if [ "$PLAN" = "main" ]; then
         EXCLUDES="$EXCLUDES TestLogin.testClientCertAuthentication"
     fi
 
+    # No teaming support on ELN
+    if [ "$TEST_OS" = "fedora-eln" ]; then
+        EXCLUDES="$EXCLUDES
+	          TestTeam.testBasic
+		  TestTeam.testActive
+		  "
+    fi
+
     # TODO: our /usr/local/ bind mount isn't "visible" to systemd
     if [ "${TEST_OS%bootc}" != "$TEST_OS" ]; then
         EXCLUDES="$EXCLUDES TestServices.testTimer"
@@ -198,6 +206,22 @@ if [ "$PLAN" = "storage-basic" ]; then
                   TestStorageswap.testBasic
                   TestStorageswap.testEncrypted
                   "
+    fi
+
+    if [ "$TEST_OS" = "fedora-eln" ]; then
+       EXCLUDES="$EXCLUDES
+                 TestStorageBtrfs.testBasic
+		 TestStorageBtrfs.testCreateSubvolume
+		 TestStorageBtrfs.testDefaultSubvolume
+		 TestStorageBtrfs.testDeleteSubvolume
+		 TestStorageBtrfs.testLuksEncrypted
+		 TestStorageBtrfs.testMultiDevice
+		 TestStorageBtrfs.testNoSubvolMount
+		 TestStorageBtrfs.testSnapshot
+		 TestStorageMounting.testFsabOptionsBtrfs
+		 TestStorageMounting.testMountingBtrfs
+		 TestStorageMounting.testMountingHelpBtrfs
+                 "
     fi
 fi
 

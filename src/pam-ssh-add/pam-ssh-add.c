@@ -580,7 +580,7 @@ pam_ssh_add_load (pam_handle_t *pamh,
   if (!success)
     {
       /* key loading failed, don't report as an error */
-      if (result.si_code == 1)
+      if (result.si_code == CLD_EXITED && result.si_status == 1)
         {
           success = 1;
           message ("Failed adding some keys");

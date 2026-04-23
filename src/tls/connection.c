@@ -724,7 +724,7 @@ connection_create_metadata (Connection *self)
       {
         struct sockaddr_in *in_addr = (struct sockaddr_in *) &addr;
 
-        port = in_addr->sin_port;
+        port = ntohs (in_addr->sin_port);
         const char *r = inet_ntop (AF_INET, &in_addr->sin_addr, ip, sizeof ip);
         assert (r != NULL);
       }
@@ -734,7 +734,7 @@ connection_create_metadata (Connection *self)
       {
         struct sockaddr_in6 *in6_addr = (struct sockaddr_in6 *) &addr;
 
-        port = in6_addr->sin6_port;
+        port = ntohs (in6_addr->sin6_port);
         const char *r = inet_ntop (AF_INET6, &in6_addr->sin6_addr, ip, sizeof ip);
         assert (r != NULL);
 

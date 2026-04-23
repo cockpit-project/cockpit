@@ -63,11 +63,6 @@ static const char *agent_vars[] = {
 #define  READ_END   0
 #define  WRITE_END  1
 
-/* pre-set file descriptors */
-#define  STDIN   0
-#define  STDOUT  1
-#define  STDERR  2
-
 /* attribute for stored auth */
 #define STORED_AUTHTOK "pam_ssh_add_authtok"
 

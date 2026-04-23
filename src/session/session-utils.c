@@ -153,14 +153,21 @@ __attribute__((__noreturn__)) void
 exit_init_problem (const char *problem, const char *message)
 {
   char *payload = NULL;
+  size_t payload_size = 0;
 
   debug ("writing init problem %s message %s", problem, message);
 
-  if (asprintf (&payload, "\n{\"command\":\"init\",\"version\":1,\"problem\":\"%s\",\"message\":\"%s\"}",
-                problem, message) < 0)
+  FILE *stream = open_memstream (&payload, &payload_size);
+  if (!stream)
     errx (EX, "couldn't allocate memory for message");
 
-  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)payload, strlen (payload)) < 0)
+  fprintf (stream, "\n{\"command\":\"init\",\"version\":1");
+  cockpit_json_print_string_property (stream, "problem", problem, -1);
+  cockpit_json_print_string_property (stream, "message", message, -1);
+  fprintf (stream, "}");
+  fclose (stream);
+
+  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)payload, payload_size) < 0)
     err (EX, "couldn't write init message");
 
   free (payload);

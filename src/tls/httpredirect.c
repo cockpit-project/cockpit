@@ -46,6 +46,7 @@ static bool
 write_error (FILE *output)
 {
   fprintf (output, "HTTP/1.1 400 Client Error\r\n"
+                   "Connection: close\r\n"
                    "\r\n"
                    "Incorrect request.\r\n");
 
@@ -104,8 +105,8 @@ http_redirect (FILE *input,
     return write_error (output);
 
   fprintf (output, "HTTP/1.1 301 Moved Permanently\r\n"
-                   "Content-Type: text/html\r\n"
                    "Location: https://%s%s\r\n"
+                   "Connection: close\r\n"
                    "\r\n", host, path);
 
   return true;

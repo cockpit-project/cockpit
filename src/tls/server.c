@@ -146,14 +146,19 @@ handle_accept (int listen_fd)
                           server_connection_thread_start_routine,
                           (void *) (uintptr_t) fd);
 
+  pthread_attr_destroy (&attr);
+
   if (r != 0)
     {
       errno = r;
       warn ("pthread_create() failed.  dropping connection");
       close (fd);
-    }
 
-  pthread_attr_destroy (&attr);
+      /* Decrement connection_count since thread was never created */
+      pthread_mutex_lock (&server.connection_mutex);
+      server.connection_count--;
+      pthread_mutex_unlock (&server.connection_mutex);
+    }
 }
 
 /***********************************

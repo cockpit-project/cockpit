@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-import PropTypes from 'prop-types';
 import React from 'react';
 import { Tab, TabTitleText, Tabs } from "@patternfly/react-core/dist/esm/components/Tabs/index.js";
 import './cockpit-components-listing-panel.scss';
@@ -13,8 +12,30 @@ import './cockpit-components-listing-panel.scss';
  *     - renderer react component
  *     - data render data passed to the tab renderer
  */
-export class ListingPanel extends React.Component {
-    constructor(props) {
+
+interface TabRenderer {
+    name: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    renderer: React.ComponentType<any>;
+    data?: Record<string, unknown>;
+}
+
+interface ListingPanelProps {
+    tabRenderers?: TabRenderer[];
+    listingDetail?: React.ReactNode;
+    initiallyActiveTab?: number;
+}
+
+interface ListingPanelState {
+    activeTab: string | number;
+}
+
+export class ListingPanel extends React.Component<ListingPanelProps, ListingPanelState> {
+    static defaultProps = {
+        tabRenderers: [],
+    };
+
+    constructor(props: ListingPanelProps) {
         super(props);
         this.state = {
             activeTab: props.initiallyActiveTab ? props.initiallyActiveTab : 0, // currently active tab in expanded mode, defaults to first tab
@@ -22,7 +43,7 @@ export class ListingPanel extends React.Component {
         this.handleTabClick = this.handleTabClick.bind(this);
     }
 
-    handleTabClick(event, tabIndex) {
+    handleTabClick(event: React.MouseEvent, tabIndex: number | string) {
         event.preventDefault();
         if (this.state.activeTab !== tabIndex) {
             this.setState({ activeTab: tabIndex });
@@ -44,8 +65,8 @@ export class ListingPanel extends React.Component {
                 {listingDetail && <div className="ct-listing-panel-actions pf-v6-c-tabs">
                     {listingDetail}
                 </div>}
-                {this.props.tabRenderers.length && <Tabs activeKey={this.state.activeTab} className="ct-listing-panel-tabs" mountOnEnter onSelect={this.handleTabClick}>
-                    {this.props.tabRenderers.map((itm, tabIdx) => {
+                {this.props.tabRenderers?.length && <Tabs activeKey={this.state.activeTab} className="ct-listing-panel-tabs" mountOnEnter onSelect={this.handleTabClick}>
+                    {this.props.tabRenderers?.map((itm, tabIdx) => {
                         const Renderer = itm.renderer;
                         const rendererData = itm.data;
 
@@ -62,12 +83,3 @@ export class ListingPanel extends React.Component {
         );
     }
 }
-ListingPanel.defaultProps = {
-    tabRenderers: [],
-};
-
-ListingPanel.propTypes = {
-    tabRenderers: PropTypes.array,
-    listingDetail: PropTypes.node,
-    initiallyActiveTab: PropTypes.number,
-};

@@ -89,6 +89,9 @@ QUnit.test("simple request", async assert => {
             dialog: {
                 label: "Dialog Implementation Convenience Kit"
             },
+            "modern-cockpit": {
+                label: "A page without cockpit.js"
+            },
         },
         preload: ["preloaded"],
         "content-security-policy": "img-src 'self' data:"

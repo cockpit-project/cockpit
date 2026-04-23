@@ -30,6 +30,7 @@ import cockpit from "cockpit";
 import { superuser } from 'superuser';
 import { useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
+import { SessionCountdownModal } from "cockpit-components-session-countdown-modal";
 
 import s_bus from "./busnames.js";
 import "./services.scss";
@@ -896,6 +897,7 @@ const ServicesPage = () => {
     return (
         <WithDialogs>
             <Page className='pf-m-no-sidebar'>
+                <SessionCountdownModal />
                 {cockpit.location.path.length == 0 &&
                 <PageSection hasBodyWrapper={false} className="services-header">
                     <Flex>

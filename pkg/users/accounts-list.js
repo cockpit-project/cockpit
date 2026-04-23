@@ -35,6 +35,7 @@ import { GroupActions } from "./group-actions.jsx";
 
 import { usePageLocation } from "hooks";
 import { KebabDropdown } from "cockpit-components-dropdown";
+import { SessionCountdownModal } from "cockpit-components-session-countdown-modal";
 
 const _ = cockpit.gettext;
 
@@ -447,6 +448,7 @@ export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpan
 
     return (
         <Page id="accounts" className="pf-m-no-sidebar">
+            <SessionCountdownModal />
             <PageSection hasBodyWrapper={false}>
                 <Stack hasGutter>
                     <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} min_gid={min_gid} max_gid={max_gid} />

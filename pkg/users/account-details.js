@@ -26,6 +26,7 @@ import { superuser } from "superuser";
 import * as timeformat from "timeformat";
 import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { MultiTypeaheadSelect } from "cockpit-components-multi-typeahead-select";
+import { SessionCountdownModal } from "cockpit-components-session-countdown-modal";
 
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
@@ -236,6 +237,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
 
     return (
         <Page id="account" className="pf-m-no-sidebar">
+            <SessionCountdownModal />
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>

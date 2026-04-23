@@ -118,14 +118,66 @@ class RoutingRule:
         raise NotImplementedError
 
 
+class SessionController:
+    router: 'Router'
+    channels: 'set[str]'
+    timeout: int
+    timer: 'asyncio.TimerHandle | None'
+    task: 'asyncio.Task | None'
+
+    def __init__(self, timeout: int, router) -> None:
+        self.channels = set()
+        self.timeout = timeout
+        self.timer = None
+        self.task = None
+        self.router = router
+
+    def add_channel(self, channel: str) -> None:
+        self.channels.add(channel)
+        if self.timer is None and self.task is None:
+            self.reset_session_timeout()
+
+    def remove_channel(self, channel: str) -> None:
+        self.channels.remove(channel)
+        if len(self.channels) == 0:
+            self.reset_session_timeout()
+
+    def send_message(self, command: str, **kwargs) -> None:
+        for c in self.channels:
+            self.router.write_control(channel=c, command=command, **kwargs)
+
+    async def _logout_sequence(self) -> None:
+        for i in range(30, 0, -1):
+            self.send_message("countdown", counter=i)
+            await asyncio.sleep(1)
+        self.send_message("logout")
+        await asyncio.sleep(10)
+        self.router.close()
+
+    def _start_logout_sequence(self) -> None:
+        self.task = asyncio.create_task(self._logout_sequence())
+
+    def reset_session_timeout(self) -> None:
+        if self.timer is not None:
+            self.timer.cancel()
+            self.timer = None
+        if self.task is not None:
+            self.task.cancel()
+            self.task = None
+        if self.timeout > 0 and len(self.channels) > 0:
+            self.timer = asyncio.get_event_loop().call_later(max(self.timeout - 30, 30), self._start_logout_sequence)
+
+
 class Router(CockpitProtocolServer):
     routing_rules: List[RoutingRule]
     open_channels: Dict[str, Endpoint]
     endpoints: 'dict[Endpoint, set[str]]'
     no_endpoints: asyncio.Event  # set if endpoints dict is empty
+    session_controller: 'SessionController | None'
+
     _eof: bool = False
 
-    def __init__(self, routing_rules: List[RoutingRule]):
+    def __init__(self, routing_rules: List[RoutingRule], *, session_timeout: 'int | None' = None):
         for rule in routing_rules:
             rule.router = self
         self.routing_rules = routing_rules
@@ -133,6 +185,9 @@ class Router(CockpitProtocolServer):
         self.endpoints = {}
         self.no_endpoints = asyncio.Event()
         self.no_endpoints.set()  # at first there are no endpoints
+        self.session_controller = None
+        if session_timeout is not None:
+            self.session_controller = SessionController(session_timeout, self)
 
     def info(self) -> JsonObject:
         """Used by the 'info' channel.  Gets overridden in Bridge."""

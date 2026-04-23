@@ -43,6 +43,7 @@ import * as timeformat from "timeformat";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 import { KebabDropdown } from "cockpit-components-dropdown";
+import { SessionCountdownModal } from "cockpit-components-session-countdown-modal";
 
 import get_report_dir_py from "./get_report_dir.py";
 
@@ -508,6 +509,7 @@ const SOSPage = () => {
     return (
         <WithDialogs>
             <Page className="pf-m-no-sidebar">
+                <SessionCountdownModal />
                 <PageSection hasBodyWrapper={false} padding={{ default: "padding" }}>
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
                         <h2 className="pf-v6-u-font-size-3xl">{_("System diagnostics")}</h2>

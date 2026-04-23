@@ -329,7 +329,7 @@ scan_btmp (const char *username,
 
       do
         r = read (fd, &entry, sizeof entry);
-      while (r == -1 && errno != EINTR);
+      while (r == -1 && errno == EINTR);
 
       if (r == 0)
         break;

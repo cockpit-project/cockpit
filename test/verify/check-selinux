@@ -5,8 +5,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 
-import time
-
 import testlib
 from lib.constants import TEST_OS_DEFAULT
 
@@ -59,26 +57,7 @@ class TestSelinux(testlib.MachineCase):
 
         self.login_and_go("/selinux")
 
-        # Starting Cockpit might produce some alerts (e.g. from
-        # starting rhsm.service), so let's give them some time to
-        # appear before cleaning it all out.
-        with b.wait_timeout(60):
-            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v6-c-table__toggle')")
-        time.sleep(30)
-
         dismiss_sel = ".selinux-alert-dismiss"
-
-        # there are some distros with broken SELinux policies which always appear; so first, clean these up
-        while True:
-            # we either have no alerts, or an expand button in the table
-            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v6-c-table__toggle')")
-            if "No SELinux alerts." in b.text('body'):
-                break
-            num_alerts = b.count("#selinux-alerts tbody")
-            b.click('tbody:first-of-type input[type=checkbox]')
-            b.click(dismiss_sel)
-            # wait for the dismissed alert to go away
-            b.wait_count("#selinux-alerts tbody", num_alerts - 1)
 
         # wait for Modifications table to initialize
         b.wait_text_matches(".modifications-table", "Allow.*daemons.*core")
@@ -88,20 +67,22 @@ class TestSelinux(testlib.MachineCase):
         # and not part of modifications
         b.wait_not_in_text(".modifications-table", "httpd to read user content")
 
+        def wait_for_alert(text):
+            # wait for the alert to appear
+            with b.wait_timeout(60):
+                b.wait_in_text("#selinux-alerts", text)
+
+            # figure out which row it is
+            row_id = b.attr(f"#selinux-alerts tr:contains('{text}')", "data-row-id")
+            return f"#selinux-alerts tr[data-row-id='{row_id}']"
+
         #########################################################
         # trigger an sebool alert
         # this triggers two solutions -- the preferred sebool module, which can be applied automatically,
         # and the fallback "report a bug" ausearch one, which cannot be applied automatically
         self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
 
-        row_selector = "#selinux-alerts tbody"
-
-        # wait for the alert to appear
-        b.wait_count(row_selector, 0)
-        with b.wait_timeout(60):
-            b.wait_count(row_selector, 1)
-
-        b.wait_in_text("#selinux-alerts tbody", "ls from read access on the directory")
+        row_selector = wait_for_alert("ls from read access on the directory")
 
         # expand it to see details
         toggle_selector = row_selector + " .pf-v6-c-table__toggle button"
@@ -110,7 +91,7 @@ class TestSelinux(testlib.MachineCase):
         # this should have two alerts, but there seems to be a known issue that some messages are delayed
         # b.wait_in_text(row_selector, "2 occurrences")
 
-        panel_selector = row_selector + " tr.pf-m-expanded .ct-listing-panel-body"
+        panel_selector = row_selector + " + tr.pf-m-expanded .ct-listing-panel-body"
 
         # manual label change solution is present
         relabel_selector = panel_selector + " .selinux-details:contains('public_content_t')"
@@ -140,10 +121,14 @@ class TestSelinux(testlib.MachineCase):
             m.execute("systemctl restart setroubleshootd")
             b.reload()
             b.enter_page("/selinux")
+
         self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
-        with b.wait_timeout(60):
-            b.wait_visible(row_selector)
-        b.click(toggle_selector)
+        row_selector = wait_for_alert("ls from read access on the directory")
+        b.click(row_selector + " .pf-v6-c-table__toggle button")
+
+        # Recompute selectors for the changed row id
+        panel_selector = row_selector + " + tr.pf-m-expanded .ct-listing-panel-body"
+        sebool_selector1 = panel_selector + f" .selinux-details[data-solution-id='{solution_id}']"
 
         # applying solution works now
         b.click(sebool_selector1 + " button" + self.default_btn_class)
@@ -163,19 +148,15 @@ class TestSelinux(testlib.MachineCase):
         b.assert_pixels("#app", "selinux", ignore=["table .ct-listing-panel-actions"])
         b.click(dismiss_sel)
         b.wait_not_present(row_selector)
-        b.wait_in_text("body", "No SELinux alerts.")
 
         if not m.image.startswith(("rhel-10", "centos-10")):
             #########################################################
             # trigger a fixable restorecon alert
             self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)
 
-            # wait for the alert to appear
-            with b.wait_timeout(60):
-                b.wait_in_text("#selinux-alerts", "read access on the file /root/.ssh/authorized_keys")
+            row_selector = wait_for_alert("read access on the file /root/.ssh/authorized_keys")
+            panel_selector = row_selector + " + tr.pf-m-expanded .ct-listing-panel-body"
 
-            row_id = b.attr("#selinux-alerts tr:contains('read access on the file /root/.ssh/authorized_keys')", "data-row-id")
-            row_selector = f"#selinux-alerts tr[data-row-id='{row_id}']"
             # expand it to see details
             toggle_selector = row_selector + " .pf-v6-c-table__toggle button"
             b.click(toggle_selector)

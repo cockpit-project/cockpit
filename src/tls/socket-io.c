@@ -99,7 +99,7 @@ wait_for_io (struct timespec *start,
 
   do
     r = poll (&pfd, 1, (remaining + 999) / 1000);
-  while (r == -1 && errno == ENOENT);
+  while (r == -1 && errno == EINTR);
 
   debug (SOCKET_IO, "  -> result is %d/%s", r, r < 0 ? strerror (errno) : "-");
 

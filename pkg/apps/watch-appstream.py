@@ -2,9 +2,21 @@
 import gzip
 import json
 import os
+import subprocess
 import sys
 import traceback
 import xml.etree.ElementTree as ET
+
+try:
+    import gi
+    gi.require_version('AppStream', '1.0')
+    from gi.repository import AppStream
+except ImportError:
+    gi = None
+    AppStream = None
+except ValueError:
+    AppStream = None
+
 
 # Our own little abstraction on top of inotify.  This only supports
 # watching directories non-recursively, but it also supports watching
@@ -100,9 +112,17 @@ def attr_lang(elt):
 
 def element(xml, tag):
     if lang:
+        # If there is an element without a lang attribute we use that
+        # as a fallback when we can't match to the selected language.
+        empty_lang = None
         for elt in xml.iter(tag):
             if attr_lang(elt) == lang:
                 return elt
+            elif attr_lang(elt) is None and empty_lang is None:
+                empty_lang = elt
+
+        if empty_lang is not None:
+            return empty_lang
     return xml.find(tag)
 
 
@@ -377,10 +397,35 @@ def watch_db():
     def available_callback(path):
         process_file(path, lambda path, xml: db.notice_available(path, xml))
 
+    def convert_yaml_to_xml(path: str):
+        try:
+            filename = os.path.basename(path).removesuffix('.yml.gz')
+            if path.endswith('.yml.gz'):
+                subprocess.check_call([
+                    "appstreamcli",
+                    "convert",
+                    path,
+                    f'/var/lib/swcatalog/xml/{filename}.xml'
+                ])
+
+        except Exception:
+            # If we hit an exception during handling a file, pretend
+            # that it doesn't exist instead of keeping old data.  This
+            # makes the behavior consistent across restarts of this
+            # watcher.
+            sys.stderr.write("%s: " % path)
+            sys.stderr.write("".join(traceback.format_exception_only(sys.exc_info()[0], sys.exc_info()[1])))
+            sys.stderr.flush()
+
+    # If distro uses yaml they might not have this directory
+    if not os.path.exists('/var/lib/swcatalog/xml'):
+        os.makedirs('/var/lib/swcatalog/xml')
+
     # https://www.freedesktop.org/software/appstream/docs/chap-CatalogData.html
     watcher.watch_directory('/usr/share/swcatalog/xml', available_callback)
     watcher.watch_directory('/var/cache/swcatalog/xml', available_callback)
     watcher.watch_directory('/var/lib/swcatalog/xml', available_callback)
+    watcher.watch_directory('/var/lib/swcatalog/yaml', convert_yaml_to_xml)
     # legacy paths
     watcher.watch_directory('/usr/share/app-info/xmls', available_callback)
     watcher.watch_directory('/var/cache/app-info/xmls', available_callback)
@@ -390,4 +435,141 @@ def watch_db():
     watcher.run()
 
 
-watch_db()
+def convert_glib_launchables(launchables):
+    ables = []
+
+    for elt in launchables:
+        launchable_type = elt.get_kind()
+        if launchable_type == AppStream.LaunchableKind.COCKPIT_MANIFEST:
+            # Entries returns a list. As we already established it is a
+            # Cockpit manifest we can just add all of them (probably)
+            for entry in elt.get_entries():
+                ables.append({'name': entry, 'type': launchable_type})
+
+    return ables
+
+
+def convert_glib_url(url: str | None):
+    urls = []
+
+    for url in xml.iter('url'):
+        urls.append({'type': url.attrib['type'], 'link': url.text})
+
+    return urls
+
+
+def convert_glib_cached_icon(icon):
+    file = icon.get_filename()
+    return file if os.path.exists(file) else None
+
+
+def convert_glib_remote_icon(icon):
+    url = icon.get_url()
+    if url and url.startswith(('http://', 'https://')):
+        return url
+    return None
+
+
+def convert_glib_local_icon(icon):
+    name = icon.get_filename()
+    if name.startswith("/"):
+        return name
+    return None
+
+
+def convert_glib_stock_icon(icon):
+    def try_size(size: str, extension: str):
+        path = os.path.join("/usr/share/icons/hicolor", size, "apps", f"{icon}.{extension}")
+        return path if os.path.exists(path) else None
+
+    return (
+        try_size("64x64", "svg")
+        or try_size("64x64", "png")
+        or try_size("128x128", "svg")
+        or try_size("128x128", "png")
+    )
+
+
+def convert_glib_icons(icons):
+    for icon in icons:
+        kind = icon.get_kind()
+        if kind == AppStream.IconKind.CACHED:
+            return convert_glib_cached_icon(icon)
+        elif kind == AppStream.IconKind.REMOTE:
+            return convert_glib_remote_icon(icon)
+        elif kind == AppStream.IconKind.LOCAL:
+            return convert_glib_local_icon(icon)
+        elif kind == AppStream.IconKind.STOCK:
+            return convert_glib_stock_icon(icon)
+
+    return None
+
+
+# Sequence[AppStream.Screenshot]
+def convert_glib_screenshots(screenshots):
+    shots = []
+    for sh in screenshots:
+        if sh.get_kind() == AppStream.ImageKind.AS_IMAGE_KIND_SOURCE:
+            shots.append({'full': sh.get_caption()})
+
+    return shots
+
+def convert_glib_component(component):
+    launchables = convert_glib_launchables(component.get_launchables())
+    if len(launchables) == 0:
+        return None
+
+    return {
+        'id': component.get_id(),
+        'name': component.get_name(),
+        'summary': component.get_summary(),
+        'description': [component.get_description()],
+        'icon': convert_glib_icons(component.get_icons()),
+        'screenshots': convert_glib_screenshots(component.get_screenshots_all()),
+        'launchables': launchables,
+        'installed': False,  # This should be checked with PackageKit or Dnf5Manager instead of checking files
+        'file': 'todo',
+        'urls': [{'type': AppStream.UrlKind.HOMEPAGE, 'link': component.get_url(AppStream.UrlKind.HOMEPAGE)}],
+    }
+
+
+def watch_pool():
+    pool = AppStream.Pool()
+
+    def on_activate():
+        pool.load()
+
+        box = pool.get_components_by_extends("org.cockpit_project.cockpit")
+        pool.clear()
+
+        components = {}
+        for component in box.as_array():
+            c = convert_glib_component(component)
+            components[c["id"]] = c
+
+        data = {
+            'components': components,
+            'origin_files': []  # list(self.available_by_file.keys())
+        }
+
+        sys.stdout.write(json.dumps(data) + '\n')
+        sys.stdout.flush()
+
+        box.clear()
+        # for component in box.as_array():
+        #     print(component.get_name())
+        #     print(component.get_summary())
+        #     print(component.get_id())
+
+    pool.connect('changed', on_activate)
+    on_activate()
+
+
+if AppStream:
+    if sys.argv[1] == "list":
+        watch_pool()
+    else:
+        sys.stderr.write("Unsupported argument.")
+        sys.stderr.flush()
+else:
+    watch_db()

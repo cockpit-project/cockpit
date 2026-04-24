@@ -99,10 +99,24 @@ def attr_lang(elt):
 
 
 def element(xml, tag):
-    if lang:
-        for elt in xml.iter(tag):
-            if attr_lang(elt) == lang:
-                return elt
+    """Get an XML element from the DOM tag
+
+    Retrieves the element with the matching language or by best effort
+    - If element has the selected language (or langauge selection is none), return it
+    - If the selected language can't be found, use empty language as a fallback
+    - If no elements are found with empty language attribute, use first element found
+    """
+
+    empty_lang = None
+    for elt in xml.iter(tag):
+        language = attr_lang(elt)
+        if language == lang:
+            return elt
+        elif language is None and empty_lang is None:
+            empty_lang = elt
+
+    if empty_lang is not None:
+        return empty_lang
     return xml.find(tag)
 
 

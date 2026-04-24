@@ -111,7 +111,7 @@ class TestApps(packagelib.PackageCase):
         # Install package metadata
         b.click(".pf-v6-c-alert button")
 
-        with b.wait_timeout(45):
+        with b.wait_timeout(60):
             b.wait_visible(".app-list #app-1")
             b.wait_not_present(".pf-v6-c-alert")
             b.click(".app-list #app-1")

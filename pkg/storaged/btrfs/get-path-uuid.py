@@ -1,0 +1,34 @@
+# Copyright (C) 2026 Red Hat, Inc.
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+import os.path
+import subprocess
+import sys
+
+
+def main(path):
+    # If the path does not exist, we will create but need to verify it lives on the same volume
+    if not os.path.exists(path):
+        if path.endswith('/'):
+            path = path.rstrip('/')
+        path = os.path.dirname(path)
+
+        # bail out if the parent path is not found
+        if not os.path.exists(path):
+            sys.exit(2)
+
+    try:
+        sys.stdout.write(subprocess.check_output(["findmnt", "--output",
+                                                  "UUID,fstype", "--json",
+                                                  "--target", path]).decode().strip())
+    except subprocess.SubprocessError as exc:
+        print(exc, file=sys.stderr)
+        sys.exit(3)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        sys.stderr.write("Path not provided\n")
+        sys.exit(1)
+
+    main(sys.argv[1])

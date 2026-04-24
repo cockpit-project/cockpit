@@ -759,6 +759,11 @@ OnCalendar=daily
         b.wait_text("#received-title", "My Little Page Status")
 
         b.switch_to_top()
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text("#page_status_notification_playground", "My Little Page Status")
+
+        b.switch_to_top()
         b.go("/playground")
         b.enter_page("/playground")
         b.click("#clear-status")
@@ -770,6 +775,11 @@ OnCalendar=daily
         b.enter_page("/playground/notifications-receiver")
         b.wait_text("#received-type", "-")
         b.wait_text("#received-title", "-")
+
+        b.switch_to_top()
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_not_present("#page_status_notification_playground")
 
     def testHistory(self):
 

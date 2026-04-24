@@ -126,6 +126,26 @@ preload::
   The value of this field is an array of strings, where each string is
   one of the keys used in the `+dashboard+`, `+menu+`, or `+tool+`
   fields that are explained below.
+overview-health::
+  A list of Cockpit page keys whose `+page_status+` notifications should
+  appear on the _Health_ card of the Overview page. Each page named here
+  is rendered on the Health card when it publishes a non-empty
+  `+page_status+` via `+cockpit.page_status.set_own()+`. Pages not named
+  in any manifest's `+overview-health+` field never appear on the Health
+  card, even if they publish a status.
+  +
+  The value of this field is an array of strings. Each string is a
+  Cockpit page key in the form `+<package>/<component>+` (for example,
+  `+"system/services"+`) or the bare package name for the package's
+  tool-index page (for example, `+"updates"+`).
+  +
+  For example, the `+system+` package declares:
+  +
+  ----
+  "overview-health": [ "system/services" ]
+  ----
+  +
+  Pages appear on the Health card in alphabetical order by page key.
 parent::
   This option is used when module does not have its own menu item but is
   a part of a different module. This is described by JSON object with

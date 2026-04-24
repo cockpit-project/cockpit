@@ -38,7 +38,7 @@ def write_json(filename: str, content: Any) -> None:
     """Something like g_file_set_contents() for JSON"""
     tmpfile = f'{filename}.tmp'
     try:
-        with open(tmpfile, 'w') as file:
+        with open(tmpfile, 'w', encoding='utf-8') as file:
             json.dump(content, file, indent=2)
             file.write('\n')
 
@@ -46,8 +46,7 @@ def write_json(filename: str, content: Any) -> None:
         with contextlib.suppress(OSError):
             os.unlink(tmpfile)
         raise
-    else:
-        os.rename(tmpfile, filename)
+    os.rename(tmpfile, filename)
 
 
 def fetch_json(url: str) -> Any:
@@ -95,9 +94,28 @@ def create_manifest(
             '--socket=wayland',
             '--socket=fallback-x11',
             '--device=dri',
-            '--share=ipc'
+            '--share=ipc',
+            '--env=XDG_DATA_DIRS=/app/share:/app/extensions/share'
         ],
+        'add-extensions': {
+            f'{FLATPAK_ID}.Plugin': {
+                'subdirectories': True,
+                'directory': 'extensions',
+                'merge-dirs': 'share/cockpit',
+                'version': 'master',
+                'versions': 'master',
+                'no-autodownload': True,
+                'autodelete': True
+            }
+        },
         'modules': [
+            {
+                'name': 'cockpit-extensions',
+                'buildsystem': 'simple',
+                'build-commands': [
+                    'mkdir -p /app/extensions/share/cockpit'
+                ]
+            },
             {
                 'name': 'cockpit-client',
                 'buildsystem': 'autotools',
@@ -135,7 +153,7 @@ def get_packages(origin: Optional[str]) -> List[Any]:
     # 4. In any case, write the local file if it changed (or is new)
 
     try:
-        with open(PACKAGES_JSON, 'r') as file:
+        with open(PACKAGES_JSON, 'r', encoding='utf-8') as file:
             local_packages = json.load(file)
     except FileNotFoundError:
         local_packages = None
@@ -170,6 +188,7 @@ def main() -> None:
     packages = get_packages(args.packages)
 
     branch = 'devel'
+    location = {}
     if args.location is None:
         try:
             output = subprocess.check_output([f'{TOP_DIR}/tools/make-dist'],

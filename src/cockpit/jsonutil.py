@@ -3,8 +3,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
+import contextlib
 from enum import Enum
-from typing import Callable, Container, Dict, List, Mapping, Optional, Sequence, Type, TypeVar, Union
+from typing import Callable, Container, Dict, Iterator, List, Mapping, Optional, Sequence, Type, TypeVar, Union
 
 JsonLiteral = Union[str, float, bool, None]
 
@@ -97,6 +98,12 @@ def get_object(
     return _get(obj, lambda v: constructor(typechecked(v, dict)), key, default)
 
 
+def get_str_map(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> Union[DT, Mapping[str, str]]:
+    def as_str_map(value: JsonValue) -> Mapping[str, str]:
+        return {k: typechecked(v, str) for k, v in typechecked(value, dict).items()}
+    return _get(obj, as_str_map, key, default)
+
+
 def get_strv(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> Union[DT, Sequence[str]]:
     def as_strv(value: JsonValue) -> Sequence[str]:
         return tuple(typechecked(item, str) for item in typechecked(value, list))
@@ -119,6 +126,16 @@ def get_objv(obj: JsonObject, key: str, constructor: Callable[[JsonObject], T]) 
     def as_objv(value: JsonValue) -> Sequence[T]:
         return tuple(constructor(typechecked(item, dict)) for item in typechecked(value, list))
     return _get(obj, as_objv, key, ())
+
+
+@contextlib.contextmanager
+def get_nested(obj: JsonObject, key: str, default: Union[DT, _Empty] = _empty) -> Iterator[Union[DT, JsonObject]]:
+    nested_obj = get_dict(obj, key, default)
+    try:
+        yield nested_obj
+    except JsonError as exc:
+        target = f"attribute '{key}'" + (' elements:' if exc.value is not nested_obj else ':')
+        raise JsonError(obj, f"{target} {exc!s}") from exc
 
 
 def create_object(message: 'JsonObject | None', kwargs: JsonObject) -> JsonObject:

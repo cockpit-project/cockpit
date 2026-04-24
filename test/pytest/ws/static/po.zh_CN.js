@@ -1,0 +1,1 @@
+../../../../dist/static/po.zh_CN.js

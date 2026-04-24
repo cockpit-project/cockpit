@@ -1,0 +1,10 @@
+# The code in container/flatpak only runs on very new Python (3.14+) and uses
+# default options for formatting (88 character lines, double quotes).
+
+extend = "../../pyproject.toml"
+target-version = "py314"
+
+# All of these are defaults
+lint.ignore = []
+line-length = 88
+format.quote-style = "double"

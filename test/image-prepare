@@ -12,7 +12,7 @@ import shutil
 import subprocess
 import sys
 from collections.abc import Iterator
-from contextlib import contextmanager
+import contextlib
 
 from lib import testmap
 from lib.constants import DEFAULT_IMAGE
@@ -23,7 +23,7 @@ TEST_DIR = f'{BASE_DIR}/test'
 BOTS_DIR = f'{BASE_DIR}/bots'
 
 
-@contextmanager
+@contextlib.contextmanager
 def create_machine(image: str) -> Iterator[machine_virtual.VirtMachine]:
     subprocess.check_call([os.path.join(BOTS_DIR, "image-download"), image])
     network = machine_virtual.VirtNetwork(image=image)
@@ -205,6 +205,16 @@ def build_install_container(dist_tars: list[str], image: str, *, verbose: bool, 
     return args
 
 
+def install_python_ws() -> list[str]:
+    """Install Python webserver dependencies and replace cockpit-ws."""
+    return [
+        "--run-command", "pip install --break-system-packages starlette 'uvicorn[standard]'",
+        "--run-command",
+        """printf '#!/usr/bin/python3\\nimport cockpit.ws.webserver\\ncockpit.ws.webserver.main()\\n' > /usr/libexec/cockpit-ws
+           chmod 755 /usr/libexec/cockpit-ws""",
+    ]
+
+
 def validate_packages() -> list[str]:
     """Post-install package checks"""
 
@@ -237,10 +247,13 @@ def main() -> int:
     parser.add_argument('--network', action='store_true',
                         help='Enable internet access (only for local experiments, not for production!)')
     parser.add_argument('--container', action='store_true', help='Install cockpit/ws container instead of rpms')
+    parser.add_argument('--python-ws', action='store_true', help='Use Python webserver instead of C cockpit-ws')
     parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
     customize = [os.path.join(BOTS_DIR, "image-customize")]
+    if args.python_ws:
+        args.network = True
     if not args.network:
         customize.append("--no-network")
     if not args.overlay:
@@ -249,6 +262,12 @@ def main() -> int:
         customize.append("--verbose")
     if args.quick:
         customize.append("--quick")
+
+    if args.python_ws:
+        ws_link = os.path.join(BASE_DIR, "src/cockpit/ws")
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(ws_link)
+        os.symlink("../../test/pytest/ws", ws_link)
 
     dist_tars = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip().splitlines()
 
@@ -270,6 +289,9 @@ def main() -> int:
 
     # post build/install test preparation
     customize += ["--script", os.path.join(TEST_DIR, "vm.install")]
+
+    if args.python_ws:
+        customize += install_python_ws()
 
     if args.env:
         customize += ['--run-command', r'printf "%s\n" >>/etc/environment ' + shlex.join(args.env)]

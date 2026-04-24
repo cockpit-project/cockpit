@@ -18,6 +18,13 @@ cd tmp
 
 MANIFEST="$(../containers/flatpak/prepare)"
 
+flatpak remote-add \
+    --user --if-not-exists \
+    flathub https://flathub.org/repo/flathub.flatpakrepo
+
+flatpak install \
+    --user org.flatpak.Builder
+
 flatpak run \
     org.flatpak.Builder \
         "$@" \

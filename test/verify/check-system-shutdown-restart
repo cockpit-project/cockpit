@@ -215,6 +215,93 @@ class TestSuspendDialog(testlib.MachineCase):
         # Clean up
         m.execute("systemctl stop cockpit-suspend.timer 2>/dev/null || true")
 
+    @testlib.nondestructive
+    def testSuspendWithWakeTime(self):
+        m = self.machine
+        b = self.browser
+
+        # Mock systemctl suspend and rtcwake to prevent actual suspend/RTC manipulation
+        self.restore_dir("/usr/local/bin")
+        m.write("/usr/local/bin/systemctl",
+                "#!/bin/sh\nif [ \"$1\" = 'suspend' ]; then echo 'suspend-mocked'; exit 0; fi\nexec /usr/bin/systemctl \"$@\"\n")
+        m.execute("chmod +x /usr/local/bin/systemctl")
+        m.write("/usr/local/bin/rtcwake",
+                "#!/bin/sh\necho \"rtcwake-mocked: $@\" >> /tmp/rtcwake.log\nexit 0\n")
+        m.execute("chmod +x /usr/local/bin/rtcwake")
+        self.addCleanup(m.execute, "rm -f /tmp/rtcwake.log")
+
+        self.login_and_go("/system")
+
+        # Open suspend dialog
+        b.click("#shutdown-group")  # caret
+        b.click("#suspend")
+        b.wait_popup("shutdown-dialog")
+
+        # Verify wake-up time toggle exists and is off by default
+        b.wait_visible("#wake-up-toggle")
+        b.wait_visible("#wake-up-toggle:not(:checked)")
+
+        # Enable wake-up time toggle
+        b.click("#wake-up-toggle")
+
+        # Wait for the wake date/time pickers to appear
+        b.wait_visible("#wake-time-input")
+
+        # Set a wake-up time 30 minutes in the future
+        # Get current time + 30 min from the server
+        wake_time = m.execute("date -d '+30 minutes' '+%H:%M'").strip()
+
+        # Set the wake time
+        b.set_input_text("#wake-time-input", wake_time)
+
+        # Select "No delay" — first item in the list
+        b.click("#delay")
+        b.click(".pf-v6-c-menu__list li:nth-child(1) button")
+        b.wait_not_present(".pf-v6-c-menu__list li:nth-child(1)")
+
+        # Submit — rtcwake should be called
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
+        b.wait_not_present("#shutdown-dialog")
+
+        # Verify rtcwake was invoked
+        rtcwake_log = m.execute("cat /tmp/rtcwake.log").strip()
+        self.assertIn("-m mem", rtcwake_log)
+        self.assertIn("-t", rtcwake_log)
+
+    @testlib.nondestructive
+    def testSuspendWithWakeTimeCancel(self):
+        m = self.machine
+        b = self.browser
+
+        # Mock systemctl and rtcwake
+        self.restore_dir("/usr/local/bin")
+        m.write("/usr/local/bin/systemctl",
+                "#!/bin/sh\nif [ \"$1\" = 'suspend' ]; then echo 'suspend-mocked'; exit 0; fi\nexec /usr/bin/systemctl \"$@\"\n")
+        m.execute("chmod +x /usr/local/bin/systemctl")
+        m.write("/usr/local/bin/rtcwake",
+                "#!/bin/sh\necho \"rtcwake-mocked: $@\" >> /tmp/rtcwake.log\nexit 0\n")
+        m.execute("chmod +x /usr/local/bin/rtcwake")
+        self.addCleanup(m.execute, "rm -f /tmp/rtcwake.log")
+
+        self.login_and_go("/system")
+
+        # Open suspend dialog
+        b.click("#shutdown-group")  # caret
+        b.click("#suspend")
+        b.wait_popup("shutdown-dialog")
+
+        # Enable wake-up time toggle
+        b.click("#wake-up-toggle")
+        b.wait_visible("#wake-time-input")
+
+        # Cancel the dialog
+        b.click("#shutdown-dialog button.pf-m-link")
+        b.wait_not_present("#shutdown-dialog")
+
+        # rtcwake should NOT have been called
+        self.assertIn("No such file", m.execute("cat /tmp/rtcwake.log 2>&1 || true"))
+
+
 class TestUncleanShutdownStatus(testlib.MachineCase):
 
     def _cleanReboot(self):

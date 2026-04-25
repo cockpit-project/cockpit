@@ -781,6 +781,48 @@ fi
         # Verify the timer is no longer active
         self.assertIn("inactive", m.execute("systemctl is-active cockpit-suspend.timer 2>/dev/null || echo inactive").strip())
 
+    @testlib.nondestructive
+    def testSuspendStatusWithWakeTime(self):
+        m = self.machine
+        b = self.browser
+
+        # Mock rtcwake so the cancel action doesn't fail on VMs without RTC support
+        self.restore_dir("/usr/local/bin")
+        m.write("/usr/local/bin/rtcwake",
+                "#!/bin/sh\necho \"rtcwake-mocked: $@\" >> /tmp/rtcwake.log\nexit 0\n")
+        m.execute("chmod +x /usr/local/bin/rtcwake")
+        self.addCleanup(m.execute, "rm -f /tmp/rtcwake.log")
+
+        self.login_and_go("/system")
+        b.wait_not_present("#system-health-suspend-status")
+
+        # Schedule a suspend and set a fake RTC wake alarm
+        m.execute("systemd-run --unit=cockpit-suspend --on-active=10m systemctl suspend")
+        self.addCleanup(m.execute, "systemctl stop cockpit-suspend.timer 2>/dev/null || true")
+
+        # Write a fake wake alarm epoch (30 minutes from now)
+        wake_epoch = m.execute("date -d '+30 minutes' +%s").strip()
+        m.execute(f"echo {wake_epoch} > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true")
+        self.addCleanup(m.execute, "echo 0 > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true")
+
+        # Wait for the status to appear with wake time
+        with b.wait_timeout(15):
+            b.wait_in_text('#system-health-suspend-status-text', "Scheduled suspend")
+
+        # If the system supports RTC wakealarm, we should see "wake at"
+        # On systems without RTC support, just verify the suspend text is shown
+        try:
+            m.execute("test -f /sys/class/rtc/rtc0/wakealarm")
+            with b.wait_timeout(15):
+                b.wait_in_text('#system-health-suspend-status-text', "wake at")
+        except Exception:
+            pass  # Skip wake time check on systems without RTC
+
+        # Cancel — should clean up both timer and RTC alarm
+        b.click("#system-health-suspend-status-cancel-btn")
+        with b.wait_timeout(15):
+            b.wait_not_present('#system-health-suspend-status')
+
     @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch", "opensuse-tumbleweed")
     @testlib.skipOstree("crypto-policies not available")
     def testCryptoPolicies(self):

@@ -60,9 +60,27 @@ const getSuspendTimerInfo = (setSuspendScheduled: (s: boolean) => void, setSuspe
             });
 };
 
+const getWakeAlarmInfo = (setWakeTime: (t: string | null) => void) => {
+    cockpit.file("/sys/class/rtc/rtc0/wakealarm").read()
+            .then((content: string | null) => {
+                if (content && content.trim() && content.trim() !== "0") {
+                    setWakeTime(content.trim());
+                } else {
+                    setWakeTime(null);
+                }
+            })
+            .catch(() => {
+                setWakeTime(null);
+            });
+};
+
 const cancelSuspendAction = () => {
-    return cockpit.spawn(["systemctl", "stop", "cockpit-suspend.timer"], { superuser: "require", err: "message" })
+    // Stop the suspend timer and clear the RTC wake alarm
+    const stopTimer = cockpit.spawn(["systemctl", "stop", "cockpit-suspend.timer"], { superuser: "require", err: "message" })
             .catch(err => console.warn("Failed to cancel suspend timer", err.toString()));
+    const clearAlarm = cockpit.spawn(["rtcwake", "-m", "disable"], { superuser: "require", err: "message" })
+            .catch(err => console.warn("Failed to clear RTC wake alarm", err.toString()));
+    return Promise.all([stopTimer, clearAlarm]);
 };
 
 export const ShutDownStatus = () => {
@@ -132,9 +150,13 @@ export const ShutDownStatus = () => {
 export const SuspendStatus = () => {
     const [suspendScheduled, setSuspendScheduled] = useState(false);
     const [suspendTime, setSuspendTime] = useState<string | null>(null);
+    const [wakeTime, setWakeTime] = useState<string | null>(null);
 
     useEffect(() => {
-        const checkTimer = () => getSuspendTimerInfo(setSuspendScheduled, setSuspendTime);
+        const checkTimer = () => {
+            getSuspendTimerInfo(setSuspendScheduled, setSuspendTime);
+            getWakeAlarmInfo(setWakeTime);
+        };
 
         checkTimer();
 
@@ -144,7 +166,7 @@ export const SuspendStatus = () => {
         return () => window.clearInterval(interval);
     }, []);
 
-    if (!suspendScheduled) {
+    if (!suspendScheduled && !wakeTime) {
         return null;
     }
 
@@ -165,16 +187,40 @@ export const SuspendStatus = () => {
         }
     }
 
+    // Format the RTC wake-up time if set
+    let displayWakeDate: string | null = null;
+    if (wakeTime) {
+        // wakealarm contains epoch seconds
+        const wakeEpoch = parseInt(wakeTime, 10);
+        if (!isNaN(wakeEpoch) && wakeEpoch > 0) {
+            const wakeDate = new Date(wakeEpoch * 1000);
+            const now = new Date();
+            if (wakeDate.getFullYear() == now.getFullYear()) {
+                displayWakeDate = timeformat.dateTimeNoYear(wakeDate);
+            } else {
+                displayWakeDate = timeformat.dateTime(wakeDate);
+            }
+        }
+    }
+
     const handleCancel = () => {
         cancelSuspendAction().then(() => {
             setSuspendScheduled(false);
             setSuspendTime(null);
+            setWakeTime(null);
         });
     };
 
-    const text = displayDate
-        ? cockpit.format(_("Scheduled suspend at $0"), displayDate)
-        : _("Scheduled suspend");
+    let text;
+    if (displayDate && displayWakeDate) {
+        text = cockpit.format(_("Scheduled suspend at $0, wake at $1"), displayDate, displayWakeDate);
+    } else if (displayDate) {
+        text = cockpit.format(_("Scheduled suspend at $0"), displayDate);
+    } else if (displayWakeDate) {
+        text = cockpit.format(_("Scheduled suspend, wake at $0"), displayWakeDate);
+    } else {
+        text = _("Scheduled suspend");
+    }
 
     return (
         <li id="system-health-suspend-status">

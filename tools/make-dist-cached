@@ -1,0 +1,17 @@
+#!/bin/sh
+# Wrapper that returns already-built tarballs instead of rebuilding.
+# Used to run image-prepare on the host (Ubuntu) without needing autotools.
+set -eu
+ROOT_DIR=$(realpath -m "$0"/../..)
+cd "$ROOT_DIR"
+
+TARBALL=$(ls cockpit-[0-9]*.tar.xz 2>/dev/null | grep -v 'node' | head -1)
+NODE_TARBALL=$(ls cockpit-node-*.tar.xz 2>/dev/null | head -1)
+
+if [ -z "$TARBALL" ] || [ -z "$NODE_TARBALL" ]; then
+    echo "Error: Could not find pre-built tarballs. Run: toolbox run -c cockpit bash -c 'cd /home/macpaul/cockpit.git && tools/make-dist'" >&2
+    exit 1
+fi
+
+echo "$ROOT_DIR/$TARBALL"
+echo "$ROOT_DIR/$NODE_TARBALL"

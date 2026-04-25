@@ -40,6 +40,7 @@ class OverviewPage extends React.Component {
         this.state = {
             actionIsOpen: false,
             privileged: true,
+            canSuspend: false,
         };
         this.hostnameMonitor = this.hostnameMonitor.bind(this);
         this.onPermissionChanged = this.onPermissionChanged.bind(this);
@@ -51,6 +52,14 @@ class OverviewPage extends React.Component {
         this.hostnameMonitor();
         superuser.addEventListener("changed", this.onPermissionChanged);
         this.onPermissionChanged();
+
+        // Check if suspend to RAM is supported
+        const client = cockpit.dbus("org.freedesktop.login1");
+        client.call("/org/freedesktop/login1", "org.freedesktop.login1.Manager", "CanSuspend", [])
+                .then(([result]) => {
+                    this.setState({ canSuspend: result === "yes" || result === "challenge" });
+                })
+                .catch(err => console.warn("Failed to check CanSuspend", err.toString()));
     }
 
     componentWillUnmount() {
@@ -101,6 +110,16 @@ class OverviewPage extends React.Component {
                 {_("Shutdown")}
             </DropdownItem>,
         ];
+
+        if (this.state.canSuspend) {
+            dropdownItems.push(
+                <DropdownItem key="suspend" id="suspend"
+                              onClick={() => Dialogs.show(<ShutdownModal suspend />)}
+                              component="button">
+                    {_("Suspend")}
+                </DropdownItem>
+            );
+        }
 
         let headerActions = null;
         if (this.state.privileged)

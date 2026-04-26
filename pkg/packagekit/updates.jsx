@@ -143,24 +143,37 @@ function isRedHatBasedDistribution() {
 }
 
 function renderChangelogWithIssueLinks(text) {
-    if (!text || !isRedHatBasedDistribution())
+    if (!text)
         return text;
 
-    const issuePattern = /(rhbz|jira)#(\d+)/g;
+    const issuePattern = /\brhbz#(\d+)(?!\w)|\bRHEL-(\d+)(?![-\w])/g;
     const result = [];
     let lastIndex = 0;
     let match;
+    const redHatBased = isRedHatBasedDistribution();
 
     while ((match = issuePattern.exec(text)) !== null) {
         if (match.index > lastIndex)
             result.push(text.slice(lastIndex, match.index));
 
-        const [, tracker, issueId] = match;
-        const href = tracker === "rhbz"
-            ? `https://bugzilla.redhat.com/show_bug.cgi?id=${issueId}`
-            : `https://issues.redhat.com/browse/${issueId}`;
+        const [, bugzillaId, rhelId] = match;
+        let href = null;
+        let key = null;
+
+        if (bugzillaId) {
+            href = `https://bugzilla.redhat.com/show_bug.cgi?id=${bugzillaId}`;
+            key = `rhbz-${bugzillaId}-${match.index}`;
+        } else if (rhelId && redHatBased) {
+            href = `https://redhat.atlassian.net/browse/RHEL-${rhelId}`;
+            key = `RHEL-${rhelId}-${match.index}`;
+        } else {
+            result.push(match[0]);
+            lastIndex = issuePattern.lastIndex;
+            continue;
+        }
+
         result.push(
-            <a key={`${tracker}-${issueId}-${match.index}`} href={href} rel="noopener noreferrer" target="_blank">
+            <a key={key} href={href} rel="noopener noreferrer" target="_blank">
                 {match[0]}
             </a>
         );

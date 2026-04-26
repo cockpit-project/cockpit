@@ -125,6 +125,6 @@ export function injectMockUpdates(updates) {
         bug_urls: [],
         cve_urls: [],
         severity: 4,
-        description: "Fixes rhbz#12345 and jira#67890 in one update.",
+        description: "Fixes rhbz#12345 and RHEL-67890 in one update.",
     });
 }

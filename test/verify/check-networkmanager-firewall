@@ -43,6 +43,8 @@ class TestFirewall(netlib.NetworkCase):
         self.restore_dir("/etc/firewalld", restart_unit="firewalld")
 
         m.execute("systemctl restart firewalld")
+        testlib.wait(lambda: m.execute("firewall-cmd --state"))
+
         self.btn_danger = "pf-m-danger"
         self.btn_primary = "pf-m-primary"
         self.default_zone = "Public zone"
@@ -56,6 +58,7 @@ class TestFirewall(netlib.NetworkCase):
         m = self.machine
 
         def get_num_zones():
+            testlib.wait(lambda: m.execute("firewall-cmd --state"))
             return int(m.execute("firewall-cmd --get-active-zones | grep --count '^[a-zA-Z]'").strip())
 
         self.login_and_go("/network", superuser=False)

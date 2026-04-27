@@ -1,0 +1,57 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+
+@use "../global-variables" as *;
+
+/*
+ * Mixins for Cockpit pages embedded in Anaconda (iframe).
+ * Each page's *-anaconda.scss should @include these under its own root selector(s).
+ */
+
+@mixin embedded-page-shell {
+  .pf-v6-c-page__main-container {
+    border-radius: 0;
+    margin: 0;
+    border: 0;
+    max-block-size: 100%;
+  }
+
+  // ignore cockpit override for mobile layout
+  @media screen and (max-width: $pf-v6-global--breakpoint--md) {
+    .pf-v6-c-page__main > section.pf-v6-c-page__main-section:not(.pf-m-padding) {
+      padding-inline: 0;
+    }
+  }
+
+  .pf-v6-c-page__main {
+    padding-inline: var(--pf-t--global--spacer--gap--group-to-group--vertical--default);
+  }
+
+  .pf-v6-c-page {
+    --pf-v6-c-page--BackgroundColor: var(--pf-t--global--background--color--primary--default);
+  }
+
+  .pf-v6-c-card {
+    --pf-v6-c-card--BorderColor: transparent;
+  }
+
+  // Approximates PageSection padding={{ default: "noPadding" }} isFilled={false} (PF .pf-m-no-padding / .pf-m-no-fill)
+  .pf-v6-c-page__main-section {
+    flex-grow: 0;
+    padding: 0;
+  }
+}
+
+// Emit at stylesheet root (once per bundle that needs it).
+@mixin anaconda-body-overflow-hack {
+  /*
+   * HACK - https://github.com/patternfly/patternfly-react/issues/11987
+   * Allow scrolling if a dropdown menu gets positioned outside the bounds of the window.
+   * Easier to reproduce on 1080p or lower resolutions.
+   * See https://bugzilla.redhat.com/show_bug.cgi?id=2388785
+   */
+  body:has(.anaconda) {
+    overflow-y: auto !important;
+    // containers like pf-v6-c-page won't expand with the viewport when dropdown menus are created
+    background: var(--pf-t--global--background--color--primary--default);
+  }
+}

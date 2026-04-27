@@ -46,6 +46,7 @@ static bool
 write_error (FILE *output)
 {
   fprintf (output, "HTTP/1.1 400 Client Error\r\n"
+                   "Connection: close\r\n"
                    "\r\n"
                    "Incorrect request.\r\n");
 
@@ -96,9 +97,16 @@ http_redirect (FILE *input,
   if (!host)
     return write_error (output);
 
+  /* Defense-in-depth: validate that host and path don't contain CR or LF. The current read_line() implementation
+   * already prevents this, but add explicit validation just in case, and reject invalid values.
+   */
+  if (strchr (host, '\r') || strchr (host, '\n') ||
+      strchr (path, '\r') || strchr (path, '\n'))
+    return write_error (output);
+
   fprintf (output, "HTTP/1.1 301 Moved Permanently\r\n"
-                   "Content-Type: text/html\r\n"
                    "Location: https://%s%s\r\n"
+                   "Connection: close\r\n"
                    "\r\n", host, path);
 
   return true;

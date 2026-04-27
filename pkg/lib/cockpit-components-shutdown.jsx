@@ -63,6 +63,7 @@ export class ShutdownModal extends React.Component {
         this.updateTime = this.updateTime.bind(this);
         this.calculate = this.calculate.bind(this);
         this.dateRangeValidator = this.dateRangeValidator.bind(this);
+        this.wakeRangeValidator = this.wakeRangeValidator.bind(this);
         this.updateWakeDate = this.updateWakeDate.bind(this);
         this.updateWakeTime = this.updateWakeTime.bind(this);
         this.calculateWake = this.calculateWake.bind(this);
@@ -195,6 +196,11 @@ export class ShutdownModal extends React.Component {
             const delay_minutes = parseInt(this.state.when.substring(1), 10) || 0;
             const suspend_timestamp = server_timestamp + delay_minutes * 60;
 
+            if (wake_timestamp <= server_timestamp) {
+                this.setState({ wakeError: _("Wake-up time must be in the future"), wakeEpoch: null });
+                return;
+            }
+
             if (wake_timestamp <= suspend_timestamp) {
                 this.setState({ wakeError: _("Wake-up time must be after the suspend time"), wakeEpoch: null });
                 return;
@@ -258,6 +264,17 @@ export class ShutdownModal extends React.Component {
 
     dateRangeValidator(date) {
         if (this.state.startDate && date < this.state.startDate) {
+            return _("Cannot schedule event in the past");
+        }
+        return '';
+    }
+
+    wakeRangeValidator(date) {
+        const minDate = this.state.startDate;
+        if (!minDate) {
+            return '';
+        }
+        if (date < minDate) {
             return _("Cannot schedule event in the past");
         }
         return '';
@@ -345,7 +362,7 @@ export class ShutdownModal extends React.Component {
                                                 weekStart={timeformat.firstDayOfWeek()}
                                                 onBlur={this.calculateWake}
                                                 onChange={(_, d, ds) => this.updateWakeDate(d, ds)}
-                                                validators={[this.dateRangeValidator]}
+                                                validators={[this.wakeRangeValidator]}
                                                 value={this.state.wakeDate}
                                                 appendTo={() => document.body} />
                                     <TimePicker time={this.state.wakeTime} is24Hour

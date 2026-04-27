@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 import '../lib/patternfly/patternfly-6-cockpit.scss';
+import "./network-anaconda.scss";
 import cockpit from "cockpit";
 import 'cockpit-dark-theme'; // once per page
 import React, { useRef } from 'react';

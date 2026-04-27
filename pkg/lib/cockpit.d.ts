@@ -264,7 +264,7 @@ declare module 'cockpit' {
                 path_namespace?: string,
                 interface?: string,
                 member?: string,
-                arg?: string
+                arg0?: string
             },
             callback: (path: string, iface: string, signal: string, args: unknown[]) => void,
             rule?: boolean,

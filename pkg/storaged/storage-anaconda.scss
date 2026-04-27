@@ -1,43 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-@use "global-variables" as *;
 
-// Anaconda mode
+@use "../lib/anaconda/anaconda" as anaconda;
+
 #storage.anaconda {
-  .pf-v6-c-page__main-container {
-    border-radius: 0;
-    margin: 0;
-    border: 0;
-    max-block-size: 100%;
-  }
-
-  // ignore cockpit override for mobile layout
-  @media screen and (max-width: $pf-v6-global--breakpoint--md) {
-    .pf-v6-c-page__main>section.pf-v6-c-page__main-section:not(.pf-m-padding) {
-      padding-inline: 0;
-    }
-  }
-
-  .pf-v6-c-page__main {
-    padding-inline: var(--pf-t--global--spacer--gap--group-to-group--vertical--default);
-  }
-
-  .pf-v6-c-page {
-    --pf-v6-c-page--BackgroundColor: var(--pf-t--global--background--color--primary--default);
-  }
-
-  .pf-v6-c-card {
-    --pf-v6-c-card--BorderColor: transparent;
-  }
+  @include anaconda.embedded-page-shell;
 }
 
-body:has(.anaconda) {
-  // HACK - https://github.com/patternfly/patternfly-react/issues/11987
-  // Allow scrolling if a dropdown menu gets positioned outside the bounds of the window.
-  // This is easier to reproduce on 1080p or lower resolutions
-  // remove this once the proper fix is implemented on PF and the rest of cockpit
-  // (see https://bugzilla.redhat.com/show_bug.cgi?id=2388785)
-  overflow-y: auto !important;
-  // containers like pf-v6-c-page won't expand with the viewport when dropdown menus are created
-  // on lower resolutions, so we force all background to match the default
-  background: var(--pf-t--global--background--color--primary--default);
-}
+@include anaconda.anaconda-body-overflow-hack;

@@ -857,7 +857,7 @@ export const StoragePage = ({ location, plot_state }) => {
                 <StorageBreadcrumb page={page} />
             </PageBreadcrumb>
             }
-            <PageSection hasBodyWrapper={false} isFilled={false} padding={client.in_anaconda_mode() ? { default: "noPadding" } : {}}>
+            <PageSection hasBodyWrapper={false} isFilled={false}>
                 <Stack hasGutter>
                     <MultipathAlert client={client} />
                     <PageCardStackItems page={page} plot_state={plot_state} noarrow />

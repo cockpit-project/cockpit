@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+
+@use "../lib/anaconda/anaconda" as anaconda;
+
+#networking.anaconda,
+#network-interface.anaconda {
+  @include anaconda.embedded-page-shell;
+}
+
+// Main networking overview only: omit graphs and journal noise in the installer
+#networking.anaconda #networking-graphs,
+#networking.anaconda .cockpit-log-panel {
+  display: none;
+}
+
+@include anaconda.anaconda-body-overflow-hack;

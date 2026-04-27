@@ -36,7 +36,7 @@ import { KebabDropdown } from "cockpit-components-dropdown";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { Privileged } from "cockpit-components-privileged";
 import { distanceToNow } from "timeformat";
-import { fmt_to_fragments } from 'utils.jsx';
+import { fmt_to_fragments, in_anaconda_mode } from "utils";
 import { useDialogs } from "dialogs.jsx";
 
 import { ModelContext } from './model-context.jsx';
@@ -1208,10 +1208,12 @@ export const NetworkInterfacePage = ({
     const settingsRows = renderConnectionSettingsRows(iface.MainConnection, connectionSettings)
             .map((component, idx) => <React.Fragment key={idx}>{component}</React.Fragment>);
 
+    const anaconda = in_anaconda_mode();
+
     return (
         <Page id="network-interface"
               data-test-wait={operationInProgress}
-              className="pf-m-no-sidebar">
+              className={"pf-m-no-sidebar" + (anaconda ? " anaconda" : "")}>
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to='#/'>

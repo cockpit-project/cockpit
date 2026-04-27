@@ -129,7 +129,7 @@ class CommonTests:
         b.logout()
 
         # wait until IPA user works
-        m.execute(f'while ! su - -c "echo {self.admin_password} | sudo -S true" {self.admin_user}@cockpit.lan; do '
+        m.execute(f'while ! su -l -c "echo {self.admin_password} | sudo -S true" {self.admin_user}@cockpit.lan; do '
                   '    sleep 5; sss_cache -E || true; systemctl reset-failed sssd; systemctl try-restart sssd; done',
                   timeout=300)
 
@@ -281,7 +281,7 @@ class CommonTests:
         m.execute(f"echo {self.admin_password} | realm join -vU {self.admin_user} cockpit.lan", timeout=300)
 
         # wait until domain user works
-        m.execute('while ! su - -c "echo %s | sudo -S true" %s; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done' %
+        m.execute('while ! su -l -c "echo %s | sudo -S true" %s; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done' %
                   (self.admin_password, self.admin_user), timeout=300)
 
         # login should now work with the domain admin user

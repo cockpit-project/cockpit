@@ -15,7 +15,7 @@ mkdir -p ~/selinux_temp
 cd ~/selinux_temp
 cp /bin/ls ls
 chcon -t httpd_exec_t ls
-su - -c 'mkdir public_html; echo world > public_html/hello.txt' admin
+su -l -c 'mkdir public_html; echo world > public_html/hello.txt' admin
 # this won't work, but it generates an error
 runcon -u system_u -r system_r -t httpd_t -- ./ls  ~admin/public_html || true
 """

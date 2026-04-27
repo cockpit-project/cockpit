@@ -59,38 +59,70 @@ firewall.debouncedGetServices = debounce(300, () => {
     getServices().then(() => firewall.debouncedEvent('changed'));
 });
 
-function initFirewalldDbus() {
-    debug("initializing D-Bus connection");
+/* We watch the name owner explicitly.
+
+   The org.fedoraproject.FirewallD service might appear on D-Bus only
+   some time after the firewalld.service is active and thus we want to
+   only try connecting to it once we know that it is definitely there.
+   However, while cockpit.dbus() does work with services that
+   disappear and then reappear on the bus while the channel is open,
+   it doesn't work with names that are not present when the channel is
+   initially opened (see
+   https://github.com/cockpit-project/cockpit/pull/9125).
+
+   Thus, we track the name explicitly via the org.freedesktop.DBus
+   API.
+ */
+
+function dbus_watch_name_owner(name, owner_callback) {
+    const bus = cockpit.dbus('org.freedesktop.DBus', { superuser: "try" });
+
+    bus.subscribe({
+        path: "/org/freedesktop/DBus",
+        interface: "org.freedesktop.DBus",
+        member: "NameOwnerChanged",
+        arg0: name,
+    }, (_path, _iface, _member, [_name, _old_owner, new_owner]) => {
+        owner_callback(new_owner);
+    });
+
+    bus.call(
+        "/org/freedesktop/DBus", "org.freedesktop.DBus", "GetNameOwner",
+        [name]
+    )
+            .then(([owner]) => {
+                owner_callback(owner);
+            })
+            .catch(ex => {
+                if (ex.name == "org.freedesktop.DBus.Error.NameHasNoOwner")
+                    owner_callback("");
+                else
+                    console.error("GetNameOwner failed:", String(ex));
+            });
+}
+
+dbus_watch_name_owner('org.fedoraproject.FirewallD1', initFirewalldDbus);
+
+function initFirewalldDbus(owner) {
+    debug("initializing D-Bus connection", owner);
     if (firewalld_dbus)
         firewalld_dbus.close();
 
     firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
-    firewalld_dbus.addEventListener('owner', (event, owner) => {
-        if (firewall.owner === owner)
-            return;
-        debug("owner changed:", JSON.stringify(owner));
+    firewall.owner = owner;
+    firewall.enabled = !!owner;
 
-        firewall.owner = owner;
-        firewall.enabled = !!owner;
+    firewall.zones = {};
+    firewall.activeZones = new Set();
+    firewall.services = {};
+    firewall.enabledServices = new Set();
 
-        firewall.zones = {};
-        firewall.activeZones = new Set();
-        firewall.services = {};
-        firewall.enabledServices = new Set();
-
-        if (!firewall.enabled) {
-            firewall.ready = true;
-            firewall.dispatchEvent('changed');
-            return;
-        }
-
-        getZones()
-                .then(() => getServices())
-                .catch(error => console.warn(error))
-                .then(() => { firewall.ready = true })
-                .then(() => firewall.debouncedEvent('changed'));
-    });
+    if (!firewall.enabled) {
+        firewall.ready = true;
+        firewall.dispatchEvent('changed');
+        return;
+    }
 
     firewalld_dbus.subscribe({
         interface: 'org.fedoraproject.FirewallD1.zone',
@@ -186,6 +218,12 @@ function initFirewalldDbus() {
         path: '/org/fedoraproject/FirewallD1',
         member: 'SourceRemoved'
     }, () => firewall.debouncedGetZones());
+
+    getZones()
+            .then(() => getServices())
+            .catch(error => console.warn(error))
+            .then(() => { firewall.ready = true })
+            .then(() => firewall.debouncedEvent('changed'));
 }
 
 firewalld_service.addEventListener('changed', () => {
@@ -200,13 +238,6 @@ firewalld_service.addEventListener('changed', () => {
 
     debug("systemd service changed: exists", firewalld_service.exists, "state", firewalld_service.state,
           "firewall.enabled:", JSON.stringify(firewall.enabled));
-
-    /* HACK: cockpit.dbus() remains dead for non-activatable names, so reinitialize it if the service gets enabled and started
-     * See https://github.com/cockpit-project/cockpit/pull/9125 */
-    if (!firewall.enabled && is_running) {
-        debug("reinitializing D-Bus connection after unit got started");
-        initFirewalldDbus();
-    }
 
     firewall.dispatchEvent('changed');
 });
@@ -332,8 +363,6 @@ function fetchZoneInfos(zones) {
                 });
     }));
 }
-
-initFirewalldDbus();
 
 cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all --process $$ --allow-user-interaction 2>&1'], { superuser: "try" })
         .then(() => {

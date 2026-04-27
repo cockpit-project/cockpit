@@ -6,7 +6,7 @@
 import cockpit from 'cockpit';
 import * as PK from 'packagekit';
 import { superuser } from 'superuser';
-import { get_manifest_config_matchlist } from 'utils';
+import { get_manifest_config_matchlist, in_anaconda_mode, read_anaconda_session_storage } from 'utils';
 
 import * as utils from './utils.js';
 
@@ -1015,14 +1015,7 @@ function init_model(callback) {
         ).then(() => info);
     }
 
-    try {
-        client.anaconda = JSON.parse(window.sessionStorage.getItem("cockpit_anaconda"));
-        if (client.anaconda)
-            console.log("ANACONDA", client.anaconda);
-    } catch {
-        console.warn("Can't parse cockpit_anaconda configuration as JSON");
-        client.anaconda = null;
-    }
+    client.anaconda = read_anaconda_session_storage();
 
     pull_time().then(() => {
         read_os_release().then(os_release => {
@@ -1500,7 +1493,7 @@ client.wait_for = function wait_for(cond) {
 client.get_config = (name, def) =>
     get_manifest_config_matchlist("storage", name, def, [client.os_release.PLATFORM_ID, client.os_release.ID]);
 
-client.in_anaconda_mode = () => !!client.anaconda;
+client.in_anaconda_mode = in_anaconda_mode;
 
 client.strip_mount_point_prefix = (dir) => {
     const mpp = client.anaconda?.mount_point_prefix;

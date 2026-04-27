@@ -54,6 +54,32 @@ function try_fields(
  *      "platform:el9": { "color": "red" }
  *  }
  */
+
+/** Parse `sessionStorage.cockpit_anaconda` as JSON (storaged uses the object when present). */
+export function read_anaconda_session_storage(): cockpit.JsonValue | null {
+    try {
+        const value = JSON.parse(
+            window.sessionStorage.getItem("cockpit_anaconda") as string
+        ) as cockpit.JsonValue;
+        if (value)
+            console.log("ANACONDA", value);
+        return value;
+    } catch {
+        console.warn("Can't parse cockpit_anaconda configuration as JSON");
+        return null;
+    }
+}
+
+/** True when embedded in Anaconda (parent sets JSON in sessionStorage `cockpit_anaconda`). */
+export function in_anaconda_mode(): boolean {
+    try {
+        const raw = window.sessionStorage.getItem("cockpit_anaconda");
+        return !!JSON.parse(raw ?? "null");
+    } catch {
+        return false;
+    }
+}
+
 export function get_manifest_config_matchlist(
     manifest_name: string, config_name: string, default_value: cockpit.JsonValue, matches: (string | undefined)[]
 ): cockpit.JsonValue {

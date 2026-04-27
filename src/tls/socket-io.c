@@ -16,6 +16,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 
@@ -80,7 +81,8 @@ get_remaining_timeout (struct timespec *start,
   return true;
 }
 
-static int
+/* Return true if IO on fd is pending, false on timeout */
+static bool
 wait_for_io (struct timespec *start,
              int              fd,
              short            events,
@@ -93,7 +95,7 @@ wait_for_io (struct timespec *start,
   debug (SOCKET_IO, "wait_for_io(%d, %u, %ju):", fd, (unsigned) events, (uintmax_t) timeout_us);
 
   if (!get_remaining_timeout (start, &remaining, timeout_us))
-    return 0;
+    return false;
 
   debug (SOCKET_IO, "  -> waiting for %jd", (uintmax_t) remaining);
 
@@ -101,9 +103,12 @@ wait_for_io (struct timespec *start,
     r = poll (&pfd, 1, (remaining + 999) / 1000);
   while (r == -1 && errno == EINTR);
 
-  debug (SOCKET_IO, "  -> result is %d/%s", r, r < 0 ? strerror (errno) : "-");
+  if (r < 0)
+    err (EXIT_FAILURE, "poll() failed");
 
-  return r;
+  debug (SOCKET_IO, "  -> result is %d", r);
+
+  return r == 1;
 }
 
 /**
@@ -142,7 +147,7 @@ recv_all (int     fd,
    * extra byte, we'd need to have a separate throwaway variable and a
    * separately-coded function call.
    */
-  while (count < size && wait_for_io (&start, fd, POLLIN, timeout) == 1)
+  while (count < size && wait_for_io (&start, fd, POLLIN, timeout))
     {
       ssize_t s = recv (fd, buffer + count, size - count, MSG_DONTWAIT);
       debug (SOCKET_IO, "  -> recv returned %zd/%m", s);
@@ -233,7 +238,7 @@ send_all (int         fd,
   struct timespec start = { 0, 0 };
   size_t count = 0;
 
-  while (count < size && wait_for_io (&start, fd, POLLOUT, timeout) == 1)
+  while (count < size && wait_for_io (&start, fd, POLLOUT, timeout))
     {
       ssize_t s = send (fd, buffer + count, size - count, MSG_DONTWAIT | MSG_NOSIGNAL);
 

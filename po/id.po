@@ -25,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-15 17:07+0000\n"
+"POT-Creation-Date: 2026-04-24 12:30+0000\n"
 "PO-Revision-Date: 2026-04-20 02:34+0000\n"
 "Last-Translator: Arif Budiman <arifpedia@gmail.com>\n"
 "Language-Team: Indonesian <https://translate.fedoraproject.org/projects/"
@@ -79,11 +79,6 @@ msgstr "$0 tidak bisa diubah ukurannya di sini"
 msgid "$0 chunk size"
 msgstr "$0 ukuran chunk"
 
-#: pkg/systemd/overview-cards/insights.jsx:184
-msgid "$0 critical hit"
-msgid_plural "$0 hits, including critical"
-msgstr[0] "$0 hit, termasuk yang kritis"
-
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:281
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 data + $1 overhead yang digunakan sebesar $2 ($3)"
@@ -98,8 +93,8 @@ msgid "$0 disk is failing"
 msgid_plural "$0 disks are failing"
 msgstr[0] "Disk $0 mengalami kegagalan"
 
-#: pkg/playground/translate.js:27 pkg/playground/translate.js:30
-#: pkg/storaged/mdraid/mdraid.jsx:260
+#: pkg/storaged/mdraid/mdraid.jsx:260 pkg/playground/translate.js:27
+#: pkg/playground/translate.js:30
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 disk tidak ada"
@@ -165,26 +160,21 @@ msgstr[0] "$0 jam"
 msgid "$0 hours"
 msgstr "$0 jam"
 
-#: pkg/systemd/overview-cards/insights.jsx:189
-msgid "$0 important hit"
-msgid_plural "$0 hits, including important"
-msgstr[0] "$0 hit, termasuk yang penting"
-
 #: pkg/users/account-create-dialog.js:364
 msgid "$0 is an existing file"
 msgstr "$0 adalah berkas yang sudah ada"
 
-#: pkg/storaged/btrfs/volume.jsx:56 pkg/storaged/stratis/pool.jsx:438
-#: pkg/storaged/stratis/filesystem.jsx:102 pkg/storaged/crypto/actions.jsx:57
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:36
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:70
-#: pkg/storaged/partitions/format-disk-dialog.jsx:25
-#: pkg/storaged/partitions/partition.jsx:33 pkg/storaged/mdraid/mdraid.jsx:49
-#: pkg/storaged/mdraid/mdraid.jsx:109 pkg/storaged/block/format-dialog.jsx:198
-#: pkg/storaged/block/resize.jsx:423 pkg/storaged/block/resize.jsx:573
-#: pkg/storaged/lvm2/volume-group.jsx:73 pkg/storaged/lvm2/volume-group.jsx:304
 #: pkg/storaged/lvm2/block-logical-volume.jsx:54
 #: pkg/storaged/lvm2/block-logical-volume.jsx:137
+#: pkg/storaged/lvm2/volume-group.jsx:73 pkg/storaged/lvm2/volume-group.jsx:304
+#: pkg/storaged/stratis/pool.jsx:438 pkg/storaged/stratis/filesystem.jsx:102
+#: pkg/storaged/crypto/actions.jsx:57 pkg/storaged/legacy-vdo/legacy-vdo.jsx:36
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:70
+#: pkg/storaged/partitions/partition.jsx:33
+#: pkg/storaged/partitions/format-disk-dialog.jsx:25
+#: pkg/storaged/mdraid/mdraid.jsx:49 pkg/storaged/mdraid/mdraid.jsx:109
+#: pkg/storaged/btrfs/volume.jsx:56 pkg/storaged/block/format-dialog.jsx:198
+#: pkg/storaged/block/resize.jsx:423 pkg/storaged/block/resize.jsx:573
 msgid "$0 is in use"
 msgstr "$0 sedang digunakan"
 
@@ -197,7 +187,7 @@ msgstr "$0 bukan direktori"
 msgid "$0 is not available from any repository."
 msgstr "$0 tidak tersedia dari repositori mana pun."
 
-#: pkg/static/login.js:824 pkg/lib/cockpit-connect-ssh.tsx:113
+#: pkg/lib/cockpit-connect-ssh.tsx:113 pkg/static/login.js:824
 #: pkg/shell/hosts_dialog.jsx:653
 msgid "$0 key changed"
 msgstr "Kunci $0 telah berubah"
@@ -206,20 +196,10 @@ msgstr "Kunci $0 telah berubah"
 msgid "$0 killed with signal $1"
 msgstr "$0 dihentikan dengan sinyal $1"
 
-#: pkg/systemd/overview-cards/insights.jsx:199
-msgid "$0 low severity hit"
-msgid_plural "$0 low severity hits"
-msgstr[0] "$0 temuan tingkat keparahan rendah"
-
 #: pkg/lib/cockpit-components-plot.jsx:220
 msgid "$0 minute"
 msgid_plural "$0 minutes"
 msgstr[0] "$0 menit"
-
-#: pkg/systemd/overview-cards/insights.jsx:194
-msgid "$0 moderate hit"
-msgid_plural "$0 hits, including moderate"
-msgstr[0] "$0 temuan, termasuk tingkat keparahan sedang"
 
 #: pkg/lib/cockpit-components-plot.jsx:208
 msgid "$0 month"
@@ -235,7 +215,7 @@ msgid "$0 network"
 msgid_plural "$0 networks"
 msgstr[0] "$0 jaringan"
 
-#: pkg/packagekit/history.jsx:75
+#: pkg/packagekit/history.tsx:82
 msgid "$0 package"
 msgid_plural "$0 packages"
 msgstr[0] "$0 paket"
@@ -269,7 +249,7 @@ msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 layanan perlu dimulai ulang"
 
-#: pkg/storaged/crypto/keyslots.jsx:776
+#: pkg/storaged/crypto/keyslots.jsx:781
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 slot tersisa"
@@ -684,11 +664,11 @@ msgstr "Kata sandi dapat diterima"
 msgid "Account expiration"
 msgstr "Kedaluwarsa Akun"
 
-#: pkg/users/account-details.js:87
+#: pkg/users/account-details.js:106
 msgid "Account not available or cannot be edited."
 msgstr "Akun tidak tersedia atau tidak dapat disunting."
 
-#: pkg/users/account-details.js:222 pkg/users/accounts-list.js:237
+#: pkg/users/account-details.js:241 pkg/users/accounts-list.js:237
 #: pkg/users/accounts-list.js:423 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "Akun"
@@ -697,10 +677,10 @@ msgstr "Akun"
 msgid "Action"
 msgstr "Tindakan"
 
-#: pkg/users/accounts-list.js:360 pkg/storaged/drive/smart-details.jsx:92
-#: pkg/storaged/pages.jsx:716 pkg/networkmanager/firewall.jsx:198
+#: pkg/users/accounts-list.js:360 pkg/apps/application-list.jsx:132
+#: pkg/storaged/pages.jsx:716 pkg/storaged/drive/smart-details.jsx:92
 #: pkg/networkmanager/network-interface.jsx:1085
-#: pkg/apps/application-list.jsx:132
+#: pkg/networkmanager/firewall.jsx:198
 msgid "Actions"
 msgstr "Tindakan"
 
@@ -716,16 +696,16 @@ msgstr "Aktifkan sebelum mengubah ukuran"
 msgid "Activating $target"
 msgstr "Mengaktifkan $target"
 
-#: pkg/networkmanager/team.jsx:36 pkg/networkmanager/interfaces.js:891
+#: pkg/networkmanager/interfaces.js:891 pkg/networkmanager/team.jsx:36
 msgid "Active"
 msgstr "Aktif"
 
-#: pkg/networkmanager/bond.jsx:30 pkg/networkmanager/team.jsx:27
+#: pkg/networkmanager/team.jsx:27 pkg/networkmanager/bond.jsx:30
 msgid "Active backup"
 msgstr "Pencadangan Aktif"
 
-#: pkg/shell/active-pages-modal.tsx:97 pkg/shell/active-pages-modal.tsx:101
-#: pkg/shell/topnav.tsx:205
+#: pkg/shell/topnav.tsx:205 pkg/shell/active-pages-modal.tsx:97
+#: pkg/shell/active-pages-modal.tsx:101
 msgid "Active pages"
 msgstr "Halaman Aktif"
 
@@ -748,11 +728,11 @@ msgstr "Penyeimbangan beban transmisi adaptif"
 
 #: pkg/systemd/timer-dialog.jsx:340 pkg/users/authorized-keys-panel.js:54
 #: pkg/storaged/iscsi/create-dialog.jsx:106
-#: pkg/storaged/iscsi/create-dialog.jsx:130 pkg/storaged/stratis/pool.jsx:512
-#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:779
-#: pkg/storaged/nfs/nfs.jsx:174 pkg/storaged/mdraid/mdraid.jsx:160
-#: pkg/storaged/lvm2/volume-group.jsx:197 pkg/shell/hosts_dialog.jsx:437
-#: pkg/shell/credentials.tsx:78 pkg/networkmanager/dialogs-common.jsx:143
+#: pkg/storaged/iscsi/create-dialog.jsx:130 pkg/storaged/nfs/nfs.jsx:174
+#: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/stratis/pool.jsx:512
+#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:784
+#: pkg/storaged/mdraid/mdraid.jsx:160 pkg/networkmanager/dialogs-common.jsx:143
+#: pkg/shell/credentials.tsx:78 pkg/shell/hosts_dialog.jsx:437
 msgid "Add"
 msgstr "Tambah"
 
@@ -807,7 +787,7 @@ msgstr "Tambahkan perangkat blok"
 msgid "Add bond"
 msgstr "Tambah Bond"
 
-#: pkg/networkmanager/network-main.jsx:159 pkg/networkmanager/bridge.jsx:81
+#: pkg/networkmanager/bridge.jsx:81 pkg/networkmanager/network-main.jsx:159
 msgid "Add bridge"
 msgstr "Tambah Bridge"
 
@@ -815,7 +795,7 @@ msgstr "Tambah Bridge"
 msgid "Add disk"
 msgstr "Tambah Disk"
 
-#: pkg/storaged/mdraid/mdraid.jsx:147 pkg/storaged/lvm2/volume-group.jsx:184
+#: pkg/storaged/lvm2/volume-group.jsx:184 pkg/storaged/mdraid/mdraid.jsx:147
 msgid "Add disks"
 msgstr "Tambah Disk"
 
@@ -837,7 +817,7 @@ msgstr "Tambahkan server kunci"
 msgid "Add member"
 msgstr "Tambahkan anggota"
 
-#: pkg/shell/hosts_dialog.jsx:436 pkg/shell/hosts.tsx:259
+#: pkg/shell/hosts.tsx:259 pkg/shell/hosts_dialog.jsx:436
 msgid "Add new host"
 msgstr "Tambahkan host baru"
 
@@ -892,7 +872,7 @@ msgstr "Tambahkan layanan ke zona $0"
 msgid "Add services to zone $0"
 msgstr "Tambahkan layanan ke zona $0"
 
-#: pkg/networkmanager/network-main.jsx:158 pkg/networkmanager/team.jsx:139
+#: pkg/networkmanager/team.jsx:139 pkg/networkmanager/network-main.jsx:158
 msgid "Add team"
 msgstr "Tambah Tim"
 
@@ -1097,11 +1077,11 @@ msgstr "Alamat yang Diizinkan"
 msgid "An additional $0 must be selected"
 msgstr "Tambahan $0 harus dipilih"
 
-#: pkg/lib/cockpit-components-modifications.jsx:78
+#: pkg/lib/cockpit-components-modifications.tsx:81
 msgid "Ansible"
 msgstr "Ansible"
 
-#: pkg/lib/cockpit-components-modifications.jsx:86
+#: pkg/lib/cockpit-components-modifications.tsx:89
 msgid "Ansible roles documentation"
 msgstr "Dokumentasi peran Ansible"
 
@@ -1125,8 +1105,8 @@ msgstr "Tampilan"
 msgid "Application information is missing"
 msgstr "Informasi aplikasi hilang"
 
-#: pkg/apps/index.html:9 pkg/apps/application.jsx:147
-#: pkg/apps/application-list.jsx:214 pkg/apps/manifest.json:0
+#: pkg/apps/index.html:9 pkg/apps/application-list.jsx:214
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Aplikasi"
 
@@ -1138,7 +1118,7 @@ msgstr "Daftar aplikasi"
 msgid "Apply and reboot"
 msgstr "Terapkan dan reboot"
 
-#: pkg/packagekit/kpatch.jsx:247
+#: pkg/packagekit/kpatch.tsx:274
 msgid "Apply kernel live patches"
 msgstr "Terapkan patch kernel langsung"
 
@@ -1191,9 +1171,9 @@ msgstr[0] "Setidaknya diperlukan disk sebesar $0."
 msgid "At least one block device is needed."
 msgstr "Diperlukan setidaknya satu perangkat blok."
 
-#: pkg/storaged/stratis/pool.jsx:503 pkg/storaged/mdraid/mdraid.jsx:154
-#: pkg/storaged/lvm2/volume-group.jsx:191
 #: pkg/storaged/lvm2/create-dialog.jsx:43
+#: pkg/storaged/lvm2/volume-group.jsx:191 pkg/storaged/stratis/pool.jsx:503
+#: pkg/storaged/mdraid/mdraid.jsx:154
 msgid "At least one disk is needed."
 msgstr "Setidaknya satu disk diperlukan."
 
@@ -1274,8 +1254,8 @@ msgstr "Kunci SSH publik yang diotorisasi"
 
 #: pkg/networkmanager/ip-settings.jsx:28 pkg/networkmanager/ip-settings.jsx:296
 #: pkg/networkmanager/ip-settings.jsx:342
-#: pkg/networkmanager/ip-settings.jsx:388
-#: pkg/networkmanager/network-interface.jsx:582 pkg/networkmanager/mtu.jsx:65
+#: pkg/networkmanager/ip-settings.jsx:388 pkg/networkmanager/mtu.jsx:65
+#: pkg/networkmanager/network-interface.jsx:582
 msgid "Automatic"
 msgstr "Otomatis"
 
@@ -1307,7 +1287,7 @@ msgstr "Menggunakan server NTP tambahan secara otomatis"
 msgid "Automatically using specific NTP servers"
 msgstr "Menggunakan server NTP tertentu secara otomatis"
 
-#: pkg/lib/cockpit-components-modifications.jsx:74
+#: pkg/lib/cockpit-components-modifications.tsx:77
 msgid "Automation script"
 msgstr "Skrip otomatisasi"
 
@@ -1341,7 +1321,7 @@ msgstr "Tanggal BIOS"
 msgid "BIOS version"
 msgstr "Versi BIOS"
 
-#: pkg/users/account-details.js:91
+#: pkg/users/account-details.js:110
 msgid "Back to accounts"
 msgstr "Kembali ke akun"
 
@@ -1385,9 +1365,8 @@ msgstr "Perangkat blok"
 msgid "Block device for filesystems"
 msgstr "Perangkat blok untuk sistem berkas"
 
-#: pkg/storaged/stratis/pool.jsx:499 pkg/storaged/stratis/pool.jsx:1051
-#: pkg/storaged/stratis/create-dialog.jsx:79
-#: pkg/storaged/stratis/stopped-pool.jsx:190
+#: pkg/storaged/stratis/create-dialog.jsx:79 pkg/storaged/stratis/pool.jsx:499
+#: pkg/storaged/stratis/pool.jsx:1051 pkg/storaged/stratis/stopped-pool.jsx:190
 msgid "Block devices"
 msgstr "Perangkat blok"
 
@@ -1433,7 +1412,7 @@ msgstr "Port bridge"
 msgid "Bridge port settings"
 msgstr "Pengaturan Port Bridge"
 
-#: pkg/networkmanager/bond.jsx:32 pkg/networkmanager/team.jsx:29
+#: pkg/networkmanager/team.jsx:29 pkg/networkmanager/bond.jsx:32
 msgid "Broadcast"
 msgstr "Broadcast"
 
@@ -1468,7 +1447,7 @@ msgstr ""
 msgid "Bypass browser check"
 msgstr "Lewati pemeriksaan browser"
 
-#: pkg/systemd/hwinfo.jsx:102 pkg/systemd/overview-cards/usageCard.jsx:119
+#: pkg/systemd/overview-cards/usageCard.jsx:119 pkg/systemd/hwinfo.jsx:102
 #: pkg/metrics/metrics.jsx:100 pkg/metrics/metrics.jsx:770
 #: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1934
 msgid "CPU"
@@ -1507,30 +1486,30 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "Tidak dapat menemukan log apa pun menggunakan kombinasi filter saat ini."
 
-#: pkg/static/login.html:156 pkg/sosreport/sosreport.jsx:282
-#: pkg/sosreport/sosreport.jsx:370 pkg/kdump/kdump-view.jsx:313
-#: pkg/systemd/hwinfo.jsx:221 pkg/systemd/terminal.jsx:304
+#: pkg/static/login.html:156 pkg/systemd/terminal.jsx:304
 #: pkg/systemd/overview-cards/realmd.jsx:441
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:217
-#: pkg/systemd/overview-cards/configurationCard.jsx:292
 #: pkg/systemd/overview-cards/motdCard.jsx:63
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:217
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:311
+#: pkg/systemd/overview-cards/configurationCard.jsx:292
+#: pkg/systemd/hwinfo.jsx:221 pkg/systemd/timer-dialog.jsx:376
 #: pkg/systemd/service-details.jsx:83 pkg/systemd/service-details.jsx:811
-#: pkg/systemd/timer-dialog.jsx:376 pkg/metrics/metrics.jsx:1490
+#: pkg/kdump/kdump-view.jsx:313 pkg/lib/superuser-dialogs.tsx:213
+#: pkg/lib/superuser-dialogs.tsx:250 pkg/lib/superuser-dialogs.tsx:306
 #: pkg/lib/cockpit-components-shutdown.jsx:223
 #: pkg/lib/cockpit-connect-ssh.tsx:175 pkg/lib/cockpit-connect-ssh.tsx:488
-#: pkg/lib/cockpit-components-dialog.jsx:114 pkg/lib/cockpit/dialog.tsx:1417
-#: pkg/lib/superuser-dialogs.tsx:213 pkg/lib/superuser-dialogs.tsx:250
-#: pkg/lib/superuser-dialogs.tsx:306 pkg/storaged/jobs-panel.jsx:126
-#: pkg/shell/hosts_dialog.jsx:275 pkg/shell/hosts_dialog.jsx:477
-#: pkg/shell/hosts_dialog.jsx:574 pkg/shell/hosts_dialog.jsx:710
-#: pkg/shell/hosts_dialog.jsx:1089 pkg/shell/active-pages-modal.tsx:112
-#: pkg/shell/shell-modals.tsx:172 pkg/shell/credentials.tsx:229
+#: pkg/lib/cockpit/dialog.tsx:1417 pkg/lib/cockpit-components-dialog.jsx:114
+#: pkg/packagekit/autoupdates.jsx:441 pkg/packagekit/kpatch.tsx:331
+#: pkg/packagekit/updates.jsx:516 pkg/packagekit/updates.jsx:549
+#: pkg/apps/utils.tsx:78 pkg/storaged/jobs-panel.jsx:126
+#: pkg/sosreport/sosreport.jsx:282 pkg/sosreport/sosreport.jsx:370
 #: pkg/networkmanager/dialogs-common.jsx:146
 #: pkg/networkmanager/firewall.jsx:728 pkg/networkmanager/firewall.jsx:918
-#: pkg/networkmanager/firewall.jsx:942 pkg/packagekit/kpatch.jsx:302
-#: pkg/packagekit/autoupdates.jsx:441 pkg/packagekit/updates.jsx:516
-#: pkg/packagekit/updates.jsx:549 pkg/apps/utils.tsx:78
+#: pkg/networkmanager/firewall.jsx:942 pkg/shell/shell-modals.tsx:172
+#: pkg/shell/credentials.tsx:229 pkg/shell/hosts_dialog.jsx:275
+#: pkg/shell/hosts_dialog.jsx:477 pkg/shell/hosts_dialog.jsx:574
+#: pkg/shell/hosts_dialog.jsx:710 pkg/shell/hosts_dialog.jsx:1089
+#: pkg/shell/active-pages-modal.tsx:112 pkg/metrics/metrics.jsx:1490
 msgid "Cancel"
 msgstr "Batal"
 
@@ -1564,8 +1543,8 @@ msgstr ""
 msgid "Cannot schedule event in the past"
 msgstr "Tidak dapat menjadwalkan acara di masa lalu"
 
-#: pkg/storaged/btrfs/volume.jsx:192 pkg/storaged/drive/drive.jsx:113
-#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/lvm2/volume-group.jsx:355
+#: pkg/storaged/lvm2/volume-group.jsx:355 pkg/storaged/drive/drive.jsx:113
+#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:192
 msgid "Capacity"
 msgstr "Kapasitas"
 
@@ -1579,7 +1558,7 @@ msgstr "Kategori"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:291
 #: pkg/users/shell-dialog.js:64 pkg/users/expiration-dialogs.js:101
-#: pkg/users/expiration-dialogs.js:203 pkg/lib/serverTime.js:709
+#: pkg/users/expiration-dialogs.js:200 pkg/lib/serverTime.js:709
 #: pkg/storaged/iscsi/create-dialog.jsx:157 pkg/storaged/stratis/pool.jsx:693
 #: pkg/storaged/stratis/pool.jsx:774
 msgid "Change"
@@ -1780,13 +1759,14 @@ msgstr "Perangkat lunak klien"
 
 #: pkg/systemd/overview-cards/realmd.jsx:307
 #: pkg/systemd/overview-cards/configurationCard.jsx:188
-#: pkg/users/dialog-utils.js:44 pkg/lib/cockpit-components-modifications.jsx:65
+#: pkg/users/dialog-utils.js:44 pkg/lib/superuser-dialogs.tsx:221
+#: pkg/lib/superuser-dialogs.tsx:229
 #: pkg/lib/cockpit-components-terminal.tsx:349
-#: pkg/lib/cockpit-connect-ssh.tsx:513 pkg/lib/superuser-dialogs.tsx:221
-#: pkg/lib/superuser-dialogs.tsx:229 pkg/storaged/dialog.jsx:490
-#: pkg/shell/hosts_dialog.jsx:206 pkg/shell/shell-modals.tsx:198
-#: pkg/shell/credentials.tsx:336 pkg/networkmanager/interfaces.js:29
-#: pkg/apps/utils.tsx:126
+#: pkg/lib/cockpit-connect-ssh.tsx:513
+#: pkg/lib/cockpit-components-modifications.tsx:68 pkg/apps/utils.tsx:126
+#: pkg/storaged/dialog.jsx:490 pkg/networkmanager/interfaces.js:29
+#: pkg/shell/shell-modals.tsx:198 pkg/shell/credentials.tsx:336
+#: pkg/shell/hosts_dialog.jsx:206
 msgid "Close"
 msgstr "Tutup"
 
@@ -1920,9 +1900,9 @@ msgstr "Selesai dengan satu atau lebih segmen yang gagal"
 msgid "Compress crash dumps to save space"
 msgstr "Kompres dump crash untuk menghemat ruang"
 
-#: pkg/kdump/kdump-view.jsx:292 pkg/storaged/legacy-vdo/legacy-vdo.jsx:311
-#: pkg/storaged/lvm2/vdo-pool.jsx:70
+#: pkg/kdump/kdump-view.jsx:292
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
+#: pkg/storaged/lvm2/vdo-pool.jsx:70 pkg/storaged/legacy-vdo/legacy-vdo.jsx:311
 msgid "Compression"
 msgstr "Kompresi"
 
@@ -1954,9 +1934,8 @@ msgstr "Mengonfigurasi kdump"
 msgid "Configuring system settings"
 msgstr "Mengonfigurasi pengaturan sistem"
 
-#: pkg/storaged/stratis/pool.jsx:858 pkg/storaged/stratis/pool.jsx:888
-#: pkg/storaged/stratis/create-dialog.jsx:106
-#: pkg/storaged/block/format-dialog.jsx:331
+#: pkg/storaged/stratis/create-dialog.jsx:106 pkg/storaged/stratis/pool.jsx:858
+#: pkg/storaged/stratis/pool.jsx:888 pkg/storaged/block/format-dialog.jsx:331
 msgid "Confirm"
 msgstr "Konfirmasi"
 
@@ -2000,9 +1979,9 @@ msgstr "Bertentangan dengan"
 msgid "Conflicts"
 msgstr "Konflik"
 
-#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:206
+#: pkg/networkmanager/network-interface.jsx:206
 #: pkg/networkmanager/network-interface.jsx:992
-#: pkg/networkmanager/network-interface.jsx:993
+#: pkg/networkmanager/network-interface.jsx:993 pkg/shell/hosts_dialog.jsx:272
 msgid "Connect"
 msgstr "Hubungkan"
 
@@ -2039,6 +2018,12 @@ msgstr ""
 "Host yang terhubung dapat sepenuhnya mengontrol satu sama lain. Ini termasuk "
 "menjalankan program yang dapat merusak sistem Anda atau mencuri data. Hanya "
 "hubungkan ke mesin yang tepercaya."
+
+#: pkg/systemd/overview-cards/insights.jsx:42
+#, fuzzy
+#| msgid "Not connected to Insights"
+msgid "Connected to Insights"
+msgstr "Tidak terhubung ke Insights"
 
 #: pkg/selinux/setroubleshoot-view.jsx:325
 msgid "Connecting to SETroubleshoot daemon..."
@@ -2088,7 +2073,7 @@ msgstr "Berisi:"
 msgid "Continue"
 msgstr "Lanjutkan"
 
-#: pkg/shell/idle.tsx:117
+#: pkg/shell/shell.tsx:81
 msgid "Continue session"
 msgstr "Lanjutkan sesi"
 
@@ -2107,22 +2092,22 @@ msgstr "Convertible"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:121 pkg/lib/cockpit-connect-ssh.tsx:124
 #: pkg/lib/cockpit-connect-ssh.tsx:139 pkg/lib/cockpit-connect-ssh.tsx:141
-#: pkg/shell/failures.tsx:37 pkg/shell/hosts_dialog.jsx:664
-#: pkg/shell/hosts_dialog.jsx:667 pkg/shell/hosts_dialog.jsx:682
-#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/credentials.tsx:106
+#: pkg/shell/credentials.tsx:106 pkg/shell/failures.tsx:37
+#: pkg/shell/hosts_dialog.jsx:664 pkg/shell/hosts_dialog.jsx:667
+#: pkg/shell/hosts_dialog.jsx:682 pkg/shell/hosts_dialog.jsx:684
 msgid "Copied"
 msgstr "Disalin"
 
 #: pkg/lib/cockpit-components-terminal.tsx:327
 #: pkg/lib/cockpit-connect-ssh.tsx:121 pkg/lib/cockpit-connect-ssh.tsx:124
 #: pkg/lib/cockpit-connect-ssh.tsx:139 pkg/lib/cockpit-connect-ssh.tsx:141
-#: pkg/shell/failures.tsx:37 pkg/shell/hosts_dialog.jsx:664
-#: pkg/shell/hosts_dialog.jsx:667 pkg/shell/hosts_dialog.jsx:682
-#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/credentials.tsx:106
+#: pkg/shell/credentials.tsx:106 pkg/shell/failures.tsx:37
+#: pkg/shell/hosts_dialog.jsx:664 pkg/shell/hosts_dialog.jsx:667
+#: pkg/shell/hosts_dialog.jsx:682 pkg/shell/hosts_dialog.jsx:684
 msgid "Copy"
 msgstr "Salin"
 
-#: pkg/systemd/logs.jsx:376 pkg/lib/cockpit-components-modifications.jsx:62
+#: pkg/systemd/logs.jsx:376 pkg/lib/cockpit-components-modifications.tsx:65
 #: pkg/storaged/crypto/tang.jsx:131
 msgid "Copy to clipboard"
 msgstr "Salin ke papan klip"
@@ -2143,16 +2128,16 @@ msgstr "Lokasi dump crash"
 msgid "Crash system"
 msgstr "Crash sistem"
 
-#: pkg/users/group-create-dialog.js:127 pkg/users/account-create-dialog.js:467
-#: pkg/storaged/btrfs/subvolume.jsx:136 pkg/storaged/stratis/pool.jsx:357
-#: pkg/storaged/stratis/create-dialog.jsx:142
-#: pkg/storaged/mdraid/create-dialog.jsx:98
-#: pkg/storaged/block/format-dialog.jsx:261
-#: pkg/storaged/block/format-dialog.jsx:271
+#: pkg/users/account-create-dialog.js:467 pkg/users/group-create-dialog.js:127
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:263
+#: pkg/storaged/lvm2/create-dialog.jsx:49
 #: pkg/storaged/lvm2/volume-group.jsx:108
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
-#: pkg/storaged/lvm2/create-dialog.jsx:49
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:263
+#: pkg/storaged/stratis/create-dialog.jsx:142 pkg/storaged/stratis/pool.jsx:357
+#: pkg/storaged/mdraid/create-dialog.jsx:98
+#: pkg/storaged/btrfs/subvolume.jsx:136
+#: pkg/storaged/block/format-dialog.jsx:261
+#: pkg/storaged/block/format-dialog.jsx:271
 msgid "Create"
 msgstr "Buat"
 
@@ -2197,7 +2182,7 @@ msgstr "Buat akun dengan kata sandi lemah"
 msgid "Create and change ownership of home directory"
 msgstr "Buat dan ubah kepemilikan direktori home"
 
-#: pkg/storaged/btrfs/subvolume.jsx:130 pkg/storaged/stratis/pool.jsx:352
+#: pkg/storaged/stratis/pool.jsx:352 pkg/storaged/btrfs/subvolume.jsx:130
 #: pkg/storaged/block/format-dialog.jsx:256
 msgid "Create and mount"
 msgstr "Buat dan mount"
@@ -2218,7 +2203,7 @@ msgstr "Buat itu"
 msgid "Create logical volume"
 msgstr "Buat volume logis"
 
-#: pkg/users/account-create-dialog.js:452 pkg/users/accounts-list.js:411
+#: pkg/users/accounts-list.js:411 pkg/users/account-create-dialog.js:452
 msgid "Create new account"
 msgstr "Buat akun baru"
 
@@ -2226,7 +2211,7 @@ msgstr "Buat akun baru"
 msgid "Create new filesystem"
 msgstr "Buat sistem berkas baru"
 
-#: pkg/users/group-create-dialog.js:120 pkg/users/accounts-list.js:278
+#: pkg/users/accounts-list.js:278 pkg/users/group-create-dialog.js:120
 msgid "Create new group"
 msgstr "Buat grup baru"
 
@@ -2234,7 +2219,7 @@ msgstr "Buat grup baru"
 msgid "Create new logical volume"
 msgstr "Buat logical volume baru"
 
-#: pkg/lib/cockpit-components-modifications.jsx:82
+#: pkg/lib/cockpit-components-modifications.tsx:85
 msgid "Create new task file with this content."
 msgstr "Buat berkas tugas baru dengan konten ini."
 
@@ -2242,7 +2227,7 @@ msgstr "Buat berkas tugas baru dengan konten ini."
 msgid "Create new thinly provisioned logical volume"
 msgstr "Buat volume logis tipis baru"
 
-#: pkg/storaged/btrfs/subvolume.jsx:131 pkg/storaged/stratis/pool.jsx:353
+#: pkg/storaged/stratis/pool.jsx:353 pkg/storaged/btrfs/subvolume.jsx:131
 #: pkg/storaged/block/format-dialog.jsx:257
 #: pkg/storaged/block/format-dialog.jsx:266
 msgid "Create only"
@@ -2438,8 +2423,8 @@ msgstr "Gelap"
 msgid "Data"
 msgstr "Data"
 
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:129
 #: pkg/storaged/lvm2/vdo-pool.jsx:66
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:129
 msgid "Data used"
 msgstr "Data yang digunakan"
 
@@ -2520,9 +2505,9 @@ msgstr ""
 "pada waktu saat ini. Akhirnya, waktu relatif dapat ditentukan, diawali "
 "dengan '-' atau '+'."
 
-#: pkg/storaged/lvm2/unsupported-logical-volume.jsx:29
 #: pkg/storaged/lvm2/block-logical-volume.jsx:147
 #: pkg/storaged/lvm2/block-logical-volume.jsx:202
+#: pkg/storaged/lvm2/unsupported-logical-volume.jsx:29
 msgid "Deactivate"
 msgstr "Nonaktifkan"
 
@@ -2550,8 +2535,8 @@ msgstr "Kurangi satu"
 msgid "Dedicated parity (RAID 4)"
 msgstr "Paritas khusus (RAID 4)"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:320 pkg/storaged/lvm2/vdo-pool.jsx:74
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:228
+#: pkg/storaged/lvm2/vdo-pool.jsx:74 pkg/storaged/legacy-vdo/legacy-vdo.jsx:320
 msgid "Deduplication"
 msgstr "Dedupikasi"
 
@@ -2572,28 +2557,29 @@ msgstr "Jeda"
 msgid "Delay must be a number"
 msgstr "Penundaan harus berupa angka"
 
-#: pkg/sosreport/sosreport.jsx:364 pkg/sosreport/sosreport.jsx:463
 #: pkg/systemd/service-details.jsx:156 pkg/systemd/service-details.jsx:809
-#: pkg/users/account-details.js:213 pkg/users/delete-group-dialog.js:37
-#: pkg/users/delete-account-dialog.js:46 pkg/storaged/btrfs/volume.jsx:67
-#: pkg/storaged/btrfs/subvolume.jsx:239 pkg/storaged/btrfs/subvolume.jsx:386
+#: pkg/users/account-details.js:232 pkg/users/delete-account-dialog.js:46
+#: pkg/users/delete-group-dialog.js:37
+#: pkg/storaged/lvm2/block-logical-volume.jsx:65
+#: pkg/storaged/lvm2/block-logical-volume.jsx:208
+#: pkg/storaged/lvm2/volume-group.jsx:85
+#: pkg/storaged/lvm2/unsupported-logical-volume.jsx:30
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:95
+#: pkg/storaged/lvm2/inactive-logical-volume.jsx:28
 #: pkg/storaged/stratis/pool.jsx:450 pkg/storaged/stratis/filesystem.jsx:114
-#: pkg/storaged/stratis/filesystem.jsx:155
+#: pkg/storaged/stratis/filesystem.jsx:158
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:108
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:138
 #: pkg/storaged/partitions/partition.jsx:44
 #: pkg/storaged/partitions/partition.jsx:98
 #: pkg/storaged/partitions/partition-table.jsx:48
 #: pkg/storaged/mdraid/mdraid.jsx:119 pkg/storaged/mdraid/mdraid.jsx:226
-#: pkg/storaged/lvm2/volume-group.jsx:85
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:95
-#: pkg/storaged/lvm2/inactive-logical-volume.jsx:28
-#: pkg/storaged/lvm2/unsupported-logical-volume.jsx:30
-#: pkg/storaged/lvm2/block-logical-volume.jsx:65
-#: pkg/storaged/lvm2/block-logical-volume.jsx:208
+#: pkg/storaged/btrfs/subvolume.jsx:239 pkg/storaged/btrfs/subvolume.jsx:386
+#: pkg/storaged/btrfs/volume.jsx:67 pkg/sosreport/sosreport.jsx:364
+#: pkg/sosreport/sosreport.jsx:463
+#: pkg/networkmanager/network-interface.jsx:1238
 #: pkg/networkmanager/firewall.jsx:105 pkg/networkmanager/firewall.jsx:151
 #: pkg/networkmanager/firewall.jsx:165 pkg/networkmanager/firewall.jsx:939
-#: pkg/networkmanager/network-interface.jsx:1238
 msgid "Delete"
 msgstr "Hapus"
 
@@ -2696,9 +2682,9 @@ msgstr "Desktop"
 msgid "Detachable"
 msgstr "Dapat dilepas"
 
-#: pkg/systemd/overview-cards/realmd.jsx:404 pkg/shell/credentials.tsx:299
+#: pkg/systemd/overview-cards/realmd.jsx:404 pkg/packagekit/updates.jsx:420
 #: pkg/networkmanager/network-main.jsx:204
-#: pkg/networkmanager/network-main.jsx:220 pkg/packagekit/updates.jsx:420
+#: pkg/networkmanager/network-main.jsx:220 pkg/shell/credentials.tsx:299
 msgid "Details"
 msgstr "Detail"
 
@@ -2706,8 +2692,8 @@ msgstr "Detail"
 msgid "Development"
 msgstr "Pengembangan"
 
-#: pkg/metrics/metrics.jsx:735 pkg/storaged/dialog.jsx:1217
-#: pkg/storaged/dialog.jsx:1336 pkg/storaged/mdraid/mdraid.jsx:295
+#: pkg/storaged/dialog.jsx:1217 pkg/storaged/dialog.jsx:1336
+#: pkg/storaged/mdraid/mdraid.jsx:295 pkg/metrics/metrics.jsx:735
 msgid "Device"
 msgstr "Perangkat"
 
@@ -2715,7 +2701,7 @@ msgstr "Perangkat"
 msgid "Device contains unrecognized data"
 msgstr "Perangkat berisi data yang tidak dikenali"
 
-#: pkg/storaged/drive/drive.jsx:119 pkg/storaged/legacy-vdo/legacy-vdo.jsx:273
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:273 pkg/storaged/drive/drive.jsx:119
 #: pkg/storaged/block/other.jsx:48
 msgid "Device file"
 msgstr "Berkas perangkat"
@@ -2762,16 +2748,16 @@ msgstr "Nonaktifkan firewall"
 msgid "Disable tuned"
 msgstr "Nonaktifkan tuned"
 
-#: pkg/kdump/kdump-view.jsx:544 pkg/systemd/services.jsx:231
-#: pkg/systemd/services.jsx:680 pkg/systemd/service-details.jsx:505
+#: pkg/systemd/services.jsx:231 pkg/systemd/services.jsx:680
+#: pkg/systemd/service-details.jsx:505 pkg/kdump/kdump-view.jsx:544
+#: pkg/packagekit/autoupdates.jsx:456 pkg/packagekit/kpatch.tsx:263
+#: pkg/networkmanager/ip-settings.jsx:34
 #: pkg/networkmanager/firewall-switch.jsx:50
 #: pkg/networkmanager/firewall-switch.jsx:60
-#: pkg/networkmanager/ip-settings.jsx:34 pkg/packagekit/kpatch.jsx:236
-#: pkg/packagekit/autoupdates.jsx:456
 msgid "Disabled"
 msgstr "Dinonaktifkan"
 
-#: pkg/users/account-details.js:263
+#: pkg/users/account-details.js:282
 msgid "Disallow interactive password"
 msgstr "Larangan penggunaan kata sandi interaktif"
 
@@ -2812,10 +2798,10 @@ msgstr "Disk mengalami kegagalan"
 msgid "Disk passphrase"
 msgstr "Frasa sandi disk"
 
-#: pkg/metrics/metrics.jsx:868 pkg/storaged/mdraid/mdraid.jsx:149
-#: pkg/storaged/mdraid/mdraid.jsx:299 pkg/storaged/mdraid/create-dialog.jsx:85
-#: pkg/storaged/lvm2/volume-group.jsx:186
 #: pkg/storaged/lvm2/create-dialog.jsx:38
+#: pkg/storaged/lvm2/volume-group.jsx:186
+#: pkg/storaged/mdraid/create-dialog.jsx:85 pkg/storaged/mdraid/mdraid.jsx:149
+#: pkg/storaged/mdraid/mdraid.jsx:299 pkg/metrics/metrics.jsx:868
 msgid "Disks"
 msgstr "Disk"
 
@@ -2941,11 +2927,11 @@ msgstr "Peringkat ganda"
 msgid "EFI system partition"
 msgstr "partisi sistem EFI"
 
-#: pkg/kdump/kdump-view.jsx:480 pkg/systemd/service-details.jsx:149
-#: pkg/storaged/crypto/keyslots.jsx:724 pkg/storaged/nfs/nfs.jsx:298
-#: pkg/shell/nav.tsx:413 pkg/shell/hosts.tsx:247
-#: pkg/networkmanager/firewall.jsx:103 pkg/packagekit/kpatch.jsx:215
-#: pkg/packagekit/autoupdates.jsx:519
+#: pkg/systemd/service-details.jsx:149 pkg/kdump/kdump-view.jsx:480
+#: pkg/packagekit/autoupdates.jsx:519 pkg/packagekit/kpatch.tsx:242
+#: pkg/storaged/nfs/nfs.jsx:298 pkg/storaged/crypto/keyslots.jsx:725
+#: pkg/networkmanager/firewall.jsx:103 pkg/shell/hosts.tsx:247
+#: pkg/shell/nav.tsx:413
 msgid "Edit"
 msgstr "Edit"
 
@@ -2989,8 +2975,9 @@ msgstr "Edit hosts"
 msgid "Edit motd"
 msgstr "Edit motd"
 
-#: pkg/storaged/btrfs/subvolume.jsx:337 pkg/storaged/stratis/filesystem.jsx:144
+#: pkg/storaged/stratis/filesystem.jsx:144
 #: pkg/storaged/filesystem/filesystem.jsx:86
+#: pkg/storaged/btrfs/subvolume.jsx:337
 msgid "Edit mount point"
 msgstr "Edit titik mount"
 
@@ -3018,7 +3005,7 @@ msgstr "Edit pengatur waktu"
 msgid "Edit user"
 msgstr "Edit pengguna"
 
-#: pkg/storaged/crypto/keyslots.jsx:726
+#: pkg/storaged/crypto/keyslots.jsx:729
 msgid "Editing a key requires a free slot"
 msgstr "Mengedit kunci memerlukan slot kosong"
 
@@ -3048,7 +3035,7 @@ msgstr "Sandi kosong"
 msgid "Emptying $target"
 msgstr "Mengosongkan $target"
 
-#: pkg/packagekit/kpatch.jsx:237 pkg/packagekit/autoupdates.jsx:519
+#: pkg/packagekit/autoupdates.jsx:519 pkg/packagekit/kpatch.tsx:264
 msgid "Enable"
 msgstr "Aktifkan"
 
@@ -3064,10 +3051,10 @@ msgstr "Aktifkan layanan"
 msgid "Enable the firewall"
 msgstr "Aktifkan firewall"
 
-#: pkg/kdump/kdump-view.jsx:544 pkg/systemd/services.jsx:229
-#: pkg/systemd/services.jsx:230 pkg/systemd/services.jsx:679
-#: pkg/networkmanager/firewall-switch.jsx:50
-#: pkg/networkmanager/firewall-switch.jsx:60 pkg/packagekit/kpatch.jsx:239
+#: pkg/systemd/services.jsx:229 pkg/systemd/services.jsx:230
+#: pkg/systemd/services.jsx:679 pkg/kdump/kdump-view.jsx:544
+#: pkg/packagekit/kpatch.tsx:266 pkg/networkmanager/firewall-switch.jsx:50
+#: pkg/networkmanager/firewall-switch.jsx:60
 msgid "Enabled"
 msgstr "Diaktifkan"
 
@@ -3169,10 +3156,10 @@ msgstr "Menghapus $target"
 msgid "Errata"
 msgstr "Errata"
 
-#: pkg/sosreport/sosreport.jsx:385 pkg/systemd/services.jsx:209
-#: pkg/systemd/service-details.jsx:293 pkg/storaged/multipath.jsx:46
-#: pkg/storaged/storage-controls.jsx:92 pkg/storaged/storage-controls.jsx:145
-#: pkg/storaged/overview/overview.jsx:80 pkg/apps/utils.tsx:120
+#: pkg/systemd/services.jsx:209 pkg/systemd/service-details.jsx:293
+#: pkg/apps/utils.tsx:120 pkg/storaged/multipath.jsx:46
+#: pkg/storaged/overview/overview.jsx:80 pkg/storaged/storage-controls.jsx:92
+#: pkg/storaged/storage-controls.jsx:145 pkg/sosreport/sosreport.jsx:385
 msgid "Error"
 msgstr "Kesalahan"
 
@@ -3192,8 +3179,8 @@ msgstr "Terjadi kesalahan"
 msgid "Error installing $0: PackageKit or dnf5daemon-server is not installed"
 msgstr "Gagal menginstal $0: PackageKit atau dnf5daemon-server tidak terinstal"
 
-#: pkg/selinux/setroubleshoot-view.jsx:410
 #: pkg/systemd/overview-cards/configurationCard.jsx:162
+#: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "Error message"
 msgstr "Pesan kesalahan"
 
@@ -3492,7 +3479,7 @@ msgstr "Ukuran font"
 msgid "Forbidden from running"
 msgstr "Dilarang berjalan"
 
-#: pkg/users/account-details.js:295
+#: pkg/users/account-details.js:314
 msgid "Force change"
 msgstr "Ubah Paksa"
 
@@ -3509,8 +3496,8 @@ msgstr "Paksa ubah sandi"
 msgid "Forget"
 msgstr "Lupakan"
 
-#: pkg/storaged/block/format-dialog.jsx:261
-#: pkg/storaged/block/format-dialog.jsx:271 pkg/storaged/block/actions.jsx:17
+#: pkg/storaged/block/actions.jsx:17 pkg/storaged/block/format-dialog.jsx:261
+#: pkg/storaged/block/format-dialog.jsx:271
 msgid "Format"
 msgstr "Format"
 
@@ -3555,8 +3542,8 @@ msgstr "Setiap hari Jumat"
 msgid "From"
 msgstr "Dari"
 
-#: pkg/users/account-details.js:234 pkg/users/account-create-dialog.js:54
-#: pkg/users/accounts-list.js:356
+#: pkg/users/account-details.js:253 pkg/users/accounts-list.js:356
+#: pkg/users/account-create-dialog.js:54
 msgid "Full name"
 msgstr "Nama Lengkap"
 
@@ -3605,22 +3592,22 @@ msgstr "Grup"
 msgid "Group name"
 msgstr "Nama grup"
 
-#: pkg/users/account-details.js:412 pkg/users/accounts-list.js:294
+#: pkg/users/account-details.js:431 pkg/users/accounts-list.js:294
 #: pkg/users/accounts-list.js:298
 msgid "Groups"
 msgstr "Grup"
 
+#: pkg/storaged/lvm2/vdo-pool.jsx:34
+#: pkg/storaged/lvm2/block-logical-volume.jsx:197
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:90
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:245
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:301
 #: pkg/storaged/partitions/partition.jsx:93 pkg/storaged/block/resize.jsx:519
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:90
-#: pkg/storaged/lvm2/vdo-pool.jsx:34
-#: pkg/storaged/lvm2/block-logical-volume.jsx:197
 msgid "Grow"
 msgstr "Perbesar"
 
-#: pkg/storaged/partitions/partition.jsx:207
 #: pkg/storaged/lvm2/block-logical-volume.jsx:267
+#: pkg/storaged/partitions/partition.jsx:207
 msgid "Grow content"
 msgstr "Perbesar konten"
 
@@ -3689,15 +3676,15 @@ msgstr "Sembunyikan kata sandi"
 msgid "Higher interoperability at the cost of an increased attack surface."
 msgstr "Interoperabilitas lebih tinggi dengan peningkatan permukaan serangan."
 
-#: pkg/packagekit/history.jsx:96
+#: pkg/packagekit/history.tsx:103
 msgid "History package count"
 msgstr "Jumlah paket riwayat"
 
-#: pkg/users/account-details.js:313 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:332 pkg/users/account-create-dialog.js:70
 msgid "Home directory"
 msgstr "Direktori home"
 
-#: pkg/shell/hosts_dialog.jsx:440 pkg/shell/hosts.tsx:279
+#: pkg/shell/hosts.tsx:279 pkg/shell/hosts_dialog.jsx:440
 msgid "Host"
 msgstr "Host"
 
@@ -3741,9 +3728,9 @@ msgstr "Cara memeriksa"
 msgid "I confirm I want to lose this data forever"
 msgstr "Saya mengonfirmasi bahwa saya ingin kehilangan data ini selamanya"
 
-#: pkg/systemd/hwinfo.jsx:281 pkg/users/group-create-dialog.js:33
-#: pkg/users/accounts-list.js:235 pkg/users/accounts-list.js:357
-#: pkg/storaged/btrfs/subvolume.jsx:457 pkg/storaged/pages.jsx:712
+#: pkg/systemd/hwinfo.jsx:281 pkg/users/accounts-list.js:235
+#: pkg/users/accounts-list.js:357 pkg/users/group-create-dialog.js:33
+#: pkg/storaged/pages.jsx:712 pkg/storaged/btrfs/subvolume.jsx:457
 #: pkg/networkmanager/firewall.jsx:704
 msgid "ID"
 msgstr "ID"
@@ -3846,8 +3833,8 @@ msgstr ""
 "Jika server kunci di $0 tidak dapat dijangkau, Anda dapat memberikan frasa "
 "sandi yang sudah ada."
 
-#: pkg/networkmanager/ip-settings.jsx:32 pkg/packagekit/updates.jsx:654
-#: pkg/packagekit/updates.jsx:738
+#: pkg/packagekit/updates.jsx:654 pkg/packagekit/updates.jsx:738
+#: pkg/networkmanager/ip-settings.jsx:32
 msgid "Ignore"
 msgstr "Abaikan"
 
@@ -3881,9 +3868,9 @@ msgstr "Sedang berlangsung"
 msgid "In sync"
 msgstr "Sinkron"
 
-#: pkg/networkmanager/network-interface.jsx:459
 #: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1627
 #: pkg/networkmanager/interfaces.js:1634
+#: pkg/networkmanager/network-interface.jsx:459
 msgid "Inactive"
 msgstr "Tidak aktif"
 
@@ -3945,13 +3932,9 @@ msgstr "Inisialisasi akan menghapus semua data pada disk."
 msgid "Initializing..."
 msgstr "Menginisialisasi..."
 
-#: pkg/systemd/overview-cards/insights.jsx:218
-msgid "Insights: "
-msgstr "Insights: "
-
 #: pkg/lib/cockpit-components-install-dialog.jsx:105
-#: pkg/packagekit/kpatch.jsx:233 pkg/apps/application.jsx:53
-#: pkg/apps/application-list.jsx:236
+#: pkg/packagekit/kpatch.tsx:260 pkg/apps/application-list.jsx:236
+#: pkg/apps/application.jsx:53
 msgid "Install"
 msgstr "Instal"
 
@@ -4021,8 +4004,8 @@ msgstr "Memasang"
 msgid "Installing $0"
 msgstr "Memasang $0"
 
-#: pkg/storaged/crypto/keyslots.jsx:263
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:32
+#: pkg/storaged/crypto/keyslots.jsx:263
 msgid "Installing $0 would remove $1."
 msgstr "Menginstal $0 akan menghapus $1."
 
@@ -4030,7 +4013,7 @@ msgstr "Menginstal $0 akan menghapus $1."
 msgid "Installing packages"
 msgstr "Menginstal paket"
 
-#: pkg/metrics/metrics.jsx:764 pkg/networkmanager/firewall.jsx:212
+#: pkg/networkmanager/firewall.jsx:212 pkg/metrics/metrics.jsx:764
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "Antarmuka"
@@ -4040,7 +4023,7 @@ msgstr[0] "Antarmuka"
 msgid "Interface members"
 msgstr "Anggota antarmuka"
 
-#: pkg/networkmanager/firewall.jsx:872 pkg/networkmanager/bond.jsx:158
+#: pkg/networkmanager/bond.jsx:158 pkg/networkmanager/firewall.jsx:872
 #: pkg/networkmanager/network-main.jsx:195
 #: pkg/networkmanager/network-interface-members.jsx:192
 msgid "Interfaces"
@@ -4114,7 +4097,7 @@ msgstr "Kunci tidak valid"
 msgid "Invalid metric $0"
 msgstr "Metrik tidak valid $0"
 
-#: pkg/users/expiration-dialogs.js:186
+#: pkg/users/expiration-dialogs.js:183
 msgid "Invalid number of days"
 msgstr "Jumlah hari tidak valid"
 
@@ -4230,19 +4213,19 @@ msgstr "Kernel tidak melakukan boot dengan pengaturan $0"
 msgid "Kernel dump"
 msgstr "Dump kernel"
 
-#: pkg/packagekit/kpatch.jsx:351
+#: pkg/packagekit/kpatch.tsx:382
 msgid "Kernel live patch $0 is active"
 msgstr "Patch kernel langsung $0 aktif"
 
-#: pkg/packagekit/kpatch.jsx:358
+#: pkg/packagekit/kpatch.tsx:389
 msgid "Kernel live patch $0 is installed"
 msgstr "Patch kernel langsung $0 diinstal"
 
-#: pkg/packagekit/kpatch.jsx:287
+#: pkg/packagekit/kpatch.tsx:316
 msgid "Kernel live patch settings"
 msgstr "Pengaturan patch kernel langsung"
 
-#: pkg/packagekit/kpatch.jsx:268
+#: pkg/packagekit/kpatch.tsx:297
 msgid "Kernel live patching"
 msgstr "Patch kernel langsung"
 
@@ -4251,7 +4234,7 @@ msgstr "Patch kernel langsung"
 msgid "Key password"
 msgstr "Kata sandi kunci"
 
-#: pkg/storaged/crypto/keyslots.jsx:755
+#: pkg/storaged/crypto/keyslots.jsx:760
 msgid "Key slots with unknown types can not be edited here"
 msgstr "Slot kunci dengan tipe tidak dikenal tidak dapat diedit di sini"
 
@@ -4259,22 +4242,18 @@ msgstr "Slot kunci dengan tipe tidak dikenal tidak dapat diedit di sini"
 msgid "Key source"
 msgstr "Sumber kunci"
 
-#: pkg/storaged/crypto/keyslots.jsx:761 pkg/storaged/crypto/keyslots.jsx:787
+#: pkg/storaged/crypto/keyslots.jsx:766 pkg/storaged/crypto/keyslots.jsx:792
 msgid "Keys"
 msgstr "Kunci"
 
-#: pkg/storaged/stratis/pool.jsx:708 pkg/storaged/crypto/keyslots.jsx:749
+#: pkg/storaged/stratis/pool.jsx:708 pkg/storaged/crypto/keyslots.jsx:754
 msgid "Keyserver"
 msgstr "Server kunci"
 
-#: pkg/storaged/stratis/pool.jsx:933 pkg/storaged/stratis/create-dialog.jsx:123
+#: pkg/storaged/stratis/create-dialog.jsx:123 pkg/storaged/stratis/pool.jsx:933
 #: pkg/storaged/crypto/keyslots.jsx:457 pkg/storaged/crypto/keyslots.jsx:515
 msgid "Keyserver address"
 msgstr "Alamat server kunci"
-
-#: pkg/storaged/crypto/keyslots.jsx:641
-msgid "Keyserver removal may prevent unlocking $0."
-msgstr "Penghapusan server kunci mungkin akan mencegah pembukaan kunci $0."
 
 #: pkg/networkmanager/teamport.jsx:79
 msgid "LACP key"
@@ -4349,7 +4328,7 @@ msgstr "Terakhir terhubung: $0"
 msgid "Last disk can not be removed"
 msgstr "Disk terakhir tidak dapat dihapus"
 
-#: pkg/users/account-details.js:252
+#: pkg/users/account-details.js:271
 msgid "Last login"
 msgstr "Login terakhir"
 
@@ -4408,7 +4387,7 @@ msgstr "Batasi akses"
 msgid "Limit size"
 msgstr "Batasi ukuran"
 
-#: pkg/storaged/stratis/filesystem.jsx:199
+#: pkg/storaged/stratis/filesystem.jsx:202
 msgid "Limit virtual filesystem size"
 msgstr "Batasi ukuran sistem berkas virtual"
 
@@ -4428,7 +4407,7 @@ msgstr ""
 msgid "Linear"
 msgstr "Linier"
 
-#: pkg/networkmanager/bond.jsx:194 pkg/networkmanager/team.jsx:180
+#: pkg/networkmanager/team.jsx:180 pkg/networkmanager/bond.jsx:194
 msgid "Link down delay"
 msgstr "Penundaan penurunan tautan"
 
@@ -4440,7 +4419,7 @@ msgstr "Link lokal"
 msgid "Link monitoring"
 msgstr "Pemantauan tautan"
 
-#: pkg/networkmanager/bond.jsx:191 pkg/networkmanager/team.jsx:177
+#: pkg/networkmanager/team.jsx:177 pkg/networkmanager/bond.jsx:191
 msgid "Link up delay"
 msgstr "Penundaan tautan naik"
 
@@ -4523,7 +4502,7 @@ msgstr "Gagal memuat unit"
 msgid "Loading packages..."
 msgstr "Memuat package..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:126
+#: pkg/lib/cockpit-components-modifications.tsx:131
 msgid "Loading system modifications..."
 msgstr "Memuat modifikasi sistem..."
 
@@ -4531,12 +4510,12 @@ msgstr "Memuat modifikasi sistem..."
 msgid "Loading unit failed"
 msgstr "Gagal memuat unit"
 
-#: pkg/kdump/kdump-view.jsx:442 pkg/systemd/services.jsx:676
-#: pkg/systemd/logsJournal.jsx:254 pkg/systemd/logDetails.jsx:102
-#: pkg/systemd/service.jsx:118 pkg/users/account-details.js:179
-#: pkg/users/accounts-list.js:299 pkg/users/accounts-list.js:320
-#: pkg/users/accounts-list.js:429 pkg/metrics/metrics.jsx:1969
-#: pkg/storaged/storaged.jsx:52
+#: pkg/systemd/logDetails.jsx:102 pkg/systemd/services.jsx:676
+#: pkg/systemd/service.jsx:118 pkg/systemd/logsJournal.jsx:254
+#: pkg/users/account-details.js:198 pkg/users/accounts-list.js:299
+#: pkg/users/accounts-list.js:320 pkg/users/accounts-list.js:429
+#: pkg/kdump/kdump-view.jsx:442 pkg/storaged/storaged.jsx:52
+#: pkg/metrics/metrics.jsx:1969
 msgid "Loading..."
 msgstr "Memuat..."
 
@@ -4594,8 +4573,8 @@ msgstr "Perangkat terenkripsi yang dikunci mungkin berisi data"
 msgid "Locking $target"
 msgstr "Mengunci $target"
 
-#: pkg/static/login.html:154 pkg/static/login.js:730
-#: pkg/lib/cockpit-connect-ssh.tsx:380 pkg/shell/failures.tsx:81
+#: pkg/static/login.html:154 pkg/lib/cockpit-connect-ssh.tsx:380
+#: pkg/static/login.js:730 pkg/shell/failures.tsx:81
 #: pkg/shell/hosts_dialog.jsx:955
 msgid "Log in"
 msgstr "Masuk"
@@ -4620,7 +4599,7 @@ msgstr "Keluar"
 msgid "Log user out"
 msgstr "Keluarkan pengguna"
 
-#: pkg/users/account-details.js:198 pkg/users/accounts-list.js:147
+#: pkg/users/account-details.js:217 pkg/users/accounts-list.js:147
 msgid "Logged in"
 msgstr "Sudah masuk"
 
@@ -4633,8 +4612,8 @@ msgstr "Logis"
 msgid "Logical Volume Manager partition"
 msgstr "Partisi Manajer Volume Logis"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:235
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:207
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:235
 msgid "Logical size"
 msgstr "Ukuran logis"
 
@@ -4698,8 +4677,8 @@ msgstr "Casing kecil"
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/storaged/mdraid/mdraid.jsx:196 pkg/storaged/mdraid/mdraid.jsx:204
-#: pkg/storaged/mdraid/mdraid-disk.jsx:111
+#: pkg/storaged/mdraid/mdraid-disk.jsx:111 pkg/storaged/mdraid/mdraid.jsx:196
+#: pkg/storaged/mdraid/mdraid.jsx:204
 msgid "MDRAID device"
 msgstr "Perangkat MDRAID"
 
@@ -4860,11 +4839,10 @@ msgstr "Usia pesan maksimum $max_age"
 msgid "Media drive"
 msgstr "Drive media"
 
-#: pkg/systemd/hwinfo.jsx:280 pkg/systemd/hwinfo.jsx:324
-#: pkg/systemd/overview-cards/usageCard.jsx:131
-#: pkg/systemd/service-details.jsx:739 pkg/metrics/metrics.jsx:114
-#: pkg/metrics/metrics.jsx:830 pkg/metrics/metrics.jsx:1553
-#: pkg/metrics/metrics.jsx:1935
+#: pkg/systemd/overview-cards/usageCard.jsx:131 pkg/systemd/hwinfo.jsx:280
+#: pkg/systemd/hwinfo.jsx:324 pkg/systemd/service-details.jsx:739
+#: pkg/metrics/metrics.jsx:114 pkg/metrics/metrics.jsx:830
+#: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1935
 msgid "Memory"
 msgstr "Memori"
 
@@ -4900,8 +4878,8 @@ msgstr "Pesan terkait kegagalan dapat ditemukan di jurnal:"
 msgid "Metadata format"
 msgstr "Format metadata"
 
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:130
 #: pkg/storaged/lvm2/vdo-pool.jsx:69
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:130
 msgid "Metadata used"
 msgstr "Metadata yang digunakan"
 
@@ -4959,9 +4937,8 @@ msgstr "Mitigasi"
 msgid "Mode"
 msgstr "Mode"
 
-#: pkg/systemd/hwinfo.jsx:267
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:97
-#: pkg/storaged/drive/drive.jsx:109
+#: pkg/systemd/hwinfo.jsx:267 pkg/storaged/drive/drive.jsx:109
 msgid "Model"
 msgstr "Model"
 
@@ -4990,9 +4967,10 @@ msgstr "Bulanan"
 msgid "More info..."
 msgstr "Info lebih lanjut..."
 
-#: pkg/storaged/btrfs/subvolume.jsx:349 pkg/storaged/stratis/filesystem.jsx:147
-#: pkg/storaged/nfs/nfs.jsx:296 pkg/storaged/filesystem/mounting-dialog.jsx:342
+#: pkg/storaged/nfs/nfs.jsx:296 pkg/storaged/stratis/filesystem.jsx:149
+#: pkg/storaged/filesystem/mounting-dialog.jsx:342
 #: pkg/storaged/filesystem/filesystem.jsx:91
+#: pkg/storaged/btrfs/subvolume.jsx:349
 msgid "Mount"
 msgstr "Mount"
 
@@ -5041,11 +5019,12 @@ msgstr "Mount di $0 sekarang"
 msgid "Mount options"
 msgstr "Opsi mount"
 
-#: pkg/storaged/btrfs/subvolume.jsx:466 pkg/storaged/stratis/pool.jsx:404
+#: pkg/storaged/nfs/nfs.jsx:315 pkg/storaged/stratis/pool.jsx:404
 #: pkg/storaged/stratis/filesystem.jsx:67
-#: pkg/storaged/stratis/filesystem.jsx:238 pkg/storaged/nfs/nfs.jsx:315
+#: pkg/storaged/stratis/filesystem.jsx:241
 #: pkg/storaged/filesystem/mounting-dialog.jsx:312
 #: pkg/storaged/filesystem/filesystem.jsx:136
+#: pkg/storaged/btrfs/subvolume.jsx:466
 #: pkg/storaged/block/format-dialog.jsx:285
 msgid "Mount point"
 msgstr "Titik mount"
@@ -5118,32 +5097,32 @@ msgid "NTP server"
 msgstr "Server NTP"
 
 #: pkg/systemd/hwinfo.jsx:74 pkg/systemd/timer-dialog.jsx:129
-#: pkg/users/group-create-dialog.js:25 pkg/users/authorized-keys-panel.js:113
-#: pkg/storaged/iscsi/create-dialog.jsx:97
-#: pkg/storaged/iscsi/create-dialog.jsx:154 pkg/storaged/btrfs/volume.jsx:131
-#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:456
-#: pkg/storaged/stratis/pool.jsx:364 pkg/storaged/stratis/pool.jsx:467
-#: pkg/storaged/stratis/pool.jsx:1023 pkg/storaged/stratis/create-dialog.jsx:74
-#: pkg/storaged/stratis/filesystem.jsx:62
-#: pkg/storaged/stratis/filesystem.jsx:173
-#: pkg/storaged/stratis/filesystem.jsx:233
-#: pkg/storaged/filesystem/filesystem.jsx:108
-#: pkg/storaged/filesystem/filesystem.jsx:130
-#: pkg/storaged/partitions/partition.jsx:213 pkg/storaged/mdraid/mdraid.jsx:288
-#: pkg/storaged/mdraid/create-dialog.jsx:33
-#: pkg/storaged/block/format-dialog.jsx:279
+#: pkg/users/authorized-keys-panel.js:113 pkg/users/group-create-dialog.js:25
+#: pkg/packagekit/updates.jsx:417 pkg/storaged/iscsi/create-dialog.jsx:97
+#: pkg/storaged/iscsi/create-dialog.jsx:154
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:159
+#: pkg/storaged/lvm2/vdo-pool.jsx:64 pkg/storaged/lvm2/create-dialog.jsx:33
+#: pkg/storaged/lvm2/block-logical-volume.jsx:35
+#: pkg/storaged/lvm2/block-logical-volume.jsx:224
+#: pkg/storaged/lvm2/block-logical-volume.jsx:272
 #: pkg/storaged/lvm2/volume-group.jsx:49 pkg/storaged/lvm2/volume-group.jsx:104
 #: pkg/storaged/lvm2/volume-group.jsx:348
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:30
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:123
-#: pkg/storaged/lvm2/create-dialog.jsx:33 pkg/storaged/lvm2/vdo-pool.jsx:64
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:159
-#: pkg/storaged/lvm2/block-logical-volume.jsx:35
-#: pkg/storaged/lvm2/block-logical-volume.jsx:224
-#: pkg/storaged/lvm2/block-logical-volume.jsx:272 pkg/shell/credentials.tsx:291
+#: pkg/storaged/stratis/create-dialog.jsx:74 pkg/storaged/stratis/pool.jsx:364
+#: pkg/storaged/stratis/pool.jsx:467 pkg/storaged/stratis/pool.jsx:1023
+#: pkg/storaged/stratis/filesystem.jsx:62
+#: pkg/storaged/stratis/filesystem.jsx:176
+#: pkg/storaged/stratis/filesystem.jsx:236
+#: pkg/storaged/filesystem/filesystem.jsx:108
+#: pkg/storaged/filesystem/filesystem.jsx:130
+#: pkg/storaged/partitions/partition.jsx:213
+#: pkg/storaged/mdraid/create-dialog.jsx:33 pkg/storaged/mdraid/mdraid.jsx:288
+#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:456
+#: pkg/storaged/btrfs/volume.jsx:131 pkg/storaged/block/format-dialog.jsx:279
 #: pkg/networkmanager/dialogs-common.jsx:120
 #: pkg/networkmanager/network-main.jsx:200
-#: pkg/networkmanager/network-main.jsx:216 pkg/packagekit/updates.jsx:417
+#: pkg/networkmanager/network-main.jsx:216 pkg/shell/credentials.tsx:291
 msgid "Name"
 msgstr "Nama"
 
@@ -5151,7 +5130,7 @@ msgstr "Nama"
 msgid "Name can not be empty."
 msgstr "Nama tidak boleh kosong."
 
-#: pkg/storaged/btrfs/utils.jsx:71 pkg/storaged/utils.js:197
+#: pkg/storaged/utils.js:197 pkg/storaged/btrfs/utils.jsx:71
 msgid "Name cannot be empty."
 msgstr "Nama tidak boleh kosong."
 
@@ -5191,9 +5170,9 @@ msgstr "Membutuhkan disk cadangan"
 msgid "Need at least one NTP server"
 msgstr "Membutuhkan setidaknya satu server NTP"
 
-#: pkg/metrics/metrics.jsx:929 pkg/metrics/metrics.jsx:1553
-#: pkg/metrics/metrics.jsx:1924 pkg/metrics/metrics.jsx:1937
-#: pkg/networkmanager/network-interface.jsx:1081
+#: pkg/networkmanager/network-interface.jsx:1081 pkg/metrics/metrics.jsx:929
+#: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1924
+#: pkg/metrics/metrics.jsx:1937
 msgid "Network"
 msgstr "Jaringan"
 
@@ -5240,14 +5219,14 @@ msgstr "NetworkManager tidak berjalan"
 msgid "Networked storage"
 msgstr "Penyimpanan jaringan"
 
-#: pkg/networkmanager/index.html:9 pkg/networkmanager/firewall.jsx:1084
+#: pkg/networkmanager/index.html:9
 #: pkg/networkmanager/network-interface.jsx:1218
-#: pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/firewall.jsx:1084 pkg/networkmanager/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_networkmanager.metainfo.xml.in:5
 msgid "Networking"
 msgstr "Jaringan"
 
-#: pkg/users/account-details.js:200
+#: pkg/users/account-details.js:219
 msgid "Never"
 msgstr "Tidak pernah"
 
@@ -5255,7 +5234,8 @@ msgstr "Tidak pernah"
 msgid "Never expire account"
 msgstr "Jangan biarkan akun kedaluwarsa"
 
-#: pkg/users/account-details.js:53 pkg/users/expiration-dialogs.js:140
+#: pkg/users/account-details.js:53 pkg/users/account-details.js:87
+#: pkg/users/expiration-dialogs.js:140
 msgid "Never expire password"
 msgstr "Jangan pernah kedaluwarsa kata sandi"
 
@@ -5316,7 +5296,7 @@ msgstr "Tidak ada peringatan SELinux."
 msgid "No applications installed or available."
 msgstr "Tidak ada aplikasi yang terpasang atau tersedia."
 
-#: pkg/storaged/crypto/keyslots.jsx:776
+#: pkg/storaged/crypto/keyslots.jsx:781
 msgid "No available slots"
 msgstr "Tidak ada slot yang tersedia"
 
@@ -5360,10 +5340,9 @@ msgstr "Tidak ada deskripsi yang disediakan."
 msgid "No devices found"
 msgstr "Tidak ditemukan perangkat"
 
-#: pkg/storaged/stratis/pool.jsx:500 pkg/storaged/mdraid/mdraid.jsx:151
-#: pkg/storaged/mdraid/create-dialog.jsx:87
-#: pkg/storaged/lvm2/volume-group.jsx:188
 #: pkg/storaged/lvm2/create-dialog.jsx:40
+#: pkg/storaged/lvm2/volume-group.jsx:188 pkg/storaged/stratis/pool.jsx:500
+#: pkg/storaged/mdraid/create-dialog.jsx:87 pkg/storaged/mdraid/mdraid.jsx:151
 msgid "No disks are available."
 msgstr "Tidak ada disk yang tersedia."
 
@@ -5391,7 +5370,7 @@ msgstr "Tidak ada sistem berkas"
 msgid "No filesystems"
 msgstr "Tidak ada sistem berkas"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:786
 msgid "No free key slots"
 msgstr "Tidak ada slot kunci yang tersedia"
 
@@ -5449,8 +5428,8 @@ msgstr "Tidak ada media yang dimasukkan"
 msgid ""
 "No methods to gain administrative access are available (sudo -A, pkexec)."
 msgstr ""
-"Tidak ada metode untuk mendapatkan akses administratif yang tersedia (sudo -"
-"A, pkexec)."
+"Tidak ada metode untuk mendapatkan akses administratif yang tersedia (sudo "
+"-A, pkexec)."
 
 #: pkg/storaged/stratis/pool.jsx:762
 msgid "No more space for passphrases or keyservers."
@@ -5489,10 +5468,6 @@ msgstr ""
 "Tidak ada hasil yang sesuai dengan kriteria filter. Hapus semua filter untuk "
 "menampilkan hasil."
 
-#: pkg/systemd/overview-cards/insights.jsx:172
-msgid "No rule hits"
-msgstr "Tidak ada hasil aturan"
-
 #: pkg/storaged/btrfs/subvolume.jsx:481
 msgid "No snapshots found"
 msgstr "Tidak ada snapshot ditemukan"
@@ -5501,8 +5476,8 @@ msgstr "Tidak ada snapshot ditemukan"
 msgid "No storage found"
 msgstr "Tidak ada penyimpanan yang ditemukan"
 
-#: pkg/storaged/btrfs/filesystem.jsx:57 pkg/storaged/btrfs/volume.jsx:220
-#: pkg/storaged/btrfs/subvolume.jsx:474
+#: pkg/storaged/btrfs/subvolume.jsx:474 pkg/storaged/btrfs/filesystem.jsx:57
+#: pkg/storaged/btrfs/volume.jsx:220
 msgid "No subvolumes"
 msgstr "Tidak ada subvolume"
 
@@ -5512,7 +5487,7 @@ msgstr "Tidak ada subvolume"
 msgid "No such file or directory"
 msgstr "Tidak ada berkas atau direktori"
 
-#: pkg/lib/cockpit-components-modifications.jsx:121
+#: pkg/lib/cockpit-components-modifications.tsx:126
 msgid "No system modifications"
 msgstr "Tidak ada modifikasi sistem"
 
@@ -5528,9 +5503,9 @@ msgstr "Tidak ada pembaruan"
 msgid "No user name specified"
 msgstr "Tidak ada nama pengguna yang ditentukan"
 
-#: pkg/kdump/kdump-view.jsx:492 pkg/systemd/overview-cards/tuned-dialog.jsx:213
-#: pkg/networkmanager/firewall.jsx:867
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:213 pkg/kdump/kdump-view.jsx:492
 #: pkg/networkmanager/network-interface.jsx:189
+#: pkg/networkmanager/firewall.jsx:867
 msgid "None"
 msgstr "Tidak ada"
 
@@ -5546,7 +5521,7 @@ msgstr "Tidak diizinkan untuk menonaktifkan firewall"
 msgid "Not authorized to enable the firewall"
 msgstr "Tidak diizinkan untuk mengaktifkan firewall"
 
-#: pkg/networkmanager/interfaces.js:875 pkg/packagekit/kpatch.jsx:224
+#: pkg/packagekit/kpatch.tsx:251 pkg/networkmanager/interfaces.js:875
 msgid "Not available"
 msgstr "Tidak tersedia"
 
@@ -5554,7 +5529,7 @@ msgstr "Tidak tersedia"
 msgid "Not connected"
 msgstr "Tidak terhubung"
 
-#: pkg/systemd/overview-cards/insights.jsx:151
+#: pkg/systemd/overview-cards/insights.jsx:49
 msgid "Not connected to Insights"
 msgstr "Tidak terhubung ke Insights"
 
@@ -5562,8 +5537,8 @@ msgstr "Tidak terhubung ke Insights"
 msgid "Not connected to host"
 msgstr "Tidak terhubung ke host"
 
-#: pkg/storaged/stratis/pool.jsx:603 pkg/storaged/stratis/filesystem.jsx:152
-#: pkg/storaged/lvm2/physical-volume.jsx:67
+#: pkg/storaged/lvm2/physical-volume.jsx:67 pkg/storaged/stratis/pool.jsx:603
+#: pkg/storaged/stratis/filesystem.jsx:155
 msgid "Not enough free space"
 msgstr "Ruang kosong tidak mencukupi"
 
@@ -5580,7 +5555,7 @@ msgstr "Ruang tidak cukup untuk memperbesar"
 msgid "Not found"
 msgstr "Tidak ditemukan"
 
-#: pkg/packagekit/kpatch.jsx:232
+#: pkg/packagekit/kpatch.tsx:259
 msgid "Not installed"
 msgstr "Tidak terinstal"
 
@@ -5658,8 +5633,8 @@ msgstr "Terjadi $0"
 msgid "Occurred between $0 and $1"
 msgstr "Terjadi antara $0 dan $1"
 
-#: pkg/selinux/setroubleshoot-view.jsx:410
 #: pkg/lib/cockpit-components-logs-panel.jsx:76
+#: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "Occurrences"
 msgstr "Kejadian"
 
@@ -5725,11 +5700,11 @@ msgstr "Buka layanan pmproxy di firewall untuk berbagi metrik."
 msgid "Operation '$operation' on $target"
 msgstr "Operasi '$operation' pada $target"
 
-#: pkg/sosreport/sosreport.jsx:317 pkg/users/account-details.js:255
-#: pkg/storaged/stratis/create-dialog.jsx:88
-#: pkg/storaged/stratis/filesystem.jsx:193
-#: pkg/storaged/crypto/encryption.jsx:221
+#: pkg/users/account-details.js:274
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:217
+#: pkg/storaged/stratis/create-dialog.jsx:88
+#: pkg/storaged/stratis/filesystem.jsx:196
+#: pkg/storaged/crypto/encryption.jsx:221 pkg/sosreport/sosreport.jsx:317
 #: pkg/networkmanager/bridge.jsx:89
 msgid "Options"
 msgstr "Opsi"
@@ -5742,7 +5717,7 @@ msgstr "Atau gunakan browser bawaan"
 msgid "Other"
 msgstr "Lainnya"
 
-#: pkg/users/account-details.js:266 pkg/users/account-create-dialog.js:117
+#: pkg/users/account-details.js:285 pkg/users/account-create-dialog.js:117
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -5758,8 +5733,8 @@ msgstr "Opsi lainnya"
 msgid "Out"
 msgstr "Keluar"
 
-#: pkg/storaged/stratis/pool.jsx:1034
 #: pkg/storaged/stratis/create-dialog.jsx:136
+#: pkg/storaged/stratis/pool.jsx:1034
 msgid "Overprovisioning"
 msgstr "Kelebihan penyediaan"
 
@@ -5869,10 +5844,11 @@ msgstr ""
 msgid "Passive"
 msgstr "Pasif"
 
-#: pkg/storaged/stratis/pool.jsx:678 pkg/storaged/stratis/pool.jsx:771
-#: pkg/storaged/stratis/pool.jsx:856 pkg/storaged/stratis/create-dialog.jsx:97
-#: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/crypto/actions.jsx:28
-#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:744
+#: pkg/storaged/stratis/create-dialog.jsx:97 pkg/storaged/stratis/pool.jsx:678
+#: pkg/storaged/stratis/pool.jsx:771 pkg/storaged/stratis/pool.jsx:856
+#: pkg/storaged/stratis/stopped-pool.jsx:114
+#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:749
+#: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/block/format-dialog.jsx:322
 #: pkg/storaged/block/format-dialog.jsx:350
@@ -5883,11 +5859,11 @@ msgstr "Frasa sandi"
 msgid "Passphrase can not be empty"
 msgstr "Frasa sandi tidak boleh kosong"
 
-#: pkg/storaged/stratis/pool.jsx:302 pkg/storaged/stratis/pool.jsx:857
-#: pkg/storaged/stratis/pool.jsx:884 pkg/storaged/stratis/pool.jsx:887
-#: pkg/storaged/stratis/create-dialog.jsx:101
-#: pkg/storaged/crypto/keyslots.jsx:167 pkg/storaged/crypto/keyslots.jsx:444
-#: pkg/storaged/crypto/keyslots.jsx:489 pkg/storaged/crypto/keyslots.jsx:493
+#: pkg/storaged/stratis/create-dialog.jsx:101 pkg/storaged/stratis/pool.jsx:302
+#: pkg/storaged/stratis/pool.jsx:857 pkg/storaged/stratis/pool.jsx:884
+#: pkg/storaged/stratis/pool.jsx:887 pkg/storaged/crypto/keyslots.jsx:167
+#: pkg/storaged/crypto/keyslots.jsx:444 pkg/storaged/crypto/keyslots.jsx:489
+#: pkg/storaged/crypto/keyslots.jsx:493
 #: pkg/storaged/filesystem/mounting-dialog.jsx:330
 #: pkg/storaged/block/format-dialog.jsx:326
 #: pkg/storaged/block/format-dialog.jsx:354
@@ -5902,21 +5878,21 @@ msgstr "Frasa sandi dari slot kunci lainnya"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Penghapusan frasa sandi dapat mencegah pembukaan kunci $0."
 
-#: pkg/storaged/stratis/pool.jsx:859 pkg/storaged/stratis/pool.jsx:889
-#: pkg/storaged/stratis/create-dialog.jsx:110
-#: pkg/storaged/crypto/keyslots.jsx:453 pkg/storaged/crypto/keyslots.jsx:498
+#: pkg/storaged/stratis/create-dialog.jsx:110 pkg/storaged/stratis/pool.jsx:859
+#: pkg/storaged/stratis/pool.jsx:889 pkg/storaged/crypto/keyslots.jsx:453
+#: pkg/storaged/crypto/keyslots.jsx:498
 #: pkg/storaged/block/format-dialog.jsx:335
 msgid "Passphrases do not match"
 msgstr "Frasa sandi tidak cocok"
 
-#: pkg/static/login.html:113 pkg/users/account-details.js:283
-#: pkg/users/account-create-dialog.js:125 pkg/lib/cockpit-connect-ssh.tsx:432
-#: pkg/lib/cockpit-connect-ssh.tsx:442 pkg/lib/superuser-dialogs.tsx:176
+#: pkg/static/login.html:113 pkg/users/account-details.js:302
+#: pkg/users/account-create-dialog.js:125 pkg/lib/superuser-dialogs.tsx:176
+#: pkg/lib/cockpit-connect-ssh.tsx:432 pkg/lib/cockpit-connect-ssh.tsx:442
 #: pkg/storaged/iscsi/create-dialog.jsx:20
-#: pkg/storaged/iscsi/create-dialog.jsx:126 pkg/shell/hosts_dialog.jsx:1036
-#: pkg/shell/hosts_dialog.jsx:1045 pkg/shell/credentials.tsx:163
+#: pkg/storaged/iscsi/create-dialog.jsx:126
+#: pkg/networkmanager/network-interface.jsx:197 pkg/shell/credentials.tsx:163
 #: pkg/shell/credentials.tsx:222 pkg/shell/credentials.tsx:309
-#: pkg/networkmanager/network-interface.jsx:197
+#: pkg/shell/hosts_dialog.jsx:1036 pkg/shell/hosts_dialog.jsx:1045
 msgid "Password"
 msgstr "Kata sandi"
 
@@ -5928,7 +5904,7 @@ msgstr "Kata sandi tidak boleh kosong"
 msgid "Password changed successfully"
 msgstr "Kata sandi berhasil diubah"
 
-#: pkg/users/expiration-dialogs.js:195
+#: pkg/users/expiration-dialogs.js:192
 msgid "Password expiration"
 msgstr "Kedaluwarsa kata sandi"
 
@@ -6063,10 +6039,10 @@ msgstr "Permanen"
 msgid "Permanently delete $0 group?"
 msgstr "Hapus permanen $0 grup?"
 
-#: pkg/storaged/btrfs/volume.jsx:63 pkg/storaged/stratis/pool.jsx:446
+#: pkg/storaged/lvm2/volume-group.jsx:81 pkg/storaged/stratis/pool.jsx:446
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:105
 #: pkg/storaged/partitions/partition.jsx:40 pkg/storaged/mdraid/mdraid.jsx:116
-#: pkg/storaged/lvm2/volume-group.jsx:81
+#: pkg/storaged/btrfs/volume.jsx:63
 msgid "Permanently delete $0?"
 msgstr "Hapus $0 secara permanen?"
 
@@ -6090,14 +6066,14 @@ msgstr "Memori persisten menjadi hanya baca"
 msgid "Physical"
 msgstr "Fisik"
 
-#: pkg/storaged/block/resize.jsx:434
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:173
 #: pkg/storaged/lvm2/block-logical-volume.jsx:116
+#: pkg/storaged/block/resize.jsx:434
 msgid "Physical Volumes"
 msgstr "Volume fisik"
 
-#: pkg/storaged/lvm2/volume-group.jsx:358
 #: pkg/storaged/lvm2/block-logical-volume.jsx:342
+#: pkg/storaged/lvm2/volume-group.jsx:358
 msgid "Physical volumes"
 msgstr "Volume fisik"
 
@@ -6194,7 +6170,7 @@ msgstr "Port"
 msgid "Portable"
 msgstr "Portabel"
 
-#: pkg/networkmanager/bridge.jsx:86 pkg/networkmanager/team.jsx:144
+#: pkg/networkmanager/team.jsx:144 pkg/networkmanager/bridge.jsx:86
 #: pkg/networkmanager/network-interface-members.jsx:192
 msgid "Ports"
 msgstr "Port"
@@ -6235,12 +6211,12 @@ msgstr "Nama host yang ramah"
 msgid "Previous boot"
 msgstr "Boot sebelumnya"
 
-#: pkg/networkmanager/bond.jsx:170 pkg/networkmanager/team.jsx:159
+#: pkg/networkmanager/team.jsx:159 pkg/networkmanager/bond.jsx:170
 msgid "Primary"
 msgstr "Primer"
 
 #: pkg/systemd/logs.jsx:186 pkg/systemd/logs.jsx:191
-#: pkg/networkmanager/bridgeport.jsx:66 pkg/networkmanager/teamport.jsx:70
+#: pkg/networkmanager/teamport.jsx:70 pkg/networkmanager/bridgeport.jsx:66
 msgid "Priority"
 msgstr "Prioritas"
 
@@ -6297,8 +6273,8 @@ msgstr ""
 msgid "Provide the passphrase for the pool on these block devices:"
 msgstr "Berikan frasa sandi untuk kolam pada perangkat blok ini:"
 
-#: pkg/shell/credentials.tsx:304 pkg/networkmanager/wireguard.jsx:262
-#: pkg/networkmanager/wireguard.jsx:325
+#: pkg/networkmanager/wireguard.jsx:262 pkg/networkmanager/wireguard.jsx:325
+#: pkg/shell/credentials.tsx:304
 msgid "Public key"
 msgstr "Kunci publik"
 
@@ -6366,7 +6342,7 @@ msgstr "RAID 6 (paritas ganda terdistribusi)"
 msgid "RAID chassis"
 msgstr "Chassis RAID"
 
-#: pkg/storaged/mdraid/mdraid.jsx:289 pkg/storaged/mdraid/create-dialog.jsx:37
+#: pkg/storaged/mdraid/create-dialog.jsx:37 pkg/storaged/mdraid/mdraid.jsx:289
 msgid "RAID level"
 msgstr "Level RAID"
 
@@ -6461,9 +6437,9 @@ msgid "Reapply and reboot"
 msgstr "Terapkan ulang dan reboot"
 
 #: pkg/systemd/overview.jsx:96 pkg/systemd/overview.jsx:119
+#: pkg/lib/cockpit-components-logs-panel.jsx:92
 #: pkg/lib/cockpit-components-shutdown.jsx:179
 #: pkg/lib/cockpit-components-shutdown.jsx:222
-#: pkg/lib/cockpit-components-logs-panel.jsx:92
 msgid "Reboot"
 msgstr "Reboot"
 
@@ -6480,9 +6456,10 @@ msgstr "Reboot disarankan"
 msgid "Reboot system..."
 msgstr "Reboot sistem..."
 
-#: pkg/networkmanager/plots.js:30 pkg/networkmanager/network-main.jsx:203
+#: pkg/networkmanager/network-main.jsx:203
 #: pkg/networkmanager/network-main.jsx:219
 #: pkg/networkmanager/network-interface-members.jsx:194
+#: pkg/networkmanager/plots.js:30
 msgid "Receiving"
 msgstr "Menerima"
 
@@ -6586,7 +6563,7 @@ msgstr "Jarak jauh melalui SSH"
 msgid "Remote over SSH, $0"
 msgstr "Jarak jauh melalui SSH, $0"
 
-#: pkg/storaged/stratis/pool.jsx:961
+#: pkg/storaged/stratis/pool.jsx:961 pkg/storaged/crypto/keyslots.jsx:641
 msgid "Removal may prevent unlocking $0."
 msgstr "Penghapusan dapat mencegah pembukaan kunci $0."
 
@@ -6595,16 +6572,15 @@ msgid "Removals:"
 msgstr "Penghapusan:"
 
 #: pkg/systemd/timer-dialog.jsx:336 pkg/users/authorized-keys-panel.js:128
-#: pkg/users/authorized-keys-panel.js:136 pkg/storaged/stratis/pool.jsx:701
+#: pkg/users/authorized-keys-panel.js:136 pkg/apps/application.jsx:51
+#: pkg/storaged/nfs/nfs.jsx:301 pkg/storaged/lvm2/volume-group.jsx:315
+#: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:728 pkg/storaged/stratis/pool.jsx:778
 #: pkg/storaged/stratis/pool.jsx:789 pkg/storaged/stratis/pool.jsx:800
 #: pkg/storaged/stratis/pool.jsx:919 pkg/storaged/stratis/pool.jsx:965
 #: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
-#: pkg/storaged/crypto/keyslots.jsx:732 pkg/storaged/nfs/nfs.jsx:301
-#: pkg/storaged/mdraid/mdraid-disk.jsx:87
-#: pkg/storaged/lvm2/volume-group.jsx:315
-#: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/shell/hosts.tsx:250
-#: pkg/apps/application.jsx:51
+#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/mdraid/mdraid-disk.jsx:87
+#: pkg/shell/hosts.tsx:250
 msgid "Remove"
 msgstr "Hapus"
 
@@ -6642,6 +6618,12 @@ msgstr "Hapus host"
 #: pkg/networkmanager/ip-settings.jsx:440
 msgid "Remove item"
 msgstr "Hapus item"
+
+#: pkg/storaged/crypto/keyslots.jsx:650
+#, fuzzy
+#| msgid "Remove passphrase in key slot $0?"
+msgid "Remove key in slot $0?"
+msgstr "Hapus frasa sandi di slot kunci $0?"
 
 #: pkg/storaged/lvm2/volume-group.jsx:312
 msgid "Remove missing physical volumes?"
@@ -6711,11 +6693,11 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr "Menghapus zona akan menghapus semua layanan di dalamnya."
 
-#: pkg/users/rename-group-dialog.jsx:54 pkg/storaged/stratis/pool.jsx:474
-#: pkg/storaged/stratis/filesystem.jsx:180
-#: pkg/storaged/lvm2/volume-group.jsx:56
+#: pkg/users/rename-group-dialog.jsx:54
 #: pkg/storaged/lvm2/block-logical-volume.jsx:39
 #: pkg/storaged/lvm2/block-logical-volume.jsx:228
+#: pkg/storaged/lvm2/volume-group.jsx:56 pkg/storaged/stratis/pool.jsx:474
+#: pkg/storaged/stratis/filesystem.jsx:183
 msgid "Rename"
 msgstr "Ganti nama"
 
@@ -6723,7 +6705,7 @@ msgstr "Ganti nama"
 msgid "Rename Stratis pool"
 msgstr "Ganti nama kolam Stratis"
 
-#: pkg/storaged/stratis/filesystem.jsx:171
+#: pkg/storaged/stratis/filesystem.jsx:174
 msgid "Rename filesystem"
 msgstr "Ganti nama sistem berkas"
 
@@ -6844,7 +6826,7 @@ msgstr ""
 msgid "Reserved memory"
 msgstr "Memori yang dicadangkan"
 
-#: pkg/systemd/logs.jsx:365 pkg/systemd/terminal.jsx:280
+#: pkg/systemd/terminal.jsx:280 pkg/systemd/logs.jsx:365
 msgid "Reset"
 msgstr "Atur ulang"
 
@@ -6921,7 +6903,7 @@ msgstr "Tinjau kebijakan kriptografi"
 msgid "Reviewing logs"
 msgstr "Meninjau log"
 
-#: pkg/networkmanager/bond.jsx:29 pkg/networkmanager/team.jsx:26
+#: pkg/networkmanager/team.jsx:26 pkg/networkmanager/bond.jsx:29
 msgid "Round robin"
 msgstr "Round robin"
 
@@ -7080,16 +7062,16 @@ msgstr ""
 msgid "Saturdays"
 msgstr "Setiap hari Sabtu"
 
-#: pkg/systemd/timer-dialog.jsx:373 pkg/metrics/metrics.jsx:1487
-#: pkg/storaged/btrfs/volume.jsx:138 pkg/storaged/stratis/pool.jsx:863
+#: pkg/systemd/timer-dialog.jsx:373 pkg/packagekit/kpatch.tsx:326
+#: pkg/storaged/nfs/nfs.jsx:174 pkg/storaged/stratis/pool.jsx:863
 #: pkg/storaged/stratis/pool.jsx:892 pkg/storaged/stratis/pool.jsx:940
+#: pkg/storaged/crypto/keyslots.jsx:503 pkg/storaged/crypto/keyslots.jsx:522
 #: pkg/storaged/crypto/encryption.jsx:155
-#: pkg/storaged/crypto/encryption.jsx:182 pkg/storaged/crypto/keyslots.jsx:503
-#: pkg/storaged/crypto/keyslots.jsx:522 pkg/storaged/nfs/nfs.jsx:174
+#: pkg/storaged/crypto/encryption.jsx:182
 #: pkg/storaged/filesystem/mounting-dialog.jsx:344
 #: pkg/storaged/filesystem/filesystem.jsx:115
-#: pkg/storaged/partitions/partition.jsx:183
-#: pkg/networkmanager/dialogs-common.jsx:143 pkg/packagekit/kpatch.jsx:297
+#: pkg/storaged/partitions/partition.jsx:183 pkg/storaged/btrfs/volume.jsx:138
+#: pkg/networkmanager/dialogs-common.jsx:143 pkg/metrics/metrics.jsx:1487
 msgid "Save"
 msgstr "Simpan"
 
@@ -7097,7 +7079,7 @@ msgstr "Simpan"
 msgid "Save and reboot"
 msgstr "Simpan dan reboot"
 
-#: pkg/kdump/kdump-view.jsx:307 pkg/systemd/overview-cards/motdCard.jsx:59
+#: pkg/systemd/overview-cards/motdCard.jsx:59 pkg/kdump/kdump-view.jsx:307
 #: pkg/packagekit/autoupdates.jsx:436
 msgid "Save changes"
 msgstr "Simpan perubahan"
@@ -7247,10 +7229,10 @@ msgstr "Server telah menutup koneksi."
 msgid "Server software"
 msgstr "Perangkat lunak server"
 
+#: pkg/storaged/dialog.jsx:1502 pkg/networkmanager/firewall.jsx:177
 #: pkg/metrics/metrics.jsx:762 pkg/metrics/metrics.jsx:763
 #: pkg/metrics/metrics.jsx:818 pkg/metrics/metrics.jsx:856
 #: pkg/metrics/metrics.jsx:916 pkg/metrics/metrics.jsx:922
-#: pkg/storaged/dialog.jsx:1502 pkg/networkmanager/firewall.jsx:177
 msgid "Service"
 msgstr "Layanan"
 
@@ -7276,11 +7258,11 @@ msgstr "Layanan yang menggunakan lokasi ini"
 msgid "Session"
 msgstr "Sesi"
 
-#: pkg/shell/idle.tsx:109
+#: pkg/shell/shell.tsx:73
 msgid "Session is about to expire"
 msgstr "Sesi akan segera kedaluwarsa"
 
-#: pkg/storaged/stratis/filesystem.jsx:213 pkg/shell/hosts_dialog.jsx:437
+#: pkg/storaged/stratis/filesystem.jsx:216 pkg/shell/hosts_dialog.jsx:437
 msgid "Set"
 msgstr "Atur"
 
@@ -7292,7 +7274,7 @@ msgstr "Atur nama host"
 msgid "Set initial size"
 msgstr "Atur ukuran awal"
 
-#: pkg/storaged/stratis/filesystem.jsx:191
+#: pkg/storaged/stratis/filesystem.jsx:194
 msgid "Set limit of virtual filesystem size"
 msgstr "Atur batas ukuran sistem berkas virtual"
 
@@ -7300,7 +7282,7 @@ msgstr "Atur batas ukuran sistem berkas virtual"
 msgid "Set partition type of $0"
 msgstr "Atur tipe partisi dari $0"
 
-#: pkg/users/account-details.js:288 pkg/users/password-dialogs.js:212
+#: pkg/users/account-details.js:307 pkg/users/password-dialogs.js:212
 #: pkg/users/password-dialogs.js:219
 msgid "Set password"
 msgstr "Atur kata sandi"
@@ -7348,7 +7330,7 @@ msgstr "Tingkat keparahan"
 msgid "Shared"
 msgstr "Dibagikan"
 
-#: pkg/users/account-details.js:316 pkg/users/account-create-dialog.js:79
+#: pkg/users/account-details.js:335 pkg/users/account-create-dialog.js:79
 msgid "Shell"
 msgstr "Shell"
 
@@ -7356,7 +7338,7 @@ msgstr "Shell"
 msgid "Shell command"
 msgstr "Perintah shell"
 
-#: pkg/lib/cockpit-components-modifications.jsx:91
+#: pkg/lib/cockpit-components-modifications.tsx:95
 msgid "Shell script"
 msgstr "Skrip shell"
 
@@ -7400,8 +7382,8 @@ msgstr "Tampilkan kata sandi"
 msgid "Show relationships"
 msgstr "Tampilkan hubungan"
 
-#: pkg/storaged/partitions/partition.jsx:87 pkg/storaged/block/resize.jsx:637
 #: pkg/storaged/lvm2/block-logical-volume.jsx:191
+#: pkg/storaged/partitions/partition.jsx:87 pkg/storaged/block/resize.jsx:637
 msgid "Shrink"
 msgstr "Kecilkan"
 
@@ -7443,15 +7425,15 @@ msgid "Single rank"
 msgstr "Peringkat tunggal"
 
 #: pkg/systemd/hwinfo.jsx:281 pkg/storaged/nfs/nfs.jsx:316
-#: pkg/storaged/partitions/partition.jsx:221
-#: pkg/storaged/block/format-dialog.jsx:301 pkg/storaged/block/resize.jsx:446
-#: pkg/storaged/block/resize.jsx:583
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:35
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:128
-#: pkg/storaged/lvm2/vdo-pool.jsx:65
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:193
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:200
-#: pkg/storaged/lvm2/block-logical-volume.jsx:277 pkg/storaged/pages.jsx:715
+#: pkg/storaged/lvm2/vdo-pool.jsx:65
+#: pkg/storaged/lvm2/block-logical-volume.jsx:277
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:35
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:128
+#: pkg/storaged/pages.jsx:715 pkg/storaged/partitions/partition.jsx:221
+#: pkg/storaged/block/format-dialog.jsx:301 pkg/storaged/block/resize.jsx:446
+#: pkg/storaged/block/resize.jsx:583
 msgid "Size"
 msgstr "Ukuran"
 
@@ -7475,11 +7457,11 @@ msgstr "Ukuran harus berupa angka"
 msgid "Size must be at least $0"
 msgstr "Ukuran harus minimal $0"
 
-#: pkg/shell/shell.tsx:119
+#: pkg/shell/shell.tsx:152
 msgid "Skip main navigation"
 msgstr "Lewati navigasi utama"
 
-#: pkg/shell/shell.tsx:118
+#: pkg/shell/shell.tsx:151
 msgid "Skip to content"
 msgstr "Lewati ke konten"
 
@@ -7492,7 +7474,7 @@ msgstr "Slot"
 msgid "Slot $0"
 msgstr "Slot $0"
 
-#: pkg/storaged/stratis/filesystem.jsx:149
+#: pkg/storaged/stratis/filesystem.jsx:152
 msgid "Snapshot"
 msgstr "Snapshot"
 
@@ -7600,9 +7582,9 @@ msgid "Stable"
 msgstr "Stabil"
 
 #: pkg/systemd/service-details.jsx:139
-#: pkg/storaged/stratis/stopped-pool.jsx:175
+#: pkg/storaged/stratis/stopped-pool.jsx:175 pkg/storaged/swap/swap.jsx:84
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:136
-#: pkg/storaged/mdraid/mdraid.jsx:213 pkg/storaged/swap/swap.jsx:84
+#: pkg/storaged/mdraid/mdraid.jsx:213
 msgid "Start"
 msgstr "Mulai"
 
@@ -7641,8 +7623,8 @@ msgstr "Memulai perangkat MDRAID $target"
 msgid "Starting swapspace $target"
 msgstr "Memulai ruang swap $target"
 
-#: pkg/systemd/hwinfo.jsx:281 pkg/systemd/services-list.jsx:26
-#: pkg/systemd/services-list.jsx:32 pkg/storaged/mdraid/mdraid.jsx:290
+#: pkg/systemd/services-list.jsx:26 pkg/systemd/services-list.jsx:32
+#: pkg/systemd/hwinfo.jsx:281 pkg/storaged/mdraid/mdraid.jsx:290
 msgid "State"
 msgstr "Status"
 
@@ -7651,8 +7633,8 @@ msgstr "Status"
 msgid "Static"
 msgstr "Statis"
 
-#: pkg/systemd/service-details.jsx:728
-#: pkg/networkmanager/network-interface.jsx:468 pkg/packagekit/updates.jsx:887
+#: pkg/systemd/service-details.jsx:728 pkg/packagekit/updates.jsx:887
+#: pkg/networkmanager/network-interface.jsx:468
 msgid "Status"
 msgstr "Status"
 
@@ -7664,10 +7646,10 @@ msgstr "PC stik"
 msgid "Sticky"
 msgstr "Lengket"
 
-#: pkg/systemd/service-details.jsx:135
+#: pkg/systemd/service-details.jsx:135 pkg/storaged/swap/swap.jsx:81
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:48
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:135
-#: pkg/storaged/mdraid/mdraid.jsx:292 pkg/storaged/swap/swap.jsx:81
+#: pkg/storaged/mdraid/mdraid.jsx:292
 msgid "Stop"
 msgstr "Hentikan"
 
@@ -7752,7 +7734,7 @@ msgstr "Sistem berkas Stratis"
 msgid "Stratis filesystems pool"
 msgstr "Kolam sistem berkas Stratis"
 
-#: pkg/storaged/stratis/pool.jsx:558 pkg/storaged/stratis/blockdev.jsx:70
+#: pkg/storaged/stratis/blockdev.jsx:70 pkg/storaged/stratis/pool.jsx:558
 #: pkg/storaged/stratis/stopped-pool.jsx:165
 msgid "Stratis pool"
 msgstr "Kolam Stratis"
@@ -7811,8 +7793,8 @@ msgstr "Berhasil disalin ke papan klip!"
 msgid "Sundays"
 msgstr "Setiap hari Minggu"
 
-#: pkg/metrics/metrics.jsx:121 pkg/metrics/metrics.jsx:675
-#: pkg/metrics/metrics.jsx:1935 pkg/storaged/swap/swap.jsx:74
+#: pkg/storaged/swap/swap.jsx:74 pkg/metrics/metrics.jsx:121
+#: pkg/metrics/metrics.jsx:675 pkg/metrics/metrics.jsx:1935
 msgid "Swap"
 msgstr "Swap"
 
@@ -7885,8 +7867,8 @@ msgstr "Sistem"
 msgid "System diagnostics"
 msgstr "Diagnostik sistem"
 
-#: pkg/systemd/hwinfo.jsx:305
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:92
+#: pkg/systemd/hwinfo.jsx:305
 msgid "System information"
 msgstr "Informasi sistem"
 
@@ -7952,7 +7934,7 @@ msgstr "Terminal"
 msgid "Terminal not available"
 msgstr "Terminal tidak tersedia"
 
-#: pkg/users/account-details.js:208
+#: pkg/users/account-details.js:227
 msgid "Terminate session"
 msgstr "Akhiri sesi"
 
@@ -8193,7 +8175,7 @@ msgstr "Kunci yang Anda berikan tidak valid."
 msgid "The keyserver at $0 must be reachable."
 msgstr "Server kunci di $0 harus dapat dijangkau."
 
-#: pkg/storaged/crypto/keyslots.jsx:733
+#: pkg/storaged/crypto/keyslots.jsx:738
 msgid "The last key slot can not be removed"
 msgstr "Slot kunci terakhir tidak dapat dihapus"
 
@@ -8213,7 +8195,7 @@ msgstr "Proses yang terdaftar akan dihentikan secara paksa."
 msgid "The listed services will be forcefully stopped."
 msgstr "Layanan yang terdaftar akan dihentikan secara paksa."
 
-#: pkg/lib/cockpit-components-modifications.jsx:121
+#: pkg/lib/cockpit-components-modifications.tsx:126
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "Pengguna yang masuk tidak diizinkan melihat modifikasi sistem"
 
@@ -8301,7 +8283,7 @@ msgstr "Pengguna $0 tidak diizinkan mengubah kebijakan kriptografi"
 msgid "The user $0 is not permitted to test crash the kernel"
 msgstr "Pengguna $0 tidak diizinkan menguji crash kernel"
 
-#: pkg/users/account-details.js:435
+#: pkg/users/account-details.js:454
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -8622,7 +8604,7 @@ msgstr "Setiap hari Kamis"
 msgid "Tier"
 msgstr "Tingkat"
 
-#: pkg/systemd/logs.jsx:179 pkg/packagekit/history.jsx:96
+#: pkg/systemd/logs.jsx:179 pkg/packagekit/history.tsx:103
 msgid "Time"
 msgstr "Waktu"
 
@@ -8671,7 +8653,7 @@ msgstr ""
 "Untuk mendapatkan pembaruan perangkat lunak, sistem ini perlu didaftarkan ke "
 "Red Hat, melalui Red Hat Customer Portal atau server langganan lokal."
 
-#: pkg/static/login.js:835 pkg/lib/cockpit-connect-ssh.tsx:123
+#: pkg/lib/cockpit-connect-ssh.tsx:123 pkg/static/login.js:835
 #: pkg/shell/hosts_dialog.jsx:666
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -8808,11 +8790,11 @@ msgid "Turn on administrative access"
 msgstr "Aktifkan akses administratif"
 
 #: pkg/systemd/hwinfo.jsx:69 pkg/systemd/hwinfo.jsx:281
+#: pkg/packagekit/autoupdates.jsx:378 pkg/storaged/pages.jsx:713
 #: pkg/storaged/partitions/partition.jsx:169
 #: pkg/storaged/partitions/partition.jsx:215
 #: pkg/storaged/block/unrecognized-data.jsx:37
-#: pkg/storaged/block/format-dialog.jsx:296 pkg/storaged/pages.jsx:713
-#: pkg/shell/credentials.tsx:93 pkg/packagekit/autoupdates.jsx:378
+#: pkg/storaged/block/format-dialog.jsx:296 pkg/shell/credentials.tsx:93
 msgid "Type"
 msgstr "Jenis"
 
@@ -8837,12 +8819,12 @@ msgstr "Ketik untuk memfilter"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/storaged/btrfs/filesystem.jsx:48 pkg/storaged/btrfs/volume.jsx:191
-#: pkg/storaged/btrfs/device.jsx:67 pkg/storaged/stratis/pool.jsx:1028
+#: pkg/storaged/lvm2/volume-group.jsx:354
+#: pkg/storaged/lvm2/physical-volume.jsx:106 pkg/storaged/stratis/pool.jsx:1028
 #: pkg/storaged/stratis/stopped-pool.jsx:187
 #: pkg/storaged/partitions/partition.jsx:214 pkg/storaged/mdraid/mdraid.jsx:294
-#: pkg/storaged/lvm2/volume-group.jsx:354
-#: pkg/storaged/lvm2/physical-volume.jsx:106
+#: pkg/storaged/btrfs/device.jsx:67 pkg/storaged/btrfs/filesystem.jsx:48
+#: pkg/storaged/btrfs/volume.jsx:191
 msgid "UUID"
 msgstr "UUID"
 
@@ -8931,7 +8913,7 @@ msgstr "Tidak dapat memulai setroubleshootd"
 msgid "Unable to unmount filesystem"
 msgstr "Tidak dapat unmount sistem berkas"
 
-#: pkg/packagekit/kpatch.jsx:222
+#: pkg/packagekit/kpatch.tsx:249
 msgid "Unavailable packages"
 msgstr "Paket tidak tersedia"
 
@@ -8939,7 +8921,7 @@ msgstr "Paket tidak tersedia"
 msgid "Unclean shutdown"
 msgstr "Shutdown tidak bersih"
 
-#: pkg/users/account-details.js:436
+#: pkg/users/account-details.js:455
 msgid "Undo"
 msgstr "Batalkan"
 
@@ -8947,8 +8929,8 @@ msgstr "Batalkan"
 msgid "Unexpected PackageManager error during installation of $0: $1"
 msgstr "Kesalahan PackageManager tak terduga selama instalasi $0: $1"
 
-#: pkg/users/dialog-utils.js:51 pkg/shell/shell-modals.tsx:187
-#: pkg/networkmanager/interfaces.js:36
+#: pkg/users/dialog-utils.js:51 pkg/networkmanager/interfaces.js:36
+#: pkg/shell/shell-modals.tsx:187
 msgid "Unexpected error"
 msgstr "Kesalahan tak terduga"
 
@@ -8972,10 +8954,10 @@ msgstr "Unit"
 #: pkg/lib/machine-info.js:223 pkg/lib/machine-info.js:225
 #: pkg/lib/machine-info.js:232 pkg/lib/machine-info.js:234
 #: pkg/lib/machine-info.js:238 pkg/storaged/swap/swap.jsx:102
-#: pkg/networkmanager/network-interface.jsx:402
-#: pkg/networkmanager/network-interface.jsx:404
 #: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
 #: pkg/networkmanager/interfaces.js:1167
+#: pkg/networkmanager/network-interface.jsx:402
+#: pkg/networkmanager/network-interface.jsx:404
 msgid "Unknown"
 msgstr "Tidak diketahui"
 
@@ -9008,13 +8990,13 @@ msgstr "Host tidak dikenal: $0"
 msgid "Unknown service name"
 msgstr "Nama layanan tidak diketahui"
 
-#: pkg/storaged/crypto/keyslots.jsx:754
+#: pkg/storaged/crypto/keyslots.jsx:759
 msgid "Unknown type"
 msgstr "Tipe tidak diketahui"
 
-#: pkg/storaged/stratis/stopped-pool.jsx:117
+#: pkg/storaged/stratis/stopped-pool.jsx:117 pkg/storaged/crypto/actions.jsx:26
+#: pkg/storaged/crypto/actions.jsx:31
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:22
-#: pkg/storaged/crypto/actions.jsx:26 pkg/storaged/crypto/actions.jsx:31
 #: pkg/shell/credentials.tsx:228
 msgid "Unlock"
 msgstr "Buka kunci"
@@ -9048,9 +9030,10 @@ msgstr "Membuka kunci disk"
 msgid "Unmanaged interfaces"
 msgstr "Antarmuka tidak dikelola"
 
-#: pkg/storaged/btrfs/subvolume.jsx:344 pkg/storaged/stratis/filesystem.jsx:146
-#: pkg/storaged/nfs/nfs.jsx:295 pkg/storaged/filesystem/mounting-dialog.jsx:343
+#: pkg/storaged/nfs/nfs.jsx:295 pkg/storaged/stratis/filesystem.jsx:146
+#: pkg/storaged/filesystem/mounting-dialog.jsx:343
 #: pkg/storaged/filesystem/filesystem.jsx:88
+#: pkg/storaged/btrfs/subvolume.jsx:344
 msgid "Unmount"
 msgstr "Unmount"
 
@@ -9143,7 +9126,7 @@ msgstr "Paket yang diperbarui mungkin memerlukan reboot agar berlaku."
 msgid "Updates available"
 msgstr "Pembaruan tersedia"
 
-#: pkg/packagekit/history.jsx:93
+#: pkg/packagekit/history.tsx:100
 msgid "Updates history"
 msgstr "Riwayat pembaruan"
 
@@ -9163,14 +9146,14 @@ msgstr "Memperbarui status..."
 msgid "Upload"
 msgstr "Unggah"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:114 pkg/metrics/metrics.jsx:1934
+#: pkg/systemd/overview-cards/usageCard.jsx:114
+#: pkg/storaged/lvm2/physical-volume.jsx:108 pkg/storaged/stratis/pool.jsx:1030
+#: pkg/storaged/stratis/filesystem.jsx:245
+#: pkg/storaged/filesystem/filesystem.jsx:141 pkg/storaged/btrfs/device.jsx:69
+#: pkg/storaged/btrfs/filesystem.jsx:50 pkg/storaged/btrfs/volume.jsx:193
+#: pkg/storaged/block/unrecognized-data.jsx:36 pkg/metrics/metrics.jsx:1934
 #: pkg/metrics/metrics.jsx:1935 pkg/metrics/metrics.jsx:1936
-#: pkg/metrics/metrics.jsx:1937 pkg/storaged/btrfs/filesystem.jsx:50
-#: pkg/storaged/btrfs/volume.jsx:193 pkg/storaged/btrfs/device.jsx:69
-#: pkg/storaged/stratis/pool.jsx:1030 pkg/storaged/stratis/filesystem.jsx:242
-#: pkg/storaged/filesystem/filesystem.jsx:141
-#: pkg/storaged/block/unrecognized-data.jsx:36
-#: pkg/storaged/lvm2/physical-volume.jsx:108
+#: pkg/metrics/metrics.jsx:1937
 msgid "Usage"
 msgstr "Penggunaan"
 
@@ -9186,11 +9169,11 @@ msgstr "Gunakan"
 msgid "Use $0"
 msgstr "Gunakan $0"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:314 pkg/storaged/lvm2/vdo-pool.jsx:71
+#: pkg/storaged/lvm2/vdo-pool.jsx:71 pkg/storaged/legacy-vdo/legacy-vdo.jsx:314
 msgid "Use compression"
 msgstr "Gunakan kompresi"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:323 pkg/storaged/lvm2/vdo-pool.jsx:75
+#: pkg/storaged/lvm2/vdo-pool.jsx:75 pkg/storaged/legacy-vdo/legacy-vdo.jsx:323
 msgid "Use deduplication"
 msgstr "Gunakan deduplikasi"
 
@@ -9210,8 +9193,8 @@ msgstr "Gunakan kunci berikut untuk autentikasi dengan sistem lain"
 msgid "Use verbose logging"
 msgstr "Gunakan pencatatan rinci"
 
-#: pkg/metrics/metrics.jsx:763 pkg/metrics/metrics.jsx:857
-#: pkg/storaged/swap/swap.jsx:111
+#: pkg/storaged/swap/swap.jsx:111 pkg/metrics/metrics.jsx:763
+#: pkg/metrics/metrics.jsx:857
 msgid "Used"
 msgstr "Digunakan"
 
@@ -9246,7 +9229,7 @@ msgstr "ID pengguna tidak boleh lebih tinggi dari $0"
 msgid "User ID must not be lower than $0"
 msgstr "ID pengguna tidak boleh lebih rendah dari $0"
 
-#: pkg/static/login.html:108 pkg/users/account-details.js:248
+#: pkg/static/login.html:108 pkg/users/account-details.js:267
 #: pkg/users/account-create-dialog.js:62 pkg/shell/hosts_dialog.jsx:449
 msgid "User name"
 msgstr "Nama pengguna"
@@ -9272,7 +9255,7 @@ msgstr "Menggunakan server Tang"
 msgid "VDO backing devices can not be made smaller"
 msgstr "Perangkat pendukung VDO tidak dapat diperkecil"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:125 pkg/storaged/utils.js:333
+#: pkg/storaged/utils.js:333 pkg/storaged/legacy-vdo/legacy-vdo.jsx:125
 msgid "VDO device $0"
 msgstr "Perangkat VDO $0"
 
@@ -9347,7 +9330,7 @@ msgid "View all services"
 msgstr "Lihat semua layanan"
 
 #: pkg/kdump/kdump-view.jsx:530
-#: pkg/lib/cockpit-components-modifications.jsx:149
+#: pkg/lib/cockpit-components-modifications.tsx:154
 msgid "View automation script"
 msgstr "Lihat skrip otomatisasi"
 
@@ -9396,12 +9379,12 @@ msgstr ""
 "Ukuran sistem berkas virtual lebih besar dari kolam. Kelebihan penyediaan "
 "tidak dapat dinonaktifkan."
 
-#: pkg/storaged/stratis/filesystem.jsx:246
+#: pkg/storaged/stratis/filesystem.jsx:249
 msgid "Virtual size"
 msgstr "Ukuran virtual"
 
-#: pkg/storaged/stratis/filesystem.jsx:202
-#: pkg/storaged/stratis/filesystem.jsx:248
+#: pkg/storaged/stratis/filesystem.jsx:205
+#: pkg/storaged/stratis/filesystem.jsx:251
 msgid "Virtual size limit"
 msgstr "Batas ukuran virtual"
 
@@ -9561,7 +9544,7 @@ msgstr "Tahunan"
 msgid "Yes"
 msgstr "Ya"
 
-#: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:134
+#: pkg/lib/cockpit-connect-ssh.tsx:134 pkg/static/login.js:832
 #: pkg/shell/hosts_dialog.jsx:677
 msgid "You are connecting to $0 for the first time."
 msgstr "Anda terhubung ke $0 untuk pertama kalinya."
@@ -9578,7 +9561,7 @@ msgstr ""
 "Anda tidak memiliki izin untuk melihat kunci publik yang diotorisasi untuk "
 "akun ini."
 
-#: pkg/shell/idle.tsx:71
+#: pkg/shell/session.ts:62
 msgid "You have been logged out due to inactivity."
 msgstr "Anda telah keluar karena tidak aktif."
 
@@ -9598,7 +9581,7 @@ msgstr "Anda harus menunggu lebih lama untuk mengubah kata sandi Anda"
 msgid "You now have administrative access."
 msgstr "Anda sekarang memiliki akses administratif."
 
-#: pkg/shell/idle.tsx:111
+#: pkg/shell/shell.tsx:75
 msgid "You will be logged out in $0 seconds."
 msgstr "Anda akan keluar dalam $0 detik."
 
@@ -9655,7 +9638,7 @@ msgstr "[Tidak ada data]"
 msgid "access"
 msgstr "akses"
 
-#: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:42
+#: pkg/systemd/overview-cards/profiles-menu-dialog-body.tsx:44
 #: pkg/shell/active-pages-modal.tsx:78
 msgid "active"
 msgstr "aktif"
@@ -9720,7 +9703,7 @@ msgstr "boot"
 msgid "bridge"
 msgstr "bridge"
 
-#: pkg/storaged/btrfs/volume.jsx:201 pkg/storaged/btrfs/device.jsx:28
+#: pkg/storaged/btrfs/device.jsx:28 pkg/storaged/btrfs/volume.jsx:201
 msgid "btrfs device"
 msgstr "perangkat btrfs"
 
@@ -9740,12 +9723,12 @@ msgstr "subvolume btrfs"
 msgid "btrfs subvolume $0 of $1"
 msgstr "subvolume btrfs $0 dari $1"
 
-#: pkg/storaged/btrfs/filesystem.jsx:58 pkg/storaged/btrfs/volume.jsx:209
-#: pkg/storaged/btrfs/volume.jsx:221 pkg/storaged/btrfs/subvolume.jsx:475
+#: pkg/storaged/btrfs/subvolume.jsx:475 pkg/storaged/btrfs/filesystem.jsx:58
+#: pkg/storaged/btrfs/volume.jsx:209 pkg/storaged/btrfs/volume.jsx:221
 msgid "btrfs subvolumes"
 msgstr "subvolume btrfs"
 
-#: pkg/storaged/btrfs/volume.jsx:103 pkg/storaged/btrfs/device.jsx:58
+#: pkg/storaged/btrfs/device.jsx:58 pkg/storaged/btrfs/volume.jsx:103
 msgid "btrfs volume"
 msgstr "volume btrfs"
 
@@ -9766,7 +9749,7 @@ msgstr "cache"
 msgid "cgroups"
 msgstr "cgroups"
 
-#: pkg/users/account-details.js:324
+#: pkg/users/account-details.js:343
 msgid "change"
 msgstr "ubah"
 
@@ -9810,14 +9793,14 @@ msgstr "nonaktifkan"
 msgid "debug"
 msgstr "debug"
 
-#: pkg/storaged/btrfs/volume.jsx:52 pkg/storaged/btrfs/subvolume.jsx:221
+#: pkg/storaged/lvm2/block-logical-volume.jsx:50
+#: pkg/storaged/lvm2/volume-group.jsx:69 pkg/storaged/lvm2/volume-group.jsx:297
 #: pkg/storaged/stratis/pool.jsx:434 pkg/storaged/stratis/filesystem.jsx:98
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:66
+#: pkg/storaged/partitions/partition.jsx:29
 #: pkg/storaged/partitions/format-disk-dialog.jsx:21
-#: pkg/storaged/partitions/partition.jsx:29 pkg/storaged/mdraid/mdraid.jsx:105
-#: pkg/storaged/block/format-dialog.jsx:194
-#: pkg/storaged/lvm2/volume-group.jsx:69 pkg/storaged/lvm2/volume-group.jsx:297
-#: pkg/storaged/lvm2/block-logical-volume.jsx:50
+#: pkg/storaged/mdraid/mdraid.jsx:105 pkg/storaged/btrfs/subvolume.jsx:221
+#: pkg/storaged/btrfs/volume.jsx:52 pkg/storaged/block/format-dialog.jsx:194
 msgid "delete"
 msgstr "hapus"
 
@@ -9854,17 +9837,16 @@ msgid "drive"
 msgstr "drive"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:43
-#: pkg/users/account-details.js:278 pkg/users/account-details.js:308
-#: pkg/storaged/btrfs/volume.jsx:178 pkg/storaged/stratis/pool.jsx:1026
-#: pkg/storaged/stratis/filesystem.jsx:236
-#: pkg/storaged/stratis/filesystem.jsx:251
+#: pkg/users/account-details.js:297 pkg/users/account-details.js:327
+#: pkg/storaged/lvm2/block-logical-volume.jsx:274
+#: pkg/storaged/lvm2/volume-group.jsx:352
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:126
+#: pkg/storaged/stratis/pool.jsx:1026 pkg/storaged/stratis/filesystem.jsx:239
+#: pkg/storaged/stratis/filesystem.jsx:254
 #: pkg/storaged/crypto/encryption.jsx:220
 #: pkg/storaged/crypto/encryption.jsx:223 pkg/storaged/filesystem/utils.jsx:207
 #: pkg/storaged/filesystem/filesystem.jsx:134
-#: pkg/storaged/partitions/partition.jsx:218
-#: pkg/storaged/lvm2/volume-group.jsx:352
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:126
-#: pkg/storaged/lvm2/block-logical-volume.jsx:274
+#: pkg/storaged/partitions/partition.jsx:218 pkg/storaged/btrfs/volume.jsx:178
 #: pkg/networkmanager/dialogs-common.jsx:242
 #: pkg/networkmanager/network-interface.jsx:553
 msgid "edit"
@@ -9942,11 +9924,11 @@ msgstr "firewall"
 msgid "firewalld"
 msgstr "firewalld"
 
-#: pkg/packagekit/kpatch.jsx:251
+#: pkg/packagekit/kpatch.tsx:279
 msgid "for current and future kernels"
 msgstr "untuk kernel saat ini dan yang akan datang"
 
-#: pkg/packagekit/kpatch.jsx:256
+#: pkg/packagekit/kpatch.tsx:285
 msgid "for current kernel only"
 msgstr "hanya untuk kernel saat ini"
 
@@ -10016,7 +9998,7 @@ msgstr "dalam waktu kurang dari satu menit"
 msgid "in most browsers"
 msgstr "di sebagian besar peramban"
 
-#: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:43
+#: pkg/systemd/overview-cards/profiles-menu-dialog-body.tsx:45
 msgid "inconsistent"
 msgstr "tidak konsisten"
 
@@ -10177,7 +10159,7 @@ msgid "nice"
 msgstr "baik"
 
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:72
-#: pkg/storaged/stratis/filesystem.jsx:249
+#: pkg/storaged/stratis/filesystem.jsx:252
 #: pkg/storaged/crypto/encryption.jsx:219
 #: pkg/storaged/crypto/encryption.jsx:222
 msgid "none"
@@ -10293,7 +10275,7 @@ msgstr "ram"
 msgid "read only"
 msgstr "hanya baca"
 
-#: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:41
+#: pkg/systemd/overview-cards/profiles-menu-dialog-body.tsx:43
 msgid "recommended"
 msgstr "direkomendasikan"
 
@@ -10390,7 +10372,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "laporan sos gagal"
 
-#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -10402,8 +10384,8 @@ msgstr "kunci ssh bukan jalur"
 msgid "ssh server is empty"
 msgstr "server ssh kosong"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:32 pkg/storaged/mdraid/mdraid.jsx:45
-#: pkg/storaged/utils.js:901
+#: pkg/storaged/utils.js:901 pkg/storaged/legacy-vdo/legacy-vdo.jsx:32
+#: pkg/storaged/mdraid/mdraid.jsx:45
 msgid "stop"
 msgstr "hentikan"
 
@@ -10463,8 +10445,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "unit"
 
-#: pkg/systemd/services.jsx:541 pkg/systemd/services.jsx:551
-#: pkg/systemd/hw-detect.js:115
+#: pkg/systemd/hw-detect.js:115 pkg/systemd/services.jsx:541
+#: pkg/systemd/services.jsx:551
 msgid "unknown"
 msgstr "tidak diketahui"
 
@@ -10476,8 +10458,8 @@ msgstr "target tidak diketahui"
 msgid "unmask"
 msgstr "hapus mask"
 
-#: pkg/storaged/btrfs/subvolume.jsx:221 pkg/storaged/utils.js:851
-#: pkg/storaged/utils.js:864 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:851 pkg/storaged/utils.js:864
+#: pkg/storaged/btrfs/subvolume.jsx:221 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "unmount"
 
@@ -10536,6 +10518,31 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zona"
+
+#~ msgid "Keyserver removal may prevent unlocking $0."
+#~ msgstr "Penghapusan server kunci mungkin akan mencegah pembukaan kunci $0."
+
+#~ msgid "$0 critical hit"
+#~ msgid_plural "$0 hits, including critical"
+#~ msgstr[0] "$0 hit, termasuk yang kritis"
+
+#~ msgid "$0 important hit"
+#~ msgid_plural "$0 hits, including important"
+#~ msgstr[0] "$0 hit, termasuk yang penting"
+
+#~ msgid "$0 low severity hit"
+#~ msgid_plural "$0 low severity hits"
+#~ msgstr[0] "$0 temuan tingkat keparahan rendah"
+
+#~ msgid "$0 moderate hit"
+#~ msgid_plural "$0 hits, including moderate"
+#~ msgstr[0] "$0 temuan, termasuk tingkat keparahan sedang"
+
+#~ msgid "Insights: "
+#~ msgstr "Insights: "
+
+#~ msgid "No rule hits"
+#~ msgstr "Tidak ada hasil aturan"
 
 #, fuzzy
 #~| msgid "Failed to change password"

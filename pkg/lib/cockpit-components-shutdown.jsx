@@ -79,14 +79,23 @@ export class ShutdownModal extends React.Component {
                     const hour = dateObject.getUTCHours();
                     const minute = dateObject.getUTCMinutes();
                     const timeStr = hour.toString().padStart(2, "0") + ":" + minute.toString().padStart(2, "0");
+                    // utc_fake_now stores server local time in UTC fields; use UTC accessors
+                    // to build a midnight Date representing today in server local time.
+                    // Using toDateString() would incorrectly apply the browser's local timezone
+                    // on top of the already-offset value, shifting the date by the UTC offset.
+                    const todayMidnight = new Date(Date.UTC(
+                        dateObject.getUTCFullYear(),
+                        dateObject.getUTCMonth(),
+                        dateObject.getUTCDate()
+                    ));
                     this.setState({
                         dateObject,
                         date,
-                        startDate: new Date(dateObject.toDateString()),
+                        startDate: todayMidnight,
                         time: timeStr,
                         // Initialize wake-up time fields to current time
                         wakeDate: date,
-                        wakeDateObject: new Date(dateObject.toDateString()),
+                        wakeDateObject: todayMidnight,
                         wakeTime: timeStr,
                         wakeHour: hour,
                         wakeMinute: minute,

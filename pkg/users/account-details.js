@@ -27,6 +27,7 @@ import * as timeformat from "timeformat";
 import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { MultiTypeaheadSelect } from "cockpit-components-multi-typeahead-select";
 
+import { FormHelper } from "cockpit-components-form-helper";
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
@@ -122,6 +123,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
     const [isLocked, setIsLocked] = useState(account.isLocked);
 
     const [editedRealName, setEditedRealName] = useState(null);
+    const [realNameError, setRealNameError] = useState("");
     const [comittingRealName, setCommittingRealName] = useState(false);
     const [disableLockedEdit, setDisableLockedEdit] = useState(false);
 
@@ -135,12 +137,18 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
     }, [account.isLocked]);
 
     function changeRealName() {
+        setRealNameError("");
+
         if (editedRealName === null || editedRealName === undefined)
             return;
 
+        if (editedRealName.includes(':')) {
+            setRealNameError(_("The full name must not contain colons."));
+            return;
+        }
+
         setCommittingRealName(true);
 
-        // TODO: unwanted chars check
         cockpit.spawn(["/usr/sbin/usermod", user, "--comment", editedRealName],
                       { superuser: "try", err: "message" })
                 .then(() => {
@@ -252,7 +260,8 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
                             <Form isHorizontal onSubmit={apply_modal_dialog}>
                                 <FormGroup fieldId="account-real-name" hasNoPaddingTop={!superuser.allowed} label={_("Full name")}>
                                     { superuser.allowed
-                                        ? <TextInput id="account-real-name"
+                                        ? <>
+                                            <TextInput id="account-real-name"
                                                      isDisabled={comittingRealName || account.uid == 0}
                                                      value={editedRealName !== null ? editedRealName : account.gecos}
                                                      onKeyDown={event => {
@@ -261,7 +270,10 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
                                                          }
                                                      }}
                                                      onChange={(_event, value) => setEditedRealName(value)}
+                                                     validated={realNameError !== "" ? "error" : "default"}
                                                      onBlur={() => changeRealName()} />
+                                            <FormHelper fieldId="account-real-name" helperTextInvalid={realNameError} />
+                                        </>
                                         : <output id="account-real-name">{account.gecos}</output>}
                                 </FormGroup>
                                 <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>

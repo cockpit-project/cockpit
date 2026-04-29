@@ -132,7 +132,10 @@ class TestAccounts(testlib.MachineCase):
         b.assert_pixels("#users-page", "user-detail-page")
         b.wait_not_attr("#account-delete", "disabled", "disabled")
         b.set_input_text('#account-real-name', "")  # Check that we can delete the name before setting it up
+        b.set_input_text('#account-real-name', 'foo:bar')
+        b.wait_in_text('#account-real-name-helper', 'The full name must not contain colons.')
         b.set_input_text('#account-real-name', "Anton Arbitrary")
+        b.wait_not_present('#account-real-name-helper')
         b.wait_visible('#account-real-name:not([disabled])')
         b.wait_text("#account-title", "Anton Arbitrary")
         b.wait_text("#account-home-dir", os.path.join(getUserAddDetails(m)["HOME"] + "/anton"))

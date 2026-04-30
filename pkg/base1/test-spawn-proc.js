@@ -132,15 +132,15 @@ QUnit.test("stream partial", async assert => {
 QUnit.test("stream partial binary", async assert => {
     const streamed = [];
     const resp = await cockpit.spawn(["/bin/cat"], { binary: true })
-            .input("1234")
+            .input(new Uint8Array([0, 1, 2, 3]))
             .stream(chunk => {
                 if (chunk.length > 0) {
                     streamed.push(chunk[0]);
                     return 1;
                 }
             });
-    assert.equal(resp.length, 3, "right then data");
-    assert.deepEqual(streamed, [49], "stream data");
+    assert.deepEqual(resp, new Uint8Array([1, 2, 3]), "unconsumed data");
+    assert.deepEqual(streamed, [0], "stream got first byte");
 });
 
 QUnit.test("script with input", async assert => {

@@ -37,6 +37,44 @@ function read_control(ws: WebSocket): Promise<ControlMessage> {
     });
 }
 
+function read_text_data(ws: WebSocket, expected_channel: string): Promise<string> {
+    const prefix = expected_channel + "\n";
+    return new Promise((resolve, reject) => {
+        ws.onmessage = event => {
+            if (typeof event.data !== "string")
+                return reject(new Error("expected text frame, got binary"));
+            if (!event.data.startsWith(prefix))
+                return reject(new Error(`expected channel ${expected_channel}, got: ${event.data}`));
+            resolve(event.data.substring(prefix.length));
+        };
+    });
+}
+
+function read_binary_data(ws: WebSocket, expected_channel: string): Promise<Uint8Array> {
+    const prefix = new TextEncoder().encode(expected_channel + "\n");
+    return new Promise((resolve, reject) => {
+        ws.onmessage = event => {
+            if (!(event.data instanceof ArrayBuffer))
+                return reject(new Error("expected binary frame, got text"));
+            const frame = new Uint8Array(event.data);
+            if (frame.length < prefix.length || !prefix.every((b, i) => frame[i] === b))
+                return reject(new Error(`expected channel ${expected_channel}`));
+            resolve(frame.subarray(prefix.length));
+        };
+    });
+}
+
+async function init(ws: WebSocket): Promise<string> {
+    const message = await read_control(ws);
+    if (message.command !== "init")
+        throw new Error(`expected init, got ${message.command}`);
+    const seed = message["channel-seed"];
+    if (typeof seed !== "string")
+        throw new Error("missing channel-seed in init message");
+    send_control(ws, { command: "init", version: 1 });
+    return seed;
+}
+
 /* Wait for close, returning the last message received */
 async function wait_close(ws: WebSocket): Promise<ControlMessage> {
     const close_promise = new Promise(resolve => {
@@ -121,6 +159,88 @@ QUnit.test("server accepts extra init messages", async assert => {
     } finally {
         ws.close();
     }
+});
+
+/*
+ * cockpit-ws doesn't check the WebSocket frame type on inbound messages: it
+ * just forwards them blindly to the bridge.  The information about if a
+ * message was binary or text is inherently lost in the cockpit protocol, and
+ * the bridge does the correct thing in all cases.
+ *
+ * The following three tests are meant to document the somewhat-broken status
+ * quo.  This was never an intentionally-supported feature and should probably
+ * be a hard error.  A testcase used to depend on the ability to send text data
+ * to binary channels and has since been fixed.  We have no data on if actual
+ * production code is also accidentally relying on this implementation quirk.
+ */
+QUnit.test("text frame on binary channel: response is binary", async assert => {
+    const ws = await connect();
+    ws.binaryType = "arraybuffer";
+    const channel = await init(ws) + "1";
+
+    send_control(ws, { command: "open", channel, payload: "echo", binary: "raw" });
+
+    const ready = await read_control(ws);
+    assert.equal(ready.command, "ready", "channel ready");
+
+    // send a text frame on a binary channel
+    ws.send(`${channel}\nhello`);
+
+    // make sure it comes back as text
+    const payload = await read_binary_data(ws, channel);
+    assert.equal(new TextDecoder().decode(payload), "hello", "payload survived round-trip");
+
+    ws.close();
+});
+
+QUnit.test("binary frame on text channel: response is text", async assert => {
+    const ws = await connect();
+    ws.binaryType = "arraybuffer";
+    const channel = await init(ws) + "1";
+
+    send_control(ws, { command: "open", channel, payload: "echo" });
+
+    const ready = await read_control(ws);
+    assert.equal(ready.command, "ready", "channel ready");
+
+    // send a binary frame on a text channel
+    ws.send(new TextEncoder().encode(`${channel}\nhello`));
+
+    // make sure it comes back as text
+    const payload = await read_text_data(ws, channel);
+    assert.equal(payload, "hello", "payload survived round-trip");
+
+    ws.close();
+});
+
+QUnit.test("non-utf8 on text channel is rejected by the bridge", async assert => {
+    /* The bridge runs a strict UTF-8 decoder on text channels.  Invalid
+     * bytes cause a protocol-error channel close — the data never reaches
+     * cockpit-ws, which would g_critical() and drop it.
+     */
+    const ws = await connect();
+    ws.binaryType = "arraybuffer";
+    const channel = await init(ws) + "1";
+
+    send_control(ws, { command: "open", channel, payload: "echo" });
+    const ready = await read_control(ws);
+    assert.equal(ready.command, "ready", "channel ready");
+
+    // send invalid UTF-8 bytes via a binary frame on a text channel
+    const header = new TextEncoder().encode(channel + "\n");
+    const garbage = new Uint8Array([0x80, 0xff, 0xfe, 0xc0, 0xc1]);
+    const frame = new Uint8Array(header.length + garbage.length);
+    frame.set(header);
+    frame.set(garbage, header.length);
+    ws.send(frame);
+
+    // the bridge closes the channel with a protocol-error
+    const close = await read_control(ws);
+    assert.equal(close.command, "close", "channel closed");
+    assert.equal(close.channel, channel, "correct channel");
+    assert.equal(close.problem, "protocol-error", "protocol-error due to invalid UTF-8");
+
+    ws.close();
 });
 
 QUnit.module("tests that need test-server warnings disabled", hooks => {

@@ -151,8 +151,11 @@ declare module 'cockpit' {
     }
 
     export interface Spawn<T> extends DeferredPromise<T> {
-        input(message?: T | null, stream?: boolean): DeferredPromise<T>;
-        stream(callback: (data: T) => void): DeferredPromise<T>;
+        input(message?: T | null, stream?: boolean): Spawn<T>;
+        stream(callback: (data: T) => number | null | void): Spawn<T>;
+        done(callback: (data: T, message?: string) => void): Spawn<T>;
+        fail(callback: (exc: Error, data?: string) => void): Spawn<T>;
+        state(): "pending" | "resolved" | "rejected";
         close(options?: string | JsonObject): void;
     }
 
@@ -161,6 +164,7 @@ declare module 'cockpit' {
         err?: "out" | "ignore" | "message";
         environ?: string[];
         pty?: boolean;
+        window?: { rows: number; cols: number };
     }
 
     export function spawn(
@@ -174,13 +178,21 @@ declare module 'cockpit' {
 
     export function script(
         script: string,
-        args?: string[],
         options?: SpawnOptions & { binary?: false }
     ): Spawn<string>;
     export function script(
         script: string,
-        args?: string[],
-        options?: SpawnOptions & { binary: true }
+        options: SpawnOptions & { binary: true }
+    ): Spawn<Uint8Array>;
+    export function script(
+        script: string,
+        args: string[],
+        options?: SpawnOptions & { binary?: false }
+    ): Spawn<string>;
+    export function script(
+        script: string,
+        args: string[],
+        options: SpawnOptions & { binary: true }
     ): Spawn<Uint8Array>;
 
     /* === cockpit.location ========================== */

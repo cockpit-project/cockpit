@@ -75,7 +75,7 @@ const info = {
         "base1/test-promise.ts",
         "base1/test-protocol.ts",
         "base1/test-series.js",
-        "base1/test-spawn-proc.js",
+        "base1/test-spawn-proc.ts",
         "base1/test-spawn.js",
         "base1/test-stream.ts",
         "base1/test-timeformat.ts",

@@ -49,12 +49,12 @@ QUnit.test("error message fail", async assert => {
 
 QUnit.test("nonexisting executable", assert => {
     assert.rejects(cockpit.spawn(["/bin/nonexistent"]),
-                   ex => ex.problem == "not-found");
+                   (ex: cockpit.BasicError) => ex.problem == "not-found");
 });
 
 QUnit.test("permission denied", assert => {
     assert.rejects(cockpit.spawn(["/etc/hostname"]),
-                   ex => ex.problem == "access-denied");
+                   (ex: cockpit.BasicError) => ex.problem == "access-denied");
 });
 
 QUnit.test("write eof read", async assert => {
@@ -122,7 +122,7 @@ QUnit.test("stream partial", async assert => {
 });
 
 QUnit.test("stream partial binary", async assert => {
-    const streamed = [];
+    const streamed: number[] = [];
     const resp = await cockpit.spawn(["/bin/cat"], { binary: true })
             .input(new Uint8Array([0, 1, 2, 3]))
             .stream(chunk => {
@@ -192,10 +192,10 @@ QUnit.test("pty window size limits", async assert => {
 });
 
 QUnit.test("stream large output", async assert => {
-    let lastblock = null;
+    let lastblock = "";
     const resp = await cockpit.spawn(["seq", "10000000"])
             .stream(resp => {
-                if (lastblock === null)
+                if (lastblock === "")
                     assert.equal(resp.slice(0, 4), "1\n2\n", "stream data starts with first numbers");
                 lastblock = resp;
             });
@@ -212,7 +212,7 @@ QUnit.test("cancel process", async assert => {
         await proc;
         assert.ok(false, "proc should have failed");
     } catch (ex) {
-        assert.equal(ex.problem, "cancelled", "proc failed with correct problem");
+        assert.equal((ex as cockpit.BasicError).problem, "cancelled", "proc failed with correct problem");
     }
 });
 

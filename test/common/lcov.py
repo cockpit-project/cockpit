@@ -24,8 +24,6 @@ import urllib.parse
 from bisect import bisect_left
 from typing import Any, Mapping, Sequence
 
-from lib import github
-
 BASE_DIR = os.path.realpath(f'{__file__}/../../..')
 
 debug = False
@@ -512,6 +510,8 @@ def create_coverage_report() -> None:
         rev = os.environ.get("TEST_REVISION", None)
         pull = os.environ.get("TEST_PULL", None)
         if rev and pull:
+            from lib import github
+
             api = github.GitHub()
             old_comments = api.get(f"pulls/{pull}/comments?sort=created&direction=desc&per_page=100") or []
             for oc in old_comments:

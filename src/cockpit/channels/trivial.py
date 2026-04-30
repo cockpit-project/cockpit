@@ -19,7 +19,7 @@ class EchoChannel(Channel):
         self.ready()
 
     def do_data(self, data: bytes) -> None:
-        self.send_bytes(data)
+        self.send_data(data)
 
     def do_done(self) -> None:
         self.done()

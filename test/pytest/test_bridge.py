@@ -99,6 +99,15 @@ async def test_echo(transport: MockTransport) -> None:
 
 
 @pytest.mark.asyncio
+async def test_echo_invalid_utf8(transport: MockTransport) -> None:
+    echo = await transport.check_open('echo')
+
+    # invalid UTF-8 closes the channel with protocol-error
+    transport.send_data(echo, b'\x80\xff\xfe')
+    await transport.assert_msg('', command='close', channel=echo, problem='protocol-error')
+
+
+@pytest.mark.asyncio
 async def test_host(transport: MockTransport) -> None:
     # try to open a null channel, explicitly naming our host
     await transport.check_open('null', host=MOCK_HOSTNAME)

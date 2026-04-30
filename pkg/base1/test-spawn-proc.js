@@ -27,32 +27,24 @@ QUnit.test("error output", async assert => {
     assert.equal(resp, "hi\nyo\n", "showed up");
 });
 
-QUnit.test("error message", assert => {
-    const done = assert.async();
-    assert.expect(3);
-    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "message" })
-            .done(function(resp, message) {
-                assert.equal(resp, "hi\n", "produced output");
-                assert.equal(message, "yo\n", "produced message");
-            })
-            .always(function() {
-                assert.equal(this.state(), "resolved", "didn't fail");
-                done();
-            });
+QUnit.test("error message", async assert => {
+    const proc = cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "message" });
+    proc.done(function(resp, message) {
+        assert.equal(resp, "hi\n", "produced output");
+        assert.equal(message, "yo\n", "produced message");
+    });
+    await proc;
+    assert.equal(proc.state(), "resolved", "didn't fail");
 });
 
-QUnit.test("error message fail", assert => {
-    const done = assert.async();
-    assert.expect(3);
-    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2; exit 2"], { err: "message" })
-            .fail(function(ex, resp) {
-                assert.equal(resp, "hi\n", "produced output");
-                assert.equal(ex.message, "yo", "produced message");
-            })
-            .always(function() {
-                assert.equal(this.state(), "rejected", "didn't fail");
-                done();
-            });
+QUnit.test("error message fail", async assert => {
+    const proc = cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2; exit 2"], { err: "message" });
+    proc.fail(function(ex, resp) {
+        assert.equal(resp, "hi\n", "produced output");
+        assert.equal(ex.message, "yo", "produced message");
+    });
+    await assert.rejects(proc);
+    assert.equal(proc.state(), "rejected", "did fail");
 });
 
 QUnit.test("nonexisting executable", assert => {

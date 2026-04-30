@@ -34,6 +34,7 @@ import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { useDialogs } from "dialogs.jsx";
 
 import { debug } from "./utils";
+import { read_os_release } from "os-release";
 
 const _ = cockpit.gettext;
 
@@ -104,7 +105,7 @@ class ImplBase {
 
                 const confDir = configFile.substring(0, configFile.lastIndexOf('/'));
                 script += `mkdir -p ${confDir}; `;
-                script += `printf '[Timer]\\nOnBootSec=\\nOnCalendar=${day} ${time}\\n' > ${configFile}; `;
+                script += `printf '[Timer]\\nOnBootSec=\\nOnCalendar=${day} ${time}\\nRandomizedDelaySec=0\\n' > ${configFile}; `;
             }
 
             script += "systemctl daemon-reload; ";
@@ -335,7 +336,7 @@ class Dnf5Impl extends ImplBase {
 class AptImpl extends ImplBase {
     constructor() {
         super();
-        this.originsPatterns = null;
+        this.configFile = "/etc/apt/apt.conf.d/52unattended-upgrades-cockpit";
     }
 
     async getConfig() {
@@ -351,52 +352,41 @@ class AptImpl extends ImplBase {
         }
 
         try {
-            // Detect distribution
-            const distroOutput = await cockpit.script(
-                "grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '\"'",
-                [], { err: "message" });
-            const distro = distroOutput.trim().toLowerCase();
+            // Detect distribution to determine the apt-config key and wildcard pattern
+            const osRelease = await read_os_release();
+            const distro = (osRelease.ID || "").toLowerCase();
 
-            // Set patterns based on distribution
             if (distro === 'ubuntu') {
-                this.originsPatterns = {
-                    configKey: 'Allowed-Origins',
-                    all: '"*:*";',
-                    stable: '"${distro_id}:${distro_codename}";',
-                    security: [
-                        '"${distro_id}:${distro_codename}-security";',
-                        '"${distro_id}ESMApps:${distro_codename}-apps-security";',
-                        '"${distro_id}ESM:${distro_codename}-infra-security";'
-                    ]
-                };
+                this.configKey = 'Allowed-Origins';
+                this.allPattern = '"*:*";';
             } else if (distro === 'debian') {
-                this.originsPatterns = {
-                    configKey: 'Origins-Pattern',
-                    all: '"origin=*";',
-                    stable: '"origin=Debian,codename=${distro_codename},label=Debian";',
-                    security: [
-                        '"origin=Debian,codename=${distro_codename}-security,label=Debian-Security";',
-                        '"origin=Debian,codename=${distro_codename},label=Debian-Security";'
-                    ]
-                };
+                this.configKey = 'Origins-Pattern';
+                this.allPattern = '"origin=*";';
             } else {
-                // Unsupported distribution
                 console.error(`AptImpl: Unsupported distribution: ${distro}. Only Ubuntu and Debian are supported.`);
                 this.supported = false;
                 return;
             }
 
-            // Check timer status and configuration
+            // Check timer status and schedule
+            // - apt-daily.timer / apt-daily-upgrade.timer must both be enabled
+            // - OnCalendar= from the upgrade timer determines the schedule
+            // - APT::Periodic::Unattended-Upgrade must be "1" (not "0" or missing)
             const timerOutput = await cockpit.script(
                 "set -eu; " +
                 "if systemctl --quiet is-enabled apt-daily.timer 2>/dev/null; then echo update-enabled; fi; " +
                 "if systemctl --quiet is-enabled apt-daily-upgrade.timer 2>/dev/null; then echo upgrade-enabled; fi; " +
-                "systemctl cat apt-daily-upgrade.timer 2>/dev/null | grep '^OnCalendar=' | tail -n1 || true; ",
+                "systemctl cat apt-daily-upgrade.timer 2>/dev/null | grep '^OnCalendar=' | tail -n1 || true; " +
+                "apt-config dump APT::Periodic::Unattended-Upgrade 2>/dev/null || true; ",
                 [], { err: "message" });
 
             const updateTimerEnabled = timerOutput.includes("update-enabled");
             const upgradeTimerEnabled = timerOutput.includes("upgrade-enabled");
-            this.enabled = (updateTimerEnabled && upgradeTimerEnabled);
+
+            const periodicMatch = timerOutput.match(/APT::Periodic::Unattended-Upgrade\s+"(\d+)"/);
+            const periodicEnabled = periodicMatch ? periodicMatch[1] !== "0" : false;
+
+            this.enabled = (updateTimerEnabled && upgradeTimerEnabled && periodicEnabled);
 
             // Parse timer schedule
             const calIdx = timerOutput.indexOf("OnCalendar=");
@@ -407,26 +397,29 @@ class AptImpl extends ImplBase {
                 this.supported = false;
             }
 
-            // Get unattended-upgrades configuration
-            const aptConfigOutput = await cockpit.script(
-                `apt-config dump | grep "Unattended-Upgrade::${this.originsPatterns.configKey}:: "`,
-                [], { superuser: "require", err: "message" });
+            // Check apt config: effective origins, and #clear overrides
+            // - Wildcard in effective origins -> "all"
+            // - No `#clear` of origins -> "security" (stock config)
+            const aptOutput = await cockpit.script(
+                `apt-config dump Unattended-Upgrade::${this.configKey} 2>/dev/null || true; ` +
+                `grep -rq '^#clear Unattended-Upgrade::${this.configKey}' /etc/apt/apt.conf.d/ && echo has-clear || true`,
+                [], { err: "message" });
 
-            // Determine upgrade type based on configuration patterns
-            const allUpgrades = aptConfigOutput.includes(this.originsPatterns.all);
-            let securityUpgrades = false;
+            const dumpHasWildcard = aptOutput.includes(this.allPattern);
+            const hasClear = aptOutput.includes("has-clear");
 
-            // Check for stable and security patterns
-            securityUpgrades = aptConfigOutput.includes(this.originsPatterns.stable) &&
-                this.originsPatterns.security.every(pattern => aptConfigOutput.includes(pattern));
-
-            if (allUpgrades) {
+            if (dumpHasWildcard) {
+                // Wildcard is active -> "all updates"
                 this.type = "all";
-            } else if (securityUpgrades) {
+            } else if (!hasClear) {
+                // No `#clear` of origins -> stock origins present -> "security"
                 this.type = "security";
+            } else {
+                // `#clear` of origins without wildcard -> we dont manage this
+                this.supported = false;
             }
 
-            debug(`apt getConfig: distro ${distro}, supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}, raw timer output: '${timerOutput}'; raw apt-config output: '${aptConfigOutput}'`);
+            debug(`apt getConfig: distro ${distro}, supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; timerOutput: '${timerOutput}'; aptOutput: '${aptOutput}'`);
         } catch (error) {
             console.error("AptImpl: getConfig failed:", error);
             this.supported = false;
@@ -434,38 +427,23 @@ class AptImpl extends ImplBase {
     }
 
     async setConfig(enabled, type, day, time) {
-        this.defaultConfigFile = "/etc/apt/apt.conf.d/50unattended-upgrades";
-        this.configFile = "/etc/apt/apt.conf.d/52unattended-upgrades-cockpit";
-
         let script = "set -e; ";
 
         if (type !== null) {
-            if (!this.originsPatterns) {
-                console.error("Patterns not initialized");
-                return;
-            }
-
-            // Configure upgrade origins based on update type in our override file
+            // Build our custom config file
             script += "cat > " + this.configFile + " << 'EOF'\n";
             script += "// Cockpit managed configuration\n";
-            // Clear the configuration as they get merged otherwise
-            script += `#clear Unattended-Upgrade::${this.originsPatterns.configKey};\n`;
-            script += `Unattended-Upgrade::${this.originsPatterns.configKey} {\n`;
+            script += 'Unattended-Upgrade::Automatic-Reboot "true";\n\n';
+            script += 'APT::Periodic::Update-Package-Lists "1";\n';
+            script += 'APT::Periodic::Unattended-Upgrade "1";\n';
 
             if (type === "all") {
-                script += `        ${this.originsPatterns.all}\n`;
-            } else {
-                // Only security upgrades which includes stable and all security patterns
-                script += `        ${this.originsPatterns.stable}\n`;
-                this.originsPatterns.security.forEach(securityPattern => {
-                    script += `        ${securityPattern}\n`;
-                });
+                // add wildcard pattern
+                script += `Unattended-Upgrade::${this.configKey} {\n`;
+                script += `        ${this.allPattern}\n`;
+                script += "};\n";
             }
-            script += "};\n\n";
-
-            // Enable Automatic reboot (to conform to current dnf implementation)
-            script += "// Enable automatic reboot when required\n";
-            script += 'Unattended-Upgrade::Automatic-Reboot "true";\n';
+            // "security" mode: no custom origins -> default 50-config takes effect
             script += "EOF\n";
         }
 

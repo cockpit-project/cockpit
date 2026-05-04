@@ -110,10 +110,16 @@ class TestShutdownRestart(testlib.MachineCase):
         b.wait_not_present("#delay-helper")
 
         # Try to insert an invalid date
+        old_date = b.val(".shutdown-date-picker input")
         b.set_input_text(".shutdown-date-picker input", "20/0x/2021")
         b.wait_val(".shutdown-date-picker input", "20/0x/2021")
         b.wait_text("#delay-helper", "Invalid date format")
         b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:disabled")
+
+        # Restore the valid date before opening the picker, to avoid
+        # https://github.com/cockpit-project/cockpit/issues/23205
+        b.set_input_text(".shutdown-date-picker input", old_date)
+        b.wait_not_present("#delay-helper")
 
         # Insert a date using the widget dropdown
         b.click("button[aria-label='Toggle date picker']")

@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-24 12:30+0000\n"
-"PO-Revision-Date: 2026-04-24 16:58+0000\n"
+"POT-Creation-Date: 2026-04-30 07:09+0000\n"
+"PO-Revision-Date: 2026-04-29 12:03+0000\n"
 "Last-Translator: Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>\n"
 "Language-Team: Romanian <https://translate.fedoraproject.org/projects/"
 "cockpit/cockpit/ro/>\n"
@@ -97,8 +97,8 @@ msgstr[0] "$0 disc prezintă probleme"
 msgstr[1] "$0 discuri prezintă probleme"
 msgstr[2] "$0 de discuri prezintă probleme"
 
-#: pkg/storaged/mdraid/mdraid.jsx:260 pkg/playground/translate.js:27
-#: pkg/playground/translate.js:30
+#: pkg/playground/translate.js:27 pkg/playground/translate.js:30
+#: pkg/storaged/mdraid/mdraid.jsx:260
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 disc lipsește"
@@ -178,17 +178,17 @@ msgstr "$0 ore"
 msgid "$0 is an existing file"
 msgstr "$0 este un fișier existent"
 
+#: pkg/storaged/btrfs/volume.jsx:56 pkg/storaged/stratis/pool.jsx:438
+#: pkg/storaged/stratis/filesystem.jsx:102 pkg/storaged/crypto/actions.jsx:57
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:36
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:70
+#: pkg/storaged/partitions/format-disk-dialog.jsx:25
+#: pkg/storaged/partitions/partition.jsx:33 pkg/storaged/mdraid/mdraid.jsx:49
+#: pkg/storaged/mdraid/mdraid.jsx:109 pkg/storaged/block/format-dialog.jsx:198
+#: pkg/storaged/block/resize.jsx:423 pkg/storaged/block/resize.jsx:573
+#: pkg/storaged/lvm2/volume-group.jsx:73 pkg/storaged/lvm2/volume-group.jsx:304
 #: pkg/storaged/lvm2/block-logical-volume.jsx:54
 #: pkg/storaged/lvm2/block-logical-volume.jsx:137
-#: pkg/storaged/lvm2/volume-group.jsx:73 pkg/storaged/lvm2/volume-group.jsx:304
-#: pkg/storaged/stratis/pool.jsx:438 pkg/storaged/stratis/filesystem.jsx:102
-#: pkg/storaged/crypto/actions.jsx:57 pkg/storaged/legacy-vdo/legacy-vdo.jsx:36
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:70
-#: pkg/storaged/partitions/partition.jsx:33
-#: pkg/storaged/partitions/format-disk-dialog.jsx:25
-#: pkg/storaged/mdraid/mdraid.jsx:49 pkg/storaged/mdraid/mdraid.jsx:109
-#: pkg/storaged/btrfs/volume.jsx:56 pkg/storaged/block/format-dialog.jsx:198
-#: pkg/storaged/block/resize.jsx:423 pkg/storaged/block/resize.jsx:573
 msgid "$0 is in use"
 msgstr "$0 este în uz"
 
@@ -201,7 +201,7 @@ msgstr "$0 nu este un director"
 msgid "$0 is not available from any repository."
 msgstr "$0 nu este disponibil din niciun depozit."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:113 pkg/static/login.js:824
+#: pkg/static/login.js:824 pkg/lib/cockpit-connect-ssh.tsx:113
 #: pkg/shell/hosts_dialog.jsx:653
 msgid "$0 key changed"
 msgstr "Cheia $0 a fost schimbată"
@@ -741,10 +741,10 @@ msgstr "Conturi"
 msgid "Action"
 msgstr "Acțiune"
 
-#: pkg/users/accounts-list.js:360 pkg/apps/application-list.jsx:132
-#: pkg/storaged/pages.jsx:716 pkg/storaged/drive/smart-details.jsx:92
+#: pkg/users/accounts-list.js:360 pkg/storaged/drive/smart-details.jsx:92
+#: pkg/storaged/pages.jsx:716 pkg/networkmanager/firewall.jsx:198
 #: pkg/networkmanager/network-interface.jsx:1085
-#: pkg/networkmanager/firewall.jsx:198
+#: pkg/apps/application-list.jsx:132
 msgid "Actions"
 msgstr "Acțiuni"
 
@@ -760,16 +760,16 @@ msgstr "Activează înainte de redimensionare"
 msgid "Activating $target"
 msgstr "Se activează $target"
 
-#: pkg/networkmanager/interfaces.js:891 pkg/networkmanager/team.jsx:36
+#: pkg/networkmanager/team.jsx:36 pkg/networkmanager/interfaces.js:891
 msgid "Active"
 msgstr "Activ"
 
-#: pkg/networkmanager/team.jsx:27 pkg/networkmanager/bond.jsx:30
+#: pkg/networkmanager/bond.jsx:30 pkg/networkmanager/team.jsx:27
 msgid "Active backup"
 msgstr "Copiere de rezervă activă"
 
-#: pkg/shell/topnav.tsx:205 pkg/shell/active-pages-modal.tsx:97
-#: pkg/shell/active-pages-modal.tsx:101
+#: pkg/shell/active-pages-modal.tsx:97 pkg/shell/active-pages-modal.tsx:101
+#: pkg/shell/topnav.tsx:205
 msgid "Active pages"
 msgstr "Pagini active"
 
@@ -792,11 +792,11 @@ msgstr "Echilibrarea adaptivă a sarcinii de transmisie"
 
 #: pkg/systemd/timer-dialog.jsx:340 pkg/users/authorized-keys-panel.js:54
 #: pkg/storaged/iscsi/create-dialog.jsx:106
-#: pkg/storaged/iscsi/create-dialog.jsx:130 pkg/storaged/nfs/nfs.jsx:174
-#: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/stratis/pool.jsx:512
+#: pkg/storaged/iscsi/create-dialog.jsx:130 pkg/storaged/stratis/pool.jsx:512
 #: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:784
-#: pkg/storaged/mdraid/mdraid.jsx:160 pkg/networkmanager/dialogs-common.jsx:143
-#: pkg/shell/credentials.tsx:78 pkg/shell/hosts_dialog.jsx:437
+#: pkg/storaged/nfs/nfs.jsx:174 pkg/storaged/mdraid/mdraid.jsx:160
+#: pkg/storaged/lvm2/volume-group.jsx:197 pkg/shell/hosts_dialog.jsx:437
+#: pkg/shell/credentials.tsx:78 pkg/networkmanager/dialogs-common.jsx:143
 msgid "Add"
 msgstr "Adaugă"
 
@@ -851,7 +851,7 @@ msgstr "Adaugă dispozitive de blocuri"
 msgid "Add bond"
 msgstr "Adăugare legătură"
 
-#: pkg/networkmanager/bridge.jsx:81 pkg/networkmanager/network-main.jsx:159
+#: pkg/networkmanager/network-main.jsx:159 pkg/networkmanager/bridge.jsx:81
 msgid "Add bridge"
 msgstr "Adaugă punte"
 
@@ -859,7 +859,7 @@ msgstr "Adaugă punte"
 msgid "Add disk"
 msgstr "Adaugă un disc"
 
-#: pkg/storaged/lvm2/volume-group.jsx:184 pkg/storaged/mdraid/mdraid.jsx:147
+#: pkg/storaged/mdraid/mdraid.jsx:147 pkg/storaged/lvm2/volume-group.jsx:184
 msgid "Add disks"
 msgstr "Adaugă discuri"
 
@@ -881,7 +881,7 @@ msgstr "Adaugă server de chei"
 msgid "Add member"
 msgstr "Adaugă membru"
 
-#: pkg/shell/hosts.tsx:259 pkg/shell/hosts_dialog.jsx:436
+#: pkg/shell/hosts_dialog.jsx:436 pkg/shell/hosts.tsx:259
 msgid "Add new host"
 msgstr "Adaugă o nouă gazdă"
 
@@ -936,7 +936,7 @@ msgstr "Adaugă servicii la zona $0"
 msgid "Add services to zone $0"
 msgstr "Adaugă servicii la zona $0"
 
-#: pkg/networkmanager/team.jsx:139 pkg/networkmanager/network-main.jsx:158
+#: pkg/networkmanager/network-main.jsx:158 pkg/networkmanager/team.jsx:139
 msgid "Add team"
 msgstr "Adaugă echipă"
 
@@ -1173,8 +1173,8 @@ msgstr "Aspect"
 msgid "Application information is missing"
 msgstr "Lipsesc informațiile privind aplicația"
 
-#: pkg/apps/index.html:9 pkg/apps/application-list.jsx:214
-#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
+#: pkg/apps/index.html:9 pkg/apps/application.jsx:147
+#: pkg/apps/application-list.jsx:214 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Aplicații"
 
@@ -1241,9 +1241,9 @@ msgstr[2] "Sunt necesare cel puțin $0 de discuri."
 msgid "At least one block device is needed."
 msgstr "Este necesar cel puțin un dispozitiv de blocuri."
 
+#: pkg/storaged/stratis/pool.jsx:503 pkg/storaged/mdraid/mdraid.jsx:154
+#: pkg/storaged/lvm2/volume-group.jsx:191
 #: pkg/storaged/lvm2/create-dialog.jsx:43
-#: pkg/storaged/lvm2/volume-group.jsx:191 pkg/storaged/stratis/pool.jsx:503
-#: pkg/storaged/mdraid/mdraid.jsx:154
 msgid "At least one disk is needed."
 msgstr "Este nevoie de cel puțin un disc."
 
@@ -1326,8 +1326,8 @@ msgstr "Cheile publice SSH autorizate"
 
 #: pkg/networkmanager/ip-settings.jsx:28 pkg/networkmanager/ip-settings.jsx:296
 #: pkg/networkmanager/ip-settings.jsx:342
-#: pkg/networkmanager/ip-settings.jsx:388 pkg/networkmanager/mtu.jsx:65
-#: pkg/networkmanager/network-interface.jsx:582
+#: pkg/networkmanager/ip-settings.jsx:388
+#: pkg/networkmanager/network-interface.jsx:582 pkg/networkmanager/mtu.jsx:65
 msgid "Automatic"
 msgstr "Automat"
 
@@ -1437,8 +1437,9 @@ msgstr "Dispozitiv de blocuri"
 msgid "Block device for filesystems"
 msgstr "Dispozitiv de blocuri pentru sisteme de fișiere"
 
-#: pkg/storaged/stratis/create-dialog.jsx:79 pkg/storaged/stratis/pool.jsx:499
-#: pkg/storaged/stratis/pool.jsx:1051 pkg/storaged/stratis/stopped-pool.jsx:190
+#: pkg/storaged/stratis/pool.jsx:499 pkg/storaged/stratis/pool.jsx:1051
+#: pkg/storaged/stratis/create-dialog.jsx:79
+#: pkg/storaged/stratis/stopped-pool.jsx:190
 msgid "Block devices"
 msgstr "Dispozitive de blocuri"
 
@@ -1486,7 +1487,7 @@ msgstr "Portul punții"
 msgid "Bridge port settings"
 msgstr "Configurarea portului punții"
 
-#: pkg/networkmanager/team.jsx:29 pkg/networkmanager/bond.jsx:32
+#: pkg/networkmanager/bond.jsx:32 pkg/networkmanager/team.jsx:29
 msgid "Broadcast"
 msgstr "Difuzare"
 
@@ -1521,7 +1522,7 @@ msgstr ""
 msgid "Bypass browser check"
 msgstr "Omite verificarea navigatorului"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:119 pkg/systemd/hwinfo.jsx:102
+#: pkg/systemd/hwinfo.jsx:102 pkg/systemd/overview-cards/usageCard.jsx:119
 #: pkg/metrics/metrics.jsx:100 pkg/metrics/metrics.jsx:770
 #: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1934
 msgid "CPU"
@@ -1561,30 +1562,30 @@ msgstr ""
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Nu se pot găsi jurnale folosind combinația actuală de filtre."
 
-#: pkg/static/login.html:156 pkg/systemd/terminal.jsx:304
+#: pkg/static/login.html:156 pkg/sosreport/sosreport.jsx:282
+#: pkg/sosreport/sosreport.jsx:370 pkg/kdump/kdump-view.jsx:313
+#: pkg/systemd/hwinfo.jsx:221 pkg/systemd/terminal.jsx:304
 #: pkg/systemd/overview-cards/realmd.jsx:441
-#: pkg/systemd/overview-cards/motdCard.jsx:63
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:217
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:311
 #: pkg/systemd/overview-cards/configurationCard.jsx:292
-#: pkg/systemd/hwinfo.jsx:221 pkg/systemd/timer-dialog.jsx:376
+#: pkg/systemd/overview-cards/motdCard.jsx:63
+#: pkg/systemd/overview-cards/tuned-dialog.jsx:311
 #: pkg/systemd/service-details.jsx:83 pkg/systemd/service-details.jsx:811
-#: pkg/kdump/kdump-view.jsx:313 pkg/lib/superuser-dialogs.tsx:213
-#: pkg/lib/superuser-dialogs.tsx:250 pkg/lib/superuser-dialogs.tsx:306
+#: pkg/systemd/timer-dialog.jsx:376 pkg/metrics/metrics.jsx:1490
 #: pkg/lib/cockpit-components-shutdown.jsx:223
 #: pkg/lib/cockpit-connect-ssh.tsx:175 pkg/lib/cockpit-connect-ssh.tsx:488
-#: pkg/lib/cockpit/dialog.tsx:1417 pkg/lib/cockpit-components-dialog.jsx:114
-#: pkg/packagekit/autoupdates.jsx:441 pkg/packagekit/kpatch.tsx:331
-#: pkg/packagekit/updates.jsx:516 pkg/packagekit/updates.jsx:549
-#: pkg/apps/utils.tsx:78 pkg/storaged/jobs-panel.jsx:126
-#: pkg/sosreport/sosreport.jsx:282 pkg/sosreport/sosreport.jsx:370
+#: pkg/lib/cockpit-components-dialog.jsx:114 pkg/lib/cockpit/dialog.tsx:1417
+#: pkg/lib/superuser-dialogs.tsx:213 pkg/lib/superuser-dialogs.tsx:250
+#: pkg/lib/superuser-dialogs.tsx:306 pkg/storaged/jobs-panel.jsx:126
+#: pkg/shell/hosts_dialog.jsx:275 pkg/shell/hosts_dialog.jsx:477
+#: pkg/shell/hosts_dialog.jsx:574 pkg/shell/hosts_dialog.jsx:710
+#: pkg/shell/hosts_dialog.jsx:1089 pkg/shell/active-pages-modal.tsx:112
+#: pkg/shell/shell-modals.tsx:172 pkg/shell/credentials.tsx:229
 #: pkg/networkmanager/dialogs-common.jsx:146
 #: pkg/networkmanager/firewall.jsx:728 pkg/networkmanager/firewall.jsx:918
-#: pkg/networkmanager/firewall.jsx:942 pkg/shell/shell-modals.tsx:172
-#: pkg/shell/credentials.tsx:229 pkg/shell/hosts_dialog.jsx:275
-#: pkg/shell/hosts_dialog.jsx:477 pkg/shell/hosts_dialog.jsx:574
-#: pkg/shell/hosts_dialog.jsx:710 pkg/shell/hosts_dialog.jsx:1089
-#: pkg/shell/active-pages-modal.tsx:112 pkg/metrics/metrics.jsx:1490
+#: pkg/networkmanager/firewall.jsx:942 pkg/packagekit/kpatch.tsx:331
+#: pkg/packagekit/autoupdates.jsx:441 pkg/packagekit/updates.jsx:516
+#: pkg/packagekit/updates.jsx:549 pkg/apps/utils.tsx:78
 msgid "Cancel"
 msgstr "Anulează"
 
@@ -1619,8 +1620,8 @@ msgstr ""
 msgid "Cannot schedule event in the past"
 msgstr "Nu se poate planifica un eveniment în trecut"
 
-#: pkg/storaged/lvm2/volume-group.jsx:355 pkg/storaged/drive/drive.jsx:113
-#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/btrfs/volume.jsx:192
+#: pkg/storaged/btrfs/volume.jsx:192 pkg/storaged/drive/drive.jsx:113
+#: pkg/storaged/mdraid/mdraid.jsx:296 pkg/storaged/lvm2/volume-group.jsx:355
 msgid "Capacity"
 msgstr "Capacitate"
 
@@ -1834,14 +1835,13 @@ msgstr "Software client"
 
 #: pkg/systemd/overview-cards/realmd.jsx:307
 #: pkg/systemd/overview-cards/configurationCard.jsx:188
-#: pkg/users/dialog-utils.js:44 pkg/lib/superuser-dialogs.tsx:221
+#: pkg/users/dialog-utils.js:44 pkg/lib/cockpit-components-terminal.tsx:349
+#: pkg/lib/cockpit-connect-ssh.tsx:513 pkg/lib/superuser-dialogs.tsx:221
 #: pkg/lib/superuser-dialogs.tsx:229
-#: pkg/lib/cockpit-components-terminal.tsx:349
-#: pkg/lib/cockpit-connect-ssh.tsx:513
-#: pkg/lib/cockpit-components-modifications.tsx:68 pkg/apps/utils.tsx:126
-#: pkg/storaged/dialog.jsx:490 pkg/networkmanager/interfaces.js:29
-#: pkg/shell/shell-modals.tsx:198 pkg/shell/credentials.tsx:336
-#: pkg/shell/hosts_dialog.jsx:206
+#: pkg/lib/cockpit-components-modifications.tsx:68 pkg/storaged/dialog.jsx:490
+#: pkg/shell/hosts_dialog.jsx:206 pkg/shell/shell-modals.tsx:198
+#: pkg/shell/credentials.tsx:336 pkg/networkmanager/interfaces.js:29
+#: pkg/apps/utils.tsx:126
 msgid "Close"
 msgstr "Închide"
 
@@ -1982,9 +1982,9 @@ msgstr ""
 "Comprimă fișierele cu conținutul memoriei în momentul apariției unei erori "
 "fatale ale sistemului pentru a economisi spațiu"
 
-#: pkg/kdump/kdump-view.jsx:292
+#: pkg/kdump/kdump-view.jsx:292 pkg/storaged/legacy-vdo/legacy-vdo.jsx:311
+#: pkg/storaged/lvm2/vdo-pool.jsx:70
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:223
-#: pkg/storaged/lvm2/vdo-pool.jsx:70 pkg/storaged/legacy-vdo/legacy-vdo.jsx:311
 msgid "Compression"
 msgstr "Comprimare"
 
@@ -2016,8 +2016,9 @@ msgstr "Se configurează «kdump»"
 msgid "Configuring system settings"
 msgstr "Se configurează parametrii sistemului"
 
-#: pkg/storaged/stratis/create-dialog.jsx:106 pkg/storaged/stratis/pool.jsx:858
-#: pkg/storaged/stratis/pool.jsx:888 pkg/storaged/block/format-dialog.jsx:331
+#: pkg/storaged/stratis/pool.jsx:858 pkg/storaged/stratis/pool.jsx:888
+#: pkg/storaged/stratis/create-dialog.jsx:106
+#: pkg/storaged/block/format-dialog.jsx:331
 msgid "Confirm"
 msgstr "Confirmă"
 
@@ -2061,9 +2062,9 @@ msgstr "În conflict cu"
 msgid "Conflicts"
 msgstr "Conflicte"
 
-#: pkg/networkmanager/network-interface.jsx:206
+#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:206
 #: pkg/networkmanager/network-interface.jsx:992
-#: pkg/networkmanager/network-interface.jsx:993 pkg/shell/hosts_dialog.jsx:272
+#: pkg/networkmanager/network-interface.jsx:993
 msgid "Connect"
 msgstr "Conectare"
 
@@ -2172,18 +2173,18 @@ msgstr "Convertibil"
 
 #: pkg/lib/cockpit-connect-ssh.tsx:121 pkg/lib/cockpit-connect-ssh.tsx:124
 #: pkg/lib/cockpit-connect-ssh.tsx:139 pkg/lib/cockpit-connect-ssh.tsx:141
-#: pkg/shell/credentials.tsx:106 pkg/shell/failures.tsx:37
-#: pkg/shell/hosts_dialog.jsx:664 pkg/shell/hosts_dialog.jsx:667
-#: pkg/shell/hosts_dialog.jsx:682 pkg/shell/hosts_dialog.jsx:684
+#: pkg/shell/failures.tsx:37 pkg/shell/hosts_dialog.jsx:664
+#: pkg/shell/hosts_dialog.jsx:667 pkg/shell/hosts_dialog.jsx:682
+#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/credentials.tsx:106
 msgid "Copied"
 msgstr "Copiat"
 
 #: pkg/lib/cockpit-components-terminal.tsx:327
 #: pkg/lib/cockpit-connect-ssh.tsx:121 pkg/lib/cockpit-connect-ssh.tsx:124
 #: pkg/lib/cockpit-connect-ssh.tsx:139 pkg/lib/cockpit-connect-ssh.tsx:141
-#: pkg/shell/credentials.tsx:106 pkg/shell/failures.tsx:37
-#: pkg/shell/hosts_dialog.jsx:664 pkg/shell/hosts_dialog.jsx:667
-#: pkg/shell/hosts_dialog.jsx:682 pkg/shell/hosts_dialog.jsx:684
+#: pkg/shell/failures.tsx:37 pkg/shell/hosts_dialog.jsx:664
+#: pkg/shell/hosts_dialog.jsx:667 pkg/shell/hosts_dialog.jsx:682
+#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/credentials.tsx:106
 msgid "Copy"
 msgstr "Copiază"
 
@@ -2210,16 +2211,16 @@ msgstr ""
 msgid "Crash system"
 msgstr "Cădere iminentă a sistemului"
 
-#: pkg/users/account-create-dialog.js:467 pkg/users/group-create-dialog.js:127
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:263
-#: pkg/storaged/lvm2/create-dialog.jsx:49
-#: pkg/storaged/lvm2/volume-group.jsx:108
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
-#: pkg/storaged/stratis/create-dialog.jsx:142 pkg/storaged/stratis/pool.jsx:357
+#: pkg/users/group-create-dialog.js:127 pkg/users/account-create-dialog.js:467
+#: pkg/storaged/btrfs/subvolume.jsx:136 pkg/storaged/stratis/pool.jsx:357
+#: pkg/storaged/stratis/create-dialog.jsx:142
 #: pkg/storaged/mdraid/create-dialog.jsx:98
-#: pkg/storaged/btrfs/subvolume.jsx:136
 #: pkg/storaged/block/format-dialog.jsx:261
 #: pkg/storaged/block/format-dialog.jsx:271
+#: pkg/storaged/lvm2/volume-group.jsx:108
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:44
+#: pkg/storaged/lvm2/create-dialog.jsx:49
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:263
 msgid "Create"
 msgstr "Creează"
 
@@ -2264,7 +2265,7 @@ msgstr "Creează un cont cu o parolă slabă"
 msgid "Create and change ownership of home directory"
 msgstr "Creează și schimbă proprietarul directorului personal"
 
-#: pkg/storaged/stratis/pool.jsx:352 pkg/storaged/btrfs/subvolume.jsx:130
+#: pkg/storaged/btrfs/subvolume.jsx:130 pkg/storaged/stratis/pool.jsx:352
 #: pkg/storaged/block/format-dialog.jsx:256
 msgid "Create and mount"
 msgstr "Creează și montează"
@@ -2285,7 +2286,7 @@ msgstr "Creează-l"
 msgid "Create logical volume"
 msgstr "Creează un volum logic"
 
-#: pkg/users/accounts-list.js:411 pkg/users/account-create-dialog.js:452
+#: pkg/users/account-create-dialog.js:452 pkg/users/accounts-list.js:411
 msgid "Create new account"
 msgstr "Creează un cont nou"
 
@@ -2293,7 +2294,7 @@ msgstr "Creează un cont nou"
 msgid "Create new filesystem"
 msgstr "Creează un sistem de fișiere nou"
 
-#: pkg/users/accounts-list.js:278 pkg/users/group-create-dialog.js:120
+#: pkg/users/group-create-dialog.js:120 pkg/users/accounts-list.js:278
 msgid "Create new group"
 msgstr "Creează un grup nou"
 
@@ -2309,7 +2310,7 @@ msgstr "Creează un fișier de sarcini nou cu acest conținut."
 msgid "Create new thinly provisioned logical volume"
 msgstr "Creează un volum logic alocat dinamic nou"
 
-#: pkg/storaged/stratis/pool.jsx:353 pkg/storaged/btrfs/subvolume.jsx:131
+#: pkg/storaged/btrfs/subvolume.jsx:131 pkg/storaged/stratis/pool.jsx:353
 #: pkg/storaged/block/format-dialog.jsx:257
 #: pkg/storaged/block/format-dialog.jsx:266
 msgid "Create only"
@@ -2506,8 +2507,8 @@ msgstr "Întunecată"
 msgid "Data"
 msgstr "Date"
 
-#: pkg/storaged/lvm2/vdo-pool.jsx:66
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:129
+#: pkg/storaged/lvm2/vdo-pool.jsx:66
 msgid "Data used"
 msgstr "Date utilizate"
 
@@ -2591,9 +2592,9 @@ msgstr ""
 "„today” (azi) și „tomorrow” (mâine). „now” (acum) se referă la ora curentă. "
 "În cele din urmă, se pot specifica ore relative, precedate de „-” sau „+”"
 
+#: pkg/storaged/lvm2/unsupported-logical-volume.jsx:29
 #: pkg/storaged/lvm2/block-logical-volume.jsx:147
 #: pkg/storaged/lvm2/block-logical-volume.jsx:202
-#: pkg/storaged/lvm2/unsupported-logical-volume.jsx:29
 msgid "Deactivate"
 msgstr "Dezactivează"
 
@@ -2621,8 +2622,8 @@ msgstr "Reduce cu unu"
 msgid "Dedicated parity (RAID 4)"
 msgstr "Paritate dedicată (RAID 4)"
 
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:320 pkg/storaged/lvm2/vdo-pool.jsx:74
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:228
-#: pkg/storaged/lvm2/vdo-pool.jsx:74 pkg/storaged/legacy-vdo/legacy-vdo.jsx:320
 msgid "Deduplication"
 msgstr "Deduplicare"
 
@@ -2643,15 +2644,11 @@ msgstr "Întârziere"
 msgid "Delay must be a number"
 msgstr "Întârzierea trebuie să fie un număr"
 
+#: pkg/sosreport/sosreport.jsx:364 pkg/sosreport/sosreport.jsx:463
 #: pkg/systemd/service-details.jsx:156 pkg/systemd/service-details.jsx:809
-#: pkg/users/account-details.js:232 pkg/users/delete-account-dialog.js:46
-#: pkg/users/delete-group-dialog.js:37
-#: pkg/storaged/lvm2/block-logical-volume.jsx:65
-#: pkg/storaged/lvm2/block-logical-volume.jsx:208
-#: pkg/storaged/lvm2/volume-group.jsx:85
-#: pkg/storaged/lvm2/unsupported-logical-volume.jsx:30
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:95
-#: pkg/storaged/lvm2/inactive-logical-volume.jsx:28
+#: pkg/users/account-details.js:232 pkg/users/delete-group-dialog.js:37
+#: pkg/users/delete-account-dialog.js:46 pkg/storaged/btrfs/volume.jsx:67
+#: pkg/storaged/btrfs/subvolume.jsx:239 pkg/storaged/btrfs/subvolume.jsx:386
 #: pkg/storaged/stratis/pool.jsx:450 pkg/storaged/stratis/filesystem.jsx:114
 #: pkg/storaged/stratis/filesystem.jsx:158
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:108
@@ -2660,12 +2657,15 @@ msgstr "Întârzierea trebuie să fie un număr"
 #: pkg/storaged/partitions/partition.jsx:98
 #: pkg/storaged/partitions/partition-table.jsx:48
 #: pkg/storaged/mdraid/mdraid.jsx:119 pkg/storaged/mdraid/mdraid.jsx:226
-#: pkg/storaged/btrfs/subvolume.jsx:239 pkg/storaged/btrfs/subvolume.jsx:386
-#: pkg/storaged/btrfs/volume.jsx:67 pkg/sosreport/sosreport.jsx:364
-#: pkg/sosreport/sosreport.jsx:463
-#: pkg/networkmanager/network-interface.jsx:1238
+#: pkg/storaged/lvm2/volume-group.jsx:85
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:95
+#: pkg/storaged/lvm2/inactive-logical-volume.jsx:28
+#: pkg/storaged/lvm2/unsupported-logical-volume.jsx:30
+#: pkg/storaged/lvm2/block-logical-volume.jsx:65
+#: pkg/storaged/lvm2/block-logical-volume.jsx:208
 #: pkg/networkmanager/firewall.jsx:105 pkg/networkmanager/firewall.jsx:151
 #: pkg/networkmanager/firewall.jsx:165 pkg/networkmanager/firewall.jsx:939
+#: pkg/networkmanager/network-interface.jsx:1238
 msgid "Delete"
 msgstr "Șterge"
 
@@ -2771,9 +2771,9 @@ msgstr "Calculator de birou"
 msgid "Detachable"
 msgstr "Detașabil (amovibil)"
 
-#: pkg/systemd/overview-cards/realmd.jsx:404 pkg/packagekit/updates.jsx:420
+#: pkg/systemd/overview-cards/realmd.jsx:404 pkg/shell/credentials.tsx:299
 #: pkg/networkmanager/network-main.jsx:204
-#: pkg/networkmanager/network-main.jsx:220 pkg/shell/credentials.tsx:299
+#: pkg/networkmanager/network-main.jsx:220 pkg/packagekit/updates.jsx:420
 msgid "Details"
 msgstr "Detalii"
 
@@ -2781,8 +2781,8 @@ msgstr "Detalii"
 msgid "Development"
 msgstr "Dezvoltare"
 
-#: pkg/storaged/dialog.jsx:1217 pkg/storaged/dialog.jsx:1336
-#: pkg/storaged/mdraid/mdraid.jsx:295 pkg/metrics/metrics.jsx:735
+#: pkg/metrics/metrics.jsx:735 pkg/storaged/dialog.jsx:1217
+#: pkg/storaged/dialog.jsx:1336 pkg/storaged/mdraid/mdraid.jsx:295
 msgid "Device"
 msgstr "Dispozitiv"
 
@@ -2790,7 +2790,7 @@ msgstr "Dispozitiv"
 msgid "Device contains unrecognized data"
 msgstr "Dispozitivul conține date necunoscute"
 
-#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:273 pkg/storaged/drive/drive.jsx:119
+#: pkg/storaged/drive/drive.jsx:119 pkg/storaged/legacy-vdo/legacy-vdo.jsx:273
 #: pkg/storaged/block/other.jsx:48
 msgid "Device file"
 msgstr "Fișier de dispozitiv"
@@ -2837,12 +2837,12 @@ msgstr "Dezactivează paravanul de protecție"
 msgid "Disable tuned"
 msgstr "Dezactivează „tuned”"
 
-#: pkg/systemd/services.jsx:231 pkg/systemd/services.jsx:680
-#: pkg/systemd/service-details.jsx:505 pkg/kdump/kdump-view.jsx:544
-#: pkg/packagekit/autoupdates.jsx:456 pkg/packagekit/kpatch.tsx:263
-#: pkg/networkmanager/ip-settings.jsx:34
+#: pkg/kdump/kdump-view.jsx:544 pkg/systemd/services.jsx:231
+#: pkg/systemd/services.jsx:680 pkg/systemd/service-details.jsx:505
 #: pkg/networkmanager/firewall-switch.jsx:50
 #: pkg/networkmanager/firewall-switch.jsx:60
+#: pkg/networkmanager/ip-settings.jsx:34 pkg/packagekit/kpatch.tsx:263
+#: pkg/packagekit/autoupdates.jsx:456
 msgid "Disabled"
 msgstr "Dezactivat"
 
@@ -2887,10 +2887,10 @@ msgstr "Discul prezintă probleme"
 msgid "Disk passphrase"
 msgstr "Frază de acces pentru disc"
 
-#: pkg/storaged/lvm2/create-dialog.jsx:38
+#: pkg/metrics/metrics.jsx:868 pkg/storaged/mdraid/mdraid.jsx:149
+#: pkg/storaged/mdraid/mdraid.jsx:299 pkg/storaged/mdraid/create-dialog.jsx:85
 #: pkg/storaged/lvm2/volume-group.jsx:186
-#: pkg/storaged/mdraid/create-dialog.jsx:85 pkg/storaged/mdraid/mdraid.jsx:149
-#: pkg/storaged/mdraid/mdraid.jsx:299 pkg/metrics/metrics.jsx:868
+#: pkg/storaged/lvm2/create-dialog.jsx:38
 msgid "Disks"
 msgstr "Discuri"
 
@@ -3018,11 +3018,11 @@ msgstr "Rang dual"
 msgid "EFI system partition"
 msgstr "Partiția de sistem EFI"
 
-#: pkg/systemd/service-details.jsx:149 pkg/kdump/kdump-view.jsx:480
-#: pkg/packagekit/autoupdates.jsx:519 pkg/packagekit/kpatch.tsx:242
-#: pkg/storaged/nfs/nfs.jsx:298 pkg/storaged/crypto/keyslots.jsx:725
-#: pkg/networkmanager/firewall.jsx:103 pkg/shell/hosts.tsx:247
-#: pkg/shell/nav.tsx:413
+#: pkg/kdump/kdump-view.jsx:480 pkg/systemd/service-details.jsx:149
+#: pkg/storaged/crypto/keyslots.jsx:725 pkg/storaged/nfs/nfs.jsx:298
+#: pkg/shell/nav.tsx:413 pkg/shell/hosts.tsx:247
+#: pkg/networkmanager/firewall.jsx:103 pkg/packagekit/kpatch.tsx:242
+#: pkg/packagekit/autoupdates.jsx:519
 msgid "Edit"
 msgstr "Editare"
 
@@ -3066,9 +3066,8 @@ msgstr "Editează gazdele"
 msgid "Edit motd"
 msgstr "Editează motd"
 
-#: pkg/storaged/stratis/filesystem.jsx:144
+#: pkg/storaged/btrfs/subvolume.jsx:337 pkg/storaged/stratis/filesystem.jsx:144
 #: pkg/storaged/filesystem/filesystem.jsx:86
-#: pkg/storaged/btrfs/subvolume.jsx:337
 msgid "Edit mount point"
 msgstr "Editează punctul de montare"
 
@@ -3126,7 +3125,7 @@ msgstr "Parolă vidă"
 msgid "Emptying $target"
 msgstr "Se golește $target"
 
-#: pkg/packagekit/autoupdates.jsx:519 pkg/packagekit/kpatch.tsx:264
+#: pkg/packagekit/kpatch.tsx:264 pkg/packagekit/autoupdates.jsx:519
 msgid "Enable"
 msgstr "Activează"
 
@@ -3142,10 +3141,10 @@ msgstr "Activează serviciul"
 msgid "Enable the firewall"
 msgstr "Activează paravanul de protecție"
 
-#: pkg/systemd/services.jsx:229 pkg/systemd/services.jsx:230
-#: pkg/systemd/services.jsx:679 pkg/kdump/kdump-view.jsx:544
-#: pkg/packagekit/kpatch.tsx:266 pkg/networkmanager/firewall-switch.jsx:50
-#: pkg/networkmanager/firewall-switch.jsx:60
+#: pkg/kdump/kdump-view.jsx:544 pkg/systemd/services.jsx:229
+#: pkg/systemd/services.jsx:230 pkg/systemd/services.jsx:679
+#: pkg/networkmanager/firewall-switch.jsx:50
+#: pkg/networkmanager/firewall-switch.jsx:60 pkg/packagekit/kpatch.tsx:266
 msgid "Enabled"
 msgstr "Activat"
 
@@ -3247,10 +3246,10 @@ msgstr "Se șterge $target"
 msgid "Errata"
 msgstr "Erată"
 
-#: pkg/systemd/services.jsx:209 pkg/systemd/service-details.jsx:293
-#: pkg/apps/utils.tsx:120 pkg/storaged/multipath.jsx:46
-#: pkg/storaged/overview/overview.jsx:80 pkg/storaged/storage-controls.jsx:92
-#: pkg/storaged/storage-controls.jsx:145 pkg/sosreport/sosreport.jsx:385
+#: pkg/sosreport/sosreport.jsx:385 pkg/systemd/services.jsx:209
+#: pkg/systemd/service-details.jsx:293 pkg/storaged/multipath.jsx:46
+#: pkg/storaged/storage-controls.jsx:92 pkg/storaged/storage-controls.jsx:145
+#: pkg/storaged/overview/overview.jsx:80 pkg/apps/utils.tsx:120
 msgid "Error"
 msgstr "Eroare"
 
@@ -3271,8 +3270,8 @@ msgid "Error installing $0: PackageKit or dnf5daemon-server is not installed"
 msgstr ""
 "Eroare la instalarea $0: PackageKit sau dnf5daemon-server nu este instalat"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:162
 #: pkg/selinux/setroubleshoot-view.jsx:410
+#: pkg/systemd/overview-cards/configurationCard.jsx:162
 msgid "Error message"
 msgstr "Mesaj de eroare"
 
@@ -3590,8 +3589,8 @@ msgstr "Forțează schimbarea parolei"
 msgid "Forget"
 msgstr "Uită"
 
-#: pkg/storaged/block/actions.jsx:17 pkg/storaged/block/format-dialog.jsx:261
-#: pkg/storaged/block/format-dialog.jsx:271
+#: pkg/storaged/block/format-dialog.jsx:261
+#: pkg/storaged/block/format-dialog.jsx:271 pkg/storaged/block/actions.jsx:17
 msgid "Format"
 msgstr "Formatare"
 
@@ -3636,8 +3635,8 @@ msgstr "zilele de Vineri"
 msgid "From"
 msgstr "Din"
 
-#: pkg/users/account-details.js:253 pkg/users/accounts-list.js:356
-#: pkg/users/account-create-dialog.js:54
+#: pkg/users/account-details.js:253 pkg/users/account-create-dialog.js:54
+#: pkg/users/accounts-list.js:356
 msgid "Full name"
 msgstr "Numele complet"
 
@@ -3691,17 +3690,17 @@ msgstr "Numele grupului"
 msgid "Groups"
 msgstr "Grupuri"
 
-#: pkg/storaged/lvm2/vdo-pool.jsx:34
-#: pkg/storaged/lvm2/block-logical-volume.jsx:197
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:90
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:245
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:301
 #: pkg/storaged/partitions/partition.jsx:93 pkg/storaged/block/resize.jsx:519
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:90
+#: pkg/storaged/lvm2/vdo-pool.jsx:34
+#: pkg/storaged/lvm2/block-logical-volume.jsx:197
 msgid "Grow"
 msgstr "Augmenta"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:267
 #: pkg/storaged/partitions/partition.jsx:207
+#: pkg/storaged/lvm2/block-logical-volume.jsx:267
 msgid "Grow content"
 msgstr "Augmenta conținutul"
 
@@ -3780,7 +3779,7 @@ msgstr "Numărul de pachete din istoric"
 msgid "Home directory"
 msgstr "Directorul personal"
 
-#: pkg/shell/hosts.tsx:279 pkg/shell/hosts_dialog.jsx:440
+#: pkg/shell/hosts_dialog.jsx:440 pkg/shell/hosts.tsx:279
 msgid "Host"
 msgstr "Gazda"
 
@@ -3824,9 +3823,9 @@ msgstr "Cum se verifică"
 msgid "I confirm I want to lose this data forever"
 msgstr "Confirm că doresc să șterg definitiv aceste date"
 
-#: pkg/systemd/hwinfo.jsx:281 pkg/users/accounts-list.js:235
-#: pkg/users/accounts-list.js:357 pkg/users/group-create-dialog.js:33
-#: pkg/storaged/pages.jsx:712 pkg/storaged/btrfs/subvolume.jsx:457
+#: pkg/systemd/hwinfo.jsx:281 pkg/users/group-create-dialog.js:33
+#: pkg/users/accounts-list.js:235 pkg/users/accounts-list.js:357
+#: pkg/storaged/btrfs/subvolume.jsx:457 pkg/storaged/pages.jsx:712
 #: pkg/networkmanager/firewall.jsx:704
 msgid "ID"
 msgstr "ID"
@@ -3929,8 +3928,8 @@ msgstr ""
 "Dacă serverul de chei de la $0 nu este accesibil, puteți furniza o frază de "
 "acces existentă."
 
-#: pkg/packagekit/updates.jsx:654 pkg/packagekit/updates.jsx:738
-#: pkg/networkmanager/ip-settings.jsx:32
+#: pkg/networkmanager/ip-settings.jsx:32 pkg/packagekit/updates.jsx:654
+#: pkg/packagekit/updates.jsx:738
 msgid "Ignore"
 msgstr "Ignoră"
 
@@ -3964,9 +3963,9 @@ msgstr "În curs de desfășurare"
 msgid "In sync"
 msgstr "În sincronizare"
 
+#: pkg/networkmanager/network-interface.jsx:459
 #: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1627
 #: pkg/networkmanager/interfaces.js:1634
-#: pkg/networkmanager/network-interface.jsx:459
 msgid "Inactive"
 msgstr "Inactivă"
 
@@ -4030,8 +4029,8 @@ msgid "Initializing..."
 msgstr "Se inițializează..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:105
-#: pkg/packagekit/kpatch.tsx:260 pkg/apps/application-list.jsx:236
-#: pkg/apps/application.jsx:53
+#: pkg/packagekit/kpatch.tsx:260 pkg/apps/application.jsx:53
+#: pkg/apps/application-list.jsx:236
 msgid "Install"
 msgstr "Instalează"
 
@@ -4100,8 +4099,8 @@ msgstr "Se instalează"
 msgid "Installing $0"
 msgstr "Se instalează $0"
 
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:32
 #: pkg/storaged/crypto/keyslots.jsx:263
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:32
 msgid "Installing $0 would remove $1."
 msgstr "Instalarea lui $0 ar elimina $1."
 
@@ -4109,7 +4108,7 @@ msgstr "Instalarea lui $0 ar elimina $1."
 msgid "Installing packages"
 msgstr "Se instalează pachetele"
 
-#: pkg/networkmanager/firewall.jsx:212 pkg/metrics/metrics.jsx:764
+#: pkg/metrics/metrics.jsx:764 pkg/networkmanager/firewall.jsx:212
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "Interfață"
@@ -4121,7 +4120,7 @@ msgstr[2] "Interfețe"
 msgid "Interface members"
 msgstr "Membrii interfeței"
 
-#: pkg/networkmanager/bond.jsx:158 pkg/networkmanager/firewall.jsx:872
+#: pkg/networkmanager/firewall.jsx:872 pkg/networkmanager/bond.jsx:158
 #: pkg/networkmanager/network-main.jsx:195
 #: pkg/networkmanager/network-interface-members.jsx:192
 msgid "Interfaces"
@@ -4351,7 +4350,7 @@ msgstr "Chei"
 msgid "Keyserver"
 msgstr "Server de chei"
 
-#: pkg/storaged/stratis/create-dialog.jsx:123 pkg/storaged/stratis/pool.jsx:933
+#: pkg/storaged/stratis/pool.jsx:933 pkg/storaged/stratis/create-dialog.jsx:123
 #: pkg/storaged/crypto/keyslots.jsx:457 pkg/storaged/crypto/keyslots.jsx:515
 msgid "Keyserver address"
 msgstr "Adresa serverului de chei"
@@ -4508,7 +4507,7 @@ msgstr ""
 msgid "Linear"
 msgstr "Liniar"
 
-#: pkg/networkmanager/team.jsx:180 pkg/networkmanager/bond.jsx:194
+#: pkg/networkmanager/bond.jsx:194 pkg/networkmanager/team.jsx:180
 msgid "Link down delay"
 msgstr "Întârzierea de deconectare a legăturii"
 
@@ -4520,7 +4519,7 @@ msgstr "Legătură locală"
 msgid "Link monitoring"
 msgstr "Monitorizarea legăturii"
 
-#: pkg/networkmanager/team.jsx:177 pkg/networkmanager/bond.jsx:191
+#: pkg/networkmanager/bond.jsx:191 pkg/networkmanager/team.jsx:177
 msgid "Link up delay"
 msgstr "Întârzierea de conectare a legăturii"
 
@@ -4611,12 +4610,12 @@ msgstr "Se încarcă modificările aduse sistemului..."
 msgid "Loading unit failed"
 msgstr "Încărcarea unității a eșuat"
 
-#: pkg/systemd/logDetails.jsx:102 pkg/systemd/services.jsx:676
-#: pkg/systemd/service.jsx:118 pkg/systemd/logsJournal.jsx:254
-#: pkg/users/account-details.js:198 pkg/users/accounts-list.js:299
-#: pkg/users/accounts-list.js:320 pkg/users/accounts-list.js:429
-#: pkg/kdump/kdump-view.jsx:442 pkg/storaged/storaged.jsx:52
-#: pkg/metrics/metrics.jsx:1969
+#: pkg/kdump/kdump-view.jsx:442 pkg/systemd/services.jsx:676
+#: pkg/systemd/logsJournal.jsx:254 pkg/systemd/logDetails.jsx:102
+#: pkg/systemd/service.jsx:118 pkg/users/account-details.js:198
+#: pkg/users/accounts-list.js:299 pkg/users/accounts-list.js:320
+#: pkg/users/accounts-list.js:429 pkg/metrics/metrics.jsx:1969
+#: pkg/storaged/storaged.jsx:52
 msgid "Loading..."
 msgstr "Se încarcă…"
 
@@ -4674,8 +4673,8 @@ msgstr "Dispozitivul criptat și blocat ar putea conține date"
 msgid "Locking $target"
 msgstr "Se blochează $target"
 
-#: pkg/static/login.html:154 pkg/lib/cockpit-connect-ssh.tsx:380
-#: pkg/static/login.js:730 pkg/shell/failures.tsx:81
+#: pkg/static/login.html:154 pkg/static/login.js:730
+#: pkg/lib/cockpit-connect-ssh.tsx:380 pkg/shell/failures.tsx:81
 #: pkg/shell/hosts_dialog.jsx:955
 msgid "Log in"
 msgstr "Conectează-te"
@@ -4713,8 +4712,8 @@ msgstr "Logic"
 msgid "Logical Volume Manager partition"
 msgstr "Partiția managerului de volume logice"
 
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:207
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:235
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:207
 msgid "Logical size"
 msgstr "Dimensiunea logică"
 
@@ -4778,8 +4777,8 @@ msgstr "„Lunch box”"
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/storaged/mdraid/mdraid-disk.jsx:111 pkg/storaged/mdraid/mdraid.jsx:196
-#: pkg/storaged/mdraid/mdraid.jsx:204
+#: pkg/storaged/mdraid/mdraid.jsx:196 pkg/storaged/mdraid/mdraid.jsx:204
+#: pkg/storaged/mdraid/mdraid-disk.jsx:111
 msgid "MDRAID device"
 msgstr "Dispozitiv MDRAID"
 
@@ -4940,10 +4939,11 @@ msgstr "Vechimea maximă a mesajului $max_age"
 msgid "Media drive"
 msgstr "Unitate suport media"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:131 pkg/systemd/hwinfo.jsx:280
-#: pkg/systemd/hwinfo.jsx:324 pkg/systemd/service-details.jsx:739
-#: pkg/metrics/metrics.jsx:114 pkg/metrics/metrics.jsx:830
-#: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1935
+#: pkg/systemd/hwinfo.jsx:280 pkg/systemd/hwinfo.jsx:324
+#: pkg/systemd/overview-cards/usageCard.jsx:131
+#: pkg/systemd/service-details.jsx:739 pkg/metrics/metrics.jsx:114
+#: pkg/metrics/metrics.jsx:830 pkg/metrics/metrics.jsx:1553
+#: pkg/metrics/metrics.jsx:1935
 msgid "Memory"
 msgstr "Memorie"
 
@@ -4979,8 +4979,8 @@ msgstr "Mesajele legate de eroare pot fi găsite în jurnal:"
 msgid "Metadata format"
 msgstr "Formatul metadatelor"
 
-#: pkg/storaged/lvm2/vdo-pool.jsx:69
 #: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:130
+#: pkg/storaged/lvm2/vdo-pool.jsx:69
 msgid "Metadata used"
 msgstr "Metadatele utilizate"
 
@@ -5038,8 +5038,9 @@ msgstr "Măsuri de atenuare"
 msgid "Mode"
 msgstr "Mod"
 
+#: pkg/systemd/hwinfo.jsx:267
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:97
-#: pkg/systemd/hwinfo.jsx:267 pkg/storaged/drive/drive.jsx:109
+#: pkg/storaged/drive/drive.jsx:109
 msgid "Model"
 msgstr "Model"
 
@@ -5068,10 +5069,9 @@ msgstr "Lunar"
 msgid "More info..."
 msgstr "Mai multe informații..."
 
-#: pkg/storaged/nfs/nfs.jsx:296 pkg/storaged/stratis/filesystem.jsx:149
-#: pkg/storaged/filesystem/mounting-dialog.jsx:342
+#: pkg/storaged/btrfs/subvolume.jsx:349 pkg/storaged/stratis/filesystem.jsx:149
+#: pkg/storaged/nfs/nfs.jsx:296 pkg/storaged/filesystem/mounting-dialog.jsx:342
 #: pkg/storaged/filesystem/filesystem.jsx:91
-#: pkg/storaged/btrfs/subvolume.jsx:349
 msgid "Mount"
 msgstr "Montează"
 
@@ -5120,12 +5120,11 @@ msgstr "Montează pe $0 acum"
 msgid "Mount options"
 msgstr "Opțiuni de montare"
 
-#: pkg/storaged/nfs/nfs.jsx:315 pkg/storaged/stratis/pool.jsx:404
+#: pkg/storaged/btrfs/subvolume.jsx:466 pkg/storaged/stratis/pool.jsx:404
 #: pkg/storaged/stratis/filesystem.jsx:67
-#: pkg/storaged/stratis/filesystem.jsx:241
+#: pkg/storaged/stratis/filesystem.jsx:241 pkg/storaged/nfs/nfs.jsx:315
 #: pkg/storaged/filesystem/mounting-dialog.jsx:312
 #: pkg/storaged/filesystem/filesystem.jsx:136
-#: pkg/storaged/btrfs/subvolume.jsx:466
 #: pkg/storaged/block/format-dialog.jsx:285
 msgid "Mount point"
 msgstr "Punct de montare"
@@ -5200,32 +5199,32 @@ msgid "NTP server"
 msgstr "server NTP"
 
 #: pkg/systemd/hwinfo.jsx:74 pkg/systemd/timer-dialog.jsx:129
-#: pkg/users/authorized-keys-panel.js:113 pkg/users/group-create-dialog.js:25
-#: pkg/packagekit/updates.jsx:417 pkg/storaged/iscsi/create-dialog.jsx:97
-#: pkg/storaged/iscsi/create-dialog.jsx:154
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:159
-#: pkg/storaged/lvm2/vdo-pool.jsx:64 pkg/storaged/lvm2/create-dialog.jsx:33
-#: pkg/storaged/lvm2/block-logical-volume.jsx:35
-#: pkg/storaged/lvm2/block-logical-volume.jsx:224
-#: pkg/storaged/lvm2/block-logical-volume.jsx:272
-#: pkg/storaged/lvm2/volume-group.jsx:49 pkg/storaged/lvm2/volume-group.jsx:104
-#: pkg/storaged/lvm2/volume-group.jsx:348
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:30
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:123
-#: pkg/storaged/stratis/create-dialog.jsx:74 pkg/storaged/stratis/pool.jsx:364
-#: pkg/storaged/stratis/pool.jsx:467 pkg/storaged/stratis/pool.jsx:1023
+#: pkg/users/group-create-dialog.js:25 pkg/users/authorized-keys-panel.js:113
+#: pkg/storaged/iscsi/create-dialog.jsx:97
+#: pkg/storaged/iscsi/create-dialog.jsx:154 pkg/storaged/btrfs/volume.jsx:131
+#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:456
+#: pkg/storaged/stratis/pool.jsx:364 pkg/storaged/stratis/pool.jsx:467
+#: pkg/storaged/stratis/pool.jsx:1023 pkg/storaged/stratis/create-dialog.jsx:74
 #: pkg/storaged/stratis/filesystem.jsx:62
 #: pkg/storaged/stratis/filesystem.jsx:176
 #: pkg/storaged/stratis/filesystem.jsx:236
 #: pkg/storaged/filesystem/filesystem.jsx:108
 #: pkg/storaged/filesystem/filesystem.jsx:130
-#: pkg/storaged/partitions/partition.jsx:213
-#: pkg/storaged/mdraid/create-dialog.jsx:33 pkg/storaged/mdraid/mdraid.jsx:288
-#: pkg/storaged/btrfs/subvolume.jsx:143 pkg/storaged/btrfs/subvolume.jsx:456
-#: pkg/storaged/btrfs/volume.jsx:131 pkg/storaged/block/format-dialog.jsx:279
+#: pkg/storaged/partitions/partition.jsx:213 pkg/storaged/mdraid/mdraid.jsx:288
+#: pkg/storaged/mdraid/create-dialog.jsx:33
+#: pkg/storaged/block/format-dialog.jsx:279
+#: pkg/storaged/lvm2/volume-group.jsx:49 pkg/storaged/lvm2/volume-group.jsx:104
+#: pkg/storaged/lvm2/volume-group.jsx:348
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:30
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:123
+#: pkg/storaged/lvm2/create-dialog.jsx:33 pkg/storaged/lvm2/vdo-pool.jsx:64
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:159
+#: pkg/storaged/lvm2/block-logical-volume.jsx:35
+#: pkg/storaged/lvm2/block-logical-volume.jsx:224
+#: pkg/storaged/lvm2/block-logical-volume.jsx:272 pkg/shell/credentials.tsx:291
 #: pkg/networkmanager/dialogs-common.jsx:120
 #: pkg/networkmanager/network-main.jsx:200
-#: pkg/networkmanager/network-main.jsx:216 pkg/shell/credentials.tsx:291
+#: pkg/networkmanager/network-main.jsx:216 pkg/packagekit/updates.jsx:417
 msgid "Name"
 msgstr "Nume"
 
@@ -5233,7 +5232,7 @@ msgstr "Nume"
 msgid "Name can not be empty."
 msgstr "Numele nu poate să fie gol."
 
-#: pkg/storaged/utils.js:197 pkg/storaged/btrfs/utils.jsx:71
+#: pkg/storaged/btrfs/utils.jsx:71 pkg/storaged/utils.js:197
 msgid "Name cannot be empty."
 msgstr "Numele nu poate să fie gol."
 
@@ -5273,9 +5272,9 @@ msgstr "Este nevoie de un disc de rezervă"
 msgid "Need at least one NTP server"
 msgstr "Este necesar cel puțin un server NTP"
 
-#: pkg/networkmanager/network-interface.jsx:1081 pkg/metrics/metrics.jsx:929
-#: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1924
-#: pkg/metrics/metrics.jsx:1937
+#: pkg/metrics/metrics.jsx:929 pkg/metrics/metrics.jsx:1553
+#: pkg/metrics/metrics.jsx:1924 pkg/metrics/metrics.jsx:1937
+#: pkg/networkmanager/network-interface.jsx:1081
 msgid "Network"
 msgstr "Rețea"
 
@@ -5322,9 +5321,9 @@ msgstr "NetworkManager nu rulează"
 msgid "Networked storage"
 msgstr "Stocare în rețea"
 
-#: pkg/networkmanager/index.html:9
+#: pkg/networkmanager/index.html:9 pkg/networkmanager/firewall.jsx:1084
 #: pkg/networkmanager/network-interface.jsx:1218
-#: pkg/networkmanager/firewall.jsx:1084 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_networkmanager.metainfo.xml.in:5
 msgid "Networking"
 msgstr "Rețea"
@@ -5443,9 +5442,10 @@ msgstr "Nu s-a furnizat nicio descriere."
 msgid "No devices found"
 msgstr "Nu s-au găsit dispozitive"
 
+#: pkg/storaged/stratis/pool.jsx:500 pkg/storaged/mdraid/mdraid.jsx:151
+#: pkg/storaged/mdraid/create-dialog.jsx:87
+#: pkg/storaged/lvm2/volume-group.jsx:188
 #: pkg/storaged/lvm2/create-dialog.jsx:40
-#: pkg/storaged/lvm2/volume-group.jsx:188 pkg/storaged/stratis/pool.jsx:500
-#: pkg/storaged/mdraid/create-dialog.jsx:87 pkg/storaged/mdraid/mdraid.jsx:151
 msgid "No disks are available."
 msgstr "Nu există discuri disponibile."
 
@@ -5579,8 +5579,8 @@ msgstr "Nu s-au găsit instantanee"
 msgid "No storage found"
 msgstr "Nu s-a găsit niciun spațiu de stocare"
 
-#: pkg/storaged/btrfs/subvolume.jsx:474 pkg/storaged/btrfs/filesystem.jsx:57
-#: pkg/storaged/btrfs/volume.jsx:220
+#: pkg/storaged/btrfs/filesystem.jsx:57 pkg/storaged/btrfs/volume.jsx:220
+#: pkg/storaged/btrfs/subvolume.jsx:474
 msgid "No subvolumes"
 msgstr "Nu există sub-volume"
 
@@ -5606,9 +5606,9 @@ msgstr "Nu există actualizări"
 msgid "No user name specified"
 msgstr "Nu s-a specificat niciun nume de utilizator"
 
-#: pkg/systemd/overview-cards/tuned-dialog.jsx:213 pkg/kdump/kdump-view.jsx:492
-#: pkg/networkmanager/network-interface.jsx:189
+#: pkg/kdump/kdump-view.jsx:492 pkg/systemd/overview-cards/tuned-dialog.jsx:213
 #: pkg/networkmanager/firewall.jsx:867
+#: pkg/networkmanager/network-interface.jsx:189
 msgid "None"
 msgstr "Niciuna"
 
@@ -5624,7 +5624,7 @@ msgstr "Nu aveți permisiunea de a dezactiva paravanul de protecție"
 msgid "Not authorized to enable the firewall"
 msgstr "Nu aveți permisiunea de a activa paravanul de protecție"
 
-#: pkg/packagekit/kpatch.tsx:251 pkg/networkmanager/interfaces.js:875
+#: pkg/networkmanager/interfaces.js:875 pkg/packagekit/kpatch.tsx:251
 msgid "Not available"
 msgstr "Nu este disponibil"
 
@@ -5640,8 +5640,8 @@ msgstr "Nu este conectat la Insights"
 msgid "Not connected to host"
 msgstr "Nu este conectat la gazdă"
 
-#: pkg/storaged/lvm2/physical-volume.jsx:67 pkg/storaged/stratis/pool.jsx:603
-#: pkg/storaged/stratis/filesystem.jsx:155
+#: pkg/storaged/stratis/pool.jsx:603 pkg/storaged/stratis/filesystem.jsx:155
+#: pkg/storaged/lvm2/physical-volume.jsx:67
 msgid "Not enough free space"
 msgstr "Nu există suficient spațiu liber"
 
@@ -5736,8 +5736,8 @@ msgstr "A apărut $0"
 msgid "Occurred between $0 and $1"
 msgstr "A apărut între $0 și $1"
 
-#: pkg/lib/cockpit-components-logs-panel.jsx:76
 #: pkg/selinux/setroubleshoot-view.jsx:410
+#: pkg/lib/cockpit-components-logs-panel.jsx:76
 msgid "Occurrences"
 msgstr "Apariții"
 
@@ -5805,11 +5805,11 @@ msgstr ""
 msgid "Operation '$operation' on $target"
 msgstr "Operația „$operation” asupra $target"
 
-#: pkg/users/account-details.js:274
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:217
+#: pkg/sosreport/sosreport.jsx:317 pkg/users/account-details.js:274
 #: pkg/storaged/stratis/create-dialog.jsx:88
 #: pkg/storaged/stratis/filesystem.jsx:196
-#: pkg/storaged/crypto/encryption.jsx:221 pkg/sosreport/sosreport.jsx:317
+#: pkg/storaged/crypto/encryption.jsx:221
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:217
 #: pkg/networkmanager/bridge.jsx:89
 msgid "Options"
 msgstr "Opțiuni"
@@ -5838,8 +5838,8 @@ msgstr "Alte opțiuni"
 msgid "Out"
 msgstr "Înafară"
 
-#: pkg/storaged/stratis/create-dialog.jsx:136
 #: pkg/storaged/stratis/pool.jsx:1034
+#: pkg/storaged/stratis/create-dialog.jsx:136
 msgid "Overprovisioning"
 msgstr "Supraalocarea"
 
@@ -5949,11 +5949,10 @@ msgstr ""
 msgid "Passive"
 msgstr "Pasiv"
 
-#: pkg/storaged/stratis/create-dialog.jsx:97 pkg/storaged/stratis/pool.jsx:678
-#: pkg/storaged/stratis/pool.jsx:771 pkg/storaged/stratis/pool.jsx:856
-#: pkg/storaged/stratis/stopped-pool.jsx:114
+#: pkg/storaged/stratis/pool.jsx:678 pkg/storaged/stratis/pool.jsx:771
+#: pkg/storaged/stratis/pool.jsx:856 pkg/storaged/stratis/create-dialog.jsx:97
+#: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:749
-#: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/block/format-dialog.jsx:322
 #: pkg/storaged/block/format-dialog.jsx:350
@@ -5964,11 +5963,11 @@ msgstr "Fraza de acces"
 msgid "Passphrase can not be empty"
 msgstr "Fraza de acces nu poate fi goală"
 
-#: pkg/storaged/stratis/create-dialog.jsx:101 pkg/storaged/stratis/pool.jsx:302
-#: pkg/storaged/stratis/pool.jsx:857 pkg/storaged/stratis/pool.jsx:884
-#: pkg/storaged/stratis/pool.jsx:887 pkg/storaged/crypto/keyslots.jsx:167
-#: pkg/storaged/crypto/keyslots.jsx:444 pkg/storaged/crypto/keyslots.jsx:489
-#: pkg/storaged/crypto/keyslots.jsx:493
+#: pkg/storaged/stratis/pool.jsx:302 pkg/storaged/stratis/pool.jsx:857
+#: pkg/storaged/stratis/pool.jsx:884 pkg/storaged/stratis/pool.jsx:887
+#: pkg/storaged/stratis/create-dialog.jsx:101
+#: pkg/storaged/crypto/keyslots.jsx:167 pkg/storaged/crypto/keyslots.jsx:444
+#: pkg/storaged/crypto/keyslots.jsx:489 pkg/storaged/crypto/keyslots.jsx:493
 #: pkg/storaged/filesystem/mounting-dialog.jsx:330
 #: pkg/storaged/block/format-dialog.jsx:326
 #: pkg/storaged/block/format-dialog.jsx:354
@@ -5983,21 +5982,21 @@ msgstr "Fraza de acces din orice alt slot pentru chei"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Eliminarea frazei de acces poate împiedica deblocarea $0."
 
-#: pkg/storaged/stratis/create-dialog.jsx:110 pkg/storaged/stratis/pool.jsx:859
-#: pkg/storaged/stratis/pool.jsx:889 pkg/storaged/crypto/keyslots.jsx:453
-#: pkg/storaged/crypto/keyslots.jsx:498
+#: pkg/storaged/stratis/pool.jsx:859 pkg/storaged/stratis/pool.jsx:889
+#: pkg/storaged/stratis/create-dialog.jsx:110
+#: pkg/storaged/crypto/keyslots.jsx:453 pkg/storaged/crypto/keyslots.jsx:498
 #: pkg/storaged/block/format-dialog.jsx:335
 msgid "Passphrases do not match"
 msgstr "Frazele de acces nu se potrivesc"
 
 #: pkg/static/login.html:113 pkg/users/account-details.js:302
-#: pkg/users/account-create-dialog.js:125 pkg/lib/superuser-dialogs.tsx:176
-#: pkg/lib/cockpit-connect-ssh.tsx:432 pkg/lib/cockpit-connect-ssh.tsx:442
+#: pkg/users/account-create-dialog.js:125 pkg/lib/cockpit-connect-ssh.tsx:432
+#: pkg/lib/cockpit-connect-ssh.tsx:442 pkg/lib/superuser-dialogs.tsx:176
 #: pkg/storaged/iscsi/create-dialog.jsx:20
-#: pkg/storaged/iscsi/create-dialog.jsx:126
-#: pkg/networkmanager/network-interface.jsx:197 pkg/shell/credentials.tsx:163
+#: pkg/storaged/iscsi/create-dialog.jsx:126 pkg/shell/hosts_dialog.jsx:1036
+#: pkg/shell/hosts_dialog.jsx:1045 pkg/shell/credentials.tsx:163
 #: pkg/shell/credentials.tsx:222 pkg/shell/credentials.tsx:309
-#: pkg/shell/hosts_dialog.jsx:1036 pkg/shell/hosts_dialog.jsx:1045
+#: pkg/networkmanager/network-interface.jsx:197
 msgid "Password"
 msgstr "Parola"
 
@@ -6145,10 +6144,10 @@ msgstr "Permanent"
 msgid "Permanently delete $0 group?"
 msgstr "Doriți să ștergeți definitiv grupul $0?"
 
-#: pkg/storaged/lvm2/volume-group.jsx:81 pkg/storaged/stratis/pool.jsx:446
+#: pkg/storaged/btrfs/volume.jsx:63 pkg/storaged/stratis/pool.jsx:446
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:105
 #: pkg/storaged/partitions/partition.jsx:40 pkg/storaged/mdraid/mdraid.jsx:116
-#: pkg/storaged/btrfs/volume.jsx:63
+#: pkg/storaged/lvm2/volume-group.jsx:81
 msgid "Permanently delete $0?"
 msgstr "Doriți să ștergeți definitiv $0?"
 
@@ -6172,14 +6171,14 @@ msgstr "Memoria persistentă a devenit de numai-pentru-citire"
 msgid "Physical"
 msgstr "Fizic"
 
+#: pkg/storaged/block/resize.jsx:434
 #: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:173
 #: pkg/storaged/lvm2/block-logical-volume.jsx:116
-#: pkg/storaged/block/resize.jsx:434
 msgid "Physical Volumes"
 msgstr "Volume fizice"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:342
 #: pkg/storaged/lvm2/volume-group.jsx:358
+#: pkg/storaged/lvm2/block-logical-volume.jsx:342
 msgid "Physical volumes"
 msgstr "Volume fizice"
 
@@ -6276,7 +6275,7 @@ msgstr "Port"
 msgid "Portable"
 msgstr "Portabil"
 
-#: pkg/networkmanager/team.jsx:144 pkg/networkmanager/bridge.jsx:86
+#: pkg/networkmanager/bridge.jsx:86 pkg/networkmanager/team.jsx:144
 #: pkg/networkmanager/network-interface-members.jsx:192
 msgid "Ports"
 msgstr "Porturi"
@@ -6317,12 +6316,12 @@ msgstr "Nume de gazdă drăguț"
 msgid "Previous boot"
 msgstr "Pornirea anterioară"
 
-#: pkg/networkmanager/team.jsx:159 pkg/networkmanager/bond.jsx:170
+#: pkg/networkmanager/bond.jsx:170 pkg/networkmanager/team.jsx:159
 msgid "Primary"
 msgstr "Primară"
 
 #: pkg/systemd/logs.jsx:186 pkg/systemd/logs.jsx:191
-#: pkg/networkmanager/teamport.jsx:70 pkg/networkmanager/bridgeport.jsx:66
+#: pkg/networkmanager/bridgeport.jsx:66 pkg/networkmanager/teamport.jsx:70
 msgid "Priority"
 msgstr "Prioritate"
 
@@ -6381,8 +6380,8 @@ msgstr ""
 "Introduceți fraza de acces pentru grupul de stocare de pe aceste dispozitive "
 "de blocuri:"
 
-#: pkg/networkmanager/wireguard.jsx:262 pkg/networkmanager/wireguard.jsx:325
-#: pkg/shell/credentials.tsx:304
+#: pkg/shell/credentials.tsx:304 pkg/networkmanager/wireguard.jsx:262
+#: pkg/networkmanager/wireguard.jsx:325
 msgid "Public key"
 msgstr "Cheie publică"
 
@@ -6451,7 +6450,7 @@ msgstr "RAID 6 (partiție distribuită dublă)"
 msgid "RAID chassis"
 msgstr "Șasiu RAID"
 
-#: pkg/storaged/mdraid/create-dialog.jsx:37 pkg/storaged/mdraid/mdraid.jsx:289
+#: pkg/storaged/mdraid/mdraid.jsx:289 pkg/storaged/mdraid/create-dialog.jsx:37
 msgid "RAID level"
 msgstr "Nivel RAID"
 
@@ -6546,9 +6545,9 @@ msgid "Reapply and reboot"
 msgstr "Reaplicați și reporniți"
 
 #: pkg/systemd/overview.jsx:96 pkg/systemd/overview.jsx:119
-#: pkg/lib/cockpit-components-logs-panel.jsx:92
 #: pkg/lib/cockpit-components-shutdown.jsx:179
 #: pkg/lib/cockpit-components-shutdown.jsx:222
+#: pkg/lib/cockpit-components-logs-panel.jsx:92
 msgid "Reboot"
 msgstr "Repornire"
 
@@ -6565,10 +6564,9 @@ msgstr "Se recomandă repornirea"
 msgid "Reboot system..."
 msgstr "Se repornește sistemul..."
 
-#: pkg/networkmanager/network-main.jsx:203
+#: pkg/networkmanager/plots.js:30 pkg/networkmanager/network-main.jsx:203
 #: pkg/networkmanager/network-main.jsx:219
 #: pkg/networkmanager/network-interface-members.jsx:194
-#: pkg/networkmanager/plots.js:30
 msgid "Receiving"
 msgstr "Se primesc date"
 
@@ -6681,15 +6679,16 @@ msgid "Removals:"
 msgstr "Eliminare:"
 
 #: pkg/systemd/timer-dialog.jsx:336 pkg/users/authorized-keys-panel.js:128
-#: pkg/users/authorized-keys-panel.js:136 pkg/apps/application.jsx:51
-#: pkg/storaged/nfs/nfs.jsx:301 pkg/storaged/lvm2/volume-group.jsx:315
-#: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/storaged/stratis/pool.jsx:701
+#: pkg/users/authorized-keys-panel.js:136 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:728 pkg/storaged/stratis/pool.jsx:778
 #: pkg/storaged/stratis/pool.jsx:789 pkg/storaged/stratis/pool.jsx:800
 #: pkg/storaged/stratis/pool.jsx:919 pkg/storaged/stratis/pool.jsx:965
 #: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
-#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/mdraid/mdraid-disk.jsx:87
-#: pkg/shell/hosts.tsx:250
+#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/nfs/nfs.jsx:301
+#: pkg/storaged/mdraid/mdraid-disk.jsx:87
+#: pkg/storaged/lvm2/volume-group.jsx:315
+#: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/shell/hosts.tsx:250
+#: pkg/apps/application.jsx:51
 msgid "Remove"
 msgstr "Elimină"
 
@@ -6729,10 +6728,8 @@ msgid "Remove item"
 msgstr "Elimină elementul"
 
 #: pkg/storaged/crypto/keyslots.jsx:650
-#, fuzzy
-#| msgid "Remove passphrase in key slot $0?"
 msgid "Remove key in slot $0?"
-msgstr "Doriți să eliminați fraza de acces din slotul de chei $0?"
+msgstr "Eliminați cheia din slotul $0?"
 
 #: pkg/storaged/lvm2/volume-group.jsx:312
 msgid "Remove missing physical volumes?"
@@ -6804,11 +6801,11 @@ msgstr ""
 "Eliminarea zonei va duce la eliminarea tuturor serviciilor din cadrul "
 "acesteia."
 
-#: pkg/users/rename-group-dialog.jsx:54
+#: pkg/users/rename-group-dialog.jsx:54 pkg/storaged/stratis/pool.jsx:474
+#: pkg/storaged/stratis/filesystem.jsx:183
+#: pkg/storaged/lvm2/volume-group.jsx:56
 #: pkg/storaged/lvm2/block-logical-volume.jsx:39
 #: pkg/storaged/lvm2/block-logical-volume.jsx:228
-#: pkg/storaged/lvm2/volume-group.jsx:56 pkg/storaged/stratis/pool.jsx:474
-#: pkg/storaged/stratis/filesystem.jsx:183
 msgid "Rename"
 msgstr "Redenumește"
 
@@ -6937,7 +6934,7 @@ msgstr ""
 msgid "Reserved memory"
 msgstr "Memorie rezervată"
 
-#: pkg/systemd/terminal.jsx:280 pkg/systemd/logs.jsx:365
+#: pkg/systemd/logs.jsx:365 pkg/systemd/terminal.jsx:280
 msgid "Reset"
 msgstr "Restabilește"
 
@@ -7014,7 +7011,7 @@ msgstr "Revizuirea politicii criptografice"
 msgid "Reviewing logs"
 msgstr "Revizuirea jurnalelor"
 
-#: pkg/networkmanager/team.jsx:26 pkg/networkmanager/bond.jsx:29
+#: pkg/networkmanager/bond.jsx:29 pkg/networkmanager/team.jsx:26
 msgid "Round robin"
 msgstr "Round robin"
 
@@ -7173,16 +7170,16 @@ msgstr ""
 msgid "Saturdays"
 msgstr "zilele de Sâmbătă"
 
-#: pkg/systemd/timer-dialog.jsx:373 pkg/packagekit/kpatch.tsx:326
-#: pkg/storaged/nfs/nfs.jsx:174 pkg/storaged/stratis/pool.jsx:863
+#: pkg/systemd/timer-dialog.jsx:373 pkg/metrics/metrics.jsx:1487
+#: pkg/storaged/btrfs/volume.jsx:138 pkg/storaged/stratis/pool.jsx:863
 #: pkg/storaged/stratis/pool.jsx:892 pkg/storaged/stratis/pool.jsx:940
-#: pkg/storaged/crypto/keyslots.jsx:503 pkg/storaged/crypto/keyslots.jsx:522
 #: pkg/storaged/crypto/encryption.jsx:155
-#: pkg/storaged/crypto/encryption.jsx:182
+#: pkg/storaged/crypto/encryption.jsx:182 pkg/storaged/crypto/keyslots.jsx:503
+#: pkg/storaged/crypto/keyslots.jsx:522 pkg/storaged/nfs/nfs.jsx:174
 #: pkg/storaged/filesystem/mounting-dialog.jsx:344
 #: pkg/storaged/filesystem/filesystem.jsx:115
-#: pkg/storaged/partitions/partition.jsx:183 pkg/storaged/btrfs/volume.jsx:138
-#: pkg/networkmanager/dialogs-common.jsx:143 pkg/metrics/metrics.jsx:1487
+#: pkg/storaged/partitions/partition.jsx:183
+#: pkg/networkmanager/dialogs-common.jsx:143 pkg/packagekit/kpatch.tsx:326
 msgid "Save"
 msgstr "Salvează"
 
@@ -7190,7 +7187,7 @@ msgstr "Salvează"
 msgid "Save and reboot"
 msgstr "Salvează și repornește"
 
-#: pkg/systemd/overview-cards/motdCard.jsx:59 pkg/kdump/kdump-view.jsx:307
+#: pkg/kdump/kdump-view.jsx:307 pkg/systemd/overview-cards/motdCard.jsx:59
 #: pkg/packagekit/autoupdates.jsx:436
 msgid "Save changes"
 msgstr "Salvează modificările"
@@ -7340,10 +7337,10 @@ msgstr "Serverul a închis conexiunea."
 msgid "Server software"
 msgstr "Software de server"
 
-#: pkg/storaged/dialog.jsx:1502 pkg/networkmanager/firewall.jsx:177
 #: pkg/metrics/metrics.jsx:762 pkg/metrics/metrics.jsx:763
 #: pkg/metrics/metrics.jsx:818 pkg/metrics/metrics.jsx:856
 #: pkg/metrics/metrics.jsx:916 pkg/metrics/metrics.jsx:922
+#: pkg/storaged/dialog.jsx:1502 pkg/networkmanager/firewall.jsx:177
 msgid "Service"
 msgstr "Serviciu"
 
@@ -7493,8 +7490,8 @@ msgstr "Afișează parola"
 msgid "Show relationships"
 msgstr "Afișează relațiile"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:191
 #: pkg/storaged/partitions/partition.jsx:87 pkg/storaged/block/resize.jsx:637
+#: pkg/storaged/lvm2/block-logical-volume.jsx:191
 msgid "Shrink"
 msgstr "Reduce"
 
@@ -7536,15 +7533,15 @@ msgid "Single rank"
 msgstr "Rang unic"
 
 #: pkg/systemd/hwinfo.jsx:281 pkg/storaged/nfs/nfs.jsx:316
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:193
-#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:200
-#: pkg/storaged/lvm2/vdo-pool.jsx:65
-#: pkg/storaged/lvm2/block-logical-volume.jsx:277
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:35
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:128
-#: pkg/storaged/pages.jsx:715 pkg/storaged/partitions/partition.jsx:221
+#: pkg/storaged/partitions/partition.jsx:221
 #: pkg/storaged/block/format-dialog.jsx:301 pkg/storaged/block/resize.jsx:446
 #: pkg/storaged/block/resize.jsx:583
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:35
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:128
+#: pkg/storaged/lvm2/vdo-pool.jsx:65
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:193
+#: pkg/storaged/lvm2/create-logical-volume-dialog.jsx:200
+#: pkg/storaged/lvm2/block-logical-volume.jsx:277 pkg/storaged/pages.jsx:715
 msgid "Size"
 msgstr "Dimensiune"
 
@@ -7694,9 +7691,9 @@ msgid "Stable"
 msgstr "Stabilă"
 
 #: pkg/systemd/service-details.jsx:139
-#: pkg/storaged/stratis/stopped-pool.jsx:175 pkg/storaged/swap/swap.jsx:84
+#: pkg/storaged/stratis/stopped-pool.jsx:175
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:136
-#: pkg/storaged/mdraid/mdraid.jsx:213
+#: pkg/storaged/mdraid/mdraid.jsx:213 pkg/storaged/swap/swap.jsx:84
 msgid "Start"
 msgstr "Pornire"
 
@@ -7735,8 +7732,8 @@ msgstr "Se inițializează dispozitivul MDRAID $target"
 msgid "Starting swapspace $target"
 msgstr "Se inițializează spațiul se interschimb $target"
 
-#: pkg/systemd/services-list.jsx:26 pkg/systemd/services-list.jsx:32
-#: pkg/systemd/hwinfo.jsx:281 pkg/storaged/mdraid/mdraid.jsx:290
+#: pkg/systemd/hwinfo.jsx:281 pkg/systemd/services-list.jsx:26
+#: pkg/systemd/services-list.jsx:32 pkg/storaged/mdraid/mdraid.jsx:290
 msgid "State"
 msgstr "Stare"
 
@@ -7745,8 +7742,8 @@ msgstr "Stare"
 msgid "Static"
 msgstr "Statică"
 
-#: pkg/systemd/service-details.jsx:728 pkg/packagekit/updates.jsx:887
-#: pkg/networkmanager/network-interface.jsx:468
+#: pkg/systemd/service-details.jsx:728
+#: pkg/networkmanager/network-interface.jsx:468 pkg/packagekit/updates.jsx:887
 msgid "Status"
 msgstr "Starea"
 
@@ -7758,10 +7755,10 @@ msgstr "Stick PC"
 msgid "Sticky"
 msgstr "Persistent"
 
-#: pkg/systemd/service-details.jsx:135 pkg/storaged/swap/swap.jsx:81
+#: pkg/systemd/service-details.jsx:135
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:48
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:135
-#: pkg/storaged/mdraid/mdraid.jsx:292
+#: pkg/storaged/mdraid/mdraid.jsx:292 pkg/storaged/swap/swap.jsx:81
 msgid "Stop"
 msgstr "Stop"
 
@@ -7846,7 +7843,7 @@ msgstr "Sisteme de fișiere Stratis"
 msgid "Stratis filesystems pool"
 msgstr "Grupul de sisteme de fișiere Stratis"
 
-#: pkg/storaged/stratis/blockdev.jsx:70 pkg/storaged/stratis/pool.jsx:558
+#: pkg/storaged/stratis/pool.jsx:558 pkg/storaged/stratis/blockdev.jsx:70
 #: pkg/storaged/stratis/stopped-pool.jsx:165
 msgid "Stratis pool"
 msgstr "Grupul Stratis"
@@ -7905,8 +7902,8 @@ msgstr "S-a copiat cu succes în clipboard!"
 msgid "Sundays"
 msgstr "Duminicile"
 
-#: pkg/storaged/swap/swap.jsx:74 pkg/metrics/metrics.jsx:121
-#: pkg/metrics/metrics.jsx:675 pkg/metrics/metrics.jsx:1935
+#: pkg/metrics/metrics.jsx:121 pkg/metrics/metrics.jsx:675
+#: pkg/metrics/metrics.jsx:1935 pkg/storaged/swap/swap.jsx:74
 msgid "Swap"
 msgstr "Spațiu de interschimb"
 
@@ -7979,8 +7976,8 @@ msgstr "Sistem"
 msgid "System diagnostics"
 msgstr "Diagnosticare sistem"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:92
 #: pkg/systemd/hwinfo.jsx:305
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:92
 msgid "System information"
 msgstr "Informații despre sistem"
 
@@ -8792,7 +8789,7 @@ msgstr ""
 "Red Hat, fie prin intermediul Portalului pentru clienți Red Hat, fie prin "
 "intermediul unui server local de abonamente."
 
-#: pkg/lib/cockpit-connect-ssh.tsx:123 pkg/static/login.js:835
+#: pkg/static/login.js:835 pkg/lib/cockpit-connect-ssh.tsx:123
 #: pkg/shell/hosts_dialog.jsx:666
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -8930,11 +8927,11 @@ msgid "Turn on administrative access"
 msgstr "Activează accesul de administrator"
 
 #: pkg/systemd/hwinfo.jsx:69 pkg/systemd/hwinfo.jsx:281
-#: pkg/packagekit/autoupdates.jsx:378 pkg/storaged/pages.jsx:713
 #: pkg/storaged/partitions/partition.jsx:169
 #: pkg/storaged/partitions/partition.jsx:215
 #: pkg/storaged/block/unrecognized-data.jsx:37
-#: pkg/storaged/block/format-dialog.jsx:296 pkg/shell/credentials.tsx:93
+#: pkg/storaged/block/format-dialog.jsx:296 pkg/storaged/pages.jsx:713
+#: pkg/shell/credentials.tsx:93 pkg/packagekit/autoupdates.jsx:378
 msgid "Type"
 msgstr "Tip"
 
@@ -8959,12 +8956,12 @@ msgstr "Tastați pentru a filtra"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/storaged/lvm2/volume-group.jsx:354
-#: pkg/storaged/lvm2/physical-volume.jsx:106 pkg/storaged/stratis/pool.jsx:1028
+#: pkg/storaged/btrfs/filesystem.jsx:48 pkg/storaged/btrfs/volume.jsx:191
+#: pkg/storaged/btrfs/device.jsx:67 pkg/storaged/stratis/pool.jsx:1028
 #: pkg/storaged/stratis/stopped-pool.jsx:187
 #: pkg/storaged/partitions/partition.jsx:214 pkg/storaged/mdraid/mdraid.jsx:294
-#: pkg/storaged/btrfs/device.jsx:67 pkg/storaged/btrfs/filesystem.jsx:48
-#: pkg/storaged/btrfs/volume.jsx:191
+#: pkg/storaged/lvm2/volume-group.jsx:354
+#: pkg/storaged/lvm2/physical-volume.jsx:106
 msgid "UUID"
 msgstr "UUID"
 
@@ -9070,8 +9067,8 @@ msgstr "Anulează"
 msgid "Unexpected PackageManager error during installation of $0: $1"
 msgstr "Eroare neașteptată a PackageManager în timpul instalării $0: $1"
 
-#: pkg/users/dialog-utils.js:51 pkg/networkmanager/interfaces.js:36
-#: pkg/shell/shell-modals.tsx:187
+#: pkg/users/dialog-utils.js:51 pkg/shell/shell-modals.tsx:187
+#: pkg/networkmanager/interfaces.js:36
 msgid "Unexpected error"
 msgstr "Eroare neașteptată"
 
@@ -9095,10 +9092,10 @@ msgstr "Unitatea"
 #: pkg/lib/machine-info.js:223 pkg/lib/machine-info.js:225
 #: pkg/lib/machine-info.js:232 pkg/lib/machine-info.js:234
 #: pkg/lib/machine-info.js:238 pkg/storaged/swap/swap.jsx:102
-#: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
-#: pkg/networkmanager/interfaces.js:1167
 #: pkg/networkmanager/network-interface.jsx:402
 #: pkg/networkmanager/network-interface.jsx:404
+#: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
+#: pkg/networkmanager/interfaces.js:1167
 msgid "Unknown"
 msgstr "Necunoscută"
 
@@ -9135,9 +9132,9 @@ msgstr "Nume de serviciu necunoscut"
 msgid "Unknown type"
 msgstr "Tip necunoscut"
 
-#: pkg/storaged/stratis/stopped-pool.jsx:117 pkg/storaged/crypto/actions.jsx:26
-#: pkg/storaged/crypto/actions.jsx:31
+#: pkg/storaged/stratis/stopped-pool.jsx:117
 #: pkg/storaged/crypto/locked-encrypted-data.jsx:22
+#: pkg/storaged/crypto/actions.jsx:26 pkg/storaged/crypto/actions.jsx:31
 #: pkg/shell/credentials.tsx:228
 msgid "Unlock"
 msgstr "Deblochează"
@@ -9171,10 +9168,9 @@ msgstr "Se deblochează discul"
 msgid "Unmanaged interfaces"
 msgstr "Interfețe negestionate"
 
-#: pkg/storaged/nfs/nfs.jsx:295 pkg/storaged/stratis/filesystem.jsx:146
-#: pkg/storaged/filesystem/mounting-dialog.jsx:343
+#: pkg/storaged/btrfs/subvolume.jsx:344 pkg/storaged/stratis/filesystem.jsx:146
+#: pkg/storaged/nfs/nfs.jsx:295 pkg/storaged/filesystem/mounting-dialog.jsx:343
 #: pkg/storaged/filesystem/filesystem.jsx:88
-#: pkg/storaged/btrfs/subvolume.jsx:344
 msgid "Unmount"
 msgstr "Demontare"
 
@@ -9289,14 +9285,14 @@ msgstr "Se actualizează starea..."
 msgid "Upload"
 msgstr "Încărcare"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:114
-#: pkg/storaged/lvm2/physical-volume.jsx:108 pkg/storaged/stratis/pool.jsx:1030
-#: pkg/storaged/stratis/filesystem.jsx:245
-#: pkg/storaged/filesystem/filesystem.jsx:141 pkg/storaged/btrfs/device.jsx:69
-#: pkg/storaged/btrfs/filesystem.jsx:50 pkg/storaged/btrfs/volume.jsx:193
-#: pkg/storaged/block/unrecognized-data.jsx:36 pkg/metrics/metrics.jsx:1934
+#: pkg/systemd/overview-cards/usageCard.jsx:114 pkg/metrics/metrics.jsx:1934
 #: pkg/metrics/metrics.jsx:1935 pkg/metrics/metrics.jsx:1936
-#: pkg/metrics/metrics.jsx:1937
+#: pkg/metrics/metrics.jsx:1937 pkg/storaged/btrfs/filesystem.jsx:50
+#: pkg/storaged/btrfs/volume.jsx:193 pkg/storaged/btrfs/device.jsx:69
+#: pkg/storaged/stratis/pool.jsx:1030 pkg/storaged/stratis/filesystem.jsx:245
+#: pkg/storaged/filesystem/filesystem.jsx:141
+#: pkg/storaged/block/unrecognized-data.jsx:36
+#: pkg/storaged/lvm2/physical-volume.jsx:108
 msgid "Usage"
 msgstr "Utilizare"
 
@@ -9312,11 +9308,11 @@ msgstr "Utilizare"
 msgid "Use $0"
 msgstr "Utilizează $0"
 
-#: pkg/storaged/lvm2/vdo-pool.jsx:71 pkg/storaged/legacy-vdo/legacy-vdo.jsx:314
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:314 pkg/storaged/lvm2/vdo-pool.jsx:71
 msgid "Use compression"
 msgstr "Utilizează comprimarea"
 
-#: pkg/storaged/lvm2/vdo-pool.jsx:75 pkg/storaged/legacy-vdo/legacy-vdo.jsx:323
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:323 pkg/storaged/lvm2/vdo-pool.jsx:75
 msgid "Use deduplication"
 msgstr "Utilizează deduplicarea"
 
@@ -9336,8 +9332,8 @@ msgstr "Utilizați următoarele chei pentru autentificarea în alte sisteme"
 msgid "Use verbose logging"
 msgstr "Utilizează jurnalizarea detaliată"
 
-#: pkg/storaged/swap/swap.jsx:111 pkg/metrics/metrics.jsx:763
-#: pkg/metrics/metrics.jsx:857
+#: pkg/metrics/metrics.jsx:763 pkg/metrics/metrics.jsx:857
+#: pkg/storaged/swap/swap.jsx:111
 msgid "Used"
 msgstr "Utilizat"
 
@@ -9398,7 +9394,7 @@ msgstr "Se utilizează serverul Tang"
 msgid "VDO backing devices can not be made smaller"
 msgstr "Dispozitivele de rezervă VDO nu pot fi redimensionate"
 
-#: pkg/storaged/utils.js:333 pkg/storaged/legacy-vdo/legacy-vdo.jsx:125
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:125 pkg/storaged/utils.js:333
 msgid "VDO device $0"
 msgstr "Dispozitivul VDO $0"
 
@@ -9689,7 +9685,7 @@ msgstr "Anual"
 msgid "Yes"
 msgstr "Da"
 
-#: pkg/lib/cockpit-connect-ssh.tsx:134 pkg/static/login.js:832
+#: pkg/static/login.js:832 pkg/lib/cockpit-connect-ssh.tsx:134
 #: pkg/shell/hosts_dialog.jsx:677
 msgid "You are connecting to $0 for the first time."
 msgstr "Vă conectați la $0 pentru prima dată."
@@ -9849,7 +9845,7 @@ msgstr "pornire"
 msgid "bridge"
 msgstr "punte"
 
-#: pkg/storaged/btrfs/device.jsx:28 pkg/storaged/btrfs/volume.jsx:201
+#: pkg/storaged/btrfs/volume.jsx:201 pkg/storaged/btrfs/device.jsx:28
 msgid "btrfs device"
 msgstr "dispozitiv btrfs"
 
@@ -9869,12 +9865,12 @@ msgstr "sub-volum btrfs"
 msgid "btrfs subvolume $0 of $1"
 msgstr "sub-volumul btrfs $0 din $1"
 
-#: pkg/storaged/btrfs/subvolume.jsx:475 pkg/storaged/btrfs/filesystem.jsx:58
-#: pkg/storaged/btrfs/volume.jsx:209 pkg/storaged/btrfs/volume.jsx:221
+#: pkg/storaged/btrfs/filesystem.jsx:58 pkg/storaged/btrfs/volume.jsx:209
+#: pkg/storaged/btrfs/volume.jsx:221 pkg/storaged/btrfs/subvolume.jsx:475
 msgid "btrfs subvolumes"
 msgstr "sub-volume btrfs"
 
-#: pkg/storaged/btrfs/device.jsx:58 pkg/storaged/btrfs/volume.jsx:103
+#: pkg/storaged/btrfs/volume.jsx:103 pkg/storaged/btrfs/device.jsx:58
 msgid "btrfs volume"
 msgstr "volum btrfs"
 
@@ -9939,14 +9935,14 @@ msgstr "dezactivare"
 msgid "debug"
 msgstr "depanare"
 
-#: pkg/storaged/lvm2/block-logical-volume.jsx:50
-#: pkg/storaged/lvm2/volume-group.jsx:69 pkg/storaged/lvm2/volume-group.jsx:297
+#: pkg/storaged/btrfs/volume.jsx:52 pkg/storaged/btrfs/subvolume.jsx:221
 #: pkg/storaged/stratis/pool.jsx:434 pkg/storaged/stratis/filesystem.jsx:98
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:66
-#: pkg/storaged/partitions/partition.jsx:29
 #: pkg/storaged/partitions/format-disk-dialog.jsx:21
-#: pkg/storaged/mdraid/mdraid.jsx:105 pkg/storaged/btrfs/subvolume.jsx:221
-#: pkg/storaged/btrfs/volume.jsx:52 pkg/storaged/block/format-dialog.jsx:194
+#: pkg/storaged/partitions/partition.jsx:29 pkg/storaged/mdraid/mdraid.jsx:105
+#: pkg/storaged/block/format-dialog.jsx:194
+#: pkg/storaged/lvm2/volume-group.jsx:69 pkg/storaged/lvm2/volume-group.jsx:297
+#: pkg/storaged/lvm2/block-logical-volume.jsx:50
 msgid "delete"
 msgstr "șterge"
 
@@ -9984,15 +9980,16 @@ msgstr "unitate"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:43
 #: pkg/users/account-details.js:297 pkg/users/account-details.js:327
-#: pkg/storaged/lvm2/block-logical-volume.jsx:274
-#: pkg/storaged/lvm2/volume-group.jsx:352
-#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:126
-#: pkg/storaged/stratis/pool.jsx:1026 pkg/storaged/stratis/filesystem.jsx:239
+#: pkg/storaged/btrfs/volume.jsx:178 pkg/storaged/stratis/pool.jsx:1026
+#: pkg/storaged/stratis/filesystem.jsx:239
 #: pkg/storaged/stratis/filesystem.jsx:254
 #: pkg/storaged/crypto/encryption.jsx:220
 #: pkg/storaged/crypto/encryption.jsx:223 pkg/storaged/filesystem/utils.jsx:207
 #: pkg/storaged/filesystem/filesystem.jsx:134
-#: pkg/storaged/partitions/partition.jsx:218 pkg/storaged/btrfs/volume.jsx:178
+#: pkg/storaged/partitions/partition.jsx:218
+#: pkg/storaged/lvm2/volume-group.jsx:352
+#: pkg/storaged/lvm2/thin-pool-logical-volume.jsx:126
+#: pkg/storaged/lvm2/block-logical-volume.jsx:274
 #: pkg/networkmanager/dialogs-common.jsx:242
 #: pkg/networkmanager/network-interface.jsx:553
 msgid "edit"
@@ -10532,8 +10529,8 @@ msgstr "cheia SSH nu este o rută"
 msgid "ssh server is empty"
 msgstr "serverul ssh este gol"
 
-#: pkg/storaged/utils.js:901 pkg/storaged/legacy-vdo/legacy-vdo.jsx:32
-#: pkg/storaged/mdraid/mdraid.jsx:45
+#: pkg/storaged/legacy-vdo/legacy-vdo.jsx:32 pkg/storaged/mdraid/mdraid.jsx:45
+#: pkg/storaged/utils.js:901
 msgid "stop"
 msgstr "oprire"
 
@@ -10593,8 +10590,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "unitatea"
 
-#: pkg/systemd/hw-detect.js:115 pkg/systemd/services.jsx:541
-#: pkg/systemd/services.jsx:551
+#: pkg/systemd/services.jsx:541 pkg/systemd/services.jsx:551
+#: pkg/systemd/hw-detect.js:115
 msgid "unknown"
 msgstr "necunoscut"
 
@@ -10606,8 +10603,8 @@ msgstr "țintă necunoscută"
 msgid "unmask"
 msgstr "unmask"
 
-#: pkg/storaged/utils.js:851 pkg/storaged/utils.js:864
-#: pkg/storaged/btrfs/subvolume.jsx:221 pkg/storaged/manifest.json:0
+#: pkg/storaged/btrfs/subvolume.jsx:221 pkg/storaged/utils.js:851
+#: pkg/storaged/utils.js:864 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "demontare"
 

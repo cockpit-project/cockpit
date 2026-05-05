@@ -6,12 +6,11 @@
 import cockpit from "cockpit";
 
 import React, { useState } from "react";
-import { createRoot, Container } from 'react-dom/client';
 
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { TypeaheadSelect, TypeaheadSelectOption } from "cockpit-components-typeahead-select";
 
-const TypeaheadDemo = ({ options } : { options: TypeaheadSelectOption[] }) => {
+const Typeahead = ({ options } : { options: TypeaheadSelectOption[] }) => {
     const [isCreatable, setIsCreatable] = useState(false);
     const [notFoundIsString, setNotFoundIsString] = useState(false);
     const [value, setValue] = useState<string | number | null>();
@@ -53,7 +52,7 @@ const TypeaheadDemo = ({ options } : { options: TypeaheadSelectOption[] }) => {
     );
 };
 
-export function showTypeaheadDemo(rootElement: Container) {
+export const TypeaheadDemo = () => {
     const states: Record<string, string> = {
         AL: "Alabama",
         AK: "Alaska",
@@ -128,6 +127,5 @@ export function showTypeaheadDemo(rootElement: Container) {
     options.push({ decorator: "divider", key: "_divider-end" });
     options.push({ value: "end", content: "The End" });
 
-    const root = createRoot(rootElement);
-    root.render(<TypeaheadDemo options={options} />);
-}
+    return <Typeahead options={options} />;
+};

@@ -18,7 +18,7 @@ const info = {
         "playground/metrics.js",
         "playground/pkgs.js",
         "playground/plot.js",
-        "playground/react-patterns.js",
+        "playground/react-patterns.tsx",
         "playground/service.js",
         "playground/speed.js",
         "playground/test.js",

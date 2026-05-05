@@ -4,29 +4,28 @@
  */
 
 import React from "react";
-import { createRoot } from 'react-dom/client';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardFooter, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
-const CardsDemo = () => {
+export const CardsDemo = () => {
     const cards = [
-        <Card isPlain isCompact key="card1">
+        <Card isCompact key="card1">
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
-        <Card isPlain isCompact key="card2">
+        <Card isCompact key="card2">
             <CardBody>I'm a card in a gallery</CardBody>
             <CardFooter>I have a footer</CardFooter>
         </Card>,
-        <Card isPlain isCompact key="card3">
+        <Card isCompact key="card3">
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
-        <Card isPlain isCompact key="card4">
+        <Card isCompact key="card4">
             <CardTitle>I have a header too</CardTitle>
             <CardBody>I'm a card in a gallery</CardBody>
         </Card>,
-        <Card isPlain key="card5">
+        <Card key="card5">
             <CardHeader actions={{
                 actions: <><input type="checkbox" />
                     <Button className="btn">click</Button></>,
@@ -39,16 +38,8 @@ const CardsDemo = () => {
         </GalleryItem>,
     ];
     return (
-        <>
-            <h4>PF4 cards arranged using a PF4 Gallery</h4>
-            <Gallery hasGutter>
-                { cards }
-            </Gallery>
-        </>
+        <Gallery hasGutter>
+            { cards }
+        </Gallery>
     );
 };
-
-export function showCardsDemo(rootElement) {
-    const root = createRoot(rootElement);
-    root.render(<CardsDemo />);
-}

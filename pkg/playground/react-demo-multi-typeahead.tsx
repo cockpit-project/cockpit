@@ -6,12 +6,11 @@
 import cockpit from "cockpit";
 
 import React, { useState } from "react";
-import { createRoot, Container } from 'react-dom/client';
 
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { MultiTypeaheadSelect, MultiTypeaheadSelectOption } from "cockpit-components-multi-typeahead-select";
 
-const MultiTypeaheadDemo = ({ options } : { options: MultiTypeaheadSelectOption[] }) => {
+const MultiTypeahead = ({ options } : { options: MultiTypeaheadSelectOption[] }) => {
     const [notFoundIsString, setNotFoundIsString] = useState(false);
     const [selected, setSelected] = useState<(string | number)[]>([]);
     const [toggles, setToggles] = useState(0);
@@ -52,7 +51,7 @@ const MultiTypeaheadDemo = ({ options } : { options: MultiTypeaheadSelectOption[
     );
 };
 
-export function showMultiTypeaheadDemo(rootElement: Container) {
+export const MultiTypeaheadDemo = () => {
     const flavors: string[] = [
         "Alumni Swirl",
         "Apple Cobbler Crunch",
@@ -143,6 +142,5 @@ export function showMultiTypeaheadDemo(rootElement: Container) {
 
     const options: MultiTypeaheadSelectOption[] = flavors.map((f, i) => ({ value: i + 1, content: f }));
 
-    const root = createRoot(rootElement);
-    root.render(<MultiTypeaheadDemo options={options} />);
-}
+    return <MultiTypeahead options={options} />;
+};

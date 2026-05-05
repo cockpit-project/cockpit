@@ -5,7 +5,6 @@
 
 import cockpit from "cockpit";
 import React, { useRef, useState } from "react";
-import { Container, createRoot } from 'react-dom/client';
 
 import { Alert, AlertActionCloseButton } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
@@ -18,7 +17,7 @@ import { upload } from "cockpit-upload-helper";
 
 const _ = cockpit.gettext;
 
-export const UploadButton = () => {
+export const UploadDemo = () => {
     const ref = useRef<HTMLInputElement>(null);
     const [files, setFiles] = useState<{[name: string]: {file: File, progress: number, cancel:() => void}}>({});
     const [alert, setAlert] = useState<{variant: "warning" | "danger", title: string, message: string} | null>(null);
@@ -119,9 +118,4 @@ export const UploadButton = () => {
             })}
         </>
     );
-};
-
-export const showUploadDemo = (rootElement: Container) => {
-    const root = createRoot(rootElement);
-    root.render(<UploadButton />);
 };

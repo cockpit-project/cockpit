@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 
+import re
+
 import netlib
 import testlib
 
@@ -151,7 +153,7 @@ class TestNetworkingCheckpoints(netlib.NetworkCase):
             lines = m.execute("journalctl -u NetworkManager | grep op=").split("\n")
             last_checkpoint = None
             for line in lines:
-                match = netlib.re.search('op="checkpoint-create" arg="([^"]*)"', line)
+                match = re.search(r'op="checkpoint-create" arg="([^"]*)"', line)
                 if match:
                     last_checkpoint = match[1]
             if last_checkpoint:

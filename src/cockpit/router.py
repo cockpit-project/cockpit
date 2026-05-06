@@ -143,8 +143,8 @@ class SessionController:
             self._update(timeout=0)
 
     def reset_session_timeout(self) -> None:
-        assert self.deadline is not None
-        self._update(timeout=self.timeout)
+        if self.deadline is not None:
+            self._update(timeout=self.timeout)
 
     def _send_message(self, command, **kwargs):
         for c in self.channels:

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 
-import re
 import subprocess
 from collections.abc import Sequence, Set
 
@@ -112,14 +111,6 @@ class NetworkCase(NetworkHelpers):
                   'systemctl try-restart libvirtd.service')
         if 'default' in m.execute("virsh net-list --name || true"):
             m.execute("virsh net-autostart --disable default; virsh net-destroy default")
-
-        ver = self.machine.execute(
-            "busctl --system get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version || true")
-        ver_match = re.match(r's "(.*)"', ver)
-        if ver_match:
-            self.networkmanager_version = [int(x) for x in ver_match.group(1).split(".")]
-        else:
-            self.networkmanager_version = [0]
 
         # Something unknown sometimes goes wrong with PCP, see #15625
         self.allow_journal_messages("pcp-archive: no such metric: network.interface.* Unknown metric name",

@@ -4,7 +4,6 @@
  */
 
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
@@ -778,12 +777,6 @@ export class ServiceDetails extends React.Component {
         );
     }
 }
-ServiceDetails.propTypes = {
-    unit: PropTypes.object.isRequired,
-    // not required: can be null initially, we don't wait for the proxy
-    permitted: PropTypes.bool,
-    isValid: PropTypes.func.isRequired,
-};
 
 const DeleteModal = ({ reason, name, handleCancel, handleDelete }) => {
     const [inProgress, setInProgress] = useState(false);

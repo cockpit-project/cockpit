@@ -102,7 +102,7 @@ export class SessionController extends EventEmitter<SessionControllerEvents> {
     };
 
     #send_activity_notification() {
-        if (this.#channel && this.#timeout !== 0)
+        if (this.#channel && this.#timeout > 0)
             this.#channel.send_control({ command: "active" });
     }
 }

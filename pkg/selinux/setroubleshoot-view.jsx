@@ -15,6 +15,7 @@ import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/Ex
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
@@ -67,7 +68,7 @@ class SELinuxEventDetails extends React.Component {
                     if (itm.fix.running) {
                         msg = (
                             <div>
-                                <div className="spinner spinner-xs setroubleshoot-progress-spinner" />
+                                <Spinner size="sm" className="setroubleshoot-progress-spinner" />
                                 <span className="setroubleshoot-progress-message"> { _("Applying solution...") }</span>
                             </div>
                         );

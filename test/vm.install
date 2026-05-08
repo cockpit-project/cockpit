@@ -51,6 +51,11 @@ if [ "$ID" = "opensuse-tumbleweed" ]; then
     echo "127.0.1.1 codecs.opensuse.org" >> /etc/hosts
 fi
 
+if [ "$ID" = "ubuntu" ] && [ "$VERSION_ID" = "26.04" ]; then
+    # HACK: https://launchpad.net/bugs/2151857
+    echo '/usr/share/coreutils/locales/** r,' > /etc/apparmor.d/local/who
+fi
+
 PLATFORM_ID="${PLATFORM_ID:-}"
 if [ "${PLATFORM_ID#platform:el}" != "$PLATFORM_ID" ]; then
     # allow /usr/local/bin/ in sudo shells, to use our installed tools like the Python bridge

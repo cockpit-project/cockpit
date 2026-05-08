@@ -98,7 +98,7 @@ def createUser(
 @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 class TestAccounts(testlib.MachineCase):
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -350,7 +350,7 @@ class TestAccounts(testlib.MachineCase):
         # when sed'ing, there is a short time when the config file does not exist
         self.allow_journal_messages(".*libuser initialization error: .*/etc/default/useradd.*: No such file or directory")
 
-    def testFilterAndSort(self):
+    def testFilterAndSort(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -407,7 +407,7 @@ class TestAccounts(testlib.MachineCase):
                         return values;
                     }""")
 
-        def check_column_sort(query_selector, invert=False):
+        def check_column_sort(query_selector: str, invert: bool = False) -> None:
             # current account is always in the first row
             b.wait_in_text("#accounts-list tbody:first-of-type td[data-label='Username']", "admin")
             values = b.eval_js(f"getTextColumn(\"{query_selector}\")")
@@ -449,7 +449,7 @@ class TestAccounts(testlib.MachineCase):
         b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
         check_column_sort("[data-label='ID']")
 
-    def testUserPasswords(self):
+    def testUserPasswords(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -545,10 +545,10 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present('#accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Jussi Junior")
 
-        def is_locked():
+        def is_locked() -> bool:
             return m.execute("passwd -S jussi | cut -d' ' -f2").strip() in ["L", "LK"]
 
-        def is_admin():
+        def is_admin() -> bool:
             return "jussi" in m.execute(f"getent group {m.get_admin_group()}")
 
         admin_role_sel = '#account-groups-form-group'
@@ -735,7 +735,7 @@ class TestAccounts(testlib.MachineCase):
         b.click('#login-button')
         b.wait_visible('#content')
 
-    def testCustomUID(self):
+    def testCustomUID(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -854,7 +854,7 @@ class TestAccounts(testlib.MachineCase):
         b.click("#accounts-create-dialog button.cancel")
         b.wait_not_present("#accounts-create-dialog")
 
-    def testCustomUserProperties(self):
+    def testCustomUserProperties(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -943,7 +943,7 @@ class TestAccounts(testlib.MachineCase):
         b.go("#/robert")
         b.wait_text("#account-shell", custom_shell)
 
-    def testUnprivileged(self):
+    def testUnprivileged(self) -> None:
         m = self.machine
         b = self.browser
         new_password = "tqymuVh.Zf5"
@@ -986,7 +986,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_in_text("#account-set-password-dialog .pf-v6-c-modal-box__body", "must wait longer")
 
     @testlib.skipWsContainer("ssh root login not allowed")
-    def testRootLogin(self):
+    def testRootLogin(self) -> None:
         m = self.machine
         b = self.browser
         new_password = "tqymuVh.Zf5"
@@ -1020,14 +1020,14 @@ class TestAccounts(testlib.MachineCase):
             b.login_and_go("/users", user=user, password=new_password)
             b.logout()
 
-    def accountExpiryInfo(self, account, field):
+    def accountExpiryInfo(self, account: str, field: str) -> str | None:
         for line in self.machine.execute(f"LC_ALL=C chage -l {account}").split("\n"):
             if line.startswith(field):
                 _, _, value = line.partition(":")
                 return value.strip()
         return None
 
-    def testExpire(self):
+    def testExpire(self) -> None:
         m = self.machine
         b = self.browser
 
@@ -1124,7 +1124,7 @@ class TestAccounts(testlib.MachineCase):
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
 
     @testlib.skipWsContainer("User is not shown as logged in with cockpit/ws")
-    def testAccountLogs(self):
+    def testAccountLogs(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -1153,11 +1153,11 @@ class TestAccounts(testlib.MachineCase):
         # this is the correct IP for our CI, and we don't run this on tmt
         b.wait_text("#account-logs [data-label='From']", "::ffff:172.27.0.2")
 
-    def testGroups(self):
+    def testGroups(self) -> None:
         b = self.browser
         m = self.machine
 
-        def selectGroupFromMenu(group, enabled):
+        def selectGroupFromMenu(group: str, enabled: bool) -> None:
             if enabled:
                 testlib.wait(lambda: "testgroup0" not in m.execute("groups admin"))
             else:
@@ -1256,7 +1256,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_in_text(".pf-v6-c-label-group__list", "testgroup0")
         testlib.wait(lambda: "testgroup0" not in m.execute("groups admin"))
 
-    def testGroupCreate(self):
+    def testGroupCreate(self) -> None:
         b = self.browser
 
         self.login_and_go("/users")
@@ -1304,7 +1304,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present("#groups-create-dialog")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("saturn")')
 
-    def testGroupRename(self):
+    def testGroupRename(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -1333,7 +1333,7 @@ class TestAccounts(testlib.MachineCase):
         # Rename and delete actions are available only for user created groups
         b.wait_not_present(f"#groups-list tbody tr[data-row-id='{m.get_admin_group()}'] button.pf-v6-c-menu-toggle")
 
-    def testChangeShell(self):
+    def testChangeShell(self) -> None:
         b = self.browser
         m = self.machine
 

@@ -521,7 +521,7 @@ class ServicesPageBody extends React.Component {
         const pinned_b = this.state.pinnedUnits.includes(unit_b.Id) ? 1 : 0;
 
         if (!unit_a || !unit_b)
-            return false;
+            return 0;
 
         if (failed_a != failed_b)
             return failed_b - failed_a;

@@ -305,9 +305,9 @@ export class SETroubleshootPage extends React.Component {
     }
 
     onSelect(_, isSelected, rowId) {
-        const selected = Object.assign(this.state.selected);
-        selected[this.props.entries[rowId].key] = isSelected;
-        this.setState({ selected });
+        this.setState(prevState => ({
+            selected: { ...prevState.selected, [this.props.entries[rowId].key]: isSelected }
+        }));
     }
 
     render() {

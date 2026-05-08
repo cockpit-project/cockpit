@@ -503,6 +503,8 @@ class TestRealms(testlib.MachineCase):
 class TestIPA(TestRealms, CommonTests):
     def setUp(self):
         super().setUp()
+        m = self.machine
+
         self.admin_user = "admin"
         self.admin_password = "foobarfoo"
         self.alice_password = 'WonderLand123'
@@ -521,15 +523,21 @@ class TestIPA(TestRealms, CommonTests):
             """, timeout=300)
 
         # during image creation the /var/cache directory gets cleaned up, recreate the krb5rcache
-        self.machine.execute("mkdir -pZ /var/cache/krb5rcache")
+        m.execute("mkdir -pZ /var/cache/krb5rcache")
 
         # IPA CA cert has OCSP entry with that host name, make it available
-        self.machine.execute("echo '10.111.112.100 ipa-ca.cockpit.lan' >> /etc/hosts")
+        m.execute("echo '10.111.112.100 ipa-ca.cockpit.lan' >> /etc/hosts")
 
         # HACK: Figure out why this happens
         self.allow_journal_messages(""".*didn't receive expected "authorize" message""",
                                     'cockpit-session:$')
         self.allow_journal_messages('/bin/bash: /home/admin/.bashrc: Permission denied')
+
+        # sudo-rs does not support centralized sudoers rules (FreeIPA), switch to classic sudo
+        if m.image in ["ubuntu-2604"]:
+            if "currently points to /usr/lib/cargo/bin/sudo" not in m.execute("update-alternatives --display sudo"):
+                raise NotImplementedError("expected sudo-rs by default; adjust the test setup")
+            m.execute("update-alternatives --set sudo /usr/bin/sudo.ws")
 
     def checkBackendSpecifics(self):
         """Check domain backend specific integration"""

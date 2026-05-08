@@ -205,6 +205,22 @@ QUnit.test("colors.parse()", assert => {
     colors.forEach(color => assert.equal(machines.colors.parse(color[0]), color[1], "parsed color " + color[0]));
 });
 
+QUnit.test("no path traversal allowed", async assert => {
+    const filename = configDir + "/cockpit/flag";
+    await cockpit.file(filename)
+            .replace('{"green": {"visible": true, "address": "1.2.3.4"}}');
+
+    const host = "red";
+    const props = { visible: cockpit.variant('b', false), address: cockpit.variant('s', "9.8.7.6") };
+    await assert.rejects(
+        dbus.call("/machines", "cockpit.Machines", "Update",
+                  ["../flag", host, props], { type: "ssa{sv}" }),
+        err => err.message.indexOf("Invalid filename") >= 0,
+        "path traversal is rejected");
+    const content = await cockpit.file(filename, { syntax: JSON }).read();
+    assert.deepEqual(content, { green: { visible: true, address: "1.2.3.4" } }, "flag file was not modified");
+});
+
 /* The test cockpit-bridge gets started with temp $XDG_CONFIG_DIRS instead of defaulting to /etc/.
  * Read it from the bridge so that we can put our test files into it. */
 const proxy = dbus.proxy("cockpit.Environment", "/environment");

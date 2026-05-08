@@ -82,6 +82,9 @@ class cockpit_Machines(bus.Object):
 
     @bus.Interface.Method(in_types=['s', 's', 'a{sv}'])
     def update(self, filename: str, hostname: str, attrs: Dict[str, Variant]) -> None:
+        if filename.startswith('.') or '/' in filename:
+            raise bus.BusError('cockpit.Machines.Error', f'Invalid filename: {filename}')
+
         try:
             with self.path.joinpath(filename).open() as fp:
                 contents = json.load(fp)

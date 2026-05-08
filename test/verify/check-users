@@ -9,12 +9,13 @@ import datetime
 import os
 
 import testlib
+from machine import testvm
 
 good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
 
 
-def getUserAddDetails(machine):
-    useradd_defaults = {}
+def getUserAddDetails(machine: testvm.Machine) -> dict[str, str]:
+    useradd_defaults: dict[str, str] = {}
     for line in machine.execute("useradd -D").splitlines():
         key, value = line.split("=")
         useradd_defaults[key] = value
@@ -22,33 +23,33 @@ def getUserAddDetails(machine):
     return useradd_defaults
 
 
-def performUserAction(browser, user, action):
+def performUserAction(browser: testlib.Browser, user: str, action: str) -> None:
     browser.click(f"#accounts-list tr[data-row-id='{user}'] button.pf-v6-c-menu-toggle")
     browser.wait_visible(f"#accounts-list tr[data-row-id='{user}'] button.pf-v6-c-menu-toggle[aria-expanded=true]")
     browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains({action})")
 
 
-def performGroupAction(browser, group, action):
+def performGroupAction(browser: testlib.Browser, group: str, action: str) -> None:
     browser.click(f"#groups-list tbody tr[data-row-id='{group}'] button.pf-v6-c-menu-toggle")
     browser.click(f".pf-v6-c-menu button.pf-v6-c-menu__item:contains({action})")
 
 
 def createUser(
-    browser,
-    machine,
-    user_name,
-    real_name,
-    locked,
-    force_password_change,
-    password=None,
-    custom_home_dir=None,
-    default_shell=None,
-    custom_shell=None,
-    uid=None,
-    expected_uid=None,
-    verify_created=True,
-    run_assert_pixels=False,
-):
+    browser: testlib.Browser,
+    machine: testvm.Machine,
+    user_name: str,
+    real_name: str,
+    locked: bool,
+    force_password_change: bool,
+    password: str | None = None,
+    custom_home_dir: str | None = None,
+    default_shell: str | None = None,
+    custom_shell: str | None = None,
+    uid: str | None = None,
+    expected_uid: str | None = None,
+    verify_created: bool = True,
+    run_assert_pixels: bool = False,
+) -> None:
     if default_shell is None:
         default_shell = getUserAddDetails(machine)["SHELL"] or "/bin/bash"
     browser.click('#accounts-create')

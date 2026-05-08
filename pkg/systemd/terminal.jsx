@@ -51,25 +51,8 @@ const _ = cockpit.gettext;
         constructor(props) {
             super(props);
 
-            let theme = localStorage.getItem('terminal:theme');
-            let size = localStorage.getItem('terminal:font-size');
-            // HACK: Try to read the configuration from localStorage, if it does not exists fall back
-            // to the old configuration stored in a browser's cookie. After enough time has been
-            // passed this can be dropped.
-            if (theme === null || theme === "") {
-                theme = document.cookie.replace(/(?:(?:^|.*;\s*)theme_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
-                if (theme !== "") {
-                    localStorage.setItem('terminal:theme', theme);
-                    this.invalidateCookie("theme_cookie");
-                }
-            }
-            if (size === null || size === "") {
-                size = document.cookie.replace(/(?:(?:^|.*;\s*)size_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
-                if (size !== "") {
-                    localStorage.setItem('terminal:font-size', size);
-                    this.invalidateCookie("size_cookie");
-                }
-            }
+            const theme = localStorage.getItem('terminal:theme');
+            const size = localStorage.getItem('terminal:font-size');
 
             // Check if WebGL2 is available
             // Only checking if WebGL2RenderingContext is defined is not sufficient, in Firefox tests it is defined
@@ -121,12 +104,6 @@ const _ = cockpit.gettext;
 
         onTitleChanged(title) {
             this.setState({ title });
-        }
-
-        invalidateCookie(key) {
-            const cookie = key + "=''" +
-                         "; path=/; Max-Age=0;";
-            document.cookie = cookie;
         }
 
         forceChangeDirectory() {

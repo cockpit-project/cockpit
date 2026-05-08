@@ -2164,6 +2164,8 @@ class MachineCase(unittest.TestCase):
 
         # Ubuntu 25.10 triggers systemd-detect-virt apparmor violations
         '.*apparmor="DENIED" operation="capable" class="cap" profile="systemd-detect-virt".*',
+        # similar on 26.04
+        '.*apparmor="DENIED" operation="sendmsg" class="file" profile="systemd-detect-virt".*',
     ]
 
     default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")

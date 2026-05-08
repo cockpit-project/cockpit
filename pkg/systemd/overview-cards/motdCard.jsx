@@ -76,7 +76,7 @@ export const MotdCard = () => {
         cockpit.file("/etc/motd").watch((content, tag) => {
             /* trim initial empty lines and trailing space, but keep initial spaces to not break ASCII art */
             if (content)
-                content = content.trimRight().replace(/^\s*\n/, '');
+                content = content.trimEnd().replace(/^\s*\n/, '');
             if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
                 setMotdText(content);
                 setMotdTag(tag);

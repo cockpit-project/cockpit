@@ -375,16 +375,9 @@ function currentFrameAbsolutePosition() {
     }, { x: 0, y: 0 });
 }
 
-function flatten(array_of_arrays) {
-    if (array_of_arrays.length > 0)
-        return Array.prototype.concat.apply([], array_of_arrays);
-    else
-        return [];
-}
-
 window.ph_selector_clips = function(sels) {
     const f = currentFrameAbsolutePosition();
-    const elts = flatten(sels.map(window.ph_select));
+    const elts = sels.map(window.ph_select).flat();
     return elts.map(e => {
         const r = e.getBoundingClientRect();
         return { x: r.x + f.x, y: r.y + f.y, width: r.width, height: r.height, scale: 1 };

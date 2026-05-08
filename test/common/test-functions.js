@@ -97,7 +97,7 @@ window.ph_find_scroll_into_view = function(sel) {
        an element is currently visible -- the usual trick to compare getBoundingClientRect() against
        window.innerHeight does not work if the element is in e.g. a scrollable dialog area */
     return new Promise(resolve => {
-        el.scrollIntoView({ behaviour: 'instant', block: 'center', inline: 'center' });
+        el.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
         // scrolling needs a little bit of time to stabilize, and it's not predictable
         // in particular, 'scrollend' is not reliably emitted
         window.setTimeout(() => resolve(el), 200);

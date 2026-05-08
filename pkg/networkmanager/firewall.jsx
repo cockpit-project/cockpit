@@ -116,7 +116,7 @@ function serviceRow(props) {
 
     if (props.service.includes.length > 0) {
         includes = <>
-            <h5>Included Services</h5>
+            <h5>{_("Included Services")}</h5>
             <ul>{props.service.includes.map(s => {
                 const service = firewall.services[s];
                 if (service && service.description)
@@ -148,7 +148,7 @@ function portRow(props) {
         { title: props.port.protocol === "tcp" ? props.port.port : "" },
         { title: props.port.protocol === "udp" ? props.port.port : "" },
 
-        { title: <DeleteDropdown items={[{ text: _("Delete"), danger: true, ariaLabel: "Remove additional port", handleClick: onRemovePort }]} /> }
+        { title: <DeleteDropdown items={[{ text: _("Delete"), danger: true, ariaLabel: _("Remove additional port"), handleClick: onRemovePort }]} /> }
     ];
     return ({
         props: { key: props.key + "-port", 'data-row-id': props.key + "-port" },

@@ -664,7 +664,7 @@ class AddEditServicesModal extends React.Component {
                                                                 dataListCells={[
                                                                     <DataListCell key="service-list-item">
                                                                         <label htmlFor={"firewall-service-" + s.id}
-                                                                               className="service-list-iteam-heading">
+                                                                               className="service-list-item-heading">
                                                                             {s.id}
                                                                         </label>
                                                                         {renderPorts(s)}

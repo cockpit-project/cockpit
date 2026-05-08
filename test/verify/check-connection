@@ -369,7 +369,7 @@ class TestConnection(testlib.MachineCase):
 
             # c-tls respects crypto-policy: newer Fedora-like OSes use hybrid PQC+EC key exchange by default
             if (m.image.startswith(("fedora", "rhel", "centos")) and
-                not m.image.startswith(("rhel-9", "centos-9", "fedora-42"))):
+                not m.image.startswith(("rhel-9", "centos-9"))):
                 self.assertIn("Negotiated TLS1.3 group: X25519MLKEM", output)
             else:
                 self.assertNotIn("Negotiated TLS1.3 group", output)
@@ -579,7 +579,7 @@ class TestConnection(testlib.MachineCase):
 
     @testlib.nondestructive
     @testlib.skipWsContainer("ws container doesn't have certs on the host")
-    @testlib.skipImage("no PQC support", "arch", "debian*", "ubuntu*", "fedora-42", "rhel-9*", "centos-9*")
+    @testlib.skipImage("no PQC support", "arch", "debian*", "ubuntu*", "rhel-9*", "centos-9*")
     def testPQC(self):
         m = self.machine
 

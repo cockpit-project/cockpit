@@ -41,17 +41,22 @@ export class UsageCard extends React.Component {
             cpuUsed: 0, // percentage
         };
 
+        this.onVisibilityChange = this.onVisibilityChange.bind(this);
+        this.onMetricsUpdate = this.onMetricsUpdate.bind(this);
+    }
+
+    componentDidMount() {
         machine_info.cpu_ram_info()
                 .then(info => this.setState({
                     memTotal: info.memory,
                     numCpu: info.cpus,
                 }));
-
-        this.onVisibilityChange = this.onVisibilityChange.bind(this);
-        this.onMetricsUpdate = this.onMetricsUpdate.bind(this);
-
         cockpit.addEventListener("visibilitychange", this.onVisibilityChange);
         this.onVisibilityChange();
+    }
+
+    componentWillUnmount() {
+        cockpit.removeEventListener("visibilitychange", this.onVisibilityChange);
     }
 
     onVisibilityChange() {

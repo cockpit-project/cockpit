@@ -1314,7 +1314,16 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible('#groups-list tr[data-row-id="titan"]')
         performGroupAction(b, "titan", "Rename group")
 
+        b.set_input_text("#group-confirm-rename-dialog #group-name", "foo bar")
+        b.click("#group-confirm-rename-dialog .apply")
+        b.wait_in_text("#group-name-helper", "The group name can only consist of letters from a-z")
+
+        b.set_input_text("#group-confirm-rename-dialog #group-name", "")
+        b.click("#group-confirm-rename-dialog .apply")
+        b.wait_in_text("#group-name-helper", "Group name cannot be empty")
+
         b.set_input_text("#group-confirm-rename-dialog #group-name", "phoebe")
+        b.wait_not_present("#group-name-helper")
         b.click("#group-confirm-rename-dialog .apply")
         b.wait_not_present("#group-confirm-rename-dialog")
         self.assertIn("phoebe", m.execute("getent group"))

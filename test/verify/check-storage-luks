@@ -197,7 +197,7 @@ class TestStorageLuks(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk(400)
+        disk = self.add_loopback_disk(320)  # xfs minimum size is ~300MB
         self.click_card_row("Storage", name=disk)
 
         # Create a encrypted filesystem and mount it readonly. This

@@ -37,7 +37,7 @@ class TestStorageFormat(storagelib.StorageCase):
 
         self.login_and_go("/storage")
 
-        disk = self.add_ram_disk(size=320)  # xfs minimum size is ~300MB
+        disk = self.add_loopback_disk(size=320)  # xfs minimum size is ~300MB
         self.click_card_row("Storage", name=disk)
 
         def check_type(fstype, label_limit):

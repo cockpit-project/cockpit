@@ -60,12 +60,12 @@ export const SmartOverviewStatus = () => {
     });
 
     if (initDone === false || proxies.drives_ata === null || proxies.nvme_controller === null) {
-        return;
+        return null;
     }
 
     const failingDisks = countFailingDisks(proxies);
     if (failingDisks === 0) {
-        return;
+        return null;
     }
 
     return (

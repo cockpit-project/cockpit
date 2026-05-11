@@ -20,10 +20,8 @@ export const UncleanShutdownStatus = () => {
     const [uncleanShutdownStatusVisible, setUncleanShutdownStatusVisible] = useState(false);
 
     useInit(() => {
-        cockpit.spawn(
-            ["last", "--system", "--limit=2", "--time-format=iso", "shutdown", "reboot"],
-            { environ: ["LC_ALL=C"], err: "message", }
-        ).then((data) => {
+        cockpit.exec("last", ["--system", "--limit=2", "--time-format=iso"], ["shutdown", "reboot"],
+                     null, { environ: ["LC_ALL=C"], err: "message" }).then((data) => {
             const previous_boot = data.split("\n")[1];
             if (previous_boot === undefined)
                 return;

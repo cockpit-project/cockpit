@@ -63,16 +63,10 @@ export class LongRunningProcess {
         if (this.state !== ProcessState.STOPPED && this.state !== ProcessState.FAILED)
             throw new Error(`cannot start LongRunningProcess in state ${this.state}`);
         // no need to directly react to this -- JobNew and _checkState() will pick up when the unit runs
-        return cockpit.spawn(
-            [
-                "systemd-run",
-                "--unit", this.serviceName,
-                "--service-type=oneshot",
-                "--no-block",
-                ...runArgs,
-                "--"
-            ].concat(argv),
-            { superuser: "require", err: "message", ...options }
+        return cockpit.exec("systemd-run",
+                            [["--unit", this.serviceName], "--service-type=oneshot", "--no-block", ...runArgs],
+                            argv,
+                            { superuser: "require", err: "message", ...options }
         );
     }
 

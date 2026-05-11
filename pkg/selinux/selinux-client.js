@@ -12,8 +12,6 @@ import cockpit from 'cockpit';
 // how often to check the status [milliseconds]
 const pollingInterval = 10000;
 
-const statusCommand = "sestatus";
-
 // currentStatus reflects the status of SELinux on the system
 const status = {
     enabled: undefined,
@@ -44,7 +42,7 @@ const status = {
  */
 export function init(statusChangedCallback) {
     const refreshInfo = function() {
-        cockpit.spawn(statusCommand, { err: 'message', environ: ["LC_ALL=C"], superuser: "try" }).then(
+        cockpit.exec("sestatus", [], null, { err: 'message', environ: ["LC_ALL=C"], superuser: "try" }).then(
             function(output) {
                 /* parse output that looks like this:
                  *   SELinux status:                 enabled
@@ -217,6 +215,5 @@ ${rules}
 
 // returns a promise of the command used to set enforcing mode
 export function setEnforcing(enforcingMode) {
-    const command = ["setenforce", (enforcingMode ? "1" : "0")];
-    return cockpit.spawn(command, { superuser: "require", err: "message" });
+    return cockpit.exec("setenforce", [], [enforcingMode ? "1" : "0"], { superuser: "require", err: "message" });
 }

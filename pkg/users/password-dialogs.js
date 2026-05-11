@@ -45,7 +45,7 @@ function passwd_self(old_pass, new_pass) {
             proc.close("timeout");
         }, 10 * 1000);
 
-        const proc = cockpit.spawn(["passwd"], { pty: true, environ: ["LC_ALL=C"], err: "out" })
+        const proc = cockpit.exec("passwd", [], null, { pty: true, environ: ["LC_ALL=C"], err: "out" })
                 .always(function() {
                     window.clearInterval(timeout);
                 })
@@ -97,7 +97,7 @@ function passwd_self(old_pass, new_pass) {
 
 export function passwd_change(user, new_pass) {
     return new Promise((resolve, reject) => {
-        cockpit.spawn(["chpasswd"], { superuser: "require", err: "out" })
+        cockpit.exec("chpasswd", [], null, { superuser: "require", err: "out" })
                 .input(user + ":" + new_pass)
                 .done(function() {
                     resolve();
@@ -264,8 +264,8 @@ export function reset_password_dialog(account) {
                 caption: _("Reset password"),
                 style: "primary",
                 clicked: () => {
-                    return cockpit.spawn(["passwd", "-e", account.name],
-                                         { superuser: "require", err: "message" });
+                    return cockpit.exec("passwd", ["-e"], [account.name],
+                                        { superuser: "require", err: "message" });
                 }
             }
         ]

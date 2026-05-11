@@ -7,7 +7,7 @@ import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
 export const cpu_ram_info = () =>
-    cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"])
+    cockpit.exec("cat", [], ["/proc/meminfo", "/proc/cpuinfo"])
             .then(text => {
                 const info = { };
                 const memtotal_match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
@@ -173,7 +173,7 @@ function parseUdevDB(text) {
 }
 
 export function udev_info() {
-    return cockpit.spawn(["udevadm", "info", "--export-db"], { err: "message" })
+    return cockpit.exec("udevadm", ["info", "--export-db"], null, { err: "message" })
             .then(output => parseUdevDB(output));
 }
 
@@ -243,6 +243,6 @@ function processMemory(info) {
 }
 
 export function memory_info() {
-    return cockpit.spawn(["dmidecode", "-t", "memory"], { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
+    return cockpit.exec("dmidecode", [["-t", "memory"]], null, { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
             .then(output => parseMemoryInfo(output));
 }

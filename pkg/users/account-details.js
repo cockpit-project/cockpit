@@ -96,8 +96,8 @@ function get_expire(name) {
         };
     }
 
-    return cockpit.spawn(["chage", "-l", name],
-                         { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
+    return cockpit.exec("chage", ["-l"], [name],
+                        { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
             .catch(() => "")
             .then(parse_expire);
 }
@@ -149,8 +149,8 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
 
         setCommittingRealName(true);
 
-        cockpit.spawn(["/usr/sbin/usermod", user, "--comment", editedRealName],
-                      { superuser: "try", err: "message" })
+        cockpit.exec("/usr/sbin/usermod", [["--comment", editedRealName]], [user],
+                     { superuser: "try", err: "message" })
                 .then(() => {
                     setEditedRealName(null);
                     setCommittingRealName(false);
@@ -166,8 +166,8 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
         setIsLocked(value);
         setDisableLockedEdit(true);
 
-        cockpit.spawn(["/usr/sbin/usermod", user, value ? "--lock" : "--unlock"],
-                      { superuser: "require", err: "message" })
+        cockpit.exec("/usr/sbin/usermod", [value ? "--lock" : "--unlock"], [user],
+                     { superuser: "require", err: "message" })
                 .then(() => {
                     get_locked(user)
                             .then(locked => {
@@ -193,8 +193,8 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
     }
 
     function logout_account() {
-        cockpit.spawn(["loginctl", "terminate-user", user],
-                      { superuser: "try", err: "message" })
+        cockpit.exec("loginctl", ["terminate-user"], [user],
+                     { superuser: "try", err: "message" })
                 .then(() => {
                     get_expire(user).then(setExpiration);
                 })
@@ -403,7 +403,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
             setHistory([...history, { type: 'removed', name: group }]);
 
         setModifyingGroup(true);
-        return cockpit.spawn(["gpasswd", "-d", name, group], { superuser: "require", err: "message" })
+        return cockpit.exec("gpasswd", ["-d"], [name, group], { superuser: "require", err: "message" })
                 .then(() => {
                     setModifyingGroup(false);
                 }, show_unexpected_error);
@@ -414,7 +414,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
             setHistory([...history, { type: 'added', name: group }]);
 
         setModifyingGroup(true);
-        return cockpit.spawn(["gpasswd", "-a", name, group], { superuser: "require", err: "message" })
+        return cockpit.exec("gpasswd", ["-a"], [name, group], { superuser: "require", err: "message" })
                 .then(() => {
                     setModifyingGroup(false);
                 }, show_unexpected_error);

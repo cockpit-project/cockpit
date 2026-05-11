@@ -62,9 +62,7 @@ QUnit.test("FsInfoClient errors", async assert => {
 QUnit.test("fsinfo cases", async assert => {
     assert.timeout(5000);
 
-    const dir = await cockpit.spawn([
-        'sh', '-c',
-        `
+    const dir = await cockpit.exec("sh", [["-c", `
            cd "$(mktemp -d)"
            echo -n "$(pwd)"
 
@@ -98,8 +96,7 @@ QUnit.test("fsinfo cases", async assert => {
 
            # a symlink pointing to itself
            ln -sf loopy loopy
-        `
-    ]);
+        `]]);
 
     const cases: Record<string, FsInfoState> = {
         dir: { info: { type: 'dir', entries: { 'dir-file.txt': { type: 'reg' } } } },
@@ -153,8 +150,8 @@ QUnit.test("fsinfo cases", async assert => {
             client.close();
         }
     } finally {
-        await cockpit.spawn(["chmod", "-R", "u+rwX", dir]);
-        await cockpit.spawn(["rm", "-rf", dir]);
+        await cockpit.exec("chmod", ["-R"], ["u+rwX", dir]);
+        await cockpit.exec("rm", ["-rf"], [dir]);
     }
 });
 

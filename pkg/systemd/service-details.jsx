@@ -435,8 +435,8 @@ export class ServiceDetails extends React.Component {
 
         await Promise.all(this.props.unit.Triggers.map(async trigger => {
             // Getting dbus properties from a non-loaded unit is not possible so resort to systemctl show
-            const unitPath = await cockpit.spawn(["systemctl", "show", "--value",
-                "--property", "FragmentPath", trigger]);
+            const unitPath = await cockpit.exec("systemctl", ["show", "--value",
+                ["--property", "FragmentPath"]], [trigger]);
             paths.push(unitPath.trim());
         })).catch(err => console.error("failed to look up unit details:", err.toString()));
 

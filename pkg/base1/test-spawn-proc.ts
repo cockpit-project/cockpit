@@ -3,32 +3,32 @@ import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
 QUnit.test("simple process", async assert => {
-    const resp = await cockpit.spawn(["/bin/sh", "-c", "echo hi"]);
+    const resp = await cockpit.exec("/bin/sh", [["-c", "echo hi"]]);
     assert.equal(resp, "hi\n", "returned output");
 });
 
 QUnit.test("path", async assert => {
-    const resp = await cockpit.spawn(["true"]);
+    const resp = await cockpit.exec("true", []);
     assert.equal(resp, "", "found executable");
 });
 
 QUnit.test("directory", async assert => {
-    const resp = await cockpit.spawn(["pwd"], { directory: "/tmp" });
+    const resp = await cockpit.exec("pwd", [], null, { directory: "/tmp" });
     assert.equal(resp, "/tmp\n", "was right");
 });
 
 QUnit.test("error log", async assert => {
-    const resp = await cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"]);
+    const resp = await cockpit.exec("/bin/sh", [["-c", "echo hi; echo yo >&2"]]);
     assert.equal(resp, "hi\n", "produced no output");
 });
 
 QUnit.test("error output", async assert => {
-    const resp = await cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "out" });
+    const resp = await cockpit.exec("/bin/sh", [["-c", "echo hi; echo yo >&2"]], null, { err: "out" });
     assert.equal(resp, "hi\nyo\n", "showed up");
 });
 
 QUnit.test("error message", async assert => {
-    const proc = cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "message" });
+    const proc = cockpit.exec("/bin/sh", [["-c", "echo hi; echo yo >&2"]], null, { err: "message" });
     proc.done(function(resp, message) {
         assert.equal(resp, "hi\n", "produced output");
         assert.equal(message, "yo\n", "produced message");
@@ -38,7 +38,7 @@ QUnit.test("error message", async assert => {
 });
 
 QUnit.test("error message fail", async assert => {
-    const proc = cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2; exit 2"], { err: "message" });
+    const proc = cockpit.exec("/bin/sh", [["-c", "echo hi; echo yo >&2; exit 2"]], null, { err: "message" });
     proc.fail(function(ex, resp) {
         assert.equal(resp, "hi\n", "produced output");
         assert.equal(ex.message, "yo", "produced message");
@@ -48,17 +48,17 @@ QUnit.test("error message fail", async assert => {
 });
 
 QUnit.test("nonexisting executable", assert => {
-    assert.rejects(cockpit.spawn(["/bin/nonexistent"]),
+    assert.rejects(cockpit.exec("/bin/nonexistent", []),
                    (ex: cockpit.BasicError) => ex.problem == "not-found");
 });
 
 QUnit.test("permission denied", assert => {
-    assert.rejects(cockpit.spawn(["/etc/hostname"]),
+    assert.rejects(cockpit.exec("/etc/hostname", []),
                    (ex: cockpit.BasicError) => ex.problem == "access-denied");
 });
 
 QUnit.test("write eof read", async assert => {
-    const proc = cockpit.spawn(["/usr/bin/sort"]);
+    const proc = cockpit.exec("/usr/bin/sort", []);
     proc.input("2\n", true);
     proc.input("3\n1\n");
     assert.equal(await proc, "1\n2\n3\n", "output");
@@ -67,7 +67,7 @@ QUnit.test("write eof read", async assert => {
 QUnit.test("stream", async assert => {
     let streamed = 0;
     let result = "";
-    const resp = await cockpit.spawn(["/bin/cat"])
+    const resp = await cockpit.exec("/bin/cat", [])
             .input("11\n", true)
             .input("22\n", true)
             .input("33\n")
@@ -82,7 +82,7 @@ QUnit.test("stream", async assert => {
 
 QUnit.test("stream packets", async assert => {
     let streamed = "";
-    const resp = await cockpit.spawn(["/bin/cat"])
+    const resp = await cockpit.exec("/bin/cat", [])
             .input("11\n", true)
             .input("22\n", true)
             .input("33\n")
@@ -96,7 +96,7 @@ QUnit.test("stream replaced", async assert => {
     let first = false;
     let second = false;
 
-    await cockpit.spawn(["/bin/cat"])
+    await cockpit.exec("/bin/cat", [])
             .input("11\n", true)
             .input("22\n", true)
             .input("33\n")
@@ -109,7 +109,7 @@ QUnit.test("stream replaced", async assert => {
 
 QUnit.test("stream partial", async assert => {
     let streamed = "";
-    const resp = await cockpit.spawn(["/bin/cat"])
+    const resp = await cockpit.exec("/bin/cat", [])
             .input("1234")
             .stream(chunk => {
                 if (chunk.length > 0) {
@@ -123,7 +123,7 @@ QUnit.test("stream partial", async assert => {
 
 QUnit.test("stream partial binary", async assert => {
     const streamed: number[] = [];
-    const resp = await cockpit.spawn(["/bin/cat"], { binary: true })
+    const resp = await cockpit.exec("/bin/cat", [], null, { binary: true })
             .input(new Uint8Array([0, 1, 2, 3]))
             .stream(chunk => {
                 if (chunk.length > 0) {
@@ -160,13 +160,13 @@ QUnit.test("script without args", async assert => {
 });
 
 QUnit.test("pty", async assert => {
-    const proc = cockpit.spawn(['sh', '-c', "tty; test -t 0"], { pty: true });
+    const proc = cockpit.exec("sh", [["-c", "tty; test -t 0"]], null, { pty: true });
     const output = await proc;
     assert.equal(output.indexOf('/dev/pts'), 0, 'TTY is a pty: ' + output);
 });
 
 QUnit.test("pty window size", async assert => {
-    const proc = cockpit.spawn(['tput', 'lines', 'cols'], {
+    const proc = cockpit.exec("tput", [], ["lines", "cols"], {
         pty: true,
         environ: ["TERM=vt100"],
         window: { rows: 77, cols: 88 }
@@ -175,14 +175,14 @@ QUnit.test("pty window size", async assert => {
 });
 
 QUnit.test("pty window size limits", async assert => {
-    let proc = cockpit.spawn(['stty', 'size'], {
+    let proc = cockpit.exec("stty", ["size"], null, {
         pty: true,
         environ: ["TERM=vt100"],
         window: { rows: -1, cols: 65538 }
     });
     assert.equal(await proc, '0 65535\r\n', 'Clamps to 0x65535');
 
-    proc = cockpit.spawn(['stty', 'size'], {
+    proc = cockpit.exec("stty", ["size"], null, {
         pty: true,
         environ: ["TERM=vt100"],
         // HACK: tput fallback to 80 if cols are 0
@@ -193,7 +193,7 @@ QUnit.test("pty window size limits", async assert => {
 
 QUnit.test("stream large output", async assert => {
     let lastblock = "";
-    const resp = await cockpit.spawn(["seq", "10000000"])
+    const resp = await cockpit.exec("seq", [], ["10000000"])
             .stream(resp => {
                 if (lastblock === "")
                     assert.equal(resp.slice(0, 4), "1\n2\n", "stream data starts with first numbers");
@@ -204,7 +204,7 @@ QUnit.test("stream large output", async assert => {
 });
 
 QUnit.test("cancel process", async assert => {
-    const proc = cockpit.spawn(["sleep", "418"]);
+    const proc = cockpit.exec("sleep", [], ["418"]);
     await cockpit.script("until pgrep -af [s]leep.*418; do sleep 0.1; done");
     proc.close("cancelled");
     await cockpit.script("timeout 5 sh -ec 'while pgrep -af [s]leep.*418; do sleep 0.1; done'");

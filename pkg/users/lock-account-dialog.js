@@ -21,7 +21,7 @@ export const lockAccountDialog = (account) => {
                 style: "danger",
                 caption: _("Lock"),
                 clicked: () => {
-                    return cockpit.spawn(["/usr/sbin/usermod", account.name, "--lock"], { superuser: "require", err: "message" })
+                    return cockpit.exec("/usr/sbin/usermod", ["--lock"], [account.name], { superuser: "require", err: "message" })
                             .catch(err => console.warn("Failed to log user out", err));
                 },
             }

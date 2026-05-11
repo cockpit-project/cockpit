@@ -64,19 +64,19 @@ QUnit.test("binary false", async assert => {
 
 QUnit.test("simple replace", async assert => {
     await cockpit.file(dir + "/bar").replace("4321\n");
-    const res = await cockpit.spawn(["cat", dir + "/bar"]);
+    const res = await cockpit.exec("cat", [], [dir + "/bar"]);
     assert.equal(res, "4321\n", "correct content");
 });
 
 QUnit.test("empty replace", async assert => {
     await cockpit.file(`${dir}/bar`).replace("");
-    const res = await cockpit.spawn(["cat", `${dir}/bar`]);
+    const res = await cockpit.exec("cat", [], [`${dir}/bar`]);
     assert.equal(res, "", "correct content");
 });
 
 QUnit.test("stringify replace", async assert => {
     await cockpit.file(dir + "/bar", { syntax: JSON }).replace({ foo: 4321 });
-    const res = await cockpit.spawn(["cat", dir + "/bar"]);
+    const res = await cockpit.exec("cat", [], [dir + "/bar"]);
     assert.deepEqual(JSON.parse(res), { foo: 4321 }, "correct content");
 });
 
@@ -94,14 +94,14 @@ QUnit.test("stringify replace error", async assert => {
 
 QUnit.test("binary replace", async assert => {
     await cockpit.file(dir + "/bar", { binary: true }).replace(new Uint8Array([3, 2, 1, 0]));
-    const res = await cockpit.spawn(["cat", dir + "/bar"], { binary: true });
+    const res = await cockpit.exec("cat", [], [dir + "/bar"], { binary: true });
     assert.deepEqual(res, new Uint8Array([3, 2, 1, 0]), "correct content");
 });
 
 QUnit.test("replace large", async assert => {
     const str = new Array(23 * 1023).join('abcdef12345');
     await cockpit.file(dir + "/large").replace(str);
-    const res = await cockpit.spawn(["cat", dir + "/large"]);
+    const res = await cockpit.exec("cat", [], [dir + "/large"]);
     assert.equal(res.length, str.length, "correct large length");
     assert.ok(res == str, "correct large data");
 });
@@ -112,7 +112,7 @@ QUnit.test("binary replace large", async assert => {
     for (let i = 0; i < len; i++)
         data[i] = i % 233;
     await cockpit.file(dir + "/large-binary", { binary: true }).replace(data);
-    const res = await cockpit.spawn(["cat", dir + "/large-binary"], { binary: true });
+    const res = await cockpit.exec("cat", [], [dir + "/large-binary"], { binary: true });
     let eq = true;
     assert.equal(res.byteLength, 249 * 1023, "check length");
     assert.equal(res.byteLength, data.byteLength, "correct large length");
@@ -143,10 +143,10 @@ QUnit.test("fsreplace1 attrs", async assert => {
 });
 
 QUnit.test("remove", async assert => {
-    const exists = await cockpit.spawn(["bash", "-c", "test -f " + dir + "/bar && echo exists"]);
+    const exists = await cockpit.exec("bash", [["-c", "test -f " + dir + "/bar && echo exists"]]);
     assert.equal(exists, "exists\n", "exists");
     await cockpit.file(dir + "/bar").replace(null);
-    const res = await cockpit.spawn(["bash", "-c", "test -f " + dir + "/bar || echo gone"]);
+    const res = await cockpit.exec("bash", [["-c", "test -f " + dir + "/bar || echo gone"]]);
     assert.equal(res, "gone\n", "gone");
 });
 
@@ -219,7 +219,7 @@ QUnit.test("modify", async assert => {
     });
     assert.equal(n, 1, "callback called once");
 
-    assert.equal(await cockpit.spawn(["cat", dir + "/quux"]), "dcba\n", "correct content");
+    assert.equal(await cockpit.exec("cat", [], [dir + "/quux"]), "dcba\n", "correct content");
 
     // make sure that writing "" results in an empty file, not a deleted one
     n = 0;
@@ -230,7 +230,7 @@ QUnit.test("modify", async assert => {
     });
     assert.equal(n, 1, "callback called once");
 
-    assert.equal(await cockpit.spawn(["cat", dir + "/quux"]), "", "correct content");
+    assert.equal(await cockpit.exec("cat", [], [dir + "/quux"]), "", "correct content");
 
     // make sure that writing null deletes the file
     n = 0;
@@ -241,7 +241,7 @@ QUnit.test("modify", async assert => {
     });
     assert.equal(n, 1, "callback called once");
 
-    assert.rejects(cockpit.spawn(["cat", dir + "/quux"]), /No such file or directory/, "file deleted");
+    assert.rejects(cockpit.exec("cat", [], [dir + "/quux"]), /No such file or directory/, "file deleted");
 });
 
 QUnit.test("modify with conflict", async assert => {
@@ -262,7 +262,7 @@ QUnit.test("modify with conflict", async assert => {
             // @ts-expect-error cannot represent modify promise signature with tag
             .then(async (content, tag) => {
                 let n = 0;
-                await cockpit.spawn(["bash", "-c", "sleep 1; echo XYZ > " + dir + "/baz"]);
+                await cockpit.exec("bash", [["-c", "sleep 1; echo XYZ > " + dir + "/baz"]]);
                 await file.modify(old => {
                     cockpit.assert(old !== null, "old is null");
                     n += 1;
@@ -274,7 +274,7 @@ QUnit.test("modify with conflict", async assert => {
                 }, content, tag);
 
                 assert.equal(n, 2, "callback called twice");
-                const res = await cockpit.spawn(["cat", dir + "/baz"]);
+                const res = await cockpit.exec("cat", [], [dir + "/baz"]);
                 assert.equal(res, "xyz\n", "correct content");
                 done();
             });
@@ -291,13 +291,13 @@ QUnit.test("watching", assert => {
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
             assert.equal(tag, "-", "empty tag");
-            cockpit.spawn(["bash", "-c", "cd " + dir + " && echo 1234 > foobar.tmp && mv foobar.tmp foobar"]);
+            cockpit.exec("bash", [["-c", "cd " + dir + " && echo 1234 > foobar.tmp && mv foobar.tmp foobar"]]);
         } else if (n == 2) {
             assert.equal(content, "1234\n", "correct new content");
             assert.notEqual(tag, "-");
             cockpit.assert(tag !== null, "tag is null");
             assert.ok(tag.length > 5, "tag has a reasonable size");
-            cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
+            cockpit.exec("bash", [["-c", "rm " + dir + "/foobar"]]);
         } else if (n == 3) {
             assert.equal(content, null, "finally non-existent");
             assert.equal(tag, "-", "empty tag");
@@ -317,10 +317,10 @@ QUnit.test("binary watching", assert => {
         n += 1;
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
-            cockpit.spawn(["bash", "-c", "cd " + dir + " && echo '//8BAg==' | base64 -d > foobar.tmp && mv foobar.tmp foobar"]);
+            cockpit.exec("bash", [["-c", "cd " + dir + " && echo '//8BAg==' | base64 -d > foobar.tmp && mv foobar.tmp foobar"]]);
         } else if (n == 2) {
             assert.deepEqual(content, new Uint8Array([255, 255, 1, 2]), "correct new content");
-            cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
+            cockpit.exec("bash", [["-c", "rm " + dir + "/foobar"]]);
         } else if (n == 3) {
             assert.equal(content, null, "finally non-existent");
             watch.remove();
@@ -339,10 +339,10 @@ QUnit.test("syntax watching", assert => {
         n += 1;
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
-            cockpit.spawn(["bash", "-c", "cd " + dir + " && echo '[ 1, 2, 3, 4 ]' > foobar.json.tmp && mv foobar.json.tmp foobar.json"]);
+            cockpit.exec("bash", [["-c", "cd " + dir + " && echo '[ 1, 2, 3, 4 ]' > foobar.json.tmp && mv foobar.json.tmp foobar.json"]]);
         } else if (n == 2) {
             assert.deepEqual(content, [1, 2, 3, 4], "correct new content");
-            cockpit.spawn(["bash", "-c", "echo 'hi-there-this-is-not-json'  > " + dir + "/foobar.json"]);
+            cockpit.exec("bash", [["-c", "echo 'hi-there-this-is-not-json'  > " + dir + "/foobar.json"]]);
         } else if (n == 3) {
             assert.ok(err instanceof SyntaxError, "got SyntaxError error");
             watch.remove();
@@ -363,13 +363,13 @@ QUnit.test("watching without reading", assert => {
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
             assert.equal(tag, "-", "empty tag");
-            cockpit.spawn(["bash", "-c", "cd " + dir + " && echo 1234 > foobar.tmp && mv foobar.tmp foobar"]);
+            cockpit.exec("bash", [["-c", "cd " + dir + " && echo 1234 > foobar.tmp && mv foobar.tmp foobar"]]);
         } else if (n == 2) {
             assert.equal(content, null, "no content as reading is disabled");
             assert.notEqual(tag, "-");
             cockpit.assert(tag !== null, "tag is null");
             assert.ok(tag.length > 5, "tag has a reasonable size");
-            cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
+            cockpit.exec("bash", [["-c", "rm " + dir + "/foobar"]]);
         } else if (n == 3) {
             assert.equal(content, null, "finally non-existent");
             assert.equal(tag, "-", "empty tag");
@@ -420,19 +420,19 @@ QUnit.test("watching directory", assert => {
             assert.equal(msg.path, dir + "/world.txt");
             assert.notEqual(msg.tag, "-");
 
-            cockpit.spawn(["chmod", "001", `${dir}/world.txt`]);
+            cockpit.exec("chmod", [], ["001", `${dir}/world.txt`]);
         } else if (n == 4) {
             assert.equal(msg.event, "attribute-changed", "world.txt attribute-changed");
             assert.equal(msg.path, dir + "/world.txt");
             assert.notEqual(msg.tag, "-");
 
-            cockpit.spawn(["rm", `${dir}/world.txt`]);
+            cockpit.exec("rm", [], [`${dir}/world.txt`]);
         } else if (n == 5) {
             assert.equal(msg.event, "deleted", "world.txt deleted");
             assert.equal(msg.path, dir + "/world.txt");
             assert.equal(msg.tag, "-");
 
-            cockpit.spawn(["mkdir", `${dir}/somedir`]);
+            cockpit.exec("mkdir", [], [`${dir}/somedir`]);
         } else if (n == 6) {
             assert.equal(msg.event, "created", "somedir created");
             assert.equal(msg.path, dir + "/somedir");
@@ -445,13 +445,11 @@ QUnit.test("watching directory", assert => {
     });
 
     // trigger the first event
-    cockpit.spawn(["sh", "-c", `echo hello > ${dir}/world.txt`]);
+    cockpit.exec("sh", [["-c", `echo hello > ${dir}/world.txt`]]);
 });
 
 QUnit.test("watching error", async assert => {
-    const dir = await cockpit.spawn([
-        'sh', '-c',
-        `
+    const dir = await cockpit.exec("sh", [["-c", `
            cd "$(mktemp -d)"
            echo -n "$(pwd)"
 
@@ -459,8 +457,7 @@ QUnit.test("watching error", async assert => {
            echo dir file > dir/dir-file.txt
            echo do not read this > dir-file.xtx
            chmod 0 dir
-        `
-    ]);
+        `]]);
 
     const file = cockpit.file(`${dir}/dir/file`);
 
@@ -476,8 +473,8 @@ QUnit.test("watching error", async assert => {
         });
     } finally {
         file.close();
-        await cockpit.spawn(["chmod", "-R", "u+rwX", dir]);
-        await cockpit.spawn(["rm", "-rf", dir]);
+        await cockpit.exec("chmod", ["-R"], ["u+rwX", dir]);
+        await cockpit.exec("rm", ["-rf"], [dir]);
     }
 });
 
@@ -524,12 +521,12 @@ QUnit.test("channel options", async assert => {
 });
 
 QUnit.test("remove testdir", async assert => {
-    await cockpit.spawn(["rm", "-rf", dir]);
+    await cockpit.exec("rm", ["-rf"], [dir]);
     assert.ok(true, "did not crash");
 });
 
 (async () => {
-    const resp = await cockpit.spawn(["bash", "-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; dd if=/dev/zero of=$d/large.bin bs=1k count=512; echo $d"]);
+    const resp = await cockpit.exec("bash", [["-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; dd if=/dev/zero of=$d/large.bin bs=1k count=512; echo $d"]]);
     dir = resp.replace(/\n$/, "");
     QUnit.start();
 })();

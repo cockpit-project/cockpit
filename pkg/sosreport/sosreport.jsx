@@ -140,8 +140,8 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
     const starting_regex = /Starting ([0-9]+)\/([0-9]+).*\[Running: (.*)\]/;
 
     // TODO - Use a real API instead of scraping stdout once such an API exists
-    const task = cockpit.spawn(["sos", "report", "--batch"].concat(args),
-                               { superuser: "require", err: "out", pty: true });
+    const task = cockpit.exec("sos", ["report", "--batch", ...args], null,
+                              { superuser: "require", err: "out", pty: true });
 
     task.stream(text => {
         let p = 0;
@@ -244,23 +244,17 @@ const SOSDialog = () => {
 
         const args = [];
 
-        if (label) {
-            args.push("--label");
-            args.push(label);
-        }
+        if (label)
+            args.push(["--label", label]);
 
-        if (passphrase) {
-            args.push("--encrypt-pass");
-            args.push(passphrase);
-        }
+        if (passphrase)
+            args.push(["--encrypt-pass", passphrase]);
 
-        if (obfuscate) {
+        if (obfuscate)
             args.push("--clean");
-        }
 
-        if (verbose) {
+        if (verbose)
             args.push("-v");
-        }
 
         const task = sosCreate(args, setProgress, err => { if (err == "cancelled") Dialogs.close(); else setError(err); },
                                setErrorDetail);

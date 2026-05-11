@@ -179,7 +179,7 @@ function validate_uid(uid, accounts, min_uid, max_uid, change) {
 }
 
 function validate_home_dir(dir, directoryExpected) {
-    return cockpit.spawn(["test", "!", directoryExpected ? "-d" : "-f", dir], { superuser: "require" });
+    return cockpit.exec("test", ["!", [directoryExpected ? "-d" : "-f", dir]], null, { superuser: "require" });
 }
 
 function validate_password(password) {
@@ -271,7 +271,7 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
     let user_name_dirty = false;
 
     function get_defaults() {
-        return cockpit.spawn(["useradd", "-D"], { superuser: "require", err: "message" })
+        return cockpit.exec("useradd", ["-D"], null, { superuser: "require", err: "message" })
                 .then(defaults => {
                     let shell = "";
                     let base_home_dir = null;
@@ -384,46 +384,30 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
     }
 
     function create(real_name, user_name, password, locked, uid, force_change, home_dir, force_home, force_uid) {
-        const prog = ["useradd", "--create-home", "-s", state.shell];
-        if (real_name) {
-            prog.push('-c');
-            prog.push(real_name);
-        }
-
-        if (uid) {
-            prog.push('-u');
-            prog.push(uid);
-        }
-
+        const opts = ["--create-home", ["-s", state.shell]];
+        if (real_name)
+            opts.push(['-c', real_name]);
+        if (uid)
+            opts.push(['-u', uid]);
         if (force_uid)
-            prog.push('-o'); // Create user with non-unique user-specified UID, useful at certain use cases
+            opts.push('-o'); // Create user with non-unique user-specified UID, useful at certain use cases
+        if (home_dir)
+            opts.push(['-d', home_dir]);
 
-        if (home_dir) {
-            prog.push('-d');
-            prog.push(home_dir);
-        }
-
-        prog.push(user_name);
-        return cockpit.spawn(prog, { superuser: "require", err: "message" })
+        return cockpit.exec("useradd", opts, [user_name], { superuser: "require", err: "message" })
                 .then(() => passwd_change(user_name, password))
                 .then(() => {
                     if (locked)
-                        return cockpit.spawn([
-                            "usermod",
-                            user_name,
-                            "--lock"
-                        ], { superuser: "require", err: "message" });
+                        return cockpit.exec("usermod", ["--lock"], [user_name],
+                                            { superuser: "require", err: "message" });
                     if (force_change)
-                        return cockpit.spawn([
-                            "passwd",
-                            "-e",
-                            user_name
-                        ], { superuser: "require", err: "message" });
+                        return cockpit.exec("passwd", ["-e"], [user_name],
+                                            { superuser: "require", err: "message" });
                 })
                 .then(() => {
                     if (force_home) {
-                        return cockpit.spawn(["id", user_name, "--group"], { superuser: "require", err: "message" })
-                                .then(gid => cockpit.spawn(["chown", "-hR", `${user_name}:${gid.trim()}`, home_dir], { superuser: "require", err: "message" }));
+                        return cockpit.exec("id", ["--group"], [user_name], { superuser: "require", err: "message" })
+                                .then(gid => cockpit.exec("chown", ["-hR"], [`${user_name}:${gid.trim()}`, home_dir], { superuser: "require", err: "message" }));
                     }
                 });
     }

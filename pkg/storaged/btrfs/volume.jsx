@@ -138,8 +138,8 @@ function rename_dialog(block_btrfs, label, rw_mount_point) {
             Title: _("Save"),
             action: async function (vals) {
                 if (rw_mount_point) {
-                    await cockpit.spawn(["btrfs", "filesystem", "label", rw_mount_point, vals.name],
-                                        { superuser: true });
+                    await cockpit.exec("btrfs", ["filesystem", "label"], [rw_mount_point, vals.name],
+                                       { superuser: true });
                     const block = client.blocks[block_btrfs.path];
                     await block.Rescan({});
                 } else

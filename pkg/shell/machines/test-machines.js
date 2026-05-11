@@ -7,9 +7,9 @@ const dbus = cockpit.dbus(null, { bus: "internal" });
 let configDir;
 
 QUnit.module("machines.d parsing tests", {
-    beforeEach: () => cockpit.spawn(["mkdir", "-p", configDir + "/cockpit/machines.d"]),
-    afterEach: () => cockpit.spawn(["rm", "-rf", configDir + "/cockpit/machines.d"]),
-    after: () => cockpit.spawn(["rm", "-r", configDir]),
+    beforeEach: () => cockpit.exec("mkdir", ["-p"], [configDir + "/cockpit/machines.d"]),
+    afterEach: () => cockpit.exec("rm", ["-rf"], [configDir + "/cockpit/machines.d"]),
+    after: () => cockpit.exec("rm", ["-r"], [configDir]),
 });
 
 /***
@@ -23,7 +23,7 @@ async function machinesParseTest(assert, machines_defs, expectedProperty, mode =
             path = configDir + "/cockpit/machines.d/" + fname;
         await cockpit.file(path).replace(machines_defs[fname]);
         if (mode !== null)
-            await cockpit.script(`chmod ${mode} ${path}`);
+            await cockpit.exec("chmod", [], [mode, path]);
     }
 
     const reply = await dbus.call("/machines", "org.freedesktop.DBus.Properties", "Get",

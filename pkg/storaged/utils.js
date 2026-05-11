@@ -1075,12 +1075,12 @@ export function fmt_to_array(fmt, arg) {
 }
 
 export function reload_systemd() {
-    return cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" });
+    return cockpit.exec("systemctl", ["daemon-reload"], null, { superuser: "require", err: "message" });
 }
 
 export function is_mounted_synch(block) {
-    return (cockpit.spawn(["findmnt", "-n", "-o", "TARGET", "-S", decode_filename(block.Device)],
-                          { superuser: "require", err: "message" })
+    return (cockpit.exec("findmnt", ["-n", ["-o", "TARGET"], ["-S", decode_filename(block.Device)]],
+                         null, { superuser: "require", err: "message" })
             .then(data => data.trim())
             .catch(() => false));
 }

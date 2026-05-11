@@ -34,11 +34,11 @@ QUnit.module("kdump", hooks => {
     let filename = "";
 
     hooks.before(async () => {
-        filename = await cockpit.spawn(["/usr/bin/mktemp", "--suffix", "kdump-test"]);
+        filename = await cockpit.exec("mktemp", [["--suffix", "kdump-test"]]);
         filename = filename.trim();
     });
 
-    hooks.after(() => cockpit.spawn(["rm", "-f", filename]));
+    hooks.after(() => cockpit.exec("rm", ["-f"], [filename]));
 
     QUnit.test("config_update", function(assert) {
         const done = assert.async();

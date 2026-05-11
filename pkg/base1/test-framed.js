@@ -57,7 +57,7 @@ function child_frame() {
     let spawn_done = false;
     let binary_done = false;
 
-    const promise = cockpit.spawn(["/bin/sh", "-c", "echo hi"], { host: "localhost" })
+    const promise = cockpit.exec("/bin/sh", [["-c", "echo hi"]], null, { host: "localhost" })
             .then(resp => {
                 assert.equal(resp, "hi\n", "framed channel got output");
             })

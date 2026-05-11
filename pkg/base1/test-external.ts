@@ -29,7 +29,7 @@ QUnit.test("external get", async assert => {
 });
 
 QUnit.test("external fsread1", async assert => {
-    const stat = await cockpit.spawn(["stat", "--format", "%s", "/usr/lib/os-release"]);
+    const stat = await cockpit.exec("stat", [["--format", "%s"]], ["/usr/lib/os-release"]);
     const filesize = stat.replace(/\n$/, "");
 
     const resp = await fetch(channel_url({

@@ -632,7 +632,7 @@ class CurrentMetrics extends React.Component {
             if ((userid === 0 && !superuser.allowed) && userid !== this.state.userid) {
                 return null;
             }
-            return cockpit.spawn(["podman", "ps", "--format", "json"], { superuser: userid === 0 ? "required" : null })
+            return cockpit.exec("podman", ["ps", ["--format", "json"]], null, { superuser: userid === 0 ? "required" : null })
                     .then(result => [result, userid]);
         }).filter(prom => prom !== null);
 
@@ -1593,7 +1593,7 @@ class MetricsHistory extends React.Component {
 
     // load and render the last 24 hours (plus current one) initially; this needs numCpu initialized for correct scaling
     initialLoadData() {
-        cockpit.spawn(["date", "+%s"])
+        cockpit.exec("date", [], ["+%s"])
                 .then(out => {
                     const now = parseInt(out.trim()) * 1000;
                     const current_hour = Math.floor(now / MSEC_PER_H) * MSEC_PER_H;
@@ -1635,7 +1635,7 @@ class MetricsHistory extends React.Component {
         try {
             // Only 14 days of metrics are shown
             // Requires superuser on Debian/Ubuntu, on Fedora/Arch users in the wheel group can list without superuser.
-            const output = await cockpit.spawn(["journalctl", "--list-boots", "--since", "-15d", "--output", "json"], { superuser: "try" });
+            const output = await cockpit.exec("journalctl", ["--list-boots", ["--since", "-15d"], ["--output", "json"]], null, { superuser: "try" });
             const list_boots = JSON.parse(output);
             const boots = list_boots.map(boot => {
                 return {

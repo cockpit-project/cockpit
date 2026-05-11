@@ -51,7 +51,7 @@ export const journal = { };
  *  .stop(): stop following or retrieving entries.
  */
 
-journal.build_cmd = function build_cmd(/* ... */) {
+journal.journalctl_args = function journalctl_args(/* ... */) {
     const matches = [];
     const options = { follow: true };
     for (let i = 0; i < arguments.length; i++) {
@@ -77,46 +77,44 @@ journal.build_cmd = function build_cmd(/* ... */) {
             options.count = null;
     }
 
-    const cmd = ["journalctl", "-q"];
+    const opts = ["-q"];
     if (!options.count)
-        cmd.push("--no-tail");
+        opts.push("--no-tail");
     else
-        cmd.push("--lines=" + options.count);
+        opts.push(`--lines=${options.count}`);
 
-    cmd.push("--output=" + (options.output || "json"));
+    opts.push(`--output=${options.output || "json"}`);
 
     if (options.directory)
-        cmd.push("--directory=" + options.directory);
+        opts.push(`--directory=${options.directory}`);
     if (options.boot)
-        cmd.push("--boot=" + options.boot);
+        opts.push(`--boot=${options.boot}`);
     else if (options.boot !== undefined)
-        cmd.push("--boot");
+        opts.push("--boot");
     if (options.since)
-        cmd.push("--since=" + options.since);
+        opts.push(`--since=${options.since}`);
     if (options.until)
-        cmd.push("--until=" + options.until);
+        opts.push(`--until=${options.until}`);
     if (options.cursor)
-        cmd.push("--cursor=" + options.cursor);
+        opts.push(`--cursor=${options.cursor}`);
     if (options.after)
-        cmd.push("--after=" + options.after);
+        opts.push(`--after=${options.after}`);
     if (options.priority)
-        cmd.push("--priority=" + options.priority);
+        opts.push(`--priority=${options.priority}`);
     if (options.grep)
-        cmd.push("--grep=" + options.grep);
+        opts.push(`--grep=${options.grep}`);
 
     /* journalctl doesn't allow reverse and follow together */
     if (options.reverse)
-        cmd.push("--reverse");
+        opts.push("--reverse");
     else if (options.follow)
-        cmd.push("--follow");
+        opts.push("--follow");
 
-    cmd.push("--");
-    cmd.push.apply(cmd, matches);
-    return cmd;
+    return { opts, positionals: matches };
 };
 
 journal.journalctl = function journalctl(/* ... */) {
-    const cmd = journal.build_cmd.apply(null, arguments);
+    const { opts, positionals } = journal.journalctl_args.apply(null, arguments);
 
     const dfd = cockpit.defer();
     const promise = dfd.promise();
@@ -139,7 +137,7 @@ journal.journalctl = function journalctl(/* ... */) {
         }
     }
 
-    const proc = cockpit.spawn(cmd, { batch: 8192, latency: 300, superuser: "try" })
+    const proc = cockpit.exec("journalctl", opts, positionals, { batch: 8192, latency: 300, superuser: "try" })
             .stream(function(data) {
                 if (buffer)
                     data = buffer + data;

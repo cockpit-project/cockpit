@@ -71,7 +71,7 @@ export function updateTime() {
                  * This is readable by root only */
                 console.log("Failed to read clocks with Python, using fallback:", ex.toString());
                 Promise.allSettled([
-                    cockpit.spawn(["date", "+%s"]),
+                    cockpit.exec("date", [], ["+%s"]),
                     cockpit.file("/proc/timer_list", { superuser: "try" }).read(),
                 ])
                         .then(([date_result, timer_list_result]) => {

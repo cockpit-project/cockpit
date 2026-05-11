@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-import cockpit, { SpawnOptions } from "cockpit";
+import cockpit from "cockpit";
 
 // @ts-expect-error: magic verbatim string import, not a JS module
 import lister from "credentials-ssh-private-keys.sh";
@@ -34,7 +34,7 @@ export class KeyLoadError extends Error {
 
 export class Keys extends EventTarget {
     path: string | null = null;
-    items: Record<string, Key> = { };
+    items: Record<string, Key> = {};
 
     #p_have_path: Promise<void>;
 
@@ -73,7 +73,7 @@ export class Keys extends EventTarget {
     #process(data: string): void {
         const blocks = data.split('\v');
         let key: Key | undefined;
-        const items = { };
+        const items = {};
 
         /* First block is the data from ssh agent */
         blocks[0].trim().split("\n")
@@ -176,16 +176,17 @@ export class Keys extends EventTarget {
         // Exactly one of new_type or old_pass must be given
         console.assert((new_type == null) != (old_pass == null));
 
-        const cmd = ["ssh-keygen", "-f", file];
+        const opts: cockpit.Option[] = [["-f", file]];
         if (new_type)
-            cmd.push("-t", new_type);
+            opts.push(["-t", new_type]);
         else
-            cmd.push("-p");
+            opts.push("-p");
 
         await this.#p_have_path;
         cockpit.assert(this.path);
 
-        const proc = cockpit.spawn(cmd, { pty: true, environ: ["LC_ALL=C"], err: "out", directory: this.path });
+        const proc = cockpit.exec("ssh-keygen", opts, null,
+                                  { pty: true, environ: ["LC_ALL=C"], err: "out", directory: this.path });
 
         proc.stream(data => {
             buffer += data;
@@ -252,13 +253,8 @@ export class Keys extends EventTarget {
         await this.#p_have_path;
         cockpit.assert(this.path);
 
-        const proc = cockpit.spawn(["ssh-add", name],
-                                   { pty: true, environ: ["LC_ALL=C"], err: "out", directory: this.path });
-
-        const timeout = window.setTimeout(() => {
-            failure = _("Prompting via ssh-add timed out");
-            proc.close("terminated");
-        }, 10 * 1000);
+        const proc = cockpit.exec("ssh-add", [], [name],
+                                  { pty: true, environ: ["LC_ALL=C"], err: "out", directory: this.path });
 
         proc.stream(data => {
             buffer += data;
@@ -276,6 +272,11 @@ export class Keys extends EventTarget {
                 proc.input("\n", true);
             }
         });
+
+        const timeout = window.setTimeout(() => {
+            failure = _("Prompting via ssh-add timed out");
+            proc.close("terminated");
+        }, 10 * 1000);
 
         try {
             await proc;
@@ -300,12 +301,10 @@ export class Keys extends EventTarget {
         await this.#p_have_path;
         cockpit.assert(this.path);
 
-        const options: SpawnOptions & { binary?: false; } = { pty: true, err: "message", directory: this.path };
-
         if (key.name && !key.agent_only)
-            await cockpit.spawn(["ssh-add", "-d", key.name], options);
+            await cockpit.exec("ssh-add", ["-d"], [key.name], { pty: true, err: "message", directory: this.path });
         else
-            await cockpit.script(remove_key, [key.data], options);
+            await cockpit.script(remove_key, [key.data], { pty: true, err: "message", directory: this.path });
 
         this.#refresh();
     }

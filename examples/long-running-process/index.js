@@ -17,8 +17,7 @@ function showJournal(unitName, filter_arg) {
     // reset previous output
     output.textContent = "";
 
-    const argv = ["journalctl", "--output=cat", "--unit", unitName, "--follow", "--lines=all", filter_arg];
-    showJournal.journalctl = cockpit.spawn(argv, { superuser: "require", err: "message" })
+    showJournal.journalctl = cockpit.exec("journalctl", ["--output=cat", ["--unit", unitName], "--follow", "--lines=all", filter_arg], null, { superuser: "require", err: "message" })
             .stream(data => output.append(document.createTextNode(data)))
             .catch(ex => { output.textContent = JSON.stringify(ex) });
 }

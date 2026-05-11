@@ -102,14 +102,14 @@ export function account_expiration_dialog(account, expire_date) {
                     style: "primary",
                     clicked: () => {
                         if (validate()) {
-                            const prog = ["/usr/sbin/usermod", "-e"];
+                            let expiry;
                             if (state.mode == "expires") {
                                 const date = new Date(state.date + "T12:00:00Z");
-                                prog.push(date.toISOString().substring(0, 10));
+                                expiry = date.toISOString().substring(0, 10);
                             } else
-                                prog.push("");
-                            prog.push(account.name);
-                            return cockpit.spawn(prog, { superuser: "require", err: "message" });
+                                expiry = "";
+                            return cockpit.exec("/usr/sbin/usermod", [["-e", expiry]], [account.name],
+                                                { superuser: "require", err: "message" });
                         } else {
                             update();
                             return Promise.reject();
@@ -202,8 +202,8 @@ export function password_expiration_dialog(account, expire_days) {
                     clicked: () => {
                         if (validate()) {
                             const days = state.mode == "expires" ? parseInt(state.days) : -1;
-                            return cockpit.spawn(["passwd", "-x", String(days), account.name],
-                                                 { superuser: "require", err: "message" });
+                            return cockpit.exec("passwd", [["-x", String(days)]], [account.name],
+                                                { superuser: "require", err: "message" });
                         } else {
                             update();
                             return Promise.reject();

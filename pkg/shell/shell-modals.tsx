@@ -41,7 +41,7 @@ export const AboutCockpitModal = ({
     useInit(() => {
         const packages: Package[] = [];
         const cmd = "(set +e; rpm -qa --qf '%{NAME} %{VERSION}\\n'; dpkg-query -f '${Package} ${Version}\n' --show; pacman -Q) 2> /dev/null | grep cockpit | sort";
-        cockpit.spawn(["bash", "-c", cmd], { err: "message" })
+        cockpit.exec("bash", [["-c", cmd]], null, { err: "message" })
                 .then(pkgs =>
                     pkgs.trim().split("\n")
                             .forEach(p => {

@@ -37,12 +37,11 @@ export function delete_group_dialog(group) {
                 caption: group.userlistPrimary.length > 0 ? _("Force delete") : _("Delete"),
                 style: "danger",
                 clicked: () => {
-                    const prog = ["groupdel"];
+                    const opts = [];
                     if (group.userlistPrimary.length > 0)
-                        prog.push("-f");
-                    prog.push(group.name);
+                        opts.push("-f");
 
-                    return cockpit.spawn(prog, { superuser: "require", err: "message" });
+                    return cockpit.exec("groupdel", opts, [group.name], { superuser: "require", err: "message" });
                 }
             }
         ]

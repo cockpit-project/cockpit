@@ -10,7 +10,7 @@ import cockpit from "cockpit";
 // and not recover automatically.
 
 function init_1() {
-    return (cockpit.spawn(["hostname"])
+    return (cockpit.exec("hostname", [])
             .then(data => {
                 document.getElementById("host").innerText = data.trim();
             }));

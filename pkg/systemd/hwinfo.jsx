@@ -119,7 +119,7 @@ function availableMitigations() {
     if (cachedMitigations !== undefined)
         return Promise.resolve(cachedMitigations);
     /* nosmt */
-    const promises = [cockpit.spawn(["lscpu"], { environ: ["LC_ALL=C.UTF-8"], }), cockpit.file("/proc/cmdline").read()];
+    const promises = [cockpit.exec("lscpu", [], null, { environ: ["LC_ALL=C.UTF-8"] }), cockpit.file("/proc/cmdline").read()];
     return Promise.all(promises).then(values => {
         let threads_per_core;
         try {
@@ -173,7 +173,7 @@ const CPUSecurityMitigationsDialog = () => {
 
         cockpit.script(kernelopt_sh, options, { superuser: "require", err: "message" })
                 .then(() => {
-                    cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: "require", err: "message" })
+                    cockpit.exec("shutdown", ["--reboot"], ["now"], { superuser: "require", err: "message" })
                             .catch(error => { setRebooting(false); setAlert(error.message) });
                 })
                 .catch(error => { setRebooting(false); setAlert(error.message) });

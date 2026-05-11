@@ -5,7 +5,7 @@
 
 import cockpit, { BasicError } from "cockpit";
 
-const pyinvoke = ["sh", "-ec", "exec $(command -v /usr/libexec/platform-python || command -v python3) -c \"$@\"", "--"];
+const pyinvoke_cmd = "exec $(command -v /usr/libexec/platform-python || command -v python3) -c \"$@\"";
 
 export interface PythonExitStatus extends BasicError {
     exit_status: number | null,
@@ -22,5 +22,5 @@ export function spawn (
         ? script_pieces
         : script_pieces.join("\n");
 
-    return cockpit.spawn(pyinvoke.concat([script]).concat(args ?? []), options);
+    return cockpit.exec("sh", [["-ec", pyinvoke_cmd]], [script, ...(args ?? [])], options);
 }

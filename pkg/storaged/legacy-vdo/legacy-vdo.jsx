@@ -170,7 +170,7 @@ class VDODetails extends React.Component {
         }
 
         if (path)
-            this.poll_process = cockpit.spawn([client.legacy_vdo_overlay.python, "--", "-", path], { superuser: "require" })
+            this.poll_process = cockpit.exec(client.legacy_vdo_overlay.python, ["--", "-"], [path], { superuser: "require" })
                     .input(inotify_py + vdo_monitor_py)
                     .stream((data) => {
                         buf += data;
@@ -247,9 +247,8 @@ class VDODetails extends React.Component {
                         if (vals.lsize > vdo.logical_size)
                             return vdo.grow_logical(vals.lsize).then(() => {
                                 if (block && block.IdUsage == "filesystem")
-                                    return cockpit.spawn(["fsadm", "resize",
-                                        decode_filename(block.Device)],
-                                                         { superuser: "require", err: "message" });
+                                    return cockpit.exec("fsadm", ["resize"], [decode_filename(block.Device)],
+                                                        { superuser: "require", err: "message" });
                             });
                     }
                 }

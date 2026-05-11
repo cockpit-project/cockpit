@@ -139,7 +139,7 @@ export class KpatchSettings extends React.Component<KpatchSettingsProps, KpatchS
                 })
                 .catch(() => true); // Ignore errors, most likely just does not exist
 
-        const uname_promise = cockpit.spawn(["uname", "-r"])
+        const uname_promise = cockpit.exec("uname", ["-r"])
                 .then(data => {
                     const fields = data.split("-");
                     // if there's no release field, we don't have an official kernel
@@ -199,11 +199,11 @@ export class KpatchSettings extends React.Component<KpatchSettingsProps, KpatchS
             let install;
             if (this.state.justCurrent) {
                 install = new Promise<void>((resolve, reject) => {
-                    cockpit.spawn(["dnf", "-y", "kpatch", "manual"], { superuser: "require", err: "message" })
+                    cockpit.exec("dnf", ["-y", "kpatch", "manual"], null, { superuser: "require", err: "message" })
                             .then(() => {
                                 if (!this.state.patchUnavailable && !this.state.patchInstalled)
                                     // TODO - replace with `dnf kpatch install` once https://github.com/dynup/kpatch-dnf/pull/8 lands
-                                    cockpit.spawn(["dnf", "-y", "install", this.state.patchName!], { superuser: "require", err: "message" }).then(() => resolve())
+                                    cockpit.exec("dnf", ["-y", "install"], [this.state.patchName!], { superuser: "require", err: "message" }).then(() => resolve())
                                             .catch(reject);
                                 else
                                     resolve();
@@ -211,7 +211,7 @@ export class KpatchSettings extends React.Component<KpatchSettingsProps, KpatchS
                             .catch(reject);
                 });
             } else {
-                install = cockpit.spawn(["dnf", "-y", "kpatch", "auto"], { superuser: "require", err: "message" });
+                install = cockpit.exec("dnf", ["-y", "kpatch", "auto"], null, { superuser: "require", err: "message" });
             }
             install
                     .then(() =>
@@ -224,7 +224,7 @@ export class KpatchSettings extends React.Component<KpatchSettingsProps, KpatchS
                     .catch((e: cockpit.BasicError) => this.setState({ error: e.toString() }))
                     .finally(() => this.checkSetup().then(() => this.setState({ updating: false })));
         } else {
-            cockpit.spawn(["dnf", "-y", "kpatch", "manual"], { superuser: "require", err: "message" })
+            cockpit.exec("dnf", ["-y", "kpatch", "manual"], null, { superuser: "require", err: "message" })
                     .then(() =>
                         this.kpatchService.disable().then(() =>
                             this.kpatchService.stop().then(() =>
@@ -354,7 +354,7 @@ export class KpatchStatus extends React.Component<Record<string, never>, KpatchS
     }
 
     componentDidMount() {
-        cockpit.spawn(["kpatch", "list"], { superuser: "try", err: "ignore", environ: ["LC_MESSAGES=C"] })
+        cockpit.exec("kpatch", ["list"], null, { superuser: "try", err: "ignore", environ: ["LC_MESSAGES=C"] })
                 .then(m => {
                     const parts = m.trim().split("\n\n");
                     if (parts.length !== 2 ||

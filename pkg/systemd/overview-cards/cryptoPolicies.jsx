@@ -26,7 +26,7 @@ const _ = cockpit.gettext;
 const displayProfileText = profile => profile === "DEFAULT" ? _("Default") : profile;
 const isInconsistentPolicy = (policy, fipsEnabled) => policy === "FIPS" !== fipsEnabled;
 
-const getFipsConfigurable = () => cockpit.spawn(["/bin/sh", "-c", "command -v fips-mode-setup"], { error: "ignore" })
+const getFipsConfigurable = () => cockpit.exec("/bin/sh", [["-c", "command -v fips-mode-setup"]], null, { error: "ignore" })
         .then(() => true)
         .catch(() => false);
 
@@ -45,7 +45,7 @@ export const CryptoPolicyRow = () => {
                 .watch(async contents => {
                     // Ask crypto-policies to get correct FIPS state, as that dominates the configured policy
                     try {
-                        setCurrentCryptoPolicy((await cockpit.spawn(["update-crypto-policies", "--show"])).trim());
+                        setCurrentCryptoPolicy((await cockpit.exec("update-crypto-policies", ["--show"])).trim());
                     } catch (error) {
                         console.warn("Failed to get current crypto policy:", error.toString(),
                                      "; falling back to /etc/crypto-policies/config");
@@ -89,14 +89,14 @@ const setPolicy = async (policy, setError, setInProgress, fipsConfigurable) => {
     try {
         if (policy === "FIPS") {
             cockpit.assert(fipsConfigurable, "calling setPolicy(FIPS) without fips-mode-setup");
-            await cockpit.spawn(["fips-mode-setup", "--enable"], { superuser: "require", err: "message" });
+            await cockpit.exec("fips-mode-setup", ["--enable"], null, { superuser: "require", err: "message" });
         } else {
             if (fipsConfigurable)
-                await cockpit.spawn(["fips-mode-setup", "--disable"], { superuser: "require", err: "message" });
-            await cockpit.spawn(["update-crypto-policies", "--set", policy], { superuser: "require", err: "message" });
+                await cockpit.exec("fips-mode-setup", ["--disable"], null, { superuser: "require", err: "message" });
+            await cockpit.exec("update-crypto-policies", [["--set", policy]], null, { superuser: "require", err: "message" });
         }
 
-        await cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: "require", err: "message" });
+        await cockpit.exec("shutdown", ["--reboot"], ["now"], { superuser: "require", err: "message" });
     } catch (error) {
         setError(error);
     } finally {

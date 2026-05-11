@@ -337,9 +337,9 @@ export function proxy(name, kind) {
 
         // collect the service journal since start time; property is μs, journal wants s
         const startTime = Math.floor(details.ExecMainStartTimestamp / 1000000);
-        return cockpit.spawn(
-            ["journalctl", "--unit", name, "--since=@" + startTime.toString()].concat(options || []),
-            { superuser: "try", error: "message" });
+        return cockpit.exec("journalctl",
+                            [["--unit", name], `--since=@${startTime}`, ...(options || [])],
+                            null, { superuser: "try", error: "message" });
     }
 
     return self;

@@ -253,8 +253,9 @@ async function build() {
             })
             : null;
 
+        const builds = [pkgContext.rebuild(), qunitContext?.rebuild()];
         try {
-            const results = await Promise.all([pkgContext.rebuild(), qunitContext?.rebuild()]);
+            const results = await Promise.all(builds);
             // skip metafile and runtime module calculation in watch and onlydir modes
             if (!args.watch && !args.onlydir) {
                 fs.writeFileSync('metafile.json', JSON.stringify(results[0].metafile));
@@ -282,6 +283,13 @@ async function build() {
                 fs.writeFileSync('runtime-npm-modules.txt', deps.join('\n') + '\n');
             }
         } catch (e) {
+            // esbuild uses a single shared Go process for all contexts.
+            // Promise.all rejects on the first failure, but the other build's
+            // plugins may still have in-flight IPC requests.  Cancel and wait
+            // for everything to settle to avoid a goroutine deadlock.
+            pkgContext.cancel();
+            qunitContext?.cancel();
+            await Promise.allSettled(builds);
             if (!args.watch)
                 process.exit(1);
             // ignore errors in watch mode
@@ -292,7 +300,7 @@ async function build() {
                 console.log("change detected:", path);
                 await Promise.all([pkgContext.cancel(), qunitContext?.cancel()]);
                 try {
-                    await Promise.all([pkgContext.rebuild(), qunitContext?.rebuild()]);
+                    await Promise.allSettled([pkgContext.rebuild(), qunitContext?.rebuild()]);
                 } catch (e) {} // ignore in watch mode
             };
 

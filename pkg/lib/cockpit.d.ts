@@ -167,10 +167,12 @@ declare module 'cockpit' {
         window?: { rows: number; cols: number };
     }
 
+    /** @deprecated Use cockpit.exec() instead */
     export function spawn(
         args: string[],
         options?: SpawnOptions & { binary?: false }
     ): Spawn<string>;
+    /** @deprecated Use cockpit.exec() instead */
     export function spawn(
         args: string[],
         options: SpawnOptions & { binary: true }
@@ -194,6 +196,69 @@ declare module 'cockpit' {
         args: string[],
         options: SpawnOptions & { binary: true }
     ): Spawn<Uint8Array>;
+
+    /* === cockpit.{exec,check_call,check_output} ==== */
+
+    /** All printable ASCII characters excluding '-' */
+    type NotDash
+        = ' ' | '!' | '"' | '#' | '$' | '%' | '&' | "'" | '(' | ')' | '*' | '+' | ',' | /* */ '.' | '/'
+        | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | ':' | ';' | '<' | '=' | '>' | '?'
+        | '@' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O'
+        | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | '[' | '\\' | ']' | '^' | '_'
+        | '`' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o'
+        | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | '{' | '|' | '}' | '~';
+
+    /** A flag starting with - or --, with a statically known name */
+    type StaticFlag = `-${NotDash}${string}` | `--${NotDash}${string}`;
+
+    /** A non-flag argument: subcommands, keywords, etc. */
+    type NotFlag = `${NotDash}${string}`;
+
+    /**
+     * A single element in the opts array:
+     * - A non-flag: subcommands, keywords, etc.
+     * - A flag: "-f", "--lock", or template literals like `-f${x}`, `--date=${d}`
+     * - A pair [flag, value] for flags that take one argument
+     * - A triple [flag, value, value] for flags that take two arguments
+     * - Special: [string, "-ef" | "-nt" | "-ot", string] for test(1) file operators
+     */
+    export type Option =
+        | NotFlag
+        | StaticFlag
+        | [StaticFlag, string]
+        | [StaticFlag, string, string]
+        | [string, "-ef" | "-nt" | "-ot", string]
+        ;
+
+    /** Type guard: checks that a dynamic string starts with printable ASCII, not '-' */
+    export function is_not_flag(s: string): s is NotFlag;
+
+    export function exec(
+        program: string,
+        opts: readonly Option[],
+        positionals?: string[] | null,
+        options?: SpawnOptions & { binary?: false },
+    ): Spawn<string>;
+    export function exec(
+        program: string,
+        opts: readonly Option[],
+        positionals: string[] | null,
+        options: SpawnOptions & { binary: true },
+    ): Spawn<Uint8Array>;
+
+    export function check_call(
+        program: string,
+        opts: readonly Option[],
+        positionals?: string[] | null,
+        options?: SpawnOptions & { binary?: false },
+    ): Spawn<string>;
+
+    export function check_output(
+        program: string,
+        opts: readonly Option[],
+        positionals?: string[] | null,
+        options?: SpawnOptions & { binary?: false },
+    ): Spawn<string>;
 
     /* === cockpit.location ========================== */
 

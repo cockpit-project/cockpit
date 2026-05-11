@@ -216,4 +216,85 @@ QUnit.test("cancel process", async assert => {
     }
 });
 
+// -- exec type enforcement --
+// These lines are checked by tsc but never executed.
+// If any @ts-expect-error stops being an error, static-code fails.
+export function test_exec_type_enforcement() {
+    const dynamic = crypto.randomUUID();
+
+    // A bare dynamic string in opts is rejected
+    // @ts-expect-error: dynamic variable where literal is required
+    cockpit.exec("cmd", [dynamic]);
+
+    // Dynamic string as first element of a tuple is rejected
+    // @ts-expect-error: dynamic flag name in tuple
+    cockpit.exec("cmd", [[dynamic, "value"]]);
+
+    // Dynamic string as first element of a triple is rejected
+    // @ts-expect-error: dynamic flag name in triple
+    cockpit.exec("cmd", [[dynamic, "a", "b"]]);
+
+    // Template literals with a known first char are accepted
+    cockpit.exec("cmd", [`-d${dynamic}`]);
+    cockpit.exec("cmd", [`--date=${dynamic}`]);
+
+    // Literals with known first char are accepted (subcommands)
+    cockpit.exec("git", ["commit"]);
+    cockpit.exec("git", ["commit", ["-m", dynamic]]);
+
+    // Template literal with dynamic first char is rejected
+    // @ts-expect-error: first char is not statically known
+    cockpit.exec("cmd", [`${dynamic}`]);
+
+    // Tuple second element can be dynamic — only the flag name is checked
+    cockpit.exec("cmd", [["-f", dynamic]]);
+
+    // Triples: flag with two dynamic arguments
+    cockpit.exec("bwrap", [["--bind", dynamic, dynamic]]);
+    cockpit.exec("bwrap", [["--ro-bind", "/usr", "/usr"], ["--bind", dynamic, dynamic]]);
+
+    // @ts-expect-error: triple with dynamic flag name
+    cockpit.exec("bwrap", [[dynamic, "/src", "/dest"]]);
+
+    // @ts-expect-error: triple with template-only flag name
+    cockpit.exec("bwrap", [[`${dynamic}`, "/src", "/dest"]]);
+
+    // Tuple with dynamic first element is rejected
+    // @ts-expect-error: tuple flag name not statically known
+    cockpit.exec("cmd", [[`${dynamic}`, "value"]]);
+
+    // Subcommands can't head tuples — only flags can
+    // @ts-expect-error: subcommand as tuple flag name
+    cockpit.exec("git", [["commit", dynamic]]);
+
+    // Bare "--" and "-" are rejected
+    // @ts-expect-error: "--" is not a valid option
+    cockpit.exec("cmd", ["--"]);
+    // @ts-expect-error: "-" is not a valid option
+    cockpit.exec("cmd", ["-"]);
+    // @ts-expect-error: "--" as tuple flag name
+    cockpit.exec("cmd", [["--", dynamic]]);
+
+    // test(1) binary file operators — dynamic values on both sides
+    cockpit.exec("test", [[dynamic, "-ot", dynamic]]);
+    cockpit.exec("test", [[dynamic, "-nt", dynamic]]);
+    cockpit.exec("test", [[dynamic, "-ef", dynamic]]);
+
+    // @ts-expect-error: integer comparison belongs in JS, not a subprocess
+    cockpit.exec("test", [[dynamic, "-gt", dynamic]]);
+
+    // Mixed opts: subcommands, flags, tuples, triples together
+    cockpit.exec("ip", ["link", "set", ["--name", dynamic]]);
+    cockpit.exec("usermod", [["--shell", dynamic], "--lock"], [dynamic]);
+
+    // is_not_flag narrows a dynamic string to NotFlag
+    const rev: string = dynamic;
+    // @ts-expect-error: dynamic string not accepted in opts
+    cockpit.exec("git", ["log", rev]);
+
+    // after narrowing with is_not_flag, it's accepted
+    cockpit.assert(cockpit.is_not_flag(rev));
+    cockpit.exec("git", ["log", rev], ["file1", "file2"]);
+}
+
 QUnit.start();

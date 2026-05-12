@@ -82,7 +82,7 @@ export const UploadDemo = () => {
     return (
         <>
             <Flex direction={{ default: "column" }}>
-                <FileAutoComplete className="upload-file-dest" value={dest} onChange={setDest} />
+                <FileAutoComplete value={dest} onChange={setDest} />
                 <Button
                   id="upload-file-btn"
                   variant="secondary"

@@ -1283,12 +1283,12 @@ class TestAccounts(testlib.MachineCase):
         b.set_input_text("#groups-create-name", "titan@1000")
         b.set_input_text("#groups-create-id", "12f")
         b.click("#groups-create-dialog button.pf-m-primary")
-        b.wait_in_text("#groups-create-name-helper", "The group name can only consist of letters")
-        b.wait_in_text("#groups-create-id-helper", "The group ID must be positive integer")
+        b.wait_in_text("#groups-create-name-helper", "Group name can only consist of letters")
+        b.wait_in_text("#groups-create-id-helper", "Group ID must be positive integer")
         b.set_input_text("#groups-create-id", "-12")
         b.wait_not_present("#groups-create-id-helper")
         b.click("#groups-create-dialog button.pf-m-primary")
-        b.wait_in_text("#groups-create-id-helper", "The group ID must be positive integer")
+        b.wait_in_text("#groups-create-id-helper", "Group ID must be positive integer")
 
         # Validate no name and no group
         b.set_input_text("#groups-create-name", "")
@@ -1317,7 +1317,7 @@ class TestAccounts(testlib.MachineCase):
 
         b.set_input_text("#group-confirm-rename-dialog #group-name", "foo bar")
         b.click("#group-confirm-rename-dialog .apply")
-        b.wait_in_text("#group-name-helper", "The group name can only consist of letters from a-z")
+        b.wait_in_text("#group-name-helper", "Group name can only consist of letters")
 
         b.set_input_text("#group-confirm-rename-dialog #group-name", "")
         b.click("#group-confirm-rename-dialog .apply")

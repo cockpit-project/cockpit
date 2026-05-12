@@ -39,7 +39,7 @@ function validate_name(name) {
 
     for (let i = 0; i < name.length; i++) {
         if (!is_valid_char_name(name[i]))
-            return _("The group name can only consist of letters from a-z, digits, dots, dashes and underscores");
+            return _("Group name can only consist of letters, digits, dots, dashes, and underscores");
     }
 
     return null;

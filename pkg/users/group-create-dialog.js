@@ -49,7 +49,7 @@ function validate_name(name, groups) {
 
     for (let i = 0; i < name.length; i++) {
         if (!is_valid_char_name(name[i]))
-            return _("The group name can only consist of letters from a-z, digits, dots, dashes and underscores");
+            return _("Group name can only consist of letters, digits, dots, dashes, and underscores");
     }
 
     for (let k = 0; k < groups.length; k++) {
@@ -66,7 +66,7 @@ function validate_group(id, groups) {
 
     const id_num = parseInt(id);
     if (id_num.toString() !== id || id_num < 0)
-        return _("The group ID must be positive integer");
+        return _("Group ID must be positive integer");
 
     return null;
 }

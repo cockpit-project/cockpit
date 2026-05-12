@@ -76,7 +76,7 @@ export class DynamicListForm extends React.Component {
         return (
             <FormFieldGroup header={
                 <FormFieldGroupHeader
-                    titleText={{ text: label }}
+                    titleText={{ text: label, id: id + "-title"  }}
                     actions={<Button variant="secondary" className="btn-add" onClick={this.addItem}>{actionLabel}</Button>}
                 />
             } className={"dynamic-form-group " + formclass}>

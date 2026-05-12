@@ -103,7 +103,7 @@ export class FileAutoComplete extends React.Component {
     finishUpdate(results, error, directory) {
         if (!this.allowFilesUpdate)
             return;
-        results = results.sort((a, b) => a.path.localeCompare(b.path, { sensitivity: 'base' }));
+        results = results.sort((a, b) => a.path.localeCompare(b.path));
 
         const listItems = results.map(file => ({
             type: file.type,

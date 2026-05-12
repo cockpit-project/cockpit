@@ -9,7 +9,12 @@
 
 #include "cockpitws.h"
 
+#include <errno.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <json-glib/json-glib.h>
 #include <gio/gunixinputstream.h>
@@ -25,9 +30,6 @@
 #include "cockpitwebserver.h"
 
 #include "websocket.h"
-
-
-#include <stdlib.h>
 
 guint cockpit_ws_ping_interval = 5;
 
@@ -440,6 +442,112 @@ out:
   return ret;
 }
 
+static gchar *
+decode_authorize_subject (const gchar *subject)
+{
+  gsize length = strlen (subject);
+  gchar *decoded;
+  gsize i;
+
+  if (length % 2 != 0)
+    return NULL;
+
+  decoded = g_malloc (length / 2 + 1);
+  for (i = 0; i < length; i += 2)
+    {
+      gint high = g_ascii_xdigit_value (subject[i]);
+      gint low = g_ascii_xdigit_value (subject[i + 1]);
+      gchar value;
+
+      if (high < 0 || low < 0)
+        {
+          g_free (decoded);
+          return NULL;
+        }
+
+      value = (high << 4) | low;
+      if (value == '\0')
+        {
+          g_free (decoded);
+          return NULL;
+        }
+
+      decoded[i / 2] = value;
+    }
+
+  decoded[length / 2] = '\0';
+  return decoded;
+}
+
+static gboolean
+lookup_user_uid (const gchar *user,
+                 uid_t *uid)
+{
+  g_autofree gchar *buffer = NULL;
+  struct passwd pwd_buf;
+  struct passwd *pwd = NULL;
+  long sysconf_size;
+  gsize buffer_size;
+  int res;
+  int i;
+
+  sysconf_size = sysconf (_SC_GETPW_R_SIZE_MAX);
+  buffer_size = sysconf_size > 0 ? sysconf_size : 16384;
+
+  for (i = 0; i < 4; i++)
+    {
+      buffer = g_realloc (buffer, buffer_size);
+      res = getpwnam_r (user, &pwd_buf, buffer, buffer_size, &pwd);
+      if (res == 0)
+        {
+          if (!pwd)
+            return FALSE;
+
+          *uid = pwd->pw_uid;
+          return TRUE;
+        }
+
+      if (res != ERANGE || buffer_size > G_MAXSIZE / 2)
+        return FALSE;
+
+      buffer_size *= 2;
+    }
+
+  return FALSE;
+}
+
+gboolean
+cockpit_web_service_authorize_user_matches_subject (const gchar *user,
+                                                    const gchar *subject,
+                                                    CockpitAuthorizeLookupUserUidFunc lookup_uid)
+{
+  g_autofree gchar *subject_user = NULL;
+  char *encoded;
+  gboolean ret;
+  uid_t user_uid;
+  uid_t subject_uid;
+
+  encoded = cockpit_hex_encode (user, -1);
+  ret = g_str_equal (encoded, subject);
+  free (encoded);
+
+  if (ret)
+    return TRUE;
+
+  subject_user = decode_authorize_subject (subject);
+  if (!subject_user || !lookup_uid)
+    return FALSE;
+
+  /*
+   * PAM can accept aliases that NSS canonicalizes differently.  Keep the
+   * authorize protocol string-based, but accept aliases that resolve to the
+   * same Unix identity.
+   */
+  return lookup_uid (user, &user_uid) &&
+         lookup_uid (subject_user, &subject_uid) &&
+         user_uid == subject_uid;
+}
+
 static gboolean
 authorize_check_user (CockpitCreds *creds,
                       const char *challenge)
@@ -464,20 +572,7 @@ authorize_check_user (CockpitCreds *creds,
         }
       else
         {
-          char *encoded = cockpit_hex_encode (user, -1);
-          ret = g_str_equal (encoded, subject);
-          free (encoded);
-
-          /* domain users are often case insensitive, while NSS/Linux converts them to the canonical lower-case form;
-           * accept the lower-case form of the creds user as well */
-          if (!ret)
-            {
-              gchar *user_lower = g_ascii_strdown (user, -1);
-              encoded = cockpit_hex_encode (user_lower, -1);
-              free (user_lower);
-              ret = g_str_equal (encoded, subject);
-              free (encoded);
-            }
+          ret = cockpit_web_service_authorize_user_matches_subject (user, subject, lookup_user_uid);
         }
     }
 

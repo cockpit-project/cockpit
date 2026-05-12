@@ -215,5 +215,5 @@ ${rules}
 
 // returns a promise of the command used to set enforcing mode
 export function setEnforcing(enforcingMode) {
-    return cockpit.exec("setenforce", [], [enforcingMode ? "1" : "0"], { superuser: "require", err: "message" });
+    return cockpit.exec("setenforce", [enforcingMode ? "1" : "0"], null, { superuser: "require", err: "message" });
 }

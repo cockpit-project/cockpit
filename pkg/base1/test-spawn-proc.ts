@@ -166,7 +166,7 @@ QUnit.test("pty", async assert => {
 });
 
 QUnit.test("pty window size", async assert => {
-    const proc = cockpit.exec("tput", [], ["lines", "cols"], {
+    const proc = cockpit.exec("tput", ["lines", "cols"], null, {
         pty: true,
         environ: ["TERM=vt100"],
         window: { rows: 77, cols: 88 }

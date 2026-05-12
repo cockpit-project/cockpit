@@ -44,8 +44,8 @@ const _ = cockpit.gettext;
 
 function clevis_add(block, pin, cfg, passphrase) {
     const dev = decode_filename(block.Device);
-    return cockpit.exec("clevis", ["luks", "bind", "-f", "-k", "-", ["-d", dev]], [pin, JSON.stringify(cfg)],
-                        { superuser: "require", err: "message" }).input(passphrase);
+    return cockpit.exec("clevis", ["luks", "bind", "-f", "-k", "-", ["-d", dev], pin, JSON.stringify(cfg)],
+                        null, { superuser: "require", err: "message" }).input(passphrase);
 }
 
 function clevis_remove(block, key) {

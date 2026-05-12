@@ -170,7 +170,7 @@ class VDODetails extends React.Component {
         }
 
         if (path)
-            this.poll_process = cockpit.exec(client.legacy_vdo_overlay.python, ["--", "-"], [path], { superuser: "require" })
+            this.poll_process = cockpit.exec(client.legacy_vdo_overlay.python, ["--", "-", path], null, { superuser: "require" })
                     .input(inotify_py + vdo_monitor_py)
                     .stream((data) => {
                         buf += data;

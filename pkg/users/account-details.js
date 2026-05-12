@@ -403,7 +403,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
             setHistory([...history, { type: 'removed', name: group }]);
 
         setModifyingGroup(true);
-        return cockpit.exec("gpasswd", ["-d"], [name, group], { superuser: "require", err: "message" })
+        return cockpit.exec("gpasswd", [["-d", name], group], null, { superuser: "require", err: "message" })
                 .then(() => {
                     setModifyingGroup(false);
                 }, show_unexpected_error);
@@ -414,7 +414,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
             setHistory([...history, { type: 'added', name: group }]);
 
         setModifyingGroup(true);
-        return cockpit.exec("gpasswd", ["-a"], [name, group], { superuser: "require", err: "message" })
+        return cockpit.exec("gpasswd", [["-a", name], group], null, { superuser: "require", err: "message" })
                 .then(() => {
                     setModifyingGroup(false);
                 }, show_unexpected_error);

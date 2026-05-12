@@ -37,8 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelector(".lock-channel .pf-v6-c-button").addEventListener("click", () => {
         document.querySelector(".lock-channel span").textContent = "locking...";
-        cockpit.exec("flock", ["-o"], ["/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
-                     { superuser: "try", err: "message" })
+        cockpit.exec("flock", ["-o", "/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
+                     null, { superuser: "try", err: "message" })
                 .stream(data => {
                     document.querySelector(".lock-channel span").textContent = data;
                 })

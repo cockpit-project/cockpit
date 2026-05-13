@@ -170,9 +170,11 @@ exec "$@"
 
         # not a sudoer
         b.open_superuser_dialog()
-        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
-        b.set_input_text(".pf-v6-c-modal-box input", "barfoo")
-        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+        if not self.has_sudo_rs:
+            # sudo-ws always asks for password, sudo-rs rejects immediately
+            b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+            b.set_input_text(".pf-v6-c-modal-box input", "barfoo")
+            b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
         b.click(".pf-v6-c-modal-box button.btn-cancel")
         b.wait_not_present(".pf-v6-c-modal-box")

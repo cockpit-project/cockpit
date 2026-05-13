@@ -131,10 +131,6 @@ const ReactPatterns = () => {
                 </div>
             </PageSection>
 
-            <PageSection id="demo-location-chooser">
-                <h3>Choose location</h3>
-            </PageSection>
-
             <PageSection id="demo-typeahead">
                 <h3>Typeahead</h3>
                 <div style={narrow}>

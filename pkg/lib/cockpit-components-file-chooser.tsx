@@ -4,19 +4,26 @@
  */
 
 import cockpit from "cockpit";
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useInit } from "hooks";
 
-import { TreeSelect, TreeNode, TreeRoot, TreeFilter } from "cockpit-components-tree-select.jsx";
+import { type ButtonProps } from '@patternfly/react-core/dist/esm/components/Button/index.js';
+import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/esm/components/TextInputGroup/index.js';
+import { FolderOpenIcon, DesktopIcon } from '@patternfly/react-icons';
+
+import { TreeSelectButton, TreeNode, TreeRoot, TreeFilter } from "cockpit-components-tree-select.jsx";
 import { basename, dirname } from "cockpit-path";
 
 const _ = cockpit.gettext;
 
-/* A simple file chooser, based on the TreeSelect widget.
+/* A file chooser, based on the TreeSelect widget.
+
+   This is experimental still.
  */
 
 interface FileNode extends TreeNode<FileNode> {
     type: "list" | "directory" | "file";
+    location?: string;
 }
 
 function join_path(path: FileNode[]): string {
@@ -34,46 +41,47 @@ function join_path(path: FileNode[]): string {
     return res;
 }
 
-function split_path(path: string): FileNode[] {
+function split_path(path: string, onlyDirectories: boolean): FileNode[] {
     let res: FileNode[] = [];
     for (const p of path.split("/"))
-        res.push({ type: "directory", name: p + "/" });
+        res.push({ type: "directory", name: p + "/", isSelectable: onlyDirectories, isLeaf: false });
     const last = res[res.length - 1];
     if (last.name == "/")
         res = res.slice(0, res.length - 1);
     else {
         last.type = "file";
         last.name = last.name.substring(0, last.name.length - 1);
+        last.isSelectable = true;
+        last.isLeaf = true;
     }
     return res;
 }
 
-async function listFiles(nodes: FileNode[], recentKey: string, listCommon: null | (() => Promise<string[]>)): Promise<FileNode[]> {
+async function file_info(path: string, superuser): Promise<string> {
+    return cockpit.spawn(["file", "--", path], { superuser });
+}
+
+async function listFiles(
+    nodes: FileNode[],
+    recentKey: string,
+    onlyDirectories: boolean,
+    superuser: cockpit.SuperuserMode,
+): Promise<FileNode[]> {
     if (nodes.length == 1 && nodes[0].type == "list" && nodes[0].name == "recent") {
         const recent = JSON.parse(window.localStorage.getItem(recentKey) || "[]");
-        console.log("RECENT", recent);
         if (Array.isArray(recent)) {
-            return recent.filter(r => typeof r == "string").map(r => (
+            return recent.filter(r => typeof r == "string" && !(onlyDirectories && !r.endsWith("/"))).map(r => (
                 {
                     type: r.endsWith("/") ? "directory" : "file",
                     name: basename(r),
-                    link: split_path(r)
+                    location: dirname(r),
+                    link: split_path(r, onlyDirectories),
+                    isSelectable: onlyDirectories || !r.endsWith("/"),
+                    isLeaf: !r.endsWith("/"),
                 }
             ));
         }
         return [];
-    }
-
-    if (nodes.length == 1 && nodes[0].type == "list" && nodes[0].name == "common") {
-        if (!listCommon)
-            return [];
-        return (await listCommon()).map(c => (
-            {
-                type: c.endsWith("/") ? "directory" : "file",
-                name: c,
-                link: split_path(c)
-            }
-        ));
     }
 
     const path = join_path(nodes);
@@ -84,7 +92,7 @@ async function listFiles(nodes: FileNode[], recentKey: string, listCommon: null 
         const channel = cockpit.channel({
             payload: "fslist1",
             path,
-            superuser: "try",
+            superuser,
             watch: false,
         });
         const results: FileNode[] = [];
@@ -103,11 +111,15 @@ async function listFiles(nodes: FileNode[], recentKey: string, listCommon: null 
                     results.push({
                         type: "directory",
                         name: item.path + "/",
+                        isSelectable: onlyDirectories,
+                        isLeaf: false,
                     });
-                } else {
+                } else if (!onlyDirectories) {
                     results.push({
                         type: "file",
                         name: item.path,
+                        isSelectable: true,
+                        isLeaf: true,
                     });
                 }
             }
@@ -115,76 +127,74 @@ async function listFiles(nodes: FileNode[], recentKey: string, listCommon: null 
     });
 }
 
-function formatHeader(path: FileNode[]): string {
-    if (path.length == 0)
-        return "";
-    if (path[0].type == "list")
-        return "";
+function formatHeader(node: FileNode): React.ReactNode {
+    if (node.type == "list")
+        return null;
+    if (node.name == "/")
+        return <DesktopIcon />;
     else
-        return "Directory " + join_path(path);
+        return basename(node.name);
 }
 
-export const FileChooser = ({
-    value,
-    onChange,
+function formatExtraColumns(node: FileNode): React.ReactNode[] {
+    if (node.location)
+        return [node.location];
+    return [];
+}
+
+export interface FileChooserShortcut {
+    label: string,
+    path: string,
+}
+
+export interface FileChooserFilter {
+    label: string,
+    regex: string,
+}
+
+export const FileChooserButton = ({
+    title,
+    initialLocation = "",
+    onSelect,
+    selectTitle,
     recentKey = "recent-files",
-    listCommon = null,
-    extensionFilters = [],
+    shortcuts = [],
+    filters = [],
+    onlyDirectories = false,
+    superuser,
+    ...buttonProps
 } : {
-    value: string,
-    onChange: (path: string) => void,
+    title: string,
+    initialLocation?: string,
+    onSelect: (path: string) => Promise<void>,
+    selectTitle: string,
     recentKey?: string,
-    listCommon?: null | (() => Promise<string[]>),
-    extensionFilters: string[],
-}) => {
-    const [lastFilterPathText, setLastFilterPathText] = useState("");
-    const [lastFilterPath, setLastFilterPath] = useState<FileNode[]>([]);
-
-    function _onChange(path: FileNode[]): boolean {
-        const cur = path[path.length - 1];
-        if (cur.type == "file") {
-            const path_string = join_path(path);
-            onChange(path_string);
-            rememberRecent(path_string, recentKey);
-            return true;
-        } else
-            return false;
+    shortcuts?: FileChooserShortcut[],
+    filters?: FileChooserFilter[],
+    onlyDirectories?: boolean,
+    superuser?: cockpit.SuperuserMode,
+} & Omit<ButtonProps, 'onSelect'>) => {
+    async function _onSelect(path: FileNode[]) {
+        const path_string = join_path(path);
+        rememberRecent(path_string, recentKey);
+        await onSelect(path_string);
     }
 
-    function parseTextInput(value: string): [null | FileNode[], string] {
-        let filter = value;
-        if (!value.startsWith("/"))
-            return [null, filter];
-        if (!value.endsWith("/")) {
-            filter = basename(value);
-            value = dirname(value);
-            if (!value.endsWith("/"))
-                value += "/";
-        } else
-            filter = "";
-
-        // Avoid re-listing if the path doesn't change
-        if (value == lastFilterPathText)
-            return [lastFilterPath, filter];
-
-        const path = split_path(value);
-        setLastFilterPathText(value);
-        setLastFilterPath(path);
-        return [path, filter];
-    }
-
-    const filters: TreeFilter<FileNode>[] = extensionFilters.map(ext => {
-        return {
-            label: ext,
-            filter: n => n.type == "directory" || n.name.endsWith("." + ext),
-        };
-    });
-
-    if (filters.length > 0)
-        filters.push({
-            label: _("all"),
-            filter: _n => true,
+    const treeFilters: TreeFilter<FileNode>[] = useMemo(() => {
+        const res = filters.map(f => {
+            return {
+                label: f.label,
+                filter: n => (n.type == "directory" && !(n.location || onlyDirectories)) || !!n.name.match(f.regex),
+            };
         });
+
+        if (res.length > 0)
+            res.push({
+                label: _("All files"),
+                filter: _n => true,
+            });
+        return res;
+    }, []);
 
     const roots: TreeRoot<FileNode>[] = useInit(() => {
         const roots: TreeRoot<FileNode>[] = [];
@@ -194,45 +204,101 @@ export const FileChooser = ({
                 root: {
                     type: "list",
                     name: "recent",
+                    isSelectable: false,
+                    isLeaf: false,
                 },
-                filters,
             }
         );
-        if (listCommon) {
-            roots.push(
-                {
-                    label: _("Common"),
-                    root: {
-                        type: "list",
-                        name: "common",
-                    },
-                    filters,
-                }
-            );
+        {
+            shortcuts.map(s => {
+                roots.push(
+                    {
+                        label: s.label,
+                        root: {
+                            type: "directory",
+                            name: "",
+                            isSelectable: onlyDirectories,
+                            link: split_path(s.path, onlyDirectories),
+                            isLeaf: false,
+                        },
+                    }
+                );
+            })
         }
         roots.push(
             {
                 label: _("All"),
                 root: {
                     type: "directory",
-                    name: "/",
+                    name: "all",
+                    isSelectable: onlyDirectories,
+                    link: split_path("/", onlyDirectories),
+                    isLeaf: false,
                 },
-                filters,
             }
         );
         return roots;
     });
 
     return (
-        <TreeSelect
+        <TreeSelectButton<FileNode>
+            title={title}
             roots={roots}
+            filters={treeFilters}
             formatHeader={formatHeader}
-            listChildren={p => listFiles(p, recentKey, listCommon)}
-            value={value}
-            placeholder={_("Path to file")}
-            onChange={_onChange}
-            parseTextInput={parseTextInput}
+            formatExtraColumns={formatExtraColumns}
+            formatSelected={p => file_info(join_path(p), superuser)}
+            listChildren={p => listFiles(p, recentKey, onlyDirectories, superuser)}
+            initialPath={split_path(initialLocation, onlyDirectories)}
+            onSelect={_onSelect}
+            selectTitle={selectTitle}
+            {...buttonProps}
         />
+    );
+};
+
+export type FileChooserButtonProps = Parameters<typeof FileChooserButton>[0];
+
+export const FileChooserInput = ({
+    placeholder,
+    value,
+    onChange,
+    ...buttonProps
+} : {
+    placeholder: string,
+    value: string,
+    onChange: (path: string) => void,
+} & Omit<FileChooserButtonProps, 'initialLocation' | 'onChange' | 'onSelect' | 'selectTitle'>) => {
+    const [innerValue, setInnerValue] = useState(value);
+
+    useEffect(() => {
+        setInnerValue(value);
+    }, [value]);
+
+    return (
+        <TextInputGroup>
+            <TextInputGroupMain
+                value={innerValue}
+                placeholder={placeholder}
+                onChange={(_event, value) => setInnerValue(value)}
+                autoComplete="off"
+                onBlur={
+                    () => {
+                        onChange(innerValue);
+                    }
+                }
+            />
+            <TextInputGroupUtilities>
+                <FileChooserButton
+                    initialLocation={innerValue}
+                    onSelect={async val => { onChange(val); }}
+                    selectTitle={_("Select")}
+                    variant="plain"
+                    icon={<FolderOpenIcon />}
+                    {...buttonProps}
+                />
+            </TextInputGroupUtilities>
+        </TextInputGroup>
     );
 };
 

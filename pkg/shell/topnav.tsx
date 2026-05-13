@@ -207,7 +207,7 @@ export class TopNav extends React.Component {
 
         main_menu.push(
             <DropdownItem key="creds" id="sshkeys" component="button"
-                          onClick={() => Dialogs.run(CredentialsModal, {})}>
+                onClick={() => Dialogs.run(CredentialsModal, { homeDir: this.props.state.user})}>
                 {_("SSH keys")}
             </DropdownItem>,
             <Divider key="separator3" />,

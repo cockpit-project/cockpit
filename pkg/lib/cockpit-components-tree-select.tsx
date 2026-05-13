@@ -4,23 +4,23 @@
  */
 
 import cockpit from "cockpit";
-import React, { useState, useEffect, useRef } from 'react';
-import { useInit } from 'hooks';
+import React, { useState, useRef, useEffect } from 'react';
 
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner/index.js';
-import { Bullseye } from '@patternfly/react-core/dist/esm/layouts/Bullseye/index.js';
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core/dist/esm/components/ToggleGroup/index.js';
-import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle/index.js';
-import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
-import { MenuFooter, MenuSearch } from '@patternfly/react-core/dist/esm/components/Menu/index.js';
-import { Select, SelectOption, SelectList } from '@patternfly/react-core/dist/esm/components/Select/index.js';
+import { Button, ButtonProps } from '@patternfly/react-core/dist/esm/components/Button/index.js';
+import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
+import { Modal, ModalBody, ModalHeader, ModalFooter } from '@patternfly/react-core/dist/esm/components/Modal';
+import { Table, Caption, Tbody, Tr, Td } from '@patternfly/react-table';
+import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 
 const _ = cockpit.gettext;
 
-/* TreeSelect - a mostly general purpose widget for selecting
-                something from a tree of choices.
+/* TreeSelectButton - a mostly general purpose widget for selecting
+                      something from a tree of choices.
 
    The main application is for a file chooser, and that might show.
 
@@ -30,15 +30,22 @@ const _ = cockpit.gettext;
    filtering. This widget is supposed to be pleasant to use with only
    the keyboard.
 
-   The tree is made up of nodes.  Each node has a name and a list of
-   children.  The current position in the tree is stored as a "path"
-   of nodes, which is an array of nodes.  The TreeSelect shows the
-   child nodes of the last node of that array and the user can click
-   on them.  (Or navigate with the keyboard to one and hit Enter.)
-   What happens then is partly up to the code that has instantiated
-   the TreeSelect.  Sometimes the widget is told to navigate to the
-   node, sometimes the node is accepted as the final user choice and
-   the dropdown closes.
+   When instantiating a TreeSelectButton, you get a button that will
+   open a biggish modal dialog that runs the actual selection user
+   interaction.  You can place the button into a modal dialog itself
+   and it will all work.
+
+   The tree is made up of nodes.  Each node has a name and maybe an
+   array of children.  The current position in the tree is stored as a
+   "path" of nodes, which is an array of nodes.  The TreeSelect modal
+   shows the child nodes of the last node of that array and the user
+   can click on them.  (Or navigate with the keyboard to one and hit
+   Enter.)  What happens then is up to attributes of the node.
+   Sometimes it gets highlighted and the dialog can be closed with
+   this node as the selection. Sometimes the dialog adds the node to
+   the end of the path and navigates to the new location. Sometimes
+   both. Some nodes are links and clicking on them will replace the
+   path an arbitrary new one.
 
    A TreeSelect can have multiple roots and the user can select which
    one to browse via corresponding toggle buttons in the dropdown
@@ -58,21 +65,26 @@ const _ = cockpit.gettext;
      A TreeNode has a "name" (string) which is displayed in the list,
      and a array of TreeNode<N> children in the "children" field.
      When "children" is undefined, the "listChildren" function is used
-     to compute them, see below.
+     to compute them, see below.  When "children" is false, this node
+     is a leaf and will never be part of the path.
 
      A node can also have a "link" field, which is also an array of
      TreeNode<N>.  When such a node is selected, the link becomes the
      new browsing location. (Thus, this is always an absolute link.)
-     Links are used for shortcuts, such as the "Recent" list.
+     Links are used for shortcuts.
+
+     [ Right now, a node has isSelectable and isLeaf booleans as
+       ad-hoc measures to experiment with the precise user
+       interactions.  This might change.
+     ]
 
    - TreeRoot<N>
 
      A TreeRoot is a "label" (string) plus a "root" (TreeNode<N>).
-     The label goes into the toggle button and when the user clicks on
-     that, the root becomes the new browsing location.
 
-     A TreeRoot also defines pre-made filters, as a list of TreeFilter
-     objects.  These filters are shown when their root is selected.
+     The roots are shown in a sidebar.  Typical examples are the
+     "Recent" list and shortcuts to important places in the
+     filesystem.
 
    - TreeFilter<N>
 
@@ -84,18 +96,24 @@ const _ = cockpit.gettext;
 
    TreeSelect properties:
 
+   - title: string
+
+     The title for the modal dialog.
+
    - roots: TreeRoot[]
 
-     This is the array of TreeRoot objects used for the toggle
-     buttons.
+     This is the array of TreeRoot objects used for the side bar.
 
-   - formatHeader: (path: TreeNode[]) => ReactNode
+   - formatHeader: (node: TreeNode) => ReactNode
 
-     This function is called with the current path to compute whatever
-     should be displayed above the list of current children.  This
-     will typically render each "name" of each node in "path" in
-     order, in some way to indicate that this is your positition in
-     the tree.
+     This function is called to render a node for the breadcrumb trail
+     that shows the current browsing location.
+
+   - formatExtraColumns: (node: TreeNode) => ReactNode[]
+
+     When a node appears in the big list of children, this function is
+     called to compute additional columns for it.  The first column is
+     always the name.
 
    - listChildren: (path: TreeNode[]) => Promise<TreeNode[]>
 
@@ -107,76 +125,38 @@ const _ = cockpit.gettext;
      It's ok to throw an error in this function. It will be caught and
      rendered nicely.
 
-   - parseTextInput: (value: string) => [null | TreeNode[], string]
+   - onSelect: (path: TreeNode[]) => boolean
 
-     This function is called whenever the user changes the text input
-     that is normally used for filtering.  This function is meant to
-     recogize special values and can tell the TreeSelect component to
-     immediately navigate somewhere else. This is used to support
-     pasting a complete pathname into a file chooser, for example.
+     This function is called when the user confirms the selection with
+     the apply button in the dialog.
 
-     The idea is that the function splits the string in text input
-     into two parts: one that describes a path of nodes, and the
-     another (the rest) that is used to filter the children of the
-     location described by the path.
-
-   - value: ReactNode
-
-     This is shown in the dropdown toggle and not used for anything
-     else.  Typically, this is a representation of the last node that
-     was accepted by "onChange" (see below), of course.  Maybe
-     rendered by the same function as used for "formatHeader", or
-     maybe something else.
-
-   - placeholder: ReactNode
-
-     This is shown when nothing has been selected, that is, exactly
-     when "value" is falsy.
-
-   - onChange: (path: TreeNode[]) => boolean
-
-     This function is called when the user selects a node from the
-     list of children.  The "path" argument is the current browsing
-     location extended with the node that has been clicked on.
-
-     When the "onChange" function returns true, the selection is
-     considered accepted and the dropdown is closed.  The "onChange"
-     would typically transform the path into something that is useful
-     for the rest of the code and remember it in the dialog state.
-     Also "value" should be updated to show that the node was
-     accepted.
-
-     When the function returns false, the dropdown remains open and
-     uses "path" as the new browsing location.
+   - plus all Button props.
  */
 
 /*
    TODO
 
-   [x] When onChange returns true, browse to parent of accepted node.
-   [x] Catch errors in listChildren and render them.
-   [x] Let people paste complete values into filter input, somehow
-   [ ] Easy way to clear filters (still needed?)
-   [ ] Keep menu at constant height
-   [ ] Support for footer actions like "Create new directory"
+   [ ] Change "path" to always include the selected item
+   [ ] Avoid jitter when adding/removing focus border
+   [ ] Scroll focused elements into view
    [ ] Polish, use PF variables for styling, etc.
  */
 
 export interface TreeNode<N extends TreeNode<N>> {
     name: string;
-    children?: undefined | N[];
     link?: undefined | N[];
+    isSelectable: boolean;
+    isLeaf: boolean,
 }
 
-export interface TreeFilter<N extends TreeNode<N>> {
+export interface TreeFilter<N> {
     label: string;
     filter: (node: N) => boolean;
 }
 
-export interface TreeRoot<N extends TreeNode<N>> {
+export interface TreeRoot<N> {
     label: string;
     root: N;
-    filters: TreeFilter<N>[];
 }
 
 interface TreeChildren<N> {
@@ -184,218 +164,185 @@ interface TreeChildren<N> {
     error: string | null;
 }
 
-export function TreeSelect<Node extends TreeNode<Node>>({
+export function TreeSelectButton<Node extends TreeNode<Node>>({
+    title,
     roots,
+    filters,
     formatHeader,
+    formatExtraColumns,
+    formatSelected,
     listChildren,
-    parseTextInput = null,
-    value,
-    placeholder = "",
-    onChange,
-    isDisabled = false,
+    initialPath = null,
+    onSelect,
+    selectTitle,
+    ...buttonProps
 } : {
+    title: string,
     roots: TreeRoot<Node>[],
-    formatHeader: (path: Node[]) => React.ReactNode,
+    filters?: TreeFilter<Node>[],
+    formatHeader: (node: Node) => React.ReactNode,
+    formatExtraColumns: (node: Node) => React.ReactNode[]
+    formatSelected?: undefined | ((path: Node[]) => Promise<React.ReactNode>),
     listChildren: (path: Node[]) => Promise<Node[]>,
-    parseTextInput?: null | ((value: string) => [null | Node[], string]),
-    value: React.ReactNode,
-    placeholder?: React.ReactNode,
-    onChange: (path: Node[]) => boolean,
-    isDisabled?: boolean,
-}) {
+    initialPath?: null | Node[],
+    onSelect: (path: Node[]) => Promise<void>,
+    selectTitle: string,
+} & Omit<ButtonProps, 'onSelect'>) {
     const [isOpen, _setIsOpen] = useState(false);
-    const [root, _setRoot] = useState<TreeRoot<Node> | null>(null);
     const [path, _setPath] = useState<Node[]>([]);
     const [children, setChildren] = useState<TreeChildren<Node>>({ nodes: null, error: null });
     const [filter, setFilter] = useState<TreeFilter<Node> | null>(null);
-    const [textInput, _setTextInput] = useState<string>("");
-    const [filterText, setFilterText] = useState<string>("");
+    const [textInput, setTextInput] = useState<string>("");
     const [focusIndex, setFocusIndex] = useState<number>(-1);
+    const [selected, setSelected] = useState<Node | null>(null);
+    const [inProgress, setInProgress] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [formattedSelected, setFormattedSelected] = useState<React.ReactNode>(null);
+
     const textInputRef = useRef<HTMLInputElement>(null);
+
+    const filterText = textInput;
 
     function setIsOpen(isOpen: boolean) {
         _setIsOpen(isOpen);
         if (isOpen) {
-            setFilter(root?.filters[0] || null);
-            setTextInput("");
+            if (initialPath && initialPath.length > 0) {
+                if (initialPath[initialPath.length - 1].isLeaf) {
+                    setPath(initialPath.slice(0, path.length - 2));
+                } else
+                    setPath(initialPath);
+            } else
+                setRoot(roots[0]);
+            setFilter(filters ? filters[0] : null);
+            setSelected(null);
+            setFormattedSelected(null);
         }
     }
 
+    useEffect(() => {
+        if (isOpen)
+            textInputRef.current?.focus();
+    }, [isOpen]);
+
     function setRoot(r: TreeRoot<Node>) {
-        if (!root || r.filters != root.filters)
-            setFilter(r.filters[0] || null);
-        _setRoot(r);
-        setPath([r.root]);
+        setPath(followLinks([r.root]));
     }
 
     async function setPath(path: Node[]) {
         _setPath(path);
-        const cur = path[path.length - 1];
         setFocusIndex(-1);
-        if (cur.children === undefined) {
-            const new_children = { nodes: null, error: null };
-            setChildren(new_children);
-            let nodes: Node[] = [];
-            let error = null;
-            try {
-                nodes = await listChildren(path);
-            } catch (ex) {
-                error = String(ex);
-            }
-            // Only install the new nodes (or the error) when no other
-            // call to setPath has happened in the mean time. When
-            // such a call happens, the "children" state variable will
-            // no longer be equal to the "new_children" container that
-            // we have created for us.
-            setChildren(currentChildren => {
-                if (Object.is(currentChildren, new_children)) {
-                    // Return a new object again, to guarantee that a
-                    // render is actually triggered.
-                    return { nodes, error };
-                } else
-                    return currentChildren;
-            });
-        } else {
-            setChildren({ nodes: cur.children, error: null });
+
+        const new_children = { nodes: null, error: null };
+        setChildren(new_children);
+        let nodes: Node[] = [];
+        let error = null;
+        try {
+            nodes = await listChildren(path);
+        } catch (ex) {
+            error = String(ex);
+        }
+        // Only install the new nodes (or the error) when no other
+        // call to setPath has happened in the mean time. When
+        // such a call happens, the "children" state variable will
+        // no longer be equal to the "new_children" container that
+        // we have created for us.
+        setChildren(currentChildren => {
+            if (Object.is(currentChildren, new_children)) {
+                // Return a new object again, to guarantee that a
+                // render is actually triggered.
+                return { nodes, error };
+            } else
+                return currentChildren;
+        });
+
+        if (formatSelected && path[path.length - 1]?.isSelectable) {
+            setFormattedSelected(await formatSelected(followLinks(path)));
         }
     }
 
-    function setTextInput(value: string) {
-        _setTextInput(value);
-        if (parseTextInput) {
-            const [new_path, filter] = parseTextInput(value);
-            if (new_path && !Object.is(new_path, path))
-                setPath(new_path);
-            setFilterText(filter);
-        } else
-            setFilterText(value);
-    }
-
-    useInit(() => {
-        setRoot(roots[0]);
-    });
-
-    useEffect(() => {
-        // Focus the filter input as soon as it exists
-        if (isOpen && textInputRef.current)
-            textInputRef.current.focus();
-    }, [
-        isOpen,
-        textInputRef,
-    ]);
-
-    function goUp() {
-        if (path.length > 1) {
-            setPath(path.slice(0, path.length - 1));
-            textInputRef.current?.focus();
-        }
-    }
-
-    const footer = (
-        <MenuFooter>
-            <Flex rowGap={{ default: 'rowGap2xl' }} flexWrap={{ default: "nowrap" }}>
-                <FlexItem>
-                    <Button
-                        isInline
-                        variant="link"
-                        onClick={goUp}
-                    >
-                        {_("Up")}
-                    </Button>
-                </FlexItem>
+    const preparedFilters = (
+        filters && filters.length > 1 &&
+            <ToggleGroup>
                 {
-                    roots.length > 1 &&
-                        <FlexItem>
-                            <ToggleGroup isCompact>
-                                {
-                                    roots.map(r => {
-                                        return (
-                                            <ToggleGroupItem
-                                                key={r.label}
-                                                isSelected={r == root}
-                                                onChange={() => {
-                                                    setRoot(r);
-                                                    textInputRef.current?.focus();
-                                                }}
-                                                text={r.label}
-                                            />
-                                        );
-                                    })
-                                }
-                            </ToggleGroup>
-                        </FlexItem>
+                    filters.map(f => {
+                        return (
+                            <ToggleGroupItem
+                                key={f.label}
+                                isSelected={f == filter}
+                                onChange={() => {
+                                    setFilter(f);
+                                    textInputRef.current?.focus();
+                                }}
+                                text={f.label}
+                            />
+                        );
+                    })
                 }
-                {
-                    root && root.filters.length > 1 &&
-                        <FlexItem>
-                            <ToggleGroup isCompact>
-                                {
-                                    root.filters.map(f => {
-                                        return (
-                                            <ToggleGroupItem
-                                                key={f.label}
-                                                isSelected={f == filter}
-                                                onChange={() => {
-                                                    setFilter(f);
-                                                    textInputRef.current?.focus();
-                                                }}
-                                                text={f.label}
-                                            />
-                                        );
-                                    })
-                                }
-                            </ToggleGroup>
-                        </FlexItem>
-                }
-                <FlexItem grow={{ default: 'grow' }}>
-                    <input
-                        ref={textInputRef}
-                        type="text"
-                        style={{ width: "100%" }}
-                        placeholder={_("Type to filter")}
-                        value={textInput}
-                        onChange={event => setTextInput(event.target.value)}
-                        onKeyDown={onFilterInputKeyDown}
-                    />
-                </FlexItem>
-            </Flex>
-        </MenuFooter>
+            </ToggleGroup>
     );
 
-    const header = formatHeader(path);
+    const textFilter = (
+        <TextInput
+            ref={textInputRef}
+            placeholder={_("Type to filter")}
+            value={textInput}
+            onChange={(_event, value) => setTextInput(value)}
+            onKeyDown={onFilterInputKeyDown}
+        />
+    );
 
-    function onNodeClick(n: Node) {
-        let new_path = path.concat(n);
+    const breadcrumbs: React.ReactNode[] = [];
+    path.map(formatHeader).forEach((h, i) => {
+        if (h) {
+            breadcrumbs.push(
+                <BreadcrumbItem
+                    key={i}
+                    to="#"
+                    onClick={
+                        (event) => {
+                            setPath(path.slice(0, i + 1));
+                            event.preventDefault();
+                        }
+                    }
+                    isActive={i == path.length - 1}
+                >
+                     {h}
+                </BreadcrumbItem>
+            );
+        }
+    });
 
-        setTextInput("");
-
-        // Resolve links.
+    function followLinks(path: Node[]) {
         let link;
+        let new_path = path;
         while ((link = new_path[new_path.length - 1].link))
             new_path = link;
+        return new_path;
+    }
 
-        if (onChange(new_path)) {
-            setPath(new_path.slice(0, new_path.length - 1));
-            setIsOpen(false);
-        } else {
-            // The Select component has a global listener for the
-            // "click" event that drives the onOpenChange callback.
-            // That listener checks whether the event target is
-            // contained within the Menu element. This breaks when the
-            // event target is removed from the Menu element before
-            // the global listener runs.  Our handler here will do
-            // exactly that: remove the old menu item when browsing to
-            // a new path. So we delay it until the next event loop round.
-            window.setTimeout(() => {
-                setPath(new_path);
-                textInputRef.current?.focus();
-            }, 0);
+    function onNodeClick(n: Node) {
+        setFocusIndex(-1);
+
+        if (n.isLeaf) {
+            if (n.isSelectable) {
+                setSelected(n);
+                if (formatSelected)
+                    formatSelected(followLinks(path.concat(n))).then(setFormattedSelected);
+            } else {
+                setSelected(null);
+                setFormattedSelected(null);
+            } return;
         }
+
+        setTextInput("");
+        setSelected(null);
+        setFormattedSelected(null);
+        setPath(followLinks(path.concat(n)));
     }
 
     const { nodes, error } = children;
     const filteredNodes = nodes && nodes.filter(n => n.name.includes(filterText) && (!filter || filter.filter(n)));
-    const filteredHeader = filterText && nodes && filteredNodes && cockpit.format("($0 / $1)", filteredNodes.length, nodes.length);
+    const filteredHeader = nodes && filteredNodes && filteredNodes.length < nodes.length && cockpit.format("($0 / $1)", filteredNodes.length, nodes.length);
 
     function boldify(name: string): React.ReactNode {
         if (!filterText)
@@ -409,7 +356,7 @@ export function TreeSelect<Node extends TreeNode<Node>>({
         }
         if (name)
             parts.push(name);
-        return <>{parts}</>
+        return parts;
     }
 
     function onFilterInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -443,66 +390,156 @@ export function TreeSelect<Node extends TreeNode<Node>>({
         }
     }
 
-    const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle
-            ref={toggleRef}
-            onClick={() => setIsOpen(!isOpen)}
-            isExpanded={isOpen}
-            isDisabled={isDisabled}
-            isFullWidth
-        >
-            {/* XXX - use PF variables */}
-            {value || <div style={{ color: "grey" }}>{placeholder}</div>}
-        </MenuToggle>
-    );
+    const selectedStyle = { background: "var(--pf-t--global--color--nonstatus--blue--default)" };
+    const focusedStyle = { border: "solid 1px black" };
 
     return (
-        <Select
-            isOpen={isOpen}
-            onSelect={(_event, val) => {
-                cockpit.assert(nodes);
-                const n = nodes.find(n => n.name == val);
-                if (n)
-                    onNodeClick(n);
-            }}
-            toggle={toggle}
-            onOpenChange={isOpen => {
-                if (!isOpen)
-                    setIsOpen(false);
-            }}
-            popperProps={{ width: "trigger" }}
-            isScrollable
-        >
-            {
-                // XXX - use PF variables
-                (header || filteredHeader) &&
-                    <MenuSearch>
-                        <div style={{ margin: 10, marginBlockEnd: -10, color: "grey" }}>
-                            <Split>
-                                <SplitItem>{header}</SplitItem>
-                                <SplitItem isFilled />
-                                <SplitItem><small>{filteredHeader}</small></SplitItem>
-                            </Split>
-                        </div>
-                    </MenuSearch>
-            }
-            <SelectList>
-                { nodes == null && <Bullseye><Spinner /></Bullseye> }
-                { nodes && nodes.length == 0 && <Bullseye>{error || _("empty")}</Bullseye> }
-                { nodes && nodes.length > 0 && filteredNodes && filteredNodes.length == 0 && <Bullseye>not found</Bullseye> }
-                { filteredNodes && filteredNodes.length > 0 &&
-                    filteredNodes.map(
-                        (n, idx) => {
-                            return (
-                                <SelectOption key={n.name} value={n.name} isFocused={idx == focusIndex}>
-                                    {boldify(n.name)}
-                                </SelectOption>
-                            );
+        <>
+            <Modal
+                isOpen={isOpen}
+                variant="large"
+                position="top"
+            >
+                <ModalHeader
+                    title={title}
+                    description={
+                        errorMessage &&
+                            <Alert
+                                variant='danger'
+                                isInline
+                                title={errorMessage}
+                            />
+                    }
+                />
+                <Split>
+                    <SplitItem style={{ width: 200 }}>
+                        <ModalBody>
+                            <Table variant="compact" borders={false}>
+                                <Tbody>
+                                    {
+                                        roots.map(r => {
+                                            return (
+                                                <Tr
+                                                    key={r.label}
+                                                    isClickable
+                                                    isSelectable
+                                                    isRowSelected={path[0] == r.root}
+                                                    onRowClick={() => {
+                                                        setRoot(r);
+                                                        setSelected(null);
+                                                        textInputRef.current?.focus();
+                                                    }}
+                                                >
+                                                    <Td>{r.label}</Td>
+                                                </Tr>
+                                            );
+                                        })
+                                    }
+                                </Tbody>
+                            </Table>
+                        </ModalBody>
+                    </SplitItem>
+                    <SplitItem isFilled>
+                        {
+                            breadcrumbs.length > 0 &&
+                                <ModalHeader>
+                                    <Breadcrumb
+                                        style={
+                                            {
+                                                // align left of breadcrumb with left of table content
+                                                paddingInlineStart: "var(--pf-t--global--spacer--inset--page-chrome"
+                                            }
+                                        }
+                                    >
+                                        {breadcrumbs}
+                                    </Breadcrumb>
+                                </ModalHeader>
                         }
-                    )
-                }
-            </SelectList>
-            { footer }
-        </Select>
+                        <ModalBody style={{ height: 300 }}>
+                            <Table variant="compact" borders={false}>
+                                { nodes == null && <Caption><Spinner /></Caption> }
+                                { nodes && nodes.length == 0 && <Caption>{error || _("empty")}</Caption> }
+                                { nodes && nodes.length > 0 && filteredNodes && filteredNodes.length == 0 && <Caption>nothing matches</Caption> }
+                                { filteredNodes && filteredNodes.length > 0 &&
+                                    <Tbody>
+                                        {
+                                            filteredNodes.map(
+                                                (n, idx) => {
+                                                    return (
+                                                        <Tr
+                                                            style={
+                                                                {
+                                                                    ...(n == selected ? selectedStyle : {}),
+                                                                    ...(idx == focusIndex ? focusedStyle : {})
+                                                                }
+                                                            }
+                                                            key={n.name}
+                                                            onRowClick={() => onNodeClick(n)}
+                                                            isClickable
+                                                        >
+                                                            <Td>{boldify(n.name)}</Td>
+                                                            { formatExtraColumns(n).map((c, i) => <Td key={i}>{c}</Td>) }
+                                                        </Tr>
+                                                    );
+                                                }
+                                            )
+                                        }
+                                    </Tbody>
+                                }
+                            </Table>
+                        </ModalBody>
+                    </SplitItem>
+                </Split>
+                <ModalFooter>
+                    {formattedSelected}
+                    <Flex>
+                        <FlexItem>
+                            <Button
+                                isDisabled={!selected && !(path.length > 0 && path[path.length - 1].isSelectable)}
+                                isLoading={inProgress}
+                                onClick={
+                                    async () => {
+                                        setInProgress(true);
+                                        setErrorMessage("");
+                                        try {
+                                            if (selected)
+                                                await onSelect(followLinks(path.concat(selected)));
+                                            else
+                                                await onSelect(path);
+                                            setIsOpen(false);
+                                        } catch (ex) {
+                                            setErrorMessage(String(ex));
+                                        }
+                                        setInProgress(false);
+                                    }
+                                }
+                            >
+                                {selectTitle}
+                            </Button>
+                        </FlexItem>
+                        <FlexItem>
+                            <Button
+                                variant="link"
+                                onClick={() => setIsOpen(false)}
+                                isDisabled={inProgress}
+                            >
+                                {_("Cancel")}
+                            </Button>
+                        </FlexItem>
+                        <FlexItem grow={{default: "grow"}} />
+                        <FlexItem>
+                            {filteredHeader}
+                        </FlexItem>
+                        <FlexItem>
+                            {preparedFilters}
+                        </FlexItem>
+                        <FlexItem>
+                            {textFilter}
+                        </FlexItem>
+                    </Flex>
+                </ModalFooter>
+            </Modal>
+            <Button onClick={() => setIsOpen(true)} {...buttonProps} />
+        </>
     );
 }

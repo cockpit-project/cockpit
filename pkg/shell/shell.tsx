@@ -86,10 +86,12 @@ const SessionCountdownModal = () => {
 };
 
 const Shell = () => {
-    const current_user = useLoggedInUser()?.name || "";
+    const current_user = cockpit.info.user.name;
     const state = useInit(() => new ShellState());
     const session_controller = get_session_controller();
     const host_modal_state = useInit(() => HostModalState());
+
+    console.log("USER", current_user);
 
     useOn(state, "update");
     useOn(session_controller, "changed");
@@ -192,7 +194,7 @@ interface ShellWindow extends Window {
     features?: object;
 }
 
-function init() {
+async function init() {
     cockpit.translate();
 
     /* Give us a name.  This used to (maybe) indicate at some point to
@@ -227,6 +229,7 @@ function init() {
         }
     });
 
+    await cockpit.init();
     const root = createRoot(document.getElementById("shell")!);
     root.render(<WithDialogs><Shell /></WithDialogs>);
 }

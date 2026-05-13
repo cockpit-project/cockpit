@@ -534,7 +534,7 @@ class TestIPA(TestRealms, CommonTests):
         self.allow_journal_messages('/bin/bash: /home/admin/.bashrc: Permission denied')
 
         # sudo-rs does not support centralized sudoers rules (FreeIPA), switch to classic sudo
-        if m.image in ["ubuntu-2604"]:
+        if self.has_sudo_rs:
             if "currently points to /usr/lib/cargo/bin/sudo" not in m.execute("update-alternatives --display sudo"):
                 raise NotImplementedError("expected sudo-rs by default; adjust the test setup")
             m.execute("update-alternatives --set sudo /usr/bin/sudo.ws")

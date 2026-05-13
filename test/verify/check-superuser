@@ -200,9 +200,11 @@ session include system-auth
         b.check_superuser_indicator("Limited access")
 
         b.open_superuser_dialog()
-        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
-        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
-        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
+        if not self.has_sudo_rs:
+            # sudo-ws always asks for password, sudo-rs rejects immediately
+            b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
+            b.set_input_text(".pf-v6-c-modal-box input", "foobar")
+            b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
         b.wait_in_text(".pf-v6-c-modal-box__body", "Admin is not in the sudoers file.")
         b.click(".pf-v6-c-modal-box button.btn-cancel")
@@ -210,26 +212,31 @@ session include system-auth
 
         # no stray/hanging sudo process
         testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
-        # cancelling auth dialog stops sudo
+        # cancelling auth dialog stops sudo (you can't do that without a prompt)
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v6-c-modal-box", "Switch to administrative access")
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}")
-        status = m.execute("loginctl --lines=0 user-status admin")
-        self.assertIn("sudo", status)
-        if not m.ws_container:
-            self.assertIn("cockpit-askpass", status)
-
-        b.click(".pf-v6-c-modal-box button:contains('Cancel')")
+        if self.has_sudo_rs:
+            b.click(".pf-v6-c-modal-box button:contains('Close')")
+        else:
+            b.wait_in_text(".pf-v6-c-modal-box", "Switch to administrative access")
+            b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}")
+            status = m.execute("loginctl --lines=0 user-status admin")
+            self.assertIn("sudo", status)
+            if not m.ws_container:
+                self.assertIn("cockpit-askpass", status)
+            b.click(".pf-v6-c-modal-box button:contains('Cancel')")
         b.wait_not_present(".pf-v6-c-modal-box")
 
         testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin"), tries=5)
 
         # logging out cleans up pending sudo auth; user should either go to "State: closing" or disappear completely
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}")
-        if not m.ws_container:
-            self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
-        b.click(".pf-v6-c-modal-box button:contains('Cancel')")
+        if self.has_sudo_rs:
+            b.click(".pf-v6-c-modal-box button:contains('Close')")
+        else:
+            b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}")
+            if not m.ws_container:
+                self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
+            b.click(".pf-v6-c-modal-box button:contains('Cancel')")
         b.wait_not_present(".pf-v6-c-modal-box")
         b.logout()
         testlib.wait(lambda: "sudo" not in m.execute("loginctl --lines=0 user-status admin || true"), tries=10)

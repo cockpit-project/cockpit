@@ -3,8 +3,7 @@ import os
 import subprocess
 import sys
 from importlib.metadata import version
-from pathlib import Path
-from typing import TYPE_CHECKING, AsyncGenerator
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -35,15 +34,6 @@ def any_subprocesses() -> bool:
 #   - this also requires a bots/ checkout which we don't have in distros
 if "NO_QUNIT" in os.environ:
     collect_ignore.append("test_browser.py")
-
-    # if m.image in ['ubuntu-2204', '🙃']:
-    if not TYPE_CHECKING and version("pytest") not in SpecifierSet(">=7.0"):
-
-        @pytest.hookimpl
-        def pytest_ignore_collect(path: object) -> bool:
-            return Path(str(path)).name == "test_browser.py"
-
-
 else:
     pytest_plugins = "js_coverage"
 
@@ -54,7 +44,7 @@ def event_loop_policy() -> asyncio.AbstractEventLoopPolicy:  # type: ignore[name
     return EventLoopPolicy()
 
 
-# if m.image in ['ubuntu-2204', 'ubuntu-2404', '🙃']:
+# if m.image in ['ubuntu-2404', '🙃']:
 if version("pytest-asyncio") not in SpecifierSet(">=0.22"):
     # Compatibility with pre-`event_loop_policy` versions of pytest-asyncio
     @pytest.fixture(autouse=True)

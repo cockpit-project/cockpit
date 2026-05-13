@@ -99,7 +99,7 @@ const OverviewCard = ({ card, plot_state }) => {
         is_enabled: () => client.features.stratis,
         package: client.get_config("stratis_package", false),
         enable: () => {
-            return cockpit.spawn(["systemctl", "start", "stratisd"], { superuser: "require" })
+            return cockpit.exec("systemctl", ["start"], ["stratisd"], { superuser: "require" })
                     .then(() => client.stratis_start());
         },
 

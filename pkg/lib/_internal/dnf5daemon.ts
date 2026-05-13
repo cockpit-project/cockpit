@@ -636,7 +636,7 @@ export class Dnf5DaemonManager implements PackageManager {
             }
         });
 
-        const now = parseInt(await cockpit.spawn(["date", "+%s"]), 10);
+        const now = parseInt(await cockpit.exec("date", [], ["+%s"]), 10);
         return now - last_time;
     }
 

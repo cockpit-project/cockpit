@@ -46,12 +46,11 @@ export function delete_account_dialog(account) {
                     caption: _("Delete"),
                     style: "danger",
                     clicked: () => {
-                        const prog = ["/usr/sbin/userdel"];
+                        const opts = [];
                         if (state.delete_files)
-                            prog.push("-r");
-                        prog.push(account.name);
+                            opts.push("-r");
 
-                        return cockpit.spawn(prog, { superuser: "require", err: "message" })
+                        return cockpit.exec("/usr/sbin/userdel", opts, [account.name], { superuser: "require", err: "message" })
                                 .then(function () {
                                     cockpit.location.go("/");
                                 });

@@ -3,8 +3,169 @@
 This is the API for spawning a process and receiving its output, as well
 as exit codes.
 
+[[cockpit-spawn-exec]]
+== cockpit.exec()
+
+....
+process = cockpit.exec(program, opts, [positionals], [options])
+....
+
+Spawns a process on the system with structurally safe argument
+construction.
+
+The key design principle: flags and subcommands (`+opts+`) are separated
+from the values the command operates on (`+positionals+`). A `+--+`
+separator is automatically inserted before positionals, preventing
+dynamic values from being interpreted as flags.
+
+`+program+`::
+  The executable name or path, as a string.
+
+`+opts+`::
+  An array of flags, subcommands, and flag+value tuples. Each element
+  may be:
+  - A flag string: `+"-f"+`, `+"--lock"+`, or a template literal like
+    `+`--date=${d}`+`
+  - A subcommand string: `+"commit"+`, `+"report"+`, `+"restart"+`
+  - A pair `+[flag, value]+` for flags that take one argument:
+    `+["--shell", shell]+`
+  - A triple `+[flag, value, value]+` for flags that take two arguments:
+    `+["--bind", src, dest]+`
++
+In TypeScript, flag strings must have a statically known first character
+(a literal or template literal starting with `+-+` or `+--+`).
+Subcommand strings must start with a non-`+-+` character. This prevents
+dynamic user-controlled values from being used as flags.
+
+`+positionals+`::
+  An optional array of strings that the command operates on — filenames,
+  usernames, device paths, mount targets, etc. A `+--+` separator is
+  automatically inserted before these values.
+
+`+options+`::
+  An optional javascript plain object. Accepts all the same fields as
+  link:#cockpit-spawn-spawn[`+cockpit.spawn()+`]: `+"binary"+`,
+  `+"directory"+`, `+"err"+`, `+"environ"+`, `+"pty"+`, `+"batch"+`,
+  `+"latency"+`, and `+"superuser"+`.
+
+=== Examples
+
+Simple command with a flag and a positional:
+
+....
+cockpit.exec("passwd", ["-S"], [username],
+             { superuser: "require", environ: ["LC_ALL=C"] })
+....
+
+Flag that takes a value, using a tuple:
+
+....
+cockpit.exec("usermod", [["--shell", newShell]], [username],
+             { superuser: "require" })
+....
+
+Template literal flag (the flag name is statically known):
+
+....
+cockpit.exec("date", [`--date=${datestr}`], ["+%s"])
+....
+
+Building opts dynamically:
+
+....
+const opts = ["--create-home", ["-s", shell]];
+if (real_name)
+    opts.push(["-c", real_name]);
+cockpit.exec("useradd", opts, [username], { superuser: "require" })
+....
+
+Command with no positionals — just omit the argument:
+
+....
+cockpit.exec("uname", ["-r"])
+....
+
+Command with no flags — pass an empty array:
+
+....
+cockpit.exec("cat", [], [filename])
+....
+
+Running a shell command — the shell code is a flag value:
+
+....
+cockpit.exec("sh", [["-c", shellCommand]])
+....
+
+=== Commands with non-standard argument parsing
+
+This API assumes POSIX option conventions (`+getopt+`, `+--+`). Most
+commands work fine, but some need alternative approaches:
+
+tar (dashless flags with arguments)::
+  Won't work: `+cockpit.exec("tar", [["xvf", archive]])+`
+  +
+  Recommended: `+cockpit.exec("tar", ["-xv", ["-f", archive]])+`
+  (POSIX style)
+
+ps (BSD-style flags)::
+  Won't work: `+cockpit.exec("ps", [["ut", tty]])+`
+  +
+  Recommended: `+cockpit.exec("ps", ["-u", ["-t", tty]])+`
+  (POSIX style)
+
+echo (does not support `+--+`)::
+  Won't work: `+cockpit.exec("echo", [], [msg])+`
+  +
+  But you wouldn't ever spawn echo from cockpit anyway.
+
+test / [ (expression grammar, not getopt)::
+  Works: `+cockpit.exec("test", ["!", ["-f", path], "-a", [path, "-nt", other]])+`
+  +
+  The binary file operators (`+-ef+`, `+-nt+`, `+-ot+`) are
+  special-cased as `+[string, operator, string]+` triples.
+
+git (dynamic non-flag values before `+--+`)::
+  Works: `+cockpit.exec("git", [["-C", dir], "commit"])+`
+  +
+  For dynamic non-flag values before `+--+`, use `+is_not_flag()+`:
++
+....
+cockpit.assert(cockpit.is_not_flag(rev));
+cockpit.exec("git", ["log", rev], ["file1", "file2"])
+....
+
+flock (`+-c+` is a special-case positional)::
+  `+flock+` expects `+flock [options] file -c command+`, where `+-c+` comes
+  after the file. Put both the file and `+-c command+` in positionals:
+  `+cockpit.exec("flock", ["-o"], ["/tmp/lockfile", "-c", "echo locked"])+`
+
+find (dangerous — avoid!)::
+  `+find+` has very few actual options (`+-H+`, `+-L+`, `+-P+`).
+  Everything else (`+-name+`, `+-exec+`, `+-delete+`, ...) is part of a
+  positional expression language. There is no way to separate filenames
+  from expressions like `+-delete+` and `+-exec+`, which are interpreted
+  even after `+--+`. Avoid `+find+` entirely; use
+  link:#cockpit-file[`+cockpit.file()+`] or filesystem APIs instead.
+
+=== cockpit.is_not_flag()
+
+....
+cockpit.is_not_flag(value)
+....
+
+A type guard that checks whether a dynamic string starts with a
+printable ASCII character other than `+-+`. After calling
+`+cockpit.assert(cockpit.is_not_flag(value))+`, the value can be used as
+a subcommand in the `+opts+` array.
+
 [[cockpit-spawn-spawn]]
 == cockpit.spawn()
+
+WARNING: `+cockpit.spawn()+` is deprecated. Use
+link:#cockpit-spawn-exec[`+cockpit.exec()+`] instead. The `+spawn()+`
+API makes it too easy to pass dynamic strings where flags are expected,
+leading to argument injection vulnerabilities.
 
 ....
 process = cockpit.spawn(args, [options])

@@ -187,7 +187,7 @@ async function getLoginDetails(logind_client) {
     // stable Fedora releases. Available at least on Fedora since
     // shadow-utils-4.14.0-5.fc40 (currently known as rawhide).
     try {
-        const locked_statuses = await cockpit.spawn(["passwd", "-S", "--all"], { superuser: "require", err: "message", environ: ["LC_ALL=C"] });
+        const locked_statuses = await cockpit.exec("passwd", ["-S", "--all"], null, { superuser: "require", err: "message", environ: ["LC_ALL=C"] });
         // Slice off the last empty line
         for (const line of locked_statuses.trim().split('\n')) {
             const name = line.split(" ")[0];
@@ -221,7 +221,7 @@ async function getLoginDetails(logind_client) {
     } catch (err) {
         // fall back to legacy lastlog
         try {
-            const out = await cockpit.spawn(["lastlog"], { environ: ["LC_ALL=C"] });
+            const out = await cockpit.exec("lastlog", [], null, { environ: ["LC_ALL=C"] });
             await Promise.all(out.split('\n').slice(1, -1).map(async line => {
                 if (line.includes('**Never logged in**'))
                     return;
@@ -231,8 +231,8 @@ async function getLoginDetails(logind_client) {
                 const date_fields = splitLine.slice(-5);
                 // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
                 try {
-                    const out = await cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')],
-                                                    { environ: ["LC_ALL=C"], err: "out" });
+                    const out = await cockpit.exec("date", [["-d", date_fields.join(' ')]],
+                                                   ["+%s"], { environ: ["LC_ALL=C"], err: "out" });
                     details[name] = { ...details[name], lastLogin: parseInt(out) * 1000 };
                 } catch (e) {
                     console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`);

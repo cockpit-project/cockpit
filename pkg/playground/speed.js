@@ -235,7 +235,7 @@ function spawn_input() {
 
     start = Date.now();
     total = 0;
-    channel = cockpit.spawn(["dd", "of=/tmp/spawninput"], { err: "message" });
+    channel = cockpit.exec("dd", ["of=/tmp/spawninput"], null, { err: "message" });
     const chunk = 'a'.repeat(65536);
     for (let i = 0; i < 1000; i++) {
         channel.input(chunk, true);

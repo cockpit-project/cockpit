@@ -203,12 +203,12 @@ export class JournalBox extends React.Component {
         // For that we however need newer systemd that includes https://github.com/systemd/systemd/issues/13937
         const currentServices = new Set();
         const service_options = Object.assign({ output: "verbose" }, options);
-        let cmd = journal.build_cmd(match, service_options);
+        const { opts, positionals } = journal.journalctl_args(match, service_options);
+        const flat = ["journalctl", ...opts, ...positionals.length ? ["--", ...positionals] : []];
 
         // cribbed from Python's shlex.quote()
-        cmd = cmd.map(i => `'` + i.replaceAll(`'`, `'"'"'`) + `'`).join(" ");
-        cmd = "set -o pipefail; " + cmd + " | grep SYSLOG_IDENTIFIER= | sort -u";
-        cockpit.spawn(["/bin/bash", "-ec", cmd], { superuser: "try", err: "message" })
+        const cmd = "set -o pipefail; " + flat.map(i => `'` + i.replaceAll(`'`, `'"'"'`) + `'`).join(" ") + " | grep SYSLOG_IDENTIFIER= | sort -u";
+        cockpit.exec("/bin/bash", [["-ec", cmd]], null, { superuser: "try", err: "message" })
                 .then(entries => {
                     entries.split("\n").forEach(entry => {
                         if (entry)

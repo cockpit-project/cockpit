@@ -93,7 +93,7 @@ export function detect() {
                       () => false);
     }
 
-    return cockpit.spawn(["findmnt", "-T", "/usr", "-n", "-o", "VFS-OPTIONS"])
+    return cockpit.exec("findmnt", [["-T", "/usr"], "-n", ["-o", "VFS-OPTIONS"]])
             .then(options => {
                 if (options.split(",").indexOf("ro") >= 0)
                     return false;

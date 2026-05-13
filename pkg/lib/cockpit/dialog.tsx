@@ -51,7 +51,7 @@
         }
 
         async function apply(values: LoggerValues) {
-            await cockpit.spawn(["logger", values.text]);
+            await cockpit.exec("logger", [], [values.text]);
         }
 
         const dlg = useDialogState({ text: "" }, validate);

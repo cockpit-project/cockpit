@@ -247,9 +247,9 @@ function btrfs_findmnt_poll() {
     };
 
     const findmnt_poll = () => {
-        return cockpit.spawn(["findmnt", "--type", "btrfs", "--mtab", "--poll"], { superuser: "try", err: "message" }).stream(() => {
-            cockpit.spawn(["findmnt", "--type", "btrfs", "--mtab", "-o", "UUID,OPTIONS,TARGET", "--json"],
-                          { superuser: "try", err: "message" }).then(output => update_btrfs_mounts(output)).catch(err => {
+        return cockpit.exec("findmnt", [["--type", "btrfs"], "--mtab", "--poll"], null, { superuser: "try", err: "message" }).stream(() => {
+            cockpit.exec("findmnt", [["--type", "btrfs"], "--mtab", ["-o", "UUID,OPTIONS,TARGET"], "--json"], null,
+                         { superuser: "try", err: "message" }).then(output => update_btrfs_mounts(output)).catch(err => {
                 // When there are no btrfs filesystems left this can fail and thus we need to manually reset the mount info.
                 client.btrfs_mounts = {};
                 client.update();
@@ -265,8 +265,8 @@ function btrfs_findmnt_poll() {
 
     // This fails when no btrfs filesystem is found with the --mtab option and exits with 1, so that is kinda useless, however without --mtab
     // we don't get a nice flat structure. So we ignore the errors
-    cockpit.spawn(["findmnt", "--type", "btrfs", "--mtab", "-o", "UUID,OPTIONS,SOURCE,TARGET", "--json"],
-                  { superuser: "try", err: "message" }).then(output => {
+    cockpit.exec("findmnt", [["--type", "btrfs"], "--mtab", ["-o", "UUID,OPTIONS,SOURCE,TARGET"], "--json"], null,
+                 { superuser: "try", err: "message" }).then(output => {
         update_btrfs_mounts(output);
         findmnt_poll();
     }).catch(err => {
@@ -874,7 +874,7 @@ client.update = (first_time) => {
 
 function init_model(callback) {
     function pull_time() {
-        return cockpit.spawn(["date", "+%s"])
+        return cockpit.exec("date", [], ["+%s"])
                 .then(function (now) {
                     client.time_offset = parseInt(now, 10) * 1000 - new Date().getTime();
                 });
@@ -915,7 +915,7 @@ function init_model(callback) {
     }
 
     function enable_lvm_create_vdo_feature() {
-        return cockpit.spawn(["vdoformat", "--version"], { err: "ignore" })
+        return cockpit.exec("vdoformat", ["--version"], null, { err: "ignore" })
                 .then(() => { client.features.lvm_create_vdo = true; return Promise.resolve() })
                 .catch(() => Promise.resolve());
     }
@@ -1095,8 +1095,8 @@ client.mount_at = (block, target) => {
 };
 
 client.unmount_at = (target, users) => {
-    return client.stop_mount_users(users).then(() => cockpit.spawn(["umount", target],
-                                                                   { superuser: "require", err: "message" }));
+    return client.stop_mount_users(users).then(() => cockpit.exec("umount", [], [target],
+                                                                  { superuser: "require", err: "message" }));
 };
 
 /* NFS mounts
@@ -1157,7 +1157,7 @@ function nfs_mounts() {
             return null;
 
         self.fsys_sizes[path] = false;
-        cockpit.spawn(["stat", "-f", "-c", "[ %S, %f, %b ]", path], { err: "message" })
+        cockpit.exec("stat", ["-f", ["-c", "[ %S, %f, %b ]"]], [path], { err: "message" })
                 .then(function (output) {
                     const data = JSON.parse(output);
                     self.fsys_sizes[path] = [(data[2] - data[1]) * data[0], data[2] * data[0]];
@@ -1233,12 +1233,12 @@ function legacy_vdo_overlay() {
         create
     };
 
-    function cmd(args) {
-        return cockpit.spawn(["vdo"].concat(args),
-                             {
-                                 superuser: "require",
-                                 err: "message"
-                             });
+    function cmd(opts) {
+        return cockpit.exec("vdo", opts, null,
+                            {
+                                superuser: "require",
+                                err: "message"
+                            });
     }
 
     function update(data) {
@@ -1249,8 +1249,8 @@ function legacy_vdo_overlay() {
         self.volumes = data.map(function (vol, index) {
             const name = vol.name;
 
-            function volcmd(args) {
-                return cmd(args.concat(["--name", name]));
+            function volcmd(opts) {
+                return cmd([...opts, ["--name", name]]);
             }
 
             const v = {
@@ -1298,7 +1298,7 @@ function legacy_vdo_overlay() {
                 },
 
                 grow_logical: function(lsize) {
-                    return volcmd(["growLogical", "--vdoLogicalSize", lsize + "B"]);
+                    return volcmd(["growLogical", ["--vdoLogicalSize", `${lsize}B`]]);
                 }
             };
 
@@ -1315,12 +1315,12 @@ function legacy_vdo_overlay() {
     function start() {
         let buf = "";
 
-        return cockpit.spawn(["/bin/sh", "-c", "head -1 $(command -v vdo || echo /dev/null)"],
-                             { err: "ignore" })
+        return cockpit.exec("sh", [["-c", "head -1 $(command -v vdo || echo /dev/null)"]],
+                            null, { err: "ignore" })
                 .then(function (shebang) {
                     if (shebang != "") {
                         self.python = shebang.replace(/#! */, "").trim("\n");
-                        cockpit.spawn([self.python, "--", "-"], { superuser: "try", err: "message" })
+                        cockpit.exec(self.python, ["--", "-"], null, { superuser: "try", err: "message" })
                                 .input(inotify_py + vdo_monitor_py)
                                 .stream(function (output) {
                                     buf += output;
@@ -1363,19 +1363,19 @@ function legacy_vdo_overlay() {
     }
 
     function create(options) {
-        const args = ["create", "--name", options.name,
-            "--device", utils.decode_filename(options.block.PreferredDevice)];
+        const opts = ["create", ["--name", options.name],
+            ["--device", utils.decode_filename(options.block.PreferredDevice)]];
         if (options.logical_size !== undefined)
-            args.push("--vdoLogicalSize", options.logical_size + "B");
+            opts.push(["--vdoLogicalSize", `${options.logical_size}B`]);
         if (options.index_mem !== undefined)
-            args.push("--indexMem", options.index_mem / (1024 * 1024 * 1024));
+            opts.push(["--indexMem", `${options.index_mem / (1024 * 1024 * 1024)}`]);
         if (options.compression !== undefined)
-            args.push("--compression", options.compression ? "enabled" : "disabled");
+            opts.push(["--compression", options.compression ? "enabled" : "disabled"]);
         if (options.deduplication !== undefined)
-            args.push("--deduplication", options.deduplication ? "enabled" : "disabled");
+            opts.push(["--deduplication", options.deduplication ? "enabled" : "disabled"]);
         if (options.emulate_512 !== undefined)
-            args.push("--emulate512", options.emulate_512 ? "enabled" : "disabled");
-        return cmd(args);
+            opts.push(["--emulate512", options.emulate_512 ? "enabled" : "disabled"]);
+        return cmd(opts);
     }
 
     return self;

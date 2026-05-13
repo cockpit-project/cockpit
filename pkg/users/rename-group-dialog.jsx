@@ -78,7 +78,7 @@ export function rename_group_dialog(group) {
                             update();
                             return Promise.reject();
                         }
-                        return cockpit.spawn(["groupmod", group, "--new-name", state.name], { superuser: "require", err: "message" }).then(dlg.close);
+                        return cockpit.exec("groupmod", [["--new-name", state.name]], [group], { superuser: "require", err: "message" }).then(dlg.close);
                     }
                 }
             ]

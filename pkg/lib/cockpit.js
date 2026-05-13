@@ -1231,6 +1231,21 @@ function factory() {
 
     cockpit.ProcessError = ProcessError;
 
+    cockpit.is_not_flag = function is_not_flag(s) {
+        const c = s.charCodeAt(0);
+        return c >= 0x20 && c <= 0x7e && c !== 0x2d;
+    };
+
+    cockpit.exec = function exec(program, opts, positionals, options) {
+        return cockpit.spawn(
+            [
+                program,
+                ...opts.flatMap(opt => typeof opt === 'string' ? [opt] : [...opt]),
+                ...positionals ? ['--', ...positionals] : [],
+            ],
+            options);
+    };
+
     function spawn_debug() {
         if (window.debugging == "all" || window.debugging?.includes("spawn"))
             console.debug.apply(console, arguments);

@@ -105,9 +105,7 @@ export function group_create_dialog(groups, setGroupsCardExpanded, min_gid, max_
     function create(name, id) {
         const valid = validate(name, id);
         if (valid) {
-            const group_add_cmd = ["groupadd", name, "-g", id];
-
-            return cockpit.spawn(group_add_cmd, { superuser: "require", err: "message" });
+            return cockpit.exec("groupadd", [["-g", id]], [name], { superuser: "require", err: "message" });
         } else {
             update();
             return Promise.reject();

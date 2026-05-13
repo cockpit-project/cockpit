@@ -941,7 +941,7 @@ export function NetworkManagerModel() {
             return;
 
         push_refresh();
-        cockpit.spawn(["udevadm", "info", obj.Udi], { err: 'message' })
+        cockpit.exec("udevadm", ["info"], [obj.Udi], { err: 'message' })
                 .then(function(res) {
                     const props = { };
                     function snarf_prop(line, env, prop) {

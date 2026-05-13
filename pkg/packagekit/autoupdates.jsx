@@ -209,7 +209,7 @@ class Dnf5Impl extends ImplBase {
         this.configFile = "/etc/dnf/dnf5-plugins/automatic.conf";
 
         try {
-            await cockpit.spawn(["rpm", "-q", this.packageName], { err: "ignore" });
+            await cockpit.exec("rpm", ["-q"], [this.packageName], { err: "ignore" });
             this.installed = true;
         } catch (ex) {
             this.installed = false;
@@ -333,7 +333,7 @@ export function getBackend(packagekit_backend, forceReinit) {
                 backend.getConfig().then(() => resolve(backend));
             } else if (packagekit_backend === "dnf") {
                 // we need to do this runtime check -- you can e.g. install dnf5 on Fedora 40, but it's not the "main" dnf
-                cockpit.spawn(["dnf", "--version"], { err: "message" })
+                cockpit.exec("dnf", ["--version"], null, { err: "message" })
                         .then(version => {
                             const backend = version.includes("dnf5") ? new Dnf5Impl() : new Dnf4Impl();
                             backend.getConfig().then(() => resolve(backend));

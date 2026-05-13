@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelector(".super-channel .pf-v6-c-button").addEventListener("click", () => {
         document.querySelector(".super-channel span").textContent = "checking...";
-        cockpit.spawn(["id"], { superuser: "require" })
+        cockpit.exec("id", [], null, { superuser: "require" })
                 .then(data => {
                     console.log("done");
                     document.querySelector(".super-channel span").textContent = "result: " + data;
@@ -37,8 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelector(".lock-channel .pf-v6-c-button").addEventListener("click", () => {
         document.querySelector(".lock-channel span").textContent = "locking...";
-        cockpit.spawn(["flock", "-o", "/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
-                      { superuser: "try", err: "message" })
+        cockpit.exec("flock", ["-o", "/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
+                     null, { superuser: "try", err: "message" })
                 .stream(data => {
                     document.querySelector(".lock-channel span").textContent = data;
                 })
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('save-file').addEventListener("click", save_file);
     load_file();
 
-    document.getElementById('delete-file').addEventListener("click", () => cockpit.spawn(["rm", "-f", "/tmp/counter"]));
+    document.getElementById('delete-file').addEventListener("click", () => cockpit.exec("rm", ["-f"], ["/tmp/counter"]));
 
     document.body.removeAttribute("hidden");
 

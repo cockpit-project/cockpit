@@ -268,7 +268,7 @@ const ExampleDialog = ({
             // eslint-disable-next-line no-throw-literal
             throw { message: "segmentation fault" };
         } else if (values.error == "spawn") {
-            await cockpit.spawn(["ls", "--no-such-option"], { err: "message" });
+            await cockpit.exec("ls", ["--no-such-option"], null, { err: "message" });
         } else if (values.error == "random") {
             // eslint-disable-next-line no-throw-literal
             throw [1, 2, 3, 4];

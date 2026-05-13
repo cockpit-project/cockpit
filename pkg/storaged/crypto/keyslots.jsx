@@ -44,14 +44,14 @@ const _ = cockpit.gettext;
 
 function clevis_add(block, pin, cfg, passphrase) {
     const dev = decode_filename(block.Device);
-    return cockpit.spawn(["clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, pin, JSON.stringify(cfg)],
-                         { superuser: "require", err: "message" }).input(passphrase);
+    return cockpit.exec("clevis", ["luks", "bind", "-f", "-k", "-", ["-d", dev], pin, JSON.stringify(cfg)],
+                        null, { superuser: "require", err: "message" }).input(passphrase);
 }
 
 function clevis_remove(block, key) {
     // clevis-luks-unbind needs a tty on stdin for some reason.
-    return cockpit.spawn(["clevis", "luks", "unbind", "-d", decode_filename(block.Device), "-s", key.slot, "-f"],
-                         { superuser: "require", pty: true, err: "message" });
+    return cockpit.exec("clevis", ["luks", "unbind", ["-d", decode_filename(block.Device)], ["-s", key.slot], "-f"],
+                        null, { superuser: "require", pty: true, err: "message" });
 }
 
 export function clevis_recover_passphrase(block, just_type) {
@@ -80,8 +80,8 @@ async function clevis_unlock(client, block, luksname, readonly) {
         return;
     }
 
-    await cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
-                        { superuser: "require" });
+    await cockpit.exec("clevis", ["luks", "unlock", ["-d", dev], ["-n", clear_dev]],
+                       null, { superuser: "require" });
 }
 
 export async function unlock_with_type(client, block, passphrase, passphrase_type, override_readonly) {
@@ -121,36 +121,36 @@ export async function unlock_with_type(client, block, passphrase, passphrase_typ
 
 function passphrase_add(block, new_passphrase, old_passphrase) {
     const dev = decode_filename(block.Device);
-    return cockpit.spawn(["cryptsetup", "luksAddKey", dev],
-                         { superuser: "require", err: "message" }).input(old_passphrase + "\n" + new_passphrase);
+    return cockpit.exec("cryptsetup", ["luksAddKey"], [dev],
+                        { superuser: "require", err: "message" }).input(old_passphrase + "\n" + new_passphrase);
 }
 
 function passphrase_change(block, key, new_passphrase, old_passphrase) {
     const dev = decode_filename(block.Device);
-    return cockpit.spawn(["cryptsetup", "luksChangeKey", dev, "--key-slot", key.slot.toString()],
-                         { superuser: "require", err: "message" }).input(old_passphrase + "\n" + new_passphrase + "\n");
+    return cockpit.exec("cryptsetup", ["luksChangeKey", ["--key-slot", key.slot.toString()]], [dev],
+                        { superuser: "require", err: "message" }).input(old_passphrase + "\n" + new_passphrase + "\n");
 }
 
 function slot_remove(block, slot, passphrase) {
     const dev = decode_filename(block.Device);
-    const opts = { superuser: "require", err: "message" };
-    const cmd = ["cryptsetup", "luksKillSlot", dev, slot.toString()];
+    const exec_opts = { superuser: "require", err: "message" };
+    const flags = ["luksKillSlot"];
     if (passphrase === false) {
-        cmd.splice(2, 0, "-q");
-        opts.pty = true;
+        flags.push("-q");
+        exec_opts.pty = true;
     }
 
-    const spawn = cockpit.spawn(cmd, opts);
+    const proc = cockpit.exec("cryptsetup", flags, [dev, slot.toString()], exec_opts);
     if (passphrase !== false)
-        spawn.input(passphrase + "\n");
+        proc.input(passphrase + "\n");
 
-    return spawn;
+    return proc;
 }
 
 function passphrase_test(block, passphrase) {
     const dev = decode_filename(block.Device);
-    return (cockpit.spawn(["cryptsetup", "luksOpen", "--test-passphrase", dev],
-                          { superuser: "require", err: "message" }).input(passphrase)
+    return (cockpit.exec("cryptsetup", ["luksOpen", "--test-passphrase"], [dev],
+                         { superuser: "require", err: "message" }).input(passphrase)
             .then(() => true)
             .catch(() => false));
 }
@@ -287,7 +287,7 @@ function ensure_package_installed(steps, progress, package_name) {
 }
 
 function ensure_initrd_clevis_support(steps, progress, package_name) {
-    const task = cockpit.spawn(["lsinitrd", "-m"], { superuser: "require", err: "message" });
+    const task = cockpit.exec("lsinitrd", ["-m"], null, { superuser: "require", err: "message" });
     progress(_("Checking for NBDE support in the initrd"), () => task.close());
     return task.then(data => {
         progress(null, null);
@@ -299,8 +299,8 @@ function ensure_initrd_clevis_support(steps, progress, package_name) {
                             func: progress => {
                                 // dracut doesn't react to SIGINT, so let's not enable our Cancel button
                                 progress(_("Regenerating initrd"), null);
-                                return cockpit.spawn(["dracut", "--force", "--regenerate-all"],
-                                                     { superuser: "require", err: "message" });
+                                return cockpit.exec("dracut", ["--force", "--regenerate-all"],
+                                                    null, { superuser: "require", err: "message" });
                             }
                         });
                     });
@@ -357,14 +357,14 @@ function ensure_crypto_option(steps, progress, client, block, option) {
 
 function ensure_systemd_unit_enabled(steps, progress, name, package_name) {
     progress(cockpit.format(_("Enabling $0"), name));
-    return cockpit.spawn(["systemctl", "is-enabled", name], { err: "message" })
+    return cockpit.exec("systemctl", ["is-enabled"], [name], { err: "message" })
             .catch((err, output) => {
                 if (err && (output == "" || output.trim() == "not-found") && package_name) {
                     // We assume that installing the package will enable the unit.
                     return ensure_package_installed(steps, progress, package_name);
                 } else
-                    return cockpit.spawn(["systemctl", "enable", name],
-                                         { superuser: "require", err: "message" });
+                    return cockpit.exec("systemctl", ["enable"], [name],
+                                        { superuser: "require", err: "message" });
             });
 }
 

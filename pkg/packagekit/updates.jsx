@@ -453,7 +453,7 @@ class RestartServices extends React.Component {
                 return 1;
             return a.localeCompare(b);
         });
-        const restarts = daemons.map(service => cockpit.spawn(["systemctl", "restart", service], { superuser: "required", err: "message" }));
+        const restarts = daemons.map(service => cockpit.exec("systemctl", ["restart"], [service], { superuser: "require", err: "message" }));
         this.setState({ restartInProgress: true });
         Promise.all(restarts)
                 .then(() => {
@@ -1092,7 +1092,7 @@ class OsUpdates extends React.Component {
         // needs-restarting has no machine-readable API: https://issues.redhat.com/browse/RHEL-56139
         // dnf5 needs-restarting also has no machine-readable API: https://github.com/rpm-software-management/dnf5/issues/2341
         // --exclude-services was added much later, so check that first
-        return cockpit.spawn(["dnf", "needs-restarting", "--exclude-services"], { err: "message", superuser: "require" })
+        return cockpit.exec("dnf", ["needs-restarting", "--exclude-services"], null, { err: "message", superuser: "require" })
                 .then(outManual => {
                     debug("dnf needs-restarting --exclude-services succeeded:", outManual);
                     // format: "pid : argv", e.g. "1234 : mydaemon 3600"
@@ -1103,7 +1103,7 @@ class OsUpdates extends React.Component {
                             .forEach(line => !line || restartPackages.manual.push(line));
 
                     return Promise.allSettled([
-                        cockpit.spawn(["dnf", "needs-restarting", "--services"], { err: "message", superuser: "require" }),
+                        cockpit.exec("dnf", ["needs-restarting", "--services"], null, { err: "message", superuser: "require" }),
                         // we can't get stdout for a failing process, thus needs script
                         cockpit.script("! dnf needs-restarting --reboothint", undefined, { err: "message", superuser: "require" }),
                     ])
@@ -1475,7 +1475,7 @@ class OsUpdates extends React.Component {
         case "updateSuccess": {
             if (this.state.rebootAfterSuccess) {
                 this.setState({ state: "restart" });
-                cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: "require" });
+                cockpit.exec("shutdown", ["--reboot"], ["now"], { superuser: "require" });
                 return null;
             }
 

@@ -30,7 +30,7 @@ export function validate_url(url) {
 }
 
 export function get_tang_adv(url) {
-    return cockpit.spawn(["curl", "-sSf", url + "/adv"], { err: "message" })
+    return cockpit.exec("curl", ["-sSf"], [url + "/adv"], { err: "message" })
             .then(JSON.parse)
             .catch(error => {
                 return Promise.reject(error.toString().replace(/^curl: \([0-9]+\) /, ""));

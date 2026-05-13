@@ -169,8 +169,8 @@ export class RealmdClient {
         return kerberos.wait()
                 .then(() => {
                     const helper = cockpit.manifests.system.libexecdir + "/cockpit-certificate-helper";
-                    const proc = cockpit.spawn([helper, "ipa", "request", kerberos.RealmName, user],
-                                               { superuser: "require", err: "message" });
+                    const proc = cockpit.exec(helper, ["ipa", "request", kerberos.RealmName, user],
+                                              null, { superuser: "require", err: "message" });
                     proc.input(password);
                     proc.catch(ex => console.warn("Failed to run", helper, "ipa request:", ex.toString()));
                     return proc;
@@ -193,8 +193,8 @@ export class RealmdClient {
         return kerberos.wait()
                 .then(() => {
                     const helper = cockpit.manifests.system.libexecdir + "/cockpit-certificate-helper";
-                    return cockpit.spawn([helper, "ipa", "cleanup", kerberos.RealmName],
-                                         { superuser: "require", err: "message" })
+                    return cockpit.exec(helper, ["ipa", "cleanup", kerberos.RealmName],
+                                        null, { superuser: "require", err: "message" })
                             .catch(ex => {
                                 console.log("Failed to clean up SPN from /etc/cockpit/krb5.keytab:", JSON.stringify(ex));
                                 return true;

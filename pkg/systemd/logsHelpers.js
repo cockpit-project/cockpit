@@ -8,7 +8,7 @@ import { journal } from "journal";
 // Sometimes `journalctl` can be compiled without `PCRE2` which means
 // that `--grep` is not usable. Hide the search box in such cases.
 export function checkJournalctlGrep(setShowTextSearch) {
-    cockpit.spawn(["journalctl", "--version"])
+    cockpit.exec("journalctl", ["--version"])
             .then(m => {
                 if (m.indexOf("-PCRE2") !== -1) {
                     setShowTextSearch(false);
@@ -20,12 +20,12 @@ export function checkJournalctlGrep(setShowTextSearch) {
 
 // Build the journalctl query for the inline help popover
 export const getFilteredQuery = ({ match, options }) => {
-    const cmd = journal.build_cmd(match, options);
-    const filtered_cmd = cmd.filter(i => i !== "-q" && i !== "--output=json");
-    if (filtered_cmd[filtered_cmd.length - 1] == "--")
-        filtered_cmd.pop();
-
-    return filtered_cmd.join(" ");
+    const { opts, positionals } = journal.journalctl_args(match, options);
+    const filtered_opts = opts.filter(i => i !== "-q" && i !== "--output=json");
+    const parts = ["journalctl", ...filtered_opts];
+    if (positionals.length)
+        parts.push("--", ...positionals);
+    return parts.join(" ");
 };
 
 export const getGrepFiltersFromOptions = ({ options }) => {

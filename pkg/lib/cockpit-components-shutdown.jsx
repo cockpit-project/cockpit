@@ -107,8 +107,9 @@ export class ShutdownModal extends React.Component {
             return;
         }
 
-        const cmd = ["date", "--date=" + (new Intl.DateTimeFormat('en-us').format(this.state.dateObject)) + " " + this.state.time, "+%s"];
-        this.date_spawn = cockpit.spawn(cmd, { err: "message" });
+        this.date_spawn = cockpit.exec("date",
+                                       [`--date=${new Intl.DateTimeFormat('en-us').format(this.state.dateObject)} ${this.state.time}`],
+                                       ["+%s"], { err: "message" });
         this.date_spawn.then(data => {
             const input_timestamp = parseInt(data, 10);
             const server_timestamp = parseInt(this.server_time.now.getTime() / 1000, 10);
@@ -142,7 +143,7 @@ export class ShutdownModal extends React.Component {
         if (!this.props.shutdown)
             cockpit.hint("restart");
 
-        cockpit.spawn(["shutdown", arg, this.state.when, this.state.message], { superuser: "require", err: "message" })
+        cockpit.exec("shutdown", [arg], [this.state.when, this.state.message], { superuser: "require", err: "message" })
                 .then(this.props.onClose || Dialogs.close)
                 .catch(e => this.setState({ error: e.toString() }));
 

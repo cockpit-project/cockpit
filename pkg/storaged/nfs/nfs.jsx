@@ -60,7 +60,7 @@ function nfs_busy_dialog(dialog_title, entry, error, action_title, action) {
 }
 
 function get_exported_directories(server) {
-    return cockpit.spawn(["showmount", "-e", "--no-headers", server], { err: "message" })
+    return cockpit.exec("showmount", ["-e", "--no-headers"], [server], { err: "message" })
             .then(function (output) {
                 const dirs = [];
                 output.split("\n").forEach(function (line) {

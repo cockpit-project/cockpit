@@ -18,7 +18,7 @@ function debug(...args: unknown[]) {
 
 async function is_immutable_os() {
     try {
-        const options = await cockpit.spawn(["findmnt", "-T", "/usr", "-n", "-o", "VFS-OPTIONS"]);
+        const options = await cockpit.exec("findmnt", [["-T", "/usr"], "-n", ["-o", "VFS-OPTIONS"]]);
         return options.split(",").indexOf("ro") >= 0;
     } catch (err) {
         debug("Unable to detect immutable OS", err);

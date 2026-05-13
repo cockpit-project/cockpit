@@ -370,7 +370,7 @@ function dbus_watch_name_owner(name, owner_callback) {
 
 dbus_watch_name_owner('org.fedoraproject.FirewallD1', initFirewalldDbus);
 
-cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all --process $$ --allow-user-interaction 2>&1'], { superuser: "try" })
+cockpit.exec("sh", [["-c", "pkcheck --action-id org.fedoraproject.FirewallD1.all --process $$ --allow-user-interaction 2>&1"]], null, { superuser: "try" })
         .then(() => {
             firewall.readonly = false;
             firewall.debouncedEvent('changed');

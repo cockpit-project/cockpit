@@ -28,7 +28,7 @@ QUnit.test("user object", async assert => {
 });
 
 QUnit.test("user environment", async assert => {
-    const data = await cockpit.spawn(["/bin/sh", "-c", "echo $USER~$SHELL~$HOME"]);
+    const data = await cockpit.exec("/bin/sh", [["-c", "echo $USER~$SHELL~$HOME"]]);
     const parts = data.split("~");
     assert.ok(parts[0].length > 0, "valid $USER");
     assert.ok(parts[1].length > 0, "valid $HOME");

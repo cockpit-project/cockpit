@@ -28,7 +28,7 @@ interface PasswordQuality {
 
 export function password_quality(password: string, force?: boolean): Promise<PasswordQuality> {
     return new Promise((resolve, reject) => {
-        cockpit.spawn(['/usr/bin/pwscore'], { err: "message" })
+        cockpit.exec('/usr/bin/pwscore', [], null, { err: "message" })
                 .input(password)
                 .done(function(content) {
                     const quality = parseInt(content, 10);

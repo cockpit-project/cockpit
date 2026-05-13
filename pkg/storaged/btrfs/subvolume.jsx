@@ -164,7 +164,7 @@ function subvolume_create(volume, subvol) {
                 // makes it impossible to handle a situation where we have multiple subvolumes mounted.
                 // https://github.com/storaged-project/udisks/issues/1242
                 if (parent_dir)
-                    await cockpit.spawn(["btrfs", "subvolume", "create", `${parent_dir}/${vals.name}`], { superuser: "require", err: "message" });
+                    await cockpit.exec("btrfs", ["subvolume", "create"], [`${parent_dir}/${vals.name}`], { superuser: "require", err: "message" });
                 else {
                     await btrfs_tool(["do", volume.data.uuid,
                         "btrfs", "subvolume", "create",
@@ -243,10 +243,9 @@ function subvolume_delete(volume, subvol, card) {
                 for (const c of configs_to_remove)
                     await block.RemoveConfigurationItem(c, {});
                 if (mount_point_in_parent) {
-                    await cockpit.spawn(["btrfs", "subvolume", "delete",
-                        ...paths_to_delete.map(move_to_parent)
-                    ],
-                                        { superuser: "require", err: "message" });
+                    await cockpit.exec("btrfs", ["subvolume", "delete"],
+                                       paths_to_delete.map(move_to_parent),
+                                       { superuser: "require", err: "message" });
                 } else {
                     await btrfs_tool(["do", volume.data.uuid,
                         "btrfs", "subvolume", "delete", ...paths_to_delete]);

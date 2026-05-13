@@ -1523,6 +1523,11 @@ class TestGrafanaClient(testlib.MachineCase):
         # Disable pre-loading packagekit, dnf needs-restarting (dnf 4) consumes tons of cpu/memory on RHEL-10-1
         self.disable_preload("packagekit")
 
+        # HACK - https://github.com/performancecopilot/pcp/issues/2573 https://launchpad.net/bugs/2152271
+        # Unset PMPROXY_LOCAL, we want it to listen externally.
+        if m.image == "ubuntu-2604":
+            m.execute("sed -i 's/^PMPROXY_LOCAL/# PMPROXY_LOCAL/' /etc/default/pmproxy")
+
         # avoid dynamic host name changes during PCP data collection, and start from clean slate
         m.execute("""systemctl stop pmlogger || true
                      systemctl reset-failed pmlogger || true

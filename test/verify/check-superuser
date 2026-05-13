@@ -93,6 +93,7 @@ class TestSuperuser(testlib.MachineCase):
         b.click(".pf-v6-c-modal-box__close button")
         b.check_superuser_indicator("Limited access")
 
+    @testlib.skipImage("sudo-rs does not support IO logging", "ubuntu-2604")
     def testSudoIOLogging(self):
         b = self.browser
         m = self.machine

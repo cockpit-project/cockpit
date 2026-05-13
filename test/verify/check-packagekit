@@ -882,11 +882,6 @@ ExecStart=/usr/local/bin/{packageName}
                 # see RHEL-109155 above; can't load update details, so no bugs nor description;
                 # realistically this won't ever get fixed, but if it does, surprise us!
                 self.check_nth_update(6, "xeroxed", "12-1", self.enhancement_severity)
-        elif m.image == "ubuntu-2204":
-            # different PK bug: It sees *two* bugs, the first one being invalid
-            self.check_nth_update(6, "xeroxed", "12-1", "bug", 2,
-                                  bugs=["http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=", "789"],
-                                  desc_matches=["Uniqueness is boring"])
         else:
             # apt works fine, except it uses severity "bug".
             self.check_nth_update(6, "xeroxed", "12-1", "bug", 1, bugs=["789"],

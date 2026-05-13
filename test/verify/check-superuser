@@ -165,6 +165,8 @@ session include system-auth
     def testWrongPasswd(self):
         b = self.browser
 
+        fail_text = "Authentication failed, try again." if self.has_sudo_rs else "Sorry, try again"
+
         # Log in with limited access
         self.login_and_go(superuser=False)
         b.check_superuser_indicator("Limited access")
@@ -175,15 +177,15 @@ session include system-auth
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
         b.set_input_text(".pf-v6-c-modal-box input", "wrong")
-        b.wait_in_text(".pf-v6-c-modal-box", "Sorry, try again")
+        b.wait_in_text(".pf-v6-c-modal-box", fail_text)
         b.set_input_text(".pf-v6-c-modal-box input", "wronger")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
-        b.wait_in_text(".pf-v6-c-modal-box", "Sorry, try again")
+        b.wait_in_text(".pf-v6-c-modal-box", fail_text)
         b.set_input_text(".pf-v6-c-modal-box input", "wrongest")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
-        b.wait_in_text(".pf-v6-c-modal-box", "Sudo: 3 incorrect password attempts")
+        b.wait_text_matches(".pf-v6-c-modal-box", r".*3 incorrect (password|authentication) attempts.*")
         b.click(".pf-v6-c-modal-box button:contains('Close')")
         b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")
@@ -211,7 +213,9 @@ session include system-auth
             b.set_input_text(".pf-v6-c-modal-box input", "foobar")
             b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
-        b.wait_in_text(".pf-v6-c-modal-box__body", "Admin is not in the sudoers file.")
+        b.wait_in_text(".pf-v6-c-modal-box__body",
+                       "I'm sorry admin. I'm afraid I can't do that" if self.has_sudo_rs
+                       else "Admin is not in the sudoers file.")
         b.click(".pf-v6-c-modal-box button.btn-cancel")
         b.wait_not_present(".pf-v6-c-modal-box")
 
@@ -278,7 +282,7 @@ session include system-auth
 
         b.open_superuser_dialog()
         b.wait_text(".pf-v6-c-modal-box__title-text", "Problem becoming administrator")
-        b.wait_in_text(".pf-v6-c-modal-box__body", "Sudo: no askpass program specified, try setting SUDO_ASKPASS")
+        b.wait_text_matches(".pf-v6-c-modal-box__body", "Sudo: [nN]o askpass program specified.*SUDO_ASKPASS")
         b.click(".pf-v6-c-modal-box button.btn-cancel")
         b.wait_not_present(".pf-v6-c-modal-box")
         b.check_superuser_indicator("Limited access")

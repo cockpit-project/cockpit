@@ -98,11 +98,9 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4/")
         b.click("#network-wireguard-settings-save")
         b.wait_in_text(".pf-v6-c-alert", "Invalid prefix or netmask")
-        # older version of NM discards invalid address and applies correct addresses
-        if m1.image != "ubuntu-2204":
-            b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4  ,  5.6.7.8  1.2.3.4.5")
-            b.click("#network-wireguard-settings-save")
-            b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '1.2.3.4.5'")
+        b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4  ,  5.6.7.8  1.2.3.4.5")
+        b.click("#network-wireguard-settings-save")
+        b.wait_in_text(".pf-v6-c-alert", "Invalid IP address '1.2.3.4.5'")
         b.set_input_text("#network-wireguard-settings-addresses-input", f"{m1_ip4}/24 1.2.3.4")
 
         # peer

@@ -1898,7 +1898,7 @@ class MachineCase(unittest.TestCase):
 
         # only enabled by default on released OSes; see pkg/shell/manifest.json
         self.multihost_enabled = image.startswith(("rhel-9", "centos-9")) or image in [
-                "ubuntu-2204", "ubuntu-2404"]
+                "ubuntu-2404"]
 
     def nonDestructiveSetup(self) -> None:
         """generic setUp/tearDown for @nondestructive tests"""

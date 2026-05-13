@@ -860,13 +860,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         alice_cert_key = ['--cert', alice_cert, '--key', alice_key]
 
         # set up local (NIS) sssd provider and certificate mapping
-        # newer sssd drops "file" provider, but the "proxy" provider cannot do this yet in old versions
-        if m.image in ["ubuntu-2204"]:
-            id_provider = "id_provider = files"
-        else:
-            id_provider = """id_provider = proxy
-                             local_auth_policy = only
-                             proxy_lib_name = files"""
+        id_provider = """id_provider = proxy
+                         local_auth_policy = only
+                         proxy_lib_name = files"""
 
         self.write_file("/etc/sssd/sssd.conf", f"""
 [sssd]

@@ -899,17 +899,8 @@ class TestSystemInfoTime(packagelib.PackageCase):
         self.login_and_go("/system", superuser=False)
         b.wait_text_not("#system_information_systime_button", "")
         b.wait_visible('#system_information_systime_button[disabled]')
-
         # Gain admin access
-        user = self.get_sudo_user()
-        b.wait_in_text(".ct-limited-access-alert", "Web console is running in limited access mode.")
-        b.click(".ct-limited-access-alert button")
-        b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
-        b.set_input_text(".pf-v6-c-modal-box input", "foobar")
-        b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_not_present(".pf-v6-c-modal-box")
-        b.wait_not_present(".ct-limited-access-alert")
+        b.become_superuser()
 
         # Change the date
         b.click("#system_information_systime_button")

@@ -649,10 +649,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
             mkdir -p {mount_point}
             mount {disk} {mount_point}
             echo '{disk} {mount_point} auto defaults 0 0' >> /etc/fstab
-            # Debian-testing/ubuntu-2204 btrfs-progrs version does not support creating multiple subvolumes at once
-            btrfs subvolume create {subdir}
-            btrfs subvolume create {snapshot_dir}
-            btrfs subvolume create {subdir}/foo
+            btrfs subvolume create {subdir} {subdir}/foo {snapshot_dir}
             btrfs subvolume snapshot {subdir} {snapshot_dir}/snap-1
             btrfs subvolume snapshot {mount_point} {snapshot_dir}/snap-2
         """)

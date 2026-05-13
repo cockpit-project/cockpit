@@ -12,6 +12,14 @@ import testlib
 
 @testlib.nondestructive
 class TestSuperuser(testlib.MachineCase):
+    def setUp(self):
+        super().setUp()
+        if self.has_sudo_rs:
+            self.sudo_prompt = "Password:"
+        else:
+            user = self.get_sudo_user()
+            self.sudo_prompt = f"Password for {user}:"
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -58,8 +66,7 @@ class TestSuperuser(testlib.MachineCase):
         b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
         if "ubuntu" not in m.image and "debian" not in m.image:
             b.wait_in_text(".pf-v6-c-modal-box", "We trust you have received the usual lecture")
-        user = self.get_sudo_user()
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
+        b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
         b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.focus(".pf-v6-c-modal-box button:contains('Cancel')")
         b.assert_pixels(".pf-v6-c-modal-box", "superuser-modal",
@@ -144,8 +151,7 @@ session include system-auth
 
         b.open_superuser_dialog()
         b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
-        user = self.get_sudo_user()
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
+        b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
         # Let the dialog sit there for 45 seconds, to test that this doesn't trigger a D-Bus timeout.
         time.sleep(45)
         b.set_input_text(".pf-v6-c-modal-box input", "foobar")
@@ -162,17 +168,17 @@ session include system-auth
         # Log in with limited access
         self.login_and_go(superuser=False)
         b.check_superuser_indicator("Limited access")
-        user = self.get_sudo_user()
         b.open_superuser_dialog()
         b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
+        b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
         b.set_input_text(".pf-v6-c-modal-box input", "wrong")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
+        b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
+        b.set_input_text(".pf-v6-c-modal-box input", "wrong")
         b.wait_in_text(".pf-v6-c-modal-box", "Sorry, try again")
         b.set_input_text(".pf-v6-c-modal-box input", "wronger")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
+        b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
         b.wait_in_text(".pf-v6-c-modal-box", "Sorry, try again")
         b.set_input_text(".pf-v6-c-modal-box input", "wrongest")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
@@ -196,7 +202,6 @@ session include system-auth
         m.execute(f"gpasswd -d admin {m.get_admin_group()}")
 
         self.login_and_go()
-        user = self.get_sudo_user()
         b.check_superuser_indicator("Limited access")
 
         b.open_superuser_dialog()
@@ -218,7 +223,7 @@ session include system-auth
             b.click(".pf-v6-c-modal-box button:contains('Close')")
         else:
             b.wait_in_text(".pf-v6-c-modal-box", "Switch to administrative access")
-            b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}")
+            b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
             status = m.execute("loginctl --lines=0 user-status admin")
             self.assertIn("sudo", status)
             if not m.ws_container:
@@ -233,7 +238,7 @@ session include system-auth
         if self.has_sudo_rs:
             b.click(".pf-v6-c-modal-box button:contains('Close')")
         else:
-            b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}")
+            b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
             if not m.ws_container:
                 self.assertIn("cockpit-askpass", m.execute("loginctl --lines=0 user-status admin"))
             b.click(".pf-v6-c-modal-box button:contains('Cancel')")
@@ -439,12 +444,11 @@ session include system-auth
 
         # Run the regular sudo method, which should work as always
         b.open_superuser_dialog()
-        user = self.get_sudo_user()
         b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
         b.set_val(".pf-v6-c-modal-box select", "Sudo")
         b.wait_in_text(".pf-v6-c-modal-box select", "Sudo")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
+        b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
         b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v6-c-modal-box")
@@ -454,11 +458,10 @@ session include system-auth
         b = self.browser
 
         self.login_and_go("/system", superuser=False)
-        user = self.get_sudo_user()
         b.wait_in_text(".ct-limited-access-alert", "Web console is running in limited access mode.")
         b.click(".ct-limited-access-alert button")
         b.wait_text(".pf-v6-c-modal-box__title-text", "Switch to administrative access")
-        b.wait_in_text(".pf-v6-c-modal-box", f"Password for {user}:")
+        b.wait_in_text(".pf-v6-c-modal-box", self.sudo_prompt)
         b.set_input_text(".pf-v6-c-modal-box input", "foobar")
         b.click(".pf-v6-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-v6-c-modal-box")

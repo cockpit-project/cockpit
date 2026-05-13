@@ -121,14 +121,8 @@ def build_install_package(dist_tars: list[str], image: str, *, quick: bool) -> l
     if not quick and ('debian' in image or 'ubuntu' in image):
         args.append("--run-command")
         suppress = {'initial-upload-closes-no-bugs', 'newer-standards-version'}
-        # older lintian not yet complain about pkg/static/login.html and src/common/fail.html
-        if image in ["ubuntu-2204"]:
-            suppress.add("mismatched-override")
-        # Ubuntu 22.04 raises elf-error on *-dbgsym: "In program headers: Unable to find program interpreter name"
-        if image == "ubuntu-2204":
-            suppress.add("elf-error")
         # older OSes don't yet know about watch format v5; drop ubuntu-stable once that moves to lintian 2.127.0
-        if image in ["debian-trixie", "ubuntu-2204", "ubuntu-2404", "ubuntu-stable"]:
+        if image in ["debian-trixie", "ubuntu-2404", "ubuntu-stable"]:
             suppress.add("missing-debian-watch-file-standard")
 
         args.append(fr"""

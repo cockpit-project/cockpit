@@ -28,6 +28,9 @@ export const getFilteredQuery = ({ match, options }) => {
     return filtered_cmd.join(" ");
 };
 
+//Sanitize value to prevent command injection
+export const sanitize = (val) => (val || "").replace(/[^a-zA-Z0-9 _.:\/,+@=\-]/g, "");
+
 export const getGrepFiltersFromOptions = ({ options }) => {
     const grep = options.grep || "";
     let full_grep = "";
@@ -76,6 +79,7 @@ export const getGrepFiltersFromOptions = ({ options }) => {
     });
 
     full_grep += grep;
+    full_grep = sanitize(full_grep);
 
     return [full_grep, match];
 };
@@ -104,7 +108,7 @@ export const getOptionsFromTextInput = (value) => {
             .filter(item => {
                 let s = item.split("=");
                 if (s.length === 2 && s[0] === s[0].toUpperCase()) {
-                    new_items[s[0]] = s[1];
+                    new_items[s[0]] = sanitize(s[1]);
                     return false;
                 }
 
@@ -118,12 +122,12 @@ export const getOptionsFromTextInput = (value) => {
                 };
                 s = item.split(/:(.*)/);
                 if (s.length >= 2 && well_know_keys.includes(s[0])) {
-                    new_items[map_keys(s[0])] = s[1];
+                    new_items[map_keys(s[0])] = sanitize(s[1]);
                     return false;
                 }
 
                 return true;
             });
-    new_items.grep = values.join(" ");
+    new_items.grep = sanitize(values.join(" "));
     return new_items;
 };

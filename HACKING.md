@@ -240,6 +240,35 @@ To enable debug logging in journal on a test image, you can pass `--debug` to
 you are only interested channel debug messages change `all` to
 `cockpit.channel`.
 
+### Iterating on the bridge with the ws container
+
+Our fedora-coreos and -bootc images use the [cockpit/ws container](https://quay.io/repository/cockpit/ws)
+instead of `cockpit-bridge.rpm`. You can do fast "edit bridge" → "run
+integration test" iterations by modifying `MachineCase.login_and_go()` to
+upload the local dev tree bridge code to the VM, then onwards into the running
+container, and bind-mount it into the correct path:
+
+```diff
+--- test/common/testlib.py
++++ test/common/testlib.py
+@@ -1933,6 +1933,14 @@ class MachineCase(unittest.TestCase):
+         if enable_root_login:
+             self.enable_root_login()
+         self.machine.start_cockpit(tls=tls)
++
++        m = self.machine
++        m.execute("umount /usr/lib/python3.14/site-packages/cockpit || true")
++        m.upload(["../src/cockpit"], "/tmp/")
++        m.execute("podman cp /tmp/cockpit ws:/tmp/")
++        m.execute("podman exec ws mount -o bind /tmp/cockpit /usr/lib/python3.14/site-packages/cockpit")
++
+         # first load after starting cockpit tends to take longer, due to on-demand service start
+         with self.browser.wait_timeout(30):
+             self.browser.login_and_go(path, user=user, password=password, host=host, superuser=superuser,
+```
+
+Replace `3.14` with the Python version du jour.
+
 ### Testing the bridge
 
 There are a growing number of [pytest](https://docs.pytest.org) tests being written to test

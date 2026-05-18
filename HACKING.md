@@ -235,6 +235,10 @@ These shell aliases might be useful when experimenting with the protocol:
     alias cpy='PYTHONPATH=src python3 -m cockpit.bridge'
     alias cpf='PYTHONPATH=src python3 -m cockpit.misc.print'
 
+You can then for example run a metrics channel:
+
+    cpf open metrics1 source=internal interval=1000 metrics='[{"name": "cpu.basic.user", "derive": "rate"}]' : wait | cpy
+
 To enable debug logging in journal on a test image, you can pass `--debug` to
 `image-prepare`. This will set `COCKPIT_DEBUG=all` to `/etc/environment`, if
 you are only interested channel debug messages change `all` to

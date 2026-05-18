@@ -657,6 +657,25 @@ setTimeout(() => { debugger }, 5000)
 then do the mouse action (like hovering over an element) and wait until the
 timeout.
 
+## Start login session and web socket with curl
+
+For iterating on the login / web socket ←→ bridge integration, this command
+logs into our standard test VM (https://127.0.0.2:9091) and establishes the web
+socket connection and user session:
+
+```sh
+curl -ksS -D- -u admin:foobar --cookie-jar /tmp/cookie https://127.0.0.2:9091/cockpit/login --no-buffer -H"Connection: Upgrade" -H"Upgrade: websocket" -H"Host: 127.0.0.2:9091" -H"Origin: https://127.0.0.2:9091" -H"Sec-Websocket-Key: 3sc2c9IzwRUc3BlSIYwtSA==" -H"Sec-WebSocket-Version: 13" https://127.0.0.2:9091/cockpit/socket
+```
+
+It replies with a message like
+```
+{"csrf-token":"e3074fc5e06cb3804ad8c3463fc6727c67ac245dd3c39590e486644759a42818"}HTTP/1.1 101 Switching Protocols
+```
+
+which contains the session token. You can use the `--cookie-jar` to issue
+further authenticated HTTP requests. Note that as there is no browser attached,
+the session times out after some 10 seconds of inactivity.
+
 ## Manually installing the development dependencies
 
 _If at all possible, use the cockpit/tasks container with toolbox/distrobox as

@@ -639,6 +639,20 @@ And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 Note that cockpit-session and cockpit-bridge will run from the installed
 prefix, rather than your build tree.
 
+## Debug hard-to-grab elements
+
+In most cases, you can use the browser debugger to directly attach breakpoints
+to interesting elements. But that's not directly possible with e.g. popup menus
+or other elements which react to `mouseenter`/`mouseleave`. For these, run this
+in the developer console:
+
+```js
+setTimeout(() => { debugger }, 5000)
+```
+
+then do the mouse action (like hovering over an element) and wait until the
+timeout.
+
 ## Manually installing the development dependencies
 
 _If at all possible, use the cockpit/tasks container with toolbox/distrobox as

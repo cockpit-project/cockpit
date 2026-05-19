@@ -844,7 +844,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testClientCertAuthentication(self):
         m = self.machine
 
-        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+        if m.image.startswith("debian") or m.image.startswith("ubuntu") or m.image.startswith("opensuse-tumbleweed"):
             # on Debian/Ubuntu, an unconfigured sssd fails to start, so only restart it at the end if it was running before
             # also, sssd is split into several services
             self.restore_dir("/etc/sssd", post_restore_action="systemctl stop 'sssd*'")

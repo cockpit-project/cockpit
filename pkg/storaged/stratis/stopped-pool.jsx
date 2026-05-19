@@ -92,7 +92,7 @@ async function manager_start_pool(uuid, unlock_method, passphrase) {
 
 function start_pool(uuid, show_devs) {
     const stopped_info = client.stratis_manager.StoppedPools[uuid];
-    const devs = stopped_info.devs.v.map(d => d.devnode).sort();
+    const devs = client.stratis_stopped_pool_devnodes(uuid);
 
     async function prompt_for_passphrase() {
         if (client.stratis_interface_revision < 8) {

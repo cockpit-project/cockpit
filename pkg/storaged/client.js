@@ -715,9 +715,9 @@ function update_indices() {
 
     client.blocks_stratis_stopped_pool = { };
     for (const uuid in client.stratis_manager.StoppedPools) {
-        const devs = client.stratis_manager.StoppedPools[uuid].devs.v;
-        for (const d of devs) {
-            block = client.slashdevs_block[d.devnode];
+        const devnodes = client.stratis_stopped_pool_devnodes(uuid);
+        for (const d of devnodes) {
+            block = client.slashdevs_block[d];
             if (block)
                 client.blocks_stratis_stopped_pool[block.path] = uuid;
         }
@@ -1435,6 +1435,18 @@ async function stratis3_start() {
         // method call to complete.
         return stratis.call(proxy.path, "org.freedesktop.DBus.Properties", "Set",
                             [proxy.iface, prop, cockpit.variant(sig, value)]);
+    };
+
+    client.stratis_stopped_pool_devnodes = (uuid) => {
+        const devs = client.stratis_manager.StoppedPools[uuid]?.devs;
+        if (!devs)
+            return [];
+        if (devs.t == 'aa{ss}')
+            return devs.v.map(d => d.devnode);
+        else if (devs.t == 'aa{sv}')
+            return devs.v.map(d => d.devnode.v);
+        else
+            return [];
     };
 
     client.features.stratis = true;

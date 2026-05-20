@@ -23,6 +23,7 @@ const FileChooserModal = () => {
     const [value, _setValue] = useState("");
     const [numChanges, countChange] = useReducer(x => x + 1, 0);
     const [value2, setValue2] = useState("");
+    const [value3, setValue3] = useState("");
 
     function setValue(val: string) {
         _setValue(val);
@@ -46,9 +47,27 @@ const FileChooserModal = () => {
                             title="Choose a file"
                             shortcuts={
                                 [
+                                    { label: _("Home"), path: "/home/mvo/" },
                                     { label: _("Downloads"), path: "/home/mvo/Downloads/" },
-                                    { label: _("Pictures"), path: "/home/mvo/Pictures/" },
                                     { label: _("Images"), path: "/var/lib/libvirt/images/" },
+                                ]
+                            }
+                            collections={
+                                [
+                                    {
+                                        label: "sda",
+                                        paths: [
+                                            "/dev/sda1",
+                                            "/dev/sda2",
+                                        ]
+                                    },
+                                    {
+                                        label: "vgroup0",
+                                        paths: [
+                                            "/dev/mapper/lvol0",
+                                            "/dev/mapper/lvol1",
+                                        ]
+                                    }
                                 ]
                             }
                             filters={
@@ -60,17 +79,12 @@ const FileChooserModal = () => {
                             value={value}
                             onChange={setValue}
                         />
-                        <FormHelperText>
-                            <HelperText>
-                                {numChanges} changes
-                            </HelperText>
-                        </FormHelperText>
                     </FormGroup>
                     <FormGroup
-                        label="Choose a location"
+                        label="Choose a directory"
                     >
                         <FileChooserInput
-                            title="Choose a location"
+                            title="Choose a directory"
                             shortcuts={
                                 [
                                     { label: _("Home"), path: "/home/mvo/" },
@@ -81,6 +95,25 @@ const FileChooserModal = () => {
                             value={value2}
                             onChange={setValue2}
                             onlyDirectories
+                            createDirectories
+                        />
+                    </FormGroup>
+                    <FormGroup
+                        label="Create a file"
+                    >
+                        <FileChooserInput
+                            title="Create a file"
+                            shortcuts={
+                                [
+                                    { label: _("Home"), path: "/home/mvo/" },
+                                    { label: _("Downloads"), path: "/home/mvo/Downloads/" },
+                                    { label: _("Default"), path: "/var/lib/libvirt/images/" },
+                                ]
+                            }
+                            value={value3}
+                            onChange={setValue3}
+                            createFile
+                            createDirectories
                         />
                     </FormGroup>
                 </Form>

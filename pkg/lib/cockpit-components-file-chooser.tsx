@@ -6,10 +6,15 @@
 import cockpit from "cockpit";
 import React, { useState, useEffect, useMemo } from "react";
 import { useInit } from "hooks";
+import { WithDialogs, useDialogs } from "dialogs";
 
-import { type ButtonProps } from '@patternfly/react-core/dist/esm/components/Button/index.js';
+import { Button, type ButtonProps } from '@patternfly/react-core/dist/esm/components/Button/index.js';
 import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/esm/components/TextInputGroup/index.js';
 import { FolderOpenIcon, DesktopIcon } from '@patternfly/react-icons';
+import { Modal, ModalBody, ModalHeader, ModalFooter } from '@patternfly/react-core/dist/esm/components/Modal';
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
 import { TreeSelectButton, TreeNode, TreeRoot, TreeFilter } from "cockpit-components-tree-select.jsx";
 import { basename, dirname } from "cockpit-path";
@@ -24,6 +29,7 @@ const _ = cockpit.gettext;
 interface FileNode extends TreeNode<FileNode> {
     type: "list" | "directory" | "file";
     location?: string;
+    collection?: FileChooserCollection;
 }
 
 function join_path(path: FileNode[]): string {
@@ -57,8 +63,22 @@ function split_path(path: string, onlyDirectories: boolean): FileNode[] {
     return res;
 }
 
-async function file_info(path: string, superuser): Promise<string> {
-    return cockpit.spawn(["file", "--", path], { superuser });
+async function file_info(path: string, superuser): Promise<React.ReactNode> {
+    return (
+        <Flex>
+            <FlexItem>{path}</FlexItem>
+            <FlexItem style={{ color: "grey" }}>{await cockpit.spawn(["file", "-b", "--", path], { superuser })}</FlexItem>
+        </Flex>
+    )
+}
+
+async function file_exists(path: string, superuser): Promise<boolean> {
+    try {
+        await cockpit.spawn(["test", "-e", path], { superuser });
+        return true;
+    } catch (ex) {
+        return false;
+    }
 }
 
 async function listFiles(
@@ -82,6 +102,19 @@ async function listFiles(
             ));
         }
         return [];
+    }
+
+    if (nodes.length == 1 && nodes[0].type == "list" && nodes[0].collection) {
+        const paths = nodes[0].collection.paths;
+        return paths.filter(p => !(onlyDirectories && !p.endsWith("/"))).map(p => (
+            {
+                type: p.endsWith("/") ? "directory" : "file",
+                name: p,
+                link: split_path(p, onlyDirectories),
+                isSelectable: onlyDirectories || !p.endsWith("/"),
+                isLeaf: !p.endsWith("/"),
+            }
+        ));
     }
 
     const path = join_path(nodes);
@@ -147,6 +180,11 @@ export interface FileChooserShortcut {
     path: string,
 }
 
+export interface FileChooserCollection {
+    label: string,
+    paths: string[],
+}
+
 export interface FileChooserFilter {
     label: string,
     regex: string,
@@ -159,8 +197,11 @@ export const FileChooserButton = ({
     selectTitle,
     recentKey = "recent-files",
     shortcuts = [],
+    collections = [],
     filters = [],
     onlyDirectories = false,
+    createFile = false,
+    createDirectories = false,
     superuser,
     ...buttonProps
 } : {
@@ -170,13 +211,21 @@ export const FileChooserButton = ({
     selectTitle: string,
     recentKey?: string,
     shortcuts?: FileChooserShortcut[],
+    collections?: FileChooserCollection[],
     filters?: FileChooserFilter[],
     onlyDirectories?: boolean,
+    createFile?: boolean,
+    createDirectories?: boolean,
     superuser?: cockpit.SuperuserMode,
 } & Omit<ButtonProps, 'onSelect'>) => {
-    async function _onSelect(path: FileNode[]) {
-        const path_string = join_path(path);
-        rememberRecent(path_string, recentKey);
+    async function _onSelect(path: FileNode[], newNode: string) {
+        let path_string = join_path(path);
+        if (createFile) {
+            if (!path_string.endsWith("/"))
+                path_string += "/";
+            path_string += newNode;
+        } else
+            rememberRecent(path_string, recentKey);
         await onSelect(path_string);
     }
 
@@ -209,22 +258,20 @@ export const FileChooserButton = ({
                 },
             }
         );
-        {
-            shortcuts.map(s => {
-                roots.push(
-                    {
-                        label: s.label,
-                        root: {
-                            type: "directory",
+        shortcuts.map(s => {
+            roots.push(
+                {
+                    label: s.label,
+                    root: {
+                        type: "directory",
                             name: "",
-                            isSelectable: onlyDirectories,
-                            link: split_path(s.path, onlyDirectories),
-                            isLeaf: false,
-                        },
-                    }
-                );
-            })
-        }
+                        isSelectable: onlyDirectories,
+                        link: split_path(s.path, onlyDirectories),
+                        isLeaf: false,
+                    },
+                }
+            );
+        });
         roots.push(
             {
                 label: _("All"),
@@ -237,8 +284,44 @@ export const FileChooserButton = ({
                 },
             }
         );
+        if (collections.length > 0) {
+            roots.push(
+                {
+                    label: _("Pools"),
+                }
+            );
+            collections.map(c => {
+                roots.push(
+                    {
+                        label: c.label,
+                        root: {
+                            type: "list",
+                            collection: c,
+                            name: "",
+                            isSelectable: false,
+                            isLeaf: false,
+                        },
+                    }
+                );
+            });
+        }
+
         return roots;
     });
+
+    async function createDirectory(path: FileNode[], name: string): Promise<FileNode[]> {
+        let newPath = join_path(path);
+        if (!newPath.endsWith("/"))
+            newPath += "/";
+        newPath += name;
+        console.log("CREATE", newPath);
+        await cockpit.spawn(["mkdir", "-p", "--", newPath], { superuser });
+        return split_path(newPath, onlyDirectories);
+    }
+
+    function enableCreate(path: FileNode[], name: string): boolean {
+        return path.length > 0 && path[0].type != "list" && !!name;
+    }
 
     return (
         <TreeSelectButton<FileNode>
@@ -248,10 +331,24 @@ export const FileChooserButton = ({
             formatHeader={formatHeader}
             formatExtraColumns={formatExtraColumns}
             formatSelected={p => file_info(join_path(p), superuser)}
+            formatLocation={p => join_path(p)}
+            checkExists={(p, n) => file_exists(join_path(p) + "/" + n, superuser)}
             listChildren={p => listFiles(p, recentKey, onlyDirectories, superuser)}
             initialPath={split_path(initialLocation, onlyDirectories)}
             onSelect={_onSelect}
             selectTitle={selectTitle}
+            dangerSelectTitle={_("Replace")}
+            emptyMessage={onlyDirectories ? "Directory has no sub-directories" : "Directory is empty"}
+            createFolderAction={
+                createDirectories
+                    ?
+                    {
+                        label: _("New directory"),
+                        isDisabled: path => path.length == 0 || path[0].type == "list",
+                        create: createDirectory
+                    }
+                    : undefined}
+            enableCreate={createFile ? enableCreate : undefined}
             {...buttonProps}
         />
     );
@@ -269,7 +366,45 @@ export const FileChooserInput = ({
     value: string,
     onChange: (path: string) => void,
 } & Omit<FileChooserButtonProps, 'initialLocation' | 'onChange' | 'onSelect' | 'selectTitle'>) => {
-    const [innerValue, setInnerValue] = useState(value);
+    const [innerValue, _setInnerValue] = useState(value);
+    const [hint, setHint] = useState("");
+
+    async function setInnerValue(val: string): Promise<void> {
+        _setInnerValue(val);
+        let dir, base;
+        if (val == "") {
+            setHint("");
+            return;
+        }
+        if (val.endsWith("/")) {
+            dir = val;
+            base = "";
+        } else {
+            dir = dirname(val);
+            if (!dir.endsWith("/"))
+                dir += "/";
+            base = basename(val);
+        }
+        console.log("DIR", dir, "BASE", base);
+        const files = await listFiles([{ type: "directory", name: dir, isLeaf: false, isSelectable: false }], "", false, undefined);
+        console.log("FILES", files.map(n => n.name));
+        const filtered = files.map(n => n.name).filter(n => n.startsWith(base)).sort();
+        if (filtered.length >= 1) {
+            const a = filtered[0];
+            const b = filtered[filtered.length - 1];
+            console.log("A", a, "B", b);
+            let i = 0;
+            while (i < Math.min(a.length, b.length) && a[i] == b[i])
+                i++;
+            const hint = dir + a.substring(0, i);
+            console.log("C", i, hint);
+            if (hint.startsWith(val) && hint != val)
+                setHint(hint);
+            else
+                setHint("");
+        } else
+            setHint("");
+    }
 
     useEffect(() => {
         setInnerValue(value);
@@ -279,6 +414,7 @@ export const FileChooserInput = ({
         <TextInputGroup>
             <TextInputGroupMain
                 value={innerValue}
+                hint={hint}
                 placeholder={placeholder}
                 onChange={(_event, value) => setInnerValue(value)}
                 autoComplete="off"
@@ -287,11 +423,19 @@ export const FileChooserInput = ({
                         onChange(innerValue);
                     }
                 }
+                onKeyDown={(event) => {
+                    switch (event.key) {
+                        case 'ArrowRight':
+                            if (hint.startsWith(innerValue))
+                                setInnerValue(hint);
+                            break;
+                    }
+                }}
             />
             <TextInputGroupUtilities>
                 <FileChooserButton
                     initialLocation={innerValue}
-                    onSelect={async val => { onChange(val); }}
+                    onSelect={async val => { setInnerValue(val); onChange(val); }}
                     selectTitle={_("Select")}
                     variant="plain"
                     icon={<FolderOpenIcon />}

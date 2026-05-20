@@ -276,18 +276,17 @@ window.ph_text_matches = function(sel, pattern) {
     return window.ph_text(sel).match(pattern);
 };
 
-window.ph_go = function(href) {
-    if (href.indexOf("#") === 0) {
-        window.location.hash = href;
-    } else {
-        if (window.name.indexOf("cockpit1") !== 0)
-            throw new Error("ph_go() called in non cockpit window");
-        const control = {
-            command: "jump",
-            location: href
-        };
-        window.parent.postMessage("\n" + JSON.stringify(control), "*");
-    }
+window.ph_jump = function(path) {
+    if (path[0] !== '/')
+        throw new Error("ph_jump() needs to be called with a path");
+
+    if (window.name.indexOf("cockpit1") !== 0)
+        throw new Error("ph_jump() called in non cockpit window");
+    const control = {
+        command: "jump",
+        location: path
+    };
+    window.parent.postMessage("\n" + JSON.stringify(control), "*");
 };
 
 window.ph_focus = function(sel) {

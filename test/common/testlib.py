@@ -492,8 +492,19 @@ class Browser:
             return c
         return None
 
-    def go(self, url_hash: str) -> None:
-        self.call_js_func('ph_go', url_hash)
+    def go(self, path_hash: str) -> None:
+        """Change URL to a different path or hash
+
+        This must be called with either a path (starting with `/`) or hash (starting with `#`).
+        """
+        if path_hash.startswith("#"):
+            # this behaves like cockpit.location.go()
+            self.eval_js(f"window.location.hash = '{path_hash}'")
+        elif path_hash.startswith("/"):
+            # this behaves like clicking in the shell menu, i.e. cockpit.jump()
+            self.call_js_func('ph_jump', path_hash)
+        else:
+            raise ValueError(f"go({path_hash}): must be called with a path or hash value")
 
     def mouse(
         self,

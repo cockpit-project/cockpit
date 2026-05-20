@@ -15,7 +15,7 @@ BUILDDIR = os.environ.get('abs_builddir', SRCDIR)
 
 
 @contextlib.asynccontextmanager
-async def spawn_test_server() -> AsyncIterator[str]:  # noqa:RUF029
+async def spawn_test_server() -> AsyncIterator[str]:
     if 'COVERAGE_RCFILE' in os.environ:
         coverage = ['coverage', 'run', '--parallel-mode', '--module']
     else:

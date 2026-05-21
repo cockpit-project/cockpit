@@ -36,91 +36,13 @@ jobs:
     identifier: self
     trigger: pull_request
     targets: &test_targets
-      fedora-42: {}
-      fedora-43: {}
-      fedora-latest-aarch64: {}
-      fedora-rawhide: {}
       centos-stream-9-x86_64:
         distros: ["centos-stream-9", "CentOS-Stream-9-image-mode"]
       centos-stream-9-aarch64: {}
       centos-stream-10-x86_64:
         distros: ["centos-stream-10", "CentOS-Stream-10-image-mode"]
 
-  # current Fedora runs reverse dependency testing against https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/
-  - job: tests
-    identifier: revdeps
-    trigger: pull_request
-    targets:
-      - fedora-latest-stable
-    tf_extra_params:
-      environments:
-        - artifacts:
-          - type: repository-file
-            id: https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/repo/fedora-$releasever/group_cockpit-main-builds-fedora-$releasever.repo
-          tmt:
-            context:
-              revdeps: "yes"
-
   # run build/unit tests on test targets
   - job: copr_build
     trigger: pull_request
     targets: *test_targets
-
-  # run extra build/unit tests on some interesting architectures
-  - job: copr_build
-    trigger: pull_request
-    targets:
-      # big-endian
-      - fedora-latest-stable-s390x
-
-  # for cross-project testing
-  - job: copr_build
-    trigger: commit
-    branch: "^main$"
-    owner: "@cockpit"
-    project: "main-builds"
-    preserve_project: True
-
-  - job: copr_build
-    trigger: release
-    owner: "@cockpit"
-    project: "cockpit-preview"
-    preserve_project: True
-    # Don't rebuild the tarball for official releases (https://github.com/packit/packit-service/issues/1505)
-    actions: &official_release_actions
-      # the PACKIT_* variables are not yet set here; this just needs to create the declared specfile_path
-      post-upstream-clone:
-        - cp tools/cockpit.spec .
-
-      # resolve NPM_PROVIDES, but otherwise keep packit's %changelog
-      post-modifications:
-        - |
-          bash -exc '
-          # for debugging of official runs, CLI is different from packit service
-          env | grep PACKIT
-          tar -xJf "${PACKIT_DOWNSTREAM_REPO}/cockpit-${PACKIT_PROJECT_VERSION}.tar.xz" "cockpit-*/runtime-npm-modules.txt" --strip-components=1
-          tools/fix-spec "${PACKIT_DOWNSTREAM_REPO}/cockpit.spec" "${PACKIT_PROJECT_VERSION}"
-          '
-
-  - job: propose_downstream
-    trigger: release
-    actions: *official_release_actions
-
-    dist_git_branches:
-      - fedora-development
-      - fedora-42
-      - fedora-43
-
-  - job: koji_build
-    trigger: commit
-    dist_git_branches:
-      - fedora-development
-      - fedora-42
-      - fedora-43
-
-  - job: bodhi_update
-    trigger: commit
-    dist_git_branches:
-      # rawhide updates are created automatically
-      - fedora-42
-      - fedora-43

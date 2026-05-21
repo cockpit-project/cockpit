@@ -1,0 +1,1 @@
+../../../../dist/static/po.pt_BR.js

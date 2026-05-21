@@ -5,152 +5,197 @@ import contextlib
 import hashlib
 import json
 import logging
-import os
+import re
 import subprocess
 import sys
 import urllib.request
+from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
-from typing import Any, List, Optional, Sequence
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
-FLATPAK_ID = 'org.cockpit_project.CockpitClient'
+# It would be weird to import from cockpit here, so define our own copy
+type JsonValue = JsonObject | Sequence[JsonValue] | str | float | bool | None
+type JsonObject = Mapping[str, JsonValue]
+
+FLATPAK_ID = "org.cockpit_project.CockpitClient"
 
 # Local filenames
-MANIFEST_JSON = f'{FLATPAK_ID}.json'
-PACKAGES_JSON = f'{FLATPAK_ID}.packages.json'
-RELEASES_XML = f'{FLATPAK_ID}.releases.xml'
+MANIFEST_JSON = Path(f"{FLATPAK_ID}.json")
+PACKAGES_JSON = Path(f"{FLATPAK_ID}.packages.json")
+RELEASES_XML = Path(f"{FLATPAK_ID}.releases.xml")
 
 # Constants related to extra packages
 UPSTREAM_REPOS = [
-    'cockpit-project/cockpit-files',
-    'cockpit-project/cockpit-machines',
-    'cockpit-project/cockpit-ostree',
-    'cockpit-project/cockpit-podman',
+    "cockpit-project/cockpit-files",
+    "cockpit-project/cockpit-machines",
+    "cockpit-project/cockpit-ostree",
+    "cockpit-project/cockpit-podman",
 ]
-DOWNSTREAM_PACKAGES_URL = f'https://raw.githubusercontent.com/flathub/{FLATPAK_ID}/master/{PACKAGES_JSON}'
+DOWNSTREAM_PACKAGES_URL = (
+    f"https://raw.githubusercontent.com/flathub/{FLATPAK_ID}/master/{PACKAGES_JSON}"
+)
 
-FLATPAK_DIR = os.path.dirname(__file__)
-TOP_DIR = os.path.dirname(os.path.dirname(FLATPAK_DIR))
+FLATPAK_DIR = Path(__file__).parent
+TOP_DIR = FLATPAK_DIR.parent.parent
 
 
-def write_json(filename: str, content: Any) -> None:
+def write_json(filename: Path, content: JsonValue) -> None:
     """Something like g_file_set_contents() for JSON"""
-    tmpfile = f'{filename}.tmp'
+    logger.debug("Writing %r", str(filename))
+    tmpfile = filename.with_suffix(".json.tmp")
     try:
-        with open(tmpfile, 'w') as file:
+        with open(tmpfile, "w") as file:
             json.dump(content, file, indent=2)
-            file.write('\n')
+            file.write("\n")
 
     except BaseException:
         with contextlib.suppress(OSError):
-            os.unlink(tmpfile)
+            tmpfile.unlink()
         raise
     else:
-        os.rename(tmpfile, filename)
+        tmpfile.rename(filename)
 
 
+# should be JsonValue but we'd need to do a lot of checking/narrowing
 def fetch_json(url: str) -> Any:
+    logger.debug("Fetching %r", url)
     with urllib.request.urlopen(url) as file:
         return json.load(file)
 
 
-def module_for_upstream(repo: str) -> Any:
-    logger.info('Fetching release info for %s', repo)
-    release = fetch_json(f'https://api.github.com/repos/{repo}/releases/latest')
-    url = release['assets'][0]['browser_download_url']
-    logger.info('%s', url)
+def module_for_upstream(repo: str) -> JsonObject:
+    logger.info("Fetching release info for %s", repo)
+    release = fetch_json(f"https://api.github.com/repos/{repo}/releases/latest")
+    url = release["assets"][0]["browser_download_url"]
+    logger.info("%s", url)
     with urllib.request.urlopen(url) as file:
         sha256 = hashlib.sha256(file.read()).hexdigest()
-    logger.info('  %s', sha256)
+    logger.info("  %s", sha256)
     return {
-        'name': os.path.basename(repo),
-        'buildsystem': 'simple',
-        'build-commands': ['make install PREFIX=/app'],
-        'sources': [
-            {
-                'type': 'archive',
-                'url': url,
-                'sha256': sha256
-            }
-        ]
+        "name": repo.split("/")[-1],
+        "buildsystem": "simple",
+        "build-commands": ["make install PREFIX=/app"],
+        "sources": [{"type": "archive", "url": url, "sha256": sha256}],
     }
+
+
+def logical_lines(path: Path) -> Iterator[str]:
+    """Read a file, joining backslash-continuation lines."""
+    lines = iter(path.read_text().splitlines())
+    for line in lines:
+        while line.endswith("\\"):
+            line = line[:-1] + next(lines)
+        yield line
+
+
+def parse_requirements() -> Iterator[JsonObject]:
+    """Parse requirements.txt, yielding flatpak file sources.
+
+    Expects lines in the format: name @ url --hash=sha256:hexdigest
+    """
+    for line in logical_lines(FLATPAK_DIR / "requirements.txt"):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        match = re.fullmatch(
+            r"(\S+)\s+@\s+(https://\S+)\s+--hash=sha256:([0-9a-f]+)", line
+        )
+        if match is None:
+            raise ValueError(f"Failed to parse requirements line: {line!r}")
+
+        name, url, sha256 = match.groups()
+        logger.debug("requirement %s: url=%r sha256=%s", name, url, sha256)
+        yield {"type": "file", "url": url, "sha256": sha256}
 
 
 def create_manifest(
-    source_info: Any,
+    source_info: JsonObject,
     *,
-    branch: str = 'stable',
-    extra_modules: Sequence[Any] = ()
-) -> Any:
+    branch: str = "stable",
+    extra_modules: Sequence[JsonObject] = (),
+) -> JsonObject:
     return {
-        'app-id': FLATPAK_ID,
-        'runtime': 'org.gnome.Platform',
-        'runtime-version': '49',
-        'sdk': 'org.gnome.Sdk',
-        'command': 'cockpit-client',
-        'rename-icon': 'cockpit-client',
-        'finish-args': [
-            '--talk-name=org.freedesktop.Flatpak',
-            '--socket=wayland',
-            '--socket=fallback-x11',
-            '--device=dri',
-            '--share=ipc'
+        "app-id": FLATPAK_ID,
+        "runtime": "org.gnome.Platform",
+        "runtime-version": "49",
+        "sdk": "org.gnome.Sdk",
+        "command": "cockpit-client",
+        "rename-icon": "cockpit-client",
+        "finish-args": [
+            "--talk-name=org.freedesktop.Flatpak",
+            "--socket=wayland",
+            "--socket=fallback-x11",
+            "--device=dri",
+            "--share=ipc",
         ],
-        'modules': [
+        "modules": [
             {
-                'name': 'cockpit-client',
-                'buildsystem': 'autotools',
-                'config-opts': [
-                    '--enable-cockpit-client',
-                    '--with-systemdunitdir=/invalid',
-                    'CPPFLAGS=-Itools/mock-build-env',
-                    '--with-admin-group=root',
-                    '--disable-doc'
+                "name": "python3-requirements",
+                "buildsystem": "simple",
+                "build-commands": ["pip3 install --prefix=${FLATPAK_DEST} *.whl"],
+                "sources": [*parse_requirements()],
+            },
+            {
+                "name": "cockpit-client",
+                "buildsystem": "simple",
+                "build-options": {
+                    "env": {
+                        "DOWNSTREAM_RELEASES_XML": str(RELEASES_XML),
+                    }
+                },
+                "build-commands": [
+                    "containers/flatpak/flatpak-install.sh",
                 ],
-                'make-args': [
-                    'build-for-flatpak'
-                ],
-                'make-install-args': [
-                    f'DOWNSTREAM_RELEASES_XML={RELEASES_XML}'
-                ],
-                'install-rule': 'install-for-flatpak',
-                'sources': [
+                "sources": [
                     source_info,
                     {
-                        'type': 'file',
-                        'path': RELEASES_XML,
-                    }
-                ]
+                        "type": "file",
+                        "path": f"{RELEASES_XML}",
+                    },
+                ],
             },
-            *extra_modules
-        ]
+            *extra_modules,
+        ],
     }
 
 
-def get_packages(origin: Optional[str]) -> List[Any]:
+def get_packages(origin: str | None) -> Sequence[JsonObject]:
     # 1. If --packages is explicitly given, always use it
     # 2. Otherwise, try to use the already-existing file
     # 3. ... but if it doesn't exist, act like 'downstream' (effectively the default)
     # 4. In any case, write the local file if it changed (or is new)
 
     try:
-        with open(PACKAGES_JSON, 'r') as file:
+        with open(PACKAGES_JSON) as file:
             local_packages = json.load(file)
+        logger.debug("Loaded local packages from %r", str(PACKAGES_JSON))
     except FileNotFoundError:
+        logger.debug("No local %r found", str(PACKAGES_JSON))
         local_packages = None
 
-    if origin == 'none':
+    if origin == "none":
+        logger.debug("Using no extra packages")
         packages = []
 
-    elif origin == 'upstream':
+    elif origin == "upstream":
+        logger.debug("Fetching packages from upstream repos")
         packages = [module_for_upstream(repo) for repo in UPSTREAM_REPOS]
 
-    elif origin == 'downstream' or local_packages is None:
+    elif origin == "downstream" or local_packages is None:
+        logger.debug("Fetching packages from downstream %r", DOWNSTREAM_PACKAGES_URL)
         packages = fetch_json(DOWNSTREAM_PACKAGES_URL)
 
     else:
+        logger.debug("Using existing local packages")
         packages = local_packages
+
+    for pkg in packages:
+        for src in pkg.get("sources", []):
+            logger.debug("extra package %s: url=%r sha256=%s",
+                         pkg.get("name", "???"), src.get("url"), src.get("sha256"))
 
     # Update local file (only if it) changed
     if packages != local_packages:
@@ -161,51 +206,71 @@ def get_packages(origin: Optional[str]) -> List[Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument('--packages', choices=('none', 'upstream', 'downstream'),
-                        help="Get extra packages list from upstream/downstream")
-    parser.add_argument('--sha256', help="sha256sum of the source release")
-    parser.add_argument('location', help="Location of upstream source release (default: build a new one)", nargs='?')
+    parser.add_argument(
+        "--packages",
+        choices=("none", "upstream", "downstream"),
+        help="Get extra packages list from upstream/downstream",
+    )
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument("--sha256", help="sha256sum of the source release")
+    parser.add_argument(
+        "location",
+        help="Location of upstream source release (default: build a new one)",
+        nargs="?",
+    )
     args = parser.parse_args()
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
     packages = get_packages(args.packages)
 
-    branch = 'devel'
+    logger.debug("Packages origin: %r", args.packages)
+
+    branch = "devel"
     if args.location is None:
         try:
-            output = subprocess.check_output([f'{TOP_DIR}/tools/make-dist'],
-                                             universal_newlines=True)
+            output = subprocess.check_output(
+                [TOP_DIR / "tools" / "make-dist"], text=True
+            )
         except subprocess.CalledProcessError as exc:
             sys.exit(exc.returncode)
         # not using the node tarball here, just the main one
-        location = {'path': output.splitlines()[0]}
+        location: Mapping[str, str] = {"path": output.splitlines()[0]}
+        logger.debug("Built dist at %r", location["path"])
 
-    elif args.location.startswith('https://'):
-        branch = 'stable'
-        location = {'url': args.location}
+    elif args.location.startswith("https://"):
+        branch = "stable"
+        location = {"url": args.location}
 
-    elif args.location.startswith('/') and os.path.exists(args.location):
-        location = {'path': args.location}
+    elif args.location.startswith("/") and Path(args.location).exists():
+        location = {"path": args.location}
 
     else:
-        parser.error('If the location is given it must be an absolute path or https URL.')
+        parser.error(
+            "If the location is given it must be an absolute path or https URL."
+        )
 
     if args.sha256:
-        location['sha256'] = args.sha256
-    elif 'path' in location:
-        with open(location['path'], 'rb') as file:
-            location['sha256'] = hashlib.sha256(file.read()).hexdigest()
+        location["sha256"] = args.sha256
+    elif "path" in location:
+        location["sha256"] = hashlib.sha256(
+            Path(location["path"]).read_bytes()
+        ).hexdigest()
     else:
-        parser.error('--sha256 must be provided for https URLs')
+        parser.error("--sha256 must be provided for https URLs")
 
-    manifest = create_manifest({'type': 'archive', **location},
-                               branch=branch, extra_modules=packages)
+    logger.debug("Source location: %r, branch: %r", location, branch)
+
+    manifest = create_manifest(
+        {"type": "archive", **location}, branch=branch, extra_modules=packages
+    )
 
     write_json(MANIFEST_JSON, manifest)
 
-    Path(RELEASES_XML).touch()
+    RELEASES_XML.touch()
 
-    print(os.path.abspath(MANIFEST_JSON))
+    logger.debug("Wrote manifest to %r", str(MANIFEST_JSON))
+    print(MANIFEST_JSON.resolve())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -83,6 +83,19 @@ jobs:
     project: "main-builds"
     preserve_project: True
 
+    # testing changes to this:
+    # 1. Create a personal COPR, and change owner/project below
+    # 2. Make a temporary commit that:
+    #    - disables all jobs except "source" from .github/workflows/release.yml
+    #    - drops copr_build/commit, propose_downstream, and bodhi_update from packit.yaml
+    #    - sets upstream_project_url/issue_repository at the top to your fork
+    #    - updates Source0/1: in tools/cockpit.spec to your fork
+    # 3. Commit your adjustments. Push your changes to your fork's main branch
+    # 4. Tag and push a release to your fork. Replace the `my` remote with your fork:
+    #    R=362.99; git tag -d $R; git push my :$R; git tag -s -F /tmp/tagmsg $R; git push my -f; git push my $R
+    # 5. The initial release will fail. Wait for the "packit is requesting
+    #    permissions change" email, and grant it in your COPR's Settings → Permissions
+    # 6. Iterate (step 3.) and re-tag (step 4).
   - job: copr_build
     trigger: release
     owner: "@cockpit"

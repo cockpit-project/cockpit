@@ -125,7 +125,12 @@ class StorageHelpers(MachineCase):
     def addCleanupVG(self, vgname: str) -> None:
         """Ensure the given VG is removed after the test"""
 
-        self.addCleanup(self.machine.execute, f"if [ -d /dev/{vgname} ]; then vgremove --force {vgname}; fi")
+        self.addCleanup(self.machine.execute, f"""
+            if [ -d /dev/{vgname} ]; then
+                vgchange -an {vgname}
+                vgreduce --removemissing --force {vgname} 2>/dev/null || true
+                vgremove --force --yes {vgname}
+            fi""")
 
     def addCleanupMount(self, mount_point: str) -> None:
         self.addCleanup(self.machine.execute,

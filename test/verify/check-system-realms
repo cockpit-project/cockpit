@@ -725,7 +725,7 @@ ipa user-mod --password-expiration=2030-01-01T00:00:00Z alice' """)
 
         ipa_machine.execute(r"""podman exec -i freeipa sh -exc '
 # generate IPA CA signed certificate for alice
-openssl req -new -newkey rsa:2048 -days 365 -nodes -keyout /tmp/alice.key -out /tmp/alice.csr -subj "/CN=alice"
+openssl req -new -newkey rsa:2048 -nodes -keyout /tmp/alice.key -out /tmp/alice.csr -subj "/CN=alice"
 ipa cert-request /tmp/alice.csr --principal=alice --certificate-out=/tmp/alice.pem
 # make alice an admin
 ipa group-add-member admins --users=alice

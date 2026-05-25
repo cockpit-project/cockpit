@@ -19,6 +19,8 @@ import { Table, Caption, Tbody, Tr, Td } from '@patternfly/react-table';
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/esm/components/TextInputGroup/index.js';
+import { EmptyState, EmptyStateActions, EmptyStateProps } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import { FolderIcon, SearchIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
 
@@ -268,6 +270,7 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
     roots,
     filters,
     formatHeader,
+    formatIcon,
     formatExtraColumns,
     formatSelected,
     formatLocation,
@@ -286,6 +289,7 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
     roots: TreeRoot<Node>[],
     filters?: TreeFilter<Node>[],
     formatHeader: (node: Node) => React.ReactNode,
+    formatIcon: (node: Node) => React.ReactNode
     formatExtraColumns: (node: Node) => React.ReactNode[]
     formatSelected?: undefined | ((path: Node[]) => Promise<React.ReactNode>),
     formatLocation?: undefined | ((path: Node[]) => string),
@@ -439,33 +443,32 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
         return new_path;
     }
 
-    function onNodeClick(n: Node) {
+    function onNodeSelected(n: Node) {
         setFocusIndex(-1);
 
-        if (n.isLeaf) {
-            if (enableCreate) {
-                setNewNode(n.name);
-            } else if (n.isSelectable && !enableCreate) {
-                setSelected(n);
-                if (formatSelected)
-                    formatSelected(followLinks(path.concat(n))).then(setFormattedSelected);
-                else
-                    setFormattedSelected(null);
-            } else {
-                setSelected(null);
+        if (enableCreate) {
+            setNewNode(n.name);
+        } else {
+            setSelected(n);
+            if (formatSelected && n.isSelectable)
+                formatSelected(followLinks(path.concat(n))).then(setFormattedSelected);
+            else
                 setFormattedSelected(null);
-            }
-            return;
         }
+    }
 
-        setTextInput("");
-        setSelected(null);
-        setFormattedSelected(null);
-        setPath(followLinks(path.concat(n)));
+    function onNodeNavigate(n: Node) {
+        if (!n.isLeaf) {
+            setTextInput("");
+            setSelected(null);
+            setFormattedSelected(null);
+            setPath(followLinks(path.concat(n)));
+        }
     }
 
     const { nodes, error } = children;
-    const filteredNodes = nodes && nodes.filter(n => n.name.includes(filterText) && (!filter || filter.filter(n)));
+    const prepFilteredNodes = nodes && nodes.filter(n => !filter || filter.filter(n));
+    const filteredNodes = prepFilteredNodes && prepFilteredNodes.filter(n => n.name.includes(filterText));
     const filteredHeader = nodes && filteredNodes && filteredNodes.length < nodes.length && cockpit.format("($0 / $1)", filteredNodes.length, nodes.length);
 
     function boldify(name: string): React.ReactNode {
@@ -504,11 +507,11 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
 
         case 'Enter':
             if (filteredNodes && filteredNodes.length == 1) {
-                onNodeClick(filteredNodes[0]);
+                onNodeSelected(filteredNodes[0]);
                 return;
             }
             if (filteredNodes && focusIndex >= 0 && focusIndex < filteredNodes.length) {
-                onNodeClick(filteredNodes[focusIndex]);
+                onNodeSelected(filteredNodes[focusIndex]);
             }
             break;
         }
@@ -516,6 +519,32 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
 
     const selectedStyle = { background: "var(--pf-t--global--color--nonstatus--blue--default)" };
     const focusedStyle = { border: "solid 1px black" };
+
+    function emptyState(content: string, icon: EmptyStateProps["icon"], clearFilters: boolean = false) {
+        return (
+            <Caption>
+                <EmptyState
+                    titleText={content}
+                    {...icon ? {icon} : {}}
+                >
+                    { clearFilters &&
+                        <EmptyStateActions>
+                            <Button
+                                variant="link"
+                                onClick={() => {
+                                    setTextInput("");
+                                    if (filters && filters.length > 0 && prepFilteredNodes && prepFilteredNodes.length == 0)
+                                        setFilter(filters[filters.length - 1]);
+                                }}
+                            >
+                                {_("Clear filters")}
+                            </Button>
+                        </EmptyStateActions>
+                    }
+                </EmptyState>
+            </Caption>
+        );
+    }
 
     return (
         <>
@@ -528,17 +557,21 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
                 <ModalHeader
                     title={title}
                     description={
-                        errorMessage &&
-                            <Alert
-                                variant='danger'
-                                isInline
-                                title={errorMessage}
-                            />
+                        <>
+                            {
+                                errorMessage &&
+                                    <Alert
+                                        variant='danger'
+                                        isInline
+                                        title={errorMessage}
+                                    />
+                            }
+                        </>
                     }
                 />
                 <Split>
-                    <SplitItem style={{ width: 200 }}>
-                        <ModalBody>
+                    <SplitItem style={{ width: 200, borderInlineEnd: "solid 2px grey" }}>
+                        <ModalBody style={{ paddingBlockStart: 0 }}>
                             <Table variant="compact" borders={false}>
                                 <Tbody>
                                     {
@@ -551,10 +584,10 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
                                                         isSelectable
                                                         isRowSelected={path[0] == r.root}
                                                         onRowClick={() => {
-                                                            setRoot(r);
                                                             setSelected(null);
                                                             setFormattedSelected(null);
                                                             textInputRef.current?.focus();
+                                                            setRoot(r);
                                                         }}
                                                     >
                                                         <Td>{r.label}</Td>
@@ -576,26 +609,49 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
                         </ModalBody>
                     </SplitItem>
                     <SplitItem isFilled>
-                        {
+                        <ModalHeader style={{ paddingBlockStart: 0 }}>
+                            <Flex>
+                                <FlexItem>
+                                    {textFilter}
+                                </FlexItem>
+                                <FlexItem>
+                                    {preparedFilters}
+                                </FlexItem>
+                                <FlexItem>
+                                    {filteredHeader}
+                                </FlexItem>
+                                <FlexItem grow={{default: "grow"}} />
+                                { createFolderAction &&
+                                    <FlexItem>
+                                        <WithDialogs>
+                                            <CreateFolderButton
+                                                action={createFolderAction}
+                                                path={path}
+                                                onDone={setPath}
+                                            />
+                                        </WithDialogs>
+                                    </FlexItem>
+                                }
+                            </Flex>
+                            {
                             breadcrumbs.length > 0 &&
-                                <ModalHeader>
-                                    <Breadcrumb
-                                        style={
-                                            {
-                                                // align left of breadcrumb with left of table content
-                                                paddingInlineStart: "var(--pf-t--global--spacer--inset--page-chrome"
-                                            }
+                                <Breadcrumb
+                                    style={
+                                        {
+                                            // align left of breadcrumb with left of table content
+                                            paddingInlineStart: "var(--pf-t--global--spacer--inset--page-chrome)"
                                         }
-                                    >
-                                        {breadcrumbs}
-                                    </Breadcrumb>
-                                </ModalHeader>
-                        }
-                        <ModalBody style={{ height: 300 }}>
+                                    }
+                                >
+                                    {breadcrumbs}
+                                </Breadcrumb>
+                            }
+                        </ModalHeader>
+                        <ModalBody style={{ height: 300, paddingBlockStart: 0 }}>
                             <Table variant="compact" borders={false}>
-                                { nodes == null && <Caption><Spinner /></Caption> }
-                                { nodes && nodes.length == 0 && <Caption>{error || emptyMessage}</Caption> }
-                                { nodes && nodes.length > 0 && filteredNodes && filteredNodes.length == 0 && <Caption>nothing matches</Caption> }
+                                { nodes == null && emptyState("", Spinner) }
+                                { nodes && nodes.length == 0 && emptyState(error || emptyMessage, FolderIcon) }
+                                { nodes && nodes.length > 0 && filteredNodes && filteredNodes.length == 0 && emptyState(_("No matching results"), SearchIcon, true) }
                                 { filteredNodes && filteredNodes.length > 0 &&
                                     <Tbody>
                                         {
@@ -610,10 +666,14 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
                                                                 }
                                                             }
                                                             key={idx}
-                                                            onRowClick={() => onNodeClick(n)}
+                                                            onRowClick={() => onNodeSelected(n)}
+                                                            onDoubleClick={event => {
+                                                                event.preventDefault();
+                                                                onNodeNavigate(n);
+                                                            }}
                                                             isClickable
                                                         >
-                                                            <Td>{boldify(n.name)}</Td>
+                                                            <Td>{formatIcon(n)}&nbsp;&nbsp;{boldify(n.name)}</Td>
                                                             { formatExtraColumns(n).map((c, i) => <Td key={i}>{c}</Td>) }
                                                         </Tr>
                                                     );
@@ -627,84 +687,61 @@ export function TreeSelectButton<Node extends TreeNode<Node>>({
                     </SplitItem>
                 </Split>
                 <ModalFooter>
-                    {
-                        enableCreate
-                            ? <TextInputGroup>
-                                  <TextInputGroupUtilities
-                                      style={
-                                        {
-                                            paddingInlineStart: 10,
-                                            color: "grey"
-                                        }
-                                      }
-                                  >
+                    <div>
+                        {
+                            enableCreate
+                                ? <TextInputGroup>
+                                      <TextInputGroupUtilities
+                                          style={
+                                              {
+                                                  paddingInlineStart: 10,
+                                                  color: "grey"
+                                              }
+                                          }
+                                      >
+                                          {
+                                              enableCreate(path, "x")
+                                                  ? (formatLocation && formatLocation(path))
+                                                  : _("No location selected")
+                                          }
+                                      </TextInputGroupUtilities>
                                       {
-                                          enableCreate(path, "x")
-                                              ? (formatLocation && formatLocation(path))
-                                              : _("No location selected")
+                                          <TextInputGroupMain
+                                              value={newNode}
+                                              onChange={(_event, val) => setNewNode(val)}
+                                          />
                                       }
-                                  </TextInputGroupUtilities>
-                                  {
-                                      <TextInputGroupMain
-                                          value={newNode}
-                                          onChange={(_event, val) => setNewNode(val)}
-                                      />
-                                  }
-                              </TextInputGroup>
-                            : formattedSelected || _("Nothing selected")
-                    }
-                    <Flex>
-                        <FlexItem>
-                            <Button
-                                isDisabled={
-                                    enableCreate
-                                        ? !enableCreate(path, newNode)
-                                        : !selected && !(path.length > 0 && path[path.length - 1].isSelectable)
-                                }
-                                variant={danger ? "danger" : "primary"}
-                                isLoading={inProgress}
-                                onClick={
-                                    async () => {
-                                        setInProgress(true);
-                                        setErrorMessage("");
-                                        try {
-                                            if (selected)
-                                                await onSelect(followLinks(path.concat(selected)), newNode);
-                                            else
-                                                await onSelect(path, newNode);
-                                            setIsOpen(false);
-                                        } catch (ex) {
-                                            setErrorMessage(String(ex));
-                                        }
-                                        setInProgress(false);
-                                    }
-                                }
-                            >
-                                {danger ? dangerSelectTitle : selectTitle}
-                            </Button>
-                        </FlexItem>
-                        <FlexItem grow={{default: "grow"}} />
-                        <FlexItem>
-                            {filteredHeader}
-                        </FlexItem>
-                        <FlexItem>
-                            {preparedFilters}
-                        </FlexItem>
-                        <FlexItem>
-                            {textFilter}
-                        </FlexItem>
-                        { createFolderAction &&
-                            <FlexItem>
-                                <WithDialogs>
-                                    <CreateFolderButton
-                                        action={createFolderAction}
-                                        path={path}
-                                        onDone={setPath}
-                                    />
-                                </WithDialogs>
-                            </FlexItem>
+                                  </TextInputGroup>
+                                : formattedSelected || _("Nothing selected")
                         }
-                    </Flex>
+                    </div>
+                    <Button
+                        isDisabled={
+                            enableCreate
+                                ? !enableCreate(path, newNode)
+                                : !(selected && selected.isSelectable) && !(path.length > 0 && path[path.length - 1].isSelectable)
+                        }
+                        variant={danger ? "danger" : "primary"}
+                        isLoading={inProgress}
+                        onClick={
+                            async () => {
+                                setInProgress(true);
+                                setErrorMessage("");
+                                try {
+                                    if (selected)
+                                        await onSelect(followLinks(path.concat(selected)), newNode);
+                                    else
+                                        await onSelect(path, newNode);
+                                    setIsOpen(false);
+                                } catch (ex) {
+                                    setErrorMessage(String(ex));
+                                }
+                                setInProgress(false);
+                            }
+                        }
+                    >
+                        {danger ? dangerSelectTitle : selectTitle}
+                    </Button>
                 </ModalFooter>
             </Modal>
             <Button onClick={() => setIsOpen(true)} {...buttonProps} />

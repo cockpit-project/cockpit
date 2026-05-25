@@ -6,14 +6,10 @@
 import cockpit from "cockpit";
 import React, { useState, useEffect, useMemo } from "react";
 import { useInit } from "hooks";
-import { WithDialogs, useDialogs } from "dialogs";
 
-import { Button, type ButtonProps } from '@patternfly/react-core/dist/esm/components/Button/index.js';
+import { type ButtonProps } from '@patternfly/react-core/dist/esm/components/Button/index.js';
 import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/esm/components/TextInputGroup/index.js';
-import { FolderOpenIcon, DesktopIcon } from '@patternfly/react-icons';
-import { Modal, ModalBody, ModalHeader, ModalFooter } from '@patternfly/react-core/dist/esm/components/Modal';
-import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/index.js';
+import { FolderOpenIcon, OutlinedHddIcon, FolderIcon } from '@patternfly/react-icons';
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
 import { TreeSelectButton, TreeNode, TreeRoot, TreeFilter } from "cockpit-components-tree-select.jsx";
@@ -164,9 +160,37 @@ function formatHeader(node: FileNode): React.ReactNode {
     if (node.type == "list")
         return null;
     if (node.name == "/")
-        return <DesktopIcon />;
+        return <OutlinedHddIcon
+                   style={
+                       {
+                           blockSize: "var(--pf-t--global--font--size--lg)",
+                           inlineSize: "auto",
+                           verticalAlign: "middle",
+                       }
+                   }
+        />;
     else
         return basename(node.name);
+}
+
+const FileIcon = () => {
+    return (
+        <svg
+            height="14"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1536 1792"
+        >
+            <path d="M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536z"/>
+        </svg>
+    );
+};
+
+function formatIcon(node: FileNode): React.ReactNode {
+    if (node.type == "file")
+        return <FileIcon />;
+    else if (node.type == "directory")
+        return <FolderIcon />;
 }
 
 function formatExtraColumns(node: FileNode): React.ReactNode[] {
@@ -329,8 +353,9 @@ export const FileChooserButton = ({
             roots={roots}
             filters={treeFilters}
             formatHeader={formatHeader}
+            formatIcon={formatIcon}
             formatExtraColumns={formatExtraColumns}
-            formatSelected={p => file_info(join_path(p), superuser)}
+            formatSelected={async p => p[p.length - 1].type == "directory" ? join_path(p) : await file_info(join_path(p), superuser)}
             formatLocation={p => join_path(p)}
             checkExists={(p, n) => file_exists(join_path(p) + "/" + n, superuser)}
             listChildren={p => listFiles(p, recentKey, onlyDirectories, superuser)}
@@ -343,7 +368,7 @@ export const FileChooserButton = ({
                 createDirectories
                     ?
                     {
-                        label: _("New directory"),
+                        label: _("Create directory"),
                         isDisabled: path => path.length == 0 || path[0].type == "list",
                         create: createDirectory
                     }

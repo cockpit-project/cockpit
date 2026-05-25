@@ -183,7 +183,9 @@ main (int argc, char *argv[])
   g_mkdir(config_dir, 0755);
   g_setenv ("XDG_CONFIG_DIRS", config_dir, TRUE);
 
-  g_setenv ("COCKPIT_CONFIG_DIR", config_dir, TRUE);
+  g_autofree gchar *cockpit_config_dir = g_build_filename (global_temp_dir, "cockpit-config", NULL);
+  g_mkdir(cockpit_config_dir, 0755);
+  g_setenv ("COCKPIT_CONFIG_DIR", cockpit_config_dir, TRUE);
   
   g_test_add_data_func ("/branding/roots/local", data_dir,
                         test_roots_local);

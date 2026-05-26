@@ -25,7 +25,7 @@ class TestClient(testlib.MachineCase):
         self.m_target.execute("hostnamectl set-hostname target")
         # validate on-demand install: this does not work on arch, non-split package
         if self.m_target.image.startswith("debian") or self.m_target.image.startswith("ubuntu"):
-            self.m_target.execute("dpkg --purge pcp")
+            self.m_target.execute("dpkg --purge libpcp-pdma-perl pcp")
         elif self.m_target.image == 'arch':
             self.m_target.execute("pacman -Rdd --noconfirm pcp")
         else:

@@ -23,7 +23,7 @@ import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs";
 import { ServicesList } from "./services-list.jsx";
 import { CreateTimerDialogButton } from "./timer-dialog.jsx";
-import { page_status } from "notifications";
+import { publish_page_health } from "notifications";
 import * as python from "python";
 import * as timeformat from "timeformat";
 import cockpit from "cockpit";
@@ -35,6 +35,13 @@ import s_bus from "./busnames.js";
 import "./services.scss";
 
 const _ = cockpit.gettext;
+
+// status.details here is an array of failed-unit ids; preserve_details:false
+// drops it so the channel entry carries only {link} for the Overview card.
+/** @param {{ type?: string|null, title?: string, details?: unknown } | null} status */
+const setServicesHealth = status =>
+    publish_page_health("system/services", /** @type {import("notifications").Status | null} */ (status),
+                        { preserve_details: false });
 
 // As long as we have long-running superuser channels, we need to
 // reload the page when the access level changes.
@@ -588,7 +595,7 @@ class ServicesPageBody extends React.Component {
         this.props.setTabErrors(tabErrors);
 
         if (failed.size > 0) {
-            page_status.set_own({
+            setServicesHealth({
                 type: "error",
                 title: cockpit.format(cockpit.ngettext("$0 service has failed",
                                                        "$0 services have failed",
@@ -596,7 +603,7 @@ class ServicesPageBody extends React.Component {
                 details: [...failed]
             });
         } else {
-            page_status.set_own(null);
+            setServicesHealth(null);
         }
     }
 

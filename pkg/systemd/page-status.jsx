@@ -22,7 +22,7 @@ import {
 
 import "./page-status.scss";
 
-import { page_status } from "notifications";
+import { channel, OVERVIEW_HEALTH_CHANNEL, SAFE_LINK_RE } from "notifications";
 
 function icon_for_type(type) {
     if (type == "error")
@@ -65,52 +65,58 @@ export class PageStatusNotifications extends React.Component {
     constructor() {
         super();
         this.state = { };
-        this.on_page_status_changed = () => this.setState({ });
+        this.health_channel = channel(OVERVIEW_HEALTH_CHANNEL);
+        this.on_channel_changed = () => this.setState({ });
     }
 
     componentDidMount() {
-        page_status.addEventListener("changed", this.on_page_status_changed);
+        this.health_channel.addEventListener("changed", this.on_channel_changed);
     }
 
     componentWillUnmount() {
-        page_status.removeEventListener("changed", this.on_page_status_changed);
+        this.health_channel.removeEventListener("changed", this.on_channel_changed);
     }
 
     render() {
-        // Explicit allowlist for now, until we can get a dynamic list
-        return ["system/services", "updates"].map(page => {
-            const status = page_status.get(page);
-            if (status && (status.type || status.details) && status.title) {
-                let action;
-                if (status.details && status.details.link !== undefined) {
-                    if (status.details.link)
-                        action = <Button variant="link" isInline component="a"
-                                         onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + status.details.link) } }>{status.title}</Button>;
-                    else
-                        action = <span>{status.title}</span>; // no link
-                } else {
-                    action = <Button variant="link" isInline component="a"
-                                     onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + page) } }>{status.title}</Button>;
-                }
+        return this.health_channel.list()
+                .filter(n => typeof n.title === "string" && n.title && (n.type || n.details))
+                .map(notification => {
+                    const id = typeof notification.id === "string" ? notification.id : "";
+                    const id_attr = "page_status_notification_" + id.replace(/\//g, '_');
+                    const raw_link = notification.details?.link;
+                    const link = (typeof raw_link === "string" && SAFE_LINK_RE.test(raw_link)) ? raw_link : null;
 
-                let icon;
-                if (status.details && status.details.icon)
-                    icon = <span className={status.details.icon} />;
-                else if (status.details && status.details.pficon)
-                    icon = get_pficon(status.details.pficon);
-                else
-                    icon = icon_for_type(status.type);
-                return (
-                    <li id={ "page_status_notification_" + page.replace('/', '_') } key={page}>
-                        <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                            {icon}
-                            {action}
-                        </Flex>
-                    </li>
-                );
-            } else {
-                return null;
-            }
-        });
+                    const action = link
+                        ? (
+                            <Button variant="link" isInline component="a"
+                                    onClick={ev => { ev.preventDefault(); cockpit.jump("/" + link) }}>
+                                {notification.title}
+                            </Button>
+                        )
+                        : <span>{notification.title}</span>;
+
+                    // Publisher-supplied pficon must be allowlisted; arbitrary
+                    // CSS class names are intentionally not honored.
+                    let icon;
+                    const pficon = notification.details?.pficon;
+                    if (typeof pficon === "string") {
+                        try {
+                            icon = get_pficon(pficon);
+                        } catch {
+                            icon = icon_for_type(notification.type);
+                        }
+                    } else {
+                        icon = icon_for_type(notification.type);
+                    }
+
+                    return (
+                        <li id={id_attr} key={notification.publisher}>
+                            <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                {icon}
+                                {action}
+                            </Flex>
+                        </li>
+                    );
+                });
     }
 }

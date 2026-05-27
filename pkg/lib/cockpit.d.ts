@@ -42,6 +42,8 @@ declare module 'cockpit' {
 
     export const transport: Transport;
 
+    export const hint: (name: string, options: JsonObject | string) => void;
+
     /* === jQuery compatible promise ============== */
 
     export interface DeferredPromise<T> extends Promise<T> {

@@ -84,8 +84,39 @@ class StorageHelpers(MachineCase):
         # non-functional state. Running partprobe will get rid of
         # them.
         self.machine.execute("partprobe '%s'" % dev)
-        # right after unmounting the device is often still busy, so retry a few times
-        self.addCleanup(self.machine.execute, f"until losetup -d {dev}; do sleep 1; done; rm {backf}", timeout=10)
+        # Clean up: remove any holders, detach loop device, verify it's gone
+        self.addCleanup(self.machine.execute, f"""
+            udevadm settle --timeout=10
+            for h in /sys/block/{os.path.basename(dev)}/holders/*; do
+                [ -e "$h" ] || break
+                if [ -f "$h/dm/name" ]; then
+                    n=$(cat "$h/dm/name")
+                else
+                    n=$(basename "$h")
+                fi
+                dmsetup remove --force "$n" || true
+                cryptsetup close "$n" || true
+                mdadm --stop --force "/dev/$n" || true
+            done
+            # Stop udisks to ensure it releases any references to the loop device
+            systemctl stop udisks2 || true
+            udevadm settle --timeout=5
+            # Actively wait for loop device to be detached (kernel may do it async after md/dm removal)
+            for retry in {{1..30}}; do
+                losetup -a | grep -qw {dev} || break
+                losetup -d {dev} && break
+                [ $retry -eq 10 ] && echo "Still waiting for {dev} to detach (retry $retry/30)..." >&2
+                sleep 0.5
+            done
+            if losetup -a | grep -qw {dev}; then
+                echo "ERROR: {dev} still attached after 30 retries!" >&2
+                losetup -a | grep {dev} >&2
+                ls -la /sys/block/{os.path.basename(dev)}/holders/ >&2 || true
+                fuser -v {dev} >&2 || true
+                exit 1
+            fi
+            rm -f {backf}
+        """, timeout=30)
         self.addCleanup(self.machine.execute, f"findmnt -n -o TARGET {dev} | xargs --no-run-if-empty umount;")
 
         return dev

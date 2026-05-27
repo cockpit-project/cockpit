@@ -7,6 +7,9 @@ srcdir="${0%/*}"
 (
     cd "${srcdir}"
     echo "m4_define(VERSION_NUMBER, [$(git describe --tags --abbrev=0)+git])" > version.m4
+    # Ensure branding is generated for the current OS before configuring
+    echo "Checking branding requirements..."
+    python3 ensure-branding.py
     autoreconf -i --warnings obsolete
 )
 

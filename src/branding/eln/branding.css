@@ -1,0 +1,44 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+
+#badge {
+    inline-size: 279px;
+    block-size: 80px;
+    background-image: url("logo.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+
+.pf-v6-theme-dark #badge {
+    background-image: url("logo-dark.png");
+}
+
+#brand::before {
+ 
+    content: "${NAME}";
+}
+
+
+.anaconda {
+    
+    --brand-default-light: #79db32;
+    --brand-default: #db3279;
+    --brand-default-dark: #e59728;
+}
+
+
+.anaconda .logo {
+    background-image: url("logo.png");
+}
+
+
+:not(.pf-v6-theme-dark) .anaconda {
+    --pf-t--global--color--brand--default: var(--brand-default);
+    --pf-t--global--color--brand--hover: var(--brand-default-dark);
+}
+
+
+.pf-v6-theme-dark .anaconda {
+    --pf-t--global--color--brand--default: var(--brand-default-light);
+    --pf-t--global--color--brand--hover: var(--brand-default);
+}

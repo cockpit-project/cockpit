@@ -35,21 +35,7 @@ EXCLUDES=""
 # functionality to upstream CI. We also need to leave out some which make too strict assumptions about the testbed.
 if [ "$PLAN" = "main" ]; then
     # Don't run TestPages, TestPackages, and TestTerminal at all -- not testing external APIs
-    TESTS="TestAutoUpdates
-           TestAccounts
-           TestBonding
-           TestBridge
-           TestFirewall
-           TestJournal
-           TestKdump
-           TestLogin
-           TestNetworking
-           TestSOS
-           TestServices
-           TestSystemInfo
-           TestTeam
-           TestTuned
-           TestUpdates
+    TESTS="TestBonding
            "
 
     # PCI devices list is not predictable

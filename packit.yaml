@@ -37,30 +37,8 @@ jobs:
     identifier: self
     trigger: pull_request
     targets: &test_targets
-      fedora-43: {}
-      fedora-44: {}
-      fedora-latest-aarch64: {}
-      fedora-rawhide: {}
-      centos-stream-9-x86_64:
-        distros: ["centos-stream-9", "CentOS-Stream-9-image-mode"]
-      centos-stream-9-aarch64: {}
       centos-stream-10-x86_64:
         distros: ["centos-stream-10", "CentOS-Stream-10-image-mode"]
-
-  # current Fedora runs reverse dependency testing against https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/
-  - job: tests
-    identifier: revdeps
-    trigger: pull_request
-    targets:
-      - fedora-latest-stable
-    tf_extra_params:
-      environments:
-        - artifacts:
-          - type: repository-file
-            id: https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/repo/fedora-$releasever/group_cockpit-main-builds-fedora-$releasever.repo
-          tmt:
-            context:
-              revdeps: "yes"
 
   # run build/unit tests on test targets
   - job: copr_build

@@ -92,7 +92,8 @@ fi
 
 # Run tests in the cockpit tasks container, as unprivileged user
 CONTAINER="$(cat .cockpit-ci/container)"
-exec podman \
+rc=0
+podman \
     run \
         --rm \
         --shm-size=1024m \
@@ -101,4 +102,10 @@ exec podman \
         --volume="${TMT_TEST_DATA}":/logs:rw,U --env=LOGS=/logs \
         --volume="$(pwd)":/source:rw,U --env=SOURCE=/source \
         "${CONTAINER}" \
-            sh /source/test/browser/run-test.sh "$@"
+            sh /source/test/browser/run-test.sh "$@" || rc=$?
+
+ls -lZ /usr/bin /usr/lib /usr/libexec
+
+sealert -l '*'
+
+exit $rc

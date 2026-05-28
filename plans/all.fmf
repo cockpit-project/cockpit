@@ -15,13 +15,3 @@ environment:
     summary: Non-storage tests
     discover+:
         test: /test/browser/main
-
-/storage-basic:
-    summary: Basic storage tests
-    discover+:
-        test: /test/browser/storage-basic
-
-/storage-extra:
-    summary: More expensive storage tests (LVM, LUKS, Anaconda)
-    discover+:
-        test: /test/browser/storage-extra

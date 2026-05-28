@@ -328,14 +328,6 @@ $phone: 767px;
   --pf-v6-c-table--m-compact__action--PaddingBlockStart: 0
 }
 
-// NOTE @Venefilyn: Selectable table has an alignment issue with the expand button and the text
-// Tracked upstream here https://github.com/patternfly/patternfly/issues/7424
-.pf-v6-c-table__td.pf-v6-c-table__check {
-  // We add 0.125 rem which isn't on PF's spacers variable list, that aligns nicely with
-  // the correct sizing (becomes 10px on compact table, 18px on normal table)
-  padding-block-start: calc(var(--pf-v6-c-table--cell--PaddingBlockStart) + 0.125rem)
-}
-
 // HACK: Patternfly has a weird issue with modals and skip to content
 // button not being hidden as it should on rtl mode. Instead, it will make the
 // page extremely wide and cause modals to be very offset. Changing from

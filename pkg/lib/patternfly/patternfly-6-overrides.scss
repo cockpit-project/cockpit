@@ -368,3 +368,9 @@ $phone: 767px;
 .pf-v6-c-icon.pf-m-important {
   --pf-v6-c-icon__content--Color: var(--pf-t--global--icon--color--severity--important--default);
 }
+
+// HACK: Alert status icon floats away with more lines in the title, scale causes this
+// https://github.com/patternfly/patternfly/issues/8434
+.pf-v6-c-alert__icon {
+  scale: initial;
+}

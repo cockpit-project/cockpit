@@ -70,7 +70,7 @@ import { Divider } from '@patternfly/react-core/dist/esm/components/Divider/inde
 import { MenuFooter } from '@patternfly/react-core/dist/esm/components/Menu/index.js';
 import { Select, SelectOption, SelectList, SelectOptionProps, SelectProps } from '@patternfly/react-core/dist/esm/components/Select/index.js';
 import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/esm/components/TextInputGroup/index.js';
-import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
+import RhMicronsCloseIcon from '@patternfly/react-icons/dist/esm/icons/rh-microns-close-icon';
 import "cockpit-components-select.scss";
 
 const _ = cockpit.gettext;
@@ -471,7 +471,7 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
         <TextInputGroupUtilities
           {...(!(isFiltering && filterValue) && !(selected && onClearSelection) ? { style: { display: 'none' } } : {})}
         >
-          <Button icon={<TimesIcon aria-hidden />} variant="plain" onClick={onClearButtonClick} aria-label="Clear input value" />
+          <Button icon={<RhMicronsCloseIcon aria-hidden />} variant="plain" onClick={onClearButtonClick} aria-label="Clear input value" />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </MenuToggle>

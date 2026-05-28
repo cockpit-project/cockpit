@@ -35,7 +35,8 @@ import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.
 import { Select, SelectOption, SelectList, SelectOptionProps, SelectProps } from '@patternfly/react-core/dist/esm/components/Select/index.js';
 import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/esm/components/TextInputGroup/index.js';
 import { Label, LabelGroup, LabelProps } from "@patternfly/react-core/dist/esm/components/Label/index.js";
-import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
+import RhMicronsCloseIcon from '@patternfly/react-icons/dist/esm/icons/rh-microns-close-icon';
+
 
 const _ = cockpit.gettext;
 
@@ -317,7 +318,7 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
             </LabelGroup>
         </TextInputGroupMain>
         <TextInputGroupUtilities {...(!inputValue ? { style: { display: 'none' } } : {})}>
-          <Button icon={<TimesIcon aria-hidden />} variant="plain" onClick={onClearButtonClick} aria-label={_("Clear input value")} />
+          <Button icon={<RhMicronsCloseIcon aria-hidden />} variant="plain" onClick={onClearButtonClick} aria-label={_("Clear input value")} />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </MenuToggle>

@@ -667,6 +667,11 @@ OnCalendar=daily
         self.addCleanup(m.execute, "systemctl stop pmcd")
         m.execute("systemctl start pmcd")
 
+        # settroubleshootd eats memory in an unpredictable manner, silence it to reduce test flakes
+        if m.image.startswith(("fedora-", "rhel-")):
+            self.addCleanup(m.execute, "systemctl unmask setroubleshootd")
+            m.execute("systemctl stop setroubleshootd; systemctl mask setroubleshootd")
+
         # packagekit/dnf often eats a lot of CPU/Memory; silence it to have better control over memory usage
         packagekitd = "/usr/lib/packagekitd" if m.image == "arch" else "/usr/libexec/packagekitd"
         m.execute(f"systemctl mask packagekit && killall -9 {packagekitd} && killall -9 dnf || true")

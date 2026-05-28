@@ -10,7 +10,7 @@ import { Alert, AlertActionCloseButton } from "@patternfly/react-core/dist/esm/c
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Progress } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
-import { TimesIcon, UploadIcon } from "@patternfly/react-icons";
+import { RhMicronsCloseIcon, UploadIcon } from "@patternfly/react-icons";
 
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 import { upload } from "cockpit-upload-helper";
@@ -112,7 +112,7 @@ export const UploadDemo = () => {
                 return (
                     <React.Fragment key={index}>
                         <Progress className={`upload-progress-${index}`} key={file.file.name} value={file.progress} title={file.file.name} max={file.file.size} />
-                        <Button className={`cancel-button-${index}`} icon={<TimesIcon />} onClick={file.cancel} />
+                        <Button className={`cancel-button-${index}`} icon={<RhMicronsCloseIcon />} onClick={file.cancel} />
                     </React.Fragment>
                 );
             })}

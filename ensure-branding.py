@@ -25,47 +25,16 @@ def generate_css(target_dir):
     css_content = """/* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #badge {
-    inline-size: 279px;
+    inline-size: 80px;
     block-size: 80px;
     background-image: url("logo.png");
     background-size: contain;
     background-repeat: no-repeat;
 }
 
-.pf-v6-theme-dark #badge {
-    background-image: url("logo-dark.png");
-}
-
 #brand::before {
     content: "${NAME}";
 }
-
-.anaconda {
-    /* Brand palette */
-    --brand-default-light: #79db32;
-    --brand-default: #db3279;
-    --brand-default-dark: #e59728;
-}
-
-.anaconda .logo {
-    background-image: url("logo.png");
-}
-
-:not(.pf-v6-theme-dark) .anaconda {
-    --pf-t--global--color--brand--default: var(--brand-default);
-    --pf-t--global--color--brand--hover: var(--brand-default-dark);
-}
-
-.pf-v6-theme-dark .anaconda {
-    --pf-t--global--color--brand--default: var(--brand-default-light);
-    --pf-t--global--color--brand--hover: var(--brand-default);
-}
-"""
-    with open(css_path, "w") as f:
-        f.write(css_content)
-
-def update_makefile(distro_id):
-    """Injects the build rules into Makefile.am if they don't exist."""
     if not os.path.exists(MAKEFILE_PATH):
         print(f"Warning: '{MAKEFILE_PATH}' not found. Skipping Makefile update.", file=sys.stderr)
         return
@@ -93,7 +62,7 @@ install-data-hook::
     # Append the configuration to the Makefile
     with open(MAKEFILE_PATH, "a") as f:
         f.write(block)
-    print(f"🔗 Configured Makefile.am for '{distro_id}'.")
+    print(f"Configured Makefile.am for '{distro_id}'.")
 
 def main():
     distro_id = get_distro_id()

@@ -46,7 +46,7 @@ def add_machine(b, address, password):
 class TestRHEL8(testlib.MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20"},
-        "stock": {"address": "10.111.113.5/20", "image": "rhel-8-8"}
+        "stock": {"address": "10.111.113.5/20", "image": "rhel-8-10"}
     }
 
     @testlib.todoPybridgeRHEL8()

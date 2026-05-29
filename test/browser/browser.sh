@@ -90,6 +90,14 @@ if [ "${VARIANT_ID:-}" = "eln" ]; then
     TEST_OS="fedora-eln"
 fi
 
+# HACK: confirm this is really it
+if [ "$TEST_OS" = "centos-10-bootc" ]; then
+    bootc usr-overlay
+    ls -lZ /usr/libexec/cockpit-session
+    restorecon -v /usr/libexec/cockpit-session
+    ls -lZ /usr/libexec/cockpit-session
+fi
+
 # Run tests in the cockpit tasks container, as unprivileged user
 CONTAINER="$(cat .cockpit-ci/container)"
 rc=0

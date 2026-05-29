@@ -90,6 +90,13 @@ if [ "${VARIANT_ID:-}" = "eln" ]; then
     TEST_OS="fedora-eln"
 fi
 
+# HACK: in C10s bootc in TF with a packit COPR, SELinux contexts get messed up
+# https://github.com/cockpit-project/cockpit/issues/23295
+# https://redhat.atlassian.net/browse/TFT-4722
+if [ "$TEST_OS" = "centos-10-bootc" ]; then
+    setenforce 0
+fi
+
 # Run tests in the cockpit tasks container, as unprivileged user
 CONTAINER="$(cat .cockpit-ci/container)"
 exec podman \

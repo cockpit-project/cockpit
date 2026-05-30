@@ -368,10 +368,13 @@ $desktop: $phone + 1px;
 }
 
 .nav-system-menu {
-  // Flow items, if wider (useful for mobile)
+  // Flow items, if wider (useful for mobile). Use 1fr (not auto) so every
+  // group's column tracks are equal-width; otherwise each group's grid sizes
+  // its columns to its own content and the second column fails to align
+  // between groups (e.g. System vs Tools).
   .pf-v6-c-nav__list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
 
   // Give additional style to individual menu items

@@ -784,6 +784,7 @@ The TLS object can have the following options:
  * "key": The client key to use, described below.
  * "authority": Certificate authority(s) to expect as signers of peer.
  * "validate": Validate the peer's certificate.
+ * "proxy": Proxy url to use.
 
 The "certificate", "key" and "authority" are objects with either of
 the following fields:

@@ -122,6 +122,12 @@ async def test_open_error(transport):
                                     'certificate': {'data': 'invalid'},
                                     'key': {'data': 'invalid'},
                                }, problem='protocol-error')
+    await transport.check_open('http-stream2', method='GET', path='/test', port=666,
+                               tls={"proxy": "http://host:notaport"}, problem='protocol-error',
+                               reply_keys={'message': 'invalid "proxy" url'})
+    await transport.check_open('http-stream2', method='GET', path='/test', port=666,
+                               tls={"proxy": "woops"}, problem='protocol-error',
+                               reply_keys={'message': 'invalid "proxy" url'})
 
 
 @pytest.mark.asyncio
@@ -184,3 +190,43 @@ async def test_tls_client_cert(transport, tls_server):
                                     })
     transport.send_done(ch)
     await assert_http_response(transport, ch, tls=True)
+
+
+@pytest.mark.asyncio
+async def test_tls_proxy(transport, tls_server):
+    async def relay(reader, writer):
+        try:
+            while True:
+                data = await reader.read(8192)
+                if not data:
+                    break
+                writer.write(data)
+                await writer.drain()
+        finally:
+            writer.close()
+
+    async def handle_connect(reader, writer):
+        request_line = await reader.readline()
+        while (await reader.readline()).strip():
+            pass
+
+        host, port = request_line.split()[1].split(b':')
+        upstream_reader, upstream_writer = await asyncio.open_connection(host.decode(), int(port))
+
+        writer.write(b'HTTP/1.1 200 Connection established\r\n\r\n')
+        await writer.drain()
+
+        await asyncio.gather(relay(reader, upstream_writer), relay(upstream_reader, writer))
+
+    proxy = await asyncio.start_server(handle_connect, '127.0.0.1', 0)
+    proxy_port = proxy.sockets[0].getsockname()[1]
+
+    ch = await transport.check_open('http-stream2', method='GET', path='/test', port=tls_server,
+                                    tls={
+                                        'authority': {'file': str(MOCK_DATA / 'mock-server.crt')},
+                                        'proxy': f'http://127.0.0.1:{proxy_port}',
+                                    })
+    transport.send_done(ch)
+    await assert_http_response(transport, ch, tls=True)
+
+    proxy.close()

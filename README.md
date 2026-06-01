@@ -52,20 +52,11 @@ flatpak install --user flathub org.cockpit_project.CockpitClient
 
 ## Screenshots
 
-<details>
-
-<summary>Collapsed screenshots</summary>
-
-![Screenshot of high-level overview](https://cockpit-project.org/images/screenshot/overview.webp)
-*High-level overview*
-
-![Screenshot of account management](https://cockpit-project.org/images/screenshot/accounts.webp)
-*Account management*
-
-![Screenshot of network management](https://cockpit-project.org/images/screenshot/network-overview.webp)
-*Network management*
-
-</details>
+| Light                                                                         | Dark                                                                        |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| ![Screenshot of high-level overview in light mode](./doc/overview-light.png)  | ![Screenshot of high-level overview in dark mode](./doc/overview-dark.png)  |
+| ![Screenshot of account management in light mode](./doc/accounts-light.png)   | ![Screenshot of account management in dark mode](./doc/accounts-dark.png)   |
+| ![Screenshot of network management in light mode](./doc/networking-light.png) | ![Screenshot of network management in dark mode](./doc/networking-dark.png) |
 
 ## Contributors
 

@@ -10,6 +10,7 @@ import socket
 import ssl
 import tempfile
 from collections.abc import Generator
+from urllib.parse import urlparse
 
 from ..channel import AsyncChannel, ChannelError
 from ..jsonutil import JsonObject, get_dict, get_int, get_object, get_str, typechecked
@@ -83,6 +84,18 @@ class HttpChannel(AsyncChannel):
                         context.load_cert_chain(certfile=certfile, keyfile=keyfile)
                 except ssl.SSLError as exc:
                     raise ChannelError('protocol-error', message=str(exc)) from exc
+
+            proxy_url = get_str(opt_tls, 'proxy', None)
+            if proxy_url is not None:
+                try:
+                    parsed = urlparse(proxy_url)
+                    if not parsed.hostname or not parsed.port:
+                        raise ChannelError('protocol-error', message='invalid "proxy" url')
+                except ValueError as exc:
+                    raise ChannelError('protocol-error', message='invalid "proxy" url') from exc
+                connection = http.client.HTTPSConnection(parsed.hostname, parsed.port, context=context)
+                connection.set_tunnel(opt_address, opt_port)
+                return connection
 
             return http.client.HTTPSConnection(opt_address, port=opt_port, context=context)
 

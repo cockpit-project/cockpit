@@ -373,6 +373,7 @@ declare module 'cockpit' {
             certificate?: TlsCert;
             key?: TlsCert;
             validate?: boolean;
+            proxy?: string;
         };
         superuser?: SuperuserMode;
         binary?: boolean;

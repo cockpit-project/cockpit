@@ -70,10 +70,11 @@ Please see [SECURITY.md](https://github.com/cockpit-project/.github/blob/main/SE
 
 ## Licenses
 
-[![BSD-3 License](https://img.shields.io/badge/License-BSD--3-green?style=for-the-badge)](LICENSES/BSD-3-Clause.txt)
-[![GPL-3.0 License](https://img.shields.io/badge/License-GPL--3.0-orange?style=for-the-badge)](LICENSES/GPL-3.0.txt)
-[![LGPL-2.1 License](https://img.shields.io/badge/License-LGPL--2.1-lightgrey?style=for-the-badge)](LICENSES/LGPL-2.1.txt)
-[![MIT License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSES/MIT.txt)
+* [LGPL-2.1 or later](./LICENSES/LGPL-2.1.txt)
+* [GPL-3.0 or later](./LICENSES/GPL-3.0.txt)
+* [BSD-3](./LICENSES/BSD-3-Clause.txt)
+* [CC-BY-SA-3.0](./LICENSES/CC-BY-SA-3.0.txt)
+* [MIT](./LICENSES/MIT.txt)
 
 ## Links
 

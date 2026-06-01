@@ -62,7 +62,7 @@ flatpak install --user flathub org.cockpit_project.CockpitClient
 
 See [developer documentation](https://github.com/cockpit-project/cockpit/wiki/Contributing) for information about setting up local build environments, running tests, and our overall contribution process.
 
-For translations we make updates [directly in Weblate](https://translate.fedoraproject.org/projects/cockpit/cockpit/) that gets automatically updated on a regular basis.
+Translations are managed in [Weblate](https://translate.fedoraproject.org/projects/cockpit/cockpit/).
 
 ## Security
 

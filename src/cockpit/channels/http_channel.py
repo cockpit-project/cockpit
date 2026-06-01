@@ -3,15 +3,30 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
+import contextlib
 import http.client
 import logging
 import socket
 import ssl
+import tempfile
+from collections.abc import Generator
 
 from ..channel import AsyncChannel, ChannelError
 from ..jsonutil import JsonObject, get_dict, get_int, get_object, get_str, typechecked
 
 logger = logging.getLogger(__name__)
+
+
+@contextlib.contextmanager
+def _pem_data(obj: JsonObject) -> Generator[str]:
+    path = get_str(obj, 'file', None)
+    if path is not None:
+        yield path
+    else:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.pem') as f:
+            f.write(get_str(obj, 'data'))
+            f.flush()
+            yield f.name
 
 
 class HttpChannel(AsyncChannel):
@@ -56,6 +71,18 @@ class HttpChannel(AsyncChannel):
             if 'validate' in opt_tls and not opt_tls['validate']:
                 context.check_hostname = False
                 context.verify_mode = ssl.VerifyMode.CERT_NONE
+
+            certificate = get_dict(opt_tls, 'certificate', None)
+            key = get_dict(opt_tls, 'key', None)
+
+            if certificate is not None or key is not None:
+                if certificate is None or key is None:
+                    raise ChannelError('protocol-error', message='need to specify both "certificate" and "key"')
+                try:
+                    with _pem_data(certificate) as certfile, _pem_data(key) as keyfile:
+                        context.load_cert_chain(certfile=certfile, keyfile=keyfile)
+                except ssl.SSLError as exc:
+                    raise ChannelError('protocol-error', message=str(exc)) from exc
 
             return http.client.HTTPSConnection(opt_address, port=opt_port, context=context)
 

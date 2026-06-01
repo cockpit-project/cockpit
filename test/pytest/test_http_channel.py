@@ -73,7 +73,7 @@ async def http_server(request, tmp_path) -> AsyncGenerator[dict, None]:
 
 
 @pytest_asyncio.fixture()
-async def tls_server() -> AsyncGenerator[int, None]:
+async def tls_server(request) -> AsyncGenerator[int, None]:
     async def serve(reader, writer):
         while True:
             line = await reader.readline()
@@ -85,6 +85,9 @@ async def tls_server() -> AsyncGenerator[int, None]:
 
     server_ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     server_ctx.load_cert_chain(MOCK_DATA / 'mock-server.crt', MOCK_DATA / 'mock-server.key')
+    if hasattr(request, 'param') and request.param == 'client-cert':
+        server_ctx.verify_mode = ssl.CERT_REQUIRED
+        server_ctx.load_verify_locations(MOCK_DATA / 'mock-client.crt')
 
     server = await asyncio.start_server(serve, '127.0.0.1', 0, ssl=server_ctx)
     yield server.sockets[0].getsockname()[1]
@@ -104,6 +107,21 @@ async def test_open_error(transport):
     await transport.check_open('http-stream2', method='GET', path='/test', unix='/tmp/sock',
                                tls={}, problem='protocol-error',
                                reply_keys={'message': 'TLS on Unix socket is not supported'})
+    await transport.check_open('http-stream2', method='GET', path='/test', port=666,
+                               tls={
+                                    'certificate': {'file': str(MOCK_DATA / 'mock-client.crt')},
+                               }, problem='protocol-error',
+                               reply_keys={'message': 'need to specify both "certificate" and "key"'})
+    await transport.check_open('http-stream2', method='GET', path='/test', port=666,
+                               tls={
+                                    'key': {'file': str(MOCK_DATA / 'mock-client.crt')},
+                               }, problem='protocol-error',
+                               reply_keys={'message': 'need to specify both "certificate" and "key"'})
+    await transport.check_open('http-stream2', method='GET', path='/test', port=666,
+                               tls={
+                                    'certificate': {'data': 'invalid'},
+                                    'key': {'data': 'invalid'},
+                               }, problem='protocol-error')
 
 
 @pytest.mark.asyncio
@@ -133,5 +151,36 @@ async def test_tls_request_no_validate(transport, tls_server):
 async def test_tls_no_validate(transport, tls_server):
     ch = await transport.check_open('http-stream2', method='GET', path='/test', port=tls_server,
                                     tls={'validate': False})
+    transport.send_done(ch)
+    await assert_http_response(transport, ch, tls=True)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('tls_server', ['client-cert'], indirect=True)
+async def test_tls_client_cert(transport, tls_server):
+    ch = await transport.check_open('http-stream2', method='GET', path='/test', port=tls_server,
+                                    tls={
+                                        'authority': {'file': str(MOCK_DATA / 'mock-server.crt')},
+                                        'certificate': {'file': str(MOCK_DATA / 'mock-client.crt')},
+                                        'key': {'file': str(MOCK_DATA / 'mock-client.key')},
+                                    })
+    transport.send_done(ch)
+    await assert_http_response(transport, ch, tls=True)
+
+    ch = await transport.check_open('http-stream2', method='GET', path='/test', port=tls_server,
+                                    tls={
+                                        'authority': {'data': (MOCK_DATA / 'mock-server.crt').read_text()},
+                                        'certificate': {'file': str(MOCK_DATA / 'mock-client.crt')},
+                                        'key': {'data': (MOCK_DATA / 'mock-client.key').read_text()},
+                                    })
+    transport.send_done(ch)
+    await assert_http_response(transport, ch, tls=True)
+
+    ch = await transport.check_open('http-stream2', method='GET', path='/test', port=tls_server,
+                                    tls={
+                                        'authority': {'data': (MOCK_DATA / 'mock-server.crt').read_text()},
+                                        'certificate': {'data': (MOCK_DATA / 'mock-client.crt').read_text()},
+                                        'key': {'data': (MOCK_DATA / 'mock-client.key').read_text()},
+                                    })
     transport.send_done(ch)
     await assert_http_response(transport, ch, tls=True)

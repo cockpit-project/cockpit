@@ -1,7 +1,7 @@
 
 <p align="center">
     <a href="https://cockpit-project.org/">
-      <img src="https://cockpit-project.org/images/site/cockpit-logo-blue.svg" height="150" alt="Cockpit logo">
+      <img src="https://cockpit-project.org/images/site/cockpit-logo-blue.svg" height="75" alt="Cockpit logo">
     </a>
     <br>
     <i>A sysadmin login session in a web browser</i>
@@ -9,9 +9,9 @@
 
 ---
 
-[![Latest version](https://img.shields.io/github/v/release/cockpit-project/cockpit?sort=semver&style=for-the-badge&color=3c6eb4)](https://github.com/cockpit-project/cockpit/releases/latest)
+[![Latest version](https://img.shields.io/github/v/release/cockpit-project/cockpit?sort=semver&logo=cockpit&style=for-the-badge&color=3c6eb4)](https://github.com/cockpit-project/cockpit/releases/latest)
 [![Flathub Version](https://img.shields.io/flathub/v/org.cockpit_project.CockpitClient?style=for-the-badge&logo=flathub&color=3c6eb4)](https://flathub.org/en/apps/org.cockpit_project.CockpitClient)
-[![Packaging status](https://img.shields.io/repology/repositories/cockpit?style=for-the-badge&logo=cockpit&color=3c6eb4&label=In%20repositories)](https://repology.org/project/cockpit/versions)
+[![Packaging status](https://img.shields.io/repology/repositories/cockpit?style=for-the-badge&logo=cockpit&color=3c6eb4)](https://repology.org/project/cockpit/versions)
 [![Help translate](https://img.shields.io/badge/Help%20translate-Weblate-blue?style=for-the-badge&logo=weblate&logoColor=white)](https://translate.fedoraproject.org/projects/cockpit/cockpit/)
 
 [![Matrix chat](https://img.shields.io/matrix/cockpit%3Afedoraproject.org?server_fqdn=matrix.org&fetchMode=summary&style=for-the-badge&logo=matrix)](https://matrix.to/#/#cockpit:fedoraproject.org)

@@ -38,17 +38,11 @@ between these hosts.
 > [!NOTE]
 > An installation guide can be found at [cockpit-project.org/running.html](https://cockpit-project.org/running.html). Some systems may need extra work, read about it in our [FAQ](https://cockpit-project.org/faq.html#installation)
 
-Cockpit is available in numerous Linux distributions and is usually served under `cockpit` package name. 
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/cockpit.svg?columns=3&exclude_unsupported=1&exclude_sources=modules,site&header=cockpit%20packaging%20status)](https://repology.org/project/cockpit/versions)
+Cockpit is [available in numerous Linux distributions](https://repology.org/project/cockpit/versions) and is usually packaged as `cockpit`. 
 
 ### Flatpak 'Cockpit Client'
 
 We also provide a Flatpak app called [Cockpit Client](https://flathub.org/en/apps/org.cockpit_project.CockpitClient) which includes SSH login support to Linux servers.
-
-```bash
-flatpak install --user flathub org.cockpit_project.CockpitClient
-```
 
 ## Screenshots
 

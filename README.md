@@ -54,7 +54,7 @@ We also provide a Flatpak app called [Cockpit Client](https://flathub.org/en/app
 
 ## Contributors
 
-See [developer documentation](https://github.com/cockpit-project/cockpit/wiki/Contributing) for information about setting up local build environments, running tests, and our overall contribution process.
+To quickly make code contributions we have a [HACKING.md](./HACKING.md) that outlines the devel environment and running tests. For more in-depth we have a [developer documentation](https://github.com/cockpit-project/cockpit/wiki/Contributing) that links to more resources about setting up the local environment, how designs are proposed, creating and running tests, and our overall contribution process.
 
 Translations are managed in [Weblate](https://translate.fedoraproject.org/projects/cockpit/cockpit/).
 

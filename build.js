@@ -287,6 +287,9 @@ async function build() {
                 fs.writeFileSync('runtime-npm-modules.txt', deps.join('\n') + '\n');
             }
         } catch (e) {
+            const msg = String(e);
+            if (!msg.includes("Build failed"))
+                console.error("build.js:", msg);
             if (!args.watch)
                 process.exit(1);
             // ignore errors in watch mode

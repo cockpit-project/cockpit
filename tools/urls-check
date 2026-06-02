@@ -14,12 +14,14 @@ import time
 import urllib
 from urllib.request import Request, urlopen
 
-from lib import task
+from lib.github import GitHub
 
 BASE_DIR = os.path.realpath(f'{__file__}/../..')
 
 DAYS = 7
 TASK_NAME = "Validate all URLs"
+
+github = GitHub()
 
 USER_AGENT = "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0"
 
@@ -47,8 +49,6 @@ def main():
                         help="Only show urls")
     opts = parser.parse_args()
 
-    task.verbose = opts.verbose
-
     if opts.dry_run:
         (success, err) = check_urls(opts.verbose)
         print(err)
@@ -58,12 +58,12 @@ def main():
     since = time.time() - (DAYS * 86400)
 
     # When there is an open issue, don't do anything
-    issues = task.api.issues(state="open")
+    issues = github.issues(state="open")
     issues = [i for i in issues if i["title"] == TASK_NAME]
     if issues:
         return
 
-    issues = task.api.issues(state="closed", since=since)
+    issues = github.issues(state="closed", since=since)
     issues = [i for i in issues if i["title"] == TASK_NAME]
 
     # If related issue was not modified in last n-DAYS, then do your thing
@@ -76,24 +76,24 @@ def main():
                 "body": err,
                 "labels": ["bot"]
             }
-            task.api.post("issues", data)
+            github.post("issues", data)
         else:
             # Try to comment on the last issue (look in the last 4*DAYS)
             # If there is not issue to be found, then just open a new one and close it
             success = success or "Task hasn't produced any output"
             since = time.time() - (DAYS * 4 * 86400)
-            issues = task.api.issues(state="closed", since=since)
+            issues = github.issues(state="closed", since=since)
             issues = [i for i in issues if i["title"] == TASK_NAME]
             if issues:
-                task.comment(issues[0], success)
+                github.comment(issues[0]["number"], success)
             else:
                 data = {
                     "title": TASK_NAME,
                     "body": success,
                     "labels": ["bot"]
                 }
-                new_issue = task.api.post("issues", data)
-                task.api.post("issues/{0}".format(new_issue["number"]), {"state": "closed"})
+                new_issue = github.post("issues", data)
+                github.patch(f"issues/{new_issue['number']}", {"state": "closed"})
 
 
 def check_urls(verbose):

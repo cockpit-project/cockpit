@@ -11,16 +11,19 @@
     "compilerOptions": {
         "allowJs": true,
         "checkJs": true,
-        "baseUrl": "./pkg/lib",
         "esModuleInterop": true,
         "exactOptionalPropertyTypes": true,
+        "noUncheckedSideEffectImports": false,
         "incremental": true,
         "jsx": "react",
         "lib": [
             "dom",
             "es2021"
         ],
-        "moduleResolution": "node",
+        "types": ["*"],
+        "paths": {
+            "*": ["./pkg/lib/*"]
+        },
         "noEmit": true,  // we only use `tsc` for type checking
         "strict": true,
         "target": "es2021",

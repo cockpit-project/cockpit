@@ -73,7 +73,7 @@ function MockPeer() {
         };
 
         this.control = function(options) {
-            console.assert(typeof command === 'string');
+            console.assert(typeof options.command === 'string');
             console.assert(options !== null && typeof options === 'object');
             console.assert(arguments.length == 1);
             window.setTimeout(function() { peer.dispatchEvent("control", channel, options) }, 5);

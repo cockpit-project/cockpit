@@ -22,12 +22,15 @@ BASE_DIR = os.path.realpath(f'{__file__}/../..')
 TEST_DIR = f'{BASE_DIR}/test'
 BOTS_DIR = f'{BASE_DIR}/bots'
 
+BUILD_VM_MEMORY_MB = 4096
+
 
 @contextmanager
 def create_machine(image: str) -> Iterator[machine_virtual.VirtMachine]:
     subprocess.check_call([os.path.join(BOTS_DIR, "image-download"), image])
     network = machine_virtual.VirtNetwork(image=image)
-    machine = machine_virtual.VirtMachine(image=image, networking=network.host(restrict=True))
+    machine = machine_virtual.VirtMachine(image=image, networking=network.host(restrict=True),
+                                          memory_mb=BUILD_VM_MEMORY_MB)
     try:
         machine.boot()
         yield machine
@@ -243,6 +246,9 @@ def main() -> int:
         customize.append("--verbose")
     if args.quick:
         customize.append("--quick")
+
+    # esbuild likes to use a lot of memory.
+    customize += ["--memory-mb", str(BUILD_VM_MEMORY_MB)]
 
     dist_tars = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip().splitlines()
 

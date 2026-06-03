@@ -36,6 +36,7 @@ from lcov import write_lcov
 from lib.constants import OSTREE_IMAGES
 from machine import testvm
 from PIL import Image
+from pixelmatch.contrib.PIL import pixelmatch
 
 _T = TypeVar('_T')
 _FT = TypeVar("_FT", bound=Callable[..., Any])
@@ -1448,8 +1449,8 @@ class Browser:
             print("New pixel test reference " + filename)
             self.failed_pixel_tests += 1
         else:
-            img_now = Image.open(io.BytesIO(png_now)).convert("RGBA")
-            img_ref = Image.open(io.BytesIO(png_ref)).convert("RGBA")
+            img_now = Image.open(io.BytesIO(png_now))
+            img_ref = Image.open(io.BytesIO(png_ref))
             img_delta = Image.new("RGBA",
                                   (max(img_now.size[0], img_ref.size[0]), max(img_now.size[1], img_ref.size[1])),
                                   (255, 0, 0, 255))
@@ -1474,55 +1475,13 @@ class Browser:
             # Pixels that are different but have been ignored are
             # marked in the delta image in green.
 
-            def masked(ref: tuple[int, ...]) -> bool:
-                return ref[3] != 255
-
-            def ignorable_coord(x: int, y: int) -> bool:
-                for (x0, y0, x1, y1) in ignore_rects:
-                    if x >= x0 - 2 and x < x1 + 2 and y >= y0 - 2 and y < y1 + 2:
-                        return True
-                return False
-
-            def ignorable_change(a: tuple[int, ...], b: tuple[int, ...]) -> bool:
-                return abs(a[0] - b[0]) <= 2 and abs(a[1] - b[1]) <= 2 and abs(a[2] - b[2]) <= 2
-
             def img_eq(ref: Image.Image, now: Image.Image, delta: Image.Image) -> str | None:
-                # This is slow but exactly what we want.
-                # ImageMath might be able to speed this up.
-                # no-untyped-call: see https://github.com/python-pillow/Pillow/issues/8029
-                data_ref = ref.load()
-                data_now = now.load()
-                data_delta = delta.load()
-                assert data_ref
-                assert data_now
-                assert data_delta
-                diff_count = 0
-                width, height = delta.size
-
                 if ref.size != now.size:
                     return f"size mismatch: reference {ref.size[0]}x{ref.size[1]}, now {now.size[0]}x{now.size[1]}"
 
-                for y in range(height):
-                    for x in range(width):
-                        # we only support RGBA
-                        ref_pixel = data_ref[x, y]
-                        now_pixel = data_now[x, y]
-                        # we only support RGBA, not single-channel float (grayscale)
-                        assert isinstance(ref_pixel, tuple)
-                        assert isinstance(now_pixel, tuple)
-
-                        if ref_pixel != now_pixel:
-                            if (
-                                    masked(ref_pixel) or
-                                    ignorable_coord(x, y) or
-                                    ignorable_change(ref_pixel, now_pixel)
-                            ):
-                                data_delta[x, y] = (0, 255, 0, 255)
-                            else:
-                                data_delta[x, y] = (255, 0, 0, 255)
-                                diff_count += 1
-                        else:
-                            data_delta[x, y] = ref_pixel
+                diff_count = pixelmatch(
+                    img1=ref, img2=now, output=delta, aa_color=(222, 172, 0), masked_areas=ignore_rects, alpha=0.6
+                )
 
                 if diff_count > abs_tolerance:
                     return f"differs by {diff_count} pixels, tolerance {abs_tolerance}"

@@ -142,6 +142,7 @@ async function build() {
     const cockpitPoEsbuildPlugin = (await import('./pkg/lib/cockpit-po-plugin.js')).cockpitPoEsbuildPlugin;
     const cockpitRsyncEsbuildPlugin = (await import('./pkg/lib/cockpit-rsync-plugin.js')).cockpitRsyncEsbuildPlugin;
     const cockpitTestHtmlPlugin = (await import('./pkg/lib/esbuild-test-html-plugin.js')).cockpitTestHtmlPlugin;
+    const cockpitRemoveRHIconsPlugin = (await import('./pkg/lib/cockpit-remove-rhicons-plugin.js')).cockpitRemoveRHIconsPlugin;
 
     const { entryPoints, assetFiles, redhat_fonts } = getFiles(args.onlydir);
     const tests = getTestFiles();
@@ -185,6 +186,10 @@ async function build() {
                 });
             }
         },
+
+        // HACK: filter out RH icons until they become default
+        // Reduces PF icon byte size by >50% per icon
+        cockpitRemoveRHIconsPlugin(),
 
         // cockpit-ws cannot currently serve compressed login page
         ...production ? [cockpitCompressPlugin({ subdir: args.onlydir, exclude: /\/static/ })] : [],
@@ -282,6 +287,9 @@ async function build() {
                 fs.writeFileSync('runtime-npm-modules.txt', deps.join('\n') + '\n');
             }
         } catch (e) {
+            const msg = String(e);
+            if (!msg.includes("Build failed"))
+                console.error("build.js:", msg);
             if (!args.watch)
                 process.exit(1);
             // ignore errors in watch mode

@@ -83,9 +83,9 @@ $desktop: $phone + 1px;
     }
   }
 
-  .nav-system-menu {
+  .host-apps {
     /* FIXME: We need to change the widgets to PF6 ones; instead of CSS to fake it */
-    padding-inline-start: var(--pf-t--global--spacer--inset--page-chrome);
+    margin-inline-start: var(--pf-t--global--spacer--inset--page-chrome);
   }
 
   .mobile_v {
@@ -203,6 +203,7 @@ $desktop: $phone + 1px;
   }
 
   .area-ct-subnav {
+    max-block-size: calc(100vh - var(--nav-icon-size));
     align-self: flex-end;
     z-index: 2;
 
@@ -226,7 +227,6 @@ $desktop: $phone + 1px;
     inset-inline: 0;
     block-size: auto;
     overflow: auto;
-    max-block-size: calc(100vh - var(--nav-icon-size));
     max-inline-size: 29rem;
     display: block;
   }
@@ -241,7 +241,6 @@ $desktop: $phone + 1px;
   .nav-system-menu,
   .view-hosts {
     background: var(--pf-t--global--background--color--primary--default);
-    padding: var(--pf-t--global--spacer--gutter--default);
     border-radius: var(--pf-t--global--border--radius--small);
     box-shadow: var(--pf-t--global--box-shadow--md);
   }
@@ -349,25 +348,33 @@ $desktop: $phone + 1px;
 
 .host-apps {
   flex: 1 1 0;
-  overflow-x: hidden;
-  overflow-y: auto;
   position: relative;
-
+  // HACK: 2 rem is a magic value as nav-icon-size is not sufficient
+  // Unclear yet where this height difference comes from
+  max-block-size: calc(100vh - 2rem - var(--nav-icon-size));
   // In mobile, make the search at the top and the rest scroll
   @media (max-width: $phone) {
     display: grid;
     grid-template-rows: auto 1fr;
-    max-block-size: calc(100vh - var(--nav-icon-size));
     position: sticky;
     inset-block-start: 0;
+    margin-block: var(--pf-t--global--spacer--gutter--default);
+
+    > .search {
+      margin-inline: var(--pf-t--global--spacer--gutter--default);
+      inline-size: initial;
+    }
 
     > .pf-v6-c-nav {
-      overflow: auto;
+      padding-inline: var(--pf-t--global--spacer--gutter--default);
+      overflow-y: auto;
     }
   }
 }
 
 .nav-system-menu {
+  overflow-x: hidden;
+  overflow-y: auto;
   // Flow items, if wider (useful for mobile)
   .pf-v6-c-nav__list {
     display: grid;

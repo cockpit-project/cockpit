@@ -41,7 +41,7 @@ import {
     SecurityIcon,
 } from "@patternfly/react-icons";
 import { TableText } from "@patternfly/react-table";
-import { Remarkable } from "remarkable";
+import Markdown from "markdown-to-jsx";
 
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
@@ -225,29 +225,19 @@ function isSafeUrl(href) {
     }
 }
 
-// Overrides the link_open function to apply our required HTML attributes
-function customRemarkable() {
-    const remarkable = new Remarkable();
+const markdownOptions = {
+    overrides: {
+        a: {
+            props: {
+                rel: "noopener noreferrer",
+                target: "_blank",
+            },
+        },
+    },
+    forceInline: true,
+};
 
-    remarkable.renderer.rules.link_open = function(tokens, idx) {
-        try {
-            const url = tokens[idx].href;
-            if (!isSafeUrl(url))
-                return "<a>";
-
-            const a = document.createElement("a");
-            a.setAttribute("href", url);
-            a.rel = "noopener noreferrer";
-            a.target = "_blank";
-            return a.outerHTML.replace("</a>", "");
-        } catch {
-            return "<a>";
-        }
-    };
-    return remarkable;
-}
-
-function updateItem(remarkable, info, pkgNames, key) {
+function updateItem(info, pkgNames, key) {
     const bug_urls = (info.bug_urls || []).filter(isSafeUrl);
     const cve_urls = (info.cve_urls || []).filter(isSafeUrl);
     const vendor_urls = (info.vendor_urls || []).filter(isSafeUrl);
@@ -333,8 +323,8 @@ function updateItem(remarkable, info, pkgNames, key) {
     descriptionFirstLine = cleanupChangelogLine(descriptionFirstLine);
     let description;
     if (info.markdown) {
-        descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: remarkable.render(descriptionFirstLine) }} />;
-        description = <div dangerouslySetInnerHTML={{ __html: remarkable.render(info.description) }} />;
+        descriptionFirstLine = <Markdown options={markdownOptions}>{descriptionFirstLine}</Markdown>;
+        description = <Markdown options={{ ...markdownOptions, forceInline: false }}>{info.description}</Markdown>;
     } else {
         description = <div className="changelog">{info.description}</div>;
     }
@@ -392,7 +382,6 @@ function updateItem(remarkable, info, pkgNames, key) {
 }
 
 const UpdatesList = ({ updates }) => {
-    const remarkable = customRemarkable();
     const combined_updates = [];
 
     // PackageKit doesn"t expose source package names, so group packages with the same version and changelog
@@ -431,7 +420,7 @@ const UpdatesList = ({ updates }) => {
                     { title: _("Severity"), props: { width: 15 } },
                     { title: _("Details"), props: { width: 30 } },
                 ]}
-                rows={combined_updates.map(update => updateItem(remarkable, update, packageNames[update.id].sort((a, b) => a.name > b.name), update.id))} />
+                rows={combined_updates.map(update => updateItem(update, packageNames[update.id].sort((a, b) => a.name > b.name), update.id))} />
     );
 };
 

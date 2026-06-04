@@ -20,6 +20,7 @@ import { ShellState } from "./state";
 import { ManifestDocs, ManifestParentSection } from "./manifests";
 import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { CredentialsModal } from './credentials.jsx';
+import { ChatBotModal } from "./ChatModal";
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
 import { superuser_proxy, SuperuserProxy, SuperuserIndicator } from "superuser-dialogs";
 import { read_os_release } from "os-release.js";
@@ -204,6 +205,15 @@ export class TopNav extends React.Component {
                               onClick={() => Dialogs.run(ActivePagesDialog, { state: this.props.state })}>
                     {_("Active pages")}
                 </DropdownItem>);
+
+        main_menu.push(
+            <Divider key="separator4" />,
+            <DropdownItem key="chat" id="chatbot" component="button"
+                          onClick={() => Dialogs.run(ChatBotModal, {})}>
+                {_("Ask Cockpit")}
+            </DropdownItem>,
+            <Divider key="separator5" />,
+        );
 
         main_menu.push(
             <DropdownItem key="creds" id="sshkeys" component="button"

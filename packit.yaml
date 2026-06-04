@@ -109,8 +109,8 @@ jobs:
 
       fix-spec-file:
         # Don't rebuild the tarball for official releases (https://github.com/packit/packit-service/issues/1505)
-        - bash -c "curl -L --fail -O https://github.com/martinpitt/${PACKIT_UPSTREAM_PACKAGE_NAME}/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
-        - bash -c "curl -L --fail -O https://github.com/martinpitt/${PACKIT_UPSTREAM_PACKAGE_NAME}/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_UPSTREAM_PACKAGE_NAME}-node-${PACKIT_PROJECT_VERSION}.tar.xz"
+        - bash -c "curl -L --fail -O https://github.com/cockpit-project/${PACKIT_UPSTREAM_PACKAGE_NAME}/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
+        - bash -c "curl -L --fail -O https://github.com/cockpit-project/${PACKIT_UPSTREAM_PACKAGE_NAME}/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_UPSTREAM_PACKAGE_NAME}-node-${PACKIT_PROJECT_VERSION}.tar.xz"
         # Extract the correct spec from the release (with correct Version and NPM Provides:)
         - bash -c "tar -xJf cockpit-${PACKIT_PROJECT_VERSION}.tar.xz cockpit-${PACKIT_PROJECT_VERSION}/tools/cockpit.spec --strip-components=2"
 

@@ -3,20 +3,25 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
+
 import cockpit from 'cockpit';
 import React from 'react';
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
+
 import { apply_modal_dialog, show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 import { has_errors, is_valid_char_name } from "./dialog-utils.js";
 
+
 const _ = cockpit.gettext;
+
 
 function RenameGroupDialogBody({ state, errors, change }) {
     const { name } = state;
+
 
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
@@ -33,31 +38,48 @@ function RenameGroupDialogBody({ state, errors, change }) {
     );
 }
 
+
 function validate_name(name) {
     if (!name)
         return _("Group name cannot be empty");
 
+    if (name == "." || name == "..")
+        return _("Group name cannot be '.' or '..'");
+
+    if (/^\d+$/.test(name))
+        return _("Group name cannot consist only of digits");
+
+    if (name[0] == '-')
+        return _("Group name cannot start with a dash");
+
     for (let i = 0; i < name.length; i++) {
+        if (name[i] == '$' && i == name.length - 1)
+            continue;
+
         if (!is_valid_char_name(name[i]))
-            return _("Group name can only consist of letters, digits, dots, dashes, and underscores");
+            return _("Group name can only contain letters, digits, underscores, dashes, dots, or a trailing dollar sign");
     }
 
     return null;
 }
 
+
 export function rename_group_dialog(group) {
     let dlg = null;
+
 
     const state = {
         name: group
     };
     let errors = { };
 
+
     function change(field, value) {
         state[field] = value;
         errors = { };
         update();
     }
+
 
     function update() {
         const props = {
@@ -66,6 +88,7 @@ export function rename_group_dialog(group) {
             body: <RenameGroupDialogBody state={state} errors={errors} change={change} />,
             variant: 'small',
         };
+
 
         const footer = {
             actions: [
@@ -84,6 +107,7 @@ export function rename_group_dialog(group) {
             ]
         };
 
+
         if (!dlg)
             dlg = show_modal_dialog(props, footer);
         else {
@@ -91,6 +115,7 @@ export function rename_group_dialog(group) {
             dlg.setFooterProps(footer);
         }
     }
+
 
     update();
 }

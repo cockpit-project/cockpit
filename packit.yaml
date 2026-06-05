@@ -102,7 +102,7 @@ jobs:
     project: "cockpit-preview"
     preserve_project: True
     # Don't rebuild the tarball for official releases (https://github.com/packit/packit-service/issues/1505)
-    actions: &official_release_actions
+    actions:
       # the PACKIT_* variables are not yet set here; this just needs to create the declared specfile_path
       post-upstream-clone:
         - cp tools/cockpit.spec .
@@ -116,7 +116,20 @@ jobs:
 
   - job: propose_downstream
     trigger: release
-    actions: *official_release_actions
+    # Don't rebuild the tarball for official releases (https://github.com/packit/packit-service/issues/1505)
+    actions:
+      # the PACKIT_* variables are not yet set here; this just needs to create the declared specfile_path
+      post-upstream-clone:
+        - cp tools/cockpit.spec .
+
+      post-modifications:
+        - |
+          bash -exc '
+          # for debugging of official runs, CLI is different from packit service
+          env | grep PACKIT
+          tar -xJf "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit-${PACKIT_PROJECT_VERSION}.tar.xz" "cockpit-*/runtime-npm-modules.txt" --strip-components=1
+          tools/fix-spec "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit.spec"
+          '
 
     dist_git_branches:
       - fedora-development

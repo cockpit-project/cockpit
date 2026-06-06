@@ -6,6 +6,7 @@
 import React from "react";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
@@ -18,7 +19,7 @@ import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
 
-export const ServicesList = ({ units, isTimer, onClearAllFilters }) => {
+export const ServicesList = ({ units, isTimer, onClearAllFilters, selectedUnitIds, onSelectUnit }) => {
     let columns;
     if (!isTimer) {
         columns = [
@@ -38,7 +39,14 @@ export const ServicesList = ({ units, isTimer, onClearAllFilters }) => {
                       gridBreakPoint={isTimer ? "grid-xl" : "grid-lg"}
                       showHeader={false}
                       id="services-list"
-                      rows={ units.map(unit => getServicesRow({ key: unit[0], isTimer, shortId: unit[0], ...unit[1] })) }
+                      rows={ units.map(unit => getServicesRow({
+                          key: unit[0],
+                          isTimer,
+                          shortId: unit[0],
+                          selectedUnitIds,
+                          onSelectUnit,
+                          ...unit[1]
+                      })) }
                       emptyComponent={<EmptyStatePanel icon={SearchIcon}
                                                        paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
                                                        action={<Button id="clear-all-filters" onClick={onClearAllFilters} isInline variant='link'>{_("Clear all filters")}</Button>}
@@ -47,7 +55,7 @@ export const ServicesList = ({ units, isTimer, onClearAllFilters }) => {
     );
 };
 
-const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, IsPinned, CombinedState, LastTriggerTime, NextRunTime, Description, isTimer }) => {
+const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, IsPinned, CombinedState, LastTriggerTime, NextRunTime, Description, isTimer, selectedUnitIds, onSelectUnit }) => {
     let displayName = shortId;
     // Remove ".service" from services as this is not necessary
     if (shortId.endsWith(".service"))
@@ -58,6 +66,7 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
     const disabled = UnitFileState && UnitFileState.includes("disabled");
     const isStatic = UnitFileState && UnitFileState == "static";
     const masked = LoadState && LoadState.includes("masked");
+    const canBulkEnable = !isTimer && UnitFileState == "disabled";
     let unitFileState;
     if (enabled || disabled)
         unitFileState = <Badge className="service-unit-file-state" isRead={!enabled}>{AutomaticStartup}</Badge>;
@@ -78,6 +87,13 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
             title: (
                 <div className='service-unit-first-column'>
                     <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                        {canBulkEnable &&
+                            <Checkbox className="service-unit-select"
+                                      id={`select-${shortId}`}
+                                      aria-label={cockpit.format(_("Select $0"), shortId)}
+                                      isChecked={selectedUnitIds?.has(shortId)}
+                                      onClick={event => event.stopPropagation()}
+                                      onChange={(_event, checked) => onSelectUnit(shortId, checked)} />}
                         <Button className='service-unit-id'
                             isInline
                             component="a"

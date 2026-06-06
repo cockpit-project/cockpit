@@ -9,6 +9,8 @@ import 'cockpit-dark-theme'; // once per page
 
 import React, { useState, useEffect } from "react";
 import { createRoot } from 'react-dom/client';
+import { Alert, AlertActionCloseButton } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Page, PageSection, } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Card, CardHeader } from "@patternfly/react-core/dist/esm/components/Card/index.js";
@@ -169,6 +171,9 @@ class ServicesPageBody extends React.Component {
             isFullyLoaded: false,
             error: null,
             pinnedUnits: [],
+            selectedUnitIds: new Set(),
+            bulkEnableError: null,
+            bulkEnableRunning: false,
         };
 
         /* data storage
@@ -247,6 +252,8 @@ class ServicesPageBody extends React.Component {
         this.onOptionsChanged = this.onOptionsChanged.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
         this.addTimerPropertiesFull = this.addTimerPropertiesFull.bind(this);
+        this.onSelectUnit = this.onSelectUnit.bind(this);
+        this.bulkEnableUnits = this.bulkEnableUnits.bind(this);
     }
 
     onOptionsChanged(options) {
@@ -262,6 +269,37 @@ class ServicesPageBody extends React.Component {
             delete currentOptions.name;
 
         cockpit.location.replace(cockpit.location.path, currentOptions);
+    }
+
+    onSelectUnit(unitId, selected) {
+        this.setState(prevState => {
+            const selectedUnitIds = new Set(prevState.selectedUnitIds);
+            if (selected)
+                selectedUnitIds.add(unitId);
+            else
+                selectedUnitIds.delete(unitId);
+
+            return { selectedUnitIds, bulkEnableError: null };
+        });
+    }
+
+    bulkEnableUnits(unitIds) {
+        if (!unitIds.length)
+            return;
+
+        this.setState({ bulkEnableRunning: true, bulkEnableError: null });
+        systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "EnableUnitFiles", [unitIds, false, false])
+                .then(() => systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "Reload", null))
+                .then(() => {
+                    this.setState(prevState => {
+                        const selectedUnitIds = new Set(prevState.selectedUnitIds);
+                        unitIds.forEach(unitId => selectedUnitIds.delete(unitId));
+
+                        return { selectedUnitIds, bulkEnableRunning: false };
+                    });
+                    this.listUnits();
+                })
+                .catch(ex => this.setState({ bulkEnableError: ex.toString(), bulkEnableRunning: false }));
     }
 
     componentDidMount() {
@@ -695,6 +733,12 @@ class ServicesPageBody extends React.Component {
             }
         });
         const activeTab = this.props.activeTab;
+        const selectedUnits = this.computeSelectedUnits();
+        const bulkEnableUnitIds = activeTab == 'service'
+            ? selectedUnits
+                    .filter(([, unit]) => unit.UnitFileState == 'disabled' && this.state.selectedUnitIds.has(unit.Id))
+                    .map(([unitId]) => unitId)
+            : [];
 
         const onClearAllFilters = () => {
             this.onOptionsChanged({
@@ -714,12 +758,22 @@ class ServicesPageBody extends React.Component {
                                             loadingUnits={this.props.isLoading}
                                             options={cockpit.location.options}
                                             onOptionsChanged={this.onOptionsChanged}
+                                            bulkEnableCount={bulkEnableUnitIds.length}
+                                            bulkEnableRunning={this.state.bulkEnableRunning}
+                                            onBulkEnable={activeTab == 'service' ? () => this.bulkEnableUnits(bulkEnableUnitIds) : null}
                         />
                     </CardHeader>
+                    {this.state.bulkEnableError &&
+                        <Alert variant="danger"
+                               isInline
+                               title={this.state.bulkEnableError}
+                               actionClose={<AlertActionCloseButton onClose={() => this.setState({ bulkEnableError: null })} />} />}
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
                                   isTimer={activeTab == 'timer'}
                                   onClearAllFilters={onClearAllFilters}
-                                  units={this.computeSelectedUnits()} />
+                                  selectedUnitIds={this.state.selectedUnitIds}
+                                  onSelectUnit={this.onSelectUnit}
+                                  units={selectedUnits} />
                 </Card>
             </PageSection>
         );
@@ -733,6 +787,9 @@ const ServicesPageFilters = ({
     options,
     onOptionsChanged,
     onClearAllFilters,
+    bulkEnableCount,
+    bulkEnableRunning,
+    onBulkEnable,
 }) => {
     const { activestate, filestate, name } = options;
 
@@ -861,7 +918,21 @@ const ServicesPageFilters = ({
                  className="pf-m-sticky-top ct-compact services-toolbar"
                  id="services-toolbar"
                  numberOfFiltersText={n => cockpit.format(_("$0 filters applied"), n)}>
-            <ToolbarContent>{toolbarItems}</ToolbarContent>
+            <ToolbarContent>
+                {toolbarItems}
+                {onBulkEnable &&
+                    <ToolbarItem>
+                        <Button id="services-bulk-enable"
+                                variant="secondary"
+                                isLoading={bulkEnableRunning}
+                                isDisabled={bulkEnableRunning || !bulkEnableCount}
+                                onClick={onBulkEnable}>
+                            {bulkEnableCount
+                                ? cockpit.format(cockpit.ngettext("Enable $0 selected service", "Enable $0 selected services", bulkEnableCount), bulkEnableCount)
+                                : _("Enable selected")}
+                        </Button>
+                    </ToolbarItem>}
+            </ToolbarContent>
         </Toolbar>
     );
 };

@@ -224,6 +224,19 @@ ExecStart=/usr/bin/true
 WantedBy=default.target
 """)
 
+        for service in ["bulk-one", "bulk-two"]:
+            self.write_file(f"{path}/{service}.service",
+                            """
+[Unit]
+Description=Bulk Enable Test Service
+
+[Service]
+ExecStart=/usr/bin/true
+
+[Install]
+WantedBy=default.target
+""")
+
         self.make_test_service(path)
 
         url = "/system/services#/?owner=user" if user else "/system/services"
@@ -253,6 +266,14 @@ WantedBy=default.target
         self.wait_service_present("special@:-characters.service")
         self.wait_service_in_panel("special@:-characters.service", "Disabled")
         self.wait_service_state("special@:-characters.service", "inactive")
+
+        self.wait_service_present("bulk-one.service")
+        self.wait_service_present("bulk-two.service")
+        b.set_checked("input[aria-label='Select bulk-one.service']", val=True)
+        b.set_checked("input[aria-label='Select bulk-two.service']", val=True)
+        b.click("#services-bulk-enable")
+        self.wait_service_in_panel("bulk-one.service", "Enabled")
+        self.wait_service_in_panel("bulk-two.service", "Enabled")
 
         # Test breadcrumb link when service id contains special characters
         self.goto_service("special@:-characters.service")

@@ -30,9 +30,7 @@ import { Dialogs, DialogResult } from "dialogs";
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 
-// @ts-expect-error: magic verbatim string import, not a JS module
 import ssh_show_default_key_sh from "./ssh-show-default-key.sh";
-// @ts-expect-error: magic verbatim string import, not a JS module
 import ssh_add_key_sh from "./ssh-add-key.sh";
 
 const _ = cockpit.gettext;

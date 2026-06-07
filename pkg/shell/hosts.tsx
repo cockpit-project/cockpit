@@ -22,7 +22,7 @@ import 'polyfills';
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { encode_location } from "./util.jsx";
 import { split_connection_string, Machine } from "./machines/machines";
-import { add_host, edit_host, connect_host, HostModalState } from "./hosts_dialog.jsx";
+import { add_host, edit_host, connect_host, HostModalState } from "./hosts_dialog";
 
 import { ShellState } from "./state";
 

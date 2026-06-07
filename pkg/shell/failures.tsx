@@ -14,7 +14,7 @@ import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { EmptyStatePanel } from "cockpit-components-empty-state";
 
-import { codes } from "./hosts_dialog.jsx";
+import { codes } from "./hosts_dialog";
 import { Machine } from "./machines/machines";
 
 const _ = cockpit.gettext;

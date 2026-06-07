@@ -19,7 +19,7 @@ import { useInit, useEvent, useOn, useLoggedInUser } from "hooks";
 import { TopNav } from "./topnav.jsx";
 import { SidebarToggle, PageNav } from "./nav.jsx";
 import { CockpitHosts, CockpitCurrentHost } from "./hosts.jsx";
-import { HostModalState, HostModal, connect_host } from "./hosts_dialog.jsx";
+import { HostModalState, HostModal, connect_host } from "./hosts_dialog";
 import { Frames } from "./frames.jsx";
 import { EarlyFailure, Disconnected, MachineTroubleshoot } from "./failures.jsx";
 
@@ -97,7 +97,8 @@ const Shell = () => {
 
     useEffect(() => {
         return state.on("connect", () => {
-            connect_host(host_modal_state, state, state.current_machine);
+            if (state.current_machine)
+                connect_host(host_modal_state, state, state.current_machine);
         });
     }, [host_modal_state, state]);
 

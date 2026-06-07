@@ -6,14 +6,14 @@
 import cockpit from "cockpit";
 
 import {
-    get_init_superuser_for_options, split_connection_string, generate_connection_string
+    get_init_superuser_for_options, split_connection_string, generate_connection_string,
+    type Machine, type Machines
 } from "./machines/machines";
 import * as credentials from "credentials";
 import ssh_show_default_key_sh from "../lib/ssh-show-default-key.sh";
 import ssh_add_key_sh from "../lib/ssh-add-key.sh";
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
@@ -36,123 +36,78 @@ import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { fmt_to_fragments } from "utils.js";
 
+import type { ShellState } from "./state";
+
 const _ = cockpit.gettext;
 
+interface ConnectionError {
+    problem?: string;
+    command?: string;
+    message?: string;
+    "host-key"?: string;
+    "host-fingerprint"?: string;
+    "auth-method-results"?: Record<string, string> | null;
+    error?: string;
+}
+
+interface HostModalProperties {
+    address?: string;
+    template?: string;
+    error_options?: ConnectionError;
+}
+
+interface HostModalStateEvents extends cockpit.EventMap {
+    changed: () => void;
+}
+
+interface HostModalStateObj {
+    state: null;
+    modal_properties: HostModalProperties | null;
+    modal_callback: ((result: string | null) => Promise<void>) | null;
+    show_modal: (properties: HostModalProperties) => Promise<string | null>;
+    close_modal: () => void;
+}
+
 export const HostModalState = () => {
-    function set_props(props, callback) {
-        self.modal_properties = props;
-        self.modal_callback = callback;
-        self.dispatchEvent("changed");
-    }
-
-    function close_modal() {
-        set_props(null, null);
-    }
-
-    function show_modal(properties) {
-        return new Promise((resolve, reject) => {
-            set_props(properties, result => { resolve(result); return Promise.resolve() });
-        });
-    }
-
-    const self = {
+    const obj: HostModalStateObj = {
         state: null,
-
+        modal_properties: null,
+        modal_callback: null,
         show_modal,
         close_modal,
     };
+    const self = cockpit.event_target<HostModalStateObj, HostModalStateEvents>(obj);
 
-    return cockpit.event_target(self);
+    function show_modal(properties: HostModalProperties) {
+        return new Promise<string | null>((resolve) => {
+            self.modal_properties = properties;
+            self.modal_callback = result => { resolve(result); return Promise.resolve() };
+            self.dispatchEvent("changed");
+        });
+    }
+
+    function close_modal() {
+        self.modal_properties = null;
+        self.modal_callback = null;
+        self.dispatchEvent("changed");
+    }
+
+    return self;
 };
 
-/* Activate and jump to a newly added machine, identified by its
-   connection string.
- */
-function jump_to_new_connection_string(shell_state, connection_string) {
-    // Get the address of the machine from its connection string
+function jump_to_new_connection_string(shell_state: ShellState, connection_string: string) {
     const addr = split_connection_string(connection_string).address;
-    // Tell the Loader that now is the time to start monitoring the
-    // manifests.
     shell_state.loader.connect(addr);
-    // Navigate to it.
     shell_state.jump({ host: addr });
 }
 
-export async function add_host(state, shell_state) {
+export async function add_host(state: ReturnType<typeof HostModalState>, shell_state: ShellState) {
     const connection_string = await state.show_modal({ });
     if (connection_string)
         jump_to_new_connection_string(shell_state, connection_string);
 }
 
-export async function edit_host(state, shell_state, machine) {
-    const { current_machine } = shell_state;
-    const connection_string = await state.show_modal({ address: machine.address });
-    if (connection_string) {
-        const addr = split_connection_string(connection_string).address;
-        if (machine == current_machine && addr != machine.address)
-            jump_to_new_connection_string(shell_state, connection_string);
-    }
-}
-
-export async function connect_host(state, shell_state, machine) {
-    // We need to trigger the loader for machines that already
-    // have state "connected". The state of a machine object
-    // survives a full shell reload, but the loader of course has
-    // no channel open for it yet. The bridge likely has the SSH
-    // connection still open, so the loader can do its job right
-    // away, like triggering the packages reload.
-    //
-    // "localhost" is a special case: we can always connect the
-    // loader without any extra credentials and we never want to
-    // show any dialogs for it.
-    //
-    if (machine.connection_string == "localhost" ||
-        machine.state == "connected" ||
-        machine.state == "connecting") {
-        shell_state.loader.connect(machine.address);
-        return machine.connection_string;
-    }
-
-    let connection_string = null;
-
-    if (machine.problem && codes[machine.problem]) {
-        // trouble shooting
-        connection_string = await state.show_modal({
-            address: machine.address,
-            template: codes[machine.problem],
-        });
-    } else if (!window.sessionStorage.getItem("connection-warning-shown")) {
-        // connect by launching into the "Connection warning" dialog.
-        connection_string = await state.show_modal({
-            address: machine.address,
-            template: "connect"
-        });
-    } else {
-        // Try to connect without any dialog
-        try {
-            await try2Connect(shell_state.machines, machine.connection_string);
-            connection_string = machine.connection_string;
-        } catch (err) {
-            // continue with troubleshooting in the dialog
-            connection_string = await state.show_modal({
-                address: machine.address,
-                template: codes[err.problem] || "change-port",
-                error_options: err,
-            });
-        }
-    }
-
-    if (connection_string) {
-        // make the rest of the shell aware that the machine is now connected
-        const parts = split_connection_string(connection_string);
-        shell_state.loader.connect(parts.address);
-        shell_state.update();
-    }
-
-    return connection_string;
-}
-
-export const codes = {
+export const codes: Record<string, string> = {
     danger: "connect",
     "no-cockpit": "not-supported",
     "not-supported": "not-supported",
@@ -166,7 +121,60 @@ export const codes = {
     "unknown-host": "unknown-host"
 };
 
-function full_address(machines_ins, address) {
+export async function edit_host(state: ReturnType<typeof HostModalState>, shell_state: ShellState, machine: Machine) {
+    const { current_machine } = shell_state;
+    const connection_string = await state.show_modal({ address: machine.address });
+    if (connection_string) {
+        const addr = split_connection_string(connection_string).address;
+        if (machine == current_machine && addr != machine.address)
+            jump_to_new_connection_string(shell_state, connection_string);
+    }
+}
+
+export async function connect_host(state: ReturnType<typeof HostModalState>, shell_state: ShellState, machine: Machine) {
+    if (machine.connection_string == "localhost" ||
+        machine.state == "connected" ||
+        machine.state == "connecting") {
+        shell_state.loader.connect(machine.address);
+        return machine.connection_string;
+    }
+
+    let connection_string = null;
+
+    if (machine.problem && codes[machine.problem]) {
+        connection_string = await state.show_modal({
+            address: machine.address,
+            template: codes[machine.problem],
+        });
+    } else if (!window.sessionStorage.getItem("connection-warning-shown")) {
+        connection_string = await state.show_modal({
+            address: machine.address,
+            template: "connect"
+        });
+    } else {
+        try {
+            await try2Connect(shell_state.machines, machine.connection_string);
+            connection_string = machine.connection_string;
+        } catch (err) {
+            const error = err as ConnectionError;
+            connection_string = await state.show_modal({
+                address: machine.address,
+                template: codes[error.problem ?? ""] || "change-port",
+                error_options: error,
+            });
+        }
+    }
+
+    if (connection_string) {
+        const parts = split_connection_string(connection_string);
+        shell_state.loader.connect(parts.address);
+        shell_state.update();
+    }
+
+    return connection_string;
+}
+
+function full_address(machines_ins: Machines, address: string) {
     const machine = machines_ins.lookup(address);
     if (machine && machine.address !== "localhost")
         return machine.connection_string;
@@ -174,20 +182,43 @@ function full_address(machines_ins, address) {
     return address;
 }
 
-function is_method_supported(methods, method) {
+function is_method_supported(methods: Record<string, string>, method: string) {
     const result = methods[method];
     return result ? result !== "no-server-support" : false;
 }
 
-function prevent_default(callback) {
-    return event => {
+function prevent_default(callback: () => void) {
+    return (event: React.FormEvent) => {
         callback();
         event.preventDefault();
         return false;
     };
 }
 
-class NotSupported extends React.Component {
+interface DialogCommonProps {
+    template: string;
+    host: string;
+    full_address: string;
+    old_address: string;
+    address_data: ReturnType<typeof split_connection_string>;
+    error_options: ConnectionError | null;
+    dialogError: string | null;
+    machines_ins: Machines;
+    onClose: () => void;
+    run: (promise: Promise<void>, failure_callback?: (ex: ConnectionError) => void) => Promise<void>;
+    setGoal: (callback: () => Promise<void>) => void;
+    setError: (error: ConnectionError | null, keep_message?: boolean) => void;
+    setAddress: (address: string) => void;
+    complete: () => void;
+}
+
+interface NotSupportedProps {
+    onClose: () => void;
+    dialogError: string | null;
+    full_address: string;
+}
+
+class NotSupported extends React.Component<NotSupportedProps> {
     render() {
         return (
             <Modal id="hosts_setup_server_dialog" isOpen
@@ -211,8 +242,21 @@ class NotSupported extends React.Component {
     }
 }
 
-class Connect extends React.Component {
-    constructor(props) {
+interface ConnectProps {
+    onClose: () => void;
+    machines_ins: Machines;
+    full_address: string;
+    host: string;
+    run: (promise: Promise<void>, failure_callback?: (ex: ConnectionError) => void) => Promise<void>;
+    setError: (error: ConnectionError | null, keep_message?: boolean) => void;
+}
+
+interface ConnectState {
+    inProgress: boolean;
+}
+
+class Connect extends React.Component<ConnectProps, ConnectState> {
+    constructor(props: ConnectProps) {
         super(props);
 
         this.state = {
@@ -221,7 +265,7 @@ class Connect extends React.Component {
     }
 
     onConnect() {
-        window.sessionStorage.setItem("connection-warning-shown", true);
+        window.sessionStorage.setItem("connection-warning-shown", "true");
         this.setState({ inProgress: true });
         this.props.run(try2Connect(this.props.machines_ins, this.props.full_address), ex => {
             let keep_message = false;
@@ -280,8 +324,31 @@ class Connect extends React.Component {
     }
 }
 
-class AddMachine extends React.Component {
-    constructor(props) {
+interface AddMachineProps {
+    full_address: string;
+    old_address: string;
+    machines_ins: Machines;
+    dialogError: string | null;
+    onClose: () => void;
+    run: (promise: Promise<void>, failure_callback?: (ex: ConnectionError) => void) => Promise<void>;
+    setGoal: (callback: () => Promise<void>) => void;
+    setError: (error: ConnectionError | null, keep_message?: boolean) => void;
+    setAddress: (address: string) => void;
+}
+
+interface AddMachineState {
+    user: string;
+    address: string;
+    color: string;
+    addressError: string;
+    inProgress: boolean;
+    old_machine: Machine | null;
+    userChanged: boolean;
+    dialogError?: string;
+}
+
+class AddMachine extends React.Component<AddMachineProps, AddMachineState> {
+    constructor(props: AddMachineProps) {
         super(props);
 
         let address_parts = null;
@@ -294,15 +361,15 @@ class AddMachine extends React.Component {
             host_address = address_parts.address;
             if (address_parts.port)
                 host_address += ":" + address_parts.port;
-            host_user = address_parts.user;
+            host_user = address_parts.user || "";
         }
 
         let color = props.machines_ins.unused_color();
-        let old_machine = null;
+        let old_machine: Machine | null = null;
         if (props.old_address)
             old_machine = props.machines_ins.lookup(props.old_address);
         if (old_machine)
-            color = this.rgb2Hex(old_machine.color);
+            color = this.rgb2Hex(old_machine.color || "");
         if (old_machine && !old_machine.visible)
             old_machine = null;
 
@@ -320,8 +387,8 @@ class AddMachine extends React.Component {
         this.onAddHost = this.onAddHost.bind(this);
     }
 
-    rgb2Hex(c) {
-        function toHex(d) {
+    rgb2Hex(c: string) {
+        function toHex(d: string) {
             return ("0" + (parseInt(d, 10).toString(16)))
                     .slice(-2);
         }
@@ -330,6 +397,7 @@ class AddMachine extends React.Component {
             return c;
 
         const colors = /rgb\((\d*), (\d*), (\d*)\)/.exec(c);
+        cockpit.assert(colors, "invalid color format");
         return "#" + toHex(colors[1]) + toHex(colors[2]) + toHex(colors[3]);
     }
 
@@ -344,9 +412,9 @@ class AddMachine extends React.Component {
                 if (machine.visible)
                     error = _("This machine has already been added.");
                 else if (!this.state.userChanged)
-                    this.setState({ user: machine.user, color: this.rgb2Hex(machine.color) });
-            } else if (this.state.old_machine && !machine && !this.state.userChanged) { // When editing host by changing its address generate new color
-                this.setState((_, prevProps) => ({ color: prevProps.machines_ins.unused_color(), userChanged: true }));
+                    this.setState({ user: machine.user || "", color: this.rgb2Hex(machine.color || "") });
+            } else if (this.state.old_machine && !machine && !this.state.userChanged) {
+                this.setState(() => ({ color: this.props.machines_ins.unused_color(), userChanged: true }));
             }
         }
 
@@ -357,8 +425,7 @@ class AddMachine extends React.Component {
 
     onAddHost() {
         const parts = split_connection_string(this.state.address);
-        // user in "User name:" field wins over user in connection string
-        const address = generate_connection_string(this.state.user || parts.user, parts.port, parts.address);
+        const address = generate_connection_string(this.state.user || parts.user || null, parts.port ? String(parts.port) : null, parts.address);
 
         if (this.onAddressChange())
             return;
@@ -369,9 +436,8 @@ class AddMachine extends React.Component {
             this.props.setError(null);
             this.setState({ inProgress: true });
             this.props.run(this.props.machines_ins.change(this.state.old_machine.key, { color: this.state.color }))
-                    .catch(ex => {
+                    .catch(() => {
                         this.setState({ inProgress: false });
-                        throw ex;
                     });
             return;
         }
@@ -381,14 +447,13 @@ class AddMachine extends React.Component {
 
         this.props.setGoal(() => {
             const parts = split_connection_string(this.state.address);
-            // user in "User name:" field wins over user in connection string
-            const address = generate_connection_string(this.state.user || parts.user, parts.port, parts.address);
+            const address = generate_connection_string(this.state.user || parts.user || null, parts.port ? String(parts.port) : null, parts.address);
 
-            return new Promise((resolve, reject) => {
+            return new Promise<void>((resolve, reject) => {
                 this.props.machines_ins.add(address, this.state.color)
                         .then(() => {
-                            // When changing address of machine, hide the old one
                             if (this.state.old_machine && this.state.old_machine != this.props.machines_ins.lookup(address)) {
+                                cockpit.assert(this.state.old_machine, "old_machine is null");
                                 this.props.machines_ins.change(this.state.old_machine.key, { visible: false })
                                         .then(resolve);
                             } else {
@@ -482,8 +547,23 @@ class AddMachine extends React.Component {
     }
 }
 
-class MachinePort extends React.Component {
-    constructor(props) {
+interface MachinePortProps {
+    machines_ins: Machines;
+    full_address: string;
+    dialogError: string | null;
+    onClose: () => void;
+    run: (promise: Promise<void>, failure_callback?: (ex: ConnectionError) => void) => Promise<void>;
+    setAddress: (address: string) => void;
+    complete: () => void;
+}
+
+interface MachinePortState {
+    port: number | undefined;
+    inProgress: boolean;
+}
+
+class MachinePort extends React.Component<MachinePortProps, MachinePortState> {
+    constructor(props: MachinePortProps) {
         super(props);
 
         const machine = props.machines_ins.lookup(props.full_address);
@@ -494,38 +574,36 @@ class MachinePort extends React.Component {
 
         this.state = {
             port: machine.port,
+            inProgress: false,
         };
 
         this.onChangePort = this.onChangePort.bind(this);
     }
 
     onChangePort() {
-        const promise = new Promise((resolve, reject) => {
+        const promise = new Promise<void>((resolve, reject) => {
             const parts = split_connection_string(this.props.full_address);
-            parts.port = this.state.port;
-            const address = generate_connection_string(parts.user, parts.port, parts.address);
-            const self = this;
+            const port = this.state.port;
+            const address = generate_connection_string(parts.user || null, port ? String(port) : null, parts.address);
 
-            function update_host(ex) {
-                self.props.setAddress(address);
-                self.props.machines_ins.change(parts.address, { port: parts.port })
+            const update_host = (ex?: ConnectionError) => {
+                this.props.setAddress(address);
+                this.props.machines_ins.change(parts.address, port !== undefined ? { port } : {})
                         .then(() => {
-                            // We failed before so try to connect again now that the machine is saved
                             if (ex) {
-                                try2Connect(self.props.machines_ins, address)
-                                        .then(self.props.complete)
+                                try2Connect(this.props.machines_ins, address)
+                                        .then(this.props.complete)
                                         .catch(reject);
                             } else {
                                 resolve();
                             }
                         })
                         .catch(ex => reject(cockpit.format(_("Failed to edit machine: $0"), cockpit.message(ex))));
-            }
+            };
 
             try2Connect(this.props.machines_ins, address)
-                    .then(update_host)
+                    .then(() => update_host())
                     .catch(ex => {
-                        // any other error means progress, so save
                         if (ex.problem !== 'no-host')
                             update_host(ex);
                         else
@@ -548,7 +626,7 @@ class MachinePort extends React.Component {
             </p>
             <Form isHorizontal onSubmit={prevent_default(callback)}>
                 <FormGroup label={_("Port")}>
-                    <TextInput id="edit-machine-port" onChange={(_event, value) => this.setState({ port: value })} />
+                    <TextInput id="edit-machine-port" onChange={(_event, value) => this.setState({ port: parseInt(value) || undefined })} />
                 </FormGroup>
             </Form>
         </>;
@@ -579,8 +657,27 @@ class MachinePort extends React.Component {
     }
 }
 
-class HostKey extends React.Component {
-    constructor(props) {
+interface HostKeyProps {
+    template: string;
+    host: string;
+    full_address: string;
+    machines_ins: Machines;
+    error_options: ConnectionError | null;
+    dialogError: string | null;
+    onClose: () => void;
+    run: (promise: Promise<void>, failure_callback?: (ex: ConnectionError) => void) => Promise<void>;
+    setError: (error: ConnectionError | null, keep_message?: boolean) => void;
+    complete: () => void;
+}
+
+interface HostKeyState {
+    inProgress: boolean;
+    verifyExpanded: boolean;
+    error_options: ConnectionError | null;
+}
+
+class HostKey extends React.Component<HostKeyProps, HostKeyState> {
+    constructor(props: HostKeyProps) {
         super(props);
 
         this.state = {
@@ -594,7 +691,7 @@ class HostKey extends React.Component {
 
     componentDidMount() {
         if (!this.props.error_options || !this.props.error_options["host-key"]) {
-            const options = {};
+            const options: Record<string, string> = {};
             let match_problem = this.props.template;
             if (this.props.template == "unknown-host") {
                 options.session = "private";
@@ -616,13 +713,14 @@ class HostKey extends React.Component {
     onAddKey() {
         this.setState({ inProgress: true });
 
+        cockpit.assert(this.state.error_options, "error_options is null");
         const key = this.state.error_options["host-key"];
+        cockpit.assert(key, "host-key is null");
         const machine = this.props.machines_ins.lookup(this.props.full_address);
         let q;
         if (!machine || machine.on_disk) {
             q = this.props.machines_ins.add_key(key);
         } else {
-            // When machine isn't saved to disk don't save the key either
             q = this.props.machines_ins.change(this.props.full_address, { host_key: key });
         }
 
@@ -644,7 +742,7 @@ class HostKey extends React.Component {
         let fp = "";
         if (this.state.error_options && this.state.error_options["host-key"]) {
             key_type = this.state.error_options["host-key"].split(" ")[1];
-            fp = this.state.error_options["host-fingerprint"];
+            fp = this.state.error_options["host-fingerprint"] || "";
         }
 
         const scan_cmd = `ssh-keyscan -t ${key_type} localhost | ssh-keygen -lf -`;
@@ -715,8 +813,46 @@ class HostKey extends React.Component {
     }
 }
 
-class ChangeAuth extends React.Component {
-    constructor(props) {
+interface DefaultSshKey {
+    name: string;
+    type?: string;
+    exists: boolean;
+    encrypted?: boolean;
+    unaligned_passphrase?: boolean;
+}
+
+interface ChangeAuthProps {
+    full_address: string;
+    machines_ins: Machines;
+    error_options: ConnectionError | null;
+    dialogError: string | null;
+    onClose: () => void;
+    run: (promise: Promise<void>, failure_callback?: (ex: ConnectionError) => void) => Promise<void>;
+    setError: (error: ConnectionError | null, keep_message?: boolean) => void;
+    complete: () => void;
+}
+
+interface ChangeAuthState {
+    auth: string;
+    auto_login: boolean;
+    custom_password: string;
+    custom_password_error: string;
+    locked_identity_password: string;
+    locked_identity_password_error: string;
+    login_setup_new_key_password: string;
+    login_setup_new_key_password_error: string;
+    login_setup_new_key_password2: string;
+    login_setup_new_key_password2_error: string;
+    user: cockpit.UserInfo | null;
+    default_ssh_key: DefaultSshKey | null;
+    identity_path: string | null;
+    inProgress: boolean;
+}
+
+class ChangeAuth extends React.Component<ChangeAuthProps, ChangeAuthState> {
+    keys: credentials.Keys | null;
+
+    constructor(props: ChangeAuthProps) {
         super(props);
 
         this.state = {
@@ -730,10 +866,10 @@ class ChangeAuth extends React.Component {
             login_setup_new_key_password_error: "",
             login_setup_new_key_password2: "",
             login_setup_new_key_password2_error: "",
-            user: "",
+            user: null,
             default_ssh_key: null,
             identity_path: null,
-            inProgress: true, // componentDidMount changes to false once loaded
+            inProgress: true,
         };
 
         this.keys = null;
@@ -749,13 +885,13 @@ class ChangeAuth extends React.Component {
     }
 
     updateIdentity() {
-        let identity_path = null;
+        let identity_path: string | null = null;
         if (this.props.error_options && this.props.error_options.error && this.props.error_options.error.startsWith("locked identity"))
             identity_path = this.props.error_options.error.split(": ")[1];
 
         const default_ssh_key = this.state.default_ssh_key;
         if (default_ssh_key && default_ssh_key.encrypted)
-            default_ssh_key.unaligned_passphrase = identity_path && identity_path === default_ssh_key.name;
+            default_ssh_key.unaligned_passphrase = identity_path !== null && identity_path === default_ssh_key.name;
 
         this.setState({ identity_path, default_ssh_key });
     }
@@ -765,7 +901,7 @@ class ChangeAuth extends React.Component {
                 .then(user =>
                     cockpit.script(ssh_show_default_key_sh, [], { })
                             .then(data => {
-                                let default_ssh_key = null;
+                                let default_ssh_key: DefaultSshKey;
                                 const info = data.split("\n");
                                 if (info[0])
                                     default_ssh_key = { name: info[0], exists: true, encrypted: info[1] === "encrypted" };
@@ -775,7 +911,7 @@ class ChangeAuth extends React.Component {
                                 return this.setState({ inProgress: false, default_ssh_key, user }, this.updateIdentity);
                             })
                 )
-                .catch(ex => { this.setState({ inProgress: false }); this.props.setError(ex) });
+                .catch(ex => { this.setState({ inProgress: false }); this.props.setError(ex as ConnectionError) });
 
         if (!this.props.error_options || this.props.error_options["auth-method-results"] === null) {
             try2Connect(this.props.machines_ins, this.props.full_address)
@@ -793,14 +929,14 @@ class ChangeAuth extends React.Component {
         this.keys = null;
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: ChangeAuthProps) {
         if (prevProps.error_options !== this.props.error_options)
             this.updateIdentity();
     }
 
     getSupports() {
-        let methods = null;
-        let available = null;
+        let methods: Record<string, string> | null | undefined = null;
+        let available: Record<string, boolean> | null = null;
 
         let offer_login_password = false;
         let offer_key_password = false;
@@ -830,31 +966,38 @@ class ChangeAuth extends React.Component {
         };
     }
 
-    maybe_create_key(passphrase) {
+    maybe_create_key(passphrase: string) {
+        cockpit.assert(this.keys, "keys is null");
+        cockpit.assert(this.state.default_ssh_key, "default_ssh_key is null");
         if (!this.state.default_ssh_key.exists)
-            return this.keys.create(this.state.default_ssh_key.name, this.state.default_ssh_key.type, passphrase);
+            return this.keys.create(this.state.default_ssh_key.name, this.state.default_ssh_key.type || "rsa", passphrase);
         else
             return Promise.resolve();
     }
 
-    authorize_key(host) {
-        return this.keys.get_pubkey(this.state.default_ssh_key.name)
-                .then(data => cockpit.script(ssh_add_key_sh, [data.trim()], { host, err: "message" }));
+    async authorize_key(host: string): Promise<void> {
+        cockpit.assert(this.keys, "keys is null");
+        cockpit.assert(this.state.default_ssh_key, "default_ssh_key is null");
+        const data = await this.keys.get_pubkey(this.state.default_ssh_key.name);
+        await cockpit.script(ssh_add_key_sh, [data.trim()], { host, err: "message" });
     }
 
     maybe_unlock_key() {
+        cockpit.assert(this.keys, "keys is null");
         const { offer_login_password, offer_key_password } = this.getSupports();
         const both = offer_login_password && offer_key_password;
 
-        if ((both && this.state.auth === "key") || (!both && offer_key_password))
+        if ((both && this.state.auth === "key") || (!both && offer_key_password)) {
+            cockpit.assert(this.state.identity_path, "identity_path is null");
             return this.keys.load(this.state.identity_path, this.state.locked_identity_password);
-        else
+        } else
             return Promise.resolve();
     }
 
     login() {
-        const options = {};
+        const options: Record<string, string | boolean> = {};
         const user = split_connection_string(this.props.full_address).user || "";
+        cockpit.assert(this.state.default_ssh_key, "default_ssh_key is null");
         const do_key_password_change = this.state.auto_login && this.state.default_ssh_key.unaligned_passphrase;
 
         let custom_password_error = "";
@@ -872,10 +1015,6 @@ class ChangeAuth extends React.Component {
             options.password = this.state.custom_password;
             options.session = 'shared';
             if (!user) {
-                /* we don't want to save the default user for everyone
-                 * so we pass current user as an option, but make sure the
-                 * session isn't private
-                 */
                 if (this.state.user && this.state.user.name)
                     options.user = this.state.user.name;
                 options["temp-session"] = false; /* Compatibility option */
@@ -917,6 +1056,8 @@ class ChangeAuth extends React.Component {
                                     return Promise.resolve();
                             })
                             .then(() => {
+                                cockpit.assert(this.keys, "keys is null");
+                                cockpit.assert(this.state.default_ssh_key, "default_ssh_key is null");
                                 if (do_key_password_change)
                                     return this.keys.change(this.state.default_ssh_key.name, this.state.locked_identity_password, this.state.login_setup_new_key_password);
                                 else if (this.state.auto_login)
@@ -943,9 +1084,6 @@ class ChangeAuth extends React.Component {
         else if (this.state.default_ssh_key.unaligned_passphrase)
             offer_key_setup = (both && this.state.auth === "key") || (!both && offer_key_password);
         else if (this.state.identity_path) {
-            // This is a locked, non-default identity that will never
-            // be loaded into the agent, so there is no point in
-            // offering to change the passphrase.
             show_password_advice = false;
             offer_key_setup = false;
         }
@@ -953,7 +1091,7 @@ class ChangeAuth extends React.Component {
         const callback = this.login;
         const title = cockpit.format(_("Log in to $0"), this.props.full_address);
         const submitText = _("Log in");
-        let statement = "";
+        let statement: React.ReactNode = "";
 
         if (!offer_login_password && !offer_key_password)
             statement = <p>{cockpit.format(_("Unable to log in to $0. The host does not accept password login or any of your SSH keys."), this.props.full_address)}</p>;
@@ -961,24 +1099,24 @@ class ChangeAuth extends React.Component {
             statement = <p>{cockpit.format(_("Unable to log in to $0 using SSH key authentication. Please provide the password. You may want to set up your SSH keys for automatic login."), this.props.full_address)}</p>;
         else if (offer_key_password && !offer_login_password)
             statement = <>
-                <p>{cockpit.format(_("The SSH key for logging in to $0 is protected by a password, and the host does not allow logging in with a password. Please provide the password of the key at $1."), this.props.full_address, this.state.identity_path)}</p>
+                <p>{cockpit.format(_("The SSH key for logging in to $0 is protected by a password, and the host does not allow logging in with a password. Please provide the password of the key at $1."), this.props.full_address, this.state.identity_path || "")}</p>
                 {show_password_advice && <span className="password-change-advice">{_("You may want to change the password of the key for automatic login.")}</span>}
             </>;
         else if (both)
             statement = <>
-                <p>{cockpit.format(_("The SSH key for logging in to $0 is protected. You can log in with either your login password or by providing the password of the key at $1."), this.props.full_address, this.state.identity_path)}</p>
+                <p>{cockpit.format(_("The SSH key for logging in to $0 is protected. You can log in with either your login password or by providing the password of the key at $1."), this.props.full_address, this.state.identity_path || "")}</p>
                 {show_password_advice && <span className="password-change-advice">{_("You may want to change the password of the key for automatic login.")}</span>}
             </>;
 
-        let auto_text = null;
-        let auto_details = null;
+        let auto_text: string | null = null;
+        let auto_details: React.ReactNode = null;
         if (this.state.default_ssh_key) {
-            const lmach = this.props.machines_ins.lookup(null);
+            const lmach = this.props.machines_ins.lookup("localhost");
             const key = this.state.default_ssh_key.name;
-            const luser = this.state.user.name;
+            const luser = this.state.user?.name || "";
             const lhost = lmach ? lmach.label || lmach.address : "localhost";
             const afile = "~/.ssh/authorized_keys";
-            const ruser = split_connection_string(this.props.full_address).user || this.state.user.name;
+            const ruser = split_connection_string(this.props.full_address).user || this.state.user?.name || "";
             const rhost = split_connection_string(this.props.full_address).address;
             if (!this.state.default_ssh_key.exists) {
                 auto_text = _("Create a new SSH key and authorize it");
@@ -1005,7 +1143,7 @@ class ChangeAuth extends React.Component {
                                 type="password" value={this.state.login_setup_new_key_password} validated={this.state.login_setup_new_key_password_error ? "error" : "default"} />
                         <FormHelper helperTextInvalid={this.state.login_setup_new_key_password_error} />
                     </FormGroup>
-                    <FormGroup label={_("Confirm new key password")} validated={this.state.login_setup_new_key_password2_error ? "error" : "default"}>
+                    <FormGroup label={_("Confirm new key password")}>
                         <TextInput id="login-setup-new-key-password2" onChange={(_event, value) => this.setState({ login_setup_new_key_password2: value })}
                                 type="password" value={this.state.login_setup_new_key_password2} validated={this.state.login_setup_new_key_password2_error ? "error" : "default"} />
 
@@ -1032,11 +1170,13 @@ class ChangeAuth extends React.Component {
                             <Radio isChecked={this.state.auth === "password"}
                                    onChange={() => this.setState({ auth: "password" })}
                                    id="auth-password"
+                                   name="auth-method"
                                    value="password"
                                    label={_("Password")} />
                             <Radio isChecked={this.state.auth === "key"}
                                    onChange={() => this.setState({ auth: "key" })}
                                    id="auth-key"
+                                   name="auth-method"
                                    value="key"
                                    label={_("SSH key")} />
                         </FormGroup>
@@ -1053,7 +1193,7 @@ class ChangeAuth extends React.Component {
                             <TextInput id="locked-identity-password" onChange={(_event, value) => this.setState({ locked_identity_password: value })}
                                     type="password" autoComplete="new-password" value={this.state.locked_identity_password} validated={this.state.locked_identity_password_error ? "error" : "default"} />
                             <FormHelper
-                                helperText={cockpit.format(_("The SSH key $0 will be made available for the remainder of the session and will be available for login to other hosts as well."), this.state.identity_path)}
+                                helperText={cockpit.format(_("The SSH key $0 will be made available for the remainder of the session and will be available for login to other hosts as well."), this.state.identity_path || "")}
                                 helperTextInvalid={this.state.locked_identity_password_error} />
                         </FormGroup>
                     }
@@ -1094,11 +1234,11 @@ class ChangeAuth extends React.Component {
     }
 }
 
-function try2Connect(machines_ins, address, options) {
-    return new Promise((resolve, reject) => {
-        const conn_options = { ...options, payload: "echo", host: address };
+function try2Connect(machines_ins: Machines, address: string, options?: Record<string, string | boolean>) {
+    return new Promise<void>((resolve, reject) => {
+        const conn_options: Record<string, unknown> = { ...options, payload: "echo", host: address };
 
-        conn_options["init-superuser"] = get_init_superuser_for_options(conn_options);
+        conn_options["init-superuser"] = get_init_superuser_for_options(conn_options as Record<string, string>);
 
         const machine = machines_ins.lookup(address);
         if (machine && machine.host_key && !machine.on_disk) {
@@ -1107,28 +1247,48 @@ function try2Connect(machines_ins, address, options) {
             conn_options['host-key'] = machine.host_key;
         }
 
-        const client = cockpit.channel(conn_options);
+        const client = cockpit.channel({ ...conn_options, binary: false } as cockpit.ChannelOpenOptions & { binary: false });
         client.send("x");
         client.addEventListener("message", () => {
             resolve();
             client.close();
         });
-        client.addEventListener("close", (event, options) => {
+        client.addEventListener("close", (_event, options) => {
             reject(options);
         });
     });
 }
 
-class HostModalInner extends React.Component {
-    constructor(props) {
+interface HostModalInnerProps {
+    machines_ins: Machines;
+    onClose: () => void;
+    caller_callback?: (address: string | null) => Promise<void>;
+    caller_cancelled?: () => void;
+    address?: string;
+    template?: string;
+    error_options?: ConnectionError;
+}
+
+interface HostModalInnerState {
+    current_template: string;
+    address: string;
+    old_address: string;
+    error_options: ConnectionError | null;
+    dialogError: string | null;
+}
+
+class HostModalInner extends React.Component<HostModalInnerProps, HostModalInnerState> {
+    promise_callback: (() => Promise<void>) | null;
+
+    constructor(props: HostModalInnerProps) {
         super(props);
 
         this.state = {
             current_template: this.props.template || "add-machine",
-            address: full_address(props.machines_ins, props.address),
-            old_address: full_address(props.machines_ins, props.address),
-            error_options: this.props.error_options,
-            dialogError: "", // Error to be shown in the modal
+            address: full_address(props.machines_ins, props.address || ""),
+            old_address: full_address(props.machines_ins, props.address || ""),
+            error_options: this.props.error_options || null,
+            dialogError: "",
         };
 
         this.promise_callback = null;
@@ -1150,12 +1310,12 @@ class HostModalInner extends React.Component {
         return host;
     }
 
-    changeContent(template, error_options, with_error_message) {
+    changeContent(template: string, error_options: ConnectionError, with_error_message: boolean) {
         if (this.state.current_template !== template)
             this.setState({
                 current_template: template,
                 error_options,
-                dialogError: with_error_message ? cockpit.message(error_options) : null,
+                dialogError: with_error_message ? cockpit.message(error_options as cockpit.JsonObject) : null,
             });
     }
 
@@ -1166,11 +1326,11 @@ class HostModalInner extends React.Component {
             this.props.onClose();
     }
 
-    setGoal(callback) {
+    setGoal(callback: () => Promise<void>) {
         this.promise_callback = callback;
     }
 
-    setError(error, keep_message_on_change) {
+    setError(error: ConnectionError | null, keep_message_on_change?: boolean) {
         if (error === null)
             return this.setState({ dialogError: null });
 
@@ -1179,38 +1339,37 @@ class HostModalInner extends React.Component {
             template = codes[error.problem];
 
         if (template && this.state.current_template !== template)
-            this.changeContent(template, error, keep_message_on_change);
+            this.changeContent(template, error, !!keep_message_on_change);
         else
-            this.setState({ error_options: error, dialogError: cockpit.message(error) });
+            this.setState({ error_options: error, dialogError: cockpit.message(error as cockpit.JsonObject) });
     }
 
-    setAddress(address) {
+    setAddress(address: string) {
         this.setState({ address });
     }
 
-    run(promise, failure_callback) {
-        return new Promise((resolve, reject) => {
-            const promise_funcs = [];
-            const self = this;
+    run(promise: Promise<void>, failure_callback?: (ex: ConnectionError) => void) {
+        return new Promise<void>((resolve) => {
+            const promise_funcs: (() => Promise<void>)[] = [];
 
-            function next(i) {
+            const next = (i: number) => {
                 promise_funcs[i]()
-                        .then(val => {
+                        .then(() => {
                             i = i + 1;
                             if (i < promise_funcs.length) {
                                 next(i);
                             } else {
                                 resolve();
-                                self.props.onClose();
+                                this.props.onClose();
                             }
                         })
-                        .catch(ex => {
+                        .catch((ex: ConnectionError) => {
                             if (failure_callback)
                                 failure_callback(ex);
                             else
-                                self.setError(ex);
+                                this.setError(ex);
                         });
-            }
+            };
 
             promise_funcs.push(() => { return promise });
 
@@ -1218,7 +1377,10 @@ class HostModalInner extends React.Component {
                 promise_funcs.push(this.promise_callback);
 
             if (this.props.caller_callback)
-                promise_funcs.push(() => this.props.caller_callback(this.state.address));
+                promise_funcs.push(() => {
+                    cockpit.assert(this.props.caller_callback, "caller_callback is null");
+                    return this.props.caller_callback(this.state.address);
+                });
 
             next(0);
         });
@@ -1227,7 +1389,7 @@ class HostModalInner extends React.Component {
     render() {
         const template = this.state.current_template;
 
-        const props = {
+        const props: DialogCommonProps = {
             template,
             host: this.addressOrLabel(),
             full_address: this.state.address,
@@ -1245,7 +1407,6 @@ class HostModalInner extends React.Component {
             setGoal: this.setGoal,
             setError: this.setError,
             setAddress: this.setAddress,
-            try2Connect: this.try2Connect,
             complete: this.complete,
         };
 
@@ -1267,21 +1428,26 @@ class HostModalInner extends React.Component {
     }
 }
 
-HostModalInner.propTypes = {
-    machines_ins: PropTypes.object.isRequired,
-    onClose: PropTypes.func.isRequired,
-    caller_callback: PropTypes.func,
-    address: PropTypes.string,
-    template: PropTypes.string,
-};
+interface HostModalProps {
+    state: ReturnType<typeof HostModalState>;
+    machines: Machines;
+}
 
-export const HostModal = ({ state, machines }) => {
+export const HostModal = ({ state, machines }: HostModalProps) => {
     if (!state.modal_properties)
         return null;
+
+    const extra: Pick<HostModalInnerProps, 'caller_callback' | 'caller_cancelled'> = {};
+    if (state.modal_callback) {
+        extra.caller_callback = state.modal_callback;
+        extra.caller_cancelled = () => {
+            cockpit.assert(state.modal_callback, "modal_callback is null");
+            state.modal_callback(null);
+        };
+    }
 
     return <HostModalInner machines_ins={machines}
                            onClose={() => state.close_modal()}
                            {...state.modal_properties}
-                           caller_callback={state.modal_callback}
-                           caller_cancelled={() => state.modal_callback(null)} />;
+                           {...extra} />;
 };

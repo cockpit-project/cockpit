@@ -42,6 +42,8 @@ declare module 'cockpit' {
 
     export const transport: Transport;
 
+    export const hint: (name: string, options: JsonObject | string) => void;
+
     /* === jQuery compatible promise ============== */
 
     export interface DeferredPromise<T> extends Promise<T> {
@@ -446,4 +448,10 @@ declare module 'cockpit' {
 
     export let localStorage: Storage;
     export let sessionStorage: Storage;
+
+    /* === Base64 ====================== */
+    function base64_encode(data: string | Array<number> | Uint8Array | ArrayBufferConstructor): string;
+
+    function base64_decode(str: string, constructor: StringConstructor): string;
+    function base64_decode(str: string, constructor?: ArrayConstructor | Uint8ArrayConstructor): Array<number>;
 }

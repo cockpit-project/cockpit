@@ -8,31 +8,34 @@ import * as ipaddr from "ipaddr.js";
 
 const _ = cockpit.gettext;
 
+type IPAddress = ipaddr.IPv4 | ipaddr.IPv6;
+
 /* NetworkManager specific data conversions and utility functions.
  */
 
-let byteorder;
+type ByteOrder = "be" | "le" | undefined;
+let byteorder: ByteOrder;
 
-export function set_byteorder(bo) {
+export function set_byteorder(bo: ByteOrder) {
     byteorder = bo;
 }
 
-export function ip_prefix_to_text(num) {
+export function ip_prefix_to_text(num: number): string {
     return num.toString();
 }
 
-export function ip_prefix_from_text(text) {
+export function ip_prefix_from_text(text: string): number {
     if (/^[0-9]+$/.test(text.trim()))
         return parseInt(text, 10);
 
     throw cockpit.format(_("Invalid prefix $0"), text);
 }
 
-export function ip_metric_to_text(num) {
+export function ip_metric_to_text(num: number): string {
     return num.toString();
 }
 
-export function ip_metric_from_text(text) {
+export function ip_metric_from_text(text: string): number {
     if (text === "")
         return 0;
 
@@ -42,7 +45,7 @@ export function ip_metric_from_text(text) {
     throw cockpit.format(_("Invalid metric $0"), text);
 }
 
-export function ip_network_address(address, prefix_len) {
+export function ip_network_address(address: IPAddress, prefix_len: number): string | null {
     const addrCIDR = address.toString() + "/" + prefix_len;
     const ip_obj = address.kind() === "ipv4" ? ipaddr.IPv4 : ipaddr.IPv6;
 
@@ -53,7 +56,7 @@ export function ip_network_address(address, prefix_len) {
     }
 }
 
-export function ip_first_usable_address(address, prefix) {
+export function ip_first_usable_address(address: IPAddress, prefix: number): string | null {
     try {
         const addr_cidr = address.toString() + "/" + prefix;
 
@@ -71,11 +74,11 @@ export function ip_first_usable_address(address, prefix) {
     }
 }
 
-function toDec(n) {
+function toDec(n: number): string {
     return n.toString(10);
 }
 
-function bytes_from_nm32(num) {
+function bytes_from_nm32(num: number): number[] {
     const bytes = [];
     if (byteorder == "be") {
         for (let i = 3; i >= 0; i--) {
@@ -93,29 +96,29 @@ function bytes_from_nm32(num) {
     return bytes;
 }
 
-export function validate_ipv4(address) {
+export function validate_ipv4(address: string): boolean {
     // explicitly require all 4 octets
     // NM does not support any IPv4 short format
     return ipaddr.IPv4.isValidFourPartDecimal(address);
 }
 
-export function validate_ipv6(address) {
+export function validate_ipv6(address: string): boolean {
     return ipaddr.IPv6.isValid(address);
 }
 
-export function validate_ip(address) {
+export function validate_ip(address: string): boolean {
     return validate_ipv4(address) || validate_ipv6(address);
 }
 
-export function ip4_to_text(num, zero_is_empty) {
+export function ip4_to_text(num: number, zero_is_empty?: boolean): string {
     if (num === 0 && zero_is_empty)
         return "";
     return bytes_from_nm32(num).map(toDec)
             .join('.');
 }
 
-export function ip4_from_text(text, empty_is_zero) {
-    function invalid() {
+export function ip4_from_text(text: string, empty_is_zero?: boolean): number {
+    function invalid(): never {
         throw cockpit.format(_("Invalid address $0"), text);
     }
 
@@ -134,7 +137,7 @@ export function ip4_from_text(text, empty_is_zero) {
     });
 
     let num = 0;
-    function shift(b) {
+    function shift(b: number) {
         if (isNaN(b) || b < 0 || b > 0xFF)
             invalid();
         num = 0x100 * num + b;
@@ -155,7 +158,7 @@ export function ip4_from_text(text, empty_is_zero) {
     return num;
 }
 
-export function ip4_prefix_from_text(prefix_mask) {
+export function ip4_prefix_from_text(prefix_mask: string): number {
     const trimmed_mask = prefix_mask.trim();
     if (/^[0-9]+$/.test(trimmed_mask)) {
         return parseInt(prefix_mask, 10);
@@ -177,8 +180,8 @@ export function ip4_prefix_from_text(prefix_mask) {
 //
 // NetworkManager already handles dropping of leadin zeros within a single 16 bit field
 // but does not replace the longest consecutive zeros fields with "::".
-function ip6_shorten(ip6_addr) {
-    function find_longest_zero(match) {
+function ip6_shorten(ip6_addr: string): string {
+    function find_longest_zero(match: RegExpMatchArray[]): number {
         let idx = -1;
         let length = 0;
 
@@ -203,12 +206,12 @@ function ip6_shorten(ip6_addr) {
 
     const longest_idx = find_longest_zero(match);
     // replace first (leftmost) match
-    const short_addr = ip6_addr.replace(match[longest_idx], "::");
+    const short_addr = ip6_addr.replace(match[longest_idx][0], "::");
 
     return short_addr;
 }
 
-export function ip6_to_text(data, zero_is_empty) {
+export function ip6_to_text(data: string, zero_is_empty?: boolean): string {
     const parts = [];
     const bytes = cockpit.base64_decode(data);
     for (let i = 0; i < 8; i++)
@@ -219,7 +222,7 @@ export function ip6_to_text(data, zero_is_empty) {
     return ip6_shorten(result);
 }
 
-export function ip6_from_text(text, empty_is_zero) {
+export function ip6_from_text(text: string, empty_is_zero?: boolean): string {
     function invalid() {
         throw cockpit.format(_("Invalid address $0"), text);
     }
@@ -267,20 +270,22 @@ export function ip6_from_text(text, empty_is_zero) {
 }
 
 // SSID comes as a base64-encoded string from D-Bus (signature 'ay')
-export const ssid_from_nm = bytes => new TextDecoder().decode(
-    new Uint8Array(cockpit.base64_decode(bytes ?? []))
+export const ssid_from_nm = (bytes: string | null | undefined): string => new TextDecoder().decode(
+    new Uint8Array(cockpit.base64_decode(bytes ?? ""))
 );
 
-export const ssid_to_nm = ssid => cockpit.base64_encode(new TextEncoder().encode(ssid));
+export const ssid_to_nm = (ssid: string): string => cockpit.base64_encode(new TextEncoder().encode(ssid));
 
 export function list_interfaces() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
         const client = cockpit.dbus("org.freedesktop.NetworkManager");
         client.call('/org/freedesktop/NetworkManager',
                     'org.freedesktop.NetworkManager',
                     'GetAllDevices', [])
-                .then(reply => {
-                    Promise.all(reply[0].map(device => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                .then((reply: any[]) => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    Promise.all(reply[0].map((device: any) => {
                         return Promise.all([
                             client.call(device,
                                         'org.freedesktop.DBus.Properties',
@@ -292,7 +297,8 @@ export function list_interfaces() {
                                     .then(reply => reply[0])
                         ]);
                     }))
-                            .then(interfaces => {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            .then((interfaces: any[]) => {
                                 client.close();
                                 resolve(interfaces.map(i => {
                                     return { device: i[0].v, capabilities: i[1].v };
@@ -311,7 +317,9 @@ export function list_interfaces() {
 // on top of this, remove the multiconnection settings and assign it directly
 // to interface. This is done for Anaconda in order to avoid creating unexpected
 // multiconnections when user modifies the connection during installation.
-export function isNonPersistentMultiCon(connection) {
+//
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isNonPersistentMultiCon(connection: any): boolean {
     const settings = connection?.Settings;
     if (settings &&
         settings.connection.interface_name === undefined &&
@@ -325,7 +333,8 @@ export function isNonPersistentMultiCon(connection) {
     return false;
 }
 
-export function createNewConnSettings(settings, iface_name) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createNewConnSettings(settings: any, iface_name: string) {
     const newSettings = {
         ...settings,
         connection: {
@@ -342,7 +351,8 @@ export function createNewConnSettings(settings, iface_name) {
     return newSettings;
 }
 
-export function debug() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debug(...args: any[]): void {
     if (window.debugging == "all" || window.debugging?.includes("networkmanager")) // not-covered: debugging
-        console.debug("networkmanager:", ...arguments); // not-covered: debugging
+        console.debug("networkmanager:", ...args); // not-covered: debugging
 }

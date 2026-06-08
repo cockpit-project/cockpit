@@ -200,7 +200,7 @@ img.pixelcompare-before, img.pixelcompare-after {
   background: none;
   position: absolute;
   z-index: 999;
-  border-right: 1px dashed rgba(255, 255, 255, 0.5);
+  border-right: 1px dashed rgba(0, 0, 0, 0.5);
 }
 
 .pixelcompare-horizontal .pixelcompare-handle:after {
@@ -211,7 +211,7 @@ img.pixelcompare-before, img.pixelcompare-after {
   background: none;
   position: absolute;
   z-index: 999;
-  border-right: 1px dashed rgba(255, 255, 255, 0.5);
+  border-right: 1px dashed rgba(0, 0, 0, 0.5);
 }
 
 
@@ -222,7 +222,7 @@ img.pixelcompare-before, img.pixelcompare-after {
   background: none;
   position: absolute;
   z-index: 999;
-  border-top: 1px dashed rgba(255, 255, 255, 0.5);
+  border-top: 1px dashed rgba(0, 0, 0, 0.5);
   right: 50%;
   margin-right: 33px;
 }
@@ -233,7 +233,7 @@ img.pixelcompare-before, img.pixelcompare-after {
   background: none;
   position: absolute;
   z-index: 999;
-  border-top: 1px dashed rgba(255, 255, 255, 0.5);
+  border-top: 1px dashed rgba(0, 0, 0, 0.5);
   left: 50%;
   margin-left: 33px;
 }
@@ -579,7 +579,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <p>New <a id="new"></a> on the left, reference on the right.</p>
       <div id="diff">
       </div>
-      <h2>Changed pixels in red, ignored changes in green</h2>
+      <h2>Changed pixels in red, ignored changes in green, ignored anti-aliasing changes is in yellow/orange</h2>
       <div id="delta">
       </div>
     </body>

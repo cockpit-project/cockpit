@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2026 Red Hat, Inc.
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ */
+
+.file-chooser-body {
+    display: grid;
+    grid-template-columns: minmax(15em, auto) 1fr;
+    grid-template-rows: auto auto 1fr;
+    column-gap: var(--pf-t--global--spacer--md);
+    row-gap: var(--pf-t--global--spacer--md);
+    block-size: 60ex;
+}
+
+.file-chooser-sidebar {
+    grid-column: 1 / 2;
+    grid-row: 1 / 4;
+    overflow-y: scroll;
+    border-inline-end: solid 2px var(--pf-t--global--background--color--disabled--default);
+    padding-inline-end: var(--pf-t--global--spacer--md);
+}
+
+.file-chooser-listing-header {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+}
+
+.file-chooser-listing-header > div {
+    block-size: 100%;
+}
+
+.file-chooser-listing-breadcrumbs {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    /* align left of breadcrumb with left of table content */
+    padding-inline-start: var(--pf-t--global--spacer--inset--page-chrome);
+}
+
+.file-chooser-listing-body {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
+    overflow-y: scroll;
+}
+
+@media (width < 768px) {
+    .file-chooser-body {
+        grid-template-columns: 0 1fr;
+    }
+
+    .file-chooser-sidebar {
+        display: none;
+    }
+}
+
+@media (width >= 768px) {
+    .file-chooser-kebab {
+        display: none;
+    }
+}
+
+.pf-v6-c-table tr.file-chooser-selected:where(.pf-v6-c-table__tr) > :where(th, td) {
+    background: var(--pf-t--global--color--nonstatus--blue--default);
+    color: black;
+}

@@ -15,6 +15,7 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import { PatternDialogBody } from "./react-demo-dialog";
 import { FileAcDemo, FileAcDemoPreselected } from "./react-demo-file-autocomplete";
+import { FileChooserDemo } from "./react-demo-file-chooser";
 import { TypeaheadDemo } from "./react-demo-typeahead";
 import { MultiTypeaheadDemo } from "./react-demo-multi-typeahead";
 import { CardsDemo } from "./react-demo-cards";
@@ -120,6 +121,13 @@ const ReactPatterns = () => {
                 </div>
                 <div id="demo-file-ac-preselected" style={narrow}>
                     <FileAcDemoPreselected />
+                </div>
+            </PageSection>
+
+            <PageSection id="demo-file-chooser">
+                <h3>Choose file</h3>
+                <div style={narrow}>
+                    <FileChooserDemo />
                 </div>
             </PageSection>
 

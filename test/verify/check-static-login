@@ -217,6 +217,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m = self.machine
         b = self.browser
 
+        # Allow cockpit-session to record and report bad logins even
+        # on OSes that don't use /var/log/btmp anymore.
+        m.execute("touch /var/log/btmp")
+
         def assert_messages(has_last, n_fail):
             if has_last:
                 b.wait_in_text('#system_last_login', "Last successful login")

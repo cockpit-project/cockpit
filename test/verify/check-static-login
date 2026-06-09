@@ -264,11 +264,16 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.try_login('admin', 'xyz')
         b.wait_text("#login-error-title", "Authentication failed")
 
-        # We should see those bogus attempts now
-        verify_correct(has_last=False, n_fail=3)
-
-        # But after that login, they should be gone again
-        verify_correct(has_last=True, n_fail=0)
+        # Some OSes are getting rid of /var/log/btmp, which means
+        # Cockpit will not report failed login attempts.
+        if m.execute("test -f /var/log/btmp || echo no").strip() != "no":
+            # We should see those bogus attempts now
+            verify_correct(has_last=False, n_fail=3)
+            # But after that login, they should be gone again
+            verify_correct(has_last=True, n_fail=0)
+        else:
+            # The failed attempts are not shown.
+            verify_correct(has_last=True, n_fail=0)
 
     @testlib.skipImage("Arch Linux has no pwquality by default", "arch")
     @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")

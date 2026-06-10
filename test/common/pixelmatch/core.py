@@ -5,8 +5,8 @@
 from collections.abc import Collection
 from typing import Optional
 
-from .types import ImageSequence, MutableImageSequence, RGBTuple
-from .utils import antialiased, color_delta, draw_gray_pixel, draw_pixel
+from .types import ImageArea, ImageSequence, MutableImageSequence, RGBTuple
+from .utils import antialiased, color_delta, draw_gray_pixel, draw_pixel, ignorable_coord
 
 
 def pixelmatch(
@@ -22,6 +22,8 @@ def pixelmatch(
     diff_color: RGBTuple = (255, 0, 0),
     diff_mask: bool = False,
     fail_fast: bool = False,
+    masked_areas: Collection[ImageArea] = [],
+    masked_areas_color: RGBTuple = (0, 255, 0)
 ) -> int:
     """
     Compares two images, writes the output diff and returns the number of mismatched pixels.
@@ -44,6 +46,9 @@ def pixelmatch(
     :param diff_mask: whether or not to draw the diff over a transparent background (a mask),
         defaults to False
     :param fail_fast: if true, will return after first different pixel. Defaults to false
+    :param masked_areas: collection of areas to ignore in (x, y, x_delta, y_delta)
+    :param masked_areas_color: tuple of RGB color of masked out pixels in diff output,
+        defaults to (0, 255, 0) (green)
     :return: number of pixels that are different or 1 if fail_fast == true
     """
 
@@ -74,6 +79,7 @@ def pixelmatch(
     diff = 0
     aaR, aaG, aaB = aa_color
     diffR, diffG, diffB = diff_color
+    maskR, maskG, maskB = masked_areas_color
 
     # compare each pixel of one image against the other one
     for y in range(height):
@@ -94,12 +100,20 @@ def pixelmatch(
                     if output and not diff_mask:
                         draw_pixel(output, pos, aaR, aaG, aaB)
                 else:
-                    # found substantial difference not caused by anti-aliasing; draw it as red
-                    if output:
-                        draw_pixel(output, pos, diffR, diffG, diffB)
-                    if fail_fast:
-                        return 1
-                    diff += 1
+
+                    # ignore masked coords
+                    if (
+                        ignorable_coord(x, y, masked_areas)
+                    ):
+                        if output:
+                            draw_pixel(output, pos, maskR, maskG, maskB)
+                    else:
+                        # found substantial difference not caused by anti-aliasing; draw it as red
+                        if output:
+                            draw_pixel(output, pos, diffR, diffG, diffB)
+                        if fail_fast:
+                            return 1
+                        diff += 1
 
             elif output:
                 # pixels are similar; draw background as grayscale image blended with white

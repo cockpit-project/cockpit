@@ -4,6 +4,8 @@
 
 from collections.abc import Collection
 
+from .types import ImageArea, ImageSequence, MutableImageSequence
+
 
 def antialiased(img: ImageSequence, x1: int, y1: int, width: int, height: int, img2: ImageSequence) -> bool:
     """
@@ -26,7 +28,7 @@ def antialiased(img: ImageSequence, x1: int, y1: int, width: int, height: int, i
                 continue
 
             # brightness delta between the center pixel and adjacent one
-            delta = color_delta(img, img, pos, (y * width + x) * 4, True)
+            delta = color_delta(img, img, pos, (y * width + x) * 4, y_only=True)
 
             # count the number of equal, darker and brighter adjacent pixels
             if delta == 0:
@@ -160,3 +162,10 @@ def draw_gray_pixel(img: ImageSequence, i: int, alpha: float, output: MutableIma
     b = img[i + 2]
     val = blend(rgb2y(r, g, b), alpha * img[i + 3] / 255)
     draw_pixel(output, i, val, val, val)
+
+
+def ignorable_coord(x: int, y: int, masked_areas: Collection[ImageArea]) -> bool:
+    for (x0, y0, x1, y1) in masked_areas:
+        if x >= x0 - 2 and x < x1 + 2 and y >= y0 - 2 and y < y1 + 2:
+            return True
+    return False

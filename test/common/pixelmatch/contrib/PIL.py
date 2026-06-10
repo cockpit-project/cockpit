@@ -3,13 +3,14 @@
 # SPDX-License-Identifier: ISC
 """Functions to facilitate direct comparison of PIL.Image instances"""
 
+from collections.abc import Collection
 from typing import Optional
 
 import PIL.Image
 from PIL.Image import Image
 
 from pixelmatch import core
-from pixelmatch.types import RGBTuple
+from pixelmatch.types import ImageArea, RGBTuple
 
 
 def pixelmatch(
@@ -23,6 +24,8 @@ def pixelmatch(
     diff_color: RGBTuple = (255, 0, 0),
     diff_mask: bool = False,
     fail_fast: bool = False,
+    masked_areas: Collection[ImageArea] = [],
+    masked_areas_color: RGBTuple = (0, 255, 0),
 ) -> int:
     """
     Compares two images, writes the output diff and returns the number of mismatched pixels.
@@ -43,6 +46,9 @@ def pixelmatch(
     :param diff_mask: whether or not to draw the diff over a transparent background (a mask),
         defaults to False
     :param fail_fast: if true, will return after first different pixel. Defaults to false
+    :param masked_areas: collection of areas to ignore in (x, y, x_delta, y_delta)
+    :param masked_areas_color: tuple of RGB color of masked out pixels in diff output,
+        defaults to (0, 255, 0) (green)
     :return: number of pixels that are different or 1 if fail_fast == true
     """
     width, height = img1.size
@@ -76,6 +82,8 @@ def pixelmatch(
         diff_color=diff_color,
         diff_mask=diff_mask,
         fail_fast=fail_fast,
+        masked_areas=masked_areas,
+        masked_areas_color=masked_areas_color,
     )
 
     if output_data is not None and output is not None:

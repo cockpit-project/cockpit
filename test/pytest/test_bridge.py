@@ -1188,7 +1188,7 @@ class FsInfoClient:
     ) -> 'FsInfoClient':
         channel = await transport.check_open('fsinfo', path=str(path), attrs=attrs,
                                              fnmatch=fnmatch, reply_keys=None,
-                                             absent_keys=(), **kwargs)
+                                             absent_keys=(), **kwargs)  # type: ignore[arg-type]
         return cls(transport, channel)
 
     async def next_state(self) -> JsonObject:

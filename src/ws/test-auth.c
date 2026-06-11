@@ -9,7 +9,9 @@
 #include "cockpitws.h"
 
 #include "common/cockpitconf.h"
+#include "common/cockpithex.h"
 #include "cockpiterror.h"
+#include "cockpitwebservice.h"
 #include "cockpitwebrequest-private.h"
 
 #include "websocket.h"
@@ -17,7 +19,9 @@
 #include "testlib/cockpittest.h"
 #include "testlib/mock-auth.h"
 
+#include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 /* Mock override these from other files */
 extern const gchar *cockpit_config_file;
@@ -149,6 +153,131 @@ static const UserpassFixture fixture_superuser_any = {
   .superuser_mode = "any",
   .expect_stored_password = TRUE
 };
+
+static gboolean
+lookup_domain_user_uid (const gchar *user,
+                        uid_t *uid)
+{
+  if (g_str_equal (user, "user") ||
+      g_str_equal (user, "User@DOMAIN.LOCAL") ||
+      g_str_equal (user, "user@domain.local") ||
+      g_str_equal (user, "user@DOMAIN.LOCAL"))
+    {
+      *uid = 1000;
+      return TRUE;
+    }
+
+  if (g_str_equal (user, "other@DOMAIN.LOCAL"))
+    {
+      *uid = 1001;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+lookup_uid_should_not_be_called (const gchar *user,
+                                 uid_t *uid)
+{
+  (void) user;
+  (void) uid;
+  g_assert_not_reached ();
+  return FALSE;
+}
+
+static void
+test_authorize_user_exact_match (void)
+{
+  char *subject = cockpit_hex_encode ("user@domain.local", -1);
+
+  g_assert_true (cockpit_web_service_authorize_user_matches_subject ("user@domain.local",
+                                                                     subject,
+                                                                     lookup_uid_should_not_be_called));
+  free (subject);
+}
+
+static void
+test_authorize_user_same_uid_uppercase_domain_subject (void)
+{
+  char *subject = cockpit_hex_encode ("user@DOMAIN.LOCAL", -1);
+
+  g_assert_true (cockpit_web_service_authorize_user_matches_subject ("user@domain.local",
+                                                                     subject,
+                                                                     lookup_domain_user_uid));
+  free (subject);
+}
+
+static void
+test_authorize_user_same_uid_lowercase_subject (void)
+{
+  char *subject = cockpit_hex_encode ("user@domain.local", -1);
+
+  g_assert_true (cockpit_web_service_authorize_user_matches_subject ("User@DOMAIN.LOCAL",
+                                                                     subject,
+                                                                     lookup_domain_user_uid));
+  free (subject);
+}
+
+static void
+test_authorize_user_same_uid_short_login (void)
+{
+  char *subject = cockpit_hex_encode ("user@DOMAIN.LOCAL", -1);
+
+  g_assert_true (cockpit_web_service_authorize_user_matches_subject ("user",
+                                                                     subject,
+                                                                     lookup_domain_user_uid));
+  free (subject);
+}
+
+static void
+test_authorize_user_different_uid (void)
+{
+  char *subject = cockpit_hex_encode ("other@DOMAIN.LOCAL", -1);
+
+  g_assert_false (cockpit_web_service_authorize_user_matches_subject ("user@domain.local",
+                                                                      subject,
+                                                                      lookup_domain_user_uid));
+  free (subject);
+}
+
+static void
+test_authorize_user_no_lookup_mismatch (void)
+{
+  char *subject = cockpit_hex_encode ("user@DOMAIN.LOCAL", -1);
+
+  g_assert_false (cockpit_web_service_authorize_user_matches_subject ("user@domain.local",
+                                                                      subject,
+                                                                      NULL));
+  free (subject);
+}
+
+static void
+test_authorize_user_unresolved_mismatch (void)
+{
+  char *subject = cockpit_hex_encode ("abstract@DOMAIN.LOCAL", -1);
+
+  g_assert_false (cockpit_web_service_authorize_user_matches_subject ("abstract@domain.local",
+                                                                      subject,
+                                                                      lookup_domain_user_uid));
+  free (subject);
+}
+
+static void
+test_authorize_user_invalid_subject (void)
+{
+  g_assert_false (cockpit_web_service_authorize_user_matches_subject ("user@domain.local",
+                                                                      "zz",
+                                                                      lookup_domain_user_uid));
+}
+
+static void
+test_authorize_user_nul_subject (void)
+{
+  g_assert_false (cockpit_web_service_authorize_user_matches_subject ("user",
+                                                                      "757365720078",
+                                                                      lookup_domain_user_uid));
+}
 
 static void
 test_userpass_cookie_check (Test *test,
@@ -1253,6 +1382,15 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/auth/application", Test, NULL, NULL, test_application, NULL);
+  g_test_add_func ("/auth/authorize-user/exact-match", test_authorize_user_exact_match);
+  g_test_add_func ("/auth/authorize-user/same-uid-uppercase-domain-subject", test_authorize_user_same_uid_uppercase_domain_subject);
+  g_test_add_func ("/auth/authorize-user/same-uid-lowercase-subject", test_authorize_user_same_uid_lowercase_subject);
+  g_test_add_func ("/auth/authorize-user/same-uid-short-login", test_authorize_user_same_uid_short_login);
+  g_test_add_func ("/auth/authorize-user/different-uid", test_authorize_user_different_uid);
+  g_test_add_func ("/auth/authorize-user/no-lookup-mismatch", test_authorize_user_no_lookup_mismatch);
+  g_test_add_func ("/auth/authorize-user/unresolved-mismatch", test_authorize_user_unresolved_mismatch);
+  g_test_add_func ("/auth/authorize-user/invalid-subject", test_authorize_user_invalid_subject);
+  g_test_add_func ("/auth/authorize-user/nul-subject", test_authorize_user_nul_subject);
   g_test_add ("/auth/userpass-header-check", Test, NULL, setup, test_userpass_cookie_check, teardown);
   g_test_add ("/auth/userpass-store-check", Test, &fixture_superuser_any, setup, test_userpass_cookie_check, teardown);
   g_test_add ("/auth/userpass-bad", Test, NULL, setup, test_userpass_bad, teardown);

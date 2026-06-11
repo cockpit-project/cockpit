@@ -1356,7 +1356,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         redis_service = redisService(m.image)
         redis_package = "valkey" if redis_service == "valkey" else "redis"
         extra_packages = []
-        if redis_package == "valkey" and m.image.startswith("fedora"):
+        if redis_package == "valkey" and (m.image.startswith("fedora") or m.image.startswith("rhel-10")):
             # Fedora has a compat package that we need to
             # remove at the same time as valkey.
             # Fedora split out valkey to more packages as

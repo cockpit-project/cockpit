@@ -14,7 +14,7 @@ import sys
 import unittest.mock
 from collections import deque
 from pathlib import Path
-from typing import AsyncGenerator, Dict, Generator, Iterator, Sequence, Union
+from typing import Any, AsyncGenerator, Dict, Generator, Iterator, Sequence, Union
 
 import pytest
 import pytest_asyncio
@@ -24,7 +24,7 @@ from cockpit.bridge import Bridge
 from cockpit.channel import AsyncChannel, Channel, ChannelRoutingRule
 from cockpit.channels import CHANNEL_TYPES
 from cockpit.channels.filesystem import tag_from_path
-from cockpit.jsonutil import JsonDict, JsonObject, JsonValue, get_bool, get_dict, get_int, get_str, json_merge_patch
+from cockpit.jsonutil import JsonDict, JsonObject, get_bool, get_dict, get_int, get_str, json_merge_patch
 from cockpit.packages import BridgeConfig
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
@@ -1184,7 +1184,7 @@ class FsInfoClient:
             path: 'str | Path',
             attrs: Sequence[str] = ('type', 'target'),
             fnmatch: str = '*.txt',
-            **kwargs: JsonValue
+            **kwargs: Any,
     ) -> 'FsInfoClient':
         channel = await transport.check_open('fsinfo', path=str(path), attrs=attrs,
                                              fnmatch=fnmatch, reply_keys=None,

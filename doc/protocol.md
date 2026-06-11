@@ -779,14 +779,10 @@ You may also specify these options:
 
 The TLS object can have the following options:
 
- * "certificate": The client certificate to use, represented as an
-   object described below.
- * "key": The client key to use, described below.
  * "authority": Certificate authority(s) to expect as signers of peer.
  * "validate": Validate the peer's certificate.
 
-The "certificate", "key" and "authority" are objects with either of
-the following fields:
+The "authority" is an object with either of the following fields:
 
  * "file": String with a file name
  * "data": String with PEM encoded data

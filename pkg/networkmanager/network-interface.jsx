@@ -21,7 +21,7 @@ import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchIn
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
-import { SortByDirection } from '@patternfly/react-table';
+import { ActionsColumn, SortByDirection } from '@patternfly/react-table';
 import {
     ConnectedIcon,
     DisconnectedIcon,
@@ -224,6 +224,8 @@ export const NetworkInterfacePage = ({
     const [isScanning, setIsScanning] = useState(false);
     const [prevAPCount, setPrevAPCount] = useState(0);
     const [networkSearch, setNetworkSearch] = useState("");
+
+    const anaconda = in_anaconda_mode();
 
     const dev_name = iface.Name;
     const dev = iface.Device;
@@ -432,7 +434,14 @@ export const NetworkInterfacePage = ({
             mac_desc = mac;
         }
 
-        return mac_desc;
+        return (
+            <DescriptionListGroup id="network-interface-mac">
+                <DescriptionListTerm>{_("MAC")}</DescriptionListTerm>
+                <DescriptionListDescription data-label="Carrier">
+                    { mac_desc }
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+        );
     }
 
     function renderCarrierStatusRow() {
@@ -980,47 +989,49 @@ export const NetworkInterfacePage = ({
                 );
             } else {
                 actionColumn = (
-                    <>
-                        <Privileged allowed={privileged}
-                                    tooltipId={"wifi-connect-" + index}
-                                    excuse={_("Not permitted to connect to network")}>
-                            <Button variant="secondary"
-                                    size="sm"
-                                    icon={<ConnectedIcon />}
-                                    isDisabled={!privileged}
-                                    onClick={() => connectToAP(ap)}
-                                    aria-label={_("Connect")}>
-                                {_("Connect")}
-                            </Button>
-                        </Privileged>
-                        {ap.Connection && (
-                            <>
-                                {" "}
-                                <KebabDropdown
-                                    toggleButtonId={"wifi-kebab-" + index}
-                                    isDisabled={!privileged}
-                                    dropdownItems={[
-                                        <DropdownItem key="forget"
-                                                      className="pf-m-danger"
-                                                      onClick={() => forgetNetwork(ap)}
-                                                      aria-label={_("Forget")}>
-                                            {_("Forget")}
-                                        </DropdownItem>
-                                    ]} />
-                            </>
-                        )}
-                    </>
+                    <Privileged allowed={privileged}
+                                tooltipId={"wifi-connect-" + index}
+                                excuse={_("Not permitted to connect to network")}>
+                        <Button variant="secondary"
+                                size="sm"
+                                icon={<ConnectedIcon />}
+                                isDisabled={!privileged}
+                                onClick={() => connectToAP(ap)}
+                                aria-label={_("Connect")}>
+                            {_("Connect")}
+                        </Button>
+                    </Privileged>
                 );
             }
+            let rowActions = <></>;
+            if (ap.Connection) {
+                rowActions = <ActionsColumn
+                    items={[
+                        {
+                            title: _("Forget"),
+                            onClick: () => forgetNetwork(ap),
+                            isDanger: true,
+                            "aria-label": _("Forget")
+                        }
+                    ]}
+                    isDisabled={!privileged}
+                />
+            }
+
+            const networkColumns = [
+                { title: nameColumn, sortKey: ap.Ssid, header: true },
+                { title: <>{securityIcon} {ap.Mode}</>, sortKey: ap.Mode },
+                { title: signalColumn, sortKey: String(ap.Strength).padStart(3, '0') },
+            ];
+            if (!anaconda) {
+                networkColumns.push({ title: cockpit.format_bits_per_sec(ap.MaxBitrate * 1000) });
+            }
+            networkColumns.push({ title: <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}><FlexItem>{actionColumn}</FlexItem></Flex>, props: { hasAction: true } });
+            networkColumns.push({ title: rowActions, props: { isActionCell: true } });
+
 
             return {
-                columns: [
-                    { title: nameColumn, sortKey: ap.Ssid, header: true },
-                    { title: <>{securityIcon} {ap.Mode}</>, sortKey: ap.Mode },
-                    { title: signalColumn, sortKey: String(ap.Strength).padStart(3, '0') },
-                    { title: cockpit.format_bits_per_sec(ap.MaxBitrate * 1000) },
-                    { title: actionColumn },
-                ],
+                columns: networkColumns,
                 props: { key: ap.HwAddress, "data-ssid": ap.Ssid, "data-known": !!ap.Connection }
             };
         });
@@ -1028,17 +1039,37 @@ export const NetworkInterfacePage = ({
         // Add aggregated hidden access points row at the bottom
         if (dev.hiddenAPCount > 0) {
             const hiddenLabel = cockpit.ngettext("$0 hidden network", "$0 hidden networks", dev.hiddenAPCount);
+
+            const networkHiddenColumns = [
+                { title: cockpit.format(hiddenLabel, dev.hiddenAPCount), sortKey: "zzz-hidden", header: true },
+                { title: "" },
+                { title: "" },
+                { title: "" },
+                { title: "" },
+            ];
+
+            if (!anaconda) {
+                networkHiddenColumns.push({ title: "" });
+            }
+            networkHiddenColumns.push({ title: "" });
+
+
             rows.push({
-                columns: [
-                    { title: cockpit.format(hiddenLabel, dev.hiddenAPCount), sortKey: "zzz-hidden", header: true },
-                    { title: "" },
-                    { title: "" },
-                    { title: "" },
-                    { title: "" },
-                ],
+                columns: networkHiddenColumns,
                 props: { key: "hidden-networks", "data-hidden": true }
             });
         }
+
+        const listingColumns = [
+            { title: _("Network"), header: true, sortable: true },
+            { title: _("Mode") },
+            { title: _("Signal"), sortable: true },
+        ];
+
+        if (!anaconda) {
+            listingColumns.push({ title: _("Rate") });
+        }
+        listingColumns.push({ title: "", props: { screenReaderText: _("Actions") } });
 
         return (
             <Card isPlain id="network-interface-wifi-networks">
@@ -1077,13 +1108,7 @@ export const NetworkInterfacePage = ({
                 </CardHeader>
                 <ListingTable aria-label={_("Available networks")}
                               variant='compact'
-                              columns={[
-                                  { title: _("Network"), header: true, sortable: true },
-                                  { title: _("Mode") },
-                                  { title: _("Signal"), sortable: true },
-                                  { title: _("Rate") },
-                                  { title: "", props: { screenReaderText: _("Actions") } },
-                              ]}
+                              columns={listingColumns}
                               sortBy={{ index: 2, direction: SortByDirection.asc }}
                               sortMethod={networkSort}
                               rows={rows} />
@@ -1112,7 +1137,7 @@ export const NetworkInterfacePage = ({
         };
 
         const cs = con && connection_settings(con);
-        if (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge")) {
+        if (plot_state && (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge"))) {
             plot_state.plot_instances('rx', rx_plot_data, [dev_name], true);
             plot_state.plot_instances('tx', tx_plot_data, [dev_name], true);
             return null;
@@ -1120,7 +1145,7 @@ export const NetworkInterfacePage = ({
 
         const plot_ifaces = [];
 
-        con.Members.forEach(member_con => {
+        con && con.Members.forEach(member_con => {
             member_con.Interfaces.forEach(iface => {
                 if (iface.MainConnection != member_con)
                     return;
@@ -1140,8 +1165,10 @@ export const NetworkInterfacePage = ({
             });
         });
 
-        plot_state.plot_instances('rx', rx_plot_data, plot_ifaces, true);
-        plot_state.plot_instances('tx', tx_plot_data, plot_ifaces, true);
+        if (plot_state) {
+            plot_state.plot_instances('rx', rx_plot_data, plot_ifaces, true);
+            plot_state.plot_instances('tx', tx_plot_data, plot_ifaces, true);
+        }
 
         const sorted_members = Object.keys(members).sort()
                 .map(name => members[name]);
@@ -1208,12 +1235,11 @@ export const NetworkInterfacePage = ({
     const settingsRows = renderConnectionSettingsRows(iface.MainConnection, connectionSettings)
             .map((component, idx) => <React.Fragment key={idx}>{component}</React.Fragment>);
 
-    const anaconda = in_anaconda_mode();
-
     return (
         <Page id="network-interface"
               data-test-wait={operationInProgress}
               className={"pf-m-no-sidebar" + (anaconda ? " anaconda" : "")}>
+            { !anaconda ? (
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to='#/'>
@@ -1224,9 +1250,12 @@ export const NetworkInterfacePage = ({
                     </BreadcrumbItem>
                 </Breadcrumb>
             </PageBreadcrumb>
-            <PageSection hasBodyWrapper={false}>
-                <NetworkPlots plot_state={plot_state} />
-            </PageSection>
+            ) : <></> }
+            { plot_state &&
+                <PageSection hasBodyWrapper={false}>
+                    <NetworkPlots plot_state={plot_state} />
+                </PageSection>
+            }
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
                     <Card isPlain className="network-interface-details">
@@ -1246,12 +1275,12 @@ export const NetworkInterfacePage = ({
                             <CardTitle className="network-interface-details-title">
                                 <span id="network-interface-name">{dev_name}</span>
                                 <span id="network-interface-hw">{renderDesc()}</span>
-                                <span id="network-interface-mac">{renderMac()}</span>
                             </CardTitle>
                         </CardHeader>
                         <CardBody>
                             <DescriptionList id="network-interface-settings" className="network-interface-settings pf-m-horizontal-on-sm">
                                 {renderActiveStatusRow()}
+                                {renderMac()}
                                 {renderCarrierStatusRow()}
                                 {settingsRows}
                             </DescriptionList>
@@ -1264,7 +1293,7 @@ export const NetworkInterfacePage = ({
                         }
                     </Card>
                     {renderWiFiNetworks()}
-                    {renderConnectionMembers(iface.MainConnection)}
+                    { !anaconda && renderConnectionMembers(iface.MainConnection)}
                 </Gallery>
             </PageSection>
         </Page>

@@ -186,6 +186,9 @@ export function transaction(method, arglist, signalHandlers, notifyHandler) {
 
                 const watchPromise = watchTransaction(transactionPath, signalHandlers, notifyHandler) || Promise.resolve();
                 return watchPromise.then(() => {
+                    // FIX: force set cache to 24h as some PK backends like dnf4 doesn't
+                    // integrate with PK cache and shows cache as 0.
+                    call(transactionPath, transactionInterface, "SetHints", ["cache-age=1"]);
                     if (method) {
                         return call(transactionPath, transactionInterface, method, arglist)
                                 .then(() => transactionPath);

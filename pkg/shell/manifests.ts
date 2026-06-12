@@ -88,6 +88,7 @@ export interface Manifest {
     tools: ManifestSection | undefined;
 
     preload: string[] | undefined;
+    "overview-health": string[] | undefined;
     parent: ManifestParentSection | undefined;
     ".checksum": string | undefined;
 }
@@ -99,6 +100,7 @@ function import_Manifest(val: JsonValue): Manifest {
         menu: get_optional(obj, "menu", import_ManifestSection),
         tools: get_optional(obj, "tools", import_ManifestSection),
         preload: get_optional(obj, "preload", v => import_array(v, import_string)),
+        "overview-health": get_optional(obj, "overview-health", v => import_array(v, import_string)),
         parent: get_optional(obj, "parent", import_ManifestParentSection),
         ".checksum": get_optional(obj, ".checksum", import_string),
     };

@@ -23,6 +23,7 @@ import {
 import "./page-status.scss";
 
 import { page_status } from "notifications";
+import { collect_overview_health_pages } from "overview-health";
 
 function icon_for_type(type) {
     if (type == "error")
@@ -77,8 +78,9 @@ export class PageStatusNotifications extends React.Component {
     }
 
     render() {
-        // Explicit allowlist for now, until we can get a dynamic list
-        return ["system/services", "updates"].map(page => {
+        // Pages opt in via their manifest's "overview-health" field.
+        // See doc/modules/guide/pages/packages.adoc.
+        return collect_overview_health_pages(cockpit.manifests).map(page => {
             const status = page_status.get(page);
             if (status && (status.type || status.details) && status.title) {
                 let action;
@@ -101,7 +103,7 @@ export class PageStatusNotifications extends React.Component {
                 else
                     icon = icon_for_type(status.type);
                 return (
-                    <li id={ "page_status_notification_" + page.replace('/', '_') } key={page}>
+                    <li id={ "page_status_notification_" + page.replaceAll('/', '_') } key={page}>
                         <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                             {icon}
                             {action}

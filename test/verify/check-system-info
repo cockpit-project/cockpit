@@ -746,6 +746,36 @@ fi
         dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
         self.assertIn('(st) "" ', m.execute(dbus_call).strip())
 
+    @testlib.nondestructive
+    def testSuspendStatus(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/system")
+        b.wait_not_present("#system-health-suspend-status")
+
+        # Schedule a suspend via systemd-run (same mechanism used by cockpit)
+        m.execute("systemd-run --unit=cockpit-suspend --on-active=10m systemctl suspend")
+        self.addCleanup(m.execute, "systemctl stop cockpit-suspend.timer 2>/dev/null || true")
+
+        # The suspend status polls every 5 seconds, so wait with a reasonable timeout
+        with b.wait_timeout(15):
+            b.wait_in_text('#system-health-suspend-status-text', "Scheduled suspend")
+
+        # Check that reloading still shows the suspend text
+        b.reload()
+        b.enter_page("/system")
+        with b.wait_timeout(15):
+            b.wait_in_text('#system-health-suspend-status-text', "Scheduled suspend")
+
+        # Cancel
+        b.click("#system-health-suspend-status-cancel-btn")
+        with b.wait_timeout(15):
+            b.wait_not_present('#system-health-suspend-status')
+
+        # Verify the timer is no longer active
+        self.assertIn("inactive", m.execute("systemctl is-active cockpit-suspend.timer 2>/dev/null || echo inactive").strip())
+
     @testlib.skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch", "opensuse-tumbleweed")
     @testlib.skipOstree("crypto-policies not available")
     def testCryptoPolicies(self):

@@ -126,13 +126,16 @@ for s in json.load(sys.stdin):
 }
 
 cmd_fetch() {
-    urls=$(pixel_test_logs_urls ${1:-})
+    urls=()
+    for url in "${@:-}"; do
+        urls+=("$(pixel_test_logs_urls $url)")
+    done
     if [ -z "$urls" ]; then
         echo >&2 "Can't find test results for $(cat test/reference-image), sorry."
         exit 1
     fi
     cmd_update
-    for url in ${urls}; do
+    for url in "${urls[@]}"; do
         url=${url/\/log.html/}
         echo "Fetching new pixel test references from $url"
         pixels=$(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq)

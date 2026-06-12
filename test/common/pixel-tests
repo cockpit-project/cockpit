@@ -86,31 +86,41 @@ cmd_reset() {
 }
 
 pixel_test_logs_urls() {
-    arg=${1:-}
+    urls=()
+    prs=()
+    for arg in "${@:-}"; do
+        if [[ "$arg" == http* ]]; then
+            urls+=("$arg")
+        else
+            prs+=("$arg")
+        fi
+    done
 
-    if [[ "$arg" == http* ]]; then
-        echo $arg
+    if [ ${#urls[@]} -gt 0 ]; then
+        echo "${urls[@]}"
         return
     fi
 
-    repo=$(git remote get-url origin | sed -re 's,git@github.com:|https://github.com/,,' -e 's,\.git$,,')
-
-    if [ -n "$arg" ]; then
-        revision=$(curl -s "https://api.github.com/repos/$repo/pulls/$arg" | python3 -c "
+    revisions=()
+    remote=$(git remote get-url upstream || git remote get-url origin)
+    repo=$(echo $remote | sed -re 's,git@github.com:|https://github.com/,,' -e 's,\.git$,,')
+    if [ ${#prs[@]} -eq 0 ]; then
+        revisions+=("$(git rev-parse "@{upstream}")")
+    else
+        for pr in "${prs[@]}"; do
+            revisions+=("$(curl -s "https://api.github.com/repos/$repo/pulls/$pr" | python3 -c "
 import json
 import sys
 
 print(json.load(sys.stdin)['head']['sha'])
-")
-    else
-        revision=$(git rev-parse @{upstream})
+")")
+        done
     fi
-
-    context=$(cat test/reference-image)
-    curl -s "https://api.github.com/repos/$repo/statuses/$revision?per_page=100" | python3 -c "
+    for revision in "${revisions[@]}"; do
+        context=$(cat test/reference-image)
+        curl -s "https://api.github.com/repos/$repo/statuses/$revision?per_page=100" | python3 -c "
 import json
 import sys
-import os
 
 seen = set()
 for s in json.load(sys.stdin):
@@ -118,21 +128,25 @@ for s in json.load(sys.stdin):
     if 'firefox' in c or 'devel' in c:
         continue
     if c.split('/')[0] == sys.argv[1] and s['target_url']:
-        url=os.path.dirname(s['target_url'])
+        url=s['target_url']
         if url not in seen:
             seen.add(url)
             print(url)
 " "$context"
+    done
 }
 
 cmd_fetch() {
-    urls=$(pixel_test_logs_urls ${1:-})
-    if [ -z "$urls" ]; then
+    read -ra urls <<<"$(pixel_test_logs_urls "${@:-}")"
+    if [ "${#urls[@]}" -eq 0 ]; then
         echo >&2 "Can't find test results for $(cat test/reference-image), sorry."
+        exit 1
+    elif [ "${#urls[@]}" -ne ${#@} ]; then
+        echo "Something went wrong fetching the links, aborting early"
         exit 1
     fi
     cmd_update
-    for url in ${urls}; do
+    for url in "${urls[@]}"; do
         url=${url/\/log.html/}
         echo "Fetching new pixel test references from $url"
         pixels=$(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq)

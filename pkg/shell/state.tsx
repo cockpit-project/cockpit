@@ -6,7 +6,7 @@
 import cockpit from "cockpit";
 
 import { EventEmitter } from "cockpit/event";
-import { Status } from "notifications";
+import { Status, ChannelNotification, ChannelRegistry, CHANNELS_KEY, CHANNEL_KEY_RE } from "notifications";
 
 import { Router } from "./router.jsx";
 import {
@@ -55,6 +55,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
 
         this.#init_oops();
         this.#init_page_status();
+        this.#init_notification_channels();
 
         this.#on_ready();
     }
@@ -302,6 +303,66 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         this.update();
     }
 
+    /* NOTIFICATION CHANNELS
+     *
+     * Consumer-managed named channels.  Pages publish via the "notify"
+     * control message with a "channel" field; the shell aggregates by
+     * (channel, host, publisher_key) and persists to sessionStorage.
+     * The registry uses null-prototype objects throughout so that names
+     * like __proto__ or constructor are inert.
+     */
+
+    notification_channels: ChannelRegistry = Object.create(null);
+
+    #init_notification_channels() {
+        sessionStorage.removeItem(CHANNELS_KEY);
+    }
+
+    #notify_channel(host: string, page: string, channel: string, id: string,
+        notification: ChannelNotification | null) {
+        if (typeof channel !== "string" || typeof id !== "string" ||
+            !CHANNEL_KEY_RE.test(channel) || !CHANNEL_KEY_RE.test(id))
+            return;
+
+        const publisher_key = `${host}/${page}/${id}`;
+
+        if (notification === null) {
+            const slot = this.notification_channels[channel]?.[host];
+            if (slot && publisher_key in slot) {
+                delete slot[publisher_key];
+                if (Object.keys(slot).length === 0) {
+                    delete this.notification_channels[channel][host];
+                    if (Object.keys(this.notification_channels[channel]).length === 0)
+                        delete this.notification_channels[channel];
+                }
+            }
+        } else {
+            // Reject payloads that would crash the renderer.  title must be a
+            // string; id is taken from the validated outer field, not from the
+            // publisher-supplied notification body.
+            if (typeof notification.title !== "string")
+                return;
+            const t = notification.type;
+            const stored: ChannelNotification = {
+                id,
+                title: notification.title,
+                type: (t === "info" || t === "warning" || t === "error") ? t : null,
+            };
+            if (notification.details && typeof notification.details === "object" &&
+                !Array.isArray(notification.details))
+                stored.details = notification.details;
+
+            if (!this.notification_channels[channel])
+                this.notification_channels[channel] = Object.create(null);
+            if (!this.notification_channels[channel][host])
+                this.notification_channels[channel][host] = Object.create(null);
+            this.notification_channels[channel][host][publisher_key] = stored;
+        }
+
+        sessionStorage.setItem(CHANNELS_KEY, JSON.stringify(this.notification_channels));
+        this.update();
+    }
+
     /* ROUTER
      *
      * The router is the machinery in our basement that forwards
@@ -372,9 +433,22 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
              * "well-known name" of a page, such as "system",
              * "network/firewall", or "updates".
              */
-            handle_notifications: (host: string, page: string, data: { page_status?: Status }) => {
+            handle_notifications: (host: string, page: string, data: {
+                page_status?: Status;
+                channel?: unknown;
+                id?: unknown;
+                notification?: unknown;
+            }) => {
                 if (data.page_status !== undefined)
-                    this.#notify_page_status(host, page, data.page_status);
+                    this.#notify_page_status(host, page, data.page_status as Status);
+                if (typeof data.channel === "string" && typeof data.id === "string") {
+                    const n = data.notification;
+                    const valid = n === null || n === undefined ||
+                                  (typeof n === "object" && n !== null && !Array.isArray(n));
+                    if (valid)
+                        this.#notify_channel(host, page, data.channel, data.id,
+                                             (n ?? null) as ChannelNotification | null);
+                }
             },
 
             /* One of the frames has experienced a unhandled JavaScript exception.

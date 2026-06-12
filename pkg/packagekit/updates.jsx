@@ -50,7 +50,7 @@ import { Remarkable } from "remarkable";
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
 import { History, PackageList } from "./history";
-import { page_status } from "notifications";
+import { publish_page_health } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -73,6 +73,9 @@ import { getPackageManager } from 'packagemanager';
 import { Icon } from '@patternfly/react-core/dist/esm/components/Icon/index.js';
 
 const _ = cockpit.gettext;
+
+/** @param {import("notifications").Status | null} status */
+const setUpdatesHealth = status => publish_page_health("updates", status);
 
 // "available" heading is built dynamically
 const STATE_HEADINGS = {};
@@ -1323,7 +1326,7 @@ class OsUpdates extends React.Component {
          * repositories enabled which don't require subscriptions. But there are a lot of cases (cloud repos, nightly internal
          * repos) which don't need a subscription, there it would just be confusing */
         if (this.state.unregistered && this.state.haveOsRepo === false) {
-            page_status.set_own({
+            setUpdatesHealth({
                 type: "warning",
                 title: _("Not registered"),
                 details: {
@@ -1345,7 +1348,7 @@ class OsUpdates extends React.Component {
         case "loading":
         case "refreshing":
         case "locked":
-            page_status.set_own({
+            setUpdatesHealth({
                 type: null,
                 title: _("Checking for package updates..."),
                 details: {
@@ -1400,7 +1403,7 @@ class OsUpdates extends React.Component {
             else
                 text = _("Updates available");
 
-            page_status.set_own({
+            setUpdatesHealth({
                 type: num_security_updates > 0 ? "warning" : "info",
                 title: text,
                 details: {
@@ -1439,7 +1442,7 @@ class OsUpdates extends React.Component {
 
         case "loadError":
         case "updateError":
-            page_status.set_own({
+            setUpdatesHealth({
                 type: "error",
                 title: STATE_HEADINGS[this.state.state],
             });
@@ -1464,7 +1467,7 @@ class OsUpdates extends React.Component {
             );
 
         case "applying":
-            page_status.set_own(null);
+            setUpdatesHealth(null);
             return <ApplyUpdates transactionProps={this.state.applyTransactionProps}
                                  actions={this.state.applyActions}
                                  onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
@@ -1496,7 +1499,7 @@ class OsUpdates extends React.Component {
             }
 
             if (warningTitle) {
-                page_status.set_own({
+                setUpdatesHealth({
                     type: "warning",
                     title: warningTitle
                 });
@@ -1528,7 +1531,7 @@ class OsUpdates extends React.Component {
         }
 
         case "restart":
-            page_status.set_own(null);
+            setUpdatesHealth(null);
             return <EmptyStatePanel loading title={ _("Restarting") }
                                     headingLevel="h5"
                                     paragraph={ _("Your server will close the connection soon. You can reconnect after it has restarted.") }
@@ -1536,7 +1539,7 @@ class OsUpdates extends React.Component {
 
         case "uptodate":
         {
-            page_status.set_own({
+            setUpdatesHealth({
                 title: STATE_HEADINGS[this.state.state],
                 details: {
                     link: false,
@@ -1565,7 +1568,7 @@ class OsUpdates extends React.Component {
         }
 
         default:
-            page_status.set_own(null);
+            setUpdatesHealth(null);
             return null;
         }
     }

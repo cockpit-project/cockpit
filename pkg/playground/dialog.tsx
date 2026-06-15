@@ -267,7 +267,8 @@ const ExampleDialog = ({
         dlg.field("async").forEach(v => validate_Name(v, countAsyncValidation));
     }
 
-    const dlg = useDialogState(init, validate);
+    const dlg = useDialogState(init, validate)
+        .set_id_prefix("example");
 
     async function apply(values: ExampleValues) {
         setResult(values);

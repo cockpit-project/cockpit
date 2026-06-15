@@ -11,7 +11,7 @@ class TestDialog(testlib.MachineCase):
 
     def test(self):
         b = self.browser
-        d = dialoglib.DialogHelpers(b)
+        d = dialoglib.DialogHelpers(b, "example")
 
         # Missing coverage:
         #
@@ -314,6 +314,9 @@ class TestDialog(testlib.MachineCase):
 
         b.click(d.cancel_button())
         b.wait_not_present("#dialog")
+
+        # back to standard prefix
+        d = dialoglib.DialogHelpers(b)
 
         # init func and sub-field validation
 

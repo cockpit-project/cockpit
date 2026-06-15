@@ -65,11 +65,12 @@ def css_escape(x: str) -> str:
 
 
 class DialogHelpers:
-    def __init__(self, b: testlib.Browser):
+    def __init__(self, b: testlib.Browser, prefix: str = "dialog"):
         self.browser = b
+        self.prefix = prefix
 
     def id(self, path: str, tag: str) -> str:
-        return f"#dialog-{tag}-{css_escape(path)}"
+        return f"#{self.prefix}-{tag}-{css_escape(path)}"
 
     def field(self, path: str) -> str:
         return self.id(path, "field")
@@ -78,13 +79,13 @@ class DialogHelpers:
         return self.id(path, "helper-text")
 
     def error(self) -> str:
-        return "#dialog-error-message"
+        return f"#{self.prefix}-error-message"
 
     def apply_button(self) -> str:
-        return "#dialog-apply"
+        return f"#{self.prefix}-apply"
 
     def cancel_button(self) -> str:
-        return "#dialog-cancel"
+        return f"#{self.prefix}-cancel"
 
     # TextInput
 

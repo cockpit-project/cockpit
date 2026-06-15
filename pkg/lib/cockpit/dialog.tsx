@@ -361,6 +361,11 @@
    within "dlg.run_action", the cancel function is automatically
    reset.
 
+   - dlg.set_id_prefix(id_prefix)
+
+   This sets the prefix used by the handle.id() function. This is only
+   necessary when testing stacked dialogs, which should be rare.
+
    VALIDATION
 
    Input validation is done by a single, central function for the
@@ -710,7 +715,7 @@ export class DialogField<T> {
     }
 
     id(tag: string = "field"): string {
-        return "dialog-" + tag + "-" + state_path(this.#state);
+        return this.#dialog.id_prefix + "-" + tag + "-" + state_path(this.#state);
     }
 
     map<X>(func: (val: DialogField<ArrayElement<T>>, index: number) => X): X[] {
@@ -925,6 +930,7 @@ interface DialogStateEvents {
 export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     values: V;
 
+    id_prefix: string = "dialog";
     busy: boolean = false;
     actions_disabled: boolean = false;
     cancel_disabled: boolean = false;
@@ -960,6 +966,11 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             update_task: null,
             update_tasks: new Set(),
         };
+    }
+
+    set_id_prefix(id_prefix: string): DialogState<V> {
+        this.id_prefix = id_prefix;
+        return this;
     }
 
     #update() {
@@ -1444,9 +1455,11 @@ export function DialogErrorMessage<V>({
         details = String(err);
     }
 
+    const pfx = dialog instanceof DialogState ? dialog.id_prefix : "dialog";
+
     return (
         <Alert
-            id="dialog-error-message"
+            id={`${pfx}-error-message`}
             variant='danger'
             isInline
             title={title}
@@ -1468,9 +1481,11 @@ export function DialogActionButton<V>({
     action: (values: V) => Promise<void>,
     onClose?: undefined | (() => void)
 } & Omit<ButtonProps, "id" | "action" | "isLoading" | "isDisabled" | "variant" | "onClick">) {
+    const pfx = dialog instanceof DialogState ? dialog.id_prefix : "dialog";
+
     return (
         <Button
-            id="dialog-apply"
+            id={`${pfx}-apply`}
             isLoading={!!dialog && !(dialog instanceof DialogError) && dialog.busy}
             isDisabled={!dialog || dialog instanceof DialogError || dialog.actions_disabled}
             variant="primary"
@@ -1494,9 +1509,11 @@ export function DialogCancelButton<V>({
     dialog: DialogState<V> | DialogError | null,
     onClose: () => void
 } & Omit<ButtonProps, "id" | "isDisabled" | "variant" | "onClick">) {
+    const pfx = dialog instanceof DialogState ? dialog.id_prefix : "dialog";
+
     return (
         <Button
-            id="dialog-cancel"
+            id={`${pfx}-cancel`}
             isDisabled={!dialog || (dialog instanceof DialogState && dialog.cancel_disabled)}
             variant="link"
             onClick={() => {

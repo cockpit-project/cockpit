@@ -1490,11 +1490,6 @@ class Browser:
             reason = img_eq(img_ref, img_now, img_delta)
 
             if reason:
-                if img_now.size == img_ref.size:
-                    # Preserve alpha channel so that the 'now'
-                    # image can be used as the new reference image
-                    # without further changes
-                    img_now.putalpha(img_ref.getchannel("A"))
                 img_now.save(filename)
                 attach(filename, move=True)
                 ref_filename_for_attach = base + "-reference.png"

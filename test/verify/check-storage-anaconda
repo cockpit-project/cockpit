@@ -253,7 +253,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
     def testBtrfs(self):
         b = self.browser
 
-        disk = self.add_ram_disk(200)
+        disk = self.add_ram_disk(128)
 
         anaconda_config = {
             "mount_point_prefix": "/sysroot",

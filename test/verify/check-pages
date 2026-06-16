@@ -755,7 +755,7 @@ OnCalendar=daily
 
         self.login_and_go("/playground")
 
-        b.set_input_text("#type", "info")
+        b.select_from_dropdown("#type", "info")
         b.set_input_text("#title", "My Little Page Status")
         b.click("#set-status")
 

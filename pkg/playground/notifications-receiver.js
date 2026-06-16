@@ -1,25 +1,27 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
-import { page_status } from "notifications";
+import cockpit from "cockpit";
+import { board } from "_internal/notifications";
+import { is_page_status } from "shell";
+
+const demo_board = board("playground:demo");
 
 function id(sel) {
     return document.getElementById(sel);
 }
 
 function update() {
-    const status = page_status.get("playground");
+    const notification = demo_board.list()[0]?.notification;
+    const status = is_page_status(notification) ? notification : null;
 
-    if (status) {
-        id("received-type").innerText = status.type;
-        id("received-title").innerText = status.title;
-    } else if (status !== undefined) {
-        id("received-type").innerText = "-";
-        id("received-title").innerText = "-";
-    }
+    id("received-type").innerText = status?.type ?? "-";
+    id("received-title").innerText = status?.title ?? "-";
 }
 
 function init () {
-    page_status.addEventListener("changed", update);
+    demo_board.addEventListener("changed", update);
     update();
 }
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", () => {
+    cockpit.transport.wait(init);
+});

@@ -55,6 +55,8 @@ const qunitOptions = {
     outdir: `${args.outdir}/qunit`,
     loader: {
         ".sh": "text",
+        // no sass plugin here; tests only check the DOM of components that import styles
+        ".scss": "empty",
     },
 };
 

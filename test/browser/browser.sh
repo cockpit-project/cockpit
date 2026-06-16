@@ -66,6 +66,8 @@ echo core > /proc/sys/kernel/core_pattern
 
 # make sure that we can access cockpit through the firewall
 systemctl start firewalld
+# wait for d-bus service to be accessible
+while ! firewall-cmd --state; do sleep 1; done
 firewall-cmd --add-service=cockpit --permanent
 firewall-cmd --add-service=cockpit
 

@@ -11,7 +11,7 @@ import testlib
 
 @testlib.nondestructive
 class TestNetworkingVLAN(netlib.NetworkCase):
-    def testVlan(self):
+    def testVlan(self) -> None:
         b = self.browser
         m = self.machine
 

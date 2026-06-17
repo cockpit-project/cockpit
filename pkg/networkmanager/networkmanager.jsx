@@ -128,6 +128,15 @@ const App = () => {
                     </WithDialogs>
                 </ModelContext.Provider>
             );
+        } else {
+            return (
+                <EmptyStatePanel icon={ ExclamationCircleIcon }
+                                 title={cockpit.format(_("Network interface '$0' not found"), path[0])}
+                                 action={_("Return to overview page")}
+                                 actionVariant="link"
+                                 onAction={() => cockpit.location.go("/")}
+                />
+            );
         }
     }
 

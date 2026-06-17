@@ -128,41 +128,46 @@ export const NetworkInterfaceMembers = ({
 
     const main_connection = iface.MainConnection;
     const cs = iface.MainConnection && connection_settings(iface.MainConnection);
+    const dropdownItems = [];
 
-    const dropdownItems = (
-        interfaces
-                .filter(i => {
-                    return (is_interesting_interface(i) &&
-                        !memberIfaces[i.Name] &&
-                        i != iface);
-                })
-                .map(iface => {
-                    const onClick = () => {
-                        with_checkpoint(
-                            model,
-                            () => {
-                                return set_member(model, main_connection, main_connection.Settings,
-                                                  cs.type, iface.Name, true)
-                                        .catch(show_unexpected_error);
-                            },
-                            {
-                                devices: iface.Device ? [iface.Device] : [],
-                                fail_text: fmt_to_fragments(_("Adding $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{iface.Name}</b>),
-                                anyway_text: cockpit.format(_("Add $0"), iface.Name),
-                                hack_does_add_or_remove: true
-                            }
-                        );
-                    };
+    interfaces.forEach(i => {
+        if (is_interesting_interface(i) && !memberIfaces[i.Name] && i != iface) {
+            const onClick = () => {
+                with_checkpoint(
+                    model,
+                    () => {
+                        return set_member(model, main_connection, main_connection.Settings,
+                                          cs.type, i.Name, true)
+                                .catch(show_unexpected_error);
+                    },
+                    {
+                        devices: i.Device ? [i.Device] : [],
+                        fail_text: fmt_to_fragments(_("Adding $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{i.Name}</b>),
+                        anyway_text: cockpit.format(_("Add $0"), i.Name),
+                        hack_does_add_or_remove: true
+                    }
+                );
+            };
 
-                    return (
-                        <DropdownItem onClick={syn_click(model, onClick)}
-                                  key={"add-member-" + iface.Name}
-                                  component="button">
-                            {iface.Name}
-                        </DropdownItem>
-                    );
-                })
-    );
+            dropdownItems.push(
+                <DropdownItem onClick={syn_click(model, onClick)}
+                              key={"add-member-" + i.Name}
+                              component="button">
+                    {i.Name}
+                </DropdownItem>
+            );
+        }
+    });
+
+    // We want to show a Tooltip but that isn't supported by PatternFly.
+    // https://github.com/patternfly/patternfly-react/issues/12500
+    if (dropdownItems.length === 0) {
+        dropdownItems.push(
+            <DropdownItem isDisabled isAriaDisabled>
+                {_("No intefaces available")}
+            </DropdownItem>
+        );
+    }
 
     const add_btn = (
         <Dropdown onSelect={() => setIsOpen(false)}

@@ -49,6 +49,7 @@ class CliOpts(testlib.TestlibArgs):
     base: str
     browser: str | None
     debug: bool
+    download_only: bool
     exclude: Sequence[str]
     machine: str | None
     no_retry_fail: bool
@@ -82,6 +83,7 @@ class Test:
         retry_when_affected: bool,
         todo: str | None,
         ram_gb: float,
+        images: set[str],
     ) -> None:
         self.process: subprocess.Popen[bytes] | None = None
         self.retries = 0
@@ -93,6 +95,7 @@ class Test:
         self.retry_when_affected = retry_when_affected
         self.todo = todo
         self.ram_gb = ram_gb
+        self.images = images
         self.returncode: int | None = None
 
     def assign_machine(self, machine_id: int, ssh_address: str, web_address: str) -> None:
@@ -432,15 +435,20 @@ def detect_tests(
                 rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
                 todo = testlib.get_decorator(test_method, test, "todo")
 
-                # Calculate test's RAM requirement (VM memory + browser)
+                # Calculate test's RAM requirement (VM memory + browser) and collect images
                 if nd:
                     total_vm_memory_mb = opts.nondestructive_memory_mb
+                    test_images = {testvm.DEFAULT_IMAGE}
                 else:
                     provision = getattr(test.__class__, "provision", None) or {"machine": {}}
                     total_vm_memory_mb = sum(
                         config.get("memory_mb") or DEFAULT_MACHINE_MEMORY_MB
                         for config in provision.values()
                     )
+                    test_images = {
+                        config.get('image') or getattr(test.__class__, 'image', testvm.DEFAULT_IMAGE)
+                        for config in provision.values()
+                    }
                 ram_gb = (total_vm_memory_mb + BROWSER_MEMORY_MB) / 1024.0
 
                 tst = Test(
@@ -451,6 +459,7 @@ def detect_tests(
                     retry_when_affected=rwa,
                     todo=todo,
                     ram_gb=ram_gb,
+                    images=test_images,
                 )
                 if nd:
                     for _ in range(AMPLIFY_TEST_COUNT if opts.amplify == test_str else 1):
@@ -467,14 +476,6 @@ def detect_tests(
     nondestructive_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
 
     return (nondestructive_tests, destructive_tests, machine_class)
-
-
-def list_tests(opts: CliOpts) -> None:
-    test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
-    nondestructive_tests, destructive_tests, _ = detect_tests(test_files, "dummy", opts)
-    names = {t.command[-1] for t in nondestructive_tests + destructive_tests}
-    for n in sorted(names):
-        print(n)
 
 
 def run(opts: CliOpts, image: str) -> int:
@@ -659,6 +660,8 @@ def run(opts: CliOpts, image: str) -> int:
 def main() -> int:
     parser = testlib.arg_parser(enable_sit=False)
     parser.add_argument("--debug", action="store_true", help="Enable verbose debug logging")
+    parser.add_argument("--download-only", action="store_true",
+                        help="Only download images needed by the tests; with -l, just list the image names")
     parser.add_argument("--thorough", action="store_true", help="Thorough mode, no skipping known issues")
     parser.add_argument("-n", "--nondestructive", action="store_true", help="Only consider @nondestructive tests")
     parser.add_argument(
@@ -742,8 +745,22 @@ def main() -> int:
     # Make sure tests can make relative imports
     sys.path.append(os.path.realpath(opts.test_dir))
 
-    if opts.list:
-        list_tests(opts)
+    if opts.list or opts.download_only:
+        test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
+        # "dummy" only affects ND test ordering, not test or image selection
+        nondestructive_tests, destructive_tests, _ = detect_tests(test_files, "dummy", opts)
+        all_tests = nondestructive_tests + destructive_tests
+        # we want to keep the list sorted by usage order.  set isn't sorted but dict is.
+        all_images = {i: None for t in all_tests for i in t.images}
+        if opts.download_only and opts.list:
+            for name in all_images:
+                print(name)
+        elif opts.download_only and all_images:
+            subprocess.check_call([os.path.join(testvm.BOTS_DIR, "image-download"), *all_images])
+        elif opts.list:
+            names = {t.command[-1] for t in all_tests}
+            for name in sorted(names):
+                print(name)
         return 0
 
     return run(opts, image)

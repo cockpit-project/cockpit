@@ -515,11 +515,13 @@ def run(opts: CliOpts, image: str) -> int:
         test_slots = int(min(max_global_by_ram, max_global_by_cpu) * opts.capacity_factor)
 
         num_global = min(nondestructive_tests_len, test_slots)
-        logging.debug("ND capacity: %.1f GB available, %.1f GB/slot, "
-                      "max %d by RAM, max %d by CPU, factor %f, %d tests → starting %d slots",
-                      available_ram_gb, global_machine_ram_gb,
-                      max_global_by_ram, max_global_by_cpu, opts.capacity_factor,
-                      nondestructive_tests_len, num_global)
+        print(f"""ND capacity:
+            {available_ram_gb:.1f} GB available
+            {global_machine_ram_gb:.1f} GB/slot
+            max {max_global_by_ram} by RAM
+            max {max_global_by_cpu} by CPU
+            factor {opts.capacity_factor}
+            {nondestructive_tests_len} tests → starting {num_global} slots""")
 
         for _ in range(num_global):
             global_machines.append(

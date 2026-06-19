@@ -18,7 +18,9 @@
 set -eu
 
 test/common/make-bots
-test/common/pixel-tests pull
+if [ "$(cat test/reference-image)" = "$TEST_OS" ]; then
+    test/common/pixel-tests pull
+fi
 
 PREPARE_OPTS=""
 RUN_OPTS=""

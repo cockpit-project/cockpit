@@ -15,11 +15,13 @@
 # daily           - runs tests with dnf-nightly and udisks-daily repositories enabled
 # updates-testing - runs tests with updates-testing installed
 
-set -eu
+set -eux
 
-test/common/make-bots
+TIMEFORMAT=$'real %2lR\n'
+
+time test/common/make-bots
 if [ "$(cat test/reference-image)" = "$TEST_OS" ]; then
-    test/common/pixel-tests pull
+    time test/common/pixel-tests pull
 fi
 
 PREPARE_OPTS=""
@@ -83,5 +85,5 @@ fi
 # prefetch the required images while the build is running (background, no tty)
 test/common/run-tests --test-dir test/verify --download-only ${RUN_OPTS} |&cat&
 
-test/image-prepare --verbose ${PREPARE_OPTS} "$TEST_OS"
-test/common/run-tests --test-dir test/verify --track-naughties ${RUN_OPTS}
+time test/image-prepare --verbose ${PREPARE_OPTS} "$TEST_OS"
+time test/common/run-tests --test-dir test/verify --track-naughties ${RUN_OPTS}

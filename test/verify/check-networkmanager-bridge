@@ -64,6 +64,33 @@ class TestBridge(netlib.NetworkCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
+        # Add bridge with custom STP
+        b.click("button:contains('Add bridge')")
+        b.wait_visible("#network-bridge-settings-dialog")
+
+        b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
+        b.set_checked(f"input[data-iface='{iface1}']", val=True)
+        b.set_checked(f"input[data-iface='{iface2}']", val=True)
+        b.click("#network-bridge-settings-stp-enabled-input")
+        b.set_input_text("#network-bridge-stp-settings-priority-input", "256")
+        b.click("#network-bridge-settings-dialog button:contains('Add')")
+        b.wait_not_present("#network-bridge-settings-dialog")
+        b.wait_visible("#networking-interfaces tr[data-interface='tbridge']")
+
+        b.click("#networking-interfaces tr[data-interface='tbridge'] button")
+        b.wait_visible("#network-interface")
+        b.wait_in_text("dd[data-label='Bridge']", "Priority 256")
+
+        # Edit the bridge STP settings
+        b.click("#networking-edit-bridge")
+        b.wait_visible("#network-bridge-settings-dialog")
+        b.wait_text(".pf-v6-c-modal-box__title", "Edit bridge settings")
+        b.set_input_text("#network-bridge-stp-settings-hello-time-input", "10")
+        b.click("#network-bridge-settings-dialog button:contains('Save')")
+        b.wait_not_present("#network-bridge-settings-dialog")
+
+        b.wait_in_text("dd[data-label='Bridge']", "Hello time 10")
+
     def testActive(self):
         b = self.browser
         m = self.machine

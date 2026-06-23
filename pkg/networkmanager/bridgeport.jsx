@@ -23,7 +23,7 @@ export const BridgePortDialog = ({ connection, dev, settings }) => {
     let config = settings.bridge_port;
 
     if (!config)
-        config = config = { };
+        config = { };
 
     const [priority, setPriority] = useState(config.priority);
     const [hairPin, setHairPin] = useState(config.hairpin_mode);

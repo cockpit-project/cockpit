@@ -1,0 +1,349 @@
+{
+    "components": {
+        "org.cockpit_project.cockpit_networkmanager": {
+            "id": "org.cockpit_project.cockpit_networkmanager",
+            "pkgname": "cockpit-networkmanager",
+            "name": "Networking",
+            "summary": "Cockpit configuration of NetworkManager and Firewalld",
+            "description": [
+                "\n    \tThis tool manages networking such as bonds, bridges, teams, VLANs\n    \tand firewalls using NetworkManager and Firewalld.\n        NetworkManager is incompatible with Ubuntu's default systemd-networkd and\n\tDebian's ifupdown scripts.\n    "
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "network",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://cockpit-project.org/"
+                }
+            ],
+            "installed": true,
+            "file": "/usr/share/metainfo/org.cockpit_project.cockpit_networkmanager.metainfo.xml"
+        },
+        "org.cockpit_project.cockpit_storaged": {
+            "id": "org.cockpit_project.cockpit_storaged",
+            "pkgname": "cockpit-storaged",
+            "name": "Storage",
+            "summary": "Manage storage",
+            "description": [
+                "\n      This tool manages local storage, such as filesystems, LVM2\n      volume groups, and NFS mounts.\n    "
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "storage",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://cockpit-project.org/"
+                }
+            ],
+            "installed": true,
+            "file": "/usr/share/metainfo/org.cockpit_project.cockpit_storaged.metainfo.xml"
+        },
+        "org.cockpit_project.cockpit_kdump": {
+            "id": "org.cockpit_project.cockpit_kdump",
+            "pkgname": "cockpit-kdump",
+            "name": "Kernel dump",
+            "summary": "Collect kernel crash dumps",
+            "description": [
+                "\n      This tool configures the system to write kernel crash dumps. It supports\n      the \"local\" (disk), \"ssh\", and \"nfs\" dump targets.\n    "
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "kdump",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://cockpit-project.org/"
+                }
+            ],
+            "installed": true,
+            "file": "/usr/share/metainfo/org.cockpit_project.cockpit_kdump.metainfo.xml"
+        },
+        "org.cockpit_project.cockpit_selinux": {
+            "id": "org.cockpit_project.cockpit_selinux",
+            "pkgname": "cockpit-selinux",
+            "name": "SELinux",
+            "summary": "Security Enhanced Linux configuration and troubleshooting",
+            "description": [
+                "\n      This tool configures the SELinux policy and can help with\n      understanding and resolving policy violations.\n    "
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "selinux",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://cockpit-project.org/"
+                }
+            ],
+            "installed": true,
+            "file": "/usr/share/metainfo/org.cockpit_project.cockpit_selinux.metainfo.xml"
+        },
+        "org.cockpit_project.cockpit_sosreport": {
+            "id": "org.cockpit_project.cockpit_sosreport",
+            "pkgname": "cockpit-sosreport",
+            "name": "Diagnostic reports",
+            "summary": "Collect and package diagnostic and support data",
+            "description": [
+                "\n      This tool generates an archive of configuration and diagnostic\n      information from the running system. The archive may be stored\n      locally or centrally for recording or tracking purposes or may\n      be sent to technical support representatives, developers or\n      system administrators to assist with technical fault-finding and\n      debugging.\n    "
+            ],
+            "icon": "/usr/share/icons/hicolor/64x64/apps/cockpit-sosreport.png",
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "sosreport",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://cockpit-project.org/"
+                }
+            ],
+            "installed": true,
+            "file": "/usr/share/metainfo/org.cockpit_project.cockpit_sosreport.metainfo.xml"
+        },
+        "org.candlepinproject.subscription_manager": {
+            "id": "org.candlepinproject.subscription_manager",
+            "pkgname": "subscription-manager-cockpit",
+            "name": "Subscription Manager",
+            "summary": "Subscription Manager in Cockpit",
+            "description": [
+                "Manage subscriptions to a Candlepin backend, such as for Red Hat products."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "subscriptions",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://candlepinproject.org/"
+                }
+            ]
+        },
+        "org.clusterlabs.cockpit_pcs_web_ui": {
+            "id": "org.clusterlabs.cockpit_pcs_web_ui",
+            "pkgname": "cockpit-ha-cluster",
+            "name": "HA Cluster Management",
+            "summary": "Manage Pacemaker based clusters",
+            "description": [
+                "Application for managing Pacemaker based clusters. Uses Pacemaker/Corosync Configuration System (pcs) in the background."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "ha-cluster",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://github.com/ClusterLabs/pcs-web-ui"
+                }
+            ]
+        },
+        "org.cockpit_project.files": {
+            "id": "org.cockpit_project.files",
+            "pkgname": "cockpit-files",
+            "name": "Files",
+            "summary": "Manage your files",
+            "description": [
+                "A file system UI for Cockpit.\n\nYou can browse directories, upload and download files, and change their properties. It also includes a simple file editor."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "files",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "bugtracker",
+                    "link": "https://github.com/cockpit-project/cockpit-files/issues"
+                },
+                {
+                    "type": "homepage",
+                    "link": "https://github.com/cockpit-project/cockpit-files"
+                }
+            ]
+        },
+        "org.cockpit_project.machines": {
+            "id": "org.cockpit_project.machines",
+            "pkgname": "cockpit-machines",
+            "name": "Machines",
+            "summary": "Manage your virtual machines",
+            "description": [
+                "This tool manages virtual machines.  With it, you can create, monitor, and control the virtual machines of the libvirt subsystem."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "machines",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://cockpit-project.org/"
+                }
+            ]
+        },
+        "org.cockpit_project.podman": {
+            "id": "org.cockpit_project.podman",
+            "pkgname": "cockpit-podman",
+            "name": "Podman",
+            "summary": "Cockpit component for Podman containers",
+            "description": [
+                "The Cockpit user interface for Podman containers.\n\npodman (Pod Manager) is a fully featured daemon-less engine for OCI containers, pods (groups of containers), and container images. It is CLI, API, and functionally compatible with Docker."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "podman",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://cockpit-project.org/"
+                }
+            ]
+        },
+        "org.cockpit_project.session-recording": {
+            "id": "org.cockpit_project.session-recording",
+            "pkgname": "cockpit-session-recording",
+            "name": "Session Recording",
+            "summary": "Session Recording module for Cockpit",
+            "description": [
+                "Provides Session Recording module for Cockpit. Provides list of recorded by tlog terminal sessions from Journal. Allows to play them in a player with various controls. Shows correlated logs which happened during session."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "session-recording",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "bugtracker",
+                    "link": "https://github.com/Scribery/cockpit-session-recording/issues"
+                },
+                {
+                    "type": "homepage",
+                    "link": "https://github.com/Scribery/cockpit-session-recording"
+                }
+            ]
+        },
+        "org.image-builder.cockpit-composer": {
+            "id": "org.image-builder.cockpit-composer",
+            "pkgname": "cockpit-composer",
+            "name": "Image Builder",
+            "summary": "Build customized operating system images",
+            "description": [
+                "Image Builder (Composer) can generate custom images suitable for deploying systems, or as images ready to upload to the cloud."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "composer",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://github.com/osbuild/cockpit-composer/"
+                }
+            ]
+        },
+        "org.image-builder.cockpit-image-builder": {
+            "id": "org.image-builder.cockpit-image-builder",
+            "pkgname": "cockpit-image-builder",
+            "name": "Image Builder",
+            "summary": "Build customized operating system images",
+            "description": [
+                "Image Builder can generate custom images suitable for deploying systems, or as images ready to upload to the cloud."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "cockpit-image-builder",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://github.com/osbuild/image-builder-frontend/"
+                }
+            ]
+        },
+        "org.port389.cockpit_console": {
+            "id": "org.port389.cockpit_console",
+            "pkgname": "cockpit-389-ds",
+            "name": "389 Directory Server",
+            "summary": "389 Directory Server Management",
+            "description": [
+                "389 Directory Server is a highly usable, fully featured, reliable and secure LDAP server implementation. It handles many of the largest LDAP deployments in the world."
+            ],
+            "icon": null,
+            "screenshots": [],
+            "launchables": [
+                {
+                    "name": "cockpit-389-console",
+                    "type": "cockpit-manifest"
+                }
+            ],
+            "urls": [
+                {
+                    "type": "homepage",
+                    "link": "https://www.port389.org/"
+                }
+            ]
+        }
+    },
+    "origin_files": [
+        "/usr/share/swcatalog/xml/fedora.xml.gz",
+        "/usr/share/swcatalog/xml/gstreamer-non-free.xml",
+        "/usr/share/swcatalog/xml/other-repos.xml"
+    ]
+}

@@ -117,7 +117,7 @@ export const NetworkInterfaceMembers = ({
                 row.columns.splice(1, 0, { title: samples ? cockpit.format_bits_per_sec(samples[1][0] * 8) : "" });
                 row.columns.splice(2, 0, { title: samples ? cockpit.format_bits_per_sec(samples[0][0] * 8) : "" });
             } else {
-                row.columns.splice(1, 0, { title: device_state_text() });
+                row.columns.splice(1, 0, { title: device_state_text(dev) });
                 row.columns.splice(1, 0, { title: "" });
             }
 

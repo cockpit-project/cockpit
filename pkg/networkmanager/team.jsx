@@ -126,8 +126,8 @@ export const TeamDialog = ({ connection, dev, settings }) => {
         });
 
         // Prevent dialog from closing because of <form> onsubmit event
-        if (event)
-            event.preventDefault();
+        if (ev)
+            ev.preventDefault();
 
         return false;
     };

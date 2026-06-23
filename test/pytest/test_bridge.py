@@ -68,7 +68,7 @@ def add_pseudo(bridge: Bridge) -> None:
     ])
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def no_init_transport(bridge: Bridge) -> AsyncGenerator[MockTransport, None]:
     transport = MockTransport(bridge)
     try:

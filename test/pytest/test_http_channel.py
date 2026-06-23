@@ -18,7 +18,7 @@ from .mocktransport import MockTransport
 MOCK_DATA = Path(__file__).parent.parent / 'data'
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def no_init_transport() -> AsyncGenerator[MockTransport, None]:
     bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
     transport = MockTransport(bridge)
@@ -72,7 +72,7 @@ async def http_server(request: pytest.FixtureRequest, tmp_path: Path) -> AsyncGe
     server.close()
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def tls_server() -> AsyncGenerator[int, None]:
     async def serve(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         while True:

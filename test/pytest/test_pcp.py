@@ -38,7 +38,7 @@ from cockpit.bridge import Bridge
 from .mocktransport import MockTransport
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def no_init_transport() -> AsyncGenerator[MockTransport, None]:
     bridge = Bridge(argparse.Namespace(privileged=False, beipack=False))
     transport = MockTransport(bridge)

@@ -26,7 +26,7 @@ export const TeamPortDialog = ({ connection, dev, settings }) => {
     let config = settings.team_port.config;
 
     if (!config)
-        config = config = { };
+        config = { };
 
     const [priority, setPriority] = useState(teamMode == 'activebackup' ? config.prio : config.lacp_prio);
     const [sticky, setSticky] = useState(config.sticky);

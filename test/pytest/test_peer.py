@@ -40,7 +40,7 @@ def bridge():
 
 
 # requires an event loop for queue in MockTransport
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def transport(bridge):  # noqa: RUF029
     return MockTransport(bridge)
 

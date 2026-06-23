@@ -1045,10 +1045,6 @@ export function NetworkManagerModel() {
         },
 
         prototype: {
-            copy_settings: function () {
-                return JSON.parse(JSON.stringify(this.Settings));
-            },
-
             apply_settings: function (settings) {
                 const self = this;
                 try {

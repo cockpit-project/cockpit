@@ -436,14 +436,13 @@ $desktop: $phone + 1px;
       max-block-size: 100%;
     }
 
-    @media (max-width: $phone) {
-      // Don't run off the top of the page in mobile
-      max-block-size: calc(100vh - var(--nav-icon-size));
-    }
   }
 
   .pf-v6-c-nav {
     overflow: auto;
+    // Don't run off the page when displaying many entries
+    // HACK: Unclear where the spacing comes from
+    max-block-size: calc(100vh - var(--pf-t--global--spacer--3xl) * 3);
   }
 
   .nav-hosts-actions {

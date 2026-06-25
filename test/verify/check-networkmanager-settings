@@ -44,6 +44,7 @@ class TestNetworkingSettings(netlib.NetworkCase):
         b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
         self.wait_for_iface_setting('IPv4', 'Address 1.2.3.4/24')
+        self.toggle_onoff("label[for='interface-switch']")
 
         def assert_connection_setting(con_id, field, value):
             self.assertEqual(m.execute(f'nmcli -m tabular -t -f {field} con show "{con_id}"').strip(),

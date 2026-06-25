@@ -127,6 +127,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
                                 "#network-wireguard-settings-publickey-peer-0"])
         b.click("#network-wireguard-settings-save")
         b.wait_not_present("#network-wireguard-settings-dialog")
+        self.toggle_onoff("label[for='interface-switch']")
         b.wait_text("#network-interface-name", iface_name)
         self.wait_for_iface_setting("Status", f"1.2.3.4/32, {m1_ip4}/24")
 
@@ -160,6 +161,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_ip4}/32")
         b2.click("#network-wireguard-settings-save")
         b2.wait_not_present("#network-wireguard-settings-dialog")
+        b2.click("label[for='interface-switch'] input[type=checkbox]")
         b2.wait_text("#network-interface-name", m2_iface_name)
         b2.wait_in_text("[data-label='Status']", f"{m2_ip4}/24")
 
@@ -303,6 +305,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b.click("#network-wireguard-settings-save")
         b.wait_not_present("#network-wireguard-settings-dialog")
         b.wait_text("#network-interface-name", wg1_iface)
+        self.toggle_onoff("label[for='interface-switch']")
         self.wait_for_iface_setting("IPv6", f"{m1_wg1_ipv6}/64")
 
         m1.execute(f"until wg show wg1 | grep -q 'allowed ips.*{m2_wg1_ipv6}/128'; do sleep 1; done")
@@ -318,6 +321,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_wg1_ipv6}/128")
         b2.click("#network-wireguard-settings-save")
         b2.wait_not_present("#network-wireguard-settings-dialog")
+        b2.click("label[for='interface-switch'] input[type=checkbox]")
         b2.wait_text("#network-interface-name", wg1_iface)
         b2.wait_in_text("[data-label='IPv6']", f"{m2_wg1_ipv6}/64")
 

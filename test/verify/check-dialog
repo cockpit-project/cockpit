@@ -11,7 +11,7 @@ class TestDialog(testlib.MachineCase):
 
     def test(self):
         b = self.browser
-        d = dialoglib.DialogHelpers(b)
+        d = dialoglib.DialogHelpers(b, "#dialog")
 
         # Missing coverage:
         #

@@ -489,28 +489,27 @@
    attributes. The code that instantiates an element can get suitable
    IDs for dialog value handles with the following function:
 
-   - handle.id(tag)
+   - handle.ouia_id(tag)
 
-   This will return a unique and predictable string for the value
-   handle that will also include "tag". This is suitable for the "id"
-   attribute of DOM elements associated with "value".  The "tag"
-   parameter can be used to generate multiple IDs if a component has
-   multiple interesting DOM elements.  The "tag" parameter defaults to
-   "field", see below.
+   This will return a predictable string for the value handle.  This
+   is suitable for the "data-ouia-component-id" attribute of DOM
+   elements associated with "handle".  The "tag" parameter can be used
+   to generate multiple IDs if a component has multiple interesting
+   DOM elements.  The "tag" parameter defaults to "field", see below.
 
    There is a support library for use by the tests that can generate
    the same IDs, and there are also some guidelines for how to use
    these IDs:
 
-   - The main input element (text input, form select, ...) should use
-     the "field" tag.
+     - The main input element (text input, form select, ...) should use
+       the "field" tag.
 
-   - The helper text should use the "helper-text" tag.
+     - The helper text should use the "helper-text" tag.
 
-   - A set of radio buttons should use a different tag for each
-     button. Whatever makes sense in the specific case.
+     - A set of radio buttons should use a different tag for each
+       button. Whatever makes sense in the specific case.
 
-   - ...
+     - ...
 
    PORCELAIN GALLERY
 
@@ -598,7 +597,7 @@
 
  */
 
-import React, { useState } from "react";
+import React, { useState, useId } from "react";
 import { useObject, useInit, useOn } from 'hooks';
 import { EventEmitter } from 'cockpit/event';
 
@@ -714,7 +713,7 @@ export class DialogField<T> {
         this.#setter(val);
     }
 
-    id(tag: string = "field"): string {
+    ouia_id(tag: string = "field"): string {
         return "dialog-" + tag + "-" + state_path(this.#state);
     }
 
@@ -1461,7 +1460,7 @@ export function DialogErrorMessage<V>({
 
     return (
         <Alert
-            id="dialog-error-message"
+            ouiaId="dialog-error-message"
             variant='danger'
             isInline
             title={title}
@@ -1485,7 +1484,7 @@ export function DialogActionButton<V>({
 } & Omit<ButtonProps, "id" | "action" | "isLoading" | "isDisabled" | "variant" | "onClick">) {
     return (
         <Button
-            id="dialog-apply"
+            ouiaId="dialog-apply"
             isLoading={!!dialog && !(dialog instanceof DialogError) && dialog.busy}
             isDisabled={!dialog || dialog instanceof DialogError || dialog.actions_disabled}
             variant="primary"
@@ -1511,7 +1510,7 @@ export function DialogCancelButton<V>({
 } & Omit<ButtonProps, "id" | "isDisabled" | "variant" | "onClick">) {
     return (
         <Button
-            id="dialog-cancel"
+            ouiaId="dialog-cancel"
             isDisabled={!dialog || (dialog instanceof DialogState && dialog.cancel_disabled)}
             variant="link"
             onClick={() => {
@@ -1564,7 +1563,7 @@ export function DialogHelperText<V>({
     return (
         <FormHelperText>
             <HelperText>
-                <HelperTextItem id={field.id("helper-text")} variant={variant}>
+                <HelperTextItem data-ouia-component-id={field.ouia_id("helper-text")} variant={variant}>
                     {text}
                 </HelperTextItem>
             </HelperText>
@@ -1572,18 +1571,38 @@ export function DialogHelperText<V>({
     );
 }
 
+/* Many of the porcelain wrappers can put themselves automatically
+   into a FormGroup.  In that case, the <label> produced by the
+   FormGroup and the actual input element should be connected via
+   "for" and "id" attributes, for a11y reasons.
+
+   But a porcelain wrapper can also be used without an automatic
+   FormGroup. In that case the user has to provide an explicit id for
+   making that connection or maybe an aria-label.
+
+   The useFormId hook helps with that.
+ */
+
+function useFormId(id: string | undefined, label: React.ReactNode) {
+    const random_id = useId();
+    return id || (label ? random_id : undefined);
+}
+
 export const OptionalFormGroup = ({
     label,
     children,
+    fieldId,
     ...props
 } : {
     label: React.ReactNode,
     children: React.ReactNode,
-} & Omit<FormGroupProps, "label" | "children">) => {
+    fieldId?: string | undefined,
+} & Omit<FormGroupProps, "fieldId" | "label" | "children">) => {
     if (label) {
         return (
             <FormGroup
                 label={label}
+                {...fieldId ? { fieldId } : {} }
                 {...props}
             >
                 {children}
@@ -1601,6 +1620,7 @@ export const DialogTextInput = ({
     warning,
     explanation,
     isDisabled = false,
+    id,
     ...props
 } : {
     label?: React.ReactNode,
@@ -1609,11 +1629,13 @@ export const DialogTextInput = ({
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
     isDisabled?: boolean,
-} & Omit<TextInputProps, "id" | "label" | "value" | "onChange">) => {
+} & Omit<TextInputProps, "label" | "value" | "onChange">) => {
+    const fid = useFormId(id, label);
     return (
-        <OptionalFormGroup label={label} fieldId={field.id()}>
+        <OptionalFormGroup label={label} fieldId={fid}>
             <TextInput
-                id={field.id()}
+                id={fid}
+                ouiaId={field.ouia_id()}
                 value={field.get()}
                 onChange={(_event, val) => field.set(val)}
                 isDisabled={!!excuse || isDisabled}
@@ -1631,6 +1653,7 @@ export const DialogPasswordInput = ({
     warning,
     explanation,
     isDisabled = false,
+    id,
     ...props
 } : {
     label?: React.ReactNode,
@@ -1639,15 +1662,16 @@ export const DialogPasswordInput = ({
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
     isDisabled?: boolean,
-} & Omit<TextInputProps, "id" | "label" | "value" | "onChange">) => {
+} & Omit<TextInputProps, "label" | "value" | "onChange">) => {
     const [visible, setVisible] = useState(false);
-
+    const fid = useFormId(id, label);
     return (
-        <OptionalFormGroup label={label} fieldId={field.id()}>
+        <OptionalFormGroup label={label} fieldId={fid}>
             <InputGroup>
                 <InputGroupItem isFill>
                     <TextInput
-                        id={field.id()}
+                        id={fid}
+                        ouiaId={field.ouia_id()}
                         type={visible ? "text" : "password"}
                         value={field.get()}
                         onChange={(_event, value) => field.set(value)}
@@ -1685,10 +1709,12 @@ export const DialogCheckbox = ({
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
 }) => {
+    const id = useId();
     return (
         <OptionalFormGroup label={field_label} hasNoPaddingTop>
             <Checkbox
-                id={field.id()}
+                id={id}
+                ouiaId={field.ouia_id()}
                 isChecked={field.get()}
                 label={checkbox_label}
                 onChange={(_event, checked) => field.set(checked)}
@@ -1721,11 +1747,13 @@ export function DialogRadioSelect<T extends string>({
     explanation?: React.ReactNode,
     isInline?: boolean,
 }) {
+    const random_id = useId();
+
     function makeLabel(o: DialogRadioSelectOption<T>, i: number) {
         const exc = o.excuse ? <> ({o.excuse})</> : null;
         const pad = (!isInline && i < options.length - 1) ? <><br />{"\u00A0"}</> : null;
         const exp = o.explanation ? <><br /><small>{o.explanation}{pad}</small></> : null;
-        return <div id={field.id(o.value + "-label")}>{o.label}{exc}{exp}</div>;
+        return <div data-ouia-component-id={field.ouia_id(o.value + "-label")}>{o.label}{exc}{exp}</div>;
     }
 
     return (
@@ -1733,14 +1761,15 @@ export function DialogRadioSelect<T extends string>({
             label={label}
             hasNoPaddingTop
             isInline={isInline}
-            id={field.id()}
+            data-ouia-component-id={field.ouia_id()}
             data-value={field.get()}
         >
             {
                 options.map((o, i) =>
                     <Radio
                         key={o.value}
-                        id={field.id(o.value)}
+                        id={random_id + o.value}
+                        ouiaId={field.ouia_id(o.value)}
                         name={o.value}
                         isChecked={field.get() == o.value}
                         label={makeLabel(o, i)}
@@ -1766,6 +1795,7 @@ export function DialogDropdownSelect<T extends string>({
     warning,
     explanation,
     options,
+    id,
     ...props
 } : {
     label?: React.ReactNode,
@@ -1775,10 +1805,12 @@ export function DialogDropdownSelect<T extends string>({
     explanation?: React.ReactNode,
     options: DialogDropdownSelectOption<T>[],
 } & Omit<FormSelectProps, "ref" | "children">) {
+    const fid = useFormId(id, label);
     return (
-        <OptionalFormGroup label={label}>
+        <OptionalFormGroup label={label} fieldId={fid}>
             <FormSelect
-                id={field.id()}
+                id={fid}
+                ouiaId={field.ouia_id()}
                 onChange={(_event, val) => field.set(val as T) }
                 validated={warning ? "warning" : undefined}
                 isDisabled={!!excuse}
@@ -1806,6 +1838,7 @@ export function DialogDropdownSelectObject<T>({
     explanation,
     options,
     option_label = (o: T): string => { cockpit.assert(typeof o == "string"); return o },
+    id,
     ...props
 } : {
     label?: React.ReactNode,
@@ -1816,10 +1849,12 @@ export function DialogDropdownSelectObject<T>({
     options: T[],
     option_label?: (o: T) => string,
 } & Omit<FormSelectProps, "ref" | "children">) {
+    const fid = useFormId(id, label);
     return (
-        <OptionalFormGroup label={label}>
+        <OptionalFormGroup label={label} fieldId={fid}>
             <FormSelect
-                id={field.id()}
+                id={fid}
+                ouiaId={field.ouia_id()}
                 onChange={(_event, val) => {
                     const opt = options.find(o => option_label(o) == val);
                     field.set(opt!);

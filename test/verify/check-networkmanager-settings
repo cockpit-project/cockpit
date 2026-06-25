@@ -122,7 +122,7 @@ class TestNetworkingSettings(netlib.NetworkCase):
             b.set_input_text("#network-wireguard-settings-addresses-input", "1.2.3.4/24")
             wg_iface = b.val("#network-wireguard-settings-interface-name-input")
             b.click("#network-wireguard-settings-save")
-            self.select_iface(wg_iface)
+            b.wait_text("#network-interface-name", wg_iface)
             self.configure_iface_setting("IPv4")
             b._wait_present("#network-ip-settings-select-method option[value='manual']")
             b._wait_present("#network-ip-settings-select-method option[value='disabled']")

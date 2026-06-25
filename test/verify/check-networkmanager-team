@@ -47,13 +47,10 @@ class TestTeam(netlib.NetworkCase):
         b.click("#network-team-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-team-settings-dialog")
 
-        b.wait_attr("#networking", "data-test-wait", "false")
+        b.wait_text("#network-interface-name", "tteam")
         b.wait(lambda: 'nmcli con show | grep tteam')
-        b.wait_visible("#networking-interfaces tr[data-interface='tteam']")
 
         # Check that the members are displayed
-        self.select_iface('tteam')
-        b.wait_visible("#network-interface")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface1}']")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface2}']")
 
@@ -100,12 +97,10 @@ class TestTeam(netlib.NetworkCase):
         b.click("#network-team-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-team-settings-dialog")
 
-        b.wait_attr("#networking", "data-test-wait", "false")
+        b.wait_text("#network-interface-name", "tteam")
         b.wait(lambda: 'nmcli con show | grep tteam')
 
         # Check that it has the interface and the right IP address
-        self.select_iface('tteam')
-        b.wait_visible("#network-interface")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
         b.wait_in_text("#network-interface .pf-v6-c-card:contains('tteam')", "10.111")
 

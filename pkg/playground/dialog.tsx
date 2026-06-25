@@ -51,7 +51,7 @@ function List<T>({
     init: T,
 }) {
     return (
-        <FormGroup label={label} id={field.id()}>
+        <FormGroup label={label} data-ouia-component-id={field.ouia_id()}>
             { field.map((f, i) => (
                 <Split key={i}>
                     <SplitItem isFilled>
@@ -59,7 +59,7 @@ function List<T>({
                     </SplitItem>
                     <SplitItem>
                         <Button
-                            id={f.id("remove")}
+                            ouiaId={f.ouia_id("remove")}
                             variant="link"
                             onClick={() => field.remove(i)}
                         >
@@ -70,7 +70,7 @@ function List<T>({
             ))}
             <DialogHelperText field={field} />
             <Button
-                id={field.id("add")}
+                ouiaId={field.ouia_id("add")}
                 variant="link"
                 onClick={() => field.add(init)}
             >
@@ -153,7 +153,8 @@ const OptionalTextInput = ({
     if (val === false) {
         body = (
             <Checkbox
-                id={field.id("checkbox")}
+                id={field.random_id()}
+                ouiaId={field.ouia_id("checkbox")}
                 isChecked={false}
                 label={checkbox_label}
                 onChange={() => field.set("")}
@@ -163,7 +164,8 @@ const OptionalTextInput = ({
         body = (
             <>
                 <Checkbox
-                    id={field.id("checkbox")}
+                    id={field.random_id()}
+                    ouiaId={field.ouia_id("checkbox")}
                     isChecked
                     label={checkbox_label}
                     onChange={() => field.set(false)}

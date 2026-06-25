@@ -87,7 +87,7 @@ wpa_passphrase=hidden99""")
     def testWifi(self):
         m = self.machine
         b = self.browser
-        d = DialogHelpers(b)
+        d = DialogHelpers(b, "#network-wifi-connect-dialog")
 
         self.login_and_go("/network")
         b.wait_visible("#networking")
@@ -324,7 +324,7 @@ wpa_passphrase=hidden99""")
 
     def testHidden(self):
         b = self.browser
-        d = DialogHelpers(b)
+        d = DialogHelpers(b, "#network-wifi-connect-dialog")
 
         self.login_and_go("/network")
         b.wait_visible("#networking")

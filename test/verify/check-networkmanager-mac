@@ -62,9 +62,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         b.click("#network-bond-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-bond-settings-dialog")
 
-        self.select_iface('tbond')
-        b.wait_visible("#network-interface")
-
+        b.wait_text("#network-interface-name", "tbond")
         mac = m.execute("cat /sys/class/net/tbond/address").strip()
         b.wait_text("#network-interface-mac", mac.upper())
 

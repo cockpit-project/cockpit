@@ -277,6 +277,8 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                     onClose();
                     if (connection && iface)
                         cockpit.location.go([iface]);
+                    else if (!connection && iface)
+                        return model.synchronize().then(() => cockpit.location.go([iface]));
                     if (connection && dev?.ActiveConnection?.Connection === connection && !isNonPersistentMultiCon(connection)) {
                         return reactivateConnection({ con: connection, dev });
                     }

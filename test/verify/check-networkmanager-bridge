@@ -42,6 +42,7 @@ class TestBridge(netlib.NetworkCase):
         b.set_checked(f"input[data-iface='{iface2}']", val=True)
         b.click("#network-bridge-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-bridge-settings-dialog")
+        self.toggle_onoff("label[for='interface-switch']")
 
         # Check that the members are displayed and both On
         b.wait_text("#network-interface-name", "tbridge")
@@ -114,6 +115,7 @@ class TestBridge(netlib.NetworkCase):
         # Check that it has the interface and the right IP address
         b.wait_text("#network-interface-name", "tbridge")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
+        self.toggle_onoff("label[for='interface-switch']")
         b.wait_in_text("#network-interface .pf-v6-c-card:contains('tbridge')", "10.111")
 
         # Check bridge port

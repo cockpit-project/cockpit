@@ -38,6 +38,7 @@ class TestNetworkingVLAN(netlib.NetworkCase):
         b.set_input_text("#network-vlan-settings-vlan-id-input", "123")
         b.click("#network-vlan-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-vlan-settings-dialog")
+        self.toggle_onoff("label[for='interface-switch']")
         b.wait_text("#network-interface-name", "tvlan")
 
         # It automatically activates.  It won't get an IP address, but that's okay.

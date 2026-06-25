@@ -1435,10 +1435,11 @@ export function NetworkManagerModel() {
             add_connection: function (conf) {
                 // https://www.networkmanager.dev/docs/api/latest/nm-dbus-types.html
                 const NM_SETTINGS_ADD_CONNECTION2_FLAG_TO_DISK = 0x1;
+                const NM_SETTINGS_ADD_CONNECTION2_FLAG_BLOCK_AUTOCONNECT = 0x20;
                 return call_object_method(this,
                                           'org.freedesktop.NetworkManager.Settings',
                                           'AddConnection2',
-                                          settings_to_nm(conf, { }), NM_SETTINGS_ADD_CONNECTION2_FLAG_TO_DISK, { })
+                                          settings_to_nm(conf, { }), NM_SETTINGS_ADD_CONNECTION2_FLAG_TO_DISK | NM_SETTINGS_ADD_CONNECTION2_FLAG_BLOCK_AUTOCONNECT, { })
                         .then(([path]) => get_object(path, type_Connection));
             }
         },

@@ -79,8 +79,7 @@ class TestBonding(netlib.NetworkCase):
 
         # Deactivate the bond and make sure it is still there after a
         # reload.
-        self.wait_onoff("label[for='interface-switch']", val=True)
-        self.toggle_onoff("label[for='interface-switch']")
+        self.wait_onoff("label[for='interface-switch']", val=False)
         self.wait_for_iface_setting('Status', 'Inactive')
         b.wait_not_present("#interface-switch:disabled")
 
@@ -166,6 +165,8 @@ class TestBonding(netlib.NetworkCase):
         self.addCleanup(m.execute, "nmcli dev delete tbond3000 2>/dev/null || true")
 
         b.wait_text("#network-interface-name", "tbond")
+        self.wait_onoff("#network-interface .pf-v6-c-card__header", val=False)
+        self.toggle_onoff("label[for='interface-switch']")
         self.wait_onoff("#network-interface .pf-v6-c-card__header", val=True)
 
         self.configure_iface_setting('Bond')
@@ -211,6 +212,7 @@ class TestBonding(netlib.NetworkCase):
         # Check that it has the interface and the right IP address
         b.wait_text("#network-interface-name", "tbond")
         b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
+        self.toggle_onoff("label[for='interface-switch']")
         b.wait_in_text("#network-interface .pf-v6-c-card:contains('tbond')", ip)
 
     def testPrimary(self):

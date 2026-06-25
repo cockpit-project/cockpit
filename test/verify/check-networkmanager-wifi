@@ -9,10 +9,11 @@ import time
 import netlib
 import testlib
 from dialoglib import DialogHelpers
+from lib.constants import TEST_OS_DEFAULT
 
 
 @testlib.nondestructive
-@testlib.onlyImage("hostapd/NM-wifi not installed on our test image", "fedora-43")
+@testlib.onlyImage("hostapd/NM-wifi not installed on our test image", TEST_OS_DEFAULT)
 class TestNetworkingWifi(netlib.NetworkCase):
     def setUp(self):
         super().setUp()

@@ -46,7 +46,7 @@ class KdumpHelpers(testlib.MachineCase):
             # we should get a warning dialog, confirm
             browser.click(f".pf-v6-c-modal-box button{self.danger_btn_class}")
             # wait until we've actually triggered a crash
-            browser.wait_visible(".apply.pf-m-in-progress")
+            browser.wait_visible("button.pf-m-in-progress")
 
             # wait for disconnect and then try connecting again
             browser.switch_to_top()

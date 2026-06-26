@@ -31,7 +31,6 @@ import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/inde
 import { useDialogs, DialogsContext } from "dialogs.jsx";
 import { read_os_release } from "os-release.js";
 import { fmt_to_fragments } from 'utils.jsx';
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { PrivilegedButton } from "cockpit-components-privileged";
@@ -316,6 +315,46 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
         </Modal>);
 };
 
+const KdumpTestDialog = ({ verifyMessage, onCrashKernel }) => {
+    const Dialogs = useDialogs();
+    const [task, setTask] = useState(null);
+
+    function crash() {
+        setTask(onCrashKernel()
+                .then(Dialogs.close)
+                .catch(() => setTask(null)));
+    }
+
+    return (
+        <Modal position="top" variant="small" id="kdump-test-dialog" isOpen
+               onClose={Dialogs.close}>
+            <ModalHeader title={_("Test kdump settings")} titleIconVariant="warning" />
+            <ModalBody>
+                <Content>
+                    <Content component={ContentVariants.p}>
+                        {_("Test kdump settings by crashing the kernel. This may take a while and the system might not automatically reboot. Do not purposefully crash the system while any important task is running.")}
+                    </Content>
+                    {verifyMessage && <Content component={ContentVariants.p}>
+                        {verifyMessage}
+                    </Content>}
+                </Content>
+            </ModalBody>
+            <ModalFooter>
+                <Button variant="danger"
+                        isLoading={!!task}
+                        isDisabled={!!task}
+                        onClick={crash}>
+                    {_("Crash system")}
+                </Button>
+                <Button variant="link"
+                        isDisabled={!!task}
+                        onClick={Dialogs.close}>
+                    {_("Cancel")}
+                </Button>
+            </ModalFooter>
+        </Modal>);
+};
+
 /* Show kdump status of the system and offer options to change or test the state
  * Expected properties:
  * kdumpActive       kdump service status
@@ -340,6 +379,7 @@ export class KdumpPage extends React.Component {
     }
 
     handleTestSettingsClick() {
+        const Dialogs = this.context;
         // if we have multiple targets defined, the config is invalid
         const target = this.props.kdumpStatus.target;
         let verifyMessage;
@@ -359,30 +399,8 @@ export class KdumpPage extends React.Component {
             }
         }
 
-        // open a dialog to confirm crashing the kernel to test the settings - then do it
-        const dialogProps = {
-            title: _("Test kdump settings"),
-            body: (<Content>
-                <Content component={ContentVariants.p}>
-                    {_("Test kdump settings by crashing the kernel. This may take a while and the system might not automatically reboot. Do not purposefully crash the system while any important task is running.")}
-                </Content>
-                {verifyMessage && <Content component={ContentVariants.p}>
-                    {verifyMessage}
-                </Content>}
-            </Content>),
-            titleIconVariant: "warning",
-        };
-        // also test modifying properties in subsequent render calls
-        const footerProps = {
-            actions: [
-                {
-                    clicked: this.props.onCrashKernel.bind(this),
-                    caption: _("Crash system"),
-                    style: 'danger',
-                }
-            ],
-        };
-        show_modal_dialog(dialogProps, footerProps);
+        Dialogs.show(<KdumpTestDialog verifyMessage={verifyMessage}
+                                      onCrashKernel={this.props.onCrashKernel} />);
     }
 
     handleServiceDetailsClick() {

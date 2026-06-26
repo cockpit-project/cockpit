@@ -25,3 +25,21 @@ Since Antora is a versatile documentation tool, they have structured directories
 > Antora assigns preset, content-specific behavior to the source files stored in the family directories.
 
 https://docs.antora.org/antora/latest/family-directories/
+
+## Local testing
+
+We do not need to run Antora from cockpit-docs repo to make updates here, instead you can run Antora from NPM to compile it, then simply open the output or run a http server.
+
+With NPM
+```
+npm exec antora generate antora-playbook.yml
+```
+With PNPM
+```
+pnpx antora generate antora-playbook.yml
+```
+You'll get an output for site generation completed followed by a file to open. If you run Flatpak you might have to run a simple server instead
+
+```
+python -m http.server -d ./doc/output/antora
+```

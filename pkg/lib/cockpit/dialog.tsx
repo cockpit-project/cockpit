@@ -622,8 +622,6 @@ import {
     FormSelect, FormSelectOption, type FormSelectProps,
 } from "@patternfly/react-core/dist/esm/components/FormSelect";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio";
-import { InputGroup, InputGroupItem } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
-import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 
 const _ = cockpit.gettext;
 
@@ -1603,7 +1601,7 @@ export function DialogHelperText<V>({
    The effectiveFormId function helps with that.
  */
 
-function effectiveFormId<V>(id: string | undefined, label: React.ReactNode, field: DialogField<V>) {
+export function effectiveFormId<V>(id: string | undefined, label: React.ReactNode, field: DialogField<V>) {
     return id || (label ? field.random_id() : undefined);
 }
 
@@ -1660,55 +1658,6 @@ export const DialogTextInput = ({
                 isDisabled={!!excuse || isDisabled}
                 {...props}
             />
-            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
-        </OptionalFormGroup>
-    );
-};
-
-export const DialogPasswordInput = ({
-    label = null,
-    field,
-    excuse,
-    warning,
-    explanation,
-    isDisabled = false,
-    id,
-    ...props
-} : {
-    label?: React.ReactNode,
-    field: DialogField<string>,
-    excuse?: string | falsy,
-    warning?: React.ReactNode,
-    explanation?: React.ReactNode,
-    isDisabled?: boolean,
-} & Omit<TextInputProps, "label" | "value" | "onChange">) => {
-    const [visible, setVisible] = useState(false);
-
-    const eid = effectiveFormId(id, label, field);
-    return (
-        <OptionalFormGroup label={label} fieldId={eid}>
-            <InputGroup>
-                <InputGroupItem isFill>
-                    <TextInput
-                        id={eid}
-                        ouiaId={field.ouia_id()}
-                        type={visible ? "text" : "password"}
-                        value={field.get()}
-                        onChange={(_event, value) => field.set(value)}
-                        isDisabled={!!excuse || isDisabled}
-                        {...props}
-                    />
-                </InputGroupItem>
-                <InputGroupItem>
-                    <Button
-                        variant="control"
-                        aria-label={visible ? _("Hide password") : _("Show password")}
-                        onClick={() => setVisible(!visible)}
-                    >
-                        {visible ? <EyeSlashIcon /> : <EyeIcon />}
-                    </Button>
-                </InputGroupItem>
-            </InputGroup>
             <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
         </OptionalFormGroup>
     );

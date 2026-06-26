@@ -36,6 +36,8 @@ import {
     DialogActionButton, DialogCancelButton,
 } from 'cockpit/dialog';
 
+import { DialogPasswordInput } from 'cockpit/PasswordInput';
+
 import 'cockpit-dark-theme'; // once per page
 import 'page.scss';
 
@@ -216,6 +218,7 @@ interface ExampleValues {
     async: Name[];
     alternative: false | string;
     error: string;
+    password: string;
 }
 
 const ExampleDialog = ({
@@ -243,6 +246,7 @@ const ExampleDialog = ({
         async: [],
         alternative: false,
         error: "none",
+        password: "",
     };
 
     function validate(dlg: DialogState<ExampleValues>) {
@@ -400,6 +404,11 @@ const ExampleDialog = ({
                         field={dlg.field("error")}
                         options={["none", "custom", "from", "from-random", "message", "spawn", "random"]}
                         warning={dlg.field("error").get() != "none" ? "There will be an error" : null}
+                    />
+                    <DialogPasswordInput
+                        label="Password"
+                        showStrength
+                        field={dlg.field("password")}
                     />
                 </Form>
             </ModalBody>

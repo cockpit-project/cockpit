@@ -73,10 +73,11 @@ import {
     useDialogState,
     DialogError, DialogErrorMessage,
     DialogTextInput,
-    DialogPasswordInput,
     DialogDropdownSelect,
     DialogActionButton, DialogCancelButton,
 } from 'cockpit/dialog';
+
+import { DialogPasswordInput } from 'cockpit/PasswordInput';
 
 const _ = cockpit.gettext;
 

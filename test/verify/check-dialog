@@ -353,6 +353,24 @@ class TestDialog(testlib.MachineCase):
         b.click(d.cancel_button())
         b.wait_not_present("#dialog")
 
+    def testPassword(self):
+        b = self.browser
+        d = dialoglib.DialogHelpers(b, "#dialog")
+
+        self.login_and_go("/playground/dialog", superuser=False)
+
+        b.click("#open")
+
+        d.set_TextInput("password", "foobar")
+        b.wait_attr(d.field("password"), "type", "password")
+        b.click(d.id("password", "showhide"))
+        b.wait_attr(d.field("password"), "type", "text")
+        b.wait_in_text(d.helper_text("password"), "Weak password")
+        b.assert_pixels(".pf-v6-c-form__group:contains(Password)", "weak")
+        d.set_TextInput("password", "coo&ph6aa?gaiBe")
+        b.wait_in_text(d.helper_text("password"), "Excellent password")
+        b.assert_pixels(".pf-v6-c-form__group:contains(Password)", "excellent")
+
 
 if __name__ == '__main__':
     testlib.test_main()

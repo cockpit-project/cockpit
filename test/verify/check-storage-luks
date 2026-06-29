@@ -335,6 +335,26 @@ class TestStorageLuks(storagelib.StorageCase):
                      "mount_point": f"{self.mnt_dir}/foo"})
         self.wait_mounted("ext4 filesystem")
 
+    @testlib.skipImage("no Clevis TPM2 support", "debian-*", "ubuntu-2604")
+    @testlib.nondestructive
+    def testClevisTPM(self):
+        m = self.machine
+        b = self.browser
+
+        disk = self.add_ram_disk()
+        m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}")
+        # Two TPM2 variants..
+        m.execute(f"""echo einszweidrei | clevis luks bind -d {disk} tpm2 '{{"hash":"sha256","key":"ecc"}}'""")
+        m.execute(f"""echo einszweidrei | clevis luks bind -d {disk} tpm2 '{{"hash":"sha256","key":"ecc","pcr_ids":"7,11"}}'""")
+
+        self.login_and_go("/storage")
+
+        self.click_card_row("Storage", name=disk)
+        panel = "#encryption-keys "
+        b.wait_in_text(f"{panel} tr[data-row-slot='0']", "Passphrase")
+        b.wait_in_text(f"{panel} tr[data-row-slot='1']", "TPM2")
+        b.wait_in_text(f"{panel} tr[data-row-slot='2']", "TPM2")
+
 
 @testlib.skipImage('/usr is immutable', 'centos-9-bootc')
 class TestStorageLuksDestructive(storagelib.StorageCase):

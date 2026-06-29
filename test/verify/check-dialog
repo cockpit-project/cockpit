@@ -312,7 +312,11 @@ class TestDialog(testlib.MachineCase):
         b.click(d.apply_button())
         b.wait_in_text(d.error(), "1,2,3,4")
 
-        b.click(d.cancel_button())
+        b.mouse(d.ouia("apply-force"), "mouseenter")
+        b.wait_in_text(".pf-v6-c-tooltip", "Force not allowed")
+        b.mouse(d.apply_button(), "mouseenter")  # make tooltip disappear, it obscures the checkbox otherwise
+        d.set_Checkbox("allow_force", val=True)
+        b.click(d.ouia("apply-force"))
         b.wait_not_present("#dialog")
 
         # init func and sub-field validation

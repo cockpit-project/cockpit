@@ -801,8 +801,10 @@ class Browser:
     def wait_timeout(self, timeout: int) -> Iterator[None]:
         old_timeout = self.timeout
         self.timeout = timeout
-        yield
-        self.timeout = old_timeout
+        try:
+            yield
+        finally:
+            self.timeout = old_timeout
 
     def wait(self, predicate: Callable[[], _T | None]) -> _T:
         for _ in range(int(self.timeout * self.timeout_factor * 5)):

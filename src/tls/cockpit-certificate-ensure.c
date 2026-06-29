@@ -233,12 +233,14 @@ certificate_and_key_split (CertificateKeyPair *self)
 
   for (int i = 0; i < N_ELEMENTS (pairs); i++)
     {
-      char *start = strstr ((const char *) self->certificate.data, pairs[i][0]);
+      assert (self->certificate.data[self->certificate.size] == '\0');
+      char *start = strstr ((char *) self->certificate.data, pairs[i][0]);
 
       if (!start)
         continue;
 
-      char *end = strstr ((const char *) self->certificate.data, pairs[i][1]);
+      /* NB: certificate.data is `unsigned char *` */
+      char *end = strstr ((char *) self->certificate.data, pairs[i][1]);
       if (!end)
         errx (EXIT_FAILURE, "%s: found '%s' but not '%s'",
               self->certificate_filename, pairs[i][0], pairs[i][1]);

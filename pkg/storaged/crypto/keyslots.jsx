@@ -677,6 +677,14 @@ export class CryptoKeyslots extends React.Component {
                         type: "tang",
                         url: clevis.tang.url
                     };
+                } else if (clevis.pin === "tpm2") {
+                    return {
+                        slot: slot.Index.v,
+                        type: "tpm2",
+                        hash: clevis.tpm2.hash,
+                        key: clevis.tpm2.key,
+                        pcr_ids: clevis.tpm2.pcr_ids,
+                    };
                 } else {
                     return {
                         slot: slot.Index.v,
@@ -753,6 +761,11 @@ export class CryptoKeyslots extends React.Component {
                     add_row(key.slot,
                             _("Keyserver"), key.url,
                             () => edit_clevis_dialog(client, block, key), null,
+                            () => remove_clevis_dialog(client, block, key));
+                } else if (key.type == "tpm2") {
+                    add_row(key.slot,
+                            "TPM2", "",
+                            null, _("TPM2 slots can not be edited here"),
                             () => remove_clevis_dialog(client, block, key));
                 } else {
                     add_row(key.slot,

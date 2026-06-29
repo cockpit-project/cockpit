@@ -469,41 +469,33 @@ gchar **
 cockpit_web_server_parse_accept_list (const gchar *accept,
                                       const gchar *defawlt)
 {
-  Language *lang;
-  GPtrArray *langs;
-  GPtrArray *ret;
-  gchar *copy;
-  gchar *value;
-  gchar *next;
-  gchar *pos;
-  guint i;
+  g_autofree gchar *copy = g_strdup (accept);
+  gchar *walk = copy;
 
-  langs = g_ptr_array_new_with_free_func (g_free);
+  g_autoptr(GPtrArray) langs = g_ptr_array_new_with_free_func (g_free);
 
   if (defawlt)
     {
-      lang = g_new0 (Language, 1);
+      Language *lang = g_new0 (Language, 1);
       lang->qvalue = 0.1;
       lang->value = defawlt;
       g_ptr_array_add (langs, lang);
     }
 
   /* First build up an array we can sort */
-  accept = copy = g_strdup (accept);
-
-  while (accept)
+  while (walk)
     {
-      next = strchr (accept, ',');
+      gchar *next = strchr (walk, ',');
       if (next)
         {
           *next = '\0';
           next++;
         }
 
-      lang = g_new0 (Language, 1);
+      Language *lang = g_new0 (Language, 1);
       lang->qvalue = 1;
 
-      pos = strchr (accept, ';');
+      gchar *pos = strchr (walk, ';');
       if (pos)
         {
           *pos = '\0';
@@ -515,43 +507,41 @@ cockpit_web_server_parse_accept_list (const gchar *accept,
             }
         }
 
-      lang->value = accept;
+      lang->value = walk;
       g_ptr_array_add (langs, lang);
-      accept = next;
+      walk = next;
     }
 
   g_ptr_array_sort (langs, sort_qvalue);
 
   /* Now in the right order add all the prefs */
-  ret = g_ptr_array_new ();
-  for (i = 0; i < langs->len; i++)
+  GPtrArray *ret = g_ptr_array_new ();
+  for (guint i = 0; i < langs->len; i++)
     {
-      lang = langs->pdata[i];
+      Language *lang = langs->pdata[i];
       if (lang->qvalue > 0)
         {
-          value = g_strstrip (g_ascii_strdown (lang->value, -1));
+          gchar *value = g_strstrip (g_ascii_strdown (lang->value, -1));
           g_ptr_array_add (ret, value);
         }
     }
 
   /* Add base languages after that */
-  for (i = 0; i < langs->len; i++)
+  for (guint i = 0; i < langs->len; i++)
     {
-      lang = langs->pdata[i];
+      Language *lang = langs->pdata[i];
       if (lang->qvalue > 0)
         {
-          pos = strchr (lang->value, '-');
-          if (pos)
+          const gchar *dash = strchr (lang->value, '-');
+          if (dash)
             {
-              value = g_strstrip (g_ascii_strdown (lang->value, pos - lang->value));
+              gchar *value = g_strstrip (g_ascii_strdown (lang->value, dash - lang->value));
               g_ptr_array_add (ret, value);
             }
         }
     }
 
-  g_free (copy);
   g_ptr_array_add (ret, NULL);
-  g_ptr_array_free (langs, TRUE);
   return (gchar **)g_ptr_array_free (ret, FALSE);
 }
 

@@ -193,9 +193,11 @@ class TestStdio:
         os.close(theirs)
         loop = asyncio.get_running_loop()
         protocol = Protocol()
-        yield ours, protocol, cockpit.transports.StdioTransport(loop, protocol, stdin=stdin, stdout=stdout)
-        os.close(stdin)
-        os.close(stdout)
+        try:
+            yield ours, protocol, cockpit.transports.StdioTransport(loop, protocol, stdin=stdin, stdout=stdout)
+        finally:
+            os.close(stdin)
+            os.close(stdout)
 
     @pytest.mark.asyncio
     async def test_terminal_write_eof(self):

@@ -956,6 +956,9 @@ is simply not reported.
  * `target`: for symbolic links: the target of the link (a string)
  * `targets`: for directories: extra information about symlink targets for
    symlinks found in the directory (see below)
+ * `r-ok`: boolean, whether reading is allowed. (note: checking access is expensive)
+ * `w-ok`: boolean, whether writing is allowed. (note: checking access is expensive)
+ * `x-ok`: boolean, whether executing is allowed. (note: checking access is expensive)
 
 The `entries` attribute is reported iff `fnmatch` is non-empty, and `path`
 refers to a readable directory.  It is an object where each key is the name of

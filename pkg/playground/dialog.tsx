@@ -36,6 +36,8 @@ import {
     DialogActionButton, DialogCancelButton,
 } from 'cockpit/dialog';
 
+import { FileChooser, DialogFileChooserInput } from "cockpit/react/FileChooser";
+
 import 'cockpit-dark-theme'; // once per page
 import 'page.scss';
 
@@ -218,6 +220,9 @@ interface ExampleValues {
     alternative: false | string;
     error: string;
     allow_force: boolean;
+    file: string;
+    file_explanation: string;
+    dir: string;
 }
 
 const ExampleDialog = ({
@@ -246,6 +251,9 @@ const ExampleDialog = ({
         alternative: false,
         error: "none",
         allow_force: false,
+        file: "",
+        file_explanation: "",
+        dir: "",
     };
 
     function validate(dlg: DialogState<ExampleValues>) {
@@ -270,6 +278,10 @@ const ExampleDialog = ({
             });
         });
         dlg.field("async").forEach(v => validate_Name(v, countAsyncValidation));
+        dlg.field("file").validate(v => {
+            if (v && v[0] != "/")
+                return "Must be absolute";
+        });
     }
 
     const dlg = useDialogState(init, validate);
@@ -314,6 +326,15 @@ const ExampleDialog = ({
         dlg.field("text2").set_async(0, async () => {
             await async_sleep(2000);
             return val;
+        });
+    }
+
+    function update_file(val: string) {
+        dlg.field("file_explanation").set_async(250, async () => {
+            if (val[0] == "/")
+                return cockpit.spawn(["file", "-b", val], { superuser: "try" });
+            else
+                return "--";
         });
     }
 
@@ -411,6 +432,49 @@ const ExampleDialog = ({
                         field_label="Action options"
                         checkbox_label="Allow force"
                         field={dlg.field("allow_force")}
+                    />
+                    <DialogFileChooserInput
+                        label="File"
+                        field={dlg.field("file", update_file)}
+                        explanation={dlg.values.file_explanation}
+                        fileChooserProps={
+                            {
+                                title: "Select a file",
+                                superuser: "try",
+                                filters: [
+                                    { label: "No dots", filter: n => !n.includes(".") },
+                                ],
+                                shortcuts: [
+                                    { label: "Test files", path: "/var/lib/cockpittest" }
+                                ],
+                                collections: [
+                                    {
+                                        label: "Some files",
+                                        emptyLabel: "Nothing there",
+                                        list: async () => {
+                                            return [
+                                                "/var/lib/cockpittest/file-chooser-test/dots.txt",
+                                                "/var/lib/cockpittest/file-chooser-test/foo",
+                                            ];
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    />
+                    <DialogFileChooserInput
+                        label="Directory"
+                        field={dlg.field("dir")}
+                        fileChooserProps={
+                            {
+                                title: "Select a directory",
+                                onlyDirectories: true,
+                                superuser: "try",
+                                shortcuts: [
+                                    { label: "Test files", path: "/var/lib/cockpittest" }
+                                ],
+                            }
+                        }
                     />
                 </Form>
             </ModalBody>
@@ -694,6 +758,65 @@ const SimpleExampleButtons = () => {
     );
 };
 
+const FileChooserButton = () => {
+    const Dialogs = useDialogs();
+
+    async function loadFile(path: string) {
+        const data = await cockpit.file(path).read();
+        if (!data.startsWith("foo"))
+            throw new Error("Does not start with \"foo\"");
+    }
+
+    return (
+        <Button
+            id="open-file-chooser"
+            onClick={
+                () => Dialogs.show(
+                    <FileChooser
+                        title={"Select a file that starts with \"foo\""}
+                        actionLabel="Load"
+                        action={loadFile}
+                        filters={
+                            [
+                                {
+                                    label: "TXT files",
+                                    filter: (name, type) => type == "reg" && !!name.match("\.txt$")
+                                },
+                            ]
+                        }
+                        shortcuts={
+                            async () => {
+                                async_sleep(500);
+                                return [
+                                    { label: "Test files", path: "/var/lib/cockpittest" }
+                                ];
+                            }
+                        }
+                        collections={
+                            async () => {
+                                return [
+                                    {
+                                        label: "Some TXT files",
+                                        emptyLabel: "Nothing there",
+                                        list: async () => {
+                                            return [
+                                                "/var/lib/cockpittest/file-chooser-test/text/foo.txt",
+                                                "/var/lib/cockpittest/file-chooser-test/no-such-file.txt"
+                                            ];
+                                        }
+                                    }
+                                ];
+                            }
+                        }
+                    />
+                )
+            }
+        >
+            Open FileChooser
+        </Button>
+    );
+}
+
 const Demo = () => {
     return (
         <WithDialogs>
@@ -701,6 +824,7 @@ const Demo = () => {
                 <PageSection>
                     <ExampleButton />
                     <SimpleExampleButtons />
+                    <FileChooserButton />
                 </PageSection>
             </Page>
         </WithDialogs>

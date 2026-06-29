@@ -82,8 +82,11 @@ class DialogHelpers:
         self.browser = b
         self.dialogSelector = dialogSelector
 
+    def ouia(self, component_id: str) -> str:
+        return f"{self.dialogSelector} [data-ouia-component-id='{component_id}']"
+
     def id(self, path: str, tag: str) -> str:
-        return f"{self.dialogSelector} [data-ouia-component-id='dialog-{tag}-{path}']"
+        return self.ouia(f"dialog-{tag}-{path}")
 
     def field(self, path: str) -> str:
         return self.id(path, "field")
@@ -92,13 +95,13 @@ class DialogHelpers:
         return self.id(path, "helper-text")
 
     def error(self) -> str:
-        return f"{self.dialogSelector} [data-ouia-component-id='dialog-error-message']"
+        return self.ouia("dialog-error-message")
 
     def apply_button(self) -> str:
-        return f"{self.dialogSelector} [data-ouia-component-id='dialog-apply']"
+        return self.ouia("dialog-apply")
 
     def cancel_button(self) -> str:
-        return f"{self.dialogSelector} [data-ouia-component-id='dialog-cancel']"
+        return self.ouia("dialog-cancel")
 
     # TextInput
 

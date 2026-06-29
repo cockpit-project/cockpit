@@ -217,6 +217,7 @@ interface ExampleValues {
     async: Name[];
     alternative: false | string;
     error: string;
+    allow_force: boolean;
 }
 
 const ExampleDialog = ({
@@ -244,6 +245,7 @@ const ExampleDialog = ({
         async: [],
         alternative: false,
         error: "none",
+        allow_force: false,
     };
 
     function validate(dlg: DialogState<ExampleValues>) {
@@ -272,8 +274,11 @@ const ExampleDialog = ({
 
     const dlg = useDialogState(init, validate);
 
-    async function apply(values: ExampleValues) {
+    async function apply(values: ExampleValues, variant: string) {
         setResult(values);
+
+        if (variant == "force")
+            return;
 
         if (values.error == "custom") {
             throw new DialogError("This is a failure", <code>1234-567-98A</code>);
@@ -400,15 +405,36 @@ const ExampleDialog = ({
                         label="Error"
                         field={dlg.field("error")}
                         options={["none", "custom", "from", "from-random", "message", "spawn", "random"]}
-                        warning={dlg.field("error").get() != "none" ? "There will be an error" : null}
+                        warning={dlg.field("error").get() != "none" ? "There will be an error unless you apply with force" : null}
+                    />
+                    <DialogCheckbox
+                        field_label="Action options"
+                        checkbox_label="Allow force"
+                        field={dlg.field("allow_force")}
                     />
                 </Form>
             </ModalBody>
             <ModalFooter>
-                <DialogActionButton dialog={dlg} action={apply} onClose={Dialogs.close}>
+                <DialogActionButton
+                    dialog={dlg}
+                    action={values => apply(values, "main")}
+                    onClose={Dialogs.close}
+                >
                     Apply
                 </DialogActionButton>
-                <DialogCancelButton dialog={dlg} onClose={Dialogs.close} />
+                <DialogActionButton
+                    dialog={dlg}
+                    action={values => apply(values, "force")}
+                    ouiaId="apply-force"
+                    variant="danger"
+                    onClose={Dialogs.close}
+                    excuse={dlg.values.allow_force ? undefined : "Force not allowed"}
+                >
+                    Apply with force
+                </DialogActionButton>
+                <DialogCancelButton dialog={dlg} onClose={Dialogs.close}>
+                    CANCEL!
+                </DialogCancelButton>
             </ModalFooter>
         </Modal>
     );

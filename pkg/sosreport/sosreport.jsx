@@ -396,14 +396,6 @@ const SOSErrorDialog = ({ error }) => {
         </Modal>);
 };
 
-const MenuItem = ({ onClick, onlyNarrow, children }) => (
-    <DropdownItem className={onlyNarrow ? "show-only-when-narrow" : null}
-                  onKeyDown={onClick}
-                  onClick={onClick}>
-        {children}
-    </DropdownItem>
-);
-
 const SOSBody = () => {
     const Dialogs = useDialogs();
     const lister = useObject(sosLister, obj => obj.close, []);
@@ -460,15 +452,15 @@ const SOSBody = () => {
                 {_("Download")}
             </Button>);
         const menu = <KebabDropdown dropdownItems={[
-            <MenuItem key="download"
-                      onlyNarrow
-                      onClick={download}>
+            <DropdownItem key="download"
+                          className="show-only-when-narrow"
+                          onClick={download}>
                 {_("Download")}
-            </MenuItem>,
-            <MenuItem key="remove"
-                      onClick={remove}>
+            </DropdownItem>,
+            <DropdownItem key="remove"
+                          onClick={remove}>
                 {_("Delete")}
-            </MenuItem>
+            </DropdownItem>
         ]} />;
 
         return {

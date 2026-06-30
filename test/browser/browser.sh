@@ -11,6 +11,7 @@ PLAN="$1"
 nproc
 free -h
 rpm -qa | grep cockpit
+rpm -qa | grep kdump
 
 # allow test to set up things on the machine
 mkdir -p /root/.ssh

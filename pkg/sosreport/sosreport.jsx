@@ -127,6 +127,12 @@ function sosLister() {
         });
     }
 
+    self.close = () => {
+        superuser.removeEventListener("changed", restart);
+        if (fsinfo)
+            fsinfo.close();
+    };
+
     restart();
     superuser.addEventListener("changed", restart);
     return self;

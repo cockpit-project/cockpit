@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 13:08+0000\n"
+"POT-Creation-Date: 2026-06-26 12:28+0000\n"
 "PO-Revision-Date: 2026-05-16 16:59+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
@@ -779,7 +779,7 @@ msgid "Add"
 msgstr "Додати"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:131
-#: pkg/networkmanager/network-interface-members.jsx:151
+#: pkg/networkmanager/network-interface-members.jsx:146
 msgid "Add $0"
 msgstr "Додати $0"
 
@@ -855,7 +855,7 @@ msgstr "Додати ключ"
 msgid "Add keyserver"
 msgstr "Додати сервер ключів"
 
-#: pkg/networkmanager/network-interface-members.jsx:171
+#: pkg/networkmanager/network-interface-members.jsx:176
 msgid "Add member"
 msgstr "Додати учасника"
 
@@ -930,7 +930,7 @@ msgstr "Додавання «$0» параметрів шифрування"
 msgid "Adding \"$0\" to filesystem options"
 msgstr "Додавання «$0» до параметрів файлової системи"
 
-#: pkg/networkmanager/network-interface-members.jsx:150
+#: pkg/networkmanager/network-interface-members.jsx:145
 msgid ""
 "Adding $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -1539,7 +1539,7 @@ msgstr "Не вдалося знайти журналів на основі по
 #: pkg/shell/hosts_dialog.jsx:477 pkg/shell/hosts_dialog.jsx:574
 #: pkg/shell/hosts_dialog.jsx:710 pkg/shell/hosts_dialog.jsx:1089
 #: pkg/shell/active-pages-modal.tsx:112 pkg/shell/shell-modals.tsx:172
-#: pkg/metrics/metrics.jsx:1490 pkg/lib/cockpit/dialog.tsx:1417
+#: pkg/metrics/metrics.jsx:1490 pkg/lib/cockpit/dialog.tsx:1525
 #: pkg/lib/superuser-dialogs.tsx:213 pkg/lib/superuser-dialogs.tsx:250
 #: pkg/lib/superuser-dialogs.tsx:306 pkg/lib/cockpit-connect-ssh.tsx:175
 #: pkg/lib/cockpit-connect-ssh.tsx:488
@@ -1660,7 +1660,7 @@ msgstr "Змінити системний час"
 msgid "Change the password of $0"
 msgstr "Змінити пароль до $0"
 
-#: pkg/networkmanager/interfaces.js:1947
+#: pkg/networkmanager/interfaces.js:1943
 msgid "Change the settings"
 msgstr "Змінити параметри"
 
@@ -1687,7 +1687,7 @@ msgstr ""
 "Зміна каталогу призведе до примусової зупинки поточного процесу. Процес "
 "також можна зупинити вручну у терміналі перед продовженням."
 
-#: pkg/networkmanager/interfaces.js:1946
+#: pkg/networkmanager/interfaces.js:1942
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -3220,7 +3220,7 @@ msgstr "Помилка"
 msgid "Error and above"
 msgstr "Помилка і вище"
 
-#: pkg/lib/cockpit/dialog.tsx:1323
+#: pkg/lib/cockpit/dialog.tsx:1431
 msgid "Error during initialization"
 msgstr "Помилка під час ініціалізації"
 
@@ -3320,8 +3320,8 @@ msgstr "FIPS не увімкнено належним чином"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "FIPS із подальшими обмеженнями загальних критеріїв."
 
-#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/lib/cockpit/dialog.tsx:1347
-#: pkg/lib/cockpit/dialog.tsx:1350 pkg/networkmanager/interfaces.js:895
+#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/lib/cockpit/dialog.tsx:1455
+#: pkg/lib/cockpit/dialog.tsx:1458 pkg/networkmanager/interfaces.js:895
 msgid "Failed"
 msgstr "Не вдалося"
 
@@ -3741,7 +3741,7 @@ msgstr "Довідка"
 msgid "Hide confirmation password"
 msgstr "Приховати підтвердження пароля"
 
-#: pkg/lib/cockpit/dialog.tsx:1553 pkg/lib/cockpit-components-password.tsx:135
+#: pkg/lib/cockpit/dialog.tsx:1661 pkg/lib/cockpit-components-password.tsx:135
 msgid "Hide password"
 msgstr "Приховати пароль"
 
@@ -3941,8 +3941,8 @@ msgstr "Не завершено"
 msgid "In sync"
 msgstr "Синхронізовано"
 
-#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1627
-#: pkg/networkmanager/interfaces.js:1634
+#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1623
+#: pkg/networkmanager/interfaces.js:1630
 #: pkg/networkmanager/network-interface.jsx:459
 msgid "Inactive"
 msgstr "Неактивний"
@@ -3950,6 +3950,12 @@ msgstr "Неактивний"
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:19
 msgid "Inactive logical volume"
 msgstr "Неактивний логічний том"
+
+#: pkg/networkmanager/firewall.jsx:119
+#, fuzzy
+#| msgid "Included services"
+msgid "Included Services"
+msgstr "Включені служби"
 
 #: pkg/networkmanager/firewall.jsx:865
 msgid "Included services"
@@ -4094,12 +4100,12 @@ msgstr[0] "Інтерфейс"
 msgstr[1] "Інтерфейси"
 msgstr[2] "Інтерфейси"
 
-#: pkg/networkmanager/network-interface-members.jsx:186
-#: pkg/networkmanager/network-interface-members.jsx:188
+#: pkg/networkmanager/network-interface-members.jsx:191
+#: pkg/networkmanager/network-interface-members.jsx:193
 msgid "Interface members"
 msgstr "Учасники інтерфейсу"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
+#: pkg/networkmanager/network-interface-members.jsx:197
 #: pkg/networkmanager/network-main.jsx:198 pkg/networkmanager/bond.jsx:158
 #: pkg/networkmanager/firewall.jsx:872
 msgid "Interfaces"
@@ -5265,6 +5271,12 @@ msgstr ""
 "Для отримання списку пристроїв мережі та графіків слід встановити "
 "NetworkManager"
 
+#: pkg/networkmanager/networkmanager.jsx:134
+#, fuzzy
+#| msgid "Network interfaces"
+msgid "Network interface '$0' not found"
+msgstr "Інтерфейси мережі"
+
 #: pkg/networkmanager/network-main.jsx:227
 msgid "Network logs"
 msgstr "Журнали роботи у мережі"
@@ -5385,7 +5397,7 @@ msgstr "Немає доступних блокових пристроїв."
 msgid "No block devices found"
 msgstr "Не знайдено блокових пристроїв"
 
-#: pkg/networkmanager/interfaces.js:1629
+#: pkg/networkmanager/interfaces.js:1625
 msgid "No carrier"
 msgstr "Немає сигналу"
 
@@ -5470,6 +5482,12 @@ msgstr "Не знайдено ключів вузлів."
 #: pkg/apps/utils.tsx:116
 msgid "No installation package found for this application."
 msgstr "Для цієї програми не знайдено пакунка для встановлення."
+
+#: pkg/networkmanager/network-interface-members.jsx:167
+#, fuzzy
+#| msgid "No data available"
+msgid "No intefaces available"
+msgstr "Немає доступним даних"
 
 #: pkg/storaged/crypto/keyslots.jsx:706
 msgid "No keys added"
@@ -5884,7 +5902,7 @@ msgstr "Батьківський $parent"
 msgid "Part of"
 msgstr "Частина"
 
-#: pkg/networkmanager/interfaces.js:1658
+#: pkg/networkmanager/interfaces.js:1654
 msgid "Part of $0"
 msgstr "Є частиною $0"
 
@@ -6247,7 +6265,7 @@ msgstr "Порт"
 msgid "Portable"
 msgstr "Портативний"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
+#: pkg/networkmanager/network-interface-members.jsx:197
 #: pkg/networkmanager/team.jsx:144 pkg/networkmanager/bridge.jsx:86
 msgid "Ports"
 msgstr "Порти"
@@ -6534,7 +6552,7 @@ msgstr "Рекомендовано перезавантажити"
 msgid "Reboot system..."
 msgstr "Перезавантажити систему…"
 
-#: pkg/networkmanager/network-interface-members.jsx:194
+#: pkg/networkmanager/network-interface-members.jsx:199
 #: pkg/networkmanager/network-main.jsx:206
 #: pkg/networkmanager/network-main.jsx:222 pkg/networkmanager/plots.js:30
 msgid "Receiving"
@@ -6682,6 +6700,12 @@ msgstr "Вилучити жетон Clevis?"
 #: pkg/storaged/stratis/pool.jsx:958 pkg/storaged/crypto/keyslots.jsx:650
 msgid "Remove Tang keyserver?"
 msgstr "Вилучити сервер ключів Tang?"
+
+#: pkg/networkmanager/firewall.jsx:151
+#, fuzzy
+#| msgid "Additional port"
+msgid "Remove additional port"
+msgstr "Додатковий порт"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:214
 msgid "Remove device"
@@ -6962,6 +6986,10 @@ msgstr ""
 #: pkg/systemd/logs.jsx:238
 msgid "Resume"
 msgstr "Відновити"
+
+#: pkg/networkmanager/networkmanager.jsx:135
+msgid "Return to overview page"
+msgstr ""
 
 #: pkg/storaged/block/format-dialog.jsx:189
 msgid "Reuse existing encryption"
@@ -7263,7 +7291,7 @@ msgstr ""
 msgid "Self-test status"
 msgstr "Стан самоперевірки"
 
-#: pkg/networkmanager/network-interface-members.jsx:193
+#: pkg/networkmanager/network-interface-members.jsx:198
 #: pkg/networkmanager/network-main.jsx:205
 #: pkg/networkmanager/network-main.jsx:221
 msgid "Sending"
@@ -7448,7 +7476,7 @@ msgstr "Показати повідомлення з вказаного зава
 msgid "Show more relationships"
 msgstr "Показати більше зв'язків"
 
-#: pkg/lib/cockpit/dialog.tsx:1553 pkg/lib/cockpit-components-password.tsx:135
+#: pkg/lib/cockpit/dialog.tsx:1661 pkg/lib/cockpit-components-password.tsx:135
 msgid "Show password"
 msgstr "Показати пароль"
 
@@ -9035,7 +9063,7 @@ msgstr "Модуль"
 #: pkg/systemd/hw-detect.js:87 pkg/systemd/hw-detect.js:90
 #: pkg/systemd/hw-detect.js:97 pkg/systemd/hw-detect.js:98
 #: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
-#: pkg/networkmanager/interfaces.js:1167
+#: pkg/networkmanager/interfaces.js:1163
 #: pkg/networkmanager/network-interface.jsx:402
 #: pkg/networkmanager/network-interface.jsx:404
 msgid "Unknown"
@@ -10215,7 +10243,7 @@ msgstr "монтування"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "мережа"
 
@@ -10459,7 +10487,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "не вдалося виконати звітування для порятунку"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -13158,9 +13186,6 @@ msgstr "зона"
 
 #~ msgid "Enter IP address or hostname"
 #~ msgstr "Введіть IP-адресу або назву вузла"
-
-#~ msgid "Network interfaces"
-#~ msgstr "Інтерфейси мережі"
 
 #~ msgid ""
 #~ "This version of cockpit-ws does not support connecting to a host with an "

@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 13:08+0000\n"
-"PO-Revision-Date: 2026-05-16 16:59+0000\n"
-"Last-Translator: Oğuz Ersen <oguz@ersen.moe>\n"
+"POT-Creation-Date: 2026-06-26 12:28+0000\n"
+"PO-Revision-Date: 2026-06-26 20:18+0000\n"
+"Last-Translator: Burak Yavuz <hitowerdigit@hotmail.com>\n"
 "Language-Team: Turkish <https://translate.fedoraproject.org/projects/cockpit/"
 "cockpit/tr/>\n"
 "Language: tr\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n>1);\n"
-"X-Generator: Weblate 2026.5\n"
+"X-Generator: Weblate 2026.6.1\n"
 
 #: pkg/users/accounts-list.js:236
 msgid "# of users"
@@ -758,7 +758,7 @@ msgid "Add"
 msgstr "Ekle"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:131
-#: pkg/networkmanager/network-interface-members.jsx:151
+#: pkg/networkmanager/network-interface-members.jsx:146
 msgid "Add $0"
 msgstr "$0 ekle"
 
@@ -834,7 +834,7 @@ msgstr "Anahtar ekle"
 msgid "Add keyserver"
 msgstr "Anahtar sunucusu ekle"
 
-#: pkg/networkmanager/network-interface-members.jsx:171
+#: pkg/networkmanager/network-interface-members.jsx:176
 msgid "Add member"
 msgstr "Üye ekle"
 
@@ -909,7 +909,7 @@ msgstr "Şifreleme seçeneklerine \"$0\" ekleniyor"
 msgid "Adding \"$0\" to filesystem options"
 msgstr "Dosya sistemi seçeneklerine \"$0\" ekleniyor"
 
-#: pkg/networkmanager/network-interface-members.jsx:150
+#: pkg/networkmanager/network-interface-members.jsx:145
 msgid ""
 "Adding $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -1517,7 +1517,7 @@ msgstr ""
 #: pkg/shell/hosts_dialog.jsx:477 pkg/shell/hosts_dialog.jsx:574
 #: pkg/shell/hosts_dialog.jsx:710 pkg/shell/hosts_dialog.jsx:1089
 #: pkg/shell/active-pages-modal.tsx:112 pkg/shell/shell-modals.tsx:172
-#: pkg/metrics/metrics.jsx:1490 pkg/lib/cockpit/dialog.tsx:1417
+#: pkg/metrics/metrics.jsx:1490 pkg/lib/cockpit/dialog.tsx:1525
 #: pkg/lib/superuser-dialogs.tsx:213 pkg/lib/superuser-dialogs.tsx:250
 #: pkg/lib/superuser-dialogs.tsx:306 pkg/lib/cockpit-connect-ssh.tsx:175
 #: pkg/lib/cockpit-connect-ssh.tsx:488
@@ -1638,7 +1638,7 @@ msgstr "Sistem saatini değiştir"
 msgid "Change the password of $0"
 msgstr "$0 parolasını değiştir"
 
-#: pkg/networkmanager/interfaces.js:1947
+#: pkg/networkmanager/interfaces.js:1943
 msgid "Change the settings"
 msgstr "Ayarları değiştir"
 
@@ -1665,7 +1665,7 @@ msgstr ""
 "Dizini değiştirmek, o anda çalışan işlemi zorla durduracaktır. İşlem devam "
 "etmeden önce terminalde el ile de durdurulabilir."
 
-#: pkg/networkmanager/interfaces.js:1946
+#: pkg/networkmanager/interfaces.js:1942
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -3190,7 +3190,7 @@ msgstr "Hata"
 msgid "Error and above"
 msgstr "Hata ve üstü"
 
-#: pkg/lib/cockpit/dialog.tsx:1323
+#: pkg/lib/cockpit/dialog.tsx:1431
 msgid "Error during initialization"
 msgstr "Başlatma sırasında hata"
 
@@ -3290,8 +3290,8 @@ msgstr "FIPS düzgün şekilde etkinleştirilmedi"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "Daha fazla Ortak Ölçüt kısıtlamasına sahip FIPS."
 
-#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/lib/cockpit/dialog.tsx:1347
-#: pkg/lib/cockpit/dialog.tsx:1350 pkg/networkmanager/interfaces.js:895
+#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/lib/cockpit/dialog.tsx:1455
+#: pkg/lib/cockpit/dialog.tsx:1458 pkg/networkmanager/interfaces.js:895
 msgid "Failed"
 msgstr "Başarısız oldu"
 
@@ -3709,7 +3709,7 @@ msgstr "Yardım"
 msgid "Hide confirmation password"
 msgstr "Onay parolasını gizle"
 
-#: pkg/lib/cockpit/dialog.tsx:1553 pkg/lib/cockpit-components-password.tsx:135
+#: pkg/lib/cockpit/dialog.tsx:1661 pkg/lib/cockpit-components-password.tsx:135
 msgid "Hide password"
 msgstr "Parolayı gizle"
 
@@ -3909,8 +3909,8 @@ msgstr "Sürüyor"
 msgid "In sync"
 msgstr "Eşitleme durumunda"
 
-#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1627
-#: pkg/networkmanager/interfaces.js:1634
+#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1623
+#: pkg/networkmanager/interfaces.js:1630
 #: pkg/networkmanager/network-interface.jsx:459
 msgid "Inactive"
 msgstr "Etkin değil"
@@ -3918,6 +3918,10 @@ msgstr "Etkin değil"
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:19
 msgid "Inactive logical volume"
 msgstr "Etkin olmayan mantıksal birim"
+
+#: pkg/networkmanager/firewall.jsx:119
+msgid "Included Services"
+msgstr "Dahil Olan Hizmetler"
 
 #: pkg/networkmanager/firewall.jsx:865
 msgid "Included services"
@@ -4061,12 +4065,12 @@ msgid_plural "Interfaces"
 msgstr[0] "Arayüz"
 msgstr[1] "Arayüzler"
 
-#: pkg/networkmanager/network-interface-members.jsx:186
-#: pkg/networkmanager/network-interface-members.jsx:188
+#: pkg/networkmanager/network-interface-members.jsx:191
+#: pkg/networkmanager/network-interface-members.jsx:193
 msgid "Interface members"
 msgstr "Arayüz üyeleri"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
+#: pkg/networkmanager/network-interface-members.jsx:197
 #: pkg/networkmanager/network-main.jsx:198 pkg/networkmanager/bond.jsx:158
 #: pkg/networkmanager/firewall.jsx:872
 msgid "Interfaces"
@@ -5232,6 +5236,10 @@ msgstr "Ağ birleştirme (bond)"
 msgid "Network devices and graphs require NetworkManager"
 msgstr "Ağ aygıtları ve grafikleri için NetworkManager gerekir"
 
+#: pkg/networkmanager/networkmanager.jsx:134
+msgid "Network interface '$0' not found"
+msgstr "'$0' ağ arayüzü bulunamadı"
+
 #: pkg/networkmanager/network-main.jsx:227
 msgid "Network logs"
 msgstr "Ağ günlükleri"
@@ -5350,7 +5358,7 @@ msgstr "Kullanılabilir blok aygıtlar yok."
 msgid "No block devices found"
 msgstr "Bulunan blok aygıtlar yok"
 
-#: pkg/networkmanager/interfaces.js:1629
+#: pkg/networkmanager/interfaces.js:1625
 msgid "No carrier"
 msgstr "Taşıyıcı yok"
 
@@ -5435,6 +5443,10 @@ msgstr "Bulunan anamakine anahtarları yok."
 #: pkg/apps/utils.tsx:116
 msgid "No installation package found for this application."
 msgstr "Bu uygulama için kurulum paketi bulunamadı."
+
+#: pkg/networkmanager/network-interface-members.jsx:167
+msgid "No intefaces available"
+msgstr "Mevcut arayüzler yok"
 
 #: pkg/storaged/crypto/keyslots.jsx:706
 msgid "No keys added"
@@ -5847,7 +5859,7 @@ msgstr "Üst öğe $parent"
 msgid "Part of"
 msgstr "Parçası olduğu"
 
-#: pkg/networkmanager/interfaces.js:1658
+#: pkg/networkmanager/interfaces.js:1654
 msgid "Part of $0"
 msgstr "$0 parçası"
 
@@ -6211,7 +6223,7 @@ msgstr "Bağlantı noktası"
 msgid "Portable"
 msgstr "Taşınabilir"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
+#: pkg/networkmanager/network-interface-members.jsx:197
 #: pkg/networkmanager/team.jsx:144 pkg/networkmanager/bridge.jsx:86
 msgid "Ports"
 msgstr "Bağlantı noktaları"
@@ -6497,7 +6509,7 @@ msgstr "Yeniden başlatma önerilir"
 msgid "Reboot system..."
 msgstr "Sistemi yeniden başlat..."
 
-#: pkg/networkmanager/network-interface-members.jsx:194
+#: pkg/networkmanager/network-interface-members.jsx:199
 #: pkg/networkmanager/network-main.jsx:206
 #: pkg/networkmanager/network-main.jsx:222 pkg/networkmanager/plots.js:30
 msgid "Receiving"
@@ -6645,6 +6657,10 @@ msgstr "Clevis belirteci kaldırılsın mı?"
 #: pkg/storaged/stratis/pool.jsx:958 pkg/storaged/crypto/keyslots.jsx:650
 msgid "Remove Tang keyserver?"
 msgstr "Tang anahtar sunucusu kaldırılsın mı?"
+
+#: pkg/networkmanager/firewall.jsx:151
+msgid "Remove additional port"
+msgstr "Ek bağlantı noktasını kaldır"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:214
 msgid "Remove device"
@@ -6923,6 +6939,10 @@ msgstr ""
 #: pkg/systemd/logs.jsx:238
 msgid "Resume"
 msgstr "Devam"
+
+#: pkg/networkmanager/networkmanager.jsx:135
+msgid "Return to overview page"
+msgstr "Genel bakış sayfasına dön"
 
 #: pkg/storaged/block/format-dialog.jsx:189
 msgid "Reuse existing encryption"
@@ -7225,7 +7245,7 @@ msgstr ""
 msgid "Self-test status"
 msgstr "Kendi kendine deneme durumu"
 
-#: pkg/networkmanager/network-interface-members.jsx:193
+#: pkg/networkmanager/network-interface-members.jsx:198
 #: pkg/networkmanager/network-main.jsx:205
 #: pkg/networkmanager/network-main.jsx:221
 msgid "Sending"
@@ -7410,7 +7430,7 @@ msgstr "Belirli bir önyüklemeden gelen iletileri gösterin."
 msgid "Show more relationships"
 msgstr "Daha fazla ilişki göster"
 
-#: pkg/lib/cockpit/dialog.tsx:1553 pkg/lib/cockpit-components-password.tsx:135
+#: pkg/lib/cockpit/dialog.tsx:1661 pkg/lib/cockpit-components-password.tsx:135
 msgid "Show password"
 msgstr "Parolayı göster"
 
@@ -8985,7 +9005,7 @@ msgstr "Birim"
 #: pkg/systemd/hw-detect.js:87 pkg/systemd/hw-detect.js:90
 #: pkg/systemd/hw-detect.js:97 pkg/systemd/hw-detect.js:98
 #: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
-#: pkg/networkmanager/interfaces.js:1167
+#: pkg/networkmanager/interfaces.js:1163
 #: pkg/networkmanager/network-interface.jsx:402
 #: pkg/networkmanager/network-interface.jsx:404
 msgid "Unknown"
@@ -10161,7 +10181,7 @@ msgstr "bağla"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "ağ"
 
@@ -10404,7 +10424,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "sos raporu başarısız oldu"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -13052,9 +13072,6 @@ msgstr "bölge"
 
 #~ msgid "Enter IP address or hostname"
 #~ msgstr "IP adresi veya anamakine adını girin"
-
-#~ msgid "Network interfaces"
-#~ msgstr "Ağ arayüzleri"
 
 #~ msgid ""
 #~ "This version of cockpit-ws does not support connecting to a host with an "

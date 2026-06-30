@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 13:08+0000\n"
-"PO-Revision-Date: 2026-05-22 07:01+0000\n"
+"POT-Creation-Date: 2026-06-26 12:28+0000\n"
+"PO-Revision-Date: 2026-06-29 09:17+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://translate.fedoraproject.org/"
 "projects/cockpit/cockpit/pt_BR/>\n"
@@ -30,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 2026.5\n"
+"X-Generator: Weblate 2026.6.1\n"
 
 #: pkg/users/accounts-list.js:236
 msgid "# of users"
@@ -769,7 +769,7 @@ msgid "Add"
 msgstr "Adicionar"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:131
-#: pkg/networkmanager/network-interface-members.jsx:151
+#: pkg/networkmanager/network-interface-members.jsx:146
 msgid "Add $0"
 msgstr "Adicionar $0"
 
@@ -845,7 +845,7 @@ msgstr "Adicionar chave"
 msgid "Add keyserver"
 msgstr "Adicionar servidor de chaves"
 
-#: pkg/networkmanager/network-interface-members.jsx:171
+#: pkg/networkmanager/network-interface-members.jsx:176
 msgid "Add member"
 msgstr "Adicionar membro"
 
@@ -920,7 +920,7 @@ msgstr "Adicionando \"$0\" às opções de criptografia"
 msgid "Adding \"$0\" to filesystem options"
 msgstr "Adicionando \"$0\" às opções do sistema de arquivos"
 
-#: pkg/networkmanager/network-interface-members.jsx:150
+#: pkg/networkmanager/network-interface-members.jsx:145
 msgid ""
 "Adding $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -1534,7 +1534,7 @@ msgstr ""
 #: pkg/shell/hosts_dialog.jsx:477 pkg/shell/hosts_dialog.jsx:574
 #: pkg/shell/hosts_dialog.jsx:710 pkg/shell/hosts_dialog.jsx:1089
 #: pkg/shell/active-pages-modal.tsx:112 pkg/shell/shell-modals.tsx:172
-#: pkg/metrics/metrics.jsx:1490 pkg/lib/cockpit/dialog.tsx:1417
+#: pkg/metrics/metrics.jsx:1490 pkg/lib/cockpit/dialog.tsx:1525
 #: pkg/lib/superuser-dialogs.tsx:213 pkg/lib/superuser-dialogs.tsx:250
 #: pkg/lib/superuser-dialogs.tsx:306 pkg/lib/cockpit-connect-ssh.tsx:175
 #: pkg/lib/cockpit-connect-ssh.tsx:488
@@ -1657,7 +1657,7 @@ msgstr "Alterar Horário do Sistema"
 msgid "Change the password of $0"
 msgstr "Altere a senha de $0"
 
-#: pkg/networkmanager/interfaces.js:1947
+#: pkg/networkmanager/interfaces.js:1943
 msgid "Change the settings"
 msgstr "Alterar as configurações"
 
@@ -1685,7 +1685,7 @@ msgstr ""
 "O processo também pode ser interrompido manualmente no terminal antes de "
 "continuar."
 
-#: pkg/networkmanager/interfaces.js:1946
+#: pkg/networkmanager/interfaces.js:1942
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -3213,7 +3213,7 @@ msgstr "Erro"
 msgid "Error and above"
 msgstr "Erro e acima"
 
-#: pkg/lib/cockpit/dialog.tsx:1323
+#: pkg/lib/cockpit/dialog.tsx:1431
 msgid "Error during initialization"
 msgstr "Erro durante inicialização"
 
@@ -3312,8 +3312,8 @@ msgstr "FIPS não está habilitado corretamente"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "FIPS com outras restrições de Common Criteria."
 
-#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/lib/cockpit/dialog.tsx:1347
-#: pkg/lib/cockpit/dialog.tsx:1350 pkg/networkmanager/interfaces.js:895
+#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/lib/cockpit/dialog.tsx:1455
+#: pkg/lib/cockpit/dialog.tsx:1458 pkg/networkmanager/interfaces.js:895
 msgid "Failed"
 msgstr "Falhou"
 
@@ -3731,7 +3731,7 @@ msgstr "Ajuda"
 msgid "Hide confirmation password"
 msgstr "Ocultar confirmação da senha"
 
-#: pkg/lib/cockpit/dialog.tsx:1553 pkg/lib/cockpit-components-password.tsx:135
+#: pkg/lib/cockpit/dialog.tsx:1661 pkg/lib/cockpit-components-password.tsx:135
 msgid "Hide password"
 msgstr "Ocultar senha"
 
@@ -3931,8 +3931,8 @@ msgstr "Em andamento"
 msgid "In sync"
 msgstr "Em Sincronização"
 
-#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1627
-#: pkg/networkmanager/interfaces.js:1634
+#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1623
+#: pkg/networkmanager/interfaces.js:1630
 #: pkg/networkmanager/network-interface.jsx:459
 msgid "Inactive"
 msgstr "Inativo"
@@ -3940,6 +3940,10 @@ msgstr "Inativo"
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:19
 msgid "Inactive logical volume"
 msgstr "Volume lógico inativo"
+
+#: pkg/networkmanager/firewall.jsx:119
+msgid "Included Services"
+msgstr "Serviços inclusos"
 
 #: pkg/networkmanager/firewall.jsx:865
 msgid "Included services"
@@ -4084,12 +4088,12 @@ msgid_plural "Interfaces"
 msgstr[0] "Interface"
 msgstr[1] "Interfaces"
 
-#: pkg/networkmanager/network-interface-members.jsx:186
-#: pkg/networkmanager/network-interface-members.jsx:188
+#: pkg/networkmanager/network-interface-members.jsx:191
+#: pkg/networkmanager/network-interface-members.jsx:193
 msgid "Interface members"
 msgstr "Membros da interface"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
+#: pkg/networkmanager/network-interface-members.jsx:197
 #: pkg/networkmanager/network-main.jsx:198 pkg/networkmanager/bond.jsx:158
 #: pkg/networkmanager/firewall.jsx:872
 msgid "Interfaces"
@@ -5254,6 +5258,12 @@ msgstr "Agregação de rede"
 msgid "Network devices and graphs require NetworkManager"
 msgstr "Dispositivos de rede e gráficos requerem o NetworkManager"
 
+#: pkg/networkmanager/networkmanager.jsx:134
+#, fuzzy
+#| msgid "Add network interface"
+msgid "Network interface '$0' not found"
+msgstr "Adicionar Interface de Rede"
+
 #: pkg/networkmanager/network-main.jsx:227
 msgid "Network logs"
 msgstr "Logs de rede"
@@ -5372,7 +5382,7 @@ msgstr "Nenhum dispositivo de bloco está disponível."
 msgid "No block devices found"
 msgstr "Nenhum dispositivo de bloco encontrado"
 
-#: pkg/networkmanager/interfaces.js:1629
+#: pkg/networkmanager/interfaces.js:1625
 msgid "No carrier"
 msgstr "Sem sinal"
 
@@ -5457,6 +5467,12 @@ msgstr "Nenhuma chave de host encontrada."
 #: pkg/apps/utils.tsx:116
 msgid "No installation package found for this application."
 msgstr "Nenhum pacote de instalação encontrado para este aplicativo."
+
+#: pkg/networkmanager/network-interface-members.jsx:167
+#, fuzzy
+#| msgid "No data available"
+msgid "No intefaces available"
+msgstr "Nenhum dado disponível"
 
 #: pkg/storaged/crypto/keyslots.jsx:706
 msgid "No keys added"
@@ -5867,7 +5883,7 @@ msgstr "Pai $parent"
 msgid "Part of"
 msgstr "Parte de"
 
-#: pkg/networkmanager/interfaces.js:1658
+#: pkg/networkmanager/interfaces.js:1654
 msgid "Part of $0"
 msgstr "Parte of $0"
 
@@ -6229,7 +6245,7 @@ msgstr "Porta"
 msgid "Portable"
 msgstr "Portatil"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
+#: pkg/networkmanager/network-interface-members.jsx:197
 #: pkg/networkmanager/team.jsx:144 pkg/networkmanager/bridge.jsx:86
 msgid "Ports"
 msgstr "Portas"
@@ -6516,7 +6532,7 @@ msgstr "Recomenda-se reiniciar"
 msgid "Reboot system..."
 msgstr "Reiniciar o sistema..."
 
-#: pkg/networkmanager/network-interface-members.jsx:194
+#: pkg/networkmanager/network-interface-members.jsx:199
 #: pkg/networkmanager/network-main.jsx:206
 #: pkg/networkmanager/network-main.jsx:222 pkg/networkmanager/plots.js:30
 msgid "Receiving"
@@ -6664,6 +6680,12 @@ msgstr "Remover token de Clevis?"
 #: pkg/storaged/stratis/pool.jsx:958 pkg/storaged/crypto/keyslots.jsx:650
 msgid "Remove Tang keyserver?"
 msgstr "Remover o servidor de chaves Tang?"
+
+#: pkg/networkmanager/firewall.jsx:151
+#, fuzzy
+#| msgid "Additional port"
+msgid "Remove additional port"
+msgstr "Porta adicional"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:214
 msgid "Remove device"
@@ -6944,6 +6966,10 @@ msgstr ""
 #: pkg/systemd/logs.jsx:238
 msgid "Resume"
 msgstr "Continuar"
+
+#: pkg/networkmanager/networkmanager.jsx:135
+msgid "Return to overview page"
+msgstr ""
 
 #: pkg/storaged/block/format-dialog.jsx:189
 msgid "Reuse existing encryption"
@@ -7246,7 +7272,7 @@ msgstr ""
 msgid "Self-test status"
 msgstr "Estado do auto-teste"
 
-#: pkg/networkmanager/network-interface-members.jsx:193
+#: pkg/networkmanager/network-interface-members.jsx:198
 #: pkg/networkmanager/network-main.jsx:205
 #: pkg/networkmanager/network-main.jsx:221
 msgid "Sending"
@@ -7431,7 +7457,7 @@ msgstr "Mostra mensagens de uma inicialização específica."
 msgid "Show more relationships"
 msgstr "Mostrar mais relações"
 
-#: pkg/lib/cockpit/dialog.tsx:1553 pkg/lib/cockpit-components-password.tsx:135
+#: pkg/lib/cockpit/dialog.tsx:1661 pkg/lib/cockpit-components-password.tsx:135
 msgid "Show password"
 msgstr "Exibir senha"
 
@@ -9010,7 +9036,7 @@ msgstr "Unidade"
 #: pkg/systemd/hw-detect.js:87 pkg/systemd/hw-detect.js:90
 #: pkg/systemd/hw-detect.js:97 pkg/systemd/hw-detect.js:98
 #: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
-#: pkg/networkmanager/interfaces.js:1167
+#: pkg/networkmanager/interfaces.js:1163
 #: pkg/networkmanager/network-interface.jsx:402
 #: pkg/networkmanager/network-interface.jsx:404
 msgid "Unknown"
@@ -10186,7 +10212,7 @@ msgstr "montar"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "rede"
 
@@ -10429,7 +10455,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "relatório sos falhou"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -11586,9 +11612,6 @@ msgstr "zona"
 
 #~ msgid "$0 virtual network interface settings"
 #~ msgstr "$0 configurações de interface de rede virtual"
-
-#~ msgid "Add network interface"
-#~ msgstr "Adicionar Interface de Rede"
 
 #~ msgid "Add virtual network interface"
 #~ msgstr "Adicionar interface de rede virtual"

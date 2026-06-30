@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 13:08+0000\n"
+"POT-Creation-Date: 2026-06-26 12:28+0000\n"
 "PO-Revision-Date: 2025-04-24 19:26+0000\n"
 "Last-Translator: Ondrej Sulek <feonsu@gmail.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -787,7 +787,7 @@ msgid "Add"
 msgstr "Pridať"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:131
-#: pkg/networkmanager/network-interface-members.jsx:151
+#: pkg/networkmanager/network-interface-members.jsx:146
 msgid "Add $0"
 msgstr "Pridať $0"
 
@@ -863,7 +863,7 @@ msgstr "Pridať kĺúč"
 msgid "Add keyserver"
 msgstr "Pridať server s kľúčmi"
 
-#: pkg/networkmanager/network-interface-members.jsx:171
+#: pkg/networkmanager/network-interface-members.jsx:176
 msgid "Add member"
 msgstr "Pridať člena"
 
@@ -938,7 +938,7 @@ msgstr "Pridávam „$0\" do možností pre šifrovanie"
 msgid "Adding \"$0\" to filesystem options"
 msgstr "Pridávam „$0\" do možností pre systém súborov"
 
-#: pkg/networkmanager/network-interface-members.jsx:150
+#: pkg/networkmanager/network-interface-members.jsx:145
 msgid ""
 "Adding $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -1576,7 +1576,7 @@ msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 #: pkg/shell/hosts_dialog.jsx:477 pkg/shell/hosts_dialog.jsx:574
 #: pkg/shell/hosts_dialog.jsx:710 pkg/shell/hosts_dialog.jsx:1089
 #: pkg/shell/active-pages-modal.tsx:112 pkg/shell/shell-modals.tsx:172
-#: pkg/metrics/metrics.jsx:1490 pkg/lib/cockpit/dialog.tsx:1417
+#: pkg/metrics/metrics.jsx:1490 pkg/lib/cockpit/dialog.tsx:1525
 #: pkg/lib/superuser-dialogs.tsx:213 pkg/lib/superuser-dialogs.tsx:250
 #: pkg/lib/superuser-dialogs.tsx:306 pkg/lib/cockpit-connect-ssh.tsx:175
 #: pkg/lib/cockpit-connect-ssh.tsx:488
@@ -1699,7 +1699,7 @@ msgstr "Zmeniť systémový čas"
 msgid "Change the password of $0"
 msgstr "Zmeniť heslo kľúča $0"
 
-#: pkg/networkmanager/interfaces.js:1947
+#: pkg/networkmanager/interfaces.js:1943
 msgid "Change the settings"
 msgstr "Zmeniť nastavenia"
 
@@ -1724,7 +1724,7 @@ msgid ""
 "The process can also be stopped manually in the terminal before continuing."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1946
+#: pkg/networkmanager/interfaces.js:1942
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -3275,7 +3275,7 @@ msgstr "Chyba"
 msgid "Error and above"
 msgstr "Chyba a závažnejšie"
 
-#: pkg/lib/cockpit/dialog.tsx:1323
+#: pkg/lib/cockpit/dialog.tsx:1431
 msgid "Error during initialization"
 msgstr ""
 
@@ -3375,8 +3375,8 @@ msgstr "FIPS nie je poriadne zapnuté"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr "FIPS s ďalšími obmedzeniami Common Criteria."
 
-#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/lib/cockpit/dialog.tsx:1347
-#: pkg/lib/cockpit/dialog.tsx:1350 pkg/networkmanager/interfaces.js:895
+#: pkg/storaged/mdraid/mdraid-disk.jsx:57 pkg/lib/cockpit/dialog.tsx:1455
+#: pkg/lib/cockpit/dialog.tsx:1458 pkg/networkmanager/interfaces.js:895
 msgid "Failed"
 msgstr "Neúspešné"
 
@@ -3822,7 +3822,7 @@ msgstr "Nápoveda"
 msgid "Hide confirmation password"
 msgstr "Skryť potvrdenie hesla"
 
-#: pkg/lib/cockpit/dialog.tsx:1553 pkg/lib/cockpit-components-password.tsx:135
+#: pkg/lib/cockpit/dialog.tsx:1661 pkg/lib/cockpit-components-password.tsx:135
 msgid "Hide password"
 msgstr "Skryť heslo"
 
@@ -4045,8 +4045,8 @@ msgstr "Stav postupu: $0"
 msgid "In sync"
 msgstr "Synchronizované"
 
-#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1627
-#: pkg/networkmanager/interfaces.js:1634
+#: pkg/networkmanager/interfaces.js:877 pkg/networkmanager/interfaces.js:1623
+#: pkg/networkmanager/interfaces.js:1630
 #: pkg/networkmanager/network-interface.jsx:459
 msgid "Inactive"
 msgstr "Neaktívne"
@@ -4054,6 +4054,12 @@ msgstr "Neaktívne"
 #: pkg/storaged/lvm2/inactive-logical-volume.jsx:19
 msgid "Inactive logical volume"
 msgstr "Neaktívny logický zväzok"
+
+#: pkg/networkmanager/firewall.jsx:119
+#, fuzzy
+#| msgid "Included services"
+msgid "Included Services"
+msgstr "Zahrnuté služby"
 
 #: pkg/networkmanager/firewall.jsx:865
 msgid "Included services"
@@ -4197,12 +4203,12 @@ msgstr[0] "Rozhranie"
 msgstr[1] "Rozhrania"
 msgstr[2] "Rozhraní"
 
-#: pkg/networkmanager/network-interface-members.jsx:186
-#: pkg/networkmanager/network-interface-members.jsx:188
+#: pkg/networkmanager/network-interface-members.jsx:191
+#: pkg/networkmanager/network-interface-members.jsx:193
 msgid "Interface members"
 msgstr "Čísla rozhraní"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
+#: pkg/networkmanager/network-interface-members.jsx:197
 #: pkg/networkmanager/network-main.jsx:198 pkg/networkmanager/bond.jsx:158
 #: pkg/networkmanager/firewall.jsx:872
 msgid "Interfaces"
@@ -5392,6 +5398,12 @@ msgstr "Sieťové spojenie (bond)"
 msgid "Network devices and graphs require NetworkManager"
 msgstr "Sieťové zariadenia a grafy vyžadujú NetworkManager"
 
+#: pkg/networkmanager/networkmanager.jsx:134
+#, fuzzy
+#| msgid "Add network interface"
+msgid "Network interface '$0' not found"
+msgstr "Pridať sieťové rozhranie"
+
 #: pkg/networkmanager/network-main.jsx:227
 msgid "Network logs"
 msgstr "Záznamy udalostí siete"
@@ -5512,7 +5524,7 @@ msgstr "Nie sú dostupné žiadne blokové zariadenia."
 msgid "No block devices found"
 msgstr "Nenájdené žiadne blokové zariadenie"
 
-#: pkg/networkmanager/interfaces.js:1629
+#: pkg/networkmanager/interfaces.js:1625
 msgid "No carrier"
 msgstr "Bez signálu"
 
@@ -5597,6 +5609,12 @@ msgstr "Neboli nájdené žiadne kľúče stroja."
 #: pkg/apps/utils.tsx:116
 msgid "No installation package found for this application."
 msgstr "Pre túto aplikáciu nebol nájdený žiaden inštalačný balíček."
+
+#: pkg/networkmanager/network-interface-members.jsx:167
+#, fuzzy
+#| msgid "No data available"
+msgid "No intefaces available"
+msgstr "Nie sú dostupné žiadne dáta"
 
 #: pkg/storaged/crypto/keyslots.jsx:706
 msgid "No keys added"
@@ -6016,7 +6034,7 @@ msgstr "Nadradené $parent"
 msgid "Part of"
 msgstr "Súčasť"
 
-#: pkg/networkmanager/interfaces.js:1658
+#: pkg/networkmanager/interfaces.js:1654
 msgid "Part of $0"
 msgstr "Súčasť $0"
 
@@ -6388,7 +6406,7 @@ msgstr "Port"
 msgid "Portable"
 msgstr "Prenosný"
 
-#: pkg/networkmanager/network-interface-members.jsx:192
+#: pkg/networkmanager/network-interface-members.jsx:197
 #: pkg/networkmanager/team.jsx:144 pkg/networkmanager/bridge.jsx:86
 msgid "Ports"
 msgstr "Porty"
@@ -6677,7 +6695,7 @@ msgstr "Odporúčaný reštart"
 msgid "Reboot system..."
 msgstr "Reštartovať systém…"
 
-#: pkg/networkmanager/network-interface-members.jsx:194
+#: pkg/networkmanager/network-interface-members.jsx:199
 #: pkg/networkmanager/network-main.jsx:206
 #: pkg/networkmanager/network-main.jsx:222 pkg/networkmanager/plots.js:30
 msgid "Receiving"
@@ -6831,6 +6849,12 @@ msgstr "Odstrániť zariadenie"
 #: pkg/storaged/stratis/pool.jsx:958 pkg/storaged/crypto/keyslots.jsx:650
 msgid "Remove Tang keyserver?"
 msgstr "Odstrániť Tang server s kľúčami?"
+
+#: pkg/networkmanager/firewall.jsx:151
+#, fuzzy
+#| msgid "Additional ports"
+msgid "Remove additional port"
+msgstr "Ďalšie porty"
 
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:214
 msgid "Remove device"
@@ -7111,6 +7135,10 @@ msgstr "Ak je správne nastavený kdump, budú výsledky uložené na $0 ako $1.
 #: pkg/systemd/logs.jsx:238
 msgid "Resume"
 msgstr "Obnoviť chod"
+
+#: pkg/networkmanager/networkmanager.jsx:135
+msgid "Return to overview page"
+msgstr ""
 
 #: pkg/storaged/block/format-dialog.jsx:189
 msgid "Reuse existing encryption"
@@ -7428,7 +7456,7 @@ msgstr ""
 msgid "Self-test status"
 msgstr "SMART samotest $target"
 
-#: pkg/networkmanager/network-interface-members.jsx:193
+#: pkg/networkmanager/network-interface-members.jsx:198
 #: pkg/networkmanager/network-main.jsx:205
 #: pkg/networkmanager/network-main.jsx:221
 msgid "Sending"
@@ -7617,7 +7645,7 @@ msgstr "Zobraziť správy z konkrétneho štartu systému."
 msgid "Show more relationships"
 msgstr "Zobraziť ďalšie vzťahy"
 
-#: pkg/lib/cockpit/dialog.tsx:1553 pkg/lib/cockpit-components-password.tsx:135
+#: pkg/lib/cockpit/dialog.tsx:1661 pkg/lib/cockpit-components-password.tsx:135
 msgid "Show password"
 msgstr "Zobraziť heslo"
 
@@ -9215,7 +9243,7 @@ msgstr "Jednotka"
 #: pkg/systemd/hw-detect.js:87 pkg/systemd/hw-detect.js:90
 #: pkg/systemd/hw-detect.js:97 pkg/systemd/hw-detect.js:98
 #: pkg/networkmanager/interfaces.js:538 pkg/networkmanager/interfaces.js:911
-#: pkg/networkmanager/interfaces.js:1167
+#: pkg/networkmanager/interfaces.js:1163
 #: pkg/networkmanager/network-interface.jsx:402
 #: pkg/networkmanager/network-interface.jsx:404
 msgid "Unknown"
@@ -10408,7 +10436,7 @@ msgstr "mount"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "sieť"
 
@@ -10654,7 +10682,7 @@ msgstr "sos"
 msgid "sos report failed"
 msgstr "Nahlasovanie problému zlyhalo"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -11674,9 +11702,6 @@ msgstr "zóna"
 
 #~ msgid "$0 virtual network interface settings"
 #~ msgstr "Nastavenie virtuálneho sieťového rozhrania $0"
-
-#~ msgid "Add network interface"
-#~ msgstr "Pridať sieťové rozhranie"
 
 #~ msgid "Add virtual network interface"
 #~ msgstr "Pridať virtuálne sieťové rozhranie"

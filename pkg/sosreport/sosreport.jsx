@@ -109,7 +109,7 @@ function sosLister() {
             const entries = state.info?.entries;
             const reports = { };
             for (const name in entries) {
-                if (entries[name].type == "reg") {
+                if (entries[name].type === "reg") {
                     const report = parse_report_name(name, entries[name].mtime);
                     if (report)
                         reports[report_dir + '/' + name] = report;
@@ -269,7 +269,7 @@ const SOSDialog = () => {
             args.push("-v");
         }
 
-        const task = sosCreate(args, setProgress, err => { if (err == "cancelled") Dialogs.close(); else setError(err); },
+        const task = sosCreate(args, setProgress, err => { if (err === "cancelled") Dialogs.close(); else setError(err); },
                                setErrorDetail, options);
         setTask(task);
         task.then(Dialogs.close);
@@ -419,7 +419,7 @@ const SOSBody = () => {
         return <EmptyStatePanel loading />;
 
     if (lister.problem) {
-        if (lister.problem == "access-denied")
+        if (lister.problem === "access-denied")
             return (
                 <EmptyStatePanel
                     title={_("Administrative access required")}

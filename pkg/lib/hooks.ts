@@ -46,7 +46,7 @@ import { dequal } from 'dequal/lite';
  * component is re-rendered when it changes. "location" is always a
  * valid object and never null.
  *
- * See https://cockpit-project.org/guide/latest/cockpit-location.html
+ * See https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-location.html
  */
 
 export function usePageLocation() {

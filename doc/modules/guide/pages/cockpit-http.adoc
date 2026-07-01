@@ -185,7 +185,7 @@ The `+exception+` object passed to the handler can have the following
 fields:
 
 `+problem+`::
-  A link:#cockpit-problems[problem code] string when a problem occurred
+  A xref:cockpit-error.adoc#cockpit-problems[problem code] string when a problem occurred
   starting or communicating with the server. This is `+null+` if the
   process exited or was terminated.
 `+status+`::
@@ -254,7 +254,7 @@ request.close([problem])
 ....
 
 Cancel the request. If `+problem+` is specified it should be a standard
-link:#cockpit-problems[problem code] string.
+xref:cockpit-error.adoc#cockpit-problems[problem code] string.
 
 [[cockpit-http-close-all]]
 == http.close()

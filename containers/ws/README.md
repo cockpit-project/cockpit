@@ -39,7 +39,7 @@ Privileged mode provides tight integration with the host: You can use the
 host's users and their passwords to log in, and Cockpit's branding will adjust
 to the host operating system.
 
-1. Enable password based SSH logins, unless you only use [SSO logins](https://cockpit-project.org/guide/latest/sso.html).
+1. Enable password based SSH logins, unless you only use [SSO logins](https://docs.cockpit-project.org/cockpit-guide/latest/guide/sso.html).
    From localhost only:
    ```bash
     cat << EOF > /etc/ssh/sshd_config.d/02-enable-passwords.conf
@@ -61,7 +61,7 @@ to the host operating system.
    podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws
    ```
 
-   You can append additional [cockpit-ws CLI options](https://cockpit-project.org/guide/latest/cockpit-ws.8.html),
+   You can append additional [cockpit-ws CLI options](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-ws.8.html),
    most commonly to change the port:
    ```
    podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws -- -p 80
@@ -102,7 +102,7 @@ address. [podman](https://podman.io/) provides the special name
 ### Configuration
 
 By default, the container uses an internal
-[cockpit.conf](https://cockpit-project.org/guide/latest/cockpit.conf.5.html)
+[cockpit.conf](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit.conf.5.html)
 which sets `RequireHost = true` and a neutral login title. You can customize
 this by passing your own configuration as a volume:
 

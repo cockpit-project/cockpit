@@ -6,7 +6,7 @@ and the DBus APIs it provides to configure and monitor core aspects of
 the system. Use of alternate system APIs are not currently implemented.
 
 For non root users, systemd controls access to its APIs via
-link:#privileges[Policy Kit] and a user logged into Cockpit will have
+xref:privileges.adoc[Policy Kit] and a user logged into Cockpit will have
 the same permissions as they do from the command line.
 
 Cockpit retrieves information about the host and changes the hostname
@@ -82,7 +82,7 @@ $ systemctl status cockpit
 ....
 
 In order to customize who can perform various actions in system,
-link:#privileges-polkit[create polkit rules] with the following actions
+xref:privileges.adoc#privileges-polkit[create polkit rules] with the following actions
 and details:
 
 `+org.freedesktop.systemd1.manage-units+`::

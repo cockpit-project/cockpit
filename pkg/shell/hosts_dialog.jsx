@@ -258,7 +258,7 @@ class Connect extends React.Component {
                         {_("Connected hosts can fully control each other. This includes running programs that could harm your system or steal data. Only connect to trusted machines.")}
                     </Content>
                     <Content component={ContentVariants.p}>
-                        <a href="https://cockpit-project.org/guide/latest/multi-host.html" target="blank" rel="noopener noreferrer">
+                        <a href="https://docs.cockpit-project.org/cockpit-guide/latest/guide/multi-host.html" target="blank" rel="noopener noreferrer">
                             <ExternalLinkAltIcon /> {_("Read more")}
                         </a>
                     </Content>

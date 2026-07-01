@@ -46,7 +46,7 @@ the following fields:
   Set to `+"require"+` to spawn the process as root instead of the
   logged in user. If the currently logged in user is not permitted to
   become root (eg: via `+pkexec+`) then the `+client+` will immediately
-  be link:#cockpit-dbus-onclose[closed] with a `+"access-denied"+`
+  be xref:cockpit-spawn.adoc#cockpit-dbus-onclose[closed] with a `+"access-denied"+`
   problem code.
   +
   Set to `+"try"+` to try to run the process as root, but if that fails,
@@ -136,7 +136,7 @@ fields:
   the `+"err"+` option set to `+"message"+` then the second argument
   will contain the standard error output of the process.
 `+problem+`::
-  A link:#cockpit-problems[problem code] string when a problem occurred
+  A xref:cockpit-error.adoc#cockpit-problems[problem code] string when a problem occurred
   starting or communicating with the process. This is `+null+` if the
   process exited or was terminated.
 `+exit_status+`::
@@ -199,5 +199,5 @@ process.close([problem])
 
 Close the process by closing its standard input and output. If
 `+problem+` is specified it should be a standard
-link:#cockpit-problems[problem code] string. In this case the process
+xref:cockpit-error.adoc#cockpit-problems[problem code] string. In this case the process
 will be terminated with a signal.

@@ -23,13 +23,13 @@ The most common way to use Cockpit is to just log directly into the
 server that you want to access. This can be done if you have direct
 network access to port 9090 on that server.
 
-By default the cockpit web service is installed on the base system and
-link:#listen[socket activated by systemd]. In this setup access is
+By default the cockpit web service is installed on thec base system and
+xref:listen.adoc[socket activated by systemd]. In this setup access is
 controlled by a cockpit specific pam stack, generally located at
 `+/etc/pam.d/cockpit+`. By default this is configured to allow you to
 login with the username and password of any local account on the system.
-You can also setup a link:#sso[Kerberos based SSO solution] or
-link:#cert-authentication[certificate/smart card authentication].
+You can also setup a xref:sso.adoc[Kerberos based SSO solution] or
+xref:cert-authentication.adoc[certificate/smart card authentication].
 
 You can also
 https://github.com/cockpit-project/cockpit/blob/main/doc/authentication.md#actions[disable
@@ -44,7 +44,7 @@ supported mode. In this setup, cockpit establishes an SSH connection
 from the container to the underlying host, meaning that it is up to your
 SSH server to grant access. To login with a local account, `+sshd+` will
 need to be configured to allow password based authentication.
-Alternatively you can setup a link:#sso[Kerberos based SSO solution].
+Alternatively you can setup a xref:sso.adoc[Kerberos based SSO solution].
 
 Like `+sshd+`, cockpit can be configured to limit the number of
 concurrent login attempts allowed. This is done by adding a
@@ -110,7 +110,7 @@ enabled in `+sshd+`.
 
 The target server will need to be a member of the same domain as the
 primary server and your domain must be whitelisted in your browser. See
-the link:#sso[SSO documentation] for how to set this up.
+the xref:sso.adoc[SSO documentation] for how to set this up.
 
 === Public key
 

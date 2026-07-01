@@ -1,0 +1,31 @@
+name: Cockpit manifests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  validate-manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Install the JSON Schema CLI
+        uses: sourcemeta/jsonschema@v16.0.0
+
+      - name: Validate Cockpit manifests
+        run: jsonschema validate doc/modules/ROOT/attachments/schema.json pkg/ --continue
+
+  validate-schemas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Install the JSON Schema CLI
+        uses: sourcemeta/jsonschema@v16.0.0
+
+      - name: Validate Cockpit manifest schemas
+        run: jsonschema metaschema doc/modules/ROOT/attachments/schema.json

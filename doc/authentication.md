@@ -158,6 +158,28 @@ the next section for details.
 See the [Certificate/smart card authentication guide](https://cockpit-project.org/guide/latest/cert-authentication.html)
 for details how to set this up.
 
+Session User Command
+---------------------------------
+It is possible to set up a custom authentication scheme, that calls an external command to validate the incoming authentication header, and if successful, returns a specific username to Cockpit, in turn using PAM to then log in as that user.
+
+A common use-case for this is where you have Cockpit sitting behind a reverse-proxy that performs authentication, and passes an authentication token; for example a JWT token.
+
+To configure this, create a section in `cockpit.conf` for your custom authentication scheme, for example:
+
+```
+[x-my-auth-method]
+SessionUserCommand = /usr/local/bin/my-auth-method-script
+```
+
+The command specified in `SessionUserCommand` will be called with two arguments, which are the remote host IP address, and the authentication data extracted from the Authorization header (excluding the auth scheme prefix). For example, if a curl command like this is issued:
+`curl -vvv -k https://localhost:9090/cockpit/login -H 'Authorization: x-my-auth-method some-auth-data'`
+
+The command will be called like this:
+
+`/usr/local/bin/my-auth-method-script <remote-host-ip> some-auth-data`
+
+The command should **only** output the username to log in as on stdout, and exit with status code 0 on success. If the authentication fails, the command should exit with a non-zero status code. Any output to stderr will be logged by Cockpit.
+
 Actions
 -------
 

@@ -7,7 +7,7 @@ import { ensure_transport, transport_globals } from './transport';
 /* -------------------------------------------------------------------------
  * Channels
  *
- * Public: https://cockpit-project.org/guide/latest/api-base1.html
+ * Public: https://docs.cockpit-project.org/cockpit-guide/latest/guide/api-base1.html
  */
 
 export function Channel(options) {

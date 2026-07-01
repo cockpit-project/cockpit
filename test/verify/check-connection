@@ -820,7 +820,7 @@ class TestConnection(testlib.MachineCase):
         checkMotdContent('systemctl', expected=False)
         m.execute("systemctl stop cockpit.socket")
 
-        # Change port according to documentation: https://cockpit-project.org/guide/latest/listen.html
+        # Change port according to documentation: https://docs.cockpit-project.org/cockpit-guide/latest/guide/listen.html
         m.execute('! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443')
         self.write_file("/etc/systemd/system/cockpit.socket.d/listen.conf",
                         "[Socket]\nListenStream=\nListenStream=/run/cockpit/sock\nListenStream=443",

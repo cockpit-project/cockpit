@@ -56,7 +56,7 @@ export class LongRunningProcess {
      *  This runs as root, thus will be shared with all privileged Cockpit sessions.
      *  Return cockpit.spawn promise. You need to handle exceptions, but not success.
      * @param {string[]} argv array starting with executable and all of the arguments to pass to it
-     * @param {object} options same properties as cockpit-spawn https://cockpit-project.org/guide/latest/cockpit-spawn.html
+     * @param {object} options same properties as cockpit-spawn https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-spawn.html/cockpit-spawn.html
      * @param {string[]} runArgs arguments to provide to systemd-run itself, such as `--setenv`
      */
     run(argv, options, runArgs = []) {

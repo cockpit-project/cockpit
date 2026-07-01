@@ -11,7 +11,7 @@ URLs.
 == Component URLs
 
 Cockpit components are HTML documents. They are organized into
-link:#packages[packages]. Each package contains information about which
+xref:packages.adoc[packages]. Each package contains information about which
 HTML components are available in that package. Components should always
 use relative URLs to access resources, such as images, scripts or CSS
 files, even if they refer to a resource in another package.
@@ -27,12 +27,12 @@ below:
 ....
 
 All resource URLs are under the `+/cockpit+` namespace. In cases where a
-Cockpit component is being link:#embedding[embedded] the `+/cockpit+`
+Cockpit component is being xref:embedding.adoc[embedded] the `+/cockpit+`
 may be followed by a plus sign and another `+embedder+` specific
 identifier.
 
 What follows is either a `+@host+` or `+$checksum+` which tells cockpit
-where to link:#packages[find the package]. Checksums are used when more
+where to xref:packages.adoc[find the package]. Checksums are used when more
 than one host has identical packages and the resources can be cached.
 
 The `+package+` name is next, followed by the `+component+` HTML path
@@ -52,8 +52,8 @@ Only refer to resources in packages on the same host.
 The above Component URLs are usually not visible to the user. Instead
 the Cockpit Web Service wraps the components in a shell which allows
 navigation, and provides bookmarkable clean URLs to the component. These
-URLs do not affect link:#embedding[embedders] or
-link:#packages[components] directly.
+URLs do not affect xref:embedding.adoc[embedders] or
+xref:packages.adoc[components] directly.
 
 If no path is present then the Cockpit will redirect to the default page
 for the server.
@@ -62,7 +62,7 @@ If the first segment of the path begins with an `+@+` sign, then the
 component is being shown from a non-local host.
 
 The next segment of the path, (or first if the component is being shown
-on the local host) is the link:#packages[package name]. The remainder of
+on the local host) is the xref:packages.adoc[package name]. The remainder of
 the path is a component file in the package. If no further path segments
 are present, a default `+index.html+` component in the package is
 loaded. An extension of `+.html+` is automatically appended.

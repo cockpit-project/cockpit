@@ -47,7 +47,7 @@ DBus values are represented as javascript values and objects as follows:
   A javascript object that describes a cockpit channel which represents
   the passed file descriptor. The `+payload+` is always set to
   `+stream+`. Pass it to
-  link:#cockpit-channels-channel[cockpit.channel()] to create the
+  xref:cockpit-channels.adoc#cockpit-channels-channel[cockpit.channel()] to create the
   channel and start reading or writing on it. Handles can only be
   received, not sent from within cockpit.
 
@@ -116,7 +116,7 @@ client.close([problem])
 ....
 
 Close the DBus client. If `+problem+` is specified it should be a
-link:#cockpit-problems[problem code] string.
+xref:cockpit-error.adoc#cockpit-problems[problem code] string.
 
 [[cockpit-dbus-onclose]]
 == client.onclose
@@ -576,7 +576,7 @@ The `+exception+` object passed to the handler can have the following
 properties:
 
 `+problem+`::
-  A link:#cockpit-problems[problem code] string when a problem occurred
+  A xref:cockpit-error.adoc#cockpit-problems[problem code] string when a problem occurred
   starting or communicating with the DBus service. This is `+null+` in
   the cases where an actual DBus error was occurred.
 `+name+`::

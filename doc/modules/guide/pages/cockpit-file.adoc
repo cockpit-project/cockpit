@@ -49,7 +49,7 @@ cockpit.file("/path/to/file").read()
 
 It is recommended to use absolute paths. Relative paths are resolved
 against `+/+`. To work with the current user's files
-link:#cockpit-user[cockpit.user()] can be used to get the user's home
+xref:cockpit-login.adoc#cockpit-user[cockpit.user()] can be used to get the user's home
 directory.
 
 The `+read()+` method returns a
@@ -69,7 +69,7 @@ It is not an error when the file does not exist. In this case, the
 and `+tag+` is `+"-"+`.
 
 The `+superuser+` option can be used the same way as described in the
-link:#cockpit-channels-channel[cockpit.channel()] to provide a different
+xref:cockpit-channels.adoc#cockpit-channels-channel[cockpit.channel()] to provide a different
 access level to the file.
 
 You can use the `+max_read_size+` option to limit the amount of data

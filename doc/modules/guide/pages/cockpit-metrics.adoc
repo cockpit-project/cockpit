@@ -1,10 +1,10 @@
 = cockpit.js: Metrics
 
 Metrics about the system can be retrieved from several sources using
-link:#cockpit-metrics[`+cockpit.metrics()+`] metrics channels. The
+link:#cockpit-metrics-function[`+cockpit.metrics()+`] metrics channels. The
 metrics are made available as series data, and can be used with the
-link:#cockpit-series[`+cockpit.series()+`] and
-link:#cockpit-grid[`+cockpit.grid()+`] facilities.
+xref:cockpit-series-data.adoc#cockpit-series[`+cockpit.series()+`] and
+xref:cockpit-series-data.adoc#cockpit-grid[`+cockpit.grid()+`] facilities.
 
 [[cockpit-metrics-function]]
 == cockpit.metrics()
@@ -15,7 +15,7 @@ metrics = cockpit.metrics(interval, options, cache)
 
 Opens a new metrics channel. The data retrieved will be available in the
 link:#cockpit-metrics-series[`+metrics.series+`] series sink, and can be
-used together with link:#cockpit-grid[`+cockpit.grid()+`] objects.
+used together with xref:cockpit-series-data.adoc#cockpit-grid[`+cockpit.grid()+`] objects.
 
 The `+interval+` is in milliseconds, and is the granularity of the
 series data retrieved. Any grids consuming the data must have the same

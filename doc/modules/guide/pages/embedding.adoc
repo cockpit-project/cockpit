@@ -39,15 +39,15 @@ The component will load from the server in question and a WebSocket
 connection will be established with the server to relay the component's
 message stream.
 
-Cockpit components are HTML files contained in link:#packages[packages].
+Cockpit components are HTML files contained in xref:packages.adoc[packages].
 These can be placed in an iframe or web browser window. Each documented
 and stable component has a well-known URL and these are documented in
-the link:#development[API reference]. Each component URL begins with the
+the xref:development.adoc[API reference]. Each component URL begins with the
 string `+/cockpit/@localhost/+` followed a package name, and then the
 component itself.
 
-For example the link:#api-terminal-html[terminal.html] in the
-link:#api-system[system] package, has this URL:
+For example the xref:api-terminal-html.adoc[terminal.html] in the
+xref:api-system.adoc[system] package, has this URL:
 `+/cockpit/@localhost/system/terminal.html+`
 
 [source,html]

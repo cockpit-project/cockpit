@@ -118,7 +118,7 @@ Close the channel.
 If `+options+` is present it can be a plain javascript object containing
 additional channel close options to send to the peer. If closing for
 because of a problem, set the `+"problem"+` field to a
-link:#cockpit-problems[problem code]. If `+options+` is not an object it
+xref:cockpit-error.adoc#cockpit-problems[problem code]. If `+options+` is not an object it
 will be treated as a `+"problem"+`.
 
 The link:#cockpit-channels-close-ev[close event] will fire. A channel

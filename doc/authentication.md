@@ -155,7 +155,7 @@ This uses the `[tls-cert]` authentication scheme.
 When enabling this mode, other authentication types commonly get disabled. See
 the next section for details.
 
-See the [Certificate/smart card authentication guide](https://cockpit-project.org/guide/latest/cert-authentication.html)
+See the [Certificate/smart card authentication guide](https://docs.cockpit-project.org/cockpit-guide/latest/guide/cert-authentication.html)
 for details how to set this up.
 
 Actions

@@ -1439,7 +1439,7 @@ const PCPConfigDialog = ({
                     <div className="pcp-settings-modal-text">
                         { _("Performance Co-Pilot collects and analyzes performance metrics from your system.") }
 
-                        <Button component="a" variant="link" href="https://cockpit-project.org/guide/latest/feature-pcp.html"
+                        <Button component="a" variant="link" href="https://docs.cockpit-project.org/cockpit-guide/latest/guide/feature-pcp.html"
                                       isInline
                                       target="_blank" rel="noopener noreferrer"
                                       icon={<ExternalLinkAltIcon />}>

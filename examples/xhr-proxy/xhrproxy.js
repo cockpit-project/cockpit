@@ -8,7 +8,7 @@
  * (which can be changed in the manifest), and browsers blocking Cross-Origin requests.
  *
  * Documentation links:
- * - https://cockpit-project.org/guide/latest/cockpit-channels.html
+ * - https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-channels.html
  * - doc/protocol.md
  * - doc/urls.md
  */

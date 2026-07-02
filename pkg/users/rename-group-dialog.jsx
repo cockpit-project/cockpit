@@ -37,9 +37,21 @@ function validate_name(name) {
     if (!name)
         return _("Group name cannot be empty");
 
+    if (name == "." || name == "..")
+        return _("Group name cannot be '.' or '..'");
+
+    if (/^\d+$/.test(name))
+        return _("Group name cannot consist only of digits");
+
+    if (name[0] == '-')
+        return _("Group name cannot start with a dash");
+
     for (let i = 0; i < name.length; i++) {
+        if (name[i] == '$' && i == name.length - 1)
+            continue;
+
         if (!is_valid_char_name(name[i]))
-            return _("Group name can only consist of letters, digits, dots, dashes, and underscores");
+            return _("Group name can only contain letters, digits, underscores, dashes, dots, or a trailing dollar sign");
     }
 
     return null;

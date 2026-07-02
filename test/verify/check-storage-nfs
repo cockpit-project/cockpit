@@ -13,6 +13,14 @@ import testlib
 @testlib.nondestructive
 class TestStorageNfs(storagelib.StorageCase):
 
+    def setUp(self):
+        super().setUp()
+        # HACK: nfs-utils 2.9.1 rpc.mountd fails when /var/lib/nfs/etab does not exist
+        # Start the server before restarting to work around the issue
+        # https://bugzilla.redhat.com/show_bug.cgi?id=2496417
+        if self.machine.image.startswith("fedora-"):
+            self.machine.execute("systemctl start nfs-server")
+
     def testNfsClient(self):
         m = self.machine
         b = self.browser

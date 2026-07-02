@@ -1222,12 +1222,17 @@ class OsUpdates extends React.Component {
         try {
             const seconds = await this.state.packageManager.get_last_refresh_time();
             this.setState({ timeSinceRefresh: seconds });
+            console.log("seconds", seconds)
 
             // automatically trigger refresh for ≥ 1 day or if never refreshed
-            if (seconds >= 24 * 3600 || seconds < 0)
+            if (seconds >= 60 * 5 || seconds < 0) {
+                console.log("refreshing")
                 this.handleRefresh();
-            else if (always_load)
+            }
+            else if (always_load) {
+                console.log("always refresh")
                 this.loadUpdates();
+            }
         } catch (exc) {
             this.handleLoadError(exc);
         }

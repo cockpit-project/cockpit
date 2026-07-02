@@ -357,6 +357,282 @@ class TestDialog(testlib.MachineCase):
         b.click(d.cancel_button())
         b.wait_not_present("#dialog")
 
+    def testFileChooser(self):
+        b = self.browser
+        m = self.machine
+        d = dialoglib.DialogHelpers(b, "#dialog")
+        df = dialoglib.DialogHelpers(b, ".file-chooser")
+
+        # Inject a mock xdg-user-dir utility.
+
+        self.write_file("/usr/local/bin/xdg-user-dir",
+"""#! /bin/sh
+echo $HOME/Downloads
+""", perm="a+x")
+
+        # Where our test files are. This is intended to be the same as
+        # self.vm_tmpdir, but it is also hard-coded into
+        # pkg/playground/dialog.tsx and so we hard-code it here as
+        # well.
+
+        test_files = "/var/lib/cockpittest"
+
+        self.login_and_go("/playground/dialog", superuser=False)
+
+        b.click("#open")
+
+        # Use the get_FileChooserInput method so that Vulture doesn't
+        # complain about it being unused.
+
+        self.assertEqual(d.get_FileChooserInput("file"), "")
+
+        # The first open has a empty Recent tab.
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.wait_in_text(".file-chooser-listing-body", "No recent files")
+        b.click(".file-chooser .pf-v6-c-modal-box__close button")
+        b.wait_not_present(".file-chooser")
+
+        # Basic interaction with the text input
+
+        d.set_FileChooserInput("file", "/home/non-existent/foo")
+        b.wait_in_text(d.helper_text("file"), "(No such file or directory)")
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.wait_in_text(".file-chooser-listing-body", "No such file or directory")
+        b.click(".file-chooser .pf-v6-c-modal-box__close button")
+        b.wait_not_present(".file-chooser")
+
+        m.upload(["verify/files/file-chooser-test/"], test_files)
+        m.execute(f"mkdir '{test_files}/file-chooser-test/empty'")
+        d.set_FileChooserInput("file", test_files)
+        b.wait_in_text(d.helper_text("file"), "directory")
+
+        def file(name):
+            return f".file-chooser-listing-body tr[data-name='{name}']"
+
+        # Navigate to empty directory
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.wait_visible(".file-chooser")
+        b.mouse(file("cockpittest"), "dblclick")
+        b.mouse(file("file-chooser-test"), "dblclick")
+        b.mouse(file("empty"), "dblclick")
+        b.wait_in_text(".file-chooser-listing-body", "Directory is empty")
+
+        # Go up and choose tmpdir/file-chooser-test/foo
+
+        b.click(".file-chooser-listing-breadcrumbs a:contains('file-chooser-test')")
+        b.assert_pixels(".file-chooser", "basic")
+        b.mouse(file("foo"), "click")
+        b.click(df.apply_button())
+
+        d.wait_FileChooserInput("file", test_files + "/file-chooser-test/foo")
+        b.wait_in_text(d.helper_text("file"), "ASCII text")
+
+        # "foo" should now be in "Recent"
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.wait_visible(".file-chooser-listing-breadcrumbs nav")
+        b.wait_visible(file("foo"))
+        b.click(".file-chooser-sidebar tr:contains('Recent')")
+        b.wait_not_present(".file-chooser-listing-breadcrumbs nav")
+        b.wait_visible(file("foo"))
+        b.wait_in_text(file("foo"), test_files + "/file-chooser-test")
+        b.mouse(file("foo"), "click")
+        b.click(df.apply_button())
+        d.wait_FileChooserInput("file", test_files + "/file-chooser-test/foo")
+        b.wait_in_text(d.helper_text("file"), "ASCII text")
+
+        # Check that "Home" has some expected files
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.click(".file-chooser-sidebar tr:contains('Home')")
+        b.wait_text(".file-chooser-listing-breadcrumbs", "homeadmin")
+        b.click(".file-chooser-listing-breadcrumbs a:contains('home')")
+        b.mouse(file("admin"), "dblclick")
+        b.wait_in_text(".file-chooser-listing-body", "This directory contains only hidden files")
+        b.click(".file-chooser-listing-body button:contains('Show hidden files')")
+        b.mouse(file(".ssh"), "dblclick")
+        b.mouse(file("authorized_keys"), "click")
+        b.click(df.apply_button())
+
+        d.wait_FileChooserInput("file", "/home/admin/.ssh/authorized_keys")
+        b.wait_in_text(d.helper_text("file"), "OpenSSH RSA public key")
+
+        # Check the "Downloads" shortcut
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.click(".file-chooser-sidebar tr:contains('Downloads')")
+        b.wait_text(".file-chooser-listing-breadcrumbs", "homeadminDownloads")
+        b.wait_in_text(".file-chooser-listing-body", "No such file or directory")
+
+        # Check that we can't read /root
+
+        b.click(".file-chooser-sidebar tr:contains('Filesystem')")
+        b.mouse(file("root"), "dblclick")
+        b.wait_in_text(".file-chooser-listing-body", "Permission denied")
+        b.assert_pixels(".file-chooser", "denied")
+        b.click(".file-chooser .pf-v6-c-modal-box__close button")
+        b.wait_not_present(".file-chooser")
+
+        # Free text filtering
+
+        d.set_FileChooserInput("file", "")
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.click(".file-chooser-sidebar tr:contains('Test files')")
+        b.mouse(file("file-chooser-test"), "dblclick")
+
+        b.wait_visible(file("bar"))
+        b.wait_visible(file("foo"))
+        b.wait_visible(file("foobar"))
+
+        b.set_input_text(".file-chooser-listing-header input", "fo")
+        b.wait_visible(file("foo"))
+        b.wait_not_present(file("bar"))
+        b.wait_visible(file("foobar"))
+        b.assert_pixels(".file-chooser", "filtered")
+
+        b.set_input_text(".file-chooser-listing-header input", "ba")
+        b.wait_not_present(file("foo"))
+        b.wait_visible(file("bar"))
+        b.wait_visible(file("foobar"))
+
+        b.set_input_text(".file-chooser-listing-header input", "xxx")
+        b.wait_in_text(".file-chooser-listing-body", "No matching results")
+        b.click(".file-chooser-listing-body button:contains('Clear filters')")
+
+        b.wait_visible(file("bar"))
+        b.wait_visible(file("foo"))
+        b.wait_visible(file("foobar"))
+
+        # Prepared filtering.
+
+        # "No dots" was already active all the time, switch it off to
+        # reveal more files.
+
+        b.click(".file-chooser-listing-header button:contains('All files')")
+
+        b.wait_visible(file("bar"))
+        b.wait_visible(file("foo"))
+        b.wait_visible(file("foobar"))
+        b.wait_visible(file("dots.txt"))
+        b.wait_visible(file("only.dots"))
+
+        b.mouse(file("only.dots"), "dblclick")
+        b.wait_visible(file("one.dot"))
+        b.wait_visible(file("two.dots"))
+
+        b.click(".file-chooser-listing-header button:contains('No dots')")
+
+        b.wait_in_text(".file-chooser-listing-body", "No matching results")
+
+        # Filter even more, this should get cleared as well
+        b.set_input_text(".file-chooser-listing-header input", "x")
+
+        b.click(".file-chooser-listing-body button:contains('Clear filters')")
+
+        b.wait_visible(file("one.dot"))
+        b.wait_visible(file("two.dots"))
+
+        b.click(".file-chooser .pf-v6-c-modal-box__close button")
+        b.wait_not_present(".file-chooser")
+
+        # Test the collection
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.click(".file-chooser-sidebar tr:contains('Some files')")
+        b.wait_visible(file("foo"))
+        b.wait_not_present(file("dots.txt"))
+        b.click(".file-chooser-listing-header button:contains('All files')")
+        b.wait_visible(file("foo"))
+        b.wait_visible(file("dots.txt"))
+        b.click(file("dots.txt"))
+        b.click(df.apply_button())
+
+        d.wait_FileChooserInput("file", "/var/lib/cockpittest/file-chooser-test/dots.txt")
+        b.wait_in_text(d.helper_text("file"), "ASCII text")
+
+        # Become superuser and access /root/.ssh
+
+        b.become_superuser()
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.click(".file-chooser-sidebar tr:contains('Filesystem')")
+        b.select_PF(".file-chooser-kebab", "Show hidden files")
+        b.mouse(file("root"), "dblclick")
+        b.mouse(file(".ssh"), "dblclick")
+        b.mouse(file("authorized_keys"), "click")
+        b.click(df.apply_button())
+        d.wait_FileChooserInput("file", "/root/.ssh/authorized_keys")
+        b.wait_in_text(d.helper_text("file"), "OpenSSH RSA public key")
+
+        # Select a directory
+
+        d.wait_FileChooserInput("dir", "")
+        b.click(d.field("dir") + " .pf-v6-c-text-input-group__utilities button")
+
+        b.wait_in_text(".file-chooser-listing-body", "No recent directories")
+        b.click(".file-chooser-sidebar tr:contains('Test files')")
+        b.click(file("file-chooser-test"))
+        b.click(df.apply_button())
+
+        d.wait_FileChooserInput("dir", test_files + "/file-chooser-test")
+
+        b.click(d.field("dir") + " .pf-v6-c-text-input-group__utilities button")
+        b.wait_visible(file("file-chooser-test"))
+        b.click(".file-chooser-sidebar tr:contains('Recent')")
+        b.wait_visible(file("file-chooser-test"))
+        b.wait_not_present(file("foo"))
+        b.wait_in_text(file("file-chooser-test"), test_files)
+
+        b.wait_visible(df.apply_button() + "[aria-disabled=true]")
+        b.click(".file-chooser .pf-v6-c-modal-box__close button")
+        b.wait_not_present(".file-chooser")
+
+        # Check mobile layout
+
+        b.set_layout("mobile")
+
+        b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
+        b.wait_not_visible(".file-chooser-sidebar")
+        b.wait_visible(".file-chooser-kebab")
+
+        b.select_PF(".file-chooser-kebab", "Test files")
+        b.mouse(file("file-chooser-test"), "dblclick")
+        b.wait_visible(file("empty"))
+
+        b.click(".file-chooser .pf-v6-c-modal-box__close button")
+        b.wait_not_present(".file-chooser")
+        b.click(d.cancel_button())
+        b.set_layout("desktop")
+
+        # Stand-alone File Chooser
+
+        b.click("#open-file-chooser")
+        b.wait_visible(".file-chooser")
+        b.click(".file-chooser-sidebar tr:contains('Some TXT files')")
+        b.wait_visible(file("foo.txt"))
+        b.wait_not_present(file("no-such-file.txt"))
+        b.click(file("foo.txt"))
+        b.wait_text(df.apply_button(), "Load")
+        b.click(df.apply_button())
+        b.wait_not_present(".file-chooser")
+
+        b.click("#open-file-chooser")
+        b.wait_visible(".file-chooser")
+        b.click(".file-chooser-sidebar tr:contains('Test files')")
+        b.mouse(file("file-chooser-test"), "dblclick")
+        b.mouse(file("text"), "dblclick")
+        b.wait_visible(file("foo.txt"))
+        b.wait_visible(file("bar.txt"))
+        b.click(file("bar.txt"))
+        b.click(df.apply_button())
+        b.wait_in_text(df.error(), "Does not start with \"foo\"")
+        b.click(file("foo.txt"))
+        b.click(df.apply_button())
+        b.wait_not_present(".file-chooser")
+
 
 if __name__ == '__main__':
     testlib.test_main()

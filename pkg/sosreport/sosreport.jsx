@@ -109,7 +109,7 @@ function sosLister() {
             const entries = state.info?.entries;
             const reports = { };
             for (const name in entries) {
-                if (entries[name].type == "reg") {
+                if (entries[name].type === "reg") {
                     const report = parse_report_name(name, entries[name].mtime);
                     if (report)
                         reports[report_dir + '/' + name] = report;
@@ -127,12 +127,18 @@ function sosLister() {
         });
     }
 
+    self.close = () => {
+        superuser.removeEventListener("changed", restart);
+        if (fsinfo)
+            fsinfo.close();
+    };
+
     restart();
     superuser.addEventListener("changed", restart);
     return self;
 }
 
-function sosCreate(args, setProgress, setError, setErrorDetail) {
+function sosCreate(args, setProgress, setError, setErrorDetail, options) {
     let output = "";
     let plugins_count = 0;
     const progress_regex = /Running ([0-9]+)\/([0-9]+):/; // Only for sos < 3.6
@@ -141,7 +147,7 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
 
     // TODO - Use a real API instead of scraping stdout once such an API exists
     const task = cockpit.spawn(["sos", "report", "--batch"].concat(args),
-                               { superuser: "require", err: "out", pty: true });
+                               { superuser: "require", err: "out", pty: true, ...options });
 
     task.stream(text => {
         let p = 0;
@@ -243,6 +249,7 @@ const SOSDialog = () => {
         setProgress(null);
 
         const args = [];
+        const options = {};
 
         if (label) {
             args.push("--label");
@@ -250,8 +257,8 @@ const SOSDialog = () => {
         }
 
         if (passphrase) {
-            args.push("--encrypt-pass");
-            args.push(passphrase);
+            args.push("--encrypt");
+            options.environ = ["SOSENCRYPTPASS=" + passphrase];
         }
 
         if (obfuscate) {
@@ -262,8 +269,8 @@ const SOSDialog = () => {
             args.push("-v");
         }
 
-        const task = sosCreate(args, setProgress, err => { if (err == "cancelled") Dialogs.close(); else setError(err); },
-                               setErrorDetail);
+        const task = sosCreate(args, setProgress, err => { if (err === "cancelled") Dialogs.close(); else setError(err); },
+                               setErrorDetail, options);
         setTask(task);
         task.then(Dialogs.close);
         task.finally(() => setTask(null));
@@ -389,14 +396,6 @@ const SOSErrorDialog = ({ error }) => {
         </Modal>);
 };
 
-const MenuItem = ({ onClick, onlyNarrow, children }) => (
-    <DropdownItem className={onlyNarrow ? "show-only-when-narrow" : null}
-                  onKeyDown={onClick}
-                  onClick={onClick}>
-        {children}
-    </DropdownItem>
-);
-
 const SOSBody = () => {
     const Dialogs = useDialogs();
     const lister = useObject(sosLister, obj => obj.close, []);
@@ -412,7 +411,7 @@ const SOSBody = () => {
         return <EmptyStatePanel loading />;
 
     if (lister.problem) {
-        if (lister.problem == "access-denied")
+        if (lister.problem === "access-denied")
             return (
                 <EmptyStatePanel
                     title={_("Administrative access required")}
@@ -453,15 +452,15 @@ const SOSBody = () => {
                 {_("Download")}
             </Button>);
         const menu = <KebabDropdown dropdownItems={[
-            <MenuItem key="download"
-                      onlyNarrow
-                      onClick={download}>
+            <DropdownItem key="download"
+                          className="show-only-when-narrow"
+                          onClick={download}>
                 {_("Download")}
-            </MenuItem>,
-            <MenuItem key="remove"
-                      onClick={remove}>
+            </DropdownItem>,
+            <DropdownItem key="remove"
+                          onClick={remove}>
                 {_("Delete")}
-            </MenuItem>
+            </DropdownItem>
         ]} />;
 
         return {

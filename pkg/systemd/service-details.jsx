@@ -306,7 +306,7 @@ export class ServiceDetails extends React.Component {
 
     addUnitProperties(prop, value) {
         if (prop == "MemoryCurrent" && this.state.unit_properties.MemoryCurrent !== value)
-            this.setState({ unit_properties: Object.assign(this.state.unit_properties, { [prop]: value }) });
+            this.setState(prevState => ({ unit_properties: { ...prevState.unit_properties, [prop]: value } }));
     }
 
     onOnOffSwitch() {

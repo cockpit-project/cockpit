@@ -428,6 +428,7 @@ class RestartServices extends React.Component {
         super(props);
         this.state = {
             dialogError: undefined,
+            dialogErrorDetail: undefined,
             restartInProgress: false,
         };
 

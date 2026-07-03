@@ -183,50 +183,41 @@ class TestDialog(testlib.MachineCase):
 
         # Debounced and asynchronous validation
 
-        def enter_online_validation_mode():
-            # put dialog into online validation mode by triggering a
-            # failed validation
-            d.set_Checkbox("flag", val=True)
-            d.set_TextInput("text", "")
-            b.click(d.apply_button())
-            b.wait_in_text(d.helper_text("text"), "Text can not be empty")
-            d.set_Checkbox("flag", val=False)
-
         b.click("#open")
         enter_online_validation_mode()
+        # Add a field. This immediately starts a validation. (1 validation)
         b.click(d.id("async", "add"))
         b.focus(d.field("async.0.name"))
         b.input_text("1")
-        # wait for debounce timeout and validation promise to be done (1 validation)
+        # wait for debounce timeout and validation promise to be done (2 validations)
         b.wait_in_text(d.helper_text("async.0.name"), "Must have even number")
         b.input_text("2")
-        # this starts a new timeout and immediately removes the validation error
-        b.wait_not_present(d.helper_text("async.0.name"))
-        # don't wait for the timeout to be over but change again while it is still pending
+        # this starts a new debounce timeout but the validation error stays
+        # don't wait for the debounce timeout to be over but change again while it is still pending
         time.sleep(0.5)
         b.input_text("3")
         # now wait for the timeout to be over but change while the promise is running
         time.sleep(2)
         b.input_text("4")
-        # the promise for validating "123" will finish soon, but it's result must be ignored (2 validations)
-        # let the validation for "1234" play out to completion (3 validations)
+        # the promise for validating "123" will finish soon, but it's result must be ignored (3 validations)
+        # let the validation for "1234" play out to completion (4 validations)
         time.sleep(5)
         # close dialog
         b.click(d.apply_button())
         b.wait_not_present("#dialog")
 
         b.wait_text("#async", "1234:4")
-        b.wait_text("#asyncVals", "3")
+        b.wait_text("#asyncVals", "4")
 
         b.click("#open")
         enter_online_validation_mode()
-        b.click(d.id("async", "add"))
-        b.click(d.id("async", "add"))
+        b.click(d.id("async", "add"))  # (1 validation)
+        b.click(d.id("async", "add"))  # (2 validations)
         b.focus(d.field("async.1.name"))
         b.input_text("1")
         # remove the first entry during the debounce timeout, this
         # should not disturb anything and the validation for "1"
-        # should finish normally (1 validation)
+        # should finish normally (3 validations)
         b.wait_not_present(d.helper_text("async.0.name"))
         b.click(d.id("async.0", "remove"))
         b.wait_in_text(d.helper_text("async.0.name"), "Must have even number")
@@ -236,7 +227,7 @@ class TestDialog(testlib.MachineCase):
         b.wait_not_present("#dialog")
 
         b.wait_text("#async", "")
-        b.wait_text("#asyncVals", "1")
+        b.wait_text("#asyncVals", "3")
 
         # Trigger validation directly via Apply. This will skip the
         # timeouts.
@@ -251,12 +242,13 @@ class TestDialog(testlib.MachineCase):
         b.wait_text("#asyncVals", "1")
 
         # Trigger validation via Apply when there are timeouts
-        # pending. This will cancel the timeouts.
+        # pending. This will skip the timeouts.
 
         b.click("#open")
         enter_online_validation_mode()
         b.click(d.id("async", "add"))
-        # now there is a timeout pending, clicking apply will cancel it.
+        # now there is a timeout pending, clicking apply will run it
+        # immediately and it will be counted.
         b.click(d.apply_button())
         b.wait_not_present("#dialog")
 
@@ -314,7 +306,8 @@ class TestDialog(testlib.MachineCase):
 
         b.mouse(d.ouia("apply-force"), "mouseenter")
         b.wait_in_text(".pf-v6-c-tooltip", "Force not allowed")
-        b.mouse(d.apply_button(), "mouseenter")  # make tooltip disappear, it obscures the checkbox otherwise
+        b.mouse(d.ouia("apply-force"), "mouseleave")  # make tooltip disappear, it obscures the checkbox otherwise
+        b.wait_not_present(".pf-v6-c-tooltip")
         d.set_Checkbox("allow_force", val=True)
         b.click(d.ouia("apply-force"))
         b.wait_not_present("#dialog")

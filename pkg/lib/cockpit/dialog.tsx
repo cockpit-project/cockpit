@@ -165,7 +165,7 @@
    and methods.
 
    - handle = dlg.field(name)
-   - handle = dlg.field(name, update_func)
+   - handle = dlg.field(name, changed_func)
 
    This returns a handle for a specific field of the dialog
    values. Using handles like this becomes convenient when there are
@@ -173,21 +173,22 @@
    also work well with TypeScript. For simple dialogs they might feel
    a bit clunky.
 
-   The second argument, "update_func", is optional. If given, it
+   The second argument, "changed_func", is optional. If given, it
    should be a function and that function will be called whenever the
    dialog value is changed via the returned handle (and the returned
-   handle only).
+   handle only).  It might also be called some time later, when
+   "set_debounced" is used.
 
    - handle = dlg.top()
-   - handle = dlg.top(update_func)
+   - handle = dlg.top(changed_func)
 
    Get a handle for the whole value object.  The usual
    "dlg.field(name)" call is actually just a shortcut for
    "dlg.top().sub(name)".  But since that looks quite obscure in
    simple dialogs that only have one level of values, we have the
    "dlg.field(name)" shortcut as well.  This whole-value handle is
-   useful for "dlg.top().at(...)", see below, or for update
-   notifications that trigger for each and every change.
+   useful for "dlg.top().at(...)", see below, or for notifications
+   that trigger for each and every change.
 
    - dlg.values
 
@@ -214,23 +215,41 @@
    dialog, and do input validation as necessary and all the other
    things that you don't need to think about.
 
+   This is actually the same as "handle.set_debounced" with a delay of
+   0, see below.
+
+   - handle.set_debounced(val)
+   - handle.set_debounced(val, delay)
+
+   Set the current value of a value handle immediately as described
+   above for "handle.set", and render the dialog.  But validation and
+   calling of the "changed" functions happens only after "delay"
+   milliseconds.
+
+   When "delay" is omitted, it defaults to a sensible value for
+   debouncing keyboard input.
+
+   - handle.notify(changed_func)
+
+   Return a new handle for the same dialog field that "handle"
+   represents, but call "changed_func" whenever the field is changed
+   via the new handle.
+
    - handle.sub(name_or_index)
-   - handle.sub(name_or_index, update_func)
+   - handle.sub(name_or_index, changed_func)
 
    Get a handle for a nested value. When the current value is an
    object, you should pass the name of a nested field. If it is an
    array, pass the index of the desired element.  See "dlg.field()"
    above for more information about handles.
 
-   - handle.get_async(debounce, (val, signal) => ...)
-   - handle.set_async(debounce, (val, signal) => new_val)
+   - handle.get_async((val, signal) => ...)
+   - handle.set_async((val, signal) => new_val)
 
-   These are for running debounced, asynchronous code.  Both functions
-   will run the given function after "debounce" milliseconds, but only
-   if the value of the field hasn't changed in the meantime.  The
-   dialog waits for all asynchronous tasks started by these functions
-   to be finished before running the action function.  When the dialog
-   is cancelled, they all get cancelled.
+   These are for running asynchronous code.  The dialog waits for all
+   asynchronous tasks started by these functions to be finished before
+   running the action function.  When the dialog is cancelled, they
+   all get cancelled.
 
    The return value of "handle.set_async" is made the new value of the
    field, but only if the value of the field hasn't changed in the
@@ -241,8 +260,7 @@
 
    The "handle.get_async" function is a slight variation on this. It
    is meant to perform asynchronous computations that do not modify
-   the field value itself, but have some other side effects.  Maybe
-   they modify multiple other field values or some React state. There
+   the field value itself, but have some other side effects.  There
    can be more than one call active at a given time. They only get
    cancelled when the value of the field changes.
 
@@ -256,17 +274,6 @@
    to figure out when they should stop.  They can also use all other
    features of a AbortSignal, of course, such as setting
    "signal.onabort", adding event listeners, etc.
-
-   As an example, here is how you might implement set_async on top of
-   get_async:
-
-      function set_async(handle, debounce, func) {
-          handle.get_async(debounce, (val, signal) => {
-              const new_val = await func(val, signal);
-              if (!signal.aborted)
-                  handle.set(new_val);
-          })
-      }
 
    - handle.at(witness)
 
@@ -293,7 +300,7 @@
    It is important to use this function instead of just "handle.set()"
    with an appropriately modified array. By using this function, the
    plumbing is able to keep its internal state in synch, which is
-   especially important for asynchronous validation and update
+   especially important for asynchronous validation and "changed"
    functions.
 
    However, it is okay to just replace an array with a different
@@ -416,16 +423,11 @@
    then you can modify field values via calls to "handle.set". (Be
    careful not to create endless validation loops!)
 
-   - handle.validate_async(debounce, async (v, task) >= ...)
+   - handle.validate_async(async (v, task) >= ...)
 
-   Calls the given async function "debounce" milliseconds after the
-   value represented by the handle has last been changed. (Or
-   immediately when the apply button is clicked.)  When the function
-   throws an exception, the validation is considered to have been
-   successful.
-
-   See the documentation for "handle.validate" above for more rules
-   that apply to validation functions.
+   Same as "handle.validate", but the function is asynchronous and
+   "dialog.run_action" will wait for these functions to complete
+   before actually carrying out the dialog action.
 
    UPDATES
 
@@ -443,28 +445,28 @@
 
    It's okay and simplest to just put that code right next to the call
    to "handler.set()".  If that call is in a porcelain component (as
-   it probably often will be), you can pass a "update_func" when
+   it probably often will be), you can pass a "changed_func" when
    creating the handle for that porcelain component with
    "handler.sub()" or "dialog.field()".  For example:
 
-       function on_plate_change(val: string) {
+       function plate_changed(val: string) {
            console.log("NEW LICENSE PLATE", val);
        }
 
        return (
            <DialogTextInput
                label="License plate number"
-               field={dlg.field("plate", on_plate_change)}
+               field={dlg.field("plate", plate_changed)}
            />
        );
 
-   The function "on_plate_change" will be called whenever the user
-   changes the "plate" field via the DialogTextInput.  The
-   "on_plate_change" function will not be called when the "plate" is
-   changed in other places.  If that should happen, you have to
-   arrange for it explicitly.
+   The function "plate_changed" will be called whenever the user
+   changes the "plate" field via the DialogTextInput (subject to
+   debouncing).  The "plate_changed" function will not be called
+   when the "plate" is changed in other places.  If that should
+   happen, you have to arrange for it explicitly.
 
-   Functions like "on_plate_change" can and should modify the dialog
+   Functions like "plate_changed" can and should modify the dialog
    fields via calls to "handle.set()".
 
    If you want to run asynchronous code, you can do so with
@@ -472,8 +474,8 @@
    want to asynchronously fetch the car model for a given license
    plate from a database, you can do it like this:
 
-       function on_plate_change(val: string) {
-           dlg.field("model").set_async(1000, async () => await fetch_model(val));
+       function plate_changed(val: string) {
+           dlg.field("model").set_async(async () => await fetch_model(val));
        }
 
    When arrays are involved, dialog fields can move around while your
@@ -688,17 +690,20 @@ export class DialogField<T> {
     /* eslint-enable */
     #getter: () => T;
     #setter: (val: T) => void;
+    #trigger: () => void;
 
     constructor(
         dialog: DialogState<unknown>,
         state: DialogFieldState,
         getter: () => T,
         setter: (val: T) => void,
+        trigger: () => void,
     ) {
         this.#dialog = dialog;
         this.#state = state;
         this.#getter = getter;
         this.#setter = setter;
+        this.#trigger = trigger;
     }
 
     validation_text(): string | undefined {
@@ -710,8 +715,13 @@ export class DialogField<T> {
     }
 
     set(val: T): void {
+        this.set_debounced(val, 0);
+    }
+
+    set_debounced(val: T, delay?: number): void {
         this.#dialog._abort_state_tasks(this.#state, true);
         this.#setter(val);
+        this.#dialog._set_debounce(this.#state, delay === undefined ? 500 : delay, () => this.#trigger());
     }
 
     ouia_id(tag: string = "field"): string {
@@ -738,6 +748,7 @@ export class DialogField<T> {
         if (Array.isArray(val)) {
             const sub = this.#state.sub.get(index);
             if (sub) {
+                this.#dialog._cancel_debounce(sub);
                 this.#dialog._abort_state_tasks(sub);
                 sub.tag = -1;
             }
@@ -750,6 +761,7 @@ export class DialogField<T> {
             }
             this.#state.sub.delete(val.length - 1);
             this.#setter(toSpliced(val, index, 1) as T);
+            this.#trigger();
         }
     }
 
@@ -757,32 +769,56 @@ export class DialogField<T> {
         const val = this.get();
         if (Array.isArray(val)) {
             this.#setter(val.concat(item) as T);
+            this.#trigger();
         }
     }
 
-    sub<K extends keyof T>(tag: K, update_func?: ((val: T[K]) => void) | undefined): DialogField<T[K]> {
+    notify(changed_func: (val: T) => void): DialogField<T> {
+        return new DialogField<T>(
+            this.#dialog,
+            this.#state,
+            this.#getter,
+            this.#setter,
+            () => {
+                changed_func(this.#getter());
+                this.#trigger();
+            },
+        );
+    }
+
+    sub<K extends keyof T>(tag: K, changed_func?: ((val: T[K]) => void) | undefined): DialogField<T[K]> {
         const sub = this.#dialog._get_sub_state(this.#state, tag);
+
+        const getter = (): T[K] => {
+            const container = this.get();
+            if (Array.isArray(container) && typeof sub.tag == "number") {
+                return container[sub.tag];
+            } else {
+                return container[tag];
+            }
+        };
+
+        const setter = (val: T[K]) => {
+            const container = this.get();
+            if (Array.isArray(container) && typeof sub.tag == "number") {
+                this.#setter(toSpliced(container, sub.tag, 1, val) as T);
+            } else {
+                this.#setter({ ...container, [tag]: val });
+            }
+        };
+
+        const trigger = () => {
+            if (changed_func)
+                changed_func(getter());
+            this.#trigger();
+        };
+
         return new DialogField<T[K]>(
             this.#dialog,
             sub,
-            () => {
-                const container = this.get();
-                if (Array.isArray(container) && typeof sub.tag == "number") {
-                    return container[sub.tag];
-                } else {
-                    return container[tag];
-                }
-            },
-            (val) => {
-                const container = this.get();
-                if (Array.isArray(container) && typeof sub.tag == "number") {
-                    this.#setter(toSpliced(container, sub.tag, 1, val) as T);
-                } else {
-                    this.#setter({ ...container, [tag]: val });
-                }
-                if (update_func)
-                    update_func(val);
-            },
+            getter,
+            setter,
+            trigger,
         );
     }
 
@@ -796,23 +832,23 @@ export class DialogField<T> {
         this.#dialog._validate_value(this.#state, val, () => func(val));
     }
 
-    validate_async(debounce: number, func: (val: T, signal: AbortSignal) => Promise<DialogValidationResult<T>>): void {
+    validate_async(func: (val: T, signal: AbortSignal) => Promise<DialogValidationResult<T>>): void {
         const val = this.get();
-        this.#dialog._validate_value_async(this.#state, val, debounce, signal => func(val, signal));
+        this.#dialog._validate_value_async(this.#state, val, signal => func(val, signal));
     }
 
-    set_async(debounce: number, func: (val: T, signal: AbortSignal) => Promise<T>): void {
+    set_async(func: (val: T, signal: AbortSignal) => Promise<T>): void {
         const val = this.get();
-        this.#dialog._set_value_async(this.#state, debounce, async signal => {
+        this.#dialog._set_value_async(this.#state, async signal => {
             const new_val = await func(val, signal);
             if (!signal.aborted)
                 this.set(new_val);
         });
     }
 
-    get_async(debounce: number, func: (val: T, signal: AbortSignal) => Promise<void>): void {
+    get_async(func: (val: T, signal: AbortSignal) => Promise<void>): void {
         const val = this.get();
-        this.#dialog._get_value_async(this.#state, debounce, signal => func(val, signal));
+        this.#dialog._get_value_async(this.#state, signal => func(val, signal));
     }
 }
 
@@ -827,45 +863,25 @@ function get_validation_result_own_string(result: unknown): string | undefined {
 
 export class DialogTask {
     #name: string;
-    #timeout_id: number = 0;
-    #promise: Promise<void> | null = null;
-    #start: () => void;
-    #done: (task: DialogTask) => void;
+    #promise: Promise<void>;
     #controller: AbortController;
 
     constructor(
         name: string,
-        debounce: number,
         func: (task: DialogTask) => Promise<void>,
         done: (task: DialogTask) => void,
     ) {
+        debug("starting task", name);
         this.#name = name;
-        this.#done = done;
-        this.#start = () => {
-            debug("starting task", this.#name);
-            cockpit.assert(!this.#controller.signal.aborted);
-            this.#promise = func(this);
-            this.#promise.finally(() => {
-                debug("task done", this.#name);
-                done(this);
-            });
-        };
-        this.#timeout_id = window.setTimeout(this.#start, debounce);
         this.#controller = new AbortController();
-        debug("creating task", this.#name, debounce);
-    }
-
-    start_now() {
-        if (!this.#promise && !this.#controller.signal.aborted) {
-            debug("skipping debounce of task", this.#name);
-            window.clearTimeout(this.#timeout_id);
-            this.#start();
-        }
+        this.#promise = func(this);
+        this.#promise.finally(() => {
+            debug("task done", this.#name);
+            done(this);
+        });
     }
 
     async wait() {
-        // Waiting is only allowed for tasks that have actually been started.
-        cockpit.assert(this.#promise);
         debug("waiting for task", this.#name);
         await this.#promise;
     }
@@ -876,12 +892,7 @@ export class DialogTask {
 
     abort() {
         debug("aborting task", this.#name);
-        window.clearTimeout(this.#timeout_id);
         this.#controller.abort();
-        if (!this.#promise) {
-            debug("aborted task done", this.#name);
-            this.#done(this);
-        }
     }
 }
 
@@ -907,6 +918,9 @@ interface DialogFieldState {
     parent: DialogFieldState | null,
     tag: string | number | symbol;
     sub: Map<string | number | symbol, DialogFieldState>;
+    // debouncing
+    debounce_timer: number;
+    debounce_func: null | (() => void);
     // validation
     relevant: boolean;
     validation_text: string | undefined;
@@ -952,6 +966,8 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             parent: null,
             tag: "",
             sub: new Map(),
+            debounce_timer: 0,
+            debounce_func: null,
             relevant: false,
             validation_text: undefined,
             cached_value: undefined,
@@ -989,6 +1005,8 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 parent: state,
                 tag,
                 sub: new Map(),
+                debounce_timer: 0,
+                debounce_func: null,
                 relevant: false,
                 validation_text: undefined,
                 cached_value: undefined,
@@ -1020,24 +1038,79 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         await visit(this.#top_state);
     }
 
+    /* DEBOUNCING
+     */
+
+    _cancel_debounce(state: DialogFieldState) {
+        if (state.debounce_timer) {
+            debug("cancelling debounce", state_path(state));
+            window.clearTimeout(state.debounce_timer);
+            state.debounce_timer = 0;
+            state.debounce_func = null;
+        }
+        for (const sub of state.sub.values())
+            this._cancel_debounce(sub);
+    }
+
+    _set_debounce(state: DialogFieldState, delay: number, func: () => void) {
+        if (this.#block_updates)
+            return;
+
+        this._cancel_debounce(state);
+
+        if (delay === 0) {
+            debug("no debounce trigger", state_path(state));
+            func();
+        } else {
+            debug("debounce trigger", state_path(state), delay);
+            state.debounce_func = func;
+            state.debounce_timer = window.setTimeout(
+                () => {
+                    state.debounce_timer = 0;
+                    state.debounce_func = null;
+                    func();
+                },
+                delay,
+            );
+        }
+    }
+
+    _run_all_debouncing_now() {
+        let debounced: boolean;
+        do {
+            debounced = false;
+            this._for_each_field_state(state => {
+                if (state.debounce_timer) {
+                    debug("running debounced trigger now", state_path(state));
+                    cockpit.assert(state.debounce_func);
+                    window.clearTimeout(state.debounce_timer);
+                    state.debounce_timer = 0;
+                    state.debounce_func();
+                    debounced = true;
+                }
+            });
+        } while (debounced);
+    }
+
     /* TASKS
 
        Tasks are a little abstraction that runs a asynchronous
-       function after a debounce timeout.  Before running the action
-       function, we need to wait for them all to finish.
+       function.  Before running the action function, we need to wait
+       for them all to finish.
      */
 
     async _run_all_tasks_now() {
-        let awaited: boolean = false;
+        let awaited: boolean;
         do {
-            this._for_each_field_state(state => {
-                if (state.validation_task)
-                    state.validation_task.start_now();
-                if (state.update_task)
-                    state.update_task.start_now();
-                for (const task of state.update_tasks.values())
-                    task.start_now();
-            });
+            // Start all the things that might have been queued up for
+            // debouncing.
+
+            this._run_all_debouncing_now();
+
+            // Wait for the tasks that are currently running.  While
+            // waiting, new things might have been qeued up for
+            // debouncing or new tasks might have been started, so we
+            // have to go back to the beginning.
 
             awaited = false;
             await this._for_each_field_state_async(async state => {
@@ -1201,7 +1274,6 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
     _validate_value_async(
         state: DialogFieldState,
         val: unknown,
-        debounce: number,
         func: (signal: AbortSignal) => Promise<unknown>
     ): void {
         state.relevant = true;
@@ -1213,7 +1285,6 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 state.validation_task.abort();
             state.validation_task = new DialogTask(
                 state_path(state) + ":validate",
-                debounce,
                 async task => {
                     const signal = task.get_abort_signal();
                     let result;
@@ -1238,12 +1309,13 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
 
     _set_value_async(
         state: DialogFieldState,
-        debounce: number,
         func: (signal: AbortSignal) => Promise<void>
     ): void {
-        const task = new DialogTask(
+        if (state.update_task)
+            state.update_task.abort();
+
+        state.update_task = new DialogTask(
             state_path(state) + ":set",
-            debounce,
             async task => {
                 try {
                     await func(task.get_abort_signal());
@@ -1256,20 +1328,14 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                     state.update_task = null;
             }
         );
-
-        if (state.update_task)
-            state.update_task.abort();
-        state.update_task = task;
     }
 
     _get_value_async(
         state: DialogFieldState,
-        debounce: number,
         func: (signal: AbortSignal) => Promise<void>
     ): void {
         const task = new DialogTask(
             state_path(state) + ":get",
-            debounce,
             async task => {
                 try {
                     await func(task.get_abort_signal());
@@ -1339,12 +1405,13 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             if (this.#cancel_function)
                 this.#cancel_function();
         } else {
+            this._cancel_debounce(this.#top_state);
             this._abort_state_tasks(this.#top_state);
             onClose();
         }
     }
 
-    top(update_func?: ((val: V) => void) | undefined): DialogField<V> {
+    top(changed_func?: ((values: V) => void) | undefined): DialogField<V> {
         return new DialogField<V>(
             this as DialogState<unknown>,
             this.#top_state,
@@ -1364,16 +1431,18 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 }
                 this.values = val;
                 this.#update();
+            },
+            () => {
                 if (this.#online_validation)
                     this.#trigger_validation();
-                if (update_func)
-                    update_func(val);
+                if (changed_func)
+                    changed_func(this.values);
             },
         );
     }
 
-    field<K extends keyof V>(tag: K, update_func?: ((val: V[K]) => void) | undefined): DialogField<V[K]> {
-        return this.top().sub(tag, update_func);
+    field<K extends keyof V>(tag: K, changed_func?: ((val: V[K]) => void) | undefined): DialogField<V[K]> {
+        return this.top().sub(tag, changed_func);
     }
 }
 
@@ -1635,6 +1704,7 @@ export const OptionalFormGroup = ({
 export const DialogTextInput = ({
     label = null,
     field,
+    debounce,
     excuse,
     warning,
     explanation,
@@ -1644,6 +1714,7 @@ export const DialogTextInput = ({
 } : {
     label?: React.ReactNode,
     field: DialogField<string>,
+    debounce?: number | undefined,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1656,7 +1727,7 @@ export const DialogTextInput = ({
                 id={fid}
                 ouiaId={field.ouia_id()}
                 value={field.get()}
-                onChange={(_event, val) => field.set(val)}
+                onChange={(_event, val) => field.set_debounced(val, debounce)}
                 isDisabled={!!excuse || isDisabled}
                 {...props}
             />
@@ -1668,6 +1739,7 @@ export const DialogTextInput = ({
 export const DialogPasswordInput = ({
     label = null,
     field,
+    debounce,
     excuse,
     warning,
     explanation,
@@ -1677,6 +1749,7 @@ export const DialogPasswordInput = ({
 } : {
     label?: React.ReactNode,
     field: DialogField<string>,
+    debounce?: number | undefined,
     excuse?: string | falsy,
     warning?: React.ReactNode,
     explanation?: React.ReactNode,
@@ -1693,7 +1766,7 @@ export const DialogPasswordInput = ({
                         ouiaId={field.ouia_id()}
                         type={visible ? "text" : "password"}
                         value={field.get()}
-                        onChange={(_event, value) => field.set(value)}
+                        onChange={(_event, value) => field.set_debounced(value, debounce)}
                         isDisabled={!!excuse || isDisabled}
                         {...props}
                     />

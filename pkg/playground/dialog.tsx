@@ -107,11 +107,11 @@ const NameInput = ({
 } : {
     field: DialogField<Name>,
 }) => {
-    return <DialogTextInput field={field.sub("name")} />;
+    return <DialogTextInput field={field.sub("name")} debounce={1000} />;
 };
 
 function validate_Name(field: DialogField<Name>, countAsyncValidation: () => void) {
-    field.sub("name").validate_async(1000, async (n, signal) => {
+    field.sub("name").validate_async(async (n, signal) => {
         await async_sleep(2000);
         countAsyncValidation();
         if (!signal.aborted)
@@ -256,7 +256,7 @@ const ExampleDialog = ({
             });
         }
         if (dlg.values.dropdown == "three") {
-            dlg.field("text3").validate_async(1000, async v => {
+            dlg.field("text3").validate(v => {
                 if (!v)
                     return "Can't be empty";
             });
@@ -299,8 +299,8 @@ const ExampleDialog = ({
         }
     }
 
-    function update_color() {
-        dlg.field("color").get_async(0, async (val, signal) => {
+    function color_changed() {
+        dlg.field("color").get_async(async (val, signal) => {
             signal.onabort = countAsyncCancel;
             await async_sleep(2000);
             if (!signal.aborted) {
@@ -310,8 +310,8 @@ const ExampleDialog = ({
         });
     }
 
-    function update_dropdown(val: string) {
-        dlg.field("text2").set_async(0, async () => {
+    function dropdown_changed(val: string) {
+        dlg.field("text2").set_async(async () => {
             await async_sleep(2000);
             return val;
         });
@@ -337,6 +337,7 @@ const ExampleDialog = ({
                     <DialogTextInput
                         label="Text"
                         field={dlg.field("text")}
+                        debounce={0}
                         excuse={!dlg.values.flag && "Disabled"}
                         explanation="Explanation"
                         warning={dlg.values.text == "warn" ? "Warning" : null}
@@ -374,7 +375,7 @@ const ExampleDialog = ({
                     />
                     <DialogDropdownSelect
                         label="Dropdown"
-                        field={dlg.field("dropdown", update_dropdown)}
+                        field={dlg.field("dropdown", dropdown_changed)}
                         options={
                             [
                                 { value: "one", label: "Eins" },
@@ -386,11 +387,11 @@ const ExampleDialog = ({
                     />
                     {
                         dlg.values.dropdown == "three" &&
-                            <DialogTextInput label="Text3" field={dlg.field("text3")} />
+                            <DialogTextInput label="Text3" field={dlg.field("text3")} debounce={1000} />
                     }
                     <DialogDropdownSelectObject
                         label="DropdownObject"
-                        field={dlg.field("color", update_color)}
+                        field={dlg.field("color").notify(color_changed)}
                         options={colors}
                         option_label={c => c.name}
                     />
@@ -591,7 +592,7 @@ const AsyncExampleDialog = ({
     }
 
     function validate(dlg: DialogState<AsyncExampleValues>) {
-        dlg.field("text").validate_async(0, async () => {
+        dlg.field("text").validate_async(async () => {
             throw Error("upps");
         });
     }
@@ -607,7 +608,7 @@ const AsyncExampleDialog = ({
         Dialogs.close();
     }
 
-    function update_top(values: AsyncExampleValues) {
+    function top_changed(values: AsyncExampleValues) {
         console.log("TOP", JSON.stringify(values));
     }
 
@@ -621,10 +622,10 @@ const AsyncExampleDialog = ({
     } else if (dlg instanceof DialogError) {
         body = null;
     } else if (dlg instanceof DialogState) {
-        const vals = dlg.top(update_top);
+        const fields = dlg.top(top_changed);
         body = (
             <Form isHorizontal>
-                <DialogTextInput label="Text" field={vals.sub("text")} />
+                <DialogTextInput label="Text" field={fields.sub("text")} />
             </Form>
         );
     }

@@ -433,16 +433,11 @@ class RestartServices extends React.Component {
         };
 
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
-        this.dialogErrorDismiss = this.dialogErrorDismiss.bind(this);
         this.restart = this.restart.bind(this);
     }
 
     dialogErrorSet(text, detail) {
         this.setState({ dialogError: text, dialogErrorDetail: detail });
-    }
-
-    dialogErrorDismiss() {
-        this.setState({ dialogError: undefined });
     }
 
     restart() {
@@ -455,7 +450,7 @@ class RestartServices extends React.Component {
             return a.localeCompare(b);
         });
         const restarts = daemons.map(service => cockpit.spawn(["systemctl", "restart", service], { superuser: "require", err: "message" }));
-        this.setState({ restartInProgress: true });
+        this.setState({ restartInProgress: true, dialogError: undefined, dialogErrorDetail: undefined });
         Promise.all(restarts)
                 .then(() => {
                     this.props.onValueChanged({ restartPackages: { reboot: this.props.restartPackages.reboot, daemons: [], manual: this.props.restartPackages.manual } });

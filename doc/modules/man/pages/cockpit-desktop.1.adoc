@@ -13,7 +13,7 @@ cockpit-desktop - Cockpit Desktop integration
 The *cockpit-desktop* program provides secure access to Cockpit pages
 in an already running desktop session. It starts a web server
 (*cockpit-ws*) and a web browser in an isolated network namespace, and
-a *cockpit-bridge(1)* in the running user session.
+a man:cockpit-bridge[1] in the running user session.
 
 This avoids having to log into Cockpit, and having to enable
 *cockpit.socket* system-wide. The network isolation ensures that no
@@ -51,4 +51,4 @@ include::../partials/author.adoc[]
 
 == See also
 
-*cockpit-ws(8)*, *cockpit-bridge(1)*
+man:cockpit-ws[8], man:cockpit-bridge[1]

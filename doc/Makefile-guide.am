@@ -65,10 +65,15 @@ MAN_ADOC_FILES = \
 	doc/modules/man/pages/pam_ssh_add.8.adoc \
 	$(NULL)
 
+ASCIIDOC_EXTENSIONS = \
+	doc/extensions/man-inline-macro.rb \
+	$(NULL)
+
 dist_noinst_DATA += \
 	$(GUIDE_MAIN_ADOC_FILE) \
 	$(MAN_ADOC_FILES) \
 	$(GUIDE_ADOC_FILES) \
+	$(ASCIIDOC_EXTENSIONS) \
 	$(NULL)
 
 GUIDE_MAN_PAGES = \
@@ -150,10 +155,11 @@ GUIDE_ASCIIDOC_ARGS = \
 	-a toclevels=3 \
 	-a webfonts! \
 	-b html5 \
+	$(patsubst %,-r $(srcdir)/%,${ASCIIDOC_EXTENSIONS}) \
 	$(NULL)
 
 DOC_PROC = mkdir -p doc/output/html/ && $(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o $@ $<
-render-docs: $(GUIDE_ADOC_FILES) $(GUIDE_MAIN_ADOC_FILE) $(MAN_ADOC_FILES)
+render-docs: $(ASCIIDOC_EXTENSIONS) $(GUIDE_ADOC_FILES) $(GUIDE_MAIN_ADOC_FILE) $(MAN_ADOC_FILES)
 	mkdir -p doc/output/html/
 	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -D doc/output/html $(GUIDE_ADOC_FILES) $(MAN_ADOC_FILES)
 	$(ASCIIDOCTOR) $(GUIDE_ASCIIDOC_ARGS) -a asciidoctor -o doc/output/html/index.html $(GUIDE_MAIN_ADOC_FILE)

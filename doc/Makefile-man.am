@@ -22,6 +22,14 @@ MANPAGES = \
 
 if ENABLE_DOC
 
+ASCIIDOC_EXTENSIONS = \
+	doc/extensions/man-inline-macro.rb \
+	$(NULL)
+
+dist_noinst_DATA += \
+	$(ASCIIDOC_EXTENSIONS) \
+	$(NULL)
+
 man_MANS += \
 	$(MANPAGES) \
 	$(NULL)
@@ -34,6 +42,7 @@ MAN_ASCIIDOC_ARGS = \
 	-a doctype="manpage" \
 	-a manmanual="cockpit" \
 	-a mansource="cockpit" \
+	$(patsubst %,-r $(srcdir)/%,${ASCIIDOC_EXTENSIONS}) \
 	$(NULL)
 
 MAN_PROC = mkdir -p doc/output/man/ && $(ASCIIDOCTOR) $(MAN_ASCIIDOC_ARGS) -b manpage -o $@ $<

@@ -1,0 +1,11 @@
+= Antora & AsciiDoctor Extensions
+
+We need to support AsciiDoctor for generating local HTML pages as well as manpages while packaging to various distros.
+
+But as we also publish using Antora, there might be small differences that we need to address either on the AsciiDoctor or Antora-side, or even both.
+
+== man-inline-macro.rb
+
+An AsciiDoctor extension that converts manpages like cockpit(1) to links `man:cockpit[1]` for HTML pages and boldened `*cockpit(1)*` for manpages.
+
+These manpage macros do not work for the local editing of Antora within the Cockpit repo. Within the Cockpit Docs Antora repo there is an AsciiDoctor.js extension `man-inline-replace.js` that replaces `man:` links. Future improvement here could be to move the extension to the cockpit repo and fetch it from the cockpit-docs repo, but that would require more work and doesn't provide much value at the moment.

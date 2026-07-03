@@ -148,7 +148,7 @@ cp /etc/ipa/ca.crt /etc/sssd/pki/sssd_auth_ca_db.pem
 ....
 
 Certificate authentication needs to be enabled in
-link:./cockpit.conf.5.html[cockpit.conf] explicitly:
+man:cockpit.conf[5] explicitly:
 
 ....
 [WebService]
@@ -174,7 +174,7 @@ action = none
 
 When using certificate authentication, all requests with a particular
 certificate will be handled by a separate and isolated instance of the
-link:./cockpit-ws.8.html[cockpit-ws] web server. This protects against
+man:cockpit-ws[8] web server. This protects against
 possible vulnerabilities in the web server and prevents an attacker from
 impersonating another user. However, this introduces a potential Denial
 of Service: Some remote attacker could create a large number of

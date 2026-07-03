@@ -1152,8 +1152,7 @@ class OsUpdates extends React.Component {
 
         if (ex.problem === "not-found" || ex.name?.includes("DBus.Error.ServiceUnknown"))
             ex = _("PackageKit is not installed");
-        this.state.errorMessages.push(ex.detail || ex.message || ex);
-        this.setState({ state: "loadError" });
+        this.setState(prevState => ({ errorMessages: [...prevState.errorMessages, ex.detail || ex.message || ex], state: "loadError" }));
     }
 
     loadUpdates() {
@@ -1229,7 +1228,7 @@ class OsUpdates extends React.Component {
 
         return PK.watchTransaction(transactionPath,
                                    {
-                                       ErrorCode: (code, details) => this.state.errorMessages.push(details),
+                                       ErrorCode: (code, details) => this.setState(prevState => ({ errorMessages: [...prevState.errorMessages, details] })),
 
                                        Finished: exit => {
                                            this.setState({ applyTransaction: null, applyTransactionProps: {}, applyActions: [] });
@@ -1253,7 +1252,7 @@ class OsUpdates extends React.Component {
                                            } else {
                                                // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
                                                if (exit !== PK.Enum.EXIT_FAILED)
-                                                   this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code $0"), exit));
+                                                   this.setState(prevState => ({ errorMessages: [...prevState.errorMessages, cockpit.format(_("PackageKit reported error code $0"), exit)] }));
                                                this.setState({ state: "updateError" });
                                            }
                                        },
@@ -1271,8 +1270,7 @@ class OsUpdates extends React.Component {
                                    )
         )
                 .catch(ex => {
-                    this.state.errorMessages.push(ex);
-                    this.setState({ state: "updateError" });
+                    this.setState(prevState => ({ errorMessages: [...prevState.errorMessages, ex], state: "updateError" }));
                 });
     }
 
@@ -1292,15 +1290,15 @@ class OsUpdates extends React.Component {
                                         .catch(ex => {
                                             // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
                                             // show this if we don't have anything else
-                                            if (this.state.errorMessages.length === 0)
-                                                this.state.errorMessages.push(ex.message);
-                                            this.setState({ state: "updateError" });
+                                            this.setState(prevState => ({
+                                                errorMessages: prevState.errorMessages.length === 0 ? [ex.message] : prevState.errorMessages,
+                                                state: "updateError",
+                                            }));
                                         });
                             });
                 })
                 .catch(ex => {
-                    this.state.errorMessages.push(ex.message);
-                    this.setState({ state: "updateError" });
+                    this.setState(prevState => ({ errorMessages: [...prevState.errorMessages, ex.message], state: "updateError" }));
                 });
     }
 

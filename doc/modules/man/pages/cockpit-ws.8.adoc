@@ -13,11 +13,11 @@ cockpit-ws - Cockpit web service
 
 The *cockpit-ws* program is the web service component used for
 communication between the browser application and various configuration
-tools and services like *cockpit-bridge(1)*.
+tools and services like man:cockpit-bridge[1].
 
 Users or administrators should never need to start this program as it
-automatically started by *systemd(1)* on bootup, through
-*cockpit-tls(8)*.
+automatically started by man:systemd[1] on bootup, through
+man:cockpit-tls[8].
 
 == Transport security
 
@@ -25,11 +25,11 @@ automatically started by *systemd(1)* on bootup, through
 terminating proxy, and only deals with unencrypted HTTP by itself. But
 for backwards compatibility it can also handle TLS connections by itself
 when being run directly. For details how to configure certificates,
-please refer to the *cockpit-tls(8)* documentation.
+please refer to the man:cockpit-tls[8] documentation.
 
 == Timeout
 
-When started via *systemd(1)* then *cockpit-ws* will exit after 90
+When started via man:systemd[1] then *cockpit-ws* will exit after 90
 seconds if nobody logs in, or after the last user is disconnected.
 
 == Options
@@ -54,7 +54,7 @@ seconds if nobody logs in, or after the last user is disconnected.
   that does the TLS termination. Then Cockpit puts https:// URLs into
   the default *Content-Security-Policy*, and accepts only https://
   origins, instead of http: ones by default. However, if *Origins* is
-  set in the *cockpit.conf(5)* configuration file, it will override
+  set in the man:cockpit.conf[5] configuration file, it will override
   this default.
 *--local-ssh*::
   Normally *cockpit-ws* uses *cockpit-session* and PAM to
@@ -84,7 +84,7 @@ can access the session!
 The *cockpit-ws* process will use the *XDG_CONFIG_DIRS* environment
 variable from the
 https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html[XDG
-basedir spec] to find its *cockpit.conf(5)* configuration file.
+basedir spec] to find its man:cockpit.conf[5] configuration file.
 
 In addition the *XDG_DATA_DIRS* environment variable from the
 https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html[XDG
@@ -101,4 +101,4 @@ include::../partials/author.adoc[]
 
 == See also
 
-*cockpit-tls(8)* , *cockpit.conf(5)* , *systemd(1)*
+man:cockpit-tls[8] , man:cockpit.conf[5] , man:systemd[1]

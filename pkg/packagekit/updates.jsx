@@ -432,12 +432,7 @@ class RestartServices extends React.Component {
             restartInProgress: false,
         };
 
-        this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.restart = this.restart.bind(this);
-    }
-
-    dialogErrorSet(text, detail) {
-        this.setState({ dialogError: text, dialogErrorDetail: detail });
     }
 
     restart() {
@@ -460,7 +455,7 @@ class RestartServices extends React.Component {
                     this.props.close();
                 })
                 .catch(ex => {
-                    this.dialogErrorSet(_("Failed to restart service"), ex.message);
+                    this.setState({ dialogError: _("Failed to restart service"), dialogErrorDetail: ex.message });
                     // see what services remain
                     this.props.checkNeedsRestart();
                 });

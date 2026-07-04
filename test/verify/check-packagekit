@@ -1664,7 +1664,6 @@ class TestAutoUpdates(NoSubManCase):
                       f'/etc/systemd/system/{self.timer_unit}.timer.d/time.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            time.sleep(5)
             b.wait_visible("#settings .pf-v6-c-alert")
             # don't allow stomping over unparsable custom settings
             b.wait_not_present("#autoupdates-settings button")

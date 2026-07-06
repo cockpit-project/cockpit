@@ -1286,6 +1286,7 @@ Where=/fail
 
         # Changing the UI filters should also affect the URL
         b.click("#system")
+        self.wait_page_load()
         url = b.eval_js("window.location.hash")
         self.assertIn("owner=system", url)
 

@@ -195,6 +195,7 @@ class TestSystemd(unittest.TestCase):
         self.assertRegex(stdout, rb"\nok .* TestSystemd.testBasic \(1\.7GB\)\n")
         self.assertNotRegex(stdout, b"RETRY")
 
+    @testlib.nondestructive
     def testTodo(self):
         env = os.environ.copy()
         try:

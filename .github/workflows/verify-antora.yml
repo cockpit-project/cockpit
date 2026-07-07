@@ -8,6 +8,8 @@ on:
       - main
 jobs:
   verify-antora:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

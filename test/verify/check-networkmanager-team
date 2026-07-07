@@ -20,6 +20,7 @@ class TestTeam(netlib.NetworkCase):
         b = self.browser
 
         self.login_and_go("/network")
+        b.wait_visible("#networking")
 
         b.wait_visible("button:contains('Add team')")
 

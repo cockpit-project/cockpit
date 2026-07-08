@@ -9,7 +9,7 @@ import testlib
 
 
 def line_sel(i: int) -> str:
-    return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
+    return f'.terminal .xterm-accessibility-tree div:nth-child({i})'
 
 
 class TestTerminal(testlib.MachineCase):

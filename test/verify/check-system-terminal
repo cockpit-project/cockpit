@@ -8,12 +8,12 @@
 import testlib
 
 
-def line_sel(i):
+def line_sel(i: int) -> str:
     return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
 
 class TestTerminal(testlib.MachineCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         # Make sure we get what we expect
@@ -25,7 +25,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         # Remove failed units which will show up in the first terminal line
         self.machine.execute("systemctl reset-failed")
 
-    def wait_line(self, lineno, text):
+    def wait_line(self, lineno: int, text: str) -> None:
         b = self.browser
         try:
             b.wait_text(line_sel(lineno), text)
@@ -36,7 +36,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             print("-----")
             raise e
 
-    def clear_terminal(self):
+    def clear_terminal(self) -> None:
         b = self.browser
         b.input_text("clear")
         b.wait_js_cond("ph_text('.terminal').indexOf('clear') >= 0")
@@ -45,7 +45,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_js_cond("ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
 
     @testlib.nondestructive
-    def testBasic(self):
+    def testBasic(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -120,7 +120,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.wait_line(n, prompt)
         b.wait_not_in_text(".terminal .xterm-accessibility-tree", "disconnected")
 
-        def select_line(sel, width):
+        def select_line(sel: str, width: int) -> None:
             # Select line by dragging mouse
             # Height on a line is around 14px, so start approx. in the middle of line
             b.mouse(sel, "mousedown", 0, 7)
@@ -206,7 +206,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
             self.assertIn("/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", path)
         self.assertNotIn(":/.local", path)  # would happen with empty $HOME
 
-        def check_theme_select(name, style):
+        def check_theme_select(name: str, style: str) -> None:
             b.select_from_dropdown("#theme-select + div select", name)
             b.wait_attr_contains(".xterm-scrollable-element", "style", style)
 
@@ -260,7 +260,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
     @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
     @testlib.nondestructive
-    def testOnlyTerminal(self):
+    def testOnlyTerminal(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -283,7 +283,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
     @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
     @testlib.nondestructive
-    def testOpenPath(self):
+    def testOpenPath(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -353,7 +353,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.assertIn("No such process", m.execute(f"kill -0 {pid} 2>&1 || true"))
 
     @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
-    def testExternalState(self):
+    def testExternalState(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -403,7 +403,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Now we should have four bash processes, one for each tab
 
-        def count_admin_bashes():
+        def count_admin_bashes() -> int:
             return int(m.execute("loginctl user-status admin | grep /bin/bash | wc -l"))
 
         testlib.wait(lambda: count_admin_bashes() == 4)

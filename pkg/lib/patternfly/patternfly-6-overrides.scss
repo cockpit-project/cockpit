@@ -329,3 +329,27 @@ $phone: 767px;
 .pf-v6-c-icon.pf-m-important {
   --pf-v6-c-icon__content--Color: var(--pf-t--global--icon--color--severity--important--default);
 }
+
+// HACK: Patternfly 6.6.0 migrated from the deprecated word-break to overflow-wrap
+// incorrectly and did a text-replace from `word-break: break-word` to
+// `overflow-wrap: break-word`. According to MDN the behaviour is different and
+// should instead be `overflow-wrap: anywhere`.
+// Reverts https://github.com/patternfly/patternfly/commit/fff5587739106601d9c1e4b27f090c16603ce3a1
+// Bug report https://github.com/patternfly/patternfly/issues/8484
+// MDN note https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/word-break#break-word
+.pf-v6-c-alert__title,
+.pf-v6-c-clipboard-copy__text,
+.pf-v6-c-menu__item-description,
+.pf-v6-c-modal-box__body,
+.pf-v6-c-notification-drawer__group-toggle-title,
+.pf-v6-c-notification-drawer__list-item-description,
+.pf-v6-c-notification-drawer__list-item-header-title,
+.pf-v6-c-progress__description,
+.pf-v6-c-progress__status,
+.pf-v6-c-title,
+.pf-v6-c-tooltip__content,
+.pf-v6-c-wizard__main,
+.pf-v6-c-wizard__nav-link,
+.pf-v6-c-wizard__toggle-list-item {
+  overflow-wrap: anywhere;
+}

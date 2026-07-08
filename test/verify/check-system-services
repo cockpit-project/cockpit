@@ -955,6 +955,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service a
         self.wait_page_load()
         b.wait_js_cond(f'window.location.hash === "#/test-a.service{usr_query_str}"')
+        b.wait_text("#service-details-unit-title", "A Service")
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("Before", "test-b.service"))
         b.wait_visible(rel_sel("Conflicts", "test-c.service"))
@@ -963,6 +964,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service b
         self.wait_page_load()
         b.wait_js_cond(f'window.location.hash === "#/test-b.service{usr_query_str}"')
+        b.wait_text("#service-details-unit-title", "B Service")
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("After", "test-a.service"))
         b.click(rel_sel("After", "test-a.service"))
@@ -970,6 +972,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service a
         self.wait_page_load()
         b.wait_js_cond(f'window.location.hash === "#/test-a.service{usr_query_str}"')
+        b.wait_text("#service-details-unit-title", "A Service")
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("Conflicts", "test-c.service"))
         b.click(rel_sel("Conflicts", "test-c.service"))
@@ -977,6 +980,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service c
         self.wait_page_load()
         b.wait_js_cond(f'window.location.hash === "#/test-c.service{usr_query_str}"')
+        b.wait_text("#service-details-unit-title", "C Service")
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("Conflicts", "test-a.service"))
         b.wait_visible(rel_sel("Part of", "test-b.service"))

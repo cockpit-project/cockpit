@@ -12,6 +12,7 @@ def line_sel(i: int) -> str:
     return f'.terminal .xterm-accessibility-tree div:nth-child({i})'
 
 
+@testlib.nondestructive
 class TestTerminal(testlib.MachineCase):
     def setUp(self) -> None:
         super().setUp()
@@ -44,7 +45,6 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.key("Enter")
         b.wait_js_cond("ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
 
-    @testlib.nondestructive
     def testBasic(self) -> None:
         b = self.browser
         m = self.machine
@@ -259,7 +259,6 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_visible("#toolbar button[aria-label='Decrease by one']:disabled")
 
     @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
-    @testlib.nondestructive
     def testOnlyTerminal(self) -> None:
         b = self.browser
         m = self.machine
@@ -282,7 +281,6 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
 
     @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")
-    @testlib.nondestructive
     def testOpenPath(self) -> None:
         b = self.browser
         m = self.machine

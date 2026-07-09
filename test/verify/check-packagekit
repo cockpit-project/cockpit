@@ -505,7 +505,7 @@ ExecStart=/usr/local/bin/{package} infinity
 """)
 
                 self.serviceStartTime = self.testObj.createServicePackageUpgrade(self.packageName)
-                self.testObj.enableRepo()
+                self.testObj.enableRepo(refresh_repo=True)
 
             def test_frontend(self):
                 self.testObj.login_and_go("/updates")

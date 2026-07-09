@@ -510,9 +510,11 @@ ExecStart=/usr/local/bin/{package} infinity
             def test_frontend(self):
                 self.testObj.login_and_go("/updates")
 
-                # check update is present
                 with b.wait_timeout(30):
-                    b.wait_in_text("#status", "1 update available")
+                    b.wait_visible("#status")
+
+                # check update is present
+                b.wait_in_text("#status", "1 update available")
                 b.wait_in_text("#available-updates table", self.packageName)
 
                 # install updates

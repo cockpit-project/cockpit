@@ -54,7 +54,7 @@ export function btrfs_is_volume_mounted(client, block_devices) {
 export function parse_subvol_from_options(options) {
     const subvol = { };
     const subvolid_match = options.match(/subvolid=(?<subvolid>\d+)/);
-    const subvol_match = options.match(/subvol=(?<subvol>[\w\\/]+)/);
+    const subvol_match = options.match(/subvol=(?<subvol>[^\s,]+)/);
     if (subvolid_match)
         subvol.id = subvolid_match.groups.subvolid;
     if (subvol_match)

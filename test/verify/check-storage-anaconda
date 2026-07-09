@@ -297,6 +297,14 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
+        # Popular subvolume names starting with @ are allowed.
+        self.click_dropdown(self.card_row("Storage", location=f"{self.mnt_dir}/butter"), "Create subvolume")
+        self.dialog_wait_open()
+        self.dialog_set_val("name", "@data")
+        self.dialog_set_val("mount_point", "/data")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
         # Lock, mount point exporting should still work
 
         self.click_dropdown(self.card_row("Storage", name=disk), "Lock")
@@ -317,6 +325,9 @@ class TestStorageAnaconda(storagelib.StorageCase):
                                               },
                                               "home": {
                                                   "dir": "/home"
+                                              },
+                                              "@data": {
+                                                  "dir": "/data"
                                               },
                                           }
                                       }

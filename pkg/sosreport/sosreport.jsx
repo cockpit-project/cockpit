@@ -47,6 +47,7 @@ import { KebabDropdown } from "cockpit-components-dropdown";
 import get_report_dir_py from "./get_report_dir.py";
 
 import './sosreport.scss';
+import { Title, TitleSizes } from '@patternfly/react-core/dist/esm/components/Title';
 
 const _ = cockpit.gettext;
 
@@ -509,7 +510,9 @@ const SOSPage = () => {
             <Page className="pf-m-no-sidebar">
                 <PageSection hasBodyWrapper={false} padding={{ default: "padding" }}>
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                        <h2 className="pf-v6-u-font-size-3xl">{_("System diagnostics")}</h2>
+                        <Title headingLevel="h2" size={TitleSizes['3xl']}>
+                            {_("System diagnostics")}
+                        </Title>
                     </Flex>
                 </PageSection>
                 <SOSBody />

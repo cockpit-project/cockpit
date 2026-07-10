@@ -22,6 +22,7 @@ import { useInit } from "hooks";
 import { ProgressReporter, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils";
 import { ActionButton } from "./application.jsx";
 import { getPackageManager } from "packagemanager.js";
+import { Title, TitleSizes } from "@patternfly/react-core/dist/esm/components/Title";
 
 const _ = cockpit.gettext;
 
@@ -211,7 +212,9 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         <Page id="list-page" data-packages-checked={dataPackagesInstalled !== null} className="pf-m-no-sidebar">
             <PageSection hasBodyWrapper={false}>
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                    <h2 className="pf-v6-u-font-size-3xl">{_("Applications")}</h2>
+                    <Title headingLevel="h2" size={TitleSizes['3xl']}>
+                        {_("Applications")}
+                    </Title>
                     <FlexItem align={{ default: 'alignRight' }}>
                         <Flex alignItems={{ default: 'alignItemsCenter' }} spacer={{ default: 'spacerXs' }}>
                             <FlexItem>

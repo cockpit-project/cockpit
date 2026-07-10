@@ -16,6 +16,7 @@ import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/di
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
+import { Title, TitleSizes } from "@patternfly/react-core/dist/esm/components/Title";
 
 const _ = cockpit.gettext;
 
@@ -42,7 +43,9 @@ const LogDetails = ({ entry }) => {
         <GalleryItem>
             <Card isPlain>
                 <CardHeader actions={{ actions }}>
-                    <h2 id="entry-heading">{id}</h2>
+                    <Title id="entry-heading" headingLevel="h2" size={TitleSizes['3xl']}>
+                        {id}
+                    </Title>
                 </CardHeader>
                 <CardTitle>{journal.printable(entry.MESSAGE, "MESSAGE")}</CardTitle>
                 <CardBody>

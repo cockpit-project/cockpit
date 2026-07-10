@@ -27,6 +27,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import * as timeformat from 'timeformat';
+import { Title, TitleSizes } from "@patternfly/react-core/dist/esm/components/Title";
 
 const _ = cockpit.gettext;
 
@@ -253,7 +254,9 @@ class SELinuxStatus extends React.Component {
         return (
             <Stack hasGutter className="selinux-policy-ct">
                 <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
-                    <h2>{_("SELinux policy")}</h2>
+                    <Title headingLevel="h2" size={TitleSizes['3xl']}>
+                        {_("SELinux policy")}
+                    </Title>
                     <Switch isChecked={this.props.selinuxStatus.enforcing}
                             label={_("Enforcing")}
                             onChange={this.props.changeSelinuxMode} />

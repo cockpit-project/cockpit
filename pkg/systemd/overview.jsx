@@ -28,6 +28,7 @@ import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
 import "./overview.scss";
+import { Title, TitleSizes } from '@patternfly/react-core/dist/esm/components/Title';
 
 const _ = cockpit.gettext;
 
@@ -142,9 +143,9 @@ class OverviewPage extends React.Component {
                 <SuperuserAlert />
                 <PageSection hasBodyWrapper={false} className='ct-overview-header' padding={{ default: 'padding' }}>
                     <div className='ct-overview-header-hostname'>
-                        <h1>
+                        <Title size={TitleSizes['3xl']} headingLevel='h1'>
                             {this.hostname_text()}
-                        </h1>
+                        </Title>
                         {this.state.hostnameData &&
                          this.state.hostnameData.OperatingSystemPrettyName &&
                          <div className="ct-overview-header-subheading" id="system_information_os_text">{cockpit.format(_("running $0"), this.state.hostnameData.OperatingSystemPrettyName)}</div>}

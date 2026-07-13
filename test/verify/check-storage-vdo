@@ -37,7 +37,7 @@ class TestStorageVDO(storagelib.StorageCase):
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
 
-        # vdo only exists on RHEL
+        # Currently, vdo is only supported by Cockpit on RHEL
         if not m.image.startswith("rhel") and not m.image.startswith("centos"):
             b.wait_not_present("[data-field='purpose'] select option[value='vdo']")
             return
@@ -379,7 +379,7 @@ config: !Configuration
         b.wait_in_text(self.card_row("Storage", name="/dev/sda"), "VDO device")
 
 
-@testlib.onlyImage("VDO API only supported on RHEL", "rhel-*", "centos-*")
+@testlib.onlyImage("VDO package installation only supported on RHEL", "rhel-*", "centos-*")
 @testlib.skipOstree("package installation not supported on ostree images")
 class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
 
@@ -389,7 +389,15 @@ class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
         m = self.machine
         b = self.browser
 
+        # Remove the vdoformat utility by uninstalling the vdo
+        # package.  Older versions of LVM2 will need it and Cockpit
+        # will help to install the "vdo" package again.  Newer
+        # versions of LVM2 do not need vdoformat and Cockpit should
+        # not try to install it.
+
         m.execute("rpm --erase --verbose vdo")
+
+        needs_vdoformat = m.image.startswith(("rhel-8", "rhel-9", "rhel-10", "centos-9"))
 
         self.login_and_go("/storage")
         m.add_disk(SIZE_10G, serial="DISK1")
@@ -403,24 +411,32 @@ class TestStoragePackagesVDO(packagelib.PackageCase, storagelib.StorageHelpers):
         # no package installation helper text
         self.assertFalse(b.is_present("#dialog .pf-v6-c-helper-text"))
         self.dialog_set_val("purpose", "vdo")
-        # shows the package installation note
-        b.wait_in_text("#dialog .pf-v6-c-helper-text", "vdo package will be installed")
 
-        # vdo package does not exist
-        self.dialog_apply()
-        b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "vdo is not available from any repository")
+        if needs_vdoformat:
+            # shows the package installation note
+            b.wait_in_text("#dialog .pf-v6-c-helper-text", "vdo package will be installed")
 
-        self.createPackage("vdo", "999", "1")
-        self.enableRepo()
+            # vdo package does not exist
+            self.dialog_apply()
+            b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "vdo is not available from any repository")
 
-        self.dialog_apply()
-        # gets over package installation now, but it's a mock package
-        b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "vdoformat")
-        b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "No such file or directory")
-        # but it got past package installation
-        self.assertIn("999", m.execute("rpm -q vdo"))
+            self.createPackage("vdo", "999", "1")
+            self.enableRepo()
 
-        self.dialog_cancel()
+            self.dialog_apply()
+            # gets over package installation now, but it's a mock package
+            b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "vdoformat")
+            b.wait_in_text("#dialog .pf-v6-c-alert.pf-m-danger", "No such file or directory")
+            # but it got past package installation
+            self.assertIn("999", m.execute("rpm -q vdo"))
+
+            self.dialog_cancel()
+
+        else:
+            # Don't need vdoformat, volume can be created
+            b.wait_not_present("#dialog .pf-v6-c-helper-text")
+            self.dialog_apply()
+            b.wait_text(self.card_row_col("LVM2 logical volumes", 1, 1), "lvol0")
 
 
 if __name__ == '__main__':

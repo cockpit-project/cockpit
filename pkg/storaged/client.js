@@ -914,10 +914,26 @@ function init_model(callback) {
         }
     }
 
-    function enable_lvm_create_vdo_feature() {
-        return cockpit.spawn(["vdoformat", "--version"], { err: "ignore" })
-                .then(() => { client.features.lvm_create_vdo = true; return Promise.resolve() })
-                .catch(() => Promise.resolve());
+    async function enable_lvm_create_vdo_feature() {
+        async function exit_code(cmd) {
+            try {
+                await cockpit.spawn(cmd, { err: "ignore", superuser: "try" });
+                return 0;
+            } catch (ex) {
+                return ex.exit_status || 1;
+            }
+        }
+
+        /* We assume that if LVM has the option to format a VDO volume
+           in the kernel, then it will be used and will work.  If
+           that's not true, the error message from LVM will hopefully
+           be clear enough to help people figure out what needs to be
+           done.
+         */
+        if (await exit_code(["vdoformat", "--version"]) == 0 ||
+            await exit_code(["lvmconfig", "--list", "allocation/vdo_use_kernel_format"]) == 0) {
+            client.features.lvm_create_vdo = true;
+        }
     }
 
     function enable_legacy_vdo_features() {

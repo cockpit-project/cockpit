@@ -324,6 +324,9 @@ export const CredentialsModal = ({
                                                            isChecked={!!currentKey.loaded}
                                                            key={"switch-" + index}
                                                            onChange={(_event, value) => onToggleKey(currentKeyId, value)} />,
+                                            props: {
+                                                isActionCell: true
+                                            }
                                         }
                                     ],
                                     expandedContent,

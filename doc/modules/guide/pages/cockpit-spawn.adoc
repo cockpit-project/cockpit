@@ -46,7 +46,7 @@ the following fields:
   Set to `+"require"+` to spawn the process as root instead of the
   logged in user. If the currently logged in user is not permitted to
   become root (eg: via `+pkexec+`) then the `+client+` will immediately
-  be xref:cockpit-spawn.adoc#cockpit-dbus-onclose[closed] with a `+"access-denied"+`
+  be xref:cockpit-dbus.adoc#cockpit-dbus-onclose[closed] with a `+"access-denied"+`
   problem code.
   +
   Set to `+"try"+` to try to run the process as root, but if that fails,

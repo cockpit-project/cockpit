@@ -1,0 +1,62 @@
+name: 'Get release assets'
+description: 'Download and show Cockpit release tarball'
+inputs:
+  release:  # id of input
+    description: 'Release tag to fetch from'
+    required: false
+  checksum:
+    description: 'Checksum to verify tarball against'
+    required: false
+  path:
+    description: 'Cockpit repo is needed and if within a different path we need to go there'
+    required: false
+    default: '.'
+outputs:
+  tarball:
+    description: "Cockpit tarball"
+    value: ${{ steps.setup.outputs.filename }}
+  tarball_checksum:
+    description: "The second output string"
+    value: ${{ steps.download_tarball.outputs.checksum }}
+runs:
+  using: "composite"
+  steps:
+    - id: setup
+      name: Setup file
+      shell: bash
+      if: success()
+      env:
+        RELEASE: ${{ inputs.release }}
+        COCKPIT_PATH: ${{ inputs.path }}
+      run: |
+        set -x
+
+        cd ${{ inputs.path }}
+
+        {
+          echo "filename=cockpit-${RELEASE}.tar.xz"
+          echo "download=${{ github.server_url }}/${{ github.repository }}/releases/download/${RELEASE}/cockpit-${RELEASE}.tar.xz"
+        } >> "$GITHUB_OUTPUT"
+
+    - id: download_tarball
+      if: success()
+      name: Download source release
+      shell: bash
+      run: |
+        set -x
+
+        cd ${{ inputs.path }}
+
+        curl -L -o '${{ steps.setup.outputs.filename }}' '${{ steps.setup.outputs.download }}'
+
+        echo "checksum=$(sha256sum ${{ steps.setup.outputs.filename }} | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+
+    - name: Verify checksum
+      if: success() && inputs.checksum
+      shell: bash
+      run: |
+        set -x
+
+        cd ${{ inputs.path }}
+
+        echo '${{ inputs.checksum }} ${{ steps.setup.outputs.filename }}' | sha256sum -c

@@ -1,0 +1,38 @@
+name: Push node cache
+on:
+  # Trigger for other workflows
+  workflow_call:
+  # Runs that are triggered manually
+  workflow_dispatch:
+
+jobs:
+  node-cache:
+    # doesn't depend on it, but let's make sure the build passes before we do this
+    runs-on: ubuntu-latest
+    environment: node-cache
+    # done via deploy key, token needs no write permissions at all
+    permissions: {}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+
+      - name: Set up git
+        run: |
+            git config user.name "GitHub Workflow"
+            git config user.email "cockpituous@cockpit-project.org"
+
+      - name: Tag node-cache
+        run: |
+          set -eux
+          # this is a shared repo, prefix with project name
+          TAG="${GITHUB_REPOSITORY#*/}-$(basename $GITHUB_REF)"
+          tools/node-modules checkout
+          cd node_modules
+          git tag "$TAG"
+          git remote add cache "ssh://git@github.com/${GITHUB_REPOSITORY%/*}/node-cache"
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
+          # make this idempotent: delete an existing tag
+          git push cache :"$TAG" || true
+          git push cache tag "$TAG"
+          ssh-add -D

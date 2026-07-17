@@ -148,3 +148,14 @@ class DialogHelpers:
 
     def set_DropdownSelect(self, path: str, val: str) -> None:
         self.browser.select_from_dropdown(self.field(path), val)
+
+    # FileChooserInput
+
+    def get_FileChooserInput(self, path: str) -> str:
+        return self.browser.val(self.field(path) + " input")
+
+    def wait_FileChooserInput(self, path: str, val: str):
+        self.browser.wait_val(self.field(path) + " input", val)
+
+    def set_FileChooserInput(self, path: str, val: str) -> None:
+        self.browser.set_input_text(self.field(path) + " input", val)

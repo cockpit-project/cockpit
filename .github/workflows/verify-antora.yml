@@ -2,8 +2,10 @@ name: verify-antora
 on:
   pull_request:
     # Only run when a file has changed in doc/ directory
+    # Or the workflow file was changed
     paths:
       - doc/**
+      - .github/workflows/verify-antora.yml
     branches:
       - main
 jobs:

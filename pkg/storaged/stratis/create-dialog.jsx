@@ -10,6 +10,7 @@ import { dialog_open, TextInput, CheckBoxes, PassInput, SelectSpaces } from "../
 import { decode_filename, get_available_spaces, prepare_available_spaces } from "../utils.js";
 
 import { validate_pool_name, std_reply, get_unused_keydesc, with_stored_passphrase, confirm_tang_trust } from "./utils.jsx";
+import { remember_passphrase } from "../anaconda.jsx";
 import { validate_url, get_tang_adv } from "../crypto/tang.jsx";
 
 const _ = cockpit.gettext;
@@ -151,6 +152,13 @@ export function create_stratis_pool() {
                         return manager_create_pool(vals.name, devs, key_desc, clevis_info)
                                 .then(std_reply)
                                 .then(result => {
+                                    if (key_desc && vals.passphrase) {
+                                        for (const p of paths) {
+                                            const block = client.blocks[p];
+                                            if (block)
+                                                remember_passphrase(block, vals.passphrase);
+                                        }
+                                    }
                                     if (vals.overprov && !vals.overprov.on && result[0]) {
                                         const path = result[1][0];
                                         return client.wait_for(() => client.stratis_pools[path])

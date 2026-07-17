@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install the JSON Schema CLI
-        uses: sourcemeta/jsonschema@v16.0.0
+        uses: sourcemeta/jsonschema@v16.2.0
 
       - name: Validate Cockpit manifests
         run: jsonschema validate doc/modules/ROOT/attachments/schema.json pkg/ examples/ --continue
@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install the JSON Schema CLI
-        uses: sourcemeta/jsonschema@v16.0.0
+        uses: sourcemeta/jsonschema@v16.2.0
 
       - name: Validate Cockpit manifest schemas
         run: jsonschema metaschema doc/modules/ROOT/attachments/schema.json

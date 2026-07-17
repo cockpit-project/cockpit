@@ -224,6 +224,7 @@ if [ "$PLAN" = "storage-extra" ]; then
     # These don't test more external APIs
     EXCLUDES="$EXCLUDES
               TestStorageAnaconda.testBasic
+              TestStorageAnaconda.testStratis
 
               TestStorageMountingLUKS.testEncryptedMountingHelp
               TestStorageMountingLUKS.testDuplicateMountPoints

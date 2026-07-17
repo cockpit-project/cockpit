@@ -19,6 +19,7 @@ jobs:
       - name: Clone target branch
         uses: actions/checkout@v7
         with:
+          allow-unsafe-pr-checkout: true
           fetch-depth: 0
 
       - name: Fetch PR commits

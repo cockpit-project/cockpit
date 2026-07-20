@@ -1058,11 +1058,18 @@ class TestKerberos(testlib.MachineCase):
         # user has no cockpit kerberos session tickets initially
         m.execute("! ls /run/user/$(id -u admin)/*.ccache")
 
+        # clear the krb5 replay cache so we can verify it gets created with
+        # the correct SELinux context (krb5_host_rcache_t, not cockpit_tmp_t)
+        m.execute("rm -f /var/tmp/krb5_0.rcache2")
+
         output = m.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
                             '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
                             'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"csrf-token"', output)
+
+        context = m.execute("ls -Z /var/tmp/krb5_0.rcache2")
+        self.assertIn("krb5_host_rcache_t", context)
 
         cookie = re.search("Set-Cookie: cockpit=([^ ;]+)", output).group(1)
         b.open("/system/terminal", cookie={"name": "cockpit", "value": cookie, "domain": m.web_address, "path": "/"})

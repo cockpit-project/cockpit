@@ -120,8 +120,9 @@ optional_policy(`
 ')
 
 optional_policy(`
-    kerberos_use(cockpit_ws_t)
-    kerberos_etc_filetrans_keytab(cockpit_ws_t)
+    kerberos_use(cockpit_session_t)
+    kerberos_etc_filetrans_keytab(cockpit_session_t)
+    kerberos_filetrans_named_content(cockpit_session_t)
 ')
 
 optional_policy(`

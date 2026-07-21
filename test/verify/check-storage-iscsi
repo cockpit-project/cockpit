@@ -56,11 +56,11 @@ class TestStorageISCSI(storagelib.StorageCase):
         self.login_and_go("/storage")
 
         # Set initiator IQN
-        orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+        orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e '/^#/d' -e 's/^.*=//'").rstrip()
         self.click_dropdown(self.card_header("Storage"), "Change iSCSI initiator name")
         self.dialog(expect={"name": orig_iqn},
                     values={"name": initiator_iqn})
-        new_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+        new_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e '/^#/d' -e 's/^.*=//'").rstrip()
         self.assertEqual(new_iqn, initiator_iqn)
 
         # Access the target

@@ -37,6 +37,9 @@ function validate_name(name) {
     if (!name)
         return _("Group name cannot be empty");
 
+    if (name.length > 32)
+        return _("Group name is longer than 32 characters");
+
     if (name == "." || name == "..")
         return _("Group name cannot be '.' or '..'");
 

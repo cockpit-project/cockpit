@@ -186,9 +186,6 @@ class TestUncleanShutdownStatus(testlib.MachineCase):
 
         m.start_cockpit()
         self.login_and_go("/system")
-
-        # Clean reboot
-        self._cleanReboot()
         b.wait_visible('#system_information_os_text')
         b.wait_not_present("#unclean-shutdown-status")
 

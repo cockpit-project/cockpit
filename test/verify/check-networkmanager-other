@@ -38,7 +38,11 @@ class TestNetworkingOther(netlib.NetworkCase):
         b.click("#network-ip-settings-dialog button:contains('Save')")
         self.addCleanup(m.execute, "nmcli con del tun0")
         b.wait_not_present("#network-ip-settings-dialog")
-        self.wait_for_iface_setting('Status', '1.2.3.4/24')
+        b.wait_text("#network-interface-name", "tun0")
+        self.toggle_onoff("label[for='interface-switch']")
+        self.wait_onoff("#network-interface .pf-v6-c-card__header", val=True)
+        with b.wait_timeout(60):
+            self.wait_for_iface_setting('Status', '1.2.3.4/24')
 
 
 if __name__ == '__main__':

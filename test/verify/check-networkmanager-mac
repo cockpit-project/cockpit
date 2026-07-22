@@ -61,6 +61,8 @@ class TestNetworkingMAC(netlib.NetworkCase):
         b.set_checked(f"input[data-iface='{iface2}']", val=True)
         b.click("#network-bond-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-bond-settings-dialog")
+        self.toggle_onoff("label[for='interface-switch']")
+        self.wait_onoff("#network-interface .pf-v6-c-card__header", val=True)
 
         b.wait_text("#network-interface-name", "tbond")
         mac = m.execute("cat /sys/class/net/tbond/address").strip()

@@ -187,13 +187,19 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.login_and_go("/storage")
         self.enterAnacondaMode(anaconda_config)
 
-        # Create a Stratis pool
+        # Create an encrypted Stratis pool
         self.click_devices_dropdown("Create Stratis pool")
         self.dialog_wait_open()
         b.wait_count("#dialog .select-space-name", 1)
         self.dialog_set_val("disks", {disk: True})
+        self.dialog_set_val("encrypt_pass.on", val=True)
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         self.dialog_wait_close()
+
+        self.expectExportedDevicePassphrase(disk, "vainu-reku-toma-rolle-kaja")
+
         self.click_dropdown(self.card_row("Storage", name="pool0"), "Create new filesystem")
         self.dialog_wait_open()
         b.wait_not_present(self.dialog_field("at_boot"))
@@ -231,7 +237,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_wait_close()
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /sysroot/var"))
 
-        # Check exported mount point information.
+        # Check exported mount point and passphrase information.
 
         self.expectExportedDevice("/dev/stratis/pool0/root",
                                   {
@@ -244,8 +250,8 @@ class TestStorageAnaconda(storagelib.StorageCase):
 
         # Check and delete pool
         b.click(self.card_parent_link())
-        b.wait_visible(self.card_row("Stratis pool", name=disk))
-        self.click_card_dropdown("Stratis pool", "Delete")
+        b.wait_visible(self.card_row("Encrypted Stratis pool", name=disk))
+        self.click_card_dropdown("Encrypted Stratis pool", "Delete")
         self.confirm()
         m.execute("! findmnt --fstab -n /sysroot/var")
 

@@ -12,7 +12,7 @@ import testlib
 
 
 @testlib.nondestructive
-@testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*')
+@testlib.skipImage('no btrfs support', 'rhel-*', 'centos-*', 'fedora-eln')
 class TestStorageBtrfs(storagelib.StorageCase):
     def setUp(self):
         super().setUp()

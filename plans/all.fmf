@@ -15,6 +15,10 @@ environment:
     summary: Non-storage tests
     discover+:
         test: /test/browser/main
+    prepare:
+      - how: shell
+        script: |
+          reboot
 
 /storage-basic:
     summary: Basic storage tests

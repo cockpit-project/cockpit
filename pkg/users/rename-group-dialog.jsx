@@ -54,7 +54,7 @@ function validate_name(name) {
             continue;
 
         if (!is_valid_char_name(name[i]))
-            return _("Group name can only contain letters, digits, underscores, dashes, dots, or a trailing dollar sign");
+            return _("Group name can only consist of letters, digits, dots, dashes, and underscores");
     }
 
     return null;

@@ -46,6 +46,7 @@ import {
 } from "@patternfly/react-icons";
 import { TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
+import DOMPurify from "dompurify";
 
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
@@ -321,8 +322,8 @@ function updateItem(remarkable, info, pkgNames, key) {
     descriptionFirstLine = cleanupChangelogLine(descriptionFirstLine);
     let description;
     if (info.markdown) {
-        descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: remarkable.render(descriptionFirstLine) }} />;
-        description = <div dangerouslySetInnerHTML={{ __html: remarkable.render(info.description) }} />;
+        descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(remarkable.render(descriptionFirstLine)) }} />;
+        description = <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(remarkable.render(info.description)) }} />;
     } else {
         description = <div className="changelog">{info.description}</div>;
     }

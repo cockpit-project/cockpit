@@ -681,8 +681,11 @@ class ServicesPageBody extends React.Component {
             { value: 'static', label: _("Static") },
         ];
         this.seenUnitFileStates.forEach(unitFileState => {
-            if (!['enabled', 'disabled', 'static'].includes(unitFileState.split('-runtime')[0])) {
-                fileStateDropdownOptions.push({ value: unitFileState, label: this.unitFileState[unitFileState] });
+            const baseState = unitFileState.split('-runtime')[0];
+            if (!['enabled', 'disabled', 'static'].includes(baseState)) {
+                const label = this.unitFileState[unitFileState];
+                if (!fileStateDropdownOptions.some(o => o.label === label))
+                    fileStateDropdownOptions.push({ value: baseState, label });
             }
         });
         const activeStateDropdownOptions = [

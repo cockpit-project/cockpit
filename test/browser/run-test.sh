@@ -144,6 +144,13 @@ if [ "$PLAN" = "main" ]; then
               TestUpdates.testFailServiceRestart
               TestUpdates.testKpatch
               "
+
+    # FIXME: TestingFarm will fix their auto-reboot ansible
+    # https://gitlab.com/testing-farm/profiles/-/merge_requests/92
+    EXCLUDES="$EXCLUDES
+              TestNetworkingWifi.testHidden
+              TestNetworkingWifi.testWifi
+              "
 fi
 
 if [ "$PLAN" = "storage-basic" ]; then

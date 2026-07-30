@@ -139,7 +139,7 @@ function sosLister() {
     return self;
 }
 
-function sosCreate(args, setProgress, setError, setErrorDetail) {
+function sosCreate(args, setProgress, setError, setErrorDetail, options) {
     let output = "";
     let plugins_count = 0;
     const progress_regex = /Running ([0-9]+)\/([0-9]+):/; // Only for sos < 3.6
@@ -148,7 +148,7 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
 
     // TODO - Use a real API instead of scraping stdout once such an API exists
     const task = cockpit.spawn(["sos", "report", "--batch"].concat(args),
-                               { superuser: true, err: "out", pty: true });
+                               { superuser: true, err: "out", pty: true, ...options });
 
     task.stream(text => {
         let p = 0;
@@ -249,6 +249,7 @@ const SOSDialog = () => {
         setProgress(null);
 
         const args = [];
+        const options = {};
 
         if (label) {
             args.push("--label");
@@ -256,8 +257,8 @@ const SOSDialog = () => {
         }
 
         if (passphrase) {
-            args.push("--encrypt-pass");
-            args.push(passphrase);
+            args.push("--encrypt");
+            options.environ = ["SOSENCRYPTPASS=" + passphrase];
         }
 
         if (obfuscate) {
@@ -269,7 +270,7 @@ const SOSDialog = () => {
         }
 
         const task = sosCreate(args, setProgress, err => { if (err == "cancelled") Dialogs.close(); else setError(err); },
-                               setErrorDetail);
+                               setErrorDetail, options);
         setTask(task);
         task.then(Dialogs.close);
         task.finally(() => setTask(null));

@@ -4,6 +4,12 @@ import cockpit from "cockpit";
 import lister from "./ssh-list-public-keys.sh";
 import adder from "./ssh-add-public-key.sh";
 
+const SSH_KEY_TYPES = new Set([
+    'ssh-rsa', 'ssh-dss', 'ssh-ed25519',
+    'ecdsa-sha2-nistp256', 'ecdsa-sha2-nistp384', 'ecdsa-sha2-nistp521',
+    'sk-ssh-ed25519@openssh.com', 'sk-ecdsa-sha2-nistp256@openssh.com',
+]);
+
 const _ = cockpit.gettext;
 
 function AuthorizedKeys (user_name, home_dir) {
@@ -104,8 +110,11 @@ function AuthorizedKeys (user_name, home_dir) {
                 .then(keys => {
                     const obj = keys[0];
                     if (obj?.valid) {
-                        const key_match = obj.raw.match(/((?:sk-|ssh-|ecdsa-sha2-)\S+\s+\S+(?:\s+\S.*)?)$/);
-                        const clean_key = key_match ? key_match[1] : obj.raw;
+                        const tokens = obj.raw.split(/\s+/);
+                        const type_idx = tokens.findIndex(t => SSH_KEY_TYPES.has(t));
+                        if (type_idx < 0)
+                            return Promise.reject(_("The key you provided was not valid."));
+                        const clean_key = tokens.slice(type_idx).join(' ');
                         return cockpit
                                 .script(adder, [user_name, home_dir], { superuser: "try", err: "message" })
                                 .input(clean_key + "\n")

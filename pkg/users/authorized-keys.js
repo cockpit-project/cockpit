@@ -104,9 +104,11 @@ function AuthorizedKeys (user_name, home_dir) {
                 .then(keys => {
                     const obj = keys[0];
                     if (obj?.valid) {
+                        const key_match = obj.raw.match(/((?:sk-|ssh-|ecdsa-sha2-)\S+\s+\S+(?:\s+\S.*)?)$/);
+                        const clean_key = key_match ? key_match[1] : obj.raw;
                         return cockpit
                                 .script(adder, [user_name, home_dir], { superuser: "try", err: "message" })
-                                .input(obj.raw + "\n")
+                                .input(clean_key + "\n")
                                 // eslint-disable-next-line prefer-promise-reject-errors
                                 .catch(ex => Promise.reject(_("Error saving authorized keys: ") + ex)); // not-covered: OS error
                     } else {

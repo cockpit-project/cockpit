@@ -249,8 +249,6 @@ class SELinuxStatus extends React.Component {
         else if (!configUnknown && this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
             note = _("Setting deviates from the configured state and will revert on the next boot.");
 
-        // note = _("Setting deviates from the configured state and will revert on the next boot.");
-
         return (
             <Stack hasGutter className="selinux-policy-ct">
                 <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>

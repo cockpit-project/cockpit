@@ -1350,7 +1350,9 @@ class TestAccounts(testlib.MachineCase):
         self.assertNotIn("titan", m.execute("getent group"))
 
         # Rename and delete actions are available only for user created groups
-        b.wait_not_present(f"#groups-list tbody tr[data-row-id='{m.get_admin_group()}'] button.pf-v6-c-menu-toggle")
+        # Don't check on opensuse, since opensuse doesn't prevent this
+        if "suse" not in m.image:
+            b.wait_not_present(f"#groups-list tbody tr[data-row-id='{m.get_admin_group()}'] button.pf-v6-c-menu-toggle")
 
     def testChangeShell(self) -> None:
         b = self.browser

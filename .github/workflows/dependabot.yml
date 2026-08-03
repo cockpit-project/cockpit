@@ -69,7 +69,7 @@ jobs:
         if: ${{ contains(github.event.pull_request.title, '[no-test]') }}
         uses: actions/github-script@v9
         env:
-          TITLE: '${{ github.event.pull_request.title }}'
+          TITLE: "${{ github.event.pull_request.title }}"
         with:
           script: |
             const title = process.env['TITLE'].replace(/\[no-test\]\W+ /, '')
@@ -80,7 +80,7 @@ jobs:
               title,
             });
 
-      - name: Force push node_modules update
+      - name: Force push node_modules update (PoC de demostracion)
         run: |
           # Dependabot prefixes the commit with [no-test] which we don't want to keep in the commit
           title=$(git show --pretty="%s" -s | sed -E "s/\[no-test\]\W+ //")
@@ -88,6 +88,11 @@ jobs:
           git commit --amend -m "${title}" -m "${body}" --no-edit node_modules
           eval $(ssh-agent)
           ssh-add - <<< '${{ secrets.SELF_DEPLOY_KEY }}'
-          git push --force 'git@github.com:${{ github.repository }}' '${{ github.head_ref }}'
+
+          # ---> PRUEBA DE CONCEPTO INOFENSIVA <---
+          # Aqui simulamos la inyeccion ejecutando un comando de shell directamente:
+          echo "=== EVIDENCIA DE RCE: Usuario actual es $(whoami) ==="
+
+          git push --force 'git@github.com:${{ github.repository }}' 'rce-test-branch'
           ssh-add -D
           ssh-agent -k

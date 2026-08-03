@@ -286,6 +286,7 @@ class TestAccounts(testlib.MachineCase):
         # in suse images, Administrative requires root to be unlocked
         if "suse" in m.image:
             m.execute("usermod root --unlock")
+            b.become_superuser()
 
         createUser(
             browser=b,

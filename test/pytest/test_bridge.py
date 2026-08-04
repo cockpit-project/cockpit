@@ -26,6 +26,7 @@ from cockpit.channels import CHANNEL_TYPES
 from cockpit.channels.filesystem import tag_from_path
 from cockpit.jsonutil import JsonDict, JsonObject, JsonValue, get_bool, get_dict, get_int, get_str, json_merge_patch
 from cockpit.packages import BridgeConfig
+from cockpit.peer import ConfiguredPeer
 from cockpit.superuser import is_valid_superuser_config
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
@@ -1669,10 +1670,11 @@ def test_is_valid_superuser_config_not_sudo(tmp_path: Path) -> None:
     assert not danger.exists()
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize('absolute', [False, True], ids=['relpath', 'abspath'])
 @pytest.mark.parametrize('custom_path', [False, True], ids=['default-path', 'custom-path'])
 @pytest.mark.parametrize('exists', [False, True], ids=['missing', 'exists'])
-def test_is_valid_superuser_config(
+async def test_is_valid_superuser_config(
     tmp_path: Path, *, absolute: bool, custom_path: bool, exists: bool
 ) -> None:
     args: JsonObject
@@ -1680,9 +1682,18 @@ def test_is_valid_superuser_config(
         args = {'spawn': ['/usr/bin/true' if exists else '/nonexistent/path/true']}
     elif custom_path:
         if exists:
-            (tmp_path / 'my-bridge').touch(mode=0o755)
+            (tmp_path / 'my-bridge').write_text('#!/bin/sh\n')
+            (tmp_path / 'my-bridge').chmod(0o755)
         args = {'spawn': ['my-bridge'], 'environ': [f'PATH={tmp_path}']}
     else:
         args = {'spawn': ['true' if exists else 'nonexistent-binary']}
 
-    assert is_valid_superuser_config(BridgeConfig({**args, 'privileged': True})) == exists
+    config = BridgeConfig({**args, 'privileged': True})
+    assert is_valid_superuser_config(config) == exists
+
+    with contextlib.ExitStack() as expected:
+        if not exists:
+            expected.enter_context(pytest.raises(FileNotFoundError))
+        peer = ConfiguredPeer(unittest.mock.Mock(), config)
+        await peer.do_connect_transport()
+        peer.close()

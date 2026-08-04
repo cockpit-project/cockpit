@@ -56,48 +56,6 @@ jobs:
       download: ${{ steps.publish.outputs.download }}
       body: ${{ steps.publish.outputs.body }}
 
-  guide:
-    needs: source
-    environment: website
-    permissions: {}
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/cockpit-project/tasks:latest
-      options: --user root
-    steps:
-      - name: Checkout website repository
-        uses: actions/checkout@v7
-        with:
-          path: website
-          repository: cockpit-project/cockpit-project.github.io
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Download source release
-        run: curl -L -o '${{ needs.source.outputs.filename }}' '${{ needs.source.outputs.download }}'
-
-      - name: Verify checksum
-        run: echo '${{ needs.source.outputs.checksum }} ${{ needs.source.outputs.filename }}' | sha256sum -c
-
-      - name: Extract guide from release tarball
-        run: |
-          mkdir source
-          tar --directory source --extract --strip-components=1 --file '${{ needs.source.outputs.filename }}'
-
-      - name: Update the website
-        run: |
-          rm -rf website/guide/latest
-          cp -rT source/doc/output/html website/guide/latest
-
-          git config --global user.name "GitHub Workflow"
-          git config --global user.email "cockpituous@cockpit-project.org"
-
-          cd website
-          git add guide/
-          git commit --message='Update guide to version ${{ github.ref_name }}'
-          git show --stat
-          git push origin main
-
-
   flathub:
     needs: source
     environment: flathub

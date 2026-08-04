@@ -24,6 +24,13 @@ import testlib
 @testlib.nondestructive
 class TestStorageswap(storagelib.StorageCase):
 
+    def checkSwapUsed(self):
+        # this relies on PCP, which is missing on some images
+        if self.machine.image in ["debian-testing", "rhel-8-10"]:
+            return
+
+        self.browser.wait_text(self.card_desc("Swap", "Used"), "0 B")
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -89,6 +96,7 @@ class TestStorageswap(storagelib.StorageCase):
         b.wait_text(self.card_desc("Swap", "Used"), "0")
         testlib.wait(lambda: "defaults" in m.execute(f"findmnt --fstab -n -o OPTIONS {disk}"))
 
+    @testlib.skipImage("cryptsetup uses too much memory, OOM on our test VMs", "rhel-8-*")
     def testEncrypted(self):
         b = self.browser
         m = self.machine

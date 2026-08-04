@@ -48,7 +48,13 @@ def sudo_supports_askpass(sudo_path: str) -> bool:
 def is_valid_superuser_config(config: BridgeConfig) -> bool:
     if not config.privileged:
         return False
-    command = shutil.which(config.spawn[0])
+
+    path = None
+    for entry in config.environ:
+        if entry.startswith('PATH='):
+            path = entry[5:]
+
+    command = shutil.which(config.spawn[0], path=path)
     if command is None:
         return False
     if basename(command) == 'sudo' and not sudo_supports_askpass(command):

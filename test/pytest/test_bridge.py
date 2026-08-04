@@ -26,6 +26,7 @@ from cockpit.channels import CHANNEL_TYPES
 from cockpit.channels.filesystem import tag_from_path
 from cockpit.jsonutil import JsonDict, JsonObject, JsonValue, get_bool, get_dict, get_int, get_str, json_merge_patch
 from cockpit.packages import BridgeConfig
+from cockpit.superuser import is_valid_superuser_config
 
 from .mocktransport import MOCK_HOSTNAME, MockTransport
 
@@ -1639,3 +1640,49 @@ async def test_fsinfo_access_attrs(transport: MockTransport, fsinfo_test_cases: 
         expected_state = {'info': {'r-ok': True, 'w-ok': True, 'x-ok': True}}
         client = await FsInfoClient.open(transport, path, attrs=['w-ok', 'r-ok', 'x-ok'], follow=False)
         assert await client.wait() == expected_state, f'for path={path.name}'
+
+
+@pytest.mark.parametrize('supports_askpass', [False, True], ids=['no-askpass', 'askpass'])
+def test_is_valid_superuser_config_sudo_askpass(tmp_path: Path, *, supports_askpass: bool) -> None:
+    sudo = tmp_path / 'sudo'
+    sudo.write_text(f'#!/bin/sh\nexit {"0" if supports_askpass else "1"}\n')
+    sudo.chmod(0o755)
+
+    config = BridgeConfig({
+        'privileged': True,
+        'spawn': [str(sudo), '-k', '-A', 'cockpit-bridge', '--privileged'],
+    })
+    assert is_valid_superuser_config(config) == supports_askpass
+
+
+def test_is_valid_superuser_config_not_sudo(tmp_path: Path) -> None:
+    danger = tmp_path / 'danger'
+    pkexec = tmp_path / 'pkexec'
+    pkexec.write_text(f'#!/bin/sh\ntouch {danger}\n')
+    pkexec.chmod(0o755)
+
+    config = BridgeConfig({
+        'privileged': True,
+        'spawn': [str(pkexec), 'cockpit-bridge', '--privileged'],
+    })
+    assert is_valid_superuser_config(config)
+    assert not danger.exists()
+
+
+@pytest.mark.parametrize('absolute', [False, True], ids=['relpath', 'abspath'])
+@pytest.mark.parametrize('custom_path', [False, True], ids=['default-path', 'custom-path'])
+@pytest.mark.parametrize('exists', [False, True], ids=['missing', 'exists'])
+def test_is_valid_superuser_config(
+    tmp_path: Path, *, absolute: bool, custom_path: bool, exists: bool
+) -> None:
+    args: JsonObject
+    if absolute:
+        args = {'spawn': ['/usr/bin/true' if exists else '/nonexistent/path/true']}
+    elif custom_path:
+        if exists:
+            (tmp_path / 'my-bridge').touch(mode=0o755)
+        args = {'spawn': ['my-bridge'], 'environ': [f'PATH={tmp_path}']}
+    else:
+        args = {'spawn': ['true' if exists else 'nonexistent-binary']}
+
+    assert is_valid_superuser_config(BridgeConfig({**args, 'privileged': True})) == exists

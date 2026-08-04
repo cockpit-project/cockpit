@@ -69,6 +69,37 @@ def broken_archive(tmpdir_factory):
 
 
 @pytest.fixture
+def partially_broken_archive(tmpdir_factory):
+    """A directory holding one healthy archive next to an unreadable one.
+
+    A single corrupted or empty archive (as left behind by an interrupted or
+    freshly rotated pmlogger) must not prevent the metrics history from the
+    remaining healthy archives from loading.
+    cf. https://github.com/cockpit-project/cockpit/issues/23023
+        https://github.com/cockpit-project/cockpit/issues/23214
+    """
+    pcp_dir = tmpdir_factory.mktemp('partially-broken-archives')
+
+    archive = pmi.pmiLogImport(f"{pcp_dir}/0")
+    archive.pmiAddMetric("mock.value", PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
+                         PM_SEM_INSTANT, archive.pmiUnits(0, 0, 0, 0, 0, 0))
+    archive.pmiPutValue("mock.value", None, "10")
+    archive.pmiWrite(0, 0)
+    archive.pmiPutValue("mock.value", None, "11")
+    archive.pmiWrite(1, 0)
+    archive.pmiEnd()
+
+    with open(pcp_dir / '1.index', 'w') as f:
+        f.write("not a pcp index file")
+    with open(pcp_dir / '1.meta', 'w') as f:
+        f.write("not a pcp meta file")
+    with open(pcp_dir / '1.0', 'w') as f:
+        f.write("not a pcp sample file")
+
+    return pcp_dir
+
+
+@pytest.fixture
 def discrete_metric_archive(tmpdir_factory):
     pcp_dir = tmpdir_factory.mktemp('discrete-archive')
     archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
@@ -529,10 +560,28 @@ async def test_pcp_limit_archive(transport, big_archive):
 
 @pytest.mark.asyncio
 async def test_pcp_broken_archive(transport, broken_archive):
+    # When *no* archive in the directory can be read, the channel reports the
+    # same 'not-found' as an empty or non-existent source.
     await transport.check_open('metrics1', source=str(broken_archive),
                                metrics=[{"name": "mock.value", "derive": "rate"}],
-                               problem='not-found',
-                               reply_keys={'message': f'could not read archive {broken_archive}/0.index'})
+                               problem='not-found', absent_keys=['message'])
+
+
+@pytest.mark.asyncio
+async def test_pcp_partially_broken_archive(transport, partially_broken_archive):
+    """A single unreadable archive must not hide the healthy archives' history."""
+    await transport.check_open('metrics1', source=str(partially_broken_archive),
+                               metrics=[{"name": "mock.value"}])
+
+    _, data = await transport.next_frame()
+    # first message is always the meta message
+    meta = json.loads(data)
+    assert_metrics_meta(meta, str(partially_broken_archive))
+    assert meta['metrics'][0]['name'] == 'mock.value'
+
+    _, data = await transport.next_frame()
+    data = json.loads(data)
+    assert data == [[10], [11]]
 
 
 @pytest.mark.asyncio

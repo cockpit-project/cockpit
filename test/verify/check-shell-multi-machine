@@ -583,7 +583,7 @@ class TestMultiMachine(testlib.MachineCase):
         b.wait_in_text("#system_information_hostname_text", "machine1")
         b.switch_to_top()
 
-        # renable admin
+        # re-enable admin
         m2.execute('passwd -u admin')
 
         # path should reconnect at this point

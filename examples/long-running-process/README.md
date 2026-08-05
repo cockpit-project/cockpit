@@ -10,7 +10,7 @@ such as udisks, libvirt, or podman. But this is not the case for e.g. running
 Ansible playbooks or installer scripts. These should be wrapped into a
 transient service unit, so that systemd takes over the role of the job manager.
 
-This example demonstrates how to do that. It runs an arbitary shell command in
+This example demonstrates how to do that. It runs an arbitrary shell command in
 a transient cockpit-longrunning.service, shows the live log output, and
 reattaches to it on page load. I.e. you can start the process, log out, log
 back in, and the service is recognized as "already running" with the complete

@@ -110,7 +110,7 @@ export const SmartCard = ({ card, smart_info, drive_type }) => {
             ? `, ${100 - smart_info.SmartSelftestPercentRemaining}%`
             : "");
 
-    const assesment = (
+    const assessment = (
         <Flex spaceItems={{ default: 'spaceItemsXs' }}>
             { !smartOK &&
                 <Icon status="danger">
@@ -140,7 +140,7 @@ export const SmartCard = ({ card, smart_info, drive_type }) => {
             <CardBody>
                 <DescriptionList isHorizontal horizontalTermWidthModifier={{ default: '20ch' }}>
                     <StorageDescription title={_("Assessment")}>
-                        {assesment}
+                        {assessment}
                     </StorageDescription>
                     <StorageDescription title={_("Power on hours")}
                         value={cockpit.format(_("$0 hours"), powerOnHours)}

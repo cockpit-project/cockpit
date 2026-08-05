@@ -547,7 +547,7 @@ export class Dnf5DaemonManager implements PackageManager {
                             }
 
                             // Map the advisory type to the severity which PackageKit uses
-                            // Critical == Security upate
+                            // Critical == Security update
                             // Important == Bug fix
                             // Moderate == Enhancement
                             let severity = Severity.LOW;

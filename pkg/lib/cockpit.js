@@ -2558,7 +2558,7 @@ function factory() {
 
             /* Callbacks that want to stream or get headers */
             let streamer = null;
-            let responsers = null;
+            let responders = null;
 
             let resp = null;
 
@@ -2573,9 +2573,9 @@ function factory() {
                 /* Anyone looking for response details? */
                 if (options.command == "response") {
                     resp = options;
-                    if (responsers) {
+                    if (responders) {
                         resp.headers = resp.headers || { };
-                        invoke_functions(responsers, ret, [resp.status, resp.headers]);
+                        invoke_functions(responders, ret, [resp.status, resp.headers]);
                     }
                 }
             }
@@ -2622,9 +2622,9 @@ function factory() {
                 return ret;
             };
             ret.response = function(callback) {
-                if (responsers === null)
-                    responsers = [];
-                responsers.push(callback);
+                if (responders === null)
+                    responders = [];
+                responders.push(callback);
                 return ret;
             };
             ret.input = function(message, stream) {

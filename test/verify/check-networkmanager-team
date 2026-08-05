@@ -20,6 +20,7 @@ class TestTeam(netlib.NetworkCase):
         b = self.browser
 
         self.login_and_go("/network")
+        b.wait_visible("#networking")
 
         b.wait_visible("button:contains('Add team')")
 
@@ -46,6 +47,7 @@ class TestTeam(netlib.NetworkCase):
         b.set_checked(f"input[data-iface='{iface2}']", val=True)
         b.click("#network-team-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-team-settings-dialog")
+        self.toggle_onoff("label[for='interface-switch']")
 
         b.wait_text("#network-interface-name", "tteam")
         b.wait(lambda: 'nmcli con show | grep tteam')
@@ -96,6 +98,7 @@ class TestTeam(netlib.NetworkCase):
         b.set_checked(f"input[data-iface='{iface}']", val=True)
         b.click("#network-team-settings-dialog button:contains('Add')")
         b.wait_not_present("#network-team-settings-dialog")
+        self.toggle_onoff("label[for='interface-switch']")
 
         b.wait_text("#network-interface-name", "tteam")
         b.wait(lambda: 'nmcli con show | grep tteam')

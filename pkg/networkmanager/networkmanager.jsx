@@ -25,6 +25,7 @@ import { PlotState } from 'plot';
 
 import { useObject, useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
+import { AnacondaNetworkPage } from './anaconda-main';
 
 const _ = cockpit.gettext;
 
@@ -99,11 +100,29 @@ const App = () => {
 
     const interfaces = model.list_interfaces();
 
+    const anaconda_mode = JSON.parse(window.sessionStorage.getItem("cockpit_anaconda"));
+
+    if (anaconda_mode) {
+        const iface = path.length == 1 ? interfaces.find(iface => iface.Name == path[0]) : undefined;
+
+        return (
+            <ModelContext.Provider value={model}>
+                <WithDialogs key="networking-anaconda">
+                    <AnacondaNetworkPage privileged={superuser.allowed}
+                                         operationInProgress={model.operationInProgress}
+                                         usage_monitor={usage_monitor}
+                                         interfaces={interfaces}
+                                         iface={iface} />
+                </WithDialogs>
+            </ModelContext.Provider>
+        );
+    }
+
     /* At this point NM is running and the model is ready */
     if (path.length == 0) {
         return (
             <ModelContext.Provider value={model}>
-                <WithDialogs key="1">
+                <WithDialogs key="networking">
                     <NetworkPage privileged={superuser.allowed}
                                  operationInProgress={model.operationInProgress}
                                  usage_monitor={usage_monitor}
@@ -118,7 +137,7 @@ const App = () => {
         if (iface) {
             return (
                 <ModelContext.Provider value={model}>
-                    <WithDialogs key="2">
+                    <WithDialogs key="networking-interface">
                         <NetworkInterfacePage privileged={superuser.allowed}
                                               operationInProgress={model.operationInProgress}
                                               usage_monitor={usage_monitor}

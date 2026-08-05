@@ -78,7 +78,7 @@ function get_expire(name) {
         // 99999, and /etc/login.def also still uses 99999 as the
         // default for new accounts.
         //
-        // Passord expiration is being removed completely from
+        // Password expiration is being removed completely from
         // shadow-utils, and we probably should continue to recognize
         // 99999 as "never" until we stop supporting password expiry
         // entirely.

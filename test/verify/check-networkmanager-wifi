@@ -302,7 +302,7 @@ wpa_passphrase=hidden99""")
         b.click(d.cancel_button())
         b.wait_not_present("#network-wifi-connect-dialog")
         # Cancelling did not create or deleted the known connection
-        # This tests a negative -- ensure the connnection does not get created in the background
+        # This tests a negative -- ensure the connection does not get created in the background
         time.sleep(3)
         b.wait_visible("tr[data-ssid='ZE WIFI!'] button[aria-label='Connect']")
         b.wait_not_present("tr[data-ssid='ZE WIFI!'] button.pf-v6-c-menu-toggle")

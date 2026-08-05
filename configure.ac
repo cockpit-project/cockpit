@@ -178,7 +178,7 @@ AC_ARG_WITH([default-session-path],
                  # "/bin" is symlinked to "/usr/bin".  We use the
                  # normal Arch PATH which omits "sbin" and "/bin" for
                  # those reasons.  Otherwise "pkexec" will find
-                 # cockpit-bridge in "/usr/sbin" and our rule wont
+                 # cockpit-bridge in "/usr/sbin" and our rule won't
                  # match.
                  default_session_path=/usr/local/sbin:/usr/local/bin:/usr/bin
               else

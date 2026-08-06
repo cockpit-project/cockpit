@@ -971,6 +971,14 @@ class TestAccounts(testlib.MachineCase):
         b.click('#login-button')
         b.wait_visible('#content')
 
+        # --mindays is being deprecated in "chage" utility, see
+        # https://github.com/shadow-maint/shadow/pull/1482 for deprecation of --mindays and
+        # https://github.com/shadow-maint/shadow/pull/1432 for full plan what is being deprecated
+        #
+        # This will eventually show up in other distributions too
+        if m.image == "arch":
+            return
+
         # Set minimum age to disallow changing it immediately again
         m.execute("chage --mindays 7 antoine")
         b.enter_page("/users")

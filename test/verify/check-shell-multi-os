@@ -15,7 +15,7 @@ class TestRHEL8(testlib.MachineCase):
         "stock": {"address": "10.111.113.5/20", "image": "rhel-8-10"}
     }
 
-    def logout_pf5(self, b):
+    def logout_pf5(self, b: testlib.Browser) -> None:
         b.switch_to_top()
         b.wait_visible("#toggle-menu")
         if (b.attr("#toggle-menu", "aria-expanded") != "true"):
@@ -23,7 +23,7 @@ class TestRHEL8(testlib.MachineCase):
         b.mouse('#logout', "click", scrollVisible=False)
         b.wait_visible('#login')
 
-    def test(self):
+    def test(self) -> None:
         dev_m = self.machine
         dev_b = self.browser
 

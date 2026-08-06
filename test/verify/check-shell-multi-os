@@ -24,6 +24,12 @@ class TestRHEL8(testlib.MachineCase):
         b.wait_visible('#login')
 
     def test(self) -> None:
+        """Verify forward/backward compatibility with an older bridge and ws protocol.
+
+        Testing that a development machine can directly login and via "Add
+        host" load the RHEL 8 shell, and vice-versa.
+        """
+
         dev_m = self.machine
         dev_b = self.browser
 

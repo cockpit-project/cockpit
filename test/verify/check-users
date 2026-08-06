@@ -1076,7 +1076,10 @@ class TestAccounts(testlib.MachineCase):
 
         # Try to expire a password
         b.wait_text("#password-expiration-text", "Never expire password")
-        self.assertEqual(self.accountExpiryInfo("scruffy", "Maximum number of days between password change"), "99999")
+
+        # arch now uses the "modern" value "-1" to indicate the password has no expiration set
+        EXPIRE_NEVER_VALUE = "-1" if m.image == "arch" else "99999"
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Maximum number of days between password change"), EXPIRE_NEVER_VALUE)
         b.click("#password-expiration-button")
         b.wait_visible("#password-expiration")
         b.click("#password-expiration-expires")

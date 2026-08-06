@@ -1290,7 +1290,11 @@ Where=/fail
 
         # Changing the UI filters should also affect the URL
         b.click("#system")
+        # key={owner} causes ServicesPageBody to fully unmount/remount;
+        # wait for the old toolbar to disappear (loading state), then reappear
+        b.wait_not_present("#user[aria-pressed='true']")
         self.wait_page_load()
+        b.wait_visible("#services-text-filter input[value='test']")
         url = b.eval_js("window.location.hash")
         self.assertIn("owner=system", url)
 

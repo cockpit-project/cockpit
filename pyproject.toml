@@ -258,3 +258,7 @@ commands =
   pytest: python3 -m pytest -opythonpath=test/common {posargs}
   lint: test/common/static-code --tap
 """
+
+[tool.codespell]
+skip = '*.map,*.xml,*.policy,*.key,*.svg,./po,./node_modules,./dist,./vendor,./LICENSES,./selinux,./test,./src,./pkg'
+ignore-words-list = 'outofdate,ND,bu,chage,re-uses,re-use,afile'

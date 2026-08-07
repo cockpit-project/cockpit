@@ -29,7 +29,7 @@ if [ "$1" = "configure" ] && dpkg --compare-versions "$2" lt 244; then
     chmod 644 /etc/cockpit/disallowed-users
 fi
 
-# adjust motd/issue links to chaned target if they still exist
+# adjust motd/issue links to the changed target if they still exist
 if [ "$1" = "configure" ] && dpkg --compare-versions "$2" lt-nl 331; then
     if [ "$(readlink /etc/motd.d/cockpit 2>/dev/null)" = "../../run/cockpit/motd" ]; then
         ln -sfn ../../run/cockpit/issue /etc/motd.d/cockpit

@@ -102,7 +102,7 @@ def element(xml, tag):
     """Get an XML element from the DOM tag
 
     Retrieves the element with the matching language or by best effort
-    - If element has the selected language (or langauge selection is none), return it
+    - If element has the selected language (or language selection is none), return it
     - If the selected language can't be found, use empty language as a fallback
     - If no elements are found with empty language attribute, use first element found
     """

@@ -369,7 +369,7 @@
    You should call this only from a action function passed to
    "run_action" and you need to take care to reset this via
    "dlg.set_cancel(null)" once the cancel function should no longer be
-   called.  When a action funtion finishes or throws an error from
+   called.  When a action function finishes or throws an error from
    within "dlg.run_action", the cancel function is automatically
    reset.
 
@@ -438,7 +438,7 @@
    minimum storage requirements of the OS.  Sometimes you can do
    everything at render time, but sometimes you might want to run some
    code as part of the event handler for the user action, and
-   sometimes you need to run asynchornous code.
+   sometimes you need to run asynchronous code.
 
    (Don't use useEffect, please, just stick the code into the event
    handler.)
@@ -654,7 +654,7 @@ function toSpliced<T>(arr: T[], start: number, deleteCount: number, ...rest: T[]
       dlg.field("combo").validate(v => {
         return {
           size: true,           // TypeScript error here as expected, because true is not a string
-          unt: "No such unit",  // Want a TypeScript error here bc there is no "unt" in the type, but wont happen
+          unt: "No such unit",  // Want a TypeScript error here bc there is no "unt" in the type, but won't happen
         }
       });
 
@@ -1108,7 +1108,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             this._run_all_debouncing_now();
 
             // Wait for the tasks that are currently running.  While
-            // waiting, new things might have been qeued up for
+            // waiting, new things might have been queued up for
             // debouncing or new tasks might have been started, so we
             // have to go back to the beginning.
 

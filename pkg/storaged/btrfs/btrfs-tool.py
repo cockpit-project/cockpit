@@ -14,7 +14,7 @@
 # corresponding unmounts when it ends.
 #
 # This tool can be run multiple times concurrently with itself, and it
-# wont get confused.
+# won't get confused.
 
 import ctypes
 import json

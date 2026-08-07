@@ -1365,7 +1365,7 @@ the bridge is always active and cannot be switched off.
 The bridge is made responsible for implementing the session idle
 timeout to make sure it happens even when JavaScript stops executing
 or is severely throttled, maybe due to being stopped by the Browser,
-the user, or because it has crashed to such a degree that it wont
+the user, or because it has crashed to such a degree that it won't
 handle the session timeout anymore.
 
 JavaScript still has to explicitly switch on the session idle timeout

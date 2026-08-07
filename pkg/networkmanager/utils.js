@@ -175,7 +175,7 @@ export function ip4_prefix_from_text(prefix_mask) {
 // Shorten IPv6 address according to RFC 5952
 // https://datatracker.ietf.org/doc/html/rfc5952#section-4
 //
-// NetworkManager already handles dropping of leadin zeros within a single 16 bit field
+// NetworkManager already handles dropping of leading zeros within a single 16 bit field
 // but does not replace the longest consecutive zeros fields with "::".
 function ip6_shorten(ip6_addr) {
     function find_longest_zero(match) {

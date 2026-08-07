@@ -164,7 +164,7 @@ export const NetworkInterfaceMembers = ({
     if (dropdownItems.length === 0) {
         dropdownItems.push(
             <DropdownItem isDisabled isAriaDisabled>
-                {_("No intefaces available")}
+                {_("No interfaces available")}
             </DropdownItem>
         );
     }

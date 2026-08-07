@@ -10,7 +10,7 @@ QUnit.test("simple read", async assert => {
     assert.equal(await file.read(), "1234\n", "correct result");
 });
 
-QUnit.test("read non-existent", async assert => {
+QUnit.test("read non-existant", async assert => {
     assert.equal(await cockpit.file(dir + "/blah").read(), null, "correct result");
 });
 

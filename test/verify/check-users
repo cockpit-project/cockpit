@@ -95,7 +95,6 @@ def createUser(
 
 
 @testlib.nondestructive
-@testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")
 class TestAccounts(testlib.MachineCase):
 
     def testBasic(self) -> None:
@@ -216,7 +215,8 @@ class TestAccounts(testlib.MachineCase):
         b.wait_visible("#accounts-create")
 
         # Create a user from the UI
-        self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd')
+        self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd', absent_content="SHELL=/bin/true")
+
         b.click('#accounts-create')
         b.wait_visible('#accounts-create-dialog')
         b.set_input_text('#accounts-create-user-name', "Berta")
@@ -282,6 +282,12 @@ class TestAccounts(testlib.MachineCase):
 
         b.logout()
         b.login_and_go("/users")
+
+        # in suse images, Administrative requires root to be unlocked
+        if "suse" in m.image:
+            m.execute("usermod root --unlock")
+            b.become_superuser()
+
         createUser(
             browser=b,
             machine=m,
@@ -459,7 +465,7 @@ class TestAccounts(testlib.MachineCase):
 
         self.login_and_go("/users")
         # Create a locked user with weak password
-        self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd')
+        self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd', absent_content="SHELL=")
         self.allow_journal_messages(".*required to change your password immediately.*")
         self.allow_journal_messages(".*user account or password has expired.*")
 
@@ -574,7 +580,13 @@ class TestAccounts(testlib.MachineCase):
 
         # Login as jussi and change role admin for itself
         b.logout()
-        b.login_and_go("/users", user="jussi", password="bar")
+        if "suse" in m.image:
+            # on suse images, you cannot use login_and_go hackery to automatigically get admin rights
+            # when the user doesn't have the same password as root
+            b.login_and_go("/users", user="jussi", password="bar", superuser=False)
+            b.become_superuser()
+        else:
+            b.login_and_go("/users", user="jussi", password="bar")
 
         # There is only one badge and it is for jussi
         b.wait_text('#current-account-badge', 'Your account')
@@ -650,7 +662,13 @@ class TestAccounts(testlib.MachineCase):
         m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
 
         # Logout and login with the new password
-        b.relogin(path="/users", user="jussi", password=good_password_2)
+        if "suse" in m.image:
+            # on suse images, you cannot use login_and_go hackery to automatigically get admin rights
+            # when the user doesn't have the same password as root
+            b.relogin(path="/users", user="jussi", password=good_password_2, superuser=False)
+            b.become_superuser()
+        else:
+            b.relogin(path="/users", user="jussi", password=good_password_2)
 
         b.go("/users")
         b.enter_page("/users")
@@ -1104,6 +1122,7 @@ class TestAccounts(testlib.MachineCase):
         b.wait_not_present("#password-expiration")
 
         b.logout()
+
         # HACK: https://github.com/cockpit-project/cockpit/issues/20262
         self.login_and_go("/users#/scruffy", user="scruffy", superuser=False)
         b.wait_text("#account-user-name", "scruffy")
@@ -1331,7 +1350,9 @@ class TestAccounts(testlib.MachineCase):
         self.assertNotIn("titan", m.execute("getent group"))
 
         # Rename and delete actions are available only for user created groups
-        b.wait_not_present(f"#groups-list tbody tr[data-row-id='{m.get_admin_group()}'] button.pf-v6-c-menu-toggle")
+        # Don't check on opensuse, since opensuse doesn't prevent this
+        if "suse" not in m.image:
+            b.wait_not_present(f"#groups-list tbody tr[data-row-id='{m.get_admin_group()}'] button.pf-v6-c-menu-toggle")
 
     def testChangeShell(self) -> None:
         b = self.browser

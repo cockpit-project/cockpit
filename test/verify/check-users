@@ -971,6 +971,14 @@ class TestAccounts(testlib.MachineCase):
         b.click('#login-button')
         b.wait_visible('#content')
 
+        # --mindays is being deprecated in "chage" utility, see
+        # https://github.com/shadow-maint/shadow/pull/1482 for deprecation of --mindays and
+        # https://github.com/shadow-maint/shadow/pull/1432 for full plan what is being deprecated
+        #
+        # This will eventually show up in other distributions too
+        if m.image == "arch":
+            return
+
         # Set minimum age to disallow changing it immediately again
         m.execute("chage --mindays 7 antoine")
         b.enter_page("/users")
@@ -1068,7 +1076,10 @@ class TestAccounts(testlib.MachineCase):
 
         # Try to expire a password
         b.wait_text("#password-expiration-text", "Never expire password")
-        self.assertEqual(self.accountExpiryInfo("scruffy", "Maximum number of days between password change"), "99999")
+
+        # arch now uses the "modern" value "-1" to indicate the password has no expiration set
+        EXPIRE_NEVER_VALUE = "-1" if m.image == "arch" else "99999"
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Maximum number of days between password change"), EXPIRE_NEVER_VALUE)
         b.click("#password-expiration-button")
         b.wait_visible("#password-expiration")
         b.click("#password-expiration-expires")

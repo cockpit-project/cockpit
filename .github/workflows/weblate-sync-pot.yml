@@ -42,6 +42,7 @@ jobs:
       - name: Commit .pot to weblate repo
         run: |
           cp src/po/cockpit.pot weblate/cockpit.pot
+          cp src/test/reference weblate/reference
           git config --global user.name "GitHub Workflow"
           git config --global user.email "cockpituous@cockpit-project.org"
           git -C weblate commit -m "Update source file" -- cockpit.pot

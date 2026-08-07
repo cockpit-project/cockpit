@@ -15,6 +15,8 @@
 
 #include "websocket.h"
 
+#include <sys/types.h>
+
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_WEB_SERVICE         (cockpit_web_service_get_type ())
@@ -22,6 +24,9 @@ G_BEGIN_DECLS
 #define COCKPIT_IS_WEB_SERVICE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_SERVICE))
 
 typedef struct _CockpitWebService   CockpitWebService;
+
+typedef gboolean (*CockpitAuthorizeLookupUserUidFunc) (const gchar *user,
+                                                       uid_t *uid);
 
 GType                cockpit_web_service_get_type    (void);
 
@@ -67,6 +72,11 @@ const gchar *           cockpit_web_service_get_checksum     (CockpitWebService 
 void                    cockpit_web_service_set_host_checksum       (CockpitWebService *self,
                                                                      const gchar *host,
                                                                      const gchar *checksum);
+
+gboolean                cockpit_web_service_authorize_user_matches_subject
+                                                                    (const gchar *user,
+                                                                     const gchar *subject,
+                                                                     CockpitAuthorizeLookupUserUidFunc lookup_uid);
 
 G_END_DECLS
 

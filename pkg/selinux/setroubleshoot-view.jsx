@@ -219,60 +219,54 @@ class DismissableError extends React.Component {
  * changeSelinuxMode  function to use for changing the selinux enforcing mode
  * dismissError       function to dismiss the error message
  */
-class SELinuxStatus extends React.Component {
-    render() {
-        const errorMessage = this.props.selinuxStatusError
-            ? <DismissableError dismissError={this.props.dismissError}>{this.props.selinuxStatusError}</DismissableError>
-            : null;
+const SELinuxStatus = ({ selinuxStatus, selinuxStatusError, changeSelinuxMode, dismissError }) => {
+    const errorMessage = selinuxStatusError
+        ? <DismissableError dismissError={dismissError}>{selinuxStatusError}</DismissableError>
+        : null;
 
-        if (this.props.selinuxStatus.enabled === undefined) {
-            // we don't know the current state
-            return (
-                <div>
-                    {errorMessage}
-                    <h3>{_("SELinux system status is unknown.")}</h3>
-                </div>
-            );
-        } else if (!this.props.selinuxStatus.enabled) {
-            // selinux is disabled on the system, not much we can do
-            return (
-                <div>
-                    {errorMessage}
-                    <h3>{_("SELinux is disabled on the system.")}</h3>
-                </div>
-            );
-        }
-        const configUnknown = (this.props.selinuxStatus.configEnforcing === undefined);
-        let note = null;
-        if (configUnknown)
-            note = _("The configured state is unknown, it might change on the next boot.");
-        else if (!configUnknown && this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
-            note = _("Setting deviates from the configured state and will revert on the next boot.");
-
-        // note = _("Setting deviates from the configured state and will revert on the next boot.");
-
+    if (selinuxStatus.enabled === undefined) {
         return (
-            <Stack hasGutter className="selinux-policy-ct">
-                <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
-                    <Title headingLevel="h2" size={TitleSizes['3xl']}>
-                        {_("SELinux policy")}
-                    </Title>
-                    <Switch isChecked={this.props.selinuxStatus.enforcing}
-                            label={_("Enforcing")}
-                            onChange={this.props.changeSelinuxMode} />
-                </Flex>
-                { note !== null &&
-                    <Content component={ContentVariants.p}>
-                        <Icon isInline status="info"><InfoCircleIcon /></Icon>
-                        { "\n" }
-                        { note }
-                    </Content>
-                }
+            <div>
                 {errorMessage}
-            </Stack>
+                <h3>{_("SELinux system status is unknown.")}</h3>
+            </div>
+        );
+    } else if (!selinuxStatus.enabled) {
+        return (
+            <div>
+                {errorMessage}
+                <h3>{_("SELinux is disabled on the system.")}</h3>
+            </div>
         );
     }
-}
+    const configUnknown = (selinuxStatus.configEnforcing === undefined);
+    let note = null;
+    if (configUnknown)
+        note = _("The configured state is unknown, it might change on the next boot.");
+    else if (!configUnknown && selinuxStatus.enforcing !== selinuxStatus.configEnforcing)
+        note = _("Setting deviates from the configured state and will revert on the next boot.");
+
+    return (
+        <Stack hasGutter className="selinux-policy-ct">
+            <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
+                <Title headingLevel="h2" size={TitleSizes['3xl']}>
+                    {_("SELinux policy")}
+                </Title>
+                <Switch isChecked={selinuxStatus.enforcing}
+                        label={_("Enforcing")}
+                        onChange={changeSelinuxMode} />
+            </Flex>
+            { note !== null &&
+                <Content component={ContentVariants.p}>
+                    <Icon isInline status="info"><InfoCircleIcon /></Icon>
+                    { "\n" }
+                    { note }
+                </Content>
+            }
+            {errorMessage}
+        </Stack>
+    );
+};
 
 /* The listing only shows if we have a connection to the dbus API
  * Otherwise we have blank slate: trying to connect, error

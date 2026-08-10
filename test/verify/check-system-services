@@ -1306,7 +1306,7 @@ Where=/fail
         b.wait_js_cond('window.location.hash == "#/?owner=system&type=service"')
 
         # Test text input clear button
-        b.go('/system/services#/?name=test')
+        b.go('#/?name=test')
         b.wait_visible(".services-text-filter input[value=test]")
         b.click(".services-text-filter button")
         b.wait_js_cond('window.location.hash == "#/"')

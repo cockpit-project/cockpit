@@ -336,6 +336,7 @@ class TestStorageLuks(storagelib.StorageCase):
         self.wait_mounted("ext4 filesystem")
 
 
+@testlib.skipImage('/usr is immutable', 'centos-9-bootc')
 class TestStorageLuksDestructive(storagelib.StorageCase):
 
     # on RHEL 8, provide enough RAM for cryptsetup's PBKDF (https://issues.redhat.com/browse/RHEL-8258)

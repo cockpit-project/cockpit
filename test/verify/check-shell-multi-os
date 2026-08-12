@@ -54,7 +54,9 @@ class TestRHEL8(testlib.MachineCase):
         dev_b.enter_page("/system")
         dev_b.wait_in_text(".ct-overview-header-hostname", "stock")
         dev_b.wait_in_text(".ct-overview-header-hostname", "running Red Hat Enterprise Linux 8")
-        # Logout (needs PF5 selectors so we can't use logout())
+        # Shell has been loaded from "stock_m" and is some old PF5
+        # version of Cockpit, so we can't use Browser.logout() which
+        # only works with current PF6 releases from main.
         self.logout_pf5(dev_b)
 
         # dev → stock: via shell Add host
@@ -62,7 +64,8 @@ class TestRHEL8(testlib.MachineCase):
         dev_b.add_machine("10.111.113.5")
         dev_b.wait_in_text(".ct-overview-header-hostname", "stock")
         dev_b.wait_in_text(".ct-overview-header-hostname", "running Red Hat Enterprise Linux 8")
-        self.logout_pf5(dev_b)
+        # Shell has been loaded from "dev_m" and thus is the current PF6 version
+        dev_b.logout()
 
         dev_m.stop_cockpit()
         dev_b.kill()
@@ -78,7 +81,8 @@ class TestRHEL8(testlib.MachineCase):
         stock_b.wait_in_text("#hosts-sel", f"admin@{dev_hostname}")
         stock_b.enter_page("/system")
         stock_b.wait_in_text(".ct-overview-header-hostname", dev_hostname)
-        self.logout_pf5(stock_b)
+        # Shell has been loaded from "dev_m" (via SSH) and thus is the current PF6 version
+        stock_b.logout()
 
         # stock → dev: via shell Add host
         stock_b.login_and_go()

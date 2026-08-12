@@ -125,7 +125,7 @@ def build_install_package(dist_tars: list[str], image: str, *, quick: bool) -> l
         args.append("--run-command")
         suppress = {'initial-upload-closes-no-bugs', 'newer-standards-version'}
         # older OSes don't yet know about watch format v5; drop ubuntu-stable once that moves to lintian 2.127.0
-        if image in ["debian-trixie", "ubuntu-2404", "ubuntu-stable"]:
+        if image in ["debian-trixie", "ubuntu-stable"]:
             suppress.add("missing-debian-watch-file-standard")
 
         args.append(fr"""

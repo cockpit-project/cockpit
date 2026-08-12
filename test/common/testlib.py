@@ -1863,11 +1863,10 @@ class MachineCase(unittest.TestCase):
         self.restart_sshd = f'systemctl try-restart {self.sshd_service}'
 
         # only enabled by default on released OSes; see pkg/shell/manifest.json
-        self.multihost_enabled = image.startswith(("rhel-9", "centos-9")) or image in [
-                "ubuntu-2404"]
+        self.multihost_enabled = image.startswith(("rhel-9", "centos-9"))
 
         # sudo-rs behaves quite differently, tests need to adapt
-        self.has_sudo_rs = image.startswith("ubuntu") and image not in ["ubuntu-2404", "ubuntu-stable"]
+        self.has_sudo_rs = image.startswith("ubuntu") and image not in ["ubuntu-stable"]
 
     def nonDestructiveSetup(self) -> None:
         """generic setUp/tearDown for @nondestructive tests"""

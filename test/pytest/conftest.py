@@ -2,12 +2,10 @@ import asyncio
 import os
 import subprocess
 import sys
-from importlib.metadata import version
 from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
-from packaging.specifiers import SpecifierSet
 
 from cockpit._vendor.systemd_ctypes import EventLoopPolicy
 
@@ -42,14 +40,6 @@ else:
 # AbstractEventLoopPolicy is deprecated in 3.14 and will be removed in 3.16
 def event_loop_policy() -> asyncio.AbstractEventLoopPolicy:  # type: ignore[name-defined]
     return EventLoopPolicy()
-
-
-# if m.image in ['ubuntu-2404', '🙃']:
-if version("pytest-asyncio") not in SpecifierSet(">=0.22"):
-    # Compatibility with pre-`event_loop_policy` versions of pytest-asyncio
-    @pytest.fixture(autouse=True)
-    def event_loop() -> asyncio.AbstractEventLoop:
-        return EventLoopPolicy().new_event_loop()
 
 
 @pytest_asyncio.fixture(autouse=True)

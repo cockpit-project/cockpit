@@ -114,6 +114,21 @@ class TestSelinux(testlib.MachineCase):
         b.click(row_selector + " input[type=checkbox]")
         b.click(dismiss_sel)
         b.wait_not_present(row_selector)
+
+        # dismiss all non-test related alerts for pixel test purposes
+        while True:
+            # we either have no alerts, or an expand button in the table
+            b.wait_js_cond(
+                "ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-v6-c-table__toggle')"
+            )
+            if "No SELinux alerts." in b.text('body'):
+                break
+            num_alerts = b.count("#selinux-alerts tbody")
+            b.click('tbody:first-of-type input[type=checkbox]')
+            b.click(dismiss_sel)
+            # wait for the dismissed alert to go away
+            b.wait_count("#selinux-alerts tbody", num_alerts - 1)
+
         # unbreak sebool, and trigger the error again
         m.execute(f"chmod a+x {sebool_path}; rm -r ~admin/public_html")
         if m.image.startswith("rhel-8"):

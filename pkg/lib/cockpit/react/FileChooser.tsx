@@ -153,13 +153,20 @@ async function getHomeDir(): Promise<string> {
     return (await cockpit.user()).home;
 }
 
+let downloadDir: false | string | null = false;
+
 async function getDownloadDir(): Promise<string | null> {
+    if (downloadDir !== false)
+        return downloadDir;
+
     try {
-        return (await cockpit.spawn(["xdg-user-dir", "DOWNLOAD"], { err: "message" })).trim();
+        downloadDir = (await cockpit.spawn(["xdg-user-dir", "DOWNLOAD"], { err: "message" })).trim();
     } catch (ex) {
         console.warn("Can't determine downloads directory", String(ex));
-        return null;
+        downloadDir = null;
     }
+
+    return downloadDir;
 }
 
 async function stdShortcuts(shortcuts: FileChooserShortcut[] = []): Promise<FileChooserShortcut[]> {

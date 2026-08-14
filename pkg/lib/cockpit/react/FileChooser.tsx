@@ -75,11 +75,6 @@
 
    The "superuser" option to use when listing files, etc.
 
-   - recentKey?: undefined | string;
-
-   A key for localStorage to retrieve the list of recent files.
-   Defaults to "recent-files".
-
    - actionLabel?: string;
 
    The label to put into the apply button of the file chooser.
@@ -148,6 +143,8 @@ import {
 import "./FileChooser.css";
 
 const _ = cockpit.gettext;
+
+const FILE_CHOOSER_RECENT_KEY = "FileChooser:recent-files";
 
 async function getHomeDir(): Promise<string> {
     return (await cockpit.user()).home;
@@ -299,9 +296,9 @@ async function getFileInfos(
     return res;
 }
 
-function readRecent(recentKey: string): string[] {
+function readRecent(): string[] {
     try {
-        const value = JSON.parse(window.localStorage.getItem(recentKey) || "[]");
+        const value = JSON.parse(window.localStorage.getItem(FILE_CHOOSER_RECENT_KEY) || "[]");
         if (Array.isArray(value))
             return value.filter(r => typeof r == "string");
     } catch (ex) {
@@ -350,7 +347,6 @@ export interface FileChooserProps {
     collections?: undefined | FileChooserCollection[] | (() => Promise<FileChooserCollection[]>);
     onlyDirectories?: undefined | boolean;
     superuser?: cockpit.SuperuserMode;
-    recentKey?: undefined | string;
     actionLabel?: string;
 }
 
@@ -375,7 +371,6 @@ export const FileChooser = ({
     collections = [],
     onlyDirectories = false,
     superuser,
-    recentKey = "recent-files",
     actionLabel,
     path = "",
     action,
@@ -401,7 +396,7 @@ export const FileChooser = ({
         const recent_collection = {
             label: _("Recent"),
             emptyLabel: onlyDirectories ? _("No recent directories") : _("No recent files"),
-            list: async () => readRecent(recentKey)
+            list: async () => readRecent()
         };
 
         const shortcuts_list = Array.isArray(shortcuts) ? shortcuts : await shortcuts();
@@ -504,7 +499,7 @@ export const FileChooser = ({
     async function onAction() {
         const full = selected_path();
         cockpit.assert(full);
-        rememberRecent(full, recentKey);
+        rememberRecent(full);
         await action(full);
     }
 
@@ -982,8 +977,8 @@ export const DialogFileChooserInput = ({
     );
 };
 
-export function rememberRecent(name: string, recentKey: string = "recent-files") {
-    const recent = readRecent(recentKey).filter(r => r != name);
+export function rememberRecent(name: string) {
+    const recent = readRecent().filter(r => r != name);
     recent.unshift(name);
-    window.localStorage.setItem(recentKey, JSON.stringify(recent.slice(0, 20)));
+    window.localStorage.setItem(FILE_CHOOSER_RECENT_KEY, JSON.stringify(recent.slice(0, 20)));
 }

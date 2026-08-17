@@ -36,6 +36,8 @@ import {
     DialogActionButton, DialogCancelButton,
 } from 'cockpit/dialog';
 
+import { FileChooser, DialogFileChooserInput } from "cockpit/react/FileChooser";
+
 import 'cockpit-dark-theme'; // once per page
 import 'page.scss';
 
@@ -218,6 +220,9 @@ interface ExampleValues {
     alternative: false | string;
     error: string;
     allow_force: boolean;
+    file: string;
+    file_explanation: string;
+    dir: string;
 }
 
 const ExampleDialog = ({
@@ -246,6 +251,9 @@ const ExampleDialog = ({
         alternative: false,
         error: "none",
         allow_force: false,
+        file: "",
+        file_explanation: "",
+        dir: "",
     };
 
     function validate(dlg: DialogState<ExampleValues>) {
@@ -255,7 +263,7 @@ const ExampleDialog = ({
                     return "Text can not be empty";
             });
         }
-        if (dlg.values.dropdown == "three") {
+        if (dlg.values.dropdown === "three") {
             dlg.field("text3").validate(v => {
                 if (!v)
                     return "Can't be empty";
@@ -263,13 +271,17 @@ const ExampleDialog = ({
         }
         dlg.field("list").forEach(v => {
             v.validate(vv => {
-                if (vv == "magic")
+                if (vv === "magic")
                     dlg.field("text").set("magic");
-                if (vv == ".")
+                if (vv === ".")
                     return "No dots";
             });
         });
         dlg.field("async").forEach(v => validate_Name(v, countAsyncValidation));
+        dlg.field("file").validate(v => {
+            if (v && v[0] !== "/")
+                return "Must be absolute";
+        });
     }
 
     const dlg = useDialogState(init, validate);
@@ -277,23 +289,23 @@ const ExampleDialog = ({
     async function apply(values: ExampleValues, variant: string) {
         setResult(values);
 
-        if (variant == "force")
+        if (variant === "force")
             return;
 
-        if (values.error == "custom") {
+        if (values.error === "custom") {
             throw new DialogError("This is a failure", <code>1234-567-98A</code>);
-        } else if (values.error == "from") {
+        } else if (values.error === "from") {
             const err = new Error("no such file or scraper");
             throw DialogError.fromError("Tool not found", err);
-        } else if (values.error == "from-random") {
+        } else if (values.error === "from-random") {
             const err = [1, 2, 3, 4];
             throw DialogError.fromError("Too random", err);
-        } else if (values.error == "message") {
+        } else if (values.error === "message") {
             // eslint-disable-next-line no-throw-literal
             throw { message: "segmentation fault" };
-        } else if (values.error == "spawn") {
+        } else if (values.error === "spawn") {
             await cockpit.spawn(["ls", "--no-such-option"], { err: "message" });
-        } else if (values.error == "random") {
+        } else if (values.error === "random") {
             // eslint-disable-next-line no-throw-literal
             throw [1, 2, 3, 4];
         }
@@ -314,6 +326,15 @@ const ExampleDialog = ({
         dlg.field("text2").set_async(async () => {
             await async_sleep(2000);
             return val;
+        });
+    }
+
+    function file_changed(val: string) {
+        dlg.field("file_explanation").set_async(async () => {
+            if (val[0] === "/")
+                return cockpit.spawn(["file", "-b", val], { superuser: "try" });
+            else
+                return "--";
         });
     }
 
@@ -340,7 +361,7 @@ const ExampleDialog = ({
                         debounce={0}
                         excuse={!dlg.values.flag && "Disabled"}
                         explanation="Explanation"
-                        warning={dlg.values.text == "warn" ? "Warning" : null}
+                        warning={dlg.values.text === "warn" ? "Warning" : null}
                     />
                     <DialogTextInput
                         label="Text2"
@@ -383,10 +404,10 @@ const ExampleDialog = ({
                                 { value: "three", label: "Drei" },
                             ]
                         }
-                        warning={dlg.field("dropdown").get() == "two" ? "There is a discount if you buy three." : null}
+                        warning={dlg.field("dropdown").get() === "two" ? "There is a discount if you buy three." : null}
                     />
                     {
-                        dlg.values.dropdown == "three" &&
+                        dlg.values.dropdown === "three" &&
                             <DialogTextInput label="Text3" field={dlg.field("text3")} debounce={1000} />
                     }
                     <DialogDropdownSelectObject
@@ -406,12 +427,55 @@ const ExampleDialog = ({
                         label="Error"
                         field={dlg.field("error")}
                         options={["none", "custom", "from", "from-random", "message", "spawn", "random"]}
-                        warning={dlg.field("error").get() != "none" ? "There will be an error unless you apply with force" : null}
+                        warning={dlg.field("error").get() !== "none" ? "There will be an error unless you apply with force" : null}
                     />
                     <DialogCheckbox
                         field_label="Action options"
                         checkbox_label="Allow force"
                         field={dlg.field("allow_force")}
+                    />
+                    <DialogFileChooserInput
+                        label="File"
+                        field={dlg.field("file", file_changed)}
+                        explanation={dlg.values.file_explanation}
+                        fileChooserProps={
+                            {
+                                title: "Select a file",
+                                superuser: "try",
+                                filters: [
+                                    { label: "No dots", filter: n => !n.includes(".") },
+                                ],
+                                shortcuts: [
+                                    { label: "Test files", path: "/var/lib/cockpittest" }
+                                ],
+                                collections: [
+                                    {
+                                        label: "Some files",
+                                        emptyLabel: "Nothing there",
+                                        list: async () => {
+                                            return [
+                                                "/var/lib/cockpittest/file-chooser-test/dots.txt",
+                                                "/var/lib/cockpittest/file-chooser-test/foo",
+                                            ];
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    />
+                    <DialogFileChooserInput
+                        label="Directory"
+                        field={dlg.field("dir")}
+                        fileChooserProps={
+                            {
+                                title: "Select a directory",
+                                onlyDirectories: true,
+                                superuser: "try",
+                                shortcuts: [
+                                    { label: "Test files", path: "/var/lib/cockpittest" }
+                                ],
+                            }
+                        }
                     />
                 </Form>
             </ModalBody>
@@ -519,12 +583,12 @@ const ExampleDialogWithInitFunc = () => {
 
     function validate(dlg: DialogState<ExampleWithInitFuncValues>) {
         dlg.top().validate(v => {
-            if (v.text == "foo" && v.text2 != "bar") {
+            if (v.text === "foo" && v.text2 !== "bar") {
                 return {
                     text: "No foo without bar",
                 };
             }
-            if (v.text2 == "bar" && v.text != "foo") {
+            if (v.text2 === "bar" && v.text !== "foo") {
                 return {
                     text2: { "": "No bar without foo" },
                 };
@@ -580,9 +644,9 @@ const AsyncExampleDialog = ({
     const Dialogs = useDialogs();
 
     async function init(): Promise<AsyncExampleValues> {
-        if (throwError == 1)
+        if (throwError === 1)
             throw new Error("can't get the thing");
-        else if (throwError == 2)
+        else if (throwError === 2)
             throw new DialogError("Getting the thing failed", <i>can't get it</i>);
 
         await async_sleep(500);
@@ -695,6 +759,65 @@ const SimpleExampleButtons = () => {
     );
 };
 
+const FileChooserButton = () => {
+    const Dialogs = useDialogs();
+
+    async function loadFile(path: string) {
+        const data = await cockpit.file(path).read();
+        if (!data.startsWith("foo"))
+            throw new Error("Does not start with \"foo\"");
+    }
+
+    return (
+        <Button
+            id="open-file-chooser"
+            onClick={
+                () => Dialogs.show(
+                    <FileChooser
+                        title={"Select a file that starts with \"foo\""}
+                        actionLabel="Load"
+                        action={loadFile}
+                        filters={
+                            [
+                                {
+                                    label: "TXT files",
+                                    filter: (name, type) => type === "reg" && !!name.match("\\.txt$")
+                                },
+                            ]
+                        }
+                        shortcuts={
+                            async () => {
+                                await async_sleep(500);
+                                return [
+                                    { label: "Test files", path: "/var/lib/cockpittest" }
+                                ];
+                            }
+                        }
+                        collections={
+                            async () => {
+                                return [
+                                    {
+                                        label: "Some TXT files",
+                                        emptyLabel: "Nothing there",
+                                        list: async () => {
+                                            return [
+                                                "/var/lib/cockpittest/file-chooser-test/text/foo.txt",
+                                                "/var/lib/cockpittest/file-chooser-test/no-such-file.txt"
+                                            ];
+                                        }
+                                    }
+                                ];
+                            }
+                        }
+                    />
+                )
+            }
+        >
+            Open FileChooser
+        </Button>
+    );
+};
+
 const Demo = () => {
     return (
         <WithDialogs>
@@ -702,6 +825,7 @@ const Demo = () => {
                 <PageSection>
                     <ExampleButton />
                     <SimpleExampleButtons />
+                    <FileChooserButton />
                 </PageSection>
             </Page>
         </WithDialogs>

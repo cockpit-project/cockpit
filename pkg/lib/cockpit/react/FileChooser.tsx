@@ -597,6 +597,19 @@ export const FileChooser = ({
             );
         }
 
+        function cockpit_files_installed(w: Window) {
+            try {
+                if ("cockpit" in w) {
+                    const c = w.cockpit as typeof cockpit;
+                    return !!c.manifests.files;
+                } else
+                    return false;
+            } catch (ex) {
+                console.log("Can't access manifests", String(ex));
+                return false;
+            }
+        }
+
         return (
             <Flex>
                 <FlexItem>
@@ -609,17 +622,20 @@ export const FileChooser = ({
                     <KebabDropdown
                         dropdownItems={
                             [
-                                <DropdownItem
-                                    key="jump"
-                                    onClick={
-                                        () => {
-                                            cockpit.jump("files#" + cockpit.location.encode([], { path: dlg.values.path }));
+                                // Our own window might not have the manifests loaded, but if we run inside a
+                                // Shell, we can also get them from there...
+                                (cockpit_files_installed(window) || cockpit_files_installed(window.parent)) &&
+                                    <DropdownItem
+                                        key="jump"
+                                        onClick={
+                                            () => {
+                                                cockpit.jump("files#" + cockpit.location.encode([], { path: dlg.values.path }));
+                                            }
                                         }
-                                    }
-                                    isDisabled={dlg.values.path === ""}
-                                >
-                                    {_("Open in file browser")}
-                                </DropdownItem>,
+                                        isDisabled={dlg.values.path === ""}
+                                    >
+                                        {_("Open in file browser")}
+                                    </DropdownItem>,
                                 <DropdownItem
                                     key="showhide"
                                     onClick={

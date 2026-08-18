@@ -8,7 +8,10 @@ import ast
 import json
 import os
 import pydoc
-import readline  # ruff: ignore[unused-import], side-effecting import
+
+# NOTE: importing readline transparently enables line editing and history for the built-in input().
+# See https://docs.python.org/3/library/functions.html#input
+import readline  # ruff: ignore[unused-import]
 import shlex
 import sys
 import time

@@ -41,7 +41,7 @@ def bridge():
 
 # requires an event loop for queue in MockTransport
 @pytest_asyncio.fixture
-async def transport(bridge):  # noqa: RUF029
+async def transport(bridge):  # ruff: ignore[unused-async]
     return MockTransport(bridge)
 
 
@@ -74,7 +74,7 @@ async def test_init_failure(rule, init_type, monkeypatch, transport):
 
 # this doesn't use await, but requires an event loop
 @pytest.mark.asyncio
-async def test_immediate_shutdown(rule):  # noqa: RUF029
+async def test_immediate_shutdown(rule):  # ruff: ignore[unused-async]
     peer = rule.apply_rule({'payload': 'test'})
     assert peer is not None
     peer.close()

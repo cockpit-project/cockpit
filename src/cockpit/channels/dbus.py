@@ -338,7 +338,7 @@ class DBusChannel(Channel):
                 self.send_json(
                     reply=[reply.get_body()], id=cookie,
                     flags="<" if flags is not None else None,
-                    type=reply.get_signature(True))  # noqa: FBT003
+                    type=reply.get_signature(True))  # ruff: ignore[boolean-positional-value-in-call]
         except BusError as error:
             # actually, should send the fields from the message body
             self.send_json(error=[error.name, [error.message]], id=cookie)

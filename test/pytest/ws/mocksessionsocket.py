@@ -207,7 +207,7 @@ async def run_session_server(
 
     logger.debug("run_session_server: starting on %r", socket_path)
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.setblocking(False)  # needed by .sock_accept()  # noqa: FBT003
+    sock.setblocking(False)  # needed by .sock_accept()  # ruff: ignore[boolean-positional-value-in-call]
     sock.bind(str(socket_path))
     sock.listen()
     logger.debug("run_session_server: listening")

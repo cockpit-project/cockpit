@@ -8,7 +8,7 @@ import ast
 import json
 import os
 import pydoc
-import readline  # noqa: F401, side-effecting import
+import readline  # ruff: ignore[unused-import], side-effecting import
 import shlex
 import sys
 import time

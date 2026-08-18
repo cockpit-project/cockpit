@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 import sys
 
-if sys.version_info >= (3, 11):  # noqa: RUF067
+if sys.version_info >= (3, 11):  # ruff: ignore[non-empty-init-module]
     import importlib.resources
 
     def read_cockpit_data_file(filename: str) -> bytes:

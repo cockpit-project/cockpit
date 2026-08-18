@@ -14,7 +14,7 @@ from .session import SessionControlChannel
 from .stream import SocketStreamChannel, SubprocessStreamChannel
 from .trivial import EchoChannel, NullChannel
 
-CHANNEL_TYPES = [  # noqa: RUF067
+CHANNEL_TYPES = [  # ruff: ignore[non-empty-init-module]
     DBusChannel,
     EchoChannel,
     FsInfoChannel,

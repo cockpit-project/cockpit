@@ -18,13 +18,13 @@ import textwrap
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import GLib, Gio, Gtk  # noqa: I001, E402
+from gi.repository import GLib, Gio, Gtk  # ruff: ignore[unsorted-imports, module-import-not-at-top-of-file]
 
 gi.require_version("WebKit", "6.0")
-from gi.repository import WebKit  # noqa: E402
+from gi.repository import WebKit  # ruff: ignore[module-import-not-at-top-of-file]
 
 gi.require_version("Adw", "1")
-from gi.repository import Adw  # noqa: E402
+from gi.repository import Adw  # ruff: ignore[module-import-not-at-top-of-file]
 
 libexecdir = os.path.realpath(__file__ + '/..')
 

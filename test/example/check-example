@@ -18,17 +18,17 @@ class TestExample(testlib.MachineCase):
     @unittest.expectedFailure
     def testExpectedFail(self):
         self.login_and_go("/system")
-        self.assertFalse(True)  # noqa: FBT003
+        self.assertFalse(True)  # ruff: ignore[boolean-positional-value-in-call]
 
     def testFail(self):
         self.login_and_go("/system")
         if os.environ.get('TEST_FAILURES'):
-            self.assertFalse(True)  # noqa: FBT003
+            self.assertFalse(True)  # ruff: ignore[boolean-positional-value-in-call]
 
     @unittest.skip('not supported')
     def testSkip(self):
         self.login_and_go("/system")
-        self.assertFalse(True)  # noqa: FBT003
+        self.assertFalse(True)  # ruff: ignore[boolean-positional-value-in-call]
 
     def testRaiseSkip(self):
         raise unittest.SkipTest("dynamic skip")
@@ -60,14 +60,14 @@ class TestSimple(unittest.TestCase):
                 sys.stderr.write(">1%i\n" % i)
             else:
                 print(">2", i)
-        self.assertTrue(True)  # noqa: FBT003
+        self.assertTrue(True)  # ruff: ignore[boolean-positional-value-in-call]
 
     @unittest.expectedFailure
     def testTwo(self):
-        self.assertFalse(True)  # noqa: FBT003
+        self.assertFalse(True)  # ruff: ignore[boolean-positional-value-in-call]
 
     def testThree(self):
-        self.assertTrue(True)  # noqa: FBT003
+        self.assertTrue(True)  # ruff: ignore[boolean-positional-value-in-call]
 
 
 class TestTodo(unittest.TestCase):

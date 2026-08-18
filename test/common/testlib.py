@@ -2833,9 +2833,9 @@ def arg_parser(enable_sit: bool = True) -> argparse.ArgumentParser:
 
 
 def test_main(
-     options: argparse.Namespace | None = None,  # noqa: PT028
-     suite: unittest.TestSuite | None = None,  # noqa: PT028
-     attachments: str | None = None,  # noqa: PT028
+     options: argparse.Namespace | None = None,  # ruff: ignore[pytest-parameter-with-default-argument]
+     suite: unittest.TestSuite | None = None,  # ruff: ignore[pytest-parameter-with-default-argument]
+     attachments: str | None = None,  # ruff: ignore[pytest-parameter-with-default-argument]
     ) -> int:
     """
     Run all test cases, as indicated by arguments.

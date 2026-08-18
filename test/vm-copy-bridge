@@ -26,8 +26,8 @@ import sys
 BOTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bots")
 sys.path.insert(0, BOTS_DIR)
 
-from lib.constants import DEFAULT_IDENTITY_FILE  # noqa: E402
-from machine.machine_core.ssh_connection import SSHConnection  # noqa: E402
+from lib.constants import DEFAULT_IDENTITY_FILE  # ruff: ignore[module-import-not-at-top-of-file]
+from machine.machine_core.ssh_connection import SSHConnection  # ruff: ignore[module-import-not-at-top-of-file]
 
 
 def find_cockpit_path(file_list: str) -> str:

@@ -732,6 +732,14 @@ class Browser:
         self.bidi("input.performActions", context=self.driver.context, actions=[
             {"type": "key", "id": "key-0", "actions": actions_pre + actions + actions_post}])
 
+    def paste(self, val: str) -> None:
+        """Simulate pasting a string into the currently focused element.
+
+        :param val: The text to paste. It will be left in the clipboard.
+        """
+        self.call_js_func("((val) => navigator.clipboard.writeText(val))", val)
+        self.key("v", modifiers=["Control"])
+
     def select_from_dropdown(self, selector: str, value: object) -> None:
         """For an actual <select> HTML component"""
 
@@ -759,13 +767,15 @@ class Browser:
         self.click(f'{prefix} [data-ouia-component-type="{component}"][data-ouia-component-id="{compid}"]')
 
     def set_input_text(
-        self, selector: str, val: str, append: bool = False, value_check: bool = True, blur: bool = True
+            self, selector: str, val: str, append: bool = False, value_check: bool = True, blur: bool = True, paste: bool = False
     ) -> None:
         self.focus(selector)
         if not append:
             self.key("a", modifiers=["Control"])
         if val == "":
             self.key("Backspace")
+        elif paste:
+            self.paste(val)
         else:
             self.input_text(val)
         if blur:

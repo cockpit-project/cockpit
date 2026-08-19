@@ -41,6 +41,14 @@ class TestDialog(testlib.MachineCase):
         b.wait_visible(d.field("text") + ":not(:disabled)")
         b.wait_in_text(d.helper_text("text"), "Explanation")
 
+        # test pasting text
+        b.set_input_text(d.field("text"), "XXX", paste=True)
+        d.wait_TextInput("text", "XXX")
+        b.set_input_text(d.field("text"), "YYY", paste=True)
+        d.wait_TextInput("text", "YYY")
+        b.set_input_text(d.field("text"), "ZZZ", paste=True, append=True, value_check=False)
+        d.wait_TextInput("text", "YYYZZZ")
+
         d.set_TextInput("text", "warn")
         self.assertEqual(d.get_TextInput("text"), "warn")
         b.wait_in_text(d.helper_text("text"), "Warning")

@@ -582,6 +582,7 @@ class TestConnection(testlib.MachineCase):
     @testlib.skipImage("no PQC support", "arch", "debian*", "ubuntu*", "rhel-9*", "centos-9*")
     def testPQC(self):
         m = self.machine
+        b = self.browser
 
         # note: deploying this is NOT RECOMMENDED! Production systems should use a hybrid PQC + EC certificate,
         # but that is not specified/supported yet as of Jan 2026.
@@ -601,10 +602,14 @@ class TestConnection(testlib.MachineCase):
         self.assertIn("Peer signature type: mldsa44", output)
         self.assertIn("Negotiated TLS1.3 group: X25519MLKEM", output)
 
-        # TODO: this does not currently work with Firefox/Chromium, they don't accept MLKEM certificates
+        # TODO: this does not currently work with Firefox, Firefox doesn't accept MLKEM certificates
         # see discussion in https://issues.redhat.com/browse/RHELMISC-11973
-        self.assertRaises(testlib.Error, self.login_and_go, "/system", tls=True)
-        self.allow_journal_messages(".*gnutls_handshake failed: No supported cipher suites.*")
+        if b.browser == "firefox":
+            self.assertRaises(testlib.Error, self.login_and_go, "/system", tls=True)
+            self.allow_journal_messages(".*gnutls_handshake failed: No supported cipher suites.*")
+        else:
+            self.login_and_go("/system", tls=True)
+            b.wait_visible("#overview")
 
     @testlib.nondestructive
     def testConfigOrigins(self):

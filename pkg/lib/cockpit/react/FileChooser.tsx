@@ -629,7 +629,13 @@ export const FileChooser = ({
                                     key="showhide"
                                     onClick={
                                         () => {
-                                            dlg.field("showHidden").set(!dlg.values.showHidden);
+                                            /* Delay the state change a tiny bit so that it
+                                               doesn't happen while the menu is still open.
+                                             */
+                                            window.setTimeout(
+                                                () => dlg.field("showHidden").set(!dlg.values.showHidden),
+                                                5
+                                            );
                                         }
                                     }
                                 >

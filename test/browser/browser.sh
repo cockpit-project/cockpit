@@ -43,7 +43,7 @@ fi
 main_builds_repo="$(ls /etc/yum.repos.d/*cockpit*main-builds* 2>/dev/null || true)"
 if [ -n "$main_builds_repo" ]; then
     echo 'priority=0' >> "$main_builds_repo"
-    dnf distro-sync -y 'cockpit*'
+    dnf distro-sync --setopt=allow_vendor_change=1 -y 'cockpit*'
 fi
 
 #HACK: unbreak RHEL 9's default choice of 999999999 rounds, see https://bugzilla.redhat.com/show_bug.cgi?id=1993919

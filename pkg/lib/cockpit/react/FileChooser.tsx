@@ -379,16 +379,7 @@ export const FileChooser = ({
     action: (path: string) => Promise<void>,
 } & FileChooserProps) => {
     const Dialogs = useDialogs();
-    const textInputRef = useRef<HTMLInputElement>(null);
     const fsInfoClientRef = useRef<FsInfoClient | null>(null);
-
-    function focusFilter() {
-        textInputRef.current?.focus();
-    }
-
-    useEffect(() => {
-        textInputRef.current?.focus();
-    }, []);
 
     async function init(): Promise<FileChooserValues> {
         const all_filters = filters.concat([{ label: _("All files"), filter: _n => true }]);
@@ -554,7 +545,6 @@ export const FileChooser = ({
                                     isSelected={f == dlg.values.filter}
                                     onChange={() => {
                                         dlg.field("filter").set(f);
-                                        focusFilter();
                                     }}
                                     text={f.label}
                                 />
@@ -566,7 +556,6 @@ export const FileChooser = ({
 
         const textFilter = (
             <TextInput
-                ref={textInputRef}
                 placeholder={_("Type to filter")}
                 value={dlg.values.textFilter}
                 onChange={(_event, value) => dlg.field("textFilter").set(value)}
@@ -677,7 +666,6 @@ export const FileChooser = ({
                     onRowClick={
                         () => {
                             setPath(dlg, sc.path);
-                            focusFilter();
                         }
                     }
                 >
@@ -696,7 +684,6 @@ export const FileChooser = ({
                     onRowClick={
                         () => {
                             setCollection(dlg, col);
-                            focusFilter();
                         }
                     }
                 >
@@ -741,7 +728,6 @@ export const FileChooser = ({
                                                             dlg.field("filter")
                                                                     .set(dlg.values.filters[dlg.values.filters.length - 1]);
                                                     }
-                                                    focusFilter();
                                                 }}
                                             >
                                                 {clearFilters == 3 ? _("Show hidden files") : _("Clear filters")}
@@ -789,6 +775,17 @@ export const FileChooser = ({
             if (filtered.length == 0)
                 return emptyState(_("No matching results"), SearchIcon, 1);
 
+            function rowClick(event: React.KeyboardEvent | React.MouseEvent | undefined, file: FileInfo) {
+                dlg.field("selected").set(file);
+                if (event && (event.type == "dblclick" || (event.type == "keydown" && "key" in event && event.key == "Enter"))) {
+                    event.preventDefault();
+                    if (file.type == "dir") {
+                        setPath(dlg, full_path(dlg.values.path, file.name));
+                        dlg.field("textFilter").set("");
+                    }
+                }
+            }
+
             return (
                 <Tbody>
                     {
@@ -806,22 +803,8 @@ export const FileChooser = ({
                                         className={f.name == dlg.values.selected?.name ? "file-chooser-selected" : ""}
                                         key={idx}
                                         data-name={name}
-                                        onRowClick={
-                                            () => {
-                                                dlg.field("selected").set(f);
-                                                focusFilter();
-                                            }
-                                        }
-                                        onDoubleClick={
-                                            event => {
-                                                event.preventDefault();
-                                                if (f.type == "dir") {
-                                                    setPath(dlg, full_path(dlg.values.path, f.name));
-                                                    dlg.field("textFilter").set("");
-                                                }
-                                                focusFilter();
-                                            }
-                                        }
+                                        onRowClick={event => rowClick(event, f)}
+                                        onDoubleClick={event => rowClick(event, f)}
                                         isClickable
                                     >
                                         <Td>

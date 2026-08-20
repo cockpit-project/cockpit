@@ -399,7 +399,10 @@ send_login_html (CockpitWebResponse *response,
   gchar *cookie_line = NULL;
   gchar *base;
 
-  gchar *language = NULL;
+  /* "language" is a borrowed pointer, owned by either "language_cookie"
+   * or "languages" below */
+  const gchar *language = NULL;
+  g_autofree gchar *language_cookie = NULL;
   gchar **languages = NULL;
   GBytes *po_bytes;
   CockpitWebFilter *filter3 = NULL;
@@ -426,8 +429,12 @@ send_login_html (CockpitWebResponse *response,
 
   if (ws->login_po_js)
     {
-      language = cockpit_web_server_parse_cookie (headers, "CockpitLang");
-      if (!language)
+      language_cookie = cockpit_web_server_parse_cookie (headers, "CockpitLang");
+      if (language_cookie)
+        {
+          language = language_cookie;
+        }
+      else
         {
           accept = g_hash_table_lookup (headers, "Accept-Language");
           languages = cockpit_web_server_parse_accept_list (accept, NULL);

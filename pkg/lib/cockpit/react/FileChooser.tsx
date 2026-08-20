@@ -800,7 +800,7 @@ export const FileChooser = ({
                                 }
                                 return (
                                     <Tr
-                                        className={f.name == dlg.values.selected?.name ? "file-chooser-selected" : ""}
+                                        isRowSelected={f.name == dlg.values.selected?.name}
                                         key={idx}
                                         data-name={name}
                                         onRowClick={event => rowClick(event, f)}

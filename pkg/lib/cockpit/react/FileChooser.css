@@ -10,6 +10,17 @@
     column-gap: var(--pf-t--global--spacer--md);
     row-gap: var(--pf-t--global--spacer--md);
     block-size: 60ex;
+    user-select: none;
+
+    /* In dark mode, Patternfly sets these to
+       "var(--pf-t--global--dark--background--color--300)", which is
+       the same as the dialog background.  Let's fix this by using the
+       global action hover color.  This works in light and dark mode.
+
+       See https://github.com/patternfly/patternfly/issues/8562
+   */
+    --pf-t--global--background--color--primary--clicked: var(--pf-t--global--background--color--action--plain--hover);
+    --pf-t--global--background--color--primary--hover: var(--pf-t--global--background--color--action--plain--hover);
 }
 
 .file-chooser-sidebar {
@@ -60,11 +71,6 @@
     .file-chooser-hide-on-wide {
         display: none;
     }
-}
-
-.pf-v6-c-table tr.file-chooser-selected:where(.pf-v6-c-table__tr) > :where(th, td) {
-    background: var(--pf-t--global--color--nonstatus--blue--default);
-    color: var(--pf-t--global--text--color--nonstatus--on-blue--default);
 }
 
 /* Style the breadcrumb component as a path */

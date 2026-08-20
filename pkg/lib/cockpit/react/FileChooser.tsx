@@ -650,7 +650,7 @@ export const FileChooser = ({
 
     function formatIcon(f: FileInfo): React.ReactNode {
         if (f.type == "dir")
-            return <FolderIcon />;
+            return <FolderIcon style={{ color: "var(--pf-t--global--color--brand--default)" }} />;
         else
             return <OutlineFileIcon />;
     }

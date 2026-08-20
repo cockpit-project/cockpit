@@ -482,7 +482,10 @@ send_login_html (CockpitWebResponse *response,
 
   g_free (cookie_line);
   g_free (content_security_policy);
-  g_strfreev (languages);
+  if (languages)
+    g_strfreev (languages);
+  else
+    g_free (language);
 }
 
 static void

@@ -661,6 +661,20 @@ export const FileChooser = ({
             return <OutlineFileIcon />;
     }
 
+    function keyboardNavigationHandler(event: React.KeyboardEvent) {
+        if (event.key == "ArrowDown") {
+            const tr = event.target;
+            if (tr instanceof HTMLElement && tr.nextElementSibling instanceof HTMLElement)
+                tr.nextElementSibling.focus();
+            event.preventDefault();
+        } else if (event.key == "ArrowUp") {
+            const tr = event.target;
+            if (tr instanceof HTMLElement && tr.previousElementSibling instanceof HTMLElement)
+                tr.previousElementSibling.focus();
+            event.preventDefault();
+        }
+    }
+
     function sidebar(dlg: DialogState<FileChooserValues>) {
         function shortcut(sc: FileChooserShortcut) {
             return (
@@ -700,7 +714,7 @@ export const FileChooser = ({
 
         return (
             <Table variant="compact" borders={false}>
-                <Tbody>
+                <Tbody onKeyDown={keyboardNavigationHandler}>
                     { collection(dlg.values.recent_collection) }
                     { dlg.values.shortcuts.map(shortcut) }
                     { shortcut({ label: _("Filesystem"), path: "/" }) }
@@ -793,7 +807,7 @@ export const FileChooser = ({
             }
 
             return (
-                <Tbody>
+                <Tbody onKeyDown={keyboardNavigationHandler}>
                     {
                         filtered.map(
                             (f, idx) => {

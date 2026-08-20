@@ -134,6 +134,62 @@ function cleanupChangelogLine(text) {
     return text.trim();
 }
 
+function isRedHatBasedDistribution() {
+    const os_release = cockpit.info?.os_release;
+    if (!os_release)
+        return false;
+
+    const ids = [os_release.ID, ...(os_release.ID_LIKE || "").split(" ")].filter(Boolean);
+    return ids.some(id => ["rhel", "fedora", "centos"].includes(id));
+}
+
+function renderChangelogWithIssueLinks(text) {
+    if (!text)
+        return text;
+
+    const issuePattern = /\brhbz#(\d+)(?!\w)|\bRHEL-(\d+)(?![-\w])/g;
+    const result = [];
+    let lastIndex = 0;
+    let match;
+    const redHatBased = isRedHatBasedDistribution();
+
+    while ((match = issuePattern.exec(text)) !== null) {
+        if (match.index > lastIndex)
+            result.push(text.slice(lastIndex, match.index));
+
+        const [, bugzillaId, rhelId] = match;
+        let href = null;
+        let key = null;
+
+        if (bugzillaId) {
+            href = `https://bugzilla.redhat.com/show_bug.cgi?id=${bugzillaId}`;
+            key = `rhbz-${bugzillaId}-${match.index}`;
+        } else if (rhelId && redHatBased) {
+            href = `https://redhat.atlassian.net/browse/RHEL-${rhelId}`;
+            key = `RHEL-${rhelId}-${match.index}`;
+        } else {
+            result.push(match[0]);
+            lastIndex = issuePattern.lastIndex;
+            continue;
+        }
+
+        result.push(
+            <a key={key} href={href} rel="noopener noreferrer" target="_blank">
+                {match[0]}
+            </a>
+        );
+        lastIndex = issuePattern.lastIndex;
+    }
+
+    if (lastIndex === 0)
+        return text;
+
+    if (lastIndex < text.length)
+        result.push(text.slice(lastIndex));
+
+    return result;
+}
+
 // Replace cockpit-wsinstance-https@[long_id] with a shorter string
 function shortenCockpitWsInstance(list) {
     return list.map(item => item.startsWith('cockpit-wsinstance-https') ? 'cockpit-wsinstance-https@.' : item);
@@ -324,7 +380,8 @@ function updateItem(remarkable, info, pkgNames, key) {
         descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: remarkable.render(descriptionFirstLine) }} />;
         description = <div dangerouslySetInnerHTML={{ __html: remarkable.render(info.description) }} />;
     } else {
-        description = <div className="changelog">{info.description}</div>;
+        descriptionFirstLine = renderChangelogWithIssueLinks(descriptionFirstLine);
+        description = <div className="changelog">{renderChangelogWithIssueLinks(info.description)}</div>;
     }
 
     const expandedContent = (

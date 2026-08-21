@@ -76,6 +76,7 @@ export interface UpdateDetail extends Update {
 
 export interface History {
     timestamp: number
+    // packagename, evr
     packages: Record<string, string>
 }
 

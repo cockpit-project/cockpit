@@ -111,6 +111,26 @@ interface RepoListResult {
     cache_updated: { t: "x", "v": number };
 }
 
+interface HistoryListPackage {
+    arch: { t: "s", v: string }
+    evr: { t: "s", v: string }
+    name: { t: "s", v: string }
+}
+
+interface HistoryListResult {
+    id: { t: "x", "v": number };
+    start: { t: "x", "v": number };
+    end: { t: "x", "v": number };
+    user_id: { t: "u", "v": number };
+    status: { t: "s", "v": string };
+    description: { t: "s", "v": string };
+    downgraded: { t: "aa{sv}", "v": HistoryListPackage[] };
+    installed: { t: "aa{sv}", "v": HistoryListPackage[] };
+    reinstalled: { t: "aa{sv}", "v": HistoryListPackage[] };
+    removed: { t: "aa{sv}", "v": HistoryListPackage[] };
+    upgraded: { t: "aa{sv}", "v": HistoryListPackage[] };
+}
+
 enum GoalProblem {
     ALREADY_INSTALLED = (1 << 12)
 }
@@ -641,14 +661,45 @@ export class Dnf5DaemonManager implements PackageManager {
     }
 
     async get_history(): Promise<History[]> {
-        // TODO: https://github.com/rpm-software-management/dnf5/issues/2538
-        throw new Error("not implemented");
-        return [];
+        const history = [] as History[];
+
+        await this.with_session(async (session) => {
+            // TODO: arbitrary 50 limit, the history API has no limit
+            const [results] = await call(session, "org.rpm.dnf.v0.History", "list", [{ limit: { t: 'x', v: 50 }}]) as HistoryListResult[][];
+            for (const result of results) {
+                // The PackageKit page only shows dnf upgrades, filter out the rest
+                if (result.upgraded['v'].length === 0)
+                  continue;
+
+                const timestamp = result.end['v'];
+                const pkgs = { timestamp, packages: {} } as History;
+
+                for (const pkg of result.upgraded['v']) {
+                    pkgs['packages'][pkg.name.v] = pkg.evr.v;
+                }
+
+                history.push(pkgs);
+            }
+
+        });
+        return history;
     }
 
-    async is_available(_pkgnames: string[]): Promise<boolean> {
-        // TODO: requires RHEL to have dnf5 to run TestUpdatesSubscriptions.testNoUpdates
-        throw new Error("not implemented");
-        return false;
+    async is_available(pkgnames: string[]): Promise<boolean> {
+        const available = new Set<string>();
+
+        await this.with_session(async (session) => {
+            const [results] = await call(session, "org.rpm.dnf.v0.rpm.Rpm", "list", [
+                { package_attrs: { t: 'as', v: ["name"] },
+                  scope: { t: 's', v: "available" },
+                  patterns: { t: 'as', v: pkgnames } }
+            ]) as ListPackage[][];
+
+            for (const pkg of results) {
+                available.add(pkg.name.v);
+            }
+        });
+
+        return available.size === new Set(pkgnames).size;
     }
 }

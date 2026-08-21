@@ -18,6 +18,7 @@ from machine import testvm
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
+@testlib.onlyImage("Only run on the required image", "fedora-coreos")
 class TestImageCustomize(unittest.TestCase):
 
     def checkBoot(self, image):

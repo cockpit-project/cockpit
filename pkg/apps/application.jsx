@@ -85,15 +85,8 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
         if (!description)
             return <p>{_("No description provided.")}</p>;
 
-        return description.map((paragraph, index) => {
-            if (paragraph.tag == 'ul') {
-                return <ul key={`paragraph-${index}`}>{paragraph.items.map(item => <li key={item}>{item}</li>)}</ul>;
-            } else if (paragraph.tag == 'ol') {
-                return <ol key={`paragraph-${index}`}>{paragraph.items.map(item => <li key={item}>{item}</li>)}</ol>;
-            } else {
-                return <p key={`paragraph-${index}`}>{paragraph}</p>;
-            }
-        });
+        // TODO: Fix
+        return <p>{description}</p>;
     }
 
     // Render the icon, name, homepage link, summary, description, and screenshots of the component,

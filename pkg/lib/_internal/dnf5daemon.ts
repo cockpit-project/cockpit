@@ -684,9 +684,23 @@ export class Dnf5DaemonManager implements PackageManager {
         return history;
     }
 
-    async is_available(_pkgnames: string[]): Promise<boolean> {
-        // TODO: requires RHEL to have dnf5 to run TestUpdatesSubscriptions.testNoUpdates
-        throw new Error("not implemented");
-        return false;
+    async is_available(pkgnames: string[]): Promise<boolean> {
+        const available = new Set<string>();
+
+        await this.with_session(async (session) => {
+            const [results] = await call(session, "org.rpm.dnf.v0.rpm.Rpm", "list", [
+                {
+                    package_attrs: { t: 'as', v: ["name"] },
+                    scope: { t: 's', v: "available" },
+                    patterns: { t: 'as', v: pkgnames }
+                }
+            ]) as ListPackage[][];
+
+            for (const pkg of results) {
+                available.add(pkg.name.v);
+            }
+        });
+
+        return available.size === new Set(pkgnames).size;
     }
 }

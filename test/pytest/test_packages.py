@@ -89,6 +89,33 @@ def test_override_etc(pkgdir: Path, confdir: Path) -> None:
     }
 
 
+def test_override_invalid_json(pkgdir: Path, caplog: pytest.LogCaptureFixture) -> None:
+    """An override file with broken JSON must be ignored, not crash the bridge."""
+    (pkgdir / 'basic' / 'override.json').write_text('{ "priority": 5,, }')
+
+    packages = Packages()
+    assert len(packages.packages) == 1
+    # the broken override is ignored, the manifest is untouched
+    assert packages.packages['basic'].manifest['description'] == 'standard package'
+    assert packages.packages['basic'].priority == 1
+    assert 'override.json' in caplog.text
+
+
+def test_override_invalid_json_does_not_hide_later_ones(
+    pkgdir: Path, confdir: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """A broken override file must not stop the remaining ones from being applied."""
+    # first candidate: broken
+    (pkgdir / 'basic' / 'override.json').write_text('not json at all')
+    # second candidate: fine
+    (confdir / 'basic.override.json').write_text('{"priority": 5}')
+
+    packages = Packages()
+    assert len(packages.packages) == 1
+    assert packages.packages['basic'].priority == 5
+    assert 'override.json' in caplog.text
+
+
 def test_priority(pkgdir: Path) -> None:
     make_package(pkgdir, 'vip', name='basic', description='VIP', priority=100)
     make_package(pkgdir, 'guest', description='Guest')

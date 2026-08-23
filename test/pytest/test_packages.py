@@ -373,6 +373,26 @@ def test_filename_mangling(pkgdir: Path) -> None:
     assert encodings == {None, 'gzip'}  # make sure we saw both compressed and uncompressed
 
 
+def test_filename_gz_suffix_only(pkgdir: Path) -> None:
+    """Only a literal '.gz' suffix may be stripped, not any character + 'gz'."""
+    make_package(pkgdir, 'one')
+
+    (pkgdir / 'one' / 'data.tgz').write_bytes(b'a tarball')
+    (pkgdir / 'one' / 'logo.svgz').write_bytes(b'a compressed svg')
+
+    packages = Packages()
+
+    # these must be served under their own names, unmodified
+    assert packages.load_path('/one/data.tgz', {}).data.read() == b'a tarball'
+    assert packages.load_path('/one/logo.svgz', {}).data.read() == b'a compressed svg'
+
+    # ... and must not have been registered under a truncated name
+    with pytest.raises(KeyError):
+        packages.load_path('/one/data.', {})
+    with pytest.raises(KeyError):
+        packages.load_path('/one/logo.s', {})
+
+
 def test_overlapping_minified(pkgdir: Path) -> None:
     make_package(pkgdir, 'one')
     (pkgdir / 'one' / 'one.min.js').write_text('min')

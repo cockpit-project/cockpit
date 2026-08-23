@@ -439,8 +439,9 @@ class PackagesLoader:
             except FileNotFoundError:
                 continue
             except json.JSONDecodeError as exc:
-                # User input error: report a warning
+                # User input error: report a warning and ignore this file.
                 logger.warning('%s: %s', override_file, exc)
+                continue
 
             if not isinstance(override, dict):
                 logger.warning('%s: override file is not a dictionary', override_file)

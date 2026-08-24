@@ -331,7 +331,8 @@ cockpit_conf_strv (const char *section,
     {
       /* strip off trailing whitespace (leading whitespace is already stripped by regexp) */
       entry->strv_value = strdupx (entry->value);
-      for (char *c = entry->strv_value + strlen (entry->strv_value) - 1; c >= entry->strv_value && isspace (*c); --c)
+      for (char *c = entry->strv_value + strlen (entry->strv_value) - 1;
+           c >= entry->strv_value && isspace ((unsigned char) *c); --c)
         *c = '\0';
       entry->strv_cache = strsplit (entry->strv_value, delimiter);
       entry->strv_delimiter = delimiter;

@@ -160,7 +160,7 @@ cockpit_authorize_type (const char *challenge,
           return NULL;
         }
       for (i = 0; i < len; i++)
-        (*type)[i] = tolower ((*type)[i]);
+        (*type)[i] = tolower ((unsigned char) (*type)[i]);
     }
 
   if (challenge[len])

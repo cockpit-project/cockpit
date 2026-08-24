@@ -111,6 +111,16 @@ class TestStorageResize(storagelib.StorageCase):
 
     @testlib.skipImage("NTFS not supported on RHEL", "rhel-*", "centos-*")
     def testResizeNtfs(self):
+        # "mount" might use "ntfs" or "ntfs3" depending on its
+        # version.  "ntfs" gets redirected to ntfs-3g, and there used
+        # to be a kernel filesystem called "ntfs3".  But recent
+        # kernels call their filesystem "ntfs". So let's get out of
+        # this madhouse and redirect "ntfs3" to ntfs-3g as well.
+        #
+        # HACK - https://github.com/util-linux/util-linux/issues/4307
+        #
+        self.machine.execute("ln -s /usr/sbin/mount.ntfs-3g /usr/sbin/mount.ntfs3")
+
         self.checkResize("ntfs", crypto=False,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=True)

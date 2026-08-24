@@ -66,6 +66,17 @@ def hwmon_mock(tmpdir_factory, monkeypatch):
     with open(hwmon4_dir / 'temp4_label', 'w') as fp:
         fp.write('Core 2')
 
+    # hwmon5 - sensor which reads 0
+    hwmon5_dir = hwmon_dir / 'hwmon5'
+    hwmon5_dir.mkdir()
+
+    with open(hwmon5_dir / 'name', 'w') as fp:
+        fp.write('coretemp')
+    with open(hwmon5_dir / 'temp1_input', 'w') as fp:
+        fp.write('0')
+    with open(hwmon5_dir / 'temp1_label', 'w') as fp:
+        fp.write('Package id 1')
+
     return hwmon_dir
 
 
@@ -134,6 +145,23 @@ def test_cpu_temperature(hwmon_mock):
                 'hwmon2/temp1_input']
     sensors = [os.path.relpath(p, start=hwmon_mock) for p in samples['cpu.temperature']]
     assert sorted(sensors) == sorted(expected)
+
+
+def test_cpu_temperature_zero_reading(hwmon_mock):
+    """A sensor reading 0 must be skipped, not abort sampling of the rest."""
+    sampler = cockpit.samples.CPUTemperatureSampler()
+    # pin the order so the zero-reading sensor comes first and would hide the others
+    sampler.sensors = sorted(cockpit.samples.CPUTemperatureSampler.scan_sensors(),
+                             key=lambda p: 'hwmon5' not in p)
+    assert 'hwmon5' in sampler.sensors[0]
+
+    samples = collections.defaultdict(dict)
+    sampler.sample(samples)
+
+    # the zero-reading sensor is not reported ...
+    assert not any('hwmon5' in name for name in samples['cpu.temperature'])
+    # ... but all the others still are
+    assert len(samples['cpu.temperature']) == 7
 
 
 def test_cgroup_disk_io():

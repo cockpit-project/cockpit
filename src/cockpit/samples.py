@@ -189,8 +189,9 @@ class CPUTemperatureSampler(Sampler):
         for sensor_path in self.sensors:
             with open(sensor_path) as sensor:
                 temperature = int(sensor.read().strip())
+                # skip this reading, not the remaining sensors
                 if temperature == 0:
-                    return
+                    continue
 
             samples['cpu.temperature'][sensor_path] = temperature / 1000
 

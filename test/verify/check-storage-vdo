@@ -11,6 +11,9 @@ import testlib
 
 SIZE_10G = "10000000000"
 
+# OS images that support VDO logical volumes
+VDO_IMAGE_PREFIXES = ("rhel-", "centos-", "arch")
+
 
 @testlib.skipImage("VDO support not installed", "*-bootc")
 class TestStorageVDO(storagelib.StorageCase):
@@ -38,7 +41,7 @@ class TestStorageVDO(storagelib.StorageCase):
         b._wait_present("[data-field='purpose'] select option[value='block']")
 
         # Currently, vdo is only supported by Cockpit on RHEL
-        if not m.image.startswith("rhel") and not m.image.startswith("centos"):
+        if not m.image.startswith(VDO_IMAGE_PREFIXES):
             b.wait_not_present("[data-field='purpose'] select option[value='vdo']")
             return
 

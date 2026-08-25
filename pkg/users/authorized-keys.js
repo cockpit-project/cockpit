@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 import cockpit from "cockpit";
+import { superuser } from "superuser";
 
 import lister from "./ssh-list-public-keys.sh";
 import adder from "./ssh-add-public-key.sh";
@@ -104,8 +105,17 @@ function AuthorizedKeys (user_name, home_dir) {
                 .then(keys => {
                     const obj = keys[0];
                     if (obj?.valid) {
+                        const ssh_adder = [
+                            ...(superuser.allowed ? ["runuser", "-u", user_name, "--"] : []),
+                            "/bin/sh",
+                            "-c",
+                            adder,
+                            "--",
+                            user_name,
+                            home_dir
+                        ];
                         return cockpit
-                                .script(adder, [user_name, home_dir], { superuser: "try", err: "message" })
+                                .spawn(ssh_adder, { superuser: superuser.allowed ? "require" : null, err: "message" })
                                 .input(obj.raw + "\n")
                                 // eslint-disable-next-line prefer-promise-reject-errors
                                 .catch(ex => Promise.reject(_("Error saving authorized keys: ") + ex)); // not-covered: OS error

@@ -1065,6 +1065,10 @@ class Browser:
         self.open(href, tls=tls)
 
         self.try_login(user=user, password=password, superuser=superuser, legacy_authorized=legacy_authorized)
+        # HACK: opensuse images, superuser password is root password,
+        # if superuser = True and user, password are set call become_superuser()
+        if superuser and user and password and "suse" in self.machine.image:
+            self.become_superuser()
 
         self.wait_visible('#content')
         if path:

@@ -469,7 +469,8 @@ class TestHistoryMetrics(testlib.MachineCase):
         m.execute("""gunzip /tmp/journal.journal.gz
                      systemctl stop systemd-journald
                      rm /var/log/journal/*/*.journal
-                     cp /tmp/journal.journal /var/log/journal/*/""")
+                     cp /tmp/journal.journal /var/log/journal/*/
+                     systemctl start systemd-journald""")
         b.reload()
         b.enter_page("/metrics")
 

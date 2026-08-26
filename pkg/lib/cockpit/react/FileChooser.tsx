@@ -798,7 +798,6 @@ export const FileChooser = ({
             function rowClick(event: React.KeyboardEvent | React.MouseEvent | undefined, file: FileInfo) {
                 dlg.field("selected").set(file);
                 if (event && (event.type == "dblclick" || (event.type == "keydown" && "key" in event && event.key == "Enter"))) {
-                    event.preventDefault();
                     if (file.type == "dir") {
                         setPath(dlg, full_path(dlg.values.path, file.name));
                         dlg.field("textFilter").set("");

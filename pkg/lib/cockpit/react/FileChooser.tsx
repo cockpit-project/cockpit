@@ -791,8 +791,8 @@ export const FileChooser = ({
             if (preFiltered.length == 0)
                 return emptyState(_("No matching results"), SearchIcon, 2);
 
-            const filtered = preFiltered.filter(f => basename(f.name).includes(dlg.values.textFilter));
-            if (filtered.length == 0)
+            const filteredFiles = preFiltered.filter(file => basename(file.name).includes(dlg.values.textFilter));
+            if (filteredFiles.length == 0)
                 return emptyState(_("No matching results"), SearchIcon, 1);
 
             function rowClick(event: React.KeyboardEvent | React.MouseEvent | undefined, file: FileInfo) {
@@ -808,26 +808,26 @@ export const FileChooser = ({
             return (
                 <Tbody onKeyDown={keyboardNavigationHandler}>
                     {
-                        filtered.map(
-                            (f, idx) => {
+                        filteredFiles.map(
+                            (file, idx) => {
                                 let name, location;
                                 if (dlg.values.path == "") {
-                                    name = basename(f.name);
-                                    location = dirname(f.name);
+                                    name = basename(file.name);
+                                    location = dirname(file.name);
                                 } else {
-                                    name = f.name;
+                                    name = file.name;
                                 }
                                 return (
                                     <Tr
-                                        isRowSelected={f.name == dlg.values.selected?.name}
+                                        isRowSelected={file.name == dlg.values.selected?.name}
                                         key={idx}
                                         data-name={name}
-                                        onRowClick={event => rowClick(event, f)}
-                                        onDoubleClick={event => rowClick(event, f)}
+                                        onRowClick={event => rowClick(event, file)}
+                                        onDoubleClick={event => rowClick(event, file)}
                                         isClickable
                                     >
                                         <Td>
-                                            {formatIcon(f)}
+                                            {formatIcon(file)}
                                             &nbsp;&nbsp;
                                             {boldify(name, dlg.values.textFilter)}
                                         </Td>

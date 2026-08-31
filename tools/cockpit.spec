@@ -563,7 +563,8 @@ Recommends: NetworkManager-team
 BuildArch: noarch
 
 %description networkmanager
-The Cockpit component for managing networking.  This package uses NetworkManager.
+The Cockpit component for managing networking.  This package uses
+NetworkManager.
 
 %files networkmanager -f networkmanager.list
 %license LICENSES/LGPL-2.1.txt

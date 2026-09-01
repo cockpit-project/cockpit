@@ -1075,6 +1075,10 @@ class Browser:
         self.open(href, tls=tls)
 
         self.try_login(user=user, password=password, superuser=superuser, legacy_authorized=legacy_authorized)
+        # HACK: opensuse images, superuser password is root password,
+        # if superuser = True and user, password are set call become_superuser()
+        if superuser and user and password and "suse" in self.machine.image:
+            self.become_superuser()
 
         self.wait_visible('#content')
         if path:
@@ -2383,22 +2387,32 @@ class MachineCase(unittest.TestCase):
                 break
             time.sleep(3)
 
-    def sed_file(self, expr: str, path: str, apply_change_action: str | None = None) -> None:
+    def sed_file(self, expr: str, path: str, apply_change_action: str | None = None, absent_content: str | None = None) -> None:
         """sed a file on primary machine
 
         This is safe for @nondestructive tests, the file will be restored during cleanup.
 
         The optional apply_change_action will be run both after sedding and after restoring the file.
+
+        The optional absent_content will create a file in path with the specified contents should the file not exist
         """
         m = self.machine
-        m.execute(f"sed -i.cockpittest '{expr}' {path}")
+        was_absent = False
+        if absent_content and not self.file_exists(path):
+            m.write(path, absent_content)
+            was_absent = True
+        else:
+            m.execute(f"sed -i.cockpittest '{expr}' {path}")
         if apply_change_action:
             m.execute(apply_change_action)
 
         if self.is_nondestructive():
             if apply_change_action:
                 self.addCleanup(m.execute, apply_change_action)
-            self.addCleanup(m.execute, f"mv {path}.cockpittest {path}")
+            if was_absent:
+                self.addCleanup(m.execute, f"rm {path}")
+            else:
+                self.addCleanup(m.execute, f"mv {path}.cockpittest {path}")
 
     def file_exists(self, path: str) -> bool:
         """Check if file exists on test machine"""

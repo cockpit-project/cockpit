@@ -22,6 +22,10 @@ export class PackageKitManager implements PackageManager {
         this.name = "packagekit";
     }
 
+    async init(): Promise<void> {
+        await PK.cancellableTransaction("SetHints", ["cache-age=86400"], null, null);
+    }
+
     /* Support for installing missing packages.
      *
      * First call check_missing_packages to determine whether something

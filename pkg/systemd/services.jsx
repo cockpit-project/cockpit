@@ -23,7 +23,8 @@ import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs";
 import { ServicesList } from "./services-list.jsx";
 import { CreateTimerDialogButton } from "./timer-dialog.jsx";
-import { page_status } from "notifications";
+import { page_status } from "shell";
+import { health_status } from "overview";
 import * as python from "python";
 import * as timeformat from "timeformat";
 import cockpit from "cockpit";
@@ -588,15 +589,14 @@ class ServicesPageBody extends React.Component {
         this.props.setTabErrors(tabErrors);
 
         if (failed.size > 0) {
-            page_status.set_own({
-                type: "error",
-                title: cockpit.format(cockpit.ngettext("$0 service has failed",
-                                                       "$0 services have failed",
-                                                       failed.size), failed.size),
-                details: [...failed]
-            });
+            const title = cockpit.format(cockpit.ngettext("$0 service has failed",
+                                                          "$0 services have failed",
+                                                          failed.size), failed.size);
+            page_status.publish({ type: "error", title });
+            health_status.publish({ type: "error", title, link: "system/services" });
         } else {
-            page_status.set_own(null);
+            page_status.publish(null);
+            health_status.clear();
         }
     }
 

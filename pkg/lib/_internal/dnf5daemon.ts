@@ -5,7 +5,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateWatchHandlers } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -639,6 +639,10 @@ export class Dnf5DaemonManager implements PackageManager {
             }
             await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
         }, signal_emitted);
+    }
+
+    async get_running_update(_handlers: UpdateWatchHandlers): Promise<string | null> {
+        return null;
     }
 
     async get_backend(): Promise<string> {

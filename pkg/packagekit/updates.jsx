@@ -65,7 +65,7 @@ import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
-import { Severity } from '_internal/packagemanager-abstract';
+import { Severity, TransactionExitStatus, UpdateError } from '_internal/packagemanager-abstract';
 import { getPackageManager } from 'packagemanager';
 import { Icon } from '@patternfly/react-core/dist/esm/components/Icon/index.js';
 
@@ -442,12 +442,12 @@ const formatPackageId = packageId => {
 
 // actions is a chronological list of { status, packageId } events that happen during applying updates
 // status: see PK_STATUS_* at https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
-const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setRebootAfter }) => {
-    const remain = transactionProps.RemainingTime
-        ? timeformat.distanceToNow(new Date().valueOf() + transactionProps.RemainingTime * 1000)
+const ApplyUpdates = ({ transactionProps, actions, rebootAfter, setRebootAfter }) => {
+    const remain = transactionProps.remaining_time
+        ? timeformat.distanceToNow(new Date().valueOf() + transactionProps.remaining_time * 1000)
         : null;
 
-    let percentage = transactionProps.Percentage || 0;
+    let percentage = transactionProps.percentage || 0;
     // PackageKit sets this to 101 initially
     if (percentage > 100)
         percentage = 0;
@@ -459,8 +459,8 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
             log.scrollTop = log.scrollHeight;
     }
 
-    const cancelButton = transactionProps.AllowCancel
-        ? <Button variant="secondary" onClick={onCancel} size="sm">{_("Cancel")}</Button>
+    const cancelButton = transactionProps.cancel
+        ? <Button variant="secondary" onClick={transactionProps.cancel} size="sm">{_("Cancel")}</Button>
         : null;
 
     if (actions.length === 0 && percentage === 0) {
@@ -473,7 +473,7 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
 
     const lastAction = actions[actions.length - 1];
     // when resuming an upgrade, we did not get any Package signal yet; fall back to LastPackage
-    const curPackage = formatPackageId(lastAction?.packageId || transactionProps.LastPackage || "");
+    const curPackage = formatPackageId(lastAction?.packageId || transactionProps.last_package || "");
     return (
         <div className="progress-main-view">
             <Grid hasGutter>
@@ -850,7 +850,6 @@ class OsUpdates extends React.Component {
             loadPercent: null,
             cockpitUpdate: false,
             haveOsRepo: null,
-            applyTransaction: null,
             applyTransactionProps: {},
             applyActions: [],
             history: [],
@@ -889,34 +888,29 @@ class OsUpdates extends React.Component {
         this.setState({ packageManager, backend });
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
-        PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
-                .then(([transactions]) => {
-                    if (!this._mounted)
-                        return;
+        try {
+            const running_update = await packageManager.get_running_update({
+                on_package: (status, packageId) => this.setState(prevState =>
+                    ({ applyActions: [...prevState.applyActions, { status, packageId }] })
+                ),
+                on_notify: (notify) => this.setState(prevState =>
+                    ({ applyTransactionProps: { ...prevState.applyTransactionProps, ...notify } })
+                ),
+            });
 
-                    const promises = transactions.map(transactionPath => PK.call(
-                        transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
+            if (!this._mounted)
+                return;
 
-                    Promise.all(promises)
-                            .then(roles => {
-                                // any transaction with UPDATE_PACKAGES role?
-                                for (let idx = 0; idx < roles.length; ++idx) {
-                                    if (roles[idx][0].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
-                                        this.watchUpdates(transactions[idx]);
-                                        return;
-                                    }
-                                }
-
-                                // no running updates found, proceed to showing available updates
-                                this.initialLoadOrRefresh();
-                            })
-                            .catch(ex => {
-                                console.warn("GetTransactionList: failed to read PackageKit transaction roles:", ex.message);
-                                // be robust, try to continue with loading updates anyway
-                                this.initialLoadOrRefresh();
-                            });
-                })
-                .catch(this.handleLoadError);
+            if (running_update) {
+                this.setState({ state: "applying", applyTransactionProps: {}, applyActions: [] });
+                this.handleRunningUpdate(running_update);
+            } else {
+                // no running updates found, proceed to showing available updates
+                this.initialLoadOrRefresh();
+            }
+        } catch (err) {
+            this.handleLoadError(err);
+        }
     }
 
     componentWillUnmount() {
@@ -1117,15 +1111,58 @@ class OsUpdates extends React.Component {
         }
     }
 
+    async handleRunningUpdate(promise) {
+        try {
+            this.setState({ applyTransactionProps: {}, applyActions: [] });
+            const status = await promise;
+
+            switch(status) {
+            case TransactionExitStatus.SUCCESS:
+                this.setState({ state: "loading", loadPercent: null });
+                await this.loadHistory();
+
+                if (this.state.checkRestartAvailable) {
+                    await this.checkNeedsRestart();
+                }
+
+                this.setState({ state: "updateSuccess", loadPercent: null });
+                break;
+            case TransactionExitStatus.CANCELLED:
+                if (this.state.checkRestartAvailable) {
+                    this.setState({ state: "loading", loadPercent: null });
+                    this.checkNeedsRestart();
+                }
+
+                this.loadUpdates();
+                break;
+            default:
+                this.setState({
+                    applyTransactionProps: {},
+                    applyActions: [],
+                    errorMessages: [],
+                    state: "updateError",
+                });
+                break;
+            }
+        } catch (ex) {
+            this.setState({
+                applyTransactionProps: {},
+                applyActions: [],
+                errorMessages: ex instanceof UpdateError ? ex.messages : [ex.message],
+                state: "updateError",
+            });
+        }
+    }
+
     watchUpdates(transactionPath) {
-        this.setState({ state: "applying", applyTransaction: transactionPath, applyTransactionProps: {}, applyActions: [] });
+        this.setState({ state: "applying", applyTransactionProps: {}, applyActions: [] });
 
         return PK.watchTransaction(transactionPath,
                                    {
                                        ErrorCode: (code, details) => this.setState(prevState => ({ errorMessages: [...prevState.errorMessages, details] })),
 
                                        Finished: exit => {
-                                           this.setState({ applyTransaction: null, applyTransactionProps: {}, applyActions: [] });
+                                           this.setState({ applyTransactionProps: {}, applyActions: [] });
 
                                            if (exit === PK.Enum.EXIT_SUCCESS) {
                                                this.setState({ state: "loading", loadPercent: null });
@@ -1154,14 +1191,27 @@ class OsUpdates extends React.Component {
                                        // not working/being used in at least Fedora
                                        RequireRestart: (type, packageId) => console.log("update RequireRestart", type, packageId),
 
-                                       Package: (status, packageId) => this.setState(old =>
-                                           ({ applyActions: [...old.applyActions, { status, packageId }] })
+                                       Package: (status, packageId) => this.setState(prevState =>
+                                           ({ applyActions: [...prevState.applyActions, { status, packageId }] })
                                        ),
                                    },
 
-                                   notify => this.setState(old =>
-                                       ({ applyTransactionProps: { ...old.applyTransactionProps, ...notify } })
-                                   )
+                                   notify => {
+                                       const props = {
+                                           cancel: notify.AllowCancel
+                                               ? () => PK.call(transactionPath, PK.transactionInterface, "Cancel", [])
+                                               : null,
+                                       };
+                                       if (notify.Percentage !== undefined)
+                                           props.percentage = notify.Percentage;
+                                       if (notify.RemainingTime !== undefined)
+                                           props.remaining_time = notify.RemainingTime;
+                                       if (notify.LastPackage !== undefined)
+                                           props.last_package = notify.LastPackage;
+                                       this.setState(prevState =>
+                                           ({ applyTransactionProps: { ...prevState.applyTransactionProps, ...props } })
+                                       );
+                                   }
         )
                 .catch(ex => {
                     this.setState(prevState => ({ errorMessages: [...prevState.errorMessages, ex], state: "updateError" }));
@@ -1350,7 +1400,6 @@ class OsUpdates extends React.Component {
             page_status.set_own(null);
             return <ApplyUpdates transactionProps={this.state.applyTransactionProps}
                                  actions={this.state.applyActions}
-                                 onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
                                  rebootAfter={this.state.rebootAfterSuccess}
                                  setRebootAfter={ (_event, enabled) => this.setState({ rebootAfterSuccess: enabled }) }
             />;

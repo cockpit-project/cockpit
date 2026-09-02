@@ -24,7 +24,7 @@ export interface RestartPackages {
     manual: string[];
 }
 
-interface RestartServicesProps {
+interface RestartServicesDialogProps {
     restartPackages: RestartPackages;
     close: () => void;
     state: string;
@@ -34,14 +34,14 @@ interface RestartServicesProps {
     checkRestartRunning?: boolean;
 }
 
-interface RestartServicesState {
+interface RestartServicesDialogState {
     dialogError: string | undefined;
     dialogErrorDetail: string | undefined;
     restartInProgress: boolean;
 }
 
-export class RestartServices extends React.Component<RestartServicesProps, RestartServicesState> {
-    constructor(props: RestartServicesProps) {
+export class RestartServicesDialog extends React.Component<RestartServicesDialogProps, RestartServicesDialogState> {
+    constructor(props: RestartServicesDialogProps) {
         super(props);
         this.state = {
             dialogError: undefined,

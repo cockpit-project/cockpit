@@ -24,6 +24,7 @@ import testlib
 
 
 @testlib.nondestructive
+@testlib.skipImage("Not relevant for Anaconda", "rhel-8*")
 class TestStorageAnaconda(storagelib.StorageCase):
 
     def enterAnacondaMode(self, config):

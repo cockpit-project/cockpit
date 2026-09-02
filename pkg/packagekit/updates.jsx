@@ -68,7 +68,7 @@ import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
-import { Severity } from '_internal/packagemanager-abstract';
+import { Severity, TransactionExitStatus } from '_internal/packagemanager-abstract';
 import { getPackageManager } from 'packagemanager';
 import { Icon } from '@patternfly/react-core/dist/esm/components/Icon/index.js';
 
@@ -995,34 +995,52 @@ class OsUpdates extends React.Component {
         this.setState({ packageManager, backend });
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
-        PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
-                .then(([transactions]) => {
-                    if (!this._mounted)
-                        return;
+        try {
+            const transaction_path = await packageManager.get_running_update({
+                on_error: (message) => this.setState(prevState => ({ errorMessages: [...prevState.errorMessages, message] })),
+                on_finished: (status) => {
+                    this.setState({ applyTransaction: null, applyTransactionProps: {}, applyActions: [] });
 
-                    const promises = transactions.map(transactionPath => PK.call(
-                        transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
+                    if (status === TransactionExitStatus.SUCCESS) {
+                        this.setState({ state: "loading", loadPercent: null });
+                        this.loadHistory().then(() => {
+                            if (this.state.checkRestartAvailable) {
+                                this.checkNeedsRestart()
+                                        .finally(() => this.setState({ state: "updateSuccess" }));
+                            } else {
+                                this.setState({ state: "updateSuccess", loadPercent: null });
+                            }
+                        });
+                    } else if (status === TransactionExitStatus.CANCELLED) {
+                        if (this.state.checkRestartAvailable) {
+                            this.setState({ state: "loading", loadPercent: null });
+                            this.checkNeedsRestart();
+                        }
+                        this.loadUpdates();
+                    } else {
+                        this.setState({ state: "updateError" });
+                    }
+                },
+                on_package: (status, packageId) => this.setState(prevState =>
+                    ({ applyActions: [...prevState.applyActions, { status, packageId }] })
+                ),
+                on_notify: (notify) => this.setState(prevState =>
+                    ({ applyTransactionProps: { ...prevState.applyTransactionProps, ...notify } })
+                ),
+            });
 
-                    Promise.all(promises)
-                            .then(roles => {
-                                // any transaction with UPDATE_PACKAGES role?
-                                for (let idx = 0; idx < roles.length; ++idx) {
-                                    if (roles[idx][0].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
-                                        this.watchUpdates(transactions[idx]);
-                                        return;
-                                    }
-                                }
+            if (!this._mounted)
+                return;
 
-                                // no running updates found, proceed to showing available updates
-                                this.initialLoadOrRefresh();
-                            })
-                            .catch(ex => {
-                                console.warn("GetTransactionList: failed to read PackageKit transaction roles:", ex.message);
-                                // be robust, try to continue with loading updates anyway
-                                this.initialLoadOrRefresh();
-                            });
-                })
-                .catch(this.handleLoadError);
+            if (transaction_path) {
+                this.setState({ state: "applying", applyTransaction: transaction_path, applyTransactionProps: {}, applyActions: [] });
+            } else {
+                // no running updates found, proceed to showing available updates
+                this.initialLoadOrRefresh();
+            }
+        } catch (err) {
+            this.handleLoadError(err);
+        }
     }
 
     componentWillUnmount() {

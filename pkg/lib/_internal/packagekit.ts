@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateDetail, Update, ProgressData, History } from './packagemanager-abstract';
+import cockpit from "cockpit";
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateDetail, Update, ProgressData, History, UpdateWatchHandlers, TransactionExitStatus } from './packagemanager-abstract';
 import * as PK from "packagekit.js";
 
 const InstallProgressMap = {
@@ -242,6 +243,45 @@ export class PackageKitManager implements PackageManager {
 
     async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, transaction_path?: string): Promise<void> {
         return PK.update_packages(updates, progress_cb, transaction_path);
+    }
+
+    async get_running_update(handlers: UpdateWatchHandlers): Promise<string | null> {
+        let transactions: string[];
+        let roles: unknown[];
+
+        try {
+            [transactions] = await PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", []);
+            roles = await Promise.all(transactions.map(path => PK.call(path, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"])));
+        } catch (ex) {
+            console.warn("GetTransactionList: failed to read PackageKit transaction roles:", (ex as Error).message);
+            return null;
+        }
+        for (let idx = 0; idx < roles.length; ++idx) {
+            if ((roles[idx] as [{ v: number }])[0].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
+                const transactionPath = transactions[idx];
+                PK.watchTransaction(transactionPath,
+                                    {
+                                        ErrorCode: (_code: string, details: string) => handlers.on_error(details),
+                                        Finished: (exit: number) => {
+                                            if (exit === PK.Enum.EXIT_SUCCESS) {
+                                                handlers.on_finished(TransactionExitStatus.SUCCESS);
+                                            } else if (exit === PK.Enum.EXIT_CANCELLED) {
+                                                handlers.on_finished(TransactionExitStatus.CANCELLED);
+                                            } else {
+                                                if (exit !== PK.Enum.EXIT_FAILED)
+                                                    handlers.on_error(cockpit.format(cockpit.gettext("PackageKit reported error code $0"), exit));
+                                                handlers.on_finished(TransactionExitStatus.FAILED);
+                                            }
+                                        },
+                                        Package: (status: number, packageId: string) => handlers.on_package(status, packageId),
+                                    },
+                                    (notify: Record<string, unknown>) => handlers.on_notify(notify),
+                );
+                return transactionPath;
+            }
+        }
+
+        return null;
     }
 
     async get_backend(): Promise<string> {

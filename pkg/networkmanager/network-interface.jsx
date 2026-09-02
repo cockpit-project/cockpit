@@ -437,7 +437,7 @@ export const NetworkInterfacePage = ({
         return (
             <DescriptionListGroup id="network-interface-mac">
                 <DescriptionListTerm>{_("MAC")}</DescriptionListTerm>
-                <DescriptionListDescription data-label="Carrier">
+                <DescriptionListDescription data-label="MAC">
                     { mac_desc }
                 </DescriptionListDescription>
             </DescriptionListGroup>

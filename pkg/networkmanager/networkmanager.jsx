@@ -26,6 +26,7 @@ import { PlotState } from 'plot';
 import { useObject, useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
 import { AnacondaNetworkPage } from './anaconda-main';
+import { in_anaconda_mode } from 'utils';
 
 const _ = cockpit.gettext;
 
@@ -100,7 +101,7 @@ const App = () => {
 
     const interfaces = model.list_interfaces();
 
-    const anaconda_mode = JSON.parse(window.sessionStorage.getItem("cockpit_anaconda"));
+    const anaconda_mode = in_anaconda_mode();
 
     if (anaconda_mode) {
         const iface = path.length == 1 ? interfaces.find(iface => iface.Name == path[0]) : undefined;

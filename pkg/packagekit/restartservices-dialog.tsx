@@ -54,7 +54,7 @@ export class RestartServicesDialog extends React.Component<RestartServicesDialog
 
     restart() {
         // make sure cockpit package is the last to restart
-        const daemons = this.props.restartPackages.daemons.sort((a, b) => {
+        const daemons = [...this.props.restartPackages.daemons].sort((a, b) => {
             if (a.includes("cockpit") && b.includes("cockpit"))
                 return 0;
             if (a.includes("cockpit"))

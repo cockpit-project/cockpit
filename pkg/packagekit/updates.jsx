@@ -46,7 +46,7 @@ import { Remarkable } from "remarkable";
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
 import { History, PackageList } from "./history";
-import { RestartServices } from './restartservices';
+import { RestartServicesDialog } from './restartservices-dialog';
 import { TwoColumnContent, TwoColumnTitle } from "./two-column";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -1290,7 +1290,7 @@ class OsUpdates extends React.Component {
                         </Gallery>
                     </PageSection>
                     { this.state.showRestartServicesDialog &&
-                        <RestartServices
+                        <RestartServicesDialog
                             restartPackages={this.state.restartPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
@@ -1384,7 +1384,7 @@ class OsUpdates extends React.Component {
                         <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />
                     }
                     { this.state.showRestartServicesDialog &&
-                        <RestartServices restartPackages={this.state.restartPackages}
+                        <RestartServicesDialog restartPackages={this.state.restartPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
                             checkNeedsRestart={this.checkNeedsRestart}
@@ -1418,7 +1418,7 @@ class OsUpdates extends React.Component {
                         <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
                     </Gallery>
                     { this.state.showRestartServicesDialog &&
-                    <RestartServices restartPackages={this.state.restartPackages}
+                    <RestartServicesDialog restartPackages={this.state.restartPackages}
                                      close={() => this.setState({ showRestartServicesDialog: false })}
                                      state={this.state.state}
                                      checkNeedsRestart={this.checkNeedsRestart}

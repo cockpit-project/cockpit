@@ -959,6 +959,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service b
         self.wait_page_load()
         b.wait_js_cond(f'window.location.hash === "#/test-b.service{usr_query_str}"')
+        b.wait_in_text(".pf-v6-c-breadcrumb__item:last-child", "test-b.service")
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("After", "test-a.service"))
         b.click(rel_sel("After", "test-a.service"))
@@ -966,6 +967,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service a
         self.wait_page_load()
         b.wait_js_cond(f'window.location.hash === "#/test-a.service{usr_query_str}"')
+        b.wait_in_text(".pf-v6-c-breadcrumb__item:last-child", "test-a.service")
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("Conflicts", "test-c.service"))
         b.click(rel_sel("Conflicts", "test-c.service"))
@@ -973,6 +975,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service c
         self.wait_page_load()
         b.wait_js_cond(f'window.location.hash === "#/test-c.service{usr_query_str}"')
+        b.wait_in_text(".pf-v6-c-breadcrumb__item:last-child", "test-c.service")
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("Conflicts", "test-a.service"))
         b.wait_visible(rel_sel("Part of", "test-b.service"))
@@ -981,6 +984,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # service b
         self.wait_page_load()
         b.wait_js_cond(f'window.location.hash === "#/test-b.service{usr_query_str}"')
+        b.wait_in_text(".pf-v6-c-breadcrumb__item:last-child", "test-b.service")
         b.click("#service-details-show-relationships button")
         b.wait_visible(rel_sel("After", "test-a.service"))
 
@@ -1282,6 +1286,11 @@ Where=/fail
 
         # Changing the UI filters should also affect the URL
         b.click("#system")
+        # key={owner} causes ServicesPageBody to fully unmount/remount;
+        # wait for the old toolbar to disappear (loading state), then reappear
+        b.wait_not_present("#user[aria-pressed='true']")
+        self.wait_page_load()
+        b.wait_visible("#services-text-filter input[value='test']")
         url = b.eval_js("window.location.hash")
         self.assertIn("owner=system", url)
 
@@ -1293,7 +1302,7 @@ Where=/fail
         b.wait_js_cond('window.location.hash == "#/?owner=system&type=service"')
 
         # Test text input clear button
-        b.go('/system/services#/?name=test')
+        b.go('#/?name=test')
         b.wait_visible(".services-text-filter input[value=test]")
         b.click(".services-text-filter button")
         b.wait_js_cond('window.location.hash == "#/"')

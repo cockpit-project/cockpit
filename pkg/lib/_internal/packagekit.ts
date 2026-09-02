@@ -4,8 +4,16 @@
  */
 
 import cockpit from "cockpit";
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateDetail, Update, ProgressData, History, UpdateWatchHandlers, TransactionExitStatus } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateWatchHandlers, TransactionExitStatus } from './packagemanager-abstract';
 import * as PK from "packagekit.js";
+
+const UpdateProgressMap: Record<number, UpdateProgressType> = {
+    [PK.Enum.STATUS_DOWNLOAD]: UpdateProgressType.DOWNLOADING,
+    [PK.Enum.STATUS_INSTALL]: UpdateProgressType.INSTALLING,
+    [PK.Enum.STATUS_UPDATE]: UpdateProgressType.UPDATING,
+    [PK.Enum.STATUS_CLEANUP]: UpdateProgressType.CLEANUP,
+    [PK.Enum.STATUS_SIGCHECK]: UpdateProgressType.SIGCHECK,
+};
 
 const InstallProgressMap = {
     [PK.Enum.INFO_DOWNLOADING]: InstallProgressType.DOWNLOADING,
@@ -241,11 +249,40 @@ export class PackageKitManager implements PackageManager {
         return updates as unknown as T extends true ? UpdateDetail[] : Update[];
     }
 
-    async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, transaction_path?: string): Promise<void> {
-        return PK.update_packages(updates, progress_cb, transaction_path);
+    async update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateWatchHandlers): Promise<void> {
+        const update_ids = updates.map(u => u.id);
+        let transactionPath: string | null = null;
+
+        await PK.transaction("UpdatePackages", [0, update_ids],
+                             {
+                                 ErrorCode: (_code: string, details: string) => handlers.on_error(details),
+                                 Finished: (exit: number) => {
+                                     if (exit === PK.Enum.EXIT_SUCCESS) {
+                                         handlers.on_finished(TransactionExitStatus.SUCCESS);
+                                     } else if (exit === PK.Enum.EXIT_CANCELLED) {
+                                         handlers.on_finished(TransactionExitStatus.CANCELLED);
+                                     } else {
+                                         if (exit !== PK.Enum.EXIT_FAILED)
+                                             handlers.on_error(cockpit.format(cockpit.gettext("PackageKit reported error code $0"), exit));
+                                         handlers.on_finished(TransactionExitStatus.FAILED);
+                                     }
+                                 },
+                                 Package: (status: number, packageId: string) => {
+                                     if (status in UpdateProgressMap)
+                                         handlers.on_package(UpdateProgressMap[status], packageId);
+                                 },
+                             },
+                             (notify: Record<string, unknown>, path: string) => {
+                                 transactionPath = path;
+                                 const cancel = notify.AllowCancel
+                                     ? () => PK.call(transactionPath!, PK.transactionInterface, "Cancel", [])
+                                     : null;
+                                 handlers.on_notify({ ...notify, cancel });
+                             },
+        );
     }
 
-    async get_running_update(handlers: UpdateWatchHandlers): Promise<string | null> {
+    async get_running_update(handlers: UpdateWatchHandlers): Promise<boolean> {
         let transactions: string[];
         let roles: unknown[];
 
@@ -254,7 +291,7 @@ export class PackageKitManager implements PackageManager {
             roles = await Promise.all(transactions.map(path => PK.call(path, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"])));
         } catch (ex) {
             console.warn("GetTransactionList: failed to read PackageKit transaction roles:", (ex as Error).message);
-            return null;
+            return false;
         }
         for (let idx = 0; idx < roles.length; ++idx) {
             if ((roles[idx] as [{ v: number }])[0].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
@@ -273,15 +310,23 @@ export class PackageKitManager implements PackageManager {
                                                 handlers.on_finished(TransactionExitStatus.FAILED);
                                             }
                                         },
-                                        Package: (status: number, packageId: string) => handlers.on_package(status, packageId),
+                                        Package: (status: number, packageId: string) => {
+                                            if (status in UpdateProgressMap)
+                                                handlers.on_package(UpdateProgressMap[status], packageId);
+                                        },
                                     },
-                                    (notify: Record<string, unknown>) => handlers.on_notify(notify),
+                                    (notify: Record<string, unknown>) => {
+                                        const cancel = notify.AllowCancel
+                                            ? () => PK.call(transactionPath, PK.transactionInterface, "Cancel", [])
+                                            : null;
+                                        handlers.on_notify({ ...notify, cancel });
+                                    },
                 );
-                return transactionPath;
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
     async get_backend(): Promise<string> {

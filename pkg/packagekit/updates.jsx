@@ -50,6 +50,7 @@ import { Remarkable } from "remarkable";
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
 import { History, PackageList } from "./history";
+import { TwoColumnContent, TwoColumnTitle } from "./two-column";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -598,35 +599,6 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
             </Grid>
         </div>
     );
-};
-
-const TwoColumnContent = ({ list, flexClassName }) => {
-    const half = Math.round(list.length / 2);
-    const col1 = list.slice(0, half);
-    const col2 = list.slice(half);
-    return (
-        <Flex className={flexClassName}>
-            <FlexItem flex={{ default: 'flex_1' }}>
-                <Content component="ul">
-                    {col1.map(item => (<Content component="li" key={item}>{item}</Content>))}
-                </Content>
-            </FlexItem>
-            {col2.length > 0 && <FlexItem flex={{ default: 'flex_1' }}>
-                <Content component="ul">
-                    {col2.map(item => (<Content component="li" key={item}>{item}</Content>))}
-                </Content>
-            </FlexItem>}
-        </Flex>
-    );
-};
-
-const TwoColumnTitle = ({ icon, str }) => {
-    return (<>
-        {icon}
-        <span className="update-success-table-title">
-            {str}
-        </span>
-    </>);
 };
 
 const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, restart, manual, reboot, checkRestartAvailable, history }) => {

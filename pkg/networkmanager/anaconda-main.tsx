@@ -64,7 +64,7 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_mon
         }
 
         const row = (
-            <SimpleListItem key={iface.name} onClick={() => {setActive({isWireless, iface})}}>
+            <SimpleListItem key={iface.Name} onClick={() => {setActive({isWireless, iface})}}>
                 <Flex
                     direction={{ default: 'row' }}
                     justifyContent={{ default: 'justifyContentSpaceBetween' }}

@@ -4,8 +4,16 @@
  */
 
 import cockpit from "cockpit";
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify } from './packagemanager-abstract';
 import * as PK from "packagekit.js";
+
+const UpdateProgressMap: Record<number, UpdateProgressType> = {
+    [PK.Enum.STATUS_DOWNLOAD]: UpdateProgressType.DOWNLOADING,
+    [PK.Enum.STATUS_INSTALL]: UpdateProgressType.INSTALLING,
+    [PK.Enum.STATUS_UPDATE]: UpdateProgressType.UPDATING,
+    [PK.Enum.STATUS_CLEANUP]: UpdateProgressType.CLEANUP,
+    [PK.Enum.STATUS_SIGCHECK]: UpdateProgressType.SIGCHECK,
+};
 
 const InstallProgressMap = {
     [PK.Enum.INFO_DOWNLOADING]: InstallProgressType.DOWNLOADING,
@@ -241,8 +249,48 @@ export class PackageKitManager implements PackageManager {
         return updates as unknown as T extends true ? UpdateDetail[] : Update[];
     }
 
-    async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, transaction_path?: string): Promise<void> {
-        return PK.update_packages(updates, progress_cb, transaction_path);
+    async update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateProgressHandlers): Promise<TransactionExitStatus> {
+        const update_ids = updates.map(u => u.id);
+        let transactionPath: string | null = null;
+        const errorMessages: string[] = [];
+
+        return new Promise<TransactionExitStatus>((resolve, reject) => {
+            PK.transaction("UpdatePackages", [0, update_ids],
+                           {
+                               ErrorCode: (_code: string, details: string) => errorMessages.push(details),
+                               Finished: (exit: number) => {
+                                   if (exit === PK.Enum.EXIT_SUCCESS) {
+                                       resolve(TransactionExitStatus.SUCCESS);
+                                   } else if (exit === PK.Enum.EXIT_CANCELLED) {
+                                       resolve(TransactionExitStatus.CANCELLED);
+                                   } else {
+                                       if (exit !== PK.Enum.EXIT_FAILED)
+                                           errorMessages.push(cockpit.format(cockpit.gettext("PackageKit reported error code $0"), exit));
+                                       reject(new UpdateError(errorMessages));
+                                   }
+                               },
+                               Package: (status: number, packageId: string) => {
+                                   if (status in UpdateProgressMap)
+                                       handlers.on_package(UpdateProgressMap[status], packageId);
+                               },
+                           },
+                           (notify: Record<string, unknown>, path: string) => {
+                               transactionPath = path;
+                               const props: UpdateNotify = {
+                                   cancel: notify.AllowCancel
+                                       ? () => PK.call(transactionPath!, PK.transactionInterface, "Cancel", [])
+                                       : null,
+                               };
+                               if (notify.Percentage !== undefined)
+                                   props.percentage = notify.Percentage as number;
+                               if (notify.RemainingTime !== undefined)
+                                   props.remaining_time = notify.RemainingTime as number;
+                               if (notify.LastPackage !== undefined)
+                                   props.last_package = notify.LastPackage as string;
+                               handlers.on_notify(props);
+                           },
+            ).catch(reject);
+        });
     }
 
     async get_running_update(handlers: UpdateProgressHandlers): Promise<Promise<TransactionExitStatus> | null> {
@@ -284,7 +332,10 @@ export class PackageKitManager implements PackageManager {
                                                               reject(new UpdateError(errorMessages));
                                                           }
                                                       },
-                                                      Package: (status: number, packageId: string) => handlers.on_package(status, packageId),
+                                                      Package: (status: number, packageId: string) => {
+                                                          if (status in UpdateProgressMap)
+                                                              handlers.on_package(UpdateProgressMap[status], packageId);
+                                                      },
                                                   },
                                                   (notify: Record<string, unknown>) => {
                                                       const props: UpdateNotify = {

@@ -74,7 +74,14 @@ async function refresh_appstream_metadata(origin_files, config_packages, data_pa
     progress.range = 15;
 
     if (filtered_updates.length > 0)
-        return packagemanager.update_packages(filtered_updates, progress.progress_reporter, null);
+        return packagemanager.update_packages(filtered_updates, {
+            on_package: () => {},
+            on_notify: (data) => progress.progress_reporter({
+                percentage: data.percentage,
+                waiting: false,
+                cancel: data.cancel,
+            }),
+        });
 
     if (data_packages.length > 0) {
         progress.range = 95;

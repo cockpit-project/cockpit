@@ -41,8 +41,6 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
     const unmanaged = [];
     const plot_ifaces = [];
     let hasDetails = false;
-    const anaconda_mode = JSON.parse(window.sessionStorage.getItem("cockpit_anaconda"));
-
 
     interfaces.forEach(iface => {
 
@@ -158,10 +156,10 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         </>
     );
 
-    const anaconda = in_anaconda_mode();
+    const anaconda_mode = in_anaconda_mode();
 
     return (
-        <Page data-test-wait={operationInProgress} id="networking" className={"pf-m-no-sidebar" + (anaconda ? " anaconda" : "")}>
+        <Page data-test-wait={operationInProgress} id="networking" className={"pf-m-no-sidebar" + (anaconda_mode ? " anaconda" : "")}>
             <PageSection hasBodyWrapper={false} id="networking-graphs" className="networking-graphs">
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>

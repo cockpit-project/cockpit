@@ -225,7 +225,7 @@ export const NetworkInterfacePage = ({
     const [prevAPCount, setPrevAPCount] = useState(0);
     const [networkSearch, setNetworkSearch] = useState("");
 
-    const anaconda = in_anaconda_mode();
+    const anaconda_mode = in_anaconda_mode();
 
     const dev_name = iface.Name;
     const dev = iface.Device;
@@ -1023,7 +1023,7 @@ export const NetworkInterfacePage = ({
                 { title: <>{securityIcon} {ap.Mode}</>, sortKey: ap.Mode },
                 { title: signalColumn, sortKey: String(ap.Strength).padStart(3, '0') },
             ];
-            if (!anaconda) {
+            if (!anaconda_mode) {
                 networkColumns.push({ title: cockpit.format_bits_per_sec(ap.MaxBitrate * 1000) });
             }
             networkColumns.push({ title: <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}><FlexItem>{actionColumn}</FlexItem></Flex>, props: { hasAction: true } });
@@ -1048,7 +1048,7 @@ export const NetworkInterfacePage = ({
                 { title: "" },
             ];
 
-            if (!anaconda) {
+            if (!anaconda_mode) {
                 networkHiddenColumns.push({ title: "" });
             }
             networkHiddenColumns.push({ title: "" });
@@ -1066,7 +1066,7 @@ export const NetworkInterfacePage = ({
             { title: _("Signal"), sortable: true },
         ];
 
-        if (!anaconda) {
+        if (!anaconda_mode) {
             listingColumns.push({ title: _("Rate") });
         }
         listingColumns.push({ title: "", props: { screenReaderText: _("Actions") } });
@@ -1238,8 +1238,8 @@ export const NetworkInterfacePage = ({
     return (
         <Page id="network-interface"
               data-test-wait={operationInProgress}
-              className={"pf-m-no-sidebar" + (anaconda ? " anaconda" : "")}>
-            { !anaconda ? (
+              className={"pf-m-no-sidebar" + (anaconda_mode ? " anaconda" : "")}>
+            { !anaconda_mode ? (
             <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
                 <Breadcrumb>
                     <BreadcrumbItem to='#/'>
@@ -1293,7 +1293,7 @@ export const NetworkInterfacePage = ({
                         }
                     </Card>
                     {renderWiFiNetworks()}
-                    { !anaconda && renderConnectionMembers(iface.MainConnection)}
+                    { !anaconda_mode && renderConnectionMembers(iface.MainConnection)}
                 </Gallery>
             </PageSection>
         </Page>

@@ -5,7 +5,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateWatchHandlers } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateWatchHandlers, TransactionExitStatus } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -604,7 +604,7 @@ export class Dnf5DaemonManager implements PackageManager {
         return Array.from(update_map.values()) as T extends true ? UpdateDetail[] : Update[];
     }
 
-    async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, _transaction_path?: string): Promise<void> {
+    async update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateWatchHandlers): Promise<void> {
         const pkgnames = updates.map(update => update.id);
         let last_progress = 0;
         let total_packages: number;
@@ -621,28 +621,31 @@ export class Dnf5DaemonManager implements PackageManager {
             }
             }
 
-            if (progress_cb) {
-                progress_cb({
-                    waiting: false,
-                    percentage: last_progress,
-                    cancel: null,
-                });
-            }
+            handlers.on_notify({
+                Percentage: last_progress,
+                cancel: null,
+            });
         }
 
-        await this.with_session(async (session) => {
-            await call(session, "org.rpm.dnf.v0.rpm.Rpm", "upgrade", [pkgnames, {}]);
-            const [_transaction_items, result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as UpgradeResolveResult;
-            if (result !== 0) {
-                const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
-                throw new ResolveError(`Resolving upgrade failed with result=${result}. ${problem}`);
-            }
-            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
-        }, signal_emitted);
+        try {
+            await this.with_session(async (session) => {
+                await call(session, "org.rpm.dnf.v0.rpm.Rpm", "upgrade", [pkgnames, {}]);
+                const [_transaction_items, result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as UpgradeResolveResult;
+                if (result !== 0) {
+                    const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
+                    throw new ResolveError(`Resolving upgrade failed with result=${result}. ${problem}`);
+                }
+                await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+            }, signal_emitted);
+            handlers.on_finished(TransactionExitStatus.SUCCESS);
+        } catch (ex) {
+            handlers.on_error((ex as Error).message);
+            handlers.on_finished(TransactionExitStatus.FAILED);
+        }
     }
 
-    async get_running_update(_handlers: UpdateWatchHandlers): Promise<string | null> {
-        return null;
+    async get_running_update(_handlers: UpdateWatchHandlers): Promise<boolean> {
+        return false;
     }
 
     async get_backend(): Promise<string> {

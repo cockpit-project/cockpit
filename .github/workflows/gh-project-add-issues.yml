@@ -1,0 +1,18 @@
+name: Add new issues to Cockpit GitHub Project
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  # Needs repo and project scopes in a PAT token in the org
+  # https://github.com/actions/add-to-project#creating-a-pat-and-adding-it-to-your-repository
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v2
+        with:
+          project-url: https://github.com/orgs/cockpit-project/projects/10
+          github-token: ${{ secrets.GH_PROJECTS }}

@@ -159,7 +159,7 @@ const nodedir = path.relative(process.cwd(), path.resolve(srcdir, "node_modules"
 
 export const all_subdirs = Array.from(new Set(info.entries.map(key => key.split('/')[0])));
 
-// This are the fonts we used up until migrating to Patternfly v6
+// These are the fonts we used up until migrating to Patternfly v6
 // It is kept here to make sure all dependencies of the fonts works like in
 // third-party plugins etc.
 

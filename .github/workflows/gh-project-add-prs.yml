@@ -1,0 +1,20 @@
+name: Add bot PRs to Cockpit GitHub Project
+
+on:
+  pull_request:
+    types:
+      # We only need to add to a project
+      - labeled
+
+jobs:
+  # Needs repo and project scopes in a PAT token in the org
+  # https://github.com/actions/add-to-project#creating-a-pat-and-adding-it-to-your-repository
+  add-to-project:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'bot') }}
+    name: Add bot PR to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v2
+        with:
+          project-url: https://github.com/orgs/cockpit-project/projects/10
+          github-token: ${{ secrets.GH_PROJECTS }}

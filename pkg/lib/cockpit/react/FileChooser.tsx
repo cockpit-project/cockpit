@@ -487,42 +487,44 @@ export const FileChooser = ({
     }
 
     function breadcrumbs(dlg: DialogState<FileChooserValues>) {
-        const { path } = dlg.values;
+        const { path, collection } = dlg.values;
 
-        if (path === "") {
-            // Collection
+        if (collection) {
+            // No breadcrumbs for collections.
             return null;
-        } else {
-            const dirs = ["/"].concat(path.split("/").filter(d => !!d));
-            const crumbs: React.ReactNode[] = [];
-            let full = "/";
-            dirs.forEach((d, i) => {
-                if (d !== "/")
-                    full = path_join(full, d);
-                const path = full;
-                crumbs.push(
-                    <BreadcrumbItem
-                        key={i}
-                        to="#"
-                        onClick={
-                            (event) => {
-                                setPath(dlg, path);
-                                event.preventDefault();
-                            }
-                        }
-                        isActive={i === dirs.length - 1}
-                    >
-                        { d === "/" ? <OutlinedHddIcon className="breadcrumb-hdd-icon" /> : d }
-                    </BreadcrumbItem>
-                );
-            });
-
-            return (
-                <Breadcrumb>
-                    {crumbs}
-                </Breadcrumb>
-            );
         }
+
+        cockpit.assert(path !== "");
+
+        const dirs = ["/"].concat(path.split("/").filter(d => !!d));
+        const crumbs: React.ReactNode[] = [];
+        let full = "/";
+        dirs.forEach((dir, i) => {
+            if (dir !== "/")
+                full = path_join(full, dir);
+            const path = full;
+            crumbs.push(
+                <BreadcrumbItem
+                    key={i}
+                    to="#"
+                    onClick={
+                        (event) => {
+                            setPath(dlg, path);
+                            event.preventDefault();
+                        }
+                    }
+                    isActive={i === dirs.length - 1}
+                >
+                    { dir === "/" ? <OutlinedHddIcon className="breadcrumb-hdd-icon" /> : dir }
+                </BreadcrumbItem>
+            );
+        });
+
+        return (
+            <Breadcrumb>
+                {crumbs}
+            </Breadcrumb>
+        );
     }
 
     function header(dlg: DialogState<FileChooserValues>) {

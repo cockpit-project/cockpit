@@ -197,12 +197,7 @@ interface FileInfo {
     name: string;
 }
 
-class FileError {
-    message: string;
-
-    constructor(message: string) {
-        this.message = message;
-    }
+class FileError extends Error {
 }
 
 function watchFiles(

@@ -173,7 +173,7 @@ async function stdShortcuts(shortcuts: FileChooserShortcut[] = []): Promise<File
 
     return [
         { label: _("Home"), path: home },
-        ...(dd && dd != home ? [{ label: _("Downloads"), path: dd }] : []),
+        ...(dd && dd !== home ? [{ label: _("Downloads"), path: dd }] : []),
         ...shortcuts,
     ];
 }
@@ -193,7 +193,7 @@ const OutlineFileIcon = () => {
 };
 
 function path_join(dir: string, base: string) {
-    return (dir == "/" ? "" : dir) + "/" + base;
+    return (dir === "/" ? "" : dir) + "/" + base;
 }
 
 interface FileInfo {
@@ -225,7 +225,7 @@ function watchFiles(
     );
 
     client.on("close", message => {
-        if ("message" in message && typeof message.message == "string")
+        if ("message" in message && typeof message.message === "string")
             callback(new FileError(message.message));
     });
 
@@ -245,7 +245,7 @@ function watchFiles(
             return;
         }
 
-        if (info.type != "dir") {
+        if (info.type !== "dir") {
             callback(new FileError(_("Not a directory")));
             return;
         }
@@ -253,17 +253,17 @@ function watchFiles(
         const result: FileInfo[] = [];
         for (const name in info.entries) {
             let entry = info.entries[name];
-            if (entry.type == "lnk" && entry.target)
+            if (entry.type === "lnk" && entry.target)
                 entry = info.entries[entry.target] || info.targets[entry.target];
 
             if (entry && entry.type) {
-                if (!onlyDirectories || entry.type == "dir")
+                if (!onlyDirectories || entry.type === "dir")
                     result.push({ type: entry.type, name });
             }
         }
 
         function orderType(t: string) {
-            if (t == "dir")
+            if (t === "dir")
                 return "a";
             else
                 return "b";
@@ -286,10 +286,10 @@ async function getFileInfos(
     for (const p of paths) {
         try {
             const info = await fsinfo(p, ["type"], superuser ? { superuser } : { });
-            if (info.type && (!onlyDirectories || info.type == "dir"))
+            if (info.type && (!onlyDirectories || info.type === "dir"))
                 res.push({ name: p, type: info.type });
         } catch (ex) {
-            if (!(ex && typeof ex == "object" && "problem" in ex && ex.problem == "not-found"))
+            if (!(ex && typeof ex === "object" && "problem" in ex && ex.problem === "not-found"))
                 console.error("Failed to get file type:", p);
         }
     }
@@ -301,7 +301,7 @@ function readRecent(): string[] {
     try {
         const value = JSON.parse(window.localStorage.getItem(FILE_CHOOSER_RECENT_KEY) || "[]");
         if (Array.isArray(value))
-            return value.filter(r => typeof r == "string");
+            return value.filter(r => typeof r === "string");
     } catch (ex) {
         console.warn("Failed to parse recent files", String(ex));
     }
@@ -396,7 +396,7 @@ export const FileChooser = ({
 
         return {
             path,
-            collection: path == "" ? recent_collection : null,
+            collection: path === "" ? recent_collection : null,
             files: null,
             selected: null,
             textFilter: "",
@@ -463,7 +463,7 @@ export const FileChooser = ({
     }, [dlg, setPath, setCollection]);
 
     function full_path(path: string, selected: string) {
-        if (path == "")
+        if (path === "")
             return selected;
         else
             return path_join(path, selected);
@@ -476,12 +476,12 @@ export const FileChooser = ({
         const { selected, path } = dlg.values;
 
         if (onlyDirectories) {
-            if (!selected && path != "")
+            if (!selected && path !== "")
                 return path;
-            else if (selected && selected.type == "dir")
+            else if (selected && selected.type === "dir")
                 return full_path(path, selected.name);
         } else {
-            if (selected && selected.type != "dir")
+            if (selected && selected.type !== "dir")
                 return full_path(path, selected.name);
         }
 
@@ -498,7 +498,7 @@ export const FileChooser = ({
     function breadcrumbs(dlg: DialogState<FileChooserValues>) {
         const { path } = dlg.values;
 
-        if (path == "") {
+        if (path === "") {
             // Collection
             return null;
         } else {
@@ -506,7 +506,7 @@ export const FileChooser = ({
             const crumbs: React.ReactNode[] = [];
             let full = "/";
             dirs.forEach((d, i) => {
-                if (d != "/")
+                if (d !== "/")
                     full = path_join(full, d);
                 const path = full;
                 crumbs.push(
@@ -519,9 +519,9 @@ export const FileChooser = ({
                                 event.preventDefault();
                             }
                         }
-                        isActive={i == dirs.length - 1}
+                        isActive={i === dirs.length - 1}
                     >
-                        { d == "/" ? <OutlinedHddIcon className="breadcrumb-hdd-icon" /> : d }
+                        { d === "/" ? <OutlinedHddIcon className="breadcrumb-hdd-icon" /> : d }
                     </BreadcrumbItem>
                 );
             });
@@ -543,7 +543,7 @@ export const FileChooser = ({
                             return (
                                 <ToggleGroupItem
                                     key={f.label}
-                                    isSelected={f == dlg.values.filter}
+                                    isSelected={f === dlg.values.filter}
                                     onChange={() => {
                                         dlg.field("filter").set(f);
                                     }}
@@ -657,12 +657,12 @@ export const FileChooser = ({
     }
 
     function keyboardNavigationHandler(event: React.KeyboardEvent) {
-        if (event.key == "ArrowDown") {
+        if (event.key === "ArrowDown") {
             const tr = event.target;
             if (tr instanceof HTMLElement && tr.nextElementSibling instanceof HTMLElement)
                 tr.nextElementSibling.focus();
             event.preventDefault();
-        } else if (event.key == "ArrowUp") {
+        } else if (event.key === "ArrowUp") {
             const tr = event.target;
             if (tr instanceof HTMLElement && tr.previousElementSibling instanceof HTMLElement)
                 tr.previousElementSibling.focus();
@@ -677,7 +677,7 @@ export const FileChooser = ({
                     key={sc.label}
                     isClickable
                     isSelectable
-                    isRowSelected={dlg.values.path == sc.path}
+                    isRowSelected={dlg.values.path === sc.path}
                     onRowClick={
                         () => {
                             setPath(dlg, sc.path);
@@ -695,7 +695,7 @@ export const FileChooser = ({
                     key={col.label}
                     isClickable
                     isSelectable
-                    isRowSelected={dlg.values.collection == col}
+                    isRowSelected={dlg.values.collection === col}
                     onRowClick={
                         () => {
                             setCollection(dlg, col);
@@ -735,7 +735,7 @@ export const FileChooser = ({
                                             <Button
                                                 variant="link"
                                                 onClick={() => {
-                                                    if (clearFilters == 3) {
+                                                    if (clearFilters === 3) {
                                                         dlg.field("showHidden").set(true);
                                                     } else {
                                                         dlg.field("textFilter").set("");
@@ -745,7 +745,7 @@ export const FileChooser = ({
                                                     }
                                                 }}
                                             >
-                                                {clearFilters == 3 ? _("Show hidden files") : _("Clear filters")}
+                                                {clearFilters === 3 ? _("Show hidden files") : _("Clear filters")}
                                             </Button>
                                         </EmptyStateActions>
                                     }
@@ -760,13 +760,13 @@ export const FileChooser = ({
         function listingBody() {
             const files = dlg.values.files;
 
-            if (files == null)
+            if (files === null)
                 return emptyState("", Spinner);
 
             if (files instanceof FileError)
                 return emptyState(files.message, FolderIcon);
 
-            if (files.length == 0) {
+            if (files.length === 0) {
                 if (dlg.values.collection) {
                     return emptyState(dlg.values.collection.emptyLabel, FolderIcon);
                 } else if (!onlyDirectories) {
@@ -777,23 +777,23 @@ export const FileChooser = ({
             }
 
             const withoutHidden = dlg.values.showHidden ? files : files.filter(f => basename(f.name)[0] !== ".");
-            if (withoutHidden.length == 0)
+            if (withoutHidden.length === 0)
                 return emptyState(_("This directory contains only hidden files"), SearchIcon, 3);
 
             const preFiltered = withoutHidden.filter(
-                f => (!onlyDirectories && f.type == "dir") || dlg.values.filter.filter(basename(f.name), f.type)
+                f => (!onlyDirectories && f.type === "dir") || dlg.values.filter.filter(basename(f.name), f.type)
             );
-            if (preFiltered.length == 0)
+            if (preFiltered.length === 0)
                 return emptyState(_("No matching results"), SearchIcon, 2);
 
             const filteredFiles = preFiltered.filter(file => basename(file.name).includes(dlg.values.textFilter));
-            if (filteredFiles.length == 0)
+            if (filteredFiles.length === 0)
                 return emptyState(_("No matching results"), SearchIcon, 1);
 
             function rowClick(event: React.KeyboardEvent | React.MouseEvent | undefined, file: FileInfo) {
                 dlg.field("selected").set(file);
-                if (event && (event.type == "dblclick" || (event.type == "keydown" && "key" in event && event.key == "Enter"))) {
-                    if (file.type == "dir") {
+                if (event && (event.type === "dblclick" || (event.type === "keydown" && "key" in event && event.key === "Enter"))) {
+                    if (file.type === "dir") {
                         setPath(dlg, full_path(dlg.values.path, file.name));
                         dlg.field("textFilter").set("");
                     }
@@ -806,7 +806,7 @@ export const FileChooser = ({
                         filteredFiles.map(
                             (file, idx) => {
                                 let name, location;
-                                if (dlg.values.path == "") {
+                                if (dlg.values.path === "") {
                                     name = basename(file.name);
                                     location = dirname(file.name);
                                 } else {
@@ -815,8 +815,8 @@ export const FileChooser = ({
                                 return (
                                     <Tr
                                         aria-label={file.name}
-                                        aria-roledescription={file.type == "dir" ? _("Folder") : _("File")}
-                                        isRowSelected={file.name == dlg.values.selected?.name}
+                                        aria-roledescription={file.type === "dir" ? _("Folder") : _("File")}
+                                        isRowSelected={file.name === dlg.values.selected?.name}
                                         key={idx}
                                         data-name={name}
                                         data-type={file.type}
@@ -826,7 +826,7 @@ export const FileChooser = ({
                                     >
                                         <Td>
                                             <Icon>
-                                                { file.type == "dir"
+                                                { file.type === "dir"
                                                     ? <FolderIcon />
                                                     : <OutlineFileIcon />
                                                 }
@@ -914,7 +914,7 @@ const FileChooserButton = ({
                 () => {
                     Dialogs.show(
                         <FileChooser
-                            path={value[0] == "/" ? (props.onlyDirectories ? value : dirname(value)) : ""}
+                            path={value[0] === "/" ? (props.onlyDirectories ? value : dirname(value)) : ""}
                             action={async path => onChoose(path)}
                             {...props}
                         />
@@ -999,7 +999,7 @@ export const DialogFileChooserInput = ({
 };
 
 export function rememberRecent(name: string) {
-    const recent = readRecent().filter(r => r != name);
+    const recent = readRecent().filter(r => r !== name);
     recent.unshift(name);
     window.localStorage.setItem(FILE_CHOOSER_RECENT_KEY, JSON.stringify(recent.slice(0, 20)));
 }

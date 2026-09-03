@@ -336,7 +336,7 @@ export function ServerTime() {
                 });
     }
 
-    function set_custom_ntp_chronyd(config) {
+    async function set_custom_ntp_chronyd(config) {
         const enabled_file = cockpit.file(chronyd_sources_enabled, { superuser: "require" });
         const disabled_file = cockpit.file(chronyd_sources_disabled, { superuser: "require" });
 
@@ -353,13 +353,20 @@ export function ServerTime() {
             return cockpit.file("/etc/chrony.conf", { superuser: "require" }).modify(add_sourcedir);
         }
 
-        return cockpit.spawn(["mkdir", "-p", chronyd_sourcedir], { superuser: "require" })
-                .then(() => {
-                    if (config.enabled)
-                        return enabled_file.replace(text).then(() => disabled_file.replace(null)).then(ensure_sourcedir);
-                    else
-                        return disabled_file.replace(text).then(() => enabled_file.replace(null));
-                });
+        // chronyd runs as unprivileged chrony user; must be readable with tight umask
+        await cockpit.spawn(["mkdir", "-p", "-m755", chronyd_sourcedir], { superuser: "require" });
+        await cockpit.spawn(["chmod", "755", "/etc/chrony", chronyd_sourcedir], { superuser: "require" });
+
+        if (config.enabled) {
+            await enabled_file.replace(text);
+            await disabled_file.replace(null);
+            await cockpit.spawn(["chmod", "644", chronyd_sources_enabled], { superuser: "require" });
+            await ensure_sourcedir();
+        } else {
+            await disabled_file.replace(text);
+            await enabled_file.replace(null);
+            await cockpit.spawn(["chmod", "644", chronyd_sources_disabled], { superuser: "require" });
+        }
     }
 
     self.get_custom_ntp = function () {

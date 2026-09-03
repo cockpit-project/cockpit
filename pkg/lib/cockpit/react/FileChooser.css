@@ -53,6 +53,11 @@
     overflow-y: scroll;
 }
 
+/* Make folder icons blue, but keep file icons black */
+.file-chooser-listing-body [data-type="dir"] .pf-v6-c-icon__content {
+    --pf-v6-c-icon__content--Color: var(--pf-t--global--color--brand--default);
+}
+
 .file-chooser .pf-v6-c-alert {
     margin-block-end: var(--pf-t--global--spacer--lg);
 }

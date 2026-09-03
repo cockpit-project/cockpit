@@ -123,6 +123,7 @@ import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/
 import { DropdownItem } from "@patternfly/react-core/dist/esm/components/Dropdown";
 import { Divider } from "@patternfly/react-core/dist/esm/components/Divider";
 import { Bullseye } from "@patternfly/react-core/dist/esm/layouts/Bullseye";
+import { Icon } from "@patternfly/react-core/dist/esm/components/Icon";
 
 import { KebabDropdown } from "cockpit-components-dropdown";
 
@@ -654,13 +655,6 @@ export const FileChooser = ({
         );
     }
 
-    function formatIcon(f: FileInfo): React.ReactNode {
-        if (f.type == "dir")
-            return <FolderIcon style={{ color: "var(--pf-t--global--color--brand--default)" }} />;
-        else
-            return <OutlineFileIcon />;
-    }
-
     function keyboardNavigationHandler(event: React.KeyboardEvent) {
         if (event.key == "ArrowDown") {
             const tr = event.target;
@@ -822,12 +816,18 @@ export const FileChooser = ({
                                         isRowSelected={file.name == dlg.values.selected?.name}
                                         key={idx}
                                         data-name={name}
+                                        data-type={file.type}
                                         onRowClick={event => rowClick(event, file)}
                                         onDoubleClick={event => rowClick(event, file)}
                                         isClickable
                                     >
                                         <Td>
-                                            {formatIcon(file)}
+                                            <Icon>
+                                                { file.type == "dir"
+                                                    ? <FolderIcon />
+                                                    : <OutlineFileIcon />
+                                                }
+                                            </Icon>
                                             &nbsp;&nbsp;
                                             {boldify(name, dlg.values.textFilter)}
                                         </Td>

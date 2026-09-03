@@ -92,7 +92,7 @@ export class LongRunningProcess {
         if (this.state === ProcessState.FAILED)
             this.systemdClient.call(O_SD_OBJ, I_SD_MGR, "ResetFailedUnit", [this.serviceName], { type: "s" });
         else
-            throw new Error(`cannot reset LongRuningProcess in state ${this.state}`);
+            throw new Error(`cannot reset LongRunningProcess in state ${this.state}`);
     }
     /*
      * below are internal private methods

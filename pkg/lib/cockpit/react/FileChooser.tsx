@@ -129,7 +129,7 @@ import { KebabDropdown } from "cockpit-components-dropdown";
 
 import { useDialogs, WithDialogs } from 'dialogs';
 import { FsInfoClient, fsinfo } from "cockpit/fsinfo";
-import { basename, dirname } from "cockpit-path";
+import { basename, dirname, path_join } from "cockpit-path";
 
 import {
     useDialogState_async,
@@ -191,10 +191,6 @@ const OutlineFileIcon = () => {
         </svg>
     );
 };
-
-function path_join(dir: string, base: string) {
-    return (dir === "/" ? "" : dir) + "/" + base;
-}
 
 interface FileInfo {
     type: string;

@@ -309,7 +309,7 @@ function readRecent(): string[] {
     return [];
 }
 
-function boldify(name: string, filterText: string): React.ReactNode {
+function emphasize_matches(name: string, filterText: string): React.ReactNode {
     if (!filterText)
         return name;
     const parts: React.ReactNode[] = [];
@@ -829,7 +829,7 @@ export const FileChooser = ({
                                                 }
                                             </Icon>
                                             &nbsp;&nbsp;
-                                            {boldify(name, dlg.values.textFilter)}
+                                            {emphasize_matches(name, dlg.values.textFilter)}
                                         </Td>
                                         { location && <Td>{location}</Td> }
                                     </Tr>

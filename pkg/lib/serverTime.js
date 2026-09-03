@@ -353,9 +353,9 @@ export function ServerTime() {
             return cockpit.file("/etc/chrony.conf", { superuser: "require" }).modify(add_sourcedir);
         }
 
-        // chronyd runs as unprivileged chrony user; must be readable with tight umask
+        // chronyd runs as unprivileged chrony user; must be readable with tight umask.
+        // mkdir -p -m755 sets mode on newly created dirs (existing ones keep their mode).
         await cockpit.spawn(["mkdir", "-p", "-m755", chronyd_sourcedir], { superuser: "require" });
-        await cockpit.spawn(["chmod", "755", "/etc/chrony", chronyd_sourcedir], { superuser: "require" });
 
         if (config.enabled) {
             await enabled_file.replace(text);

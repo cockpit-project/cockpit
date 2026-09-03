@@ -82,10 +82,10 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_mon
                 <SplitItem>
                     <SimpleList>
                         {managedWireless.length !== 0 && (
-                            <SimpleListGroup title={_("Wireless")} id="wireless-connections">{...managedWireless}</SimpleListGroup>
+                            <SimpleListGroup title={_("Wireless")} id="wireless-connections">{managedWireless}</SimpleListGroup>
                         )}
                         {managedWired.length !== 0 && (
-                            <SimpleListGroup title={_("Wired")} id="wired-connections">{...managedWired}</SimpleListGroup>
+                            <SimpleListGroup title={_("Wired")} id="wired-connections">{managedWired}</SimpleListGroup>
                         )}
                         {(managedWireless.length === 0 && managedWired.length === 0) && (
                             <SimpleListItem key="not-found">{_("No networks found")}</SimpleListItem>

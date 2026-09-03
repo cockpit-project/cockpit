@@ -610,6 +610,7 @@ export const FileChooser = ({
                 </FlexItem>
                 <FlexItem className="file-chooser-kebab" align={{ default: 'alignRight' }}>
                     <KebabDropdown
+                        aria-label={_("File chooser actions")}
                         dropdownItems={
                             [
                                 // Our own window might not have the manifests loaded, but if we run inside a
@@ -813,6 +814,8 @@ export const FileChooser = ({
                                 }
                                 return (
                                     <Tr
+                                        aria-label={file.name}
+                                        aria-roledescription={file.type == "dir" ? _("Folder") : _("File")}
                                         isRowSelected={file.name == dlg.values.selected?.name}
                                         key={idx}
                                         data-name={name}

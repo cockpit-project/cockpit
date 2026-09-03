@@ -104,16 +104,13 @@ const App = () => {
     const anaconda_mode = in_anaconda_mode();
 
     if (anaconda_mode) {
-        const iface = path.length == 1 ? interfaces.find(iface => iface.Name == path[0]) : undefined;
-
         return (
             <ModelContext.Provider value={model}>
                 <WithDialogs key="networking-anaconda">
                     <AnacondaNetworkPage privileged={superuser.allowed}
                                          operationInProgress={model.operationInProgress}
                                          usage_monitor={usage_monitor}
-                                         interfaces={interfaces}
-                                         iface={iface} />
+                                         interfaces={interfaces} />
                 </WithDialogs>
             </ModelContext.Provider>
         );

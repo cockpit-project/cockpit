@@ -14,7 +14,6 @@ import {
     is_loopback,
     is_managed,
     is_wireless,
-    render_active_connection,
 } from './interfaces.js';
 import { Content, ContentVariants, SimpleList, SimpleListGroup, SimpleListItem, Split, SplitItem } from "@patternfly/react-core";
 import { NetworkInterfacePage } from "./network-interface.jsx";
@@ -28,16 +27,10 @@ interface AnacondaNetworkPageProps {
     operationInProgress: boolean;
     usage_monitor: any;
     interfaces: any[];
-    iface?: any;
-}
-
-interface AnacondaActiveNetwork {
-    isWireless?: boolean;
-    iface: any;
 }
 
 export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_monitor, interfaces }: AnacondaNetworkPageProps) => {
-    const [active, setActive] = useState<AnacondaActiveNetwork>();
+    const [selectedIface, setSelectedIface] = useState(null);
 
     const managedWired: React.ReactNode[] = [];
     const managedWireless: React.ReactNode[] = [];
@@ -56,7 +49,7 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_mon
         const isWireless = is_wireless(iface);
 
         const row = (
-            <SimpleListItem key={iface.Name} onClick={() => {setActive({isWireless, iface})}}>
+            <SimpleListItem key={iface.Name} onClick={() => { setSelectedIface(iface) }}>
                 <Flex
                     direction={{ default: 'row' }}
                     justifyContent={{ default: 'justifyContentSpaceBetween' }}
@@ -68,7 +61,7 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_mon
                     </FlexItem>
                 </Flex>
             </SimpleListItem>
-        )
+        );
 
         if (!dev || is_managed(dev)) {
             isWireless ? managedWireless.push(row) : managedWired.push(row);
@@ -93,15 +86,15 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_mon
                     </SimpleList>
                 </SplitItem>
                 <SplitItem isFilled>
-                    {active?.iface ?
-                        <NetworkInterfacePage
+                    {selectedIface
+                        ? <NetworkInterfacePage
                             privileged={privileged}
                             operationInProgress={operationInProgress}
                             usage_monitor={usage_monitor}
                             plot_state={undefined}
                             interfaces={interfaces}
-                            iface={active.iface} /> :
-                        <EmptyStatePanel
+                            iface={selectedIface} />
+                        : <EmptyStatePanel
                             title={_("No network selected.")}
                             paragraph={_("Select a network interface to configure the connection.")}
                         />

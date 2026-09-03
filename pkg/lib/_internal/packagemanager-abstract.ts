@@ -80,6 +80,27 @@ export interface History {
     packages: Record<string, string>
 }
 
+export enum UpdateProgressType {
+    DOWNLOADING,
+    INSTALLING,
+    UPDATING,
+    CLEANUP,
+    SIGCHECK,
+}
+
+export enum TransactionExitStatus {
+  SUCCESS = "success",
+  CANCELLED = "cancelled",
+  FAILED = "failed",
+}
+
+export interface UpdateWatchHandlers {
+  on_error: (message: string) => void;
+  on_finished: (status: TransactionExitStatus) => void;
+  on_package: (status: UpdateProgressType, packageId: string) => void;
+  on_notify: (props: Record<string, unknown>) => void;
+}
+
 export interface PackageManager {
   name: string
   check_missing_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<MissingPackages>;
@@ -90,7 +111,8 @@ export interface PackageManager {
   remove_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void>;
   find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]>;
   get_updates<T extends boolean>(detail: T, progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]>;
-  update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, transaction_path?: string): Promise<void>;
+  update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateWatchHandlers): Promise<void>;
+  get_running_update(handlers: UpdateWatchHandlers): Promise<boolean>;
   get_backend(): Promise<string>;
   get_last_refresh_time(): Promise<number>;
   get_history(): Promise<History[]>;

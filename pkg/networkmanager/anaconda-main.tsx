@@ -52,16 +52,8 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_mon
             return;
 
         const dev = iface.Device;
-
-        const activeConnection = render_active_connection(dev, false, true);
+        const connectionStatus = dev?.ActiveConnection ? _("Connected") : _("Disconnected");
         const isWireless = is_wireless(iface);
-
-        let connectionStatus;
-        if (activeConnection) {
-            connectionStatus = _("Connected")
-        } else {
-            connectionStatus = _("Disconnected")
-        }
 
         const row = (
             <SimpleListItem key={iface.Name} onClick={() => {setActive({isWireless, iface})}}>

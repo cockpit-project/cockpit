@@ -25,6 +25,8 @@ import { in_anaconda_mode } from "utils";
 import firewall from './firewall-client.js';
 import {
     device_state_text,
+    has_group,
+    is_loopback,
     is_managed,
     render_active_connection,
 } from './interfaces.js';
@@ -41,21 +43,13 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
     let hasDetails = false;
 
     interfaces.forEach(iface => {
-        function hasGroup(iface) {
-            return ((iface.Device &&
-                     iface.Device.ActiveConnection &&
-                     iface.Device.ActiveConnection.Group &&
-                     iface.Device.ActiveConnection.Group.Members.length > 0) ||
-                    (iface.MainConnection &&
-                     iface.MainConnection.Groups.length > 0));
-        }
 
         // Skip loopback
-        if (iface.Name == "lo" || (iface.Device && iface.Device.DeviceType == 'loopback'))
+        if (is_loopback(iface))
             return;
 
         // Skip members
-        if (hasGroup(iface))
+        else if (has_group(iface))
             return;
 
         const dev = iface.Device;
@@ -162,10 +156,10 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         </>
     );
 
-    const anaconda = in_anaconda_mode();
+    const anaconda_mode = in_anaconda_mode();
 
     return (
-        <Page data-test-wait={operationInProgress} id="networking" className={"pf-m-no-sidebar" + (anaconda ? " anaconda" : "")}>
+        <Page data-test-wait={operationInProgress} id="networking" className={"pf-m-no-sidebar" + (anaconda_mode ? " anaconda" : "")}>
             <PageSection hasBodyWrapper={false} id="networking-graphs" className="networking-graphs">
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>

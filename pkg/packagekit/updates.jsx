@@ -45,7 +45,7 @@ import {
     SecurityIcon,
 } from "@patternfly/react-icons";
 import { TableText } from "@patternfly/react-table";
-import { Remarkable } from "remarkable";
+import Markdown from "markdown-to-jsx";
 
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
@@ -219,27 +219,19 @@ function getSeverityURL(urls) {
     return highestURL;
 }
 
-// Overrides the link_open function to apply our required HTML attributes
-function customRemarkable() {
-    const remarkable = new Remarkable();
+const markdownOptions = {
+    overrides: {
+        a: {
+            props: {
+                rel: "noopener noreferrer",
+                target: "_blank",
+            },
+        },
+    },
+    forceInline: true,
+};
 
-    const orig_link_open = remarkable.renderer.rules.link_open;
-    remarkable.renderer.rules.link_open = function() {
-        let result = orig_link_open.apply(null, arguments);
-
-        const parser = new DOMParser();
-        const htmlDocument = parser.parseFromString(result, "text/html");
-        const links = htmlDocument.getElementsByTagName("a");
-        if (links.length === 1) {
-            const href = links[0].getAttribute("href");
-            result = `<a rel="noopener noreferrer" target="_blank" href="${href}">`;
-        }
-        return result;
-    };
-    return remarkable;
-}
-
-function updateItem(remarkable, info, pkgNames, key) {
+function updateItem(info, pkgNames, key) {
     let bugs = null;
     if (info.bug_urls && info.bug_urls.length) {
         // we assume a bug URL ends with a number; if not, show the complete URL
@@ -321,8 +313,9 @@ function updateItem(remarkable, info, pkgNames, key) {
     descriptionFirstLine = cleanupChangelogLine(descriptionFirstLine);
     let description;
     if (info.markdown) {
-        descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: remarkable.render(descriptionFirstLine) }} />;
-        description = <div dangerouslySetInnerHTML={{ __html: remarkable.render(info.description) }} />;
+        console.log(info.markdown);
+        descriptionFirstLine = <Markdown options={markdownOptions}>{descriptionFirstLine}</Markdown>;
+        description = <Markdown options={{ ...markdownOptions, forceInline: false }}>{info.description}</Markdown>;
     } else {
         description = <div className="changelog">{info.description}</div>;
     }
@@ -380,7 +373,6 @@ function updateItem(remarkable, info, pkgNames, key) {
 }
 
 const UpdatesList = ({ updates }) => {
-    const remarkable = customRemarkable();
     const combined_updates = [];
 
     // PackageKit doesn"t expose source package names, so group packages with the same version and changelog
@@ -419,7 +411,7 @@ const UpdatesList = ({ updates }) => {
                     { title: _("Severity"), props: { width: 15 } },
                     { title: _("Details"), props: { width: 30 } },
                 ]}
-                rows={combined_updates.map(update => updateItem(remarkable, update, packageNames[update.id].sort((a, b) => a.name > b.name), update.id))} />
+                rows={combined_updates.map(update => updateItem(update, packageNames[update.id].sort((a, b) => a.name > b.name), update.id))} />
     );
 };
 

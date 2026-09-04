@@ -14,7 +14,7 @@ const _ = cockpit.gettext;
 export function create_mdraid() {
     function mdraid_exists(name) {
         for (const p in client.mdraids) {
-            if (mdraid_name(client.mdraids[p]) == name)
+            if (mdraid_name(client.mdraids[p]) === name)
                 return true;
         }
         return false;
@@ -68,7 +68,7 @@ export function create_mdraid() {
                       {
                           value: "512",
                           visible: function (vals) {
-                              return vals.level != "raid1";
+                              return vals.level !== "raid1";
                           },
                           choices: [
                               { value: "4", title: _("4 KiB") },
@@ -86,7 +86,7 @@ export function create_mdraid() {
                          {
                              empty_warning: _("No disks are available."),
                              validate: function (disks, vals) {
-                                 const disks_needed = vals.level == "raid6" ? 4 : 2;
+                                 const disks_needed = vals.level === "raid6" ? 4 : 2;
                                  if (disks.length < disks_needed)
                                      return cockpit.format(cockpit.ngettext("At least $0 disk is needed.", "At least $0 disks are needed.", disks_needed),
                                                            disks_needed);

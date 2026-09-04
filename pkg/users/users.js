@@ -48,7 +48,7 @@ function AccountsPage() {
     const shells = useFile("/etc/shells", { syntax: etc_shells_syntax });
     const current_user_info = useLoggedInUser();
 
-    // Handle the case where logindef == null, i.e. the file does not exist.
+    // Handle the case where logindef === null, i.e. the file does not exist.
     // While that's unusual, "empty /etc" is a goal, and it shouldn't crash the page.
     const [min_gid, setMinGid] = useState(500);
     const [max_gid, setMaxGid] = useState(60000);
@@ -132,7 +132,7 @@ function AccountsPage() {
         })
     ), [groups, accountsInfo, min_gid, max_gid]);
 
-    if (groupsExtraInfo.length == 0 || accountsInfo.length == 0) {
+    if (groupsExtraInfo.length === 0 || accountsInfo.length === 0) {
         return <EmptyStatePanel loading />;
     } else if (path.length === 0) {
         return (

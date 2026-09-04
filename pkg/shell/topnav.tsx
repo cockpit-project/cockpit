@@ -108,7 +108,7 @@ export class TopNav extends React.Component {
 
         let docs: ManifestDocs[] = [];
 
-        if (!this.superuser_connection || (this.superuser_connection.options.host !=
+        if (!this.superuser_connection || (this.superuser_connection.options.host !==
                                            current_machine.connection_string)) {
             if (this.superuser_connection) {
                 this.superuser_connection.close();
@@ -131,7 +131,7 @@ export class TopNav extends React.Component {
 
         const docItems = [];
 
-        if (typeof this.state.osRelease?.DOCUMENTATION_URL == "string")
+        if (typeof this.state.osRelease?.DOCUMENTATION_URL === "string")
             docItems.push(<DropdownItem key="os-doc" to={this.state.osRelease.DOCUMENTATION_URL} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
                 {cockpit.format(_("$0 documentation"), this.state.osRelease.NAME)}
             </DropdownItem>);

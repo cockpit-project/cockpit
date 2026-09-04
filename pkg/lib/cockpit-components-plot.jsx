@@ -46,7 +46,7 @@ function time_ticks(data) {
 
     let size;
     for (let i = 0; i < sizes_in_seconds.length; i++) {
-        if (((end_ms - start_ms) / 1000) / sizes_in_seconds[i] < 10 || i == sizes_in_seconds.length - 1) {
+        if (((end_ms - start_ms) / 1000) / sizes_in_seconds[i] < 10 || i === sizes_in_seconds.length - 1) {
             size = sizes_in_seconds[i] * 1000;
             break;
         }
@@ -62,9 +62,9 @@ function time_ticks(data) {
     let include_year = true;
     let include_month_and_day = true;
 
-    if (start_date.getFullYear() == now_date.getFullYear()) {
+    if (start_date.getFullYear() === now_date.getFullYear()) {
         include_year = false;
-        if (start_date.getMonth() == now_date.getMonth() && start_date.getDate() == now_date.getDate())
+        if (start_date.getMonth() === now_date.getMonth() && start_date.getDate() === now_date.getDate())
             include_month_and_day = false;
     }
 
@@ -81,7 +81,7 @@ function time_ticks(data) {
 
     function pad(n) {
         let str = n.toFixed();
-        if (str.length == 1)
+        if (str.length === 1)
             str = '0' + str;
         return str;
     }
@@ -310,7 +310,7 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, className }) => {
     const [selection, setSelection] = useState(null);
 
     const chart_data = plot_state.data(plot_id);
-    if (!chart_data || chart_data.length == 0)
+    if (!chart_data || chart_data.length === 0)
         return null;
 
     const t_ticks = time_ticks(chart_data);
@@ -320,7 +320,7 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, className }) => {
         const w = container_size.width;
         const h = container_size.height;
 
-        if (w == 0 || h == 0)
+        if (w === 0 || h === 0)
             return null;
 
         const x_off = t_ticks.start;

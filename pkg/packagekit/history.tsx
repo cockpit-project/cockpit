@@ -55,7 +55,7 @@ export class History extends React.Component<HistoryProps> {
 
             if (prevTime && (time - prevTime) <= 600000 /* 10 mins */ &&
                 prevPackages && packages &&
-                prevPackages.toString() == packages.toString())
+                prevPackages.toString() === packages.toString())
                 history.pop();
 
             history.push({ time, packages: this.props.packagekit[i].packages, num_packages: packages.length });
@@ -90,7 +90,7 @@ export class History extends React.Component<HistoryProps> {
                     { title: timeformat.dateTime(update.time), props: { className: "history-time" } },
                     { title: pkgcount, props: { className: "history-pkgcount" } },
                 ],
-                initiallyExpanded: index == 0,
+                initiallyExpanded: index === 0,
                 hasPadding: true,
                 expandedContent
             });

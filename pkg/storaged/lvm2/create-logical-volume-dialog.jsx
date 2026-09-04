@@ -36,7 +36,7 @@ async function install_package(name, progress) {
 }
 
 export function create_logical_volume(client, vgroup) {
-    if (vgroup.FreeSize == 0)
+    if (vgroup.FreeSize === 0)
         return;
 
     const pvs_as_spaces = pvs_to_spaces(client, client.vgroups_pvols[vgroup.path].filter(pvol => pvol.FreeSize > 0));
@@ -113,17 +113,17 @@ export function create_logical_volume(client, vgroup) {
             return vgroup.ExtentSize * Math.ceil(bytes / vgroup.ExtentSize);
         }
 
-        if (layout == "linear") {
+        if (layout === "linear") {
             return sum;
-        } else if (layout == "raid0" && n_pvs >= 2) {
+        } else if (layout === "raid0" && n_pvs >= 2) {
             return n_pvs * min;
-        } else if (layout == "raid1" && n_pvs >= 2) {
+        } else if (layout === "raid1" && n_pvs >= 2) {
             return min - metasize(min);
-        } else if (layout == "raid10" && n_pvs >= 4) {
+        } else if (layout === "raid10" && n_pvs >= 4) {
             return Math.floor(n_pvs / 2) * (min - metasize(min));
-        } else if ((layout == "raid4" || layout == "raid5") && n_pvs >= 3) {
+        } else if ((layout === "raid4" || layout === "raid5") && n_pvs >= 3) {
             return (n_pvs - 1) * (min - metasize(min));
-        } else if (layout == "raid6" && n_pvs >= 5) {
+        } else if (layout === "raid6" && n_pvs >= 5) {
             return (n_pvs - 2) * (min - metasize(min));
         } else
             return 0; // not-covered: internal error
@@ -177,7 +177,7 @@ export function create_logical_volume(client, vgroup) {
                              visible: vals => can_do_layouts && vals.purpose === 'block',
                              min_selected: 1,
                              validate: (val, vals) => {
-                                 if (vals.layout == "raid10" && (vals.pvs.length % 2) !== 0)
+                                 if (vals.layout === "raid10" && (vals.pvs.length % 2) !== 0)
                                      return _("RAID10 needs an even number of physical volumes");
                              },
                              explanation: min_pvs_explanation(pvs_as_spaces, 1)
@@ -236,9 +236,9 @@ export function create_logical_volume(client, vgroup) {
                        }),
         ],
         update: (dlg, vals, trigger) => {
-            if (vals.purpose == 'block' && (trigger == "layout" || trigger == "pvs" || trigger == "purpose")) {
+            if (vals.purpose === 'block' && (trigger === "layout" || trigger === "pvs" || trigger === "purpose")) {
                 for (const lay of layouts) {
-                    if (lay.value == vals.layout) {
+                    if (lay.value === vals.layout) {
                         dlg.set_options("pvs", {
                             min_selected: lay.min_pvs,
                             explanation: min_pvs_explanation(vals.pvs, lay.min_pvs)
@@ -252,17 +252,17 @@ export function create_logical_volume(client, vgroup) {
                                 });
                 const max = max_size(vals);
                 const old_max = dlg.get_options("size").max;
-                if (vals.size > max || vals.size == old_max)
+                if (vals.size > max || vals.size === old_max)
                     dlg.set_values({ size: max });
                 dlg.set_options("size", { max });
-            } else if (trigger == "purpose") {
+            } else if (trigger === "purpose") {
                 dlg.set_options("size", { max: vgroup.FreeSize });
             }
         },
         Action: {
             Title: _("Create"),
             action: (vals, progress) => {
-                if (vals.purpose == "block") {
+                if (vals.purpose === "block") {
                     if (!can_do_layouts)
                         return vgroup.CreatePlainVolume(vals.name, vals.size, { });
                     else {
@@ -270,9 +270,9 @@ export function create_logical_volume(client, vgroup) {
                                                                   vals.pvs.map(spc => spc.block.path),
                                                                   { });
                     }
-                } else if (vals.purpose == "pool")
+                } else if (vals.purpose === "pool")
                     return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
-                else if (vals.purpose == "vdo") {
+                else if (vals.purpose === "vdo") {
                     return (need_vdo_install ? install_package(vdo_package, progress) : Promise.resolve())
                             .then(() => {
                                 progress(_("Creating VDO device")); // not cancellable any more

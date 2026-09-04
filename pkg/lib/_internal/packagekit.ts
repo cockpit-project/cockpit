@@ -82,7 +82,7 @@ export class PackageKitManager implements PackageManager {
                                             },
                                         });
         pkgnames.forEach(name => {
-            if (!installed_names.has(name) && data.missing_names.indexOf(name) == -1)
+            if (!installed_names.has(name) && data.missing_names.indexOf(name) === -1)
                 data.unavailable_names.push(name);
         });
 
@@ -93,12 +93,12 @@ export class PackageKitManager implements PackageManager {
                                             {
                                                 Package: (info: number, package_id: string) => {
                                                     const name = package_id.split(";")[0];
-                                                    if (info == PK.Enum.INFO_REMOVING) {
+                                                    if (info === PK.Enum.INFO_REMOVING) {
                                                         data.remove_names.push(name);
-                                                    } else if (info == PK.Enum.INFO_INSTALLING ||
-                                                             info == PK.Enum.INFO_UPDATING) {
+                                                    } else if (info === PK.Enum.INFO_INSTALLING ||
+                                                             info === PK.Enum.INFO_UPDATING) {
                                                         install_ids.push(package_id);
-                                                        if (data.missing_names.indexOf(name) == -1)
+                                                        if (data.missing_names.indexOf(name) === -1)
                                                             data.extra_names.push(name);
                                                     }
                                                 }
@@ -201,7 +201,7 @@ export class PackageKitManager implements PackageManager {
         else
             return PK.cancellableTransaction("InstallPackages", [0, ids], progress_cb)
                     .catch(ex => {
-                        if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
+                        if (ex.code !== PK.Enum.ERROR_ALREADY_INSTALLED)
                             return Promise.reject(ex);
                     });
     }

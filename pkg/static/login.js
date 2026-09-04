@@ -181,7 +181,7 @@ function debug(...args) {
             return;
 
         let content = style.content;
-        if (content && content != "none" && content != "normal") {
+        if (content && content !== "none" && content !== "normal") {
             const len = content.length;
             if ((content[0] === '"' || content[0] === '\'') &&
                 len > 2 && content[len - 1] === content[0])
@@ -294,7 +294,7 @@ function debug(...args) {
 
         path = path || "/";
         parser.href = base;
-        if (parser.pathname != "/") {
+        if (parser.pathname !== "/") {
             url_root = parser.pathname.replace(/^\/+|\/+$/g, '');
             // deprecated: for connecting to cockpit.js < 272
             localStorage.setItem('url-root', url_root);
@@ -416,7 +416,7 @@ function debug(...args) {
             el.focus();
         });
 
-        const logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
+        const logout_intent = window.sessionStorage.getItem("logout-intent") === "explicit";
         if (logout_intent)
             window.sessionStorage.removeItem("logout-intent");
 
@@ -447,10 +447,10 @@ function debug(...args) {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", login_path, true);
         xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
                     run(JSON.parse(xhr.responseText));
-                } else if (xhr.status == 401) {
+                } else if (xhr.status === 401) {
                     show_login();
                 } else if (xhr.statusText) {
                     fatal(decodeURIComponent(xhr.statusText));
@@ -499,8 +499,8 @@ function debug(...args) {
             xhr.open("GET", login_path, true);
             xhr.setRequestHeader("Authorization", "Bearer " + token_val);
             xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
                         run(JSON.parse(xhr.responseText));
                     } else {
                         const prompt_data = get_prompt_from_challenge(xhr.getResponseHeader("WWW-Authenticate"), xhr.responseText);
@@ -645,7 +645,7 @@ function debug(...args) {
 
             let known_hosts = '';
             if (login_machine) {
-                if (ssh_host_key_change_host == login_machine) {
+                if (ssh_host_key_change_host === login_machine) {
                     /* We came here because logging in ran into invalid-hostkey; so try the next
                      * round without sending the key. do_hostkey_verification() will notice the
                        change and show the correct dialog. */
@@ -706,7 +706,7 @@ function debug(...args) {
             wrapper.append(b1, b2);
             list.append(wrapper);
         });
-        hideToggle("#recent-hosts", hosts.length == 0);
+        hideToggle("#recent-hosts", hosts.length === 0);
     }
 
     function show_form(form) {
@@ -723,22 +723,22 @@ function debug(...args) {
             brand.classList.add("text-brand");
         }
 
-        hideToggle(["#user-group", "#password-group"], form != "login" || environment.is_cockpit_client);
-        hideToggle("#conversation-group", form != "conversation");
-        hideToggle("#hostkey-group", form != "hostkey");
+        hideToggle(["#user-group", "#password-group"], form !== "login" || environment.is_cockpit_client);
+        hideToggle("#conversation-group", form !== "conversation");
+        hideToggle("#hostkey-group", form !== "hostkey");
 
-        id("login-button-text").textContent = (form == "hostkey") ? _("Accept key and log in") : _("Log in");
-        if (form != "login")
+        id("login-button-text").textContent = (form === "hostkey") ? _("Accept key and log in") : _("Log in");
+        if (form !== "login")
             id("login-password-input").value = '';
 
         if (environment.page.require_host) {
             hide("#option-group");
             expanded = true;
         } else {
-            hideToggle("#option-group", !connectable || form != "login");
+            hideToggle("#option-group", !connectable || form !== "login");
         }
 
-        if (!connectable || form != "login") {
+        if (!connectable || form !== "login") {
             hide("#server-group");
         } else {
             hideToggle("#server-group", !expanded);
@@ -750,7 +750,7 @@ function debug(...args) {
         id("login-button").classList.add("pf-m-primary");
         hide("#get-out-link");
 
-        if (form == "login")
+        if (form === "login")
             id("login-button").addEventListener("click", call_login);
 
         if (environment.is_cockpit_client) {
@@ -767,13 +767,13 @@ function debug(...args) {
         id("login-user-input").addEventListener("keydown", function(e) {
             login_failure(null);
             clear_info();
-            if (e.which == 13)
+            if (e.which === 13)
                 id("login-password-input").focus();
         }, false);
 
         const do_login = function(e) {
             login_failure(null);
-            if (e.which == 13)
+            if (e.which === 13)
                 call_login();
         };
 
@@ -907,7 +907,7 @@ function debug(...args) {
 
         function key_down(e) {
             login_failure(null, null, "conversation");
-            if (e.which == 13) {
+            if (e.which === 13) {
                 call_converse();
             }
         }
@@ -963,13 +963,13 @@ function debug(...args) {
             xhr.setRequestHeader(k, headers[k]);
 
         xhr.onreadystatechange = function () {
-            if (xhr.readyState != 4) {
+            if (xhr.readyState !== 4) {
                 return;
             }
-            if (xhr.status == 200) {
+            if (xhr.status === 200) {
                 const resp = JSON.parse(xhr.responseText);
                 run(resp);
-            } else if (xhr.status == 401) {
+            } else if (xhr.status === 401) {
                 debug("send_login_request():", method, "got 401, status:", xhr.statusText, "; response:", xhr.responseText);
                 const challenge = xhr.getResponseHeader("WWW-Authenticate");
                 if (challenge && challenge.toLowerCase().indexOf("x-conversation") === 0) {
@@ -1027,16 +1027,16 @@ function debug(...args) {
                         login_failure(_("Authentication failed"), _("Wrong user name or password"));
                     }
                 }
-            } else if (xhr.status == 403) {
+            } else if (xhr.status === 403) {
                 const status = decodeURIComponent(xhr.statusText).trim();
                 login_failure(_("Permission denied"), status === "Permission denied" ? "" : status);
-            } else if (xhr.status == 500 && xhr.statusText.indexOf("no-cockpit") > -1) {
+            } else if (xhr.status === 500 && xhr.statusText.indexOf("no-cockpit") > -1) {
                 const message = format(
                     _("Install the cockpit-system package (and optionally other cockpit packages) on $0 to enable web console access."),
                     login_machine || "localhost");
 
                 login_failure(_("Packageless session unavailable"), message);
-            } else if (xhr.status == 500 && xhr.statusText.indexOf("unsupported-shell") > -1) {
+            } else if (xhr.status === 500 && xhr.statusText.indexOf("unsupported-shell") > -1) {
                 login_failure(_("Authentication failed"),
                               _("Unsupported shell. Check the journal for details."));
             } else if (xhr.statusText) {
@@ -1064,7 +1064,7 @@ function debug(...args) {
             window.location.reload(true);
         }, 100);
 
-        if (wanted && wanted != window.location.href)
+        if (wanted && wanted !== window.location.href)
             window.location = wanted;
 
         // cancel forced reload if we are reloading
@@ -1148,7 +1148,7 @@ function debug(...args) {
             }
         }
 
-        if (machine && application != org_application) {
+        if (machine && application !== org_application) {
             wanted = "/=" + machine;
             if (url_root)
                 wanted = "/" + url_root + wanted;

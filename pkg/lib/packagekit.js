@@ -71,7 +71,7 @@ function dbus_client() {
 superuser.addEventListener("changed", () => { _dbus_client = null });
 
 function debug() {
-    if (window.debugging == 'all' || window.debugging?.includes('packagekit'))
+    if (window.debugging === 'all' || window.debugging?.includes('packagekit'))
         console.debug.apply(console, arguments);
 }
 
@@ -363,11 +363,11 @@ export async function get_updates(details, progress_cb) {
                 if (info < Enum.INFO_LOW || info > Enum.INFO_SECURITY)
                     info = Enum.INFO_NORMAL;
 
-                if (info == Enum.INFO_LOW)
+                if (info === Enum.INFO_LOW)
                     info = Severity.LOW;
-                else if (info == Enum.INFO_ENHANCEMENT)
+                else if (info === Enum.INFO_ENHANCEMENT)
                     info = Severity.MODERATE;
-                else if (info == Enum.INFO_SECURITY)
+                else if (info === Enum.INFO_SECURITY)
                     info = Severity.CRITICAL;
                 else if (info >= Enum.INFO_NORMAL)
                     info = Severity.IMPORTANT;

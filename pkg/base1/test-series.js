@@ -481,7 +481,7 @@ QUnit.test("test", function (assert) {
 
         assert.equal(count, fetched.length, "fetched " + count);
 
-        if (count == 5) {
+        if (count === 5) {
             grid.close();
             done();
         }

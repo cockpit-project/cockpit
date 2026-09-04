@@ -35,7 +35,7 @@ export function Router(callbacks) {
                     if (!source.window.closed)
                         source.window.postMessage(message, origin);
                 }
-            } else if (control.command == "hint") {
+            } else if (control.command === "hint") {
                 /* This is where we handle hint messages directed at
                  * the shell.  Right now, there aren't any.
                  */
@@ -61,7 +61,7 @@ export function Router(callbacks) {
 
     function perform_jump(child, control) {
         let str = control.location || "";
-        if (str[0] != "/")
+        if (str[0] !== "/")
             str = "/" + str;
         if (control.host)
             str = "/@" + encodeURIComponent(control.host) + str;
@@ -197,7 +197,7 @@ export function Router(callbacks) {
         }
 
         /* A control message */
-        if (data[0] == '\n') {
+        if (data[0] === '\n') {
             control = JSON.parse(data.substring(1));
             if (control.command === "init") {
                 if (source)
@@ -225,17 +225,17 @@ export function Router(callbacks) {
                 perform_jump(child, control);
                 return;
             } else if (control.command === "hint") {
-                if (control.hint == "restart") {
+                if (control.hint === "restart") {
                     /* watchdog handles current host for now */
-                    if (control.host != cockpit.transport.host)
+                    if (control.host !== cockpit.transport.host)
                         callbacks.expect_restart(control.host);
                 } else
                     cockpit.hint(control.hint, control);
                 return;
-            } else if (control.command == "oops") {
+            } else if (control.command === "oops") {
                 callbacks.show_oops();
                 return;
-            } else if (control.command == "notify") {
+            } else if (control.command === "notify") {
                 if (source)
                     callbacks.handle_notifications(source.default_host, source.page, control);
                 return;
@@ -245,7 +245,7 @@ export function Router(callbacks) {
                 return;
 
             /* Add the child's group to all open channel messages */
-            } else if (control.command == "open") {
+            } else if (control.command === "open") {
                 control.group = child.name;
                 data = "\n" + JSON.stringify(control);
             }

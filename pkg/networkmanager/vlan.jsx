@@ -80,7 +80,7 @@ export const VlanDialog = ({ connection, dev, settings }) => {
                 <FormGroup fieldId={idPrefix + "-parent-select"} label={_("Parent")}>
                     <FormSelect id={idPrefix + "-parent-select"} onChange={(_, value) => {
                         setParent(value);
-                        if (iface == (parent + "." + vlanId))
+                        if (iface === (parent + "." + vlanId))
                             setIface(value + "." + vlanId);
                     }}
                                 value={parent}>
@@ -90,7 +90,7 @@ export const VlanDialog = ({ connection, dev, settings }) => {
                 <FormGroup fieldId={idPrefix + "-vlan-id-input"} label={_("VLAN ID")}>
                     <TextInput id={idPrefix + "-vlan-id-input"} value={vlanId} onChange={(_event, value) => {
                         setVlanId(value);
-                        if (iface == (parent + "." + vlanId))
+                        if (iface === (parent + "." + vlanId))
                             setIface(parent + "." + value);
                     }} />
                 </FormGroup>

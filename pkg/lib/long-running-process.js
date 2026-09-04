@@ -44,7 +44,7 @@ export class LongRunningProcess {
 
         // Watch for start event of the service
         this.systemdClient.subscribe({ interface: I_SD_MGR, member: "JobNew" }, (path, iface, signal, args) => {
-            if (args[2] == this.serviceName)
+            if (args[2] === this.serviceName)
                 this._checkState();
         });
 

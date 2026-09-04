@@ -79,7 +79,7 @@ export class LogEntry extends React.Component {
         const cursor = cockpit.location.path[0];
         journal.journalctl({ cursor, count: 1, follow: false })
                 .then(entries => {
-                    if (entries.length >= 1 && entries[0].__CURSOR == cursor) {
+                    if (entries.length >= 1 && entries[0].__CURSOR === cursor) {
                         this.setState({ entry: entries[0], loading: false, error: "" });
                     } else
                         this.setState({ entry: null, loading: false, error: _("Journal entry not found") });

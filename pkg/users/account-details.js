@@ -176,7 +176,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
                                https://github.com/cockpit-project/cockpit/issues/1216
                                https://bugzilla.redhat.com/show_bug.cgi?id=853153
                             */
-                                if (locked != value && !dont_retry_if_stuck) {
+                                if (locked !== value && !dont_retry_if_stuck) {
                                     console.log("Account locked state doesn't match desired value, trying again.");
                                     // only retry once to avoid uncontrolled recursion
                                     change_locked(value, true);
@@ -212,7 +212,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
     if (!expiration)
         return null;
 
-    const self_mod_allowed = (user == current_user || !!superuser.allowed);
+    const self_mod_allowed = (user === current_user || !!superuser.allowed);
 
     let title_name = account.gecos;
     if (title_name)
@@ -231,11 +231,11 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
     const actions = superuser.allowed && (
         <>
             <Button variant="secondary" onClick={() => logout_account()} id="account-logout"
-              isDisabled={!account.loggedIn || account.uid == 0 || user === current_user}>
+              isDisabled={!account.loggedIn || account.uid === 0 || user === current_user}>
                 {_("Terminate session")}
             </Button>
             { "\n" }
-            <Button isDisabled={account.uid == 0 || user === current_user} variant="danger" id="account-delete"
+            <Button isDisabled={account.uid === 0 || user === current_user} variant="danger" id="account-delete"
                   onClick={() => delete_account_dialog(account)}>
                 {_("Delete")}
             </Button>
@@ -262,10 +262,10 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
                                     { superuser.allowed
                                         ? <>
                                             <TextInput id="account-real-name"
-                                                     isDisabled={comittingRealName || account.uid == 0}
+                                                     isDisabled={comittingRealName || account.uid === 0}
                                                      value={editedRealName !== null ? editedRealName : account.gecos}
                                                      onKeyDown={event => {
-                                                         if (event.key == "Enter") {
+                                                         if (event.key === "Enter") {
                                                              event.target.blur();
                                                          }
                                                      }}
@@ -288,7 +288,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
                                         <FlexItem spacer={{ default: 'spacerNone' }}>
                                             <Checkbox id="account-locked"
                                                         ouiaSafe={disableLockedEdit}
-                                                        isDisabled={!superuser.allowed || disableLockedEdit || user == current_user || isLocked == null}
+                                                        isDisabled={!superuser.allowed || disableLockedEdit || user === current_user || isLocked == null}
                                                         isChecked={isLocked}
                                                         onChange={(_event, checked) => change_locked(checked)}
                                                         label={_("Disallow interactive password")} />
@@ -454,7 +454,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups }) => {
                               value: option.name,
                               content: option.name,
                               color: option.isAdmin ? "yellow" : "blue",
-                              isDisabled: option.name == primaryGroupName,
+                              isDisabled: option.name === primaryGroupName,
                           };
                       })}
                       selected={selected || []}

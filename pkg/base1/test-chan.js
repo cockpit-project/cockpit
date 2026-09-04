@@ -31,15 +31,15 @@ function MockPeer() {
                 queue.push([channel, payload]);
         } else {
             const command = JSON.parse(payload);
-            if (command.command == "open") {
+            if (command.command === "open") {
                 let reply;
-                if (command.payload == "echo") {
+                if (command.payload === "echo") {
                     echos[command.channel] = true;
                     reply = {
                         command: "ready",
                         channel: command.channel
                     };
-                } else if (command.payload == "null") {
+                } else if (command.payload === "null") {
                     nulls[command.channel] = true;
                     reply = {
                         command: "ready",
@@ -53,7 +53,7 @@ function MockPeer() {
                     };
                 }
                 queue.push([null, JSON.stringify(reply)]);
-            } else if (command.command == "close") {
+            } else if (command.command === "close") {
                 delete echos[command.channel];
                 delete nulls[command.channel];
             }
@@ -86,9 +86,9 @@ QUnit.testDone(function() {
 
 /* Mock WebSocket */
 function MockWebSocket(url, protocol) {
-    if (typeof url != "string")
+    if (typeof url !== "string")
         throw Error("WebSocket(@url) is not a string: " + typeof url);
-    if (typeof protocol != "string")
+    if (typeof protocol !== "string")
         throw Error("WebSocket(@protocol) is not a string: " + typeof protocol);
 
     this.onopen = function(event) { };
@@ -105,10 +105,10 @@ function MockWebSocket(url, protocol) {
     const mock = mock_peer;
 
     this.send = function(data) {
-        if (typeof data != "string")
+        if (typeof data !== "string")
             throw Error("WebSocket.send(@data) is not a string: " + typeof data);
         const pos = data.indexOf("\n");
-        if (pos == -1)
+        if (pos === -1)
             throw Error("Invalid frame sent to WebSocket: " + data);
         const channel = data.substring(0, pos);
         const payload = data.substring(pos + 1);
@@ -116,9 +116,9 @@ function MockWebSocket(url, protocol) {
     };
 
     this.close = function(code, reason) {
-        if (typeof code != "number" && typeof code != "undefined")
+        if (typeof code !== "number" && typeof code != "undefined")
             throw Error("WebSocket.close(@code) is not a number: " + typeof code);
-        if (typeof reason != "string" && typeof reason != "undefined")
+        if (typeof reason !== "string" && typeof reason != "undefined")
             throw Error("WebSocket.close(@reason) is not a number: " + typeof reason);
         if (this.readyState > 1)
             throw Error("WebSocket.close() called on a closed WebSocket" + this.readyState + " " + code + reason);
@@ -137,7 +137,7 @@ function MockWebSocket(url, protocol) {
         };
         sending.push(event);
         window.setTimeout(function() {
-            if (ws.readyState == 1)
+            if (ws.readyState === 1)
                 ws.onmessage(sending.shift());
         }, 5);
     };
@@ -181,7 +181,7 @@ WebSocket = MockWebSocket; // eslint-disable-line no-global-assign
 function check_transport (assert, base_url, application, socket, url_root) {
     const old_url = window.mock.url;
     const arr = [base_url];
-    if (base_url.slice(-1) == '/')
+    if (base_url.slice(-1) === '/')
         arr.push(base_url + "other");
     else
         arr.push(base_url + '/', base_url + '/other');
@@ -285,7 +285,7 @@ QUnit.test("open no host", function (assert) {
     });
     mock_peer.addEventListener("recv", function(event, chan, payload) {
         const command = JSON.parse(payload);
-        if (command.command == "open") {
+        if (command.command === "open") {
             assert.strictEqual(command.host, undefined, "host not included");
             done();
         }
@@ -304,7 +304,7 @@ QUnit.test("open auto host", function (assert) {
     });
     mock_peer.addEventListener("recv", function(event, chan, payload) {
         const command = JSON.parse(payload);
-        if (command.command == "open") {
+        if (command.command === "open") {
             assert.strictEqual(command.host, "planetexpress", "host automatically chosen");
             done();
         }
@@ -356,7 +356,7 @@ QUnit.test("receive message", function (assert) {
 
     const onrecv = (event, chan, payload) => {
         const cmd = JSON.parse(payload);
-        if (cmd.command == "open") {
+        if (cmd.command === "open") {
             mock_peer.removeEventListener("recv", onrecv);
             mock_peer.send(channel.id, "Oh, marrrrmalade!");
         }
@@ -376,9 +376,9 @@ QUnit.test("close channel", function (assert) {
 
     mock_peer.addEventListener("recv", function(event, chan, payload) {
         const cmd = JSON.parse(payload);
-        if (cmd.command == "init") {
+        if (cmd.command === "init") {
             return;
-        } else if (cmd.command == "open") {
+        } else if (cmd.command === "open") {
             channel.close();
             return;
         }
@@ -415,9 +415,9 @@ QUnit.test("close problem", function (assert) {
 
     mock_peer.addEventListener("recv", function(event, chan, payload) {
         const cmd = JSON.parse(payload);
-        if (cmd.command == "init") {
+        if (cmd.command === "init") {
             return;
-        } else if (cmd.command == "open") {
+        } else if (cmd.command === "open") {
             channel.close({ problem: "problem" });
             assert.strictEqual(channel.valid, false, "no longer valid");
             return;
@@ -440,9 +440,9 @@ QUnit.test("close problem string", function (assert) {
     const channel = cockpit.channel({ });
     mock_peer.addEventListener("recv", function(event, chan, payload) {
         const cmd = JSON.parse(payload);
-        if (cmd.command == "init") {
+        if (cmd.command === "init") {
             return;
-        } else if (cmd.command == "open") {
+        } else if (cmd.command === "open") {
             channel.close("testo");
             assert.strictEqual(channel.valid, false, "no longer valid");
             return;
@@ -463,7 +463,7 @@ QUnit.test("close peer", function (assert) {
 
     mock_peer.addEventListener("recv", function(event, chan, payload) {
         const msg = JSON.parse(payload);
-        if (msg.command == "init")
+        if (msg.command === "init")
             return;
         const cmd = {
             command: "close",
@@ -570,7 +570,7 @@ QUnit.test("logout", function (assert) {
     const done = assert.async();
     mock_peer.addEventListener("recv", function(event, chan, payload) {
         const cmd = JSON.parse(payload);
-        if (cmd.command == "logout") {
+        if (cmd.command === "logout") {
             mock_peer.close("disconnected");
             assert.strictEqual(cmd.disconnect, true, "disconnect set");
         }
@@ -603,7 +603,7 @@ QUnit.test("droppriv", function (assert) {
     assert.expect(1);
     mock_peer.addEventListener("recv", function(event, chan, payload) {
         const cmd = JSON.parse(payload);
-        if (cmd.command == "logout") {
+        if (cmd.command === "logout") {
             assert.strictEqual(cmd.disconnect, false, "disconnect not set");
             done();
         }
@@ -627,7 +627,7 @@ QUnit.test("info", function (assert) {
 
     const onrecv = (event, chan, payload) => {
         const cmd = JSON.parse(payload);
-        if (cmd.command == "open") {
+        if (cmd.command === "open") {
             mock_peer.removeEventListener("recv", onrecv);
             cockpit.info.removeEventListener("changed", onchanged);
             assert.strictEqual(info_changed, true, "info changed event was called");
@@ -688,7 +688,7 @@ QUnit.test("filter message in", function (assert) {
     cockpit.transport.filter(function(message, channelid, control) {
         if (!filtering)
             return true;
-        if (message[0] == '\n') {
+        if (message[0] === '\n') {
             assert.strictEqual(channelid, "", "control message channel");
             assert.equal(typeof control, "object", "control is a JSON object");
             assert.equal(typeof control.command, "string", "control has a command");
@@ -697,7 +697,7 @@ QUnit.test("filter message in", function (assert) {
             assert.strictEqual(channelid, channel.id, "cockpit channel id");
             assert.equal(control, undefined, "control is undefined");
             filtered += 1;
-            return (filtered != 1);
+            return (filtered !== 1);
         }
     });
 
@@ -706,7 +706,7 @@ QUnit.test("filter message in", function (assert) {
     channel.addEventListener("message", function(data) {
         received += 1;
 
-        if (received == 2) {
+        if (received === 2) {
             assert.equal(filtered, 3, "filtered right amount");
             assert.equal(received, 2, "let through right amount");
             channel.close();
@@ -753,7 +753,7 @@ QUnit.test("inject message in", function (assert) {
 
     const channel = cockpit.channel({ payload: "null" });
     channel.addEventListener("control", function(ev, control) {
-        if (control.command == "ready") {
+        if (control.command === "ready") {
             const payload = JSON.stringify({ command: "blah", blah: "marmalade", channel: channel.id });
             const ret = cockpit.transport.inject("\n" + payload, false);
             assert.equal(ret, true, "returned true");

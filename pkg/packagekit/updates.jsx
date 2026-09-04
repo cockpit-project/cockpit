@@ -10,14 +10,10 @@ import cockpit from "cockpit";
 import React from "react";
 import { createRoot } from 'react-dom/client';
 
-import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { CodeBlock, CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import {
-    Modal, ModalBody, ModalFooter, ModalHeader
-} from '@patternfly/react-core/dist/esm/components/Modal/index.js';
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
@@ -50,10 +46,11 @@ import { Remarkable } from "remarkable";
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
 import { History, PackageList } from "./history";
+import { RestartServicesDialog } from './restartservices-dialog';
+import { TwoColumnContent, TwoColumnTitle } from "./two-column";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 import { WithDialogs } from "dialogs.jsx";
 
@@ -423,95 +420,6 @@ const UpdatesList = ({ updates }) => {
     );
 };
 
-class RestartServices extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dialogError: undefined,
-            dialogErrorDetail: undefined,
-            restartInProgress: false,
-        };
-
-        this.restart = this.restart.bind(this);
-    }
-
-    restart() {
-        // make sure cockpit package is the last to restart
-        const daemons = this.props.restartPackages.daemons.sort((a, b) => {
-            if (a.includes("cockpit") && b.includes("cockpit"))
-                return 0;
-            if (a.includes("cockpit"))
-                return 1;
-            return a.localeCompare(b);
-        });
-        const restarts = daemons.map(service => cockpit.spawn(["systemctl", "restart", service], { superuser: "require", err: "message" }));
-        this.setState({ restartInProgress: true, dialogError: undefined, dialogErrorDetail: undefined });
-        Promise.all(restarts)
-                .then(() => {
-                    this.props.onValueChanged({ restartPackages: { reboot: this.props.restartPackages.reboot, daemons: [], manual: this.props.restartPackages.manual } });
-                    if (this.props.state === "updateSuccess")
-                        this.props.loadUpdates();
-                    this.setState({ restartInProgress: false });
-                    this.props.close();
-                })
-                .catch(ex => {
-                    this.setState({ dialogError: _("Failed to restart service"), dialogErrorDetail: ex.message });
-                    // see what services remain
-                    this.props.checkNeedsRestart();
-                });
-    }
-
-    render() {
-        let body;
-        if (this.props.checkRestartRunning) {
-            body = (
-                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                    <Spinner size="sm" />
-                    <p>{_("Reloading the state of remaining services")}</p>
-                </Flex>
-            );
-        } else if (this.props.restartPackages.daemons.length > 0) {
-            body = (<>
-                {cockpit.ngettext("The following service will be restarted:", "The following services will be restarted:", this.props.restartPackages.daemons.length)}
-                <TwoColumnContent list={this.props.restartPackages.daemons} flexClassName="restart-services-modal-body" />
-            </>);
-        }
-
-        return (
-            <Modal id="restart-services-modal" isOpen
-                   position="top"
-                   variant="medium"
-                   onClose={this.props.close}>
-                <ModalHeader title={_("Restart services")} />
-                <ModalBody>
-                    <Stack hasGutter>
-                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <StackItem>{body}</StackItem>
-                    </Stack>
-                </ModalBody>
-                <ModalFooter>
-                    {this.props.restartPackages.daemons.includes("cockpit") &&
-                        <Alert variant="warning"
-                            title={_("Web Console will restart")}
-                            isInline>
-                            <p>
-                                {_("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")}
-                            </p>
-                        </Alert>}
-                    <Button variant='primary'
-                        isDisabled={ this.state.restartInProgress }
-                        onClick={ this.restart }>
-                        {_("Restart services")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                        {_("Cancel")}
-                    </Button>
-                </ModalFooter>
-            </Modal>
-        );
-    }
-}
-
 const formatPackageId = packageId => {
     const pfields = packageId.split(";");
     return pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")";
@@ -598,35 +506,6 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
             </Grid>
         </div>
     );
-};
-
-const TwoColumnContent = ({ list, flexClassName }) => {
-    const half = Math.round(list.length / 2);
-    const col1 = list.slice(0, half);
-    const col2 = list.slice(half);
-    return (
-        <Flex className={flexClassName}>
-            <FlexItem flex={{ default: 'flex_1' }}>
-                <Content component="ul">
-                    {col1.map(item => (<Content component="li" key={item}>{item}</Content>))}
-                </Content>
-            </FlexItem>
-            {col2.length > 0 && <FlexItem flex={{ default: 'flex_1' }}>
-                <Content component="ul">
-                    {col2.map(item => (<Content component="li" key={item}>{item}</Content>))}
-                </Content>
-            </FlexItem>}
-        </Flex>
-    );
-};
-
-const TwoColumnTitle = ({ icon, str }) => {
-    return (<>
-        {icon}
-        <span className="update-success-table-title">
-            {str}
-        </span>
-    </>);
 };
 
 const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, restart, manual, reboot, checkRestartAvailable, history }) => {
@@ -1411,7 +1290,7 @@ class OsUpdates extends React.Component {
                         </Gallery>
                     </PageSection>
                     { this.state.showRestartServicesDialog &&
-                        <RestartServices
+                        <RestartServicesDialog
                             restartPackages={this.state.restartPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
@@ -1505,7 +1384,7 @@ class OsUpdates extends React.Component {
                         <ShutdownModal onClose={() => this.setState({ showRebootSystemDialog: false })} />
                     }
                     { this.state.showRestartServicesDialog &&
-                        <RestartServices restartPackages={this.state.restartPackages}
+                        <RestartServicesDialog restartPackages={this.state.restartPackages}
                             close={() => this.setState({ showRestartServicesDialog: false })}
                             state={this.state.state}
                             checkNeedsRestart={this.checkNeedsRestart}
@@ -1539,7 +1418,7 @@ class OsUpdates extends React.Component {
                         <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
                     </Gallery>
                     { this.state.showRestartServicesDialog &&
-                    <RestartServices restartPackages={this.state.restartPackages}
+                    <RestartServicesDialog restartPackages={this.state.restartPackages}
                                      close={() => this.setState({ showRestartServicesDialog: false })}
                                      state={this.state.state}
                                      checkNeedsRestart={this.checkNeedsRestart}

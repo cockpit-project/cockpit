@@ -263,7 +263,7 @@ const ExampleDialog = ({
                     return "Text can not be empty";
             });
         }
-        if (dlg.values.dropdown == "three") {
+        if (dlg.values.dropdown === "three") {
             dlg.field("text3").validate(v => {
                 if (!v)
                     return "Can't be empty";
@@ -271,15 +271,15 @@ const ExampleDialog = ({
         }
         dlg.field("list").forEach(v => {
             v.validate(vv => {
-                if (vv == "magic")
+                if (vv === "magic")
                     dlg.field("text").set("magic");
-                if (vv == ".")
+                if (vv === ".")
                     return "No dots";
             });
         });
         dlg.field("async").forEach(v => validate_Name(v, countAsyncValidation));
         dlg.field("file").validate(v => {
-            if (v && v[0] != "/")
+            if (v && v[0] !== "/")
                 return "Must be absolute";
         });
     }
@@ -289,23 +289,23 @@ const ExampleDialog = ({
     async function apply(values: ExampleValues, variant: string) {
         setResult(values);
 
-        if (variant == "force")
+        if (variant === "force")
             return;
 
-        if (values.error == "custom") {
+        if (values.error === "custom") {
             throw new DialogError("This is a failure", <code>1234-567-98A</code>);
-        } else if (values.error == "from") {
+        } else if (values.error === "from") {
             const err = new Error("no such file or scraper");
             throw DialogError.fromError("Tool not found", err);
-        } else if (values.error == "from-random") {
+        } else if (values.error === "from-random") {
             const err = [1, 2, 3, 4];
             throw DialogError.fromError("Too random", err);
-        } else if (values.error == "message") {
+        } else if (values.error === "message") {
             // eslint-disable-next-line no-throw-literal
             throw { message: "segmentation fault" };
-        } else if (values.error == "spawn") {
+        } else if (values.error === "spawn") {
             await cockpit.spawn(["ls", "--no-such-option"], { err: "message" });
-        } else if (values.error == "random") {
+        } else if (values.error === "random") {
             // eslint-disable-next-line no-throw-literal
             throw [1, 2, 3, 4];
         }
@@ -331,7 +331,7 @@ const ExampleDialog = ({
 
     function file_changed(val: string) {
         dlg.field("file_explanation").set_async(async () => {
-            if (val[0] == "/")
+            if (val[0] === "/")
                 return cockpit.spawn(["file", "-b", val], { superuser: "try" });
             else
                 return "--";
@@ -361,7 +361,7 @@ const ExampleDialog = ({
                         debounce={0}
                         excuse={!dlg.values.flag && "Disabled"}
                         explanation="Explanation"
-                        warning={dlg.values.text == "warn" ? "Warning" : null}
+                        warning={dlg.values.text === "warn" ? "Warning" : null}
                     />
                     <DialogTextInput
                         label="Text2"
@@ -404,10 +404,10 @@ const ExampleDialog = ({
                                 { value: "three", label: "Drei" },
                             ]
                         }
-                        warning={dlg.field("dropdown").get() == "two" ? "There is a discount if you buy three." : null}
+                        warning={dlg.field("dropdown").get() === "two" ? "There is a discount if you buy three." : null}
                     />
                     {
-                        dlg.values.dropdown == "three" &&
+                        dlg.values.dropdown === "three" &&
                             <DialogTextInput label="Text3" field={dlg.field("text3")} debounce={1000} />
                     }
                     <DialogDropdownSelectObject
@@ -427,7 +427,7 @@ const ExampleDialog = ({
                         label="Error"
                         field={dlg.field("error")}
                         options={["none", "custom", "from", "from-random", "message", "spawn", "random"]}
-                        warning={dlg.field("error").get() != "none" ? "There will be an error unless you apply with force" : null}
+                        warning={dlg.field("error").get() !== "none" ? "There will be an error unless you apply with force" : null}
                     />
                     <DialogCheckbox
                         field_label="Action options"
@@ -583,12 +583,12 @@ const ExampleDialogWithInitFunc = () => {
 
     function validate(dlg: DialogState<ExampleWithInitFuncValues>) {
         dlg.top().validate(v => {
-            if (v.text == "foo" && v.text2 != "bar") {
+            if (v.text === "foo" && v.text2 !== "bar") {
                 return {
                     text: "No foo without bar",
                 };
             }
-            if (v.text2 == "bar" && v.text != "foo") {
+            if (v.text2 === "bar" && v.text !== "foo") {
                 return {
                     text2: { "": "No bar without foo" },
                 };
@@ -644,9 +644,9 @@ const AsyncExampleDialog = ({
     const Dialogs = useDialogs();
 
     async function init(): Promise<AsyncExampleValues> {
-        if (throwError == 1)
+        if (throwError === 1)
             throw new Error("can't get the thing");
-        else if (throwError == 2)
+        else if (throwError === 2)
             throw new DialogError("Getting the thing failed", <i>can't get it</i>);
 
         await async_sleep(500);
@@ -781,7 +781,7 @@ const FileChooserButton = () => {
                             [
                                 {
                                     label: "TXT files",
-                                    filter: (name, type) => type == "reg" && !!name.match("\\.txt$")
+                                    filter: (name, type) => type === "reg" && !!name.match("\\.txt$")
                                 },
                             ]
                         }

@@ -35,5 +35,5 @@ export function basename(path : string): string {
 
 export function path_join(dir: string, base: string) {
     const normdir = drop_slashes(dir);
-    return (normdir == "/" ? "" : normdir) + "/" + base;
+    return (normdir === "/" ? "" : normdir) + "/" + base;
 }

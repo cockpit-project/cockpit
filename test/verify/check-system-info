@@ -190,7 +190,16 @@ class TestSystemInfo(testlib.MachineCase):
         mid = m.execute("cat /etc/machine-id")
         b.wait_text('#system_machine_id', mid)
 
-        # uptime (introduced in PR #13885)
+        self.allow_journal_messages("error loading contents of os-release: .*",  # C bridge
+                                    ".* Neither /etc/os-release nor /usr/lib/os-release exists",  # py bridge
+                                    "sudo: unable to resolve host host1.cockpit.lan: .*")
+
+    @testlib.nondestructive
+    def testUptime(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/system")
         b.wait_text_not("#system_uptime", "")
         # replace it with a known value, it should automatically update every minute
         m.write("/tmp/fake_uptime", "2000.12 12345.30\n")
@@ -202,10 +211,6 @@ class TestSystemInfo(testlib.MachineCase):
         m.write("/tmp/fake_uptime", "10370000 12345.30\n")
         with b.wait_timeout(70):
             b.wait_text("#system_uptime", "4 months ago")
-
-        self.allow_journal_messages("error loading contents of os-release: .*",  # C bridge
-                                    ".* Neither /etc/os-release nor /usr/lib/os-release exists",  # py bridge
-                                    "sudo: unable to resolve host host1.cockpit.lan: .*")
 
     @testlib.nondestructive
     @testlib.skipImage("TODO: fix for OpenSUSE", "opensuse-tumbleweed")

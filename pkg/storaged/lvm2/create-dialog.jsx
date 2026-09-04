@@ -14,7 +14,7 @@ const _ = cockpit.gettext;
 export function create_vgroup() {
     function find_vgroup(name) {
         for (const p in client.vgroups) {
-            if (client.vgroups[p].Name == name)
+            if (client.vgroups[p].Name === name)
                 return client.vgroups[p];
         }
         return null;

@@ -64,10 +64,10 @@ export function Channel(options) {
     }
 
     function on_control(data) {
-        if (data.command == "close") {
+        if (data.command === "close") {
             on_close(data);
             return;
-        } else if (data.command == "ready") {
+        } else if (data.command === "ready") {
             on_ready(data);
         }
 
@@ -185,7 +185,7 @@ export function Channel(options) {
 
         if (!options)
             options = { };
-        else if (typeof options == "string")
+        else if (typeof options === "string")
             options = { problem: options };
         options.command = "close";
         options.channel = id;

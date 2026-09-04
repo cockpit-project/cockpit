@@ -50,7 +50,7 @@ export function make_mdraid_disk_card(next, backing_block, content_block) {
             }
         });
 
-        const active_state = mdraid.ActiveDevices.find(as => as[0] == content_block.path);
+        const active_state = mdraid.ActiveDevices.find(as => as[0] === content_block.path);
 
         const state_text = (state) => {
             return {
@@ -82,7 +82,7 @@ export function make_mdraid_disk_card(next, backing_block, content_block) {
             remove_excuse = _("Last disk can not be removed");
 
         let remove_action = null;
-        if (mdraid.Level != "raid0")
+        if (mdraid.Level !== "raid0")
             remove_action = {
                 title: _("Remove"),
                 action: () => mdraid.RemoveDevice(content_block.path, { wipe: { t: 'b', v: true } }),

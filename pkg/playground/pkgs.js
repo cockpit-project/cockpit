@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
             for (const p in new_m) {
                 if (!manifests[p])
                     console.log("ADD", p);
-                else if (manifests[p].checksum != new_m[p].checksum)
+                else if (manifests[p].checksum !== new_m[p].checksum)
                     console.log("CHG", p);
             }
             for (const p in manifests) {

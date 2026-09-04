@@ -23,7 +23,7 @@ import s_bus from "./busnames.js";
 const _ = cockpit.gettext;
 
 function debug() {
-    if (window.debugging == "all" || window.debugging?.includes("service-details")) // not-covered: debugging
+    if (window.debugging === "all" || window.debugging?.includes("service-details")) // not-covered: debugging
         console.debug.apply(console, arguments); // not-covered: debugging
 }
 
@@ -120,13 +120,13 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
     // resolve Alias name to primary ID
     const cur_unit_id = unitProps.Id;
 
-    const unit_type = owner == "system" ? "UNIT" : "USER_UNIT";
+    const unit_type = owner === "system" ? "UNIT" : "USER_UNIT";
     const match = [
         "_SYSTEMD_" + unit_type + "=" + cur_unit_id, "+",
         "COREDUMP_" + unit_type + "=" + cur_unit_id, "+",
         unit_type + "=" + cur_unit_id,
     ];
-    const service_type = owner == "system" ? "service" : "user-service";
+    const service_type = owner === "system" ? "service" : "user-service";
     const url = "/system/logs/#/?prio=debug&" + service_type + "=" + cur_unit_id;
     const load_state = unitProps.LoadState;
 

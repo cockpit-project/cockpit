@@ -61,15 +61,15 @@ export function make_partition_card(next, block) {
     const unused_space = !!unused_space_warning;
     let { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, unused_space);
 
-    if (!unused_space_warning && !grow_excuse && free_space_after_part(client, block_part) == 0) {
+    if (!unused_space_warning && !grow_excuse && free_space_after_part(client, block_part) === 0) {
         grow_excuse = _("No free space after this partition");
     }
 
     const type = block_part.Type.replace(/^0x/, "").toLowerCase();
     let type_extra;
-    if (type == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" || type == "ef")
+    if (type === "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" || type === "ef")
         type_extra = _("EFI system partition");
-    else if (type == "21686148-6449-6e6f-744e-656564454649")
+    else if (type === "21686148-6449-6e6f-744e-656564454649")
         type_extra = _("BIOS boot partition");
 
     const card = new_card({
@@ -124,7 +124,7 @@ const PartitionCard = ({ card, block, unused_space_warning, resize_info }) => {
     const block_part = client.blocks_part[block.path];
     const unused_space = !!unused_space_warning;
     const block_ptable = client.blocks_ptable[block_part.Table];
-    const type_names = block_ptable?.Type == "dos" ? mbr_type_names : gpt_type_names;
+    const type_names = block_ptable?.Type === "dos" ? mbr_type_names : gpt_type_names;
     const type = block_part.Type.replace(/^0x/, "").toLowerCase();
 
     function shrink_to_fit() {
@@ -140,7 +140,7 @@ const PartitionCard = ({ card, block, unused_space_warning, resize_info }) => {
         choices.push({ title: _("Custom"), value: "custom" });
 
         function validate_type(val) {
-            if (block_ptable.Type == "dos") {
+            if (block_ptable.Type === "dos") {
                 const hex_rx = /^[a-fA-F0-9]{2}$/;
                 if (!hex_rx.test(val))
                     return _("Type must contain exactly two hexadecimal characters (0 to 9, A to F).");
@@ -175,15 +175,15 @@ const PartitionCard = ({ card, block, unused_space_warning, resize_info }) => {
                           {
                               value: type,
                               validate: validate_type,
-                              visible: vals => vals.type == "custom",
+                              visible: vals => vals.type === "custom",
                           }),
             ],
             Action: {
                 Danger: !client.in_anaconda_mode() && _("Changing partition types might prevent the system from booting."),
                 Title: _("Save"),
                 action: async function (vals) {
-                    let t = vals.type == "custom" ? vals.custom : vals.type;
-                    if (block_ptable?.Type == "dos")
+                    let t = vals.type === "custom" ? vals.custom : vals.type;
+                    if (block_ptable?.Type === "dos")
                         t = "0x" + t;
                     await block_part.SetType(t, { });
                 }

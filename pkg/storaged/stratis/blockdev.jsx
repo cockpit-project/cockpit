@@ -40,9 +40,9 @@ export function make_stratis_blockdev_card(next, backing_block, content_block) {
 
     if (pool || uuid) {
         let extra;
-        if (blockdev && blockdev.Tier == 0)
+        if (blockdev && blockdev.Tier === 0)
             extra = _("data");
-        else if (blockdev && blockdev.Tier == 1)
+        else if (blockdev && blockdev.Tier === 1)
             extra = _("cache");
         else
             extra = null;

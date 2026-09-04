@@ -76,7 +76,7 @@ function monitor_luks(block) {
 }
 
 function parse_tag_mtime(tag) {
-    if (tag && tag.indexOf("1:") == 0) {
+    if (tag && tag.indexOf("1:") === 0) {
         try {
             const parts = tag.split("-")[1].split(".");
             // s:ns → ms
@@ -121,7 +121,7 @@ const EncryptionCard = ({ card, block }) => {
 
     let old_options;
     let passphrase_path;
-    const old_config = block.Configuration.find(c => c[0] == "crypttab");
+    const old_config = block.Configuration.find(c => c[0] === "crypttab");
     if (old_config) {
         old_options = (decode_filename(old_config[1].options.v)
                 .split(",")
@@ -167,9 +167,9 @@ const EncryptionCard = ({ card, block }) => {
     }
 
     function edit_options() {
-        const fsys_config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
+        const fsys_config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] === "fstab");
         const content_block = client.blocks_cleartext[block.path];
-        const is_fsys = fsys_config || (content_block && content_block.IdUsage == "filesystem");
+        const is_fsys = fsys_config || (content_block && content_block.IdUsage === "filesystem");
 
         edit_crypto_config(block, function (config, commit) {
             dialog_open({

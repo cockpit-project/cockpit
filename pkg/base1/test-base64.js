@@ -13,7 +13,7 @@ QUnit.test("base64 array", function (assert) {
 
     let match = 1;
     for (let i = 0; i < data.length; i++) {
-        if (data[i] != i) {
+        if (data[i] !== i) {
             match = false;
             break;
         }
@@ -33,7 +33,7 @@ QUnit.test("base64 arraybuffer", function (assert) {
 
     let match = 1;
     for (let i = 0; i < data.length; i++) {
-        if (data[i] != i) {
+        if (data[i] !== i) {
             match = false;
             break;
         }
@@ -64,7 +64,7 @@ QUnit.test("base64 round trip", function (assert) {
 
     let match = true;
     for (let i = 0; i < length; i++) {
-        if (data[i] != decoded[i]) {
+        if (data[i] !== decoded[i]) {
             match = false;
             break;
         }

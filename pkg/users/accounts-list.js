@@ -211,7 +211,7 @@ const mapGroupsToAccount = (accounts, groups) => {
 const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_gid }) => {
     const { options } = usePageLocation();
 
-    const currentTextFilter = typeof options.group == "string" ? options.group : '';
+    const currentTextFilter = typeof options.group === "string" ? options.group : '';
     const setCurrentTextFilter = val => {
         const newOptions = { ...cockpit.location.options };
         if (val)
@@ -239,7 +239,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
 
     const sortRows = (rows, direction, idx) => {
         // GID and members columns are numeric
-        const isNumeric = idx == 1 || idx == 2;
+        const isNumeric = idx === 1 || idx === 2;
         const sortedRows = rows.sort((a, b) => {
             const aitem = a.columns[idx].sortKey || a.columns[idx].title;
             const bitem = b.columns[idx].sortKey || b.columns[idx].title;
@@ -330,7 +330,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
 const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells }) => {
     const { options } = usePageLocation();
 
-    const currentTextFilter = typeof options.user == "string" ? options.user : '';
+    const currentTextFilter = typeof options.user === "string" ? options.user : '';
     const setCurrentTextFilter = val => {
         const newOptions = { ...cockpit.location.options };
         if (val)
@@ -386,9 +386,9 @@ const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells
                 return bitem.sortKey - aitem.sortKey;
             }
 
-            if (idx == 2)
+            if (idx === 2)
                 return bitem.title - aitem.title;
-            return ((typeof aitem == 'string' ? aitem : (aitem.sortKey || aitem.title)).localeCompare(typeof bitem == 'string' ? bitem : (bitem.sortKey || bitem.title)));
+            return ((typeof aitem === 'string' ? aitem : (aitem.sortKey || aitem.title)).localeCompare(typeof bitem === 'string' ? bitem : (bitem.sortKey || bitem.title)));
         });
         return direction === SortByDirection.asc ? sortedRows : sortedRows.reverse();
     };

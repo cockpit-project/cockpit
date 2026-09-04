@@ -51,7 +51,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         }
 
         // Skip loopback
-        if (iface.Name == "lo" || (iface.Device && iface.Device.DeviceType == 'loopback'))
+        if (iface.Name === "lo" || (iface.Device && iface.Device.DeviceType === 'loopback'))
             return;
 
         // Skip members
@@ -59,7 +59,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
             return;
 
         const dev = iface.Device;
-        const show_traffic = (dev && (dev.State == 100 || dev.State == 10) && dev.Carrier === true);
+        const show_traffic = (dev && (dev.State === 100 || dev.State === 10) && dev.Carrier === true);
 
         plot_ifaces.push(iface.Name);
         usage_monitor.add(iface.Name);

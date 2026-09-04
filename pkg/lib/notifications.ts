@@ -117,7 +117,7 @@ class PageStatus extends EventTarget {
     constructor() {
         super();
         window.addEventListener("storage", event => {
-            if (event.key == "cockpit:page_status") {
+            if (event.key === "cockpit:page_status") {
                 this.dispatchEvent(new CustomEvent("changed"));
             }
         });

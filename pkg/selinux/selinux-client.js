@@ -66,15 +66,15 @@ export function init(statusChangedCallback) {
                         return;
                     const key = items[0].trim();
                     const value = items[1].trim();
-                    if (key == "SELinux status") {
-                        status.enabled = (value == "enabled");
-                    } else if (key == "Current mode") {
-                        status.enforcing = (value == "enforcing");
-                    } else if (key == "Mode from config file") {
-                        if (value == 'error (Permission denied)') {
+                    if (key === "SELinux status") {
+                        status.enabled = (value === "enabled");
+                    } else if (key === "Current mode") {
+                        status.enforcing = (value === "enforcing");
+                    } else if (key === "Mode from config file") {
+                        if (value === 'error (Permission denied)') {
                             status.configEnforcing = undefined;
                         } else {
-                            status.configEnforcing = (value == "enforcing");
+                            status.configEnforcing = (value === "enforcing");
                         }
                     }
                 });
@@ -177,7 +177,7 @@ export function getModifications(statusChangedCallback) {
                     const items = mod.split(" ");
 
                     // Skip enumeration of types, e.g. 'boolean -D'
-                    if (items.length === 2 && items[1] == "-D")
+                    if (items.length === 2 && items[1] === "-D")
                         return result;
 
                     if (manageditems.indexOf(items[0]) < 0) {

@@ -26,7 +26,7 @@ export function host_superuser_storage_key(host: string | undefined) {
         host = cockpit.transport.host;
 
     const local_key = window.localStorage.getItem("superuser-key");
-    if (host == "localhost")
+    if (host === "localhost")
         return local_key;
     else if (host.indexOf("@") >= 0)
         return "superuser:" + host;
@@ -134,7 +134,7 @@ const UnlockDialog = ({
                 .catch((err: cockpit.BasicError) => {
                     console.warn(err);
                     proxy.removeEventListener("Prompt", onprompt);
-                    if (err && err.message != "cancelled") {
+                    if (err && err.message !== "cancelled") {
                         setBusy(false);
                         setPrompt(null);
                         setError(sudo_polish(err.toString()));
@@ -150,9 +150,9 @@ const UnlockDialog = ({
                 setError(_("No methods to gain administrative access are available (sudo -A, pkexec)."));
             } else if (proxy.Methods) {
                 const ids = Object.keys(proxy.Methods);
-                if (ids.length == 0)
+                if (ids.length === 0)
                     start(proxy.Bridges[0]);
-                else if (ids.length == 1)
+                else if (ids.length === 1)
                     start(ids[0]);
                 else {
                     setMethods(ids);
@@ -163,7 +163,7 @@ const UnlockDialog = ({
         });
     }
 
-    const validated = errorVariant == "danger" ? "error" : errorVariant;
+    const validated = errorVariant === "danger" ? "error" : errorVariant;
 
     let title = null;
     let title_icon: null | "danger" = null;
@@ -346,13 +346,13 @@ const SuperuserDialogs = ({
                      // time, and we don't want to suffer through the
                      // associated intermediate UI state on every login.
                      const want = window.localStorage.getItem(key);
-                     if (superuser_proxy.Current == "none" && superuser_proxy.Current != want)
+                     if (superuser_proxy.Current === "none" && superuser_proxy.Current !== want)
                          window.localStorage.setItem(key, superuser_proxy.Current);
                  }
              });
 
-    const show = superuser_proxy.Current != "root" && superuser_proxy.Current != "init";
-    const unlocked = superuser_proxy.Current != "none";
+    const show = superuser_proxy.Current !== "root" && superuser_proxy.Current !== "init";
+    const unlocked = superuser_proxy.Current !== "none";
 
     function unlock() {
         D.show(<UnlockDialog proxy={superuser_proxy} host={host} />);

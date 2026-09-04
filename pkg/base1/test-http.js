@@ -158,7 +158,7 @@ QUnit.test("binary data", async assert => {
 QUnit.test("invalid UTF-8", async assert => {
     await assert.rejects(
         cockpit.http(test_server).get("/mock/binary-data"),
-        ex => ex.problem == "protocol-error" && ex.message.includes("can't decode byte 0xff"),
+        ex => ex.problem === "protocol-error" && ex.message.includes("can't decode byte 0xff"),
         "rejects non-UTF-8 data on text channel");
 });
 
@@ -278,7 +278,7 @@ QUnit.test("address with params", async assert => {
 QUnit.test("HEAD method", async assert => {
     await assert.rejects(
         cockpit.http(test_server).get("/mock/headonly"),
-        ex => ex.status == 400,
+        ex => ex.status === 400,
         "rejects GET request on /headonly path");
 
     const InputData = "some chars";
@@ -300,17 +300,17 @@ QUnit.test("wrong options", async assert => {
     await assert.rejects(
         cockpit.http({}).get("/"),
         // unfortunately cockpit.js does not propagate the detailed error message
-        ex => ex.problem == "protocol-error" && ex.status == undefined,
+        ex => ex.problem === "protocol-error" && ex.status === undefined,
         "rejects request without port or unix option");
 
     await assert.rejects(
         cockpit.http({ port: 1234, unix: "/nonexisting/socket" }).get("/"),
-        ex => ex.problem == "protocol-error" && ex.status == undefined,
+        ex => ex.problem === "protocol-error" && ex.status === undefined,
         "rejects request with both port and unix option");
 
     await assert.rejects(
         cockpit.http({ unix: "/nonexisting/socket", tls: {} }).get("/"),
-        ex => ex.problem == "protocol-error" && ex.status == undefined,
+        ex => ex.problem === "protocol-error" && ex.status === undefined,
         "rejects request with both unix and tls option");
 });
 

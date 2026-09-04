@@ -1035,6 +1035,9 @@ class TestSystemInfoTime(packagelib.PackageCase):
         m = self.machine
         b = self.browser
 
+        # run this test with a tight umask to check proper file permissions (chronyd runs as non-root)
+        self.sed_file(r"/^UMASK/ s/0../077/", "/etc/login.defs")
+
         enabled_conf = "/etc/chrony/sources.d/cockpit.sources"
         disabled_conf = "/etc/chrony/sources.d/cockpit.disabled"
 
@@ -1073,6 +1076,9 @@ class TestSystemInfoTime(packagelib.PackageCase):
         m.execute(f"grep 0.ntp.example.com {enabled_conf}")
         m.execute(f"grep 1.ntp.example.com {enabled_conf}")
         m.execute(f"! test -f {disabled_conf}")
+        # Cockpit created the file with the correct permissions
+        self.assertEqual(m.execute(f"stat --format '%a' {enabled_conf}").strip(), "644")
+        self.assertEqual(m.execute("stat --format '%a' /etc/chrony /etc/chrony/sources.d").strip(), "755\n755")
 
         # restarts chronyd to pick up the new config
         testlib.wait(lambda: get_chronyd_start() > prev_chronyd_start, delay=0.2)

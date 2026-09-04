@@ -26,6 +26,24 @@ import { Title, TitleSizes } from "@patternfly/react-core/dist/esm/components/Ti
 
 const _ = cockpit.gettext;
 
+
+/**
+ * @typedef {import("_internal/packagemanager-abstract").ProgressCB} ProgressCB
+ */
+
+/**
+ * Checks if packages are installed on the system.
+ * @param {string[]} pkgnames Package names to check.
+ * @param {ProgressCB} progress_cb Callback function to indicate the progress of checking if a package is installed.
+ * @returns {Promise<string[]>} List of installed packages
+ */
+async function get_installed_packages(pkgnames, progress_cb) {
+    const packagemanager = await getPackageManager();
+    const { missing_names } = await packagemanager.check_missing_packages(pkgnames, progress_cb)
+    return pkgnames.filter(pkgname => missing_names.includes(pkgname))
+}
+
+
 async function refresh_appstream_metadata(origin_files, config_packages, data_packages, progress_cb) {
     /* In addition to refreshing the repository metadata, we also
      * update all packages that contain AppStream collection metadata.
@@ -82,7 +100,7 @@ async function refresh_appstream_metadata(origin_files, config_packages, data_pa
     }
 }
 
-const ApplicationRow = ({ comp, progress, progress_title, action }) => {
+const ApplicationRow = ({ comp, progress, progress_title, action, isInstalled }) => {
     const [error, setError] = useState();
 
     const name = (
@@ -131,7 +149,7 @@ const ApplicationRow = ({ comp, progress, progress_title, action }) => {
                     ]}
                 />
                 <DataListAction aria-labelledby={comp.name} aria-label={_("Actions")}>
-                    <ActionButton comp={comp} progress={progress} action={action} />
+                    <ActionButton comp={comp} isInstalled={isInstalled} progress={progress} action={action} />
                 </DataListAction>
             </DataListItemRow>
         </DataListItem>
@@ -141,7 +159,9 @@ const ApplicationRow = ({ comp, progress, progress_title, action }) => {
 export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, action }) => {
     const [progress, setProgress] = useState(false);
     const [dataPackagesInstalled, setDataPackagesInstalled] = useState(null);
+    const [componentsInstalled, setComponentsInstalled] = useState(null);
     const comps = [];
+
     for (const id in metainfo_db.components)
         comps.push(metainfo_db.components[id]);
     comps.sort((a, b) => a.name.localeCompare(b.name));
@@ -167,6 +187,12 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
     useInit(async () => {
         const [config, data] = await get_packages();
         await check_missing_data([...config, ...data]);
+        if (comps.length > 0) {
+            const packageNames = comps.map(c => c.pkgname);
+            const packages = await get_installed_packages(packageNames, setProgress);
+            console.log("pkgs", packageNames, packages)
+            setComponentsInstalled(packages);
+        }
     });
 
     async function refresh() {
@@ -199,6 +225,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
 
     if (comps.length) {
         tbody = comps.map(c => <ApplicationRow comp={c} key={c.id}
+                                               isInstalled={componentsInstalled?.includes(c.name) ?? false}
                                                progress={appProgress[c.id]}
                                                progress_title={appProgressTitle[c.id]}
                                                action={action} />);

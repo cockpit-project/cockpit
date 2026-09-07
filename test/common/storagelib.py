@@ -8,6 +8,7 @@ import os.path
 import re
 import textwrap
 from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
+from functools import cached_property
 from typing import Any
 
 from machine.machine_core.machine_virtual import VirtMachine
@@ -697,19 +698,6 @@ class StorageCase(StorageHelpers):
 
         super().setUp()
 
-        ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
-        m = re.match(r's "(.*)"', ver)
-        if m:
-            self.storaged_version = list(map(int, m.group(1).split(".")))
-        else:
-            self.storaged_version = [0]
-
-        crypto_types = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager SupportedEncryptionTypes || true")
-        if "luks2" in crypto_types:
-            self.default_crypto_type = "luks2"
-        else:
-            self.default_crypto_type = "luks1"
-
         # OSTree friendly, automatically unmounted and cleaned up
         self.mnt_dir = os.path.join(self.vm_tmpdir, "mnt")
         self.machine.execute(f"mkdir -p {self.mnt_dir}")
@@ -725,6 +713,20 @@ class StorageCase(StorageHelpers):
         # gets it immediately.  But sometimes the interface is already
         # gone.
         self.allow_journal_messages("org.freedesktop.UDisks2: couldn't get property org.freedesktop.UDisks2.Filesystem Size .* No such interface.*")
+
+    @cached_property
+    def storaged_version(self) -> list[int]:
+        ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
+        m = re.match(r's "(.*)"', ver)
+        if m:
+            return list(map(int, m.group(1).split(".")))
+        else:
+            return [0]
+
+    @cached_property
+    def default_crypto_type(self) -> str:
+        crypto_types = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager SupportedEncryptionTypes || true")
+        return "luks2" if "luks2" in crypto_types else "luks1"
 
 
 class StorageSmartCase(StorageCase):

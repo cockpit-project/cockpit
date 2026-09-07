@@ -198,6 +198,7 @@ class TestStorageResize(storagelib.StorageCase):
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 
+    @testlib.skipImage("cryptsetup uses too much memory, OOM on our test VMs", "rhel-8-*")
     def testGrowShrinkEncryptedHelp(self):
         m = self.machine
         b = self.browser

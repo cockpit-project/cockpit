@@ -147,6 +147,8 @@ if [ "$PLAN" = "basic" ]; then
 
     # PCI devices list is not predictable
     EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"
+    # Doesn't test external APIs and the test is heavily tuned for running in our own CI.
+    EXCLUDES="$EXCLUDES TestSystemInfo.testOverview"
 
     if [ "${TEST_OS#rhel-8}" != "$TEST_OS" ] || [ "${TEST_OS#centos-8}" != "$TEST_OS" ]; then
         # no cockpit-tests package in RHEL 8

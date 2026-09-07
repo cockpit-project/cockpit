@@ -6,7 +6,6 @@
 
 
 import os
-import unittest
 
 import storagelib
 import testlib
@@ -136,10 +135,6 @@ class TestStorageResize(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
-        if self.storaged_version < [2, 7, 6]:
-            # No Filesystem.Size property
-            raise unittest.SkipTest("UDisks2 too old")
-
         self.login_and_go("/storage")
         disk = m.add_disk("500M", serial="DISK1")
         b.wait_visible(self.card_row("Storage", name=f"/dev/{disk['dev']}"))
@@ -192,10 +187,6 @@ class TestStorageResize(storagelib.StorageCase):
     def testGrowShrinkEncryptedHelp(self):
         m = self.machine
         b = self.browser
-
-        if self.storaged_version < [2, 8, 0]:
-            # No Encrypted.MetadataSize property
-            raise unittest.SkipTest("UDisks2 too old")
 
         self.login_and_go("/storage")
         disk = m.add_disk("500M", serial="DISK1")

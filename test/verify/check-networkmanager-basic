@@ -191,7 +191,7 @@ class TestNetworkingBasic(netlib.NetworkCase):
         b.set_input_text("#network-ip-settings-netmask-0", "64")
         b.set_input_text("#network-ip-settings-gateway-0", "2001:db8::1")
         b.click("#network-ip-settings-save")
-        self.wait_for_iface_setting("IPv6", "Address 2001:db8::10/64 via 2001:db8::1")
+        self.wait_for_iface_setting("IPv6", "Address 2001:db8:0:0:0:0:0:10/64 via 2001:db8:0:0:0:0:0:1")
 
         # Start the interface and verify new address is set
         b.click("#interface-switch")

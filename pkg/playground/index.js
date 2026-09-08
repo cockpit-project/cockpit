@@ -3,9 +3,13 @@ import '../lib/patternfly/patternfly-6-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import 'cockpit-dark-theme'; // once per page
 import cockpit from "cockpit";
-import { page_status } from "notifications";
+import { page_status } from "shell";
+import { board } from "_internal/notifications";
 
 import "../lib/page.scss";
+
+// Demo board so notifications-receiver.js can list cross-page posts.
+const demo_board = board("playground:demo");
 
 function id(sel) {
     return document.getElementById(sel);
@@ -27,11 +31,14 @@ function init() {
     }
 
     id("set-status").onclick = event => {
-        page_status.set_own({ type: id("type").value, title: id("title").value });
+        const status = { type: id("type").value || null, title: id("title").value };
+        page_status.publish(status);
+        demo_board.publish(status);
     };
 
     id("clear-status").onclick = event => {
-        page_status.set_own(null);
+        page_status.publish(null);
+        demo_board.clear();
     };
 }
 

@@ -25,6 +25,8 @@ import { PlotState } from 'plot';
 
 import { useObject, useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
+import { AnacondaNetworkPage } from './anaconda-main';
+import { in_anaconda_mode } from 'utils';
 
 const _ = cockpit.gettext;
 
@@ -98,6 +100,21 @@ const App = () => {
     }
 
     const interfaces = model.list_interfaces();
+
+    const anaconda_mode = in_anaconda_mode();
+
+    if (anaconda_mode) {
+        return (
+            <ModelContext.Provider value={model}>
+                <WithDialogs key="networking-anaconda">
+                    <AnacondaNetworkPage privileged={superuser.allowed}
+                                         operationInProgress={model.operationInProgress}
+                                         usage_monitor={usage_monitor}
+                                         interfaces={interfaces} />
+                </WithDialogs>
+            </ModelContext.Provider>
+        );
+    }
 
     /* At this point NM is running and the model is ready */
     if (path.length == 0) {

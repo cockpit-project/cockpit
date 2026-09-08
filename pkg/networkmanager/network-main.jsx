@@ -20,7 +20,6 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { NetworkAction } from "./dialogs-common.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
 import { NetworkPlots } from "./plots";
-import { in_anaconda_mode } from "utils";
 
 import firewall from './firewall-client.js';
 import {
@@ -157,10 +156,8 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         </>
     );
 
-    const anaconda = in_anaconda_mode();
-
     return (
-        <Page data-test-wait={operationInProgress} id="networking" className={"pf-m-no-sidebar" + (anaconda ? " anaconda" : "")}>
+        <Page data-test-wait={operationInProgress} id="networking" className="pf-m-no-sidebar">
             <PageSection hasBodyWrapper={false} id="networking-graphs" className="networking-graphs">
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>

@@ -223,6 +223,8 @@ export const NetworkInterfacePage = ({
     const [prevAPCount, setPrevAPCount] = useState(0);
     const [networkSearch, setNetworkSearch] = useState("");
 
+    const anaconda_mode = in_anaconda_mode();
+
     const dev_name = iface.Name;
     const dev = iface.Device;
     const isManaged = iface && (!dev || is_managed(dev));
@@ -1122,7 +1124,7 @@ export const NetworkInterfacePage = ({
         };
 
         const cs = con && connection_settings(con);
-        if (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge")) {
+        if (plot_state && (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge"))) {
             plot_state.plot_instances('rx', rx_plot_data, [dev_name], true);
             plot_state.plot_instances('tx', tx_plot_data, [dev_name], true);
             return null;
@@ -1150,8 +1152,10 @@ export const NetworkInterfacePage = ({
             });
         });
 
-        plot_state.plot_instances('rx', rx_plot_data, plot_ifaces, true);
-        plot_state.plot_instances('tx', tx_plot_data, plot_ifaces, true);
+        if (plot_state) {
+            plot_state.plot_instances('rx', rx_plot_data, plot_ifaces, true);
+            plot_state.plot_instances('tx', tx_plot_data, plot_ifaces, true);
+        }
 
         const sorted_members = Object.keys(members).sort()
                 .map(name => members[name]);
@@ -1218,25 +1222,27 @@ export const NetworkInterfacePage = ({
     const settingsRows = renderConnectionSettingsRows(iface.MainConnection, connectionSettings)
             .map((component, idx) => <React.Fragment key={idx}>{component}</React.Fragment>);
 
-    const anaconda = in_anaconda_mode();
-
     return (
         <Page id="network-interface"
               data-test-wait={operationInProgress}
-              className={"pf-m-no-sidebar" + (anaconda ? " anaconda" : "")}>
-            <PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
-                <Breadcrumb>
-                    <BreadcrumbItem to='#/'>
-                        {_("Networking")}
-                    </BreadcrumbItem>
-                    <BreadcrumbItem isActive>
-                        {dev_name}
-                    </BreadcrumbItem>
-                </Breadcrumb>
-            </PageBreadcrumb>
-            <PageSection hasBodyWrapper={false}>
-                <NetworkPlots plot_state={plot_state} />
-            </PageSection>
+              className={"pf-m-no-sidebar" + (anaconda_mode ? " anaconda" : "")}>
+            { !anaconda_mode &&
+                (<PageBreadcrumb hasBodyWrapper={false} stickyOnBreakpoint={{ default: "top" }}>
+                    <Breadcrumb>
+                        <BreadcrumbItem to='#/'>
+                            {_("Networking")}
+                        </BreadcrumbItem>
+                        <BreadcrumbItem isActive>
+                            {dev_name}
+                        </BreadcrumbItem>
+                    </Breadcrumb>
+                </PageBreadcrumb>)
+            }
+            { plot_state &&
+                <PageSection hasBodyWrapper={false}>
+                    <NetworkPlots plot_state={plot_state} />
+                </PageSection>
+            }
             <PageSection hasBodyWrapper={false}>
                 <Gallery hasGutter>
                     <Card isPlain className="network-interface-details">
@@ -1274,7 +1280,7 @@ export const NetworkInterfacePage = ({
                         }
                     </Card>
                     {renderWiFiNetworks()}
-                    {renderConnectionMembers(iface.MainConnection)}
+                    { !anaconda_mode && renderConnectionMembers(iface.MainConnection)}
                 </Gallery>
             </PageSection>
         </Page>

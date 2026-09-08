@@ -2120,6 +2120,11 @@ export function has_group(iface) {
     );
 }
 
+export function is_wireless(iface) {
+    // NM_DEVICE_TYPE_WIFI
+    return iface.Device?.DeviceType === '802-11-wireless';
+}
+
 export function init() {
     cockpit.translate();
 }

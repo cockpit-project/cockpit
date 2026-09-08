@@ -10,7 +10,6 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { DropdownItem } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
 import { Form } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
@@ -21,7 +20,7 @@ import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchIn
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
-import { SortByDirection } from '@patternfly/react-table';
+import { ActionsColumn, SortByDirection } from '@patternfly/react-table';
 import {
     ConnectedIcon,
     DisconnectedIcon,
@@ -32,7 +31,6 @@ import {
     ThumbtackIcon,
 } from "@patternfly/react-icons";
 
-import { KebabDropdown } from "cockpit-components-dropdown";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { Privileged } from "cockpit-components-privileged";
 import { distanceToNow } from "timeformat";
@@ -958,9 +956,9 @@ export const NetworkInterfacePage = ({
                           size="sm" />
             );
 
-            let actionColumn;
+            let actionColumnContent;
             if (isActive) {
-                actionColumn = (
+                actionColumnContent = (
                     <Privileged allowed={privileged}
                                 tooltipId={"wifi-disconnect-" + index}
                                 excuse={_("Not permitted to disconnect network")}>
@@ -979,48 +977,58 @@ export const NetworkInterfacePage = ({
                     </Privileged>
                 );
             } else {
-                actionColumn = (
-                    <>
-                        <Privileged allowed={privileged}
-                                    tooltipId={"wifi-connect-" + index}
-                                    excuse={_("Not permitted to connect to network")}>
-                            <Button variant="secondary"
-                                    size="sm"
-                                    icon={<ConnectedIcon />}
-                                    isDisabled={!privileged}
-                                    onClick={() => connectToAP(ap)}
-                                    aria-label={_("Connect")}>
-                                {_("Connect")}
-                            </Button>
-                        </Privileged>
-                        {ap.Connection && (
-                            <>
-                                {" "}
-                                <KebabDropdown
-                                    toggleButtonId={"wifi-kebab-" + index}
-                                    isDisabled={!privileged}
-                                    dropdownItems={[
-                                        <DropdownItem key="forget"
-                                                      className="pf-m-danger"
-                                                      onClick={() => forgetNetwork(ap)}
-                                                      aria-label={_("Forget")}>
-                                            {_("Forget")}
-                                        </DropdownItem>
-                                    ]} />
-                            </>
-                        )}
-                    </>
+                actionColumnContent = (
+                    <Privileged allowed={privileged}
+                                tooltipId={"wifi-connect-" + index}
+                                excuse={_("Not permitted to connect to network")}>
+                        <Button variant="secondary"
+                                size="sm"
+                                icon={<ConnectedIcon />}
+                                isDisabled={!privileged}
+                                onClick={() => connectToAP(ap)}
+                                aria-label={_("Connect")}>
+                            {_("Connect")}
+                        </Button>
+                    </Privileged>
                 );
             }
 
+            const actionColumn = (
+                <Flex justifyContent={{ default: "justifyContentFlexEnd" }}>
+                    <FlexItem>
+                        {actionColumnContent}
+                    </FlexItem>
+                </Flex>
+            );
+
+            const networkColumns = [
+                { title: nameColumn, sortKey: ap.Ssid, header: true },
+                { title: <>{securityIcon} {ap.Mode}</>, sortKey: ap.Mode },
+                { title: signalColumn, sortKey: String(ap.Strength).padStart(3, '0') },
+                { title: cockpit.format_bits_per_sec(ap.MaxBitrate * 1000) },
+                { title: actionColumn },
+            ];
+
+            if (ap.Connection) {
+                const rowActions = <ActionsColumn
+                    items={[
+                        {
+                            title: _("Forget"),
+                            onClick: () => forgetNetwork(ap),
+                            isDanger: true,
+                            "aria-label": _("Forget")
+                        }
+                    ]}
+                    isDisabled={!privileged}
+                />;
+
+                networkColumns.push({ title: rowActions, props: { isActionCell: true } });
+            } else {
+                networkColumns.push({ title: "" });
+            }
+
             return {
-                columns: [
-                    { title: nameColumn, sortKey: ap.Ssid, header: true },
-                    { title: <>{securityIcon} {ap.Mode}</>, sortKey: ap.Mode },
-                    { title: signalColumn, sortKey: String(ap.Strength).padStart(3, '0') },
-                    { title: cockpit.format_bits_per_sec(ap.MaxBitrate * 1000) },
-                    { title: actionColumn },
-                ],
+                columns: networkColumns,
                 props: { key: ap.HwAddress, "data-ssid": ap.Ssid, "data-known": !!ap.Connection }
             };
         });
@@ -1028,17 +1036,30 @@ export const NetworkInterfacePage = ({
         // Add aggregated hidden access points row at the bottom
         if (dev.hiddenAPCount > 0) {
             const hiddenLabel = cockpit.ngettext("$0 hidden network", "$0 hidden networks", dev.hiddenAPCount);
+
+            const networkHiddenColumns = [
+                { title: cockpit.format(hiddenLabel, dev.hiddenAPCount), sortKey: "zzz-hidden", header: true },
+                { title: "" },
+                { title: "" },
+                { title: "" },
+                { title: "" },
+                { title: "" },
+            ];
+
             rows.push({
-                columns: [
-                    { title: cockpit.format(hiddenLabel, dev.hiddenAPCount), sortKey: "zzz-hidden", header: true },
-                    { title: "" },
-                    { title: "" },
-                    { title: "" },
-                    { title: "" },
-                ],
+                columns: networkHiddenColumns,
                 props: { key: "hidden-networks", "data-hidden": true }
             });
         }
+
+        const listingColumns = [
+            { title: _("Network"), header: true, sortable: true },
+            { title: _("Mode") },
+            { title: _("Signal"), sortable: true },
+            { title: _("Rate") },
+            { props: { screenReaderText: _("Primary action") } },
+            { props: { screenReaderText: _("Secondary actions") } },
+        ];
 
         return (
             <Card isPlain id="network-interface-wifi-networks">
@@ -1077,13 +1098,7 @@ export const NetworkInterfacePage = ({
                 </CardHeader>
                 <ListingTable aria-label={_("Available networks")}
                               variant='compact'
-                              columns={[
-                                  { title: _("Network"), header: true, sortable: true },
-                                  { title: _("Mode") },
-                                  { title: _("Signal"), sortable: true },
-                                  { title: _("Rate") },
-                                  { title: "", props: { screenReaderText: _("Actions") } },
-                              ]}
+                              columns={listingColumns}
                               sortBy={{ index: 2, direction: SortByDirection.asc }}
                               sortMethod={networkSort}
                               rows={rows} />

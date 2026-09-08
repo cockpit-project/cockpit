@@ -10,6 +10,7 @@ jobs:
   # https://github.com/actions/add-to-project#creating-a-pat-and-adding-it-to-your-repository
   add-to-project:
     name: Add issue to project
+    environment: gh-project
     runs-on: ubuntu-latest
     steps:
       - uses: actions/add-to-project@v2

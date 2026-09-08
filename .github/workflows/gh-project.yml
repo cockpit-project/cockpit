@@ -1,0 +1,53 @@
+# Adds issues to GH project and some PRs from bots
+#
+# A per-project workflow is used instead of a project-specific one as those are
+# limited to one auto-add issue/PR workflow which only accepts one repository.
+# If we were to have multiple project workflows to add issues we'd need to pay for it
+# which is dumb as we can just use workflows to do it instead.
+#
+# Running a workflow in e.g. cockpit/bots would also be possible instead of a per-repo
+# workflow, but it can't update real-time and will likely have a lot of wasted
+# runs to check for new issues or PRs. One could maybe go around this limitation by
+# using webhooks, but requires even more setup.
+#
+# A GH_PROJECTS secret is required with permissions issues:r, prs:r, projects:rw.
+#
+# PRs are added if they have `bot` label as they are usually churn that would cause
+# extra bloat for us if they had issues attached. See the project's README for more info.
+# https://github.com/orgs/cockpit-project/projects/10
+name: GH Project
+
+on:
+  issues:
+    types:
+      - opened
+  # Safe as no content from the PR itself is accessed through a checkout
+  pull_request_target:
+    types:
+      - labeled
+
+env:
+  # https://github.com/orgs/cockpit-project/projects/10
+  PROJECT: 10
+
+jobs:
+  issues:
+    if: ${{ github.event_name != 'pull_request' }}
+    name: Add issue
+    environment: gh-project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v2
+        with:
+          project-url: https://github.com/orgs/cockpit-project/projects/${{ env.PROJECT }}
+          github-token: ${{ secrets.GH_PROJECTS }}
+  prs:
+    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'bot') }}
+    name: Add bot PR
+    environment: gh-project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v2
+        with:
+          project-url: https://github.com/orgs/cockpit-project/projects/${{ env.PROJECT }}
+          github-token: ${{ secrets.GH_PROJECTS }}

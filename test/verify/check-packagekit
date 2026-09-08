@@ -1844,6 +1844,9 @@ class TestInstallDialog(NoSubManCase):
         self.createPackage("ok-software", "998", "1", install=True)
         self.createPackage("breaking-software", "999", "1", conflicts="ok-software")
 
+        # package that is already installed should not prevent extra packages from showing
+        self.createPackage("already-installed", "998", "1", install=True)
+
         # Test error condition, package not being available yet
         self.login_and_go('/playground/packagemanager')
         b.wait_in_text("#install-card-title", "Install dialog test")
@@ -1863,8 +1866,8 @@ class TestInstallDialog(NoSubManCase):
 
         # Test that additional installed packages are shown in the dialog
         b.wait_in_text("#install-card-title", "Install dialog test")
-        self.show_install_dialog("test-webserver")
-        b.wait_in_text("#dialog", "test-webserver will be installed.")
+        self.show_install_dialog("already-installed,test-webserver")
+        b.wait_in_text("#dialog", "already-installed, test-webserver will be installed.")
         b.wait_text("#dialog .scale-up-ct", "Additional packages:test-webengine")
         self.install_packages()
 

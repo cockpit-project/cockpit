@@ -108,6 +108,7 @@ wpa_passphrase=hidden99""")
         # detects our three visible wifis (plus one hidden)
         b.wait_in_text("table[aria-label='Available networks'] tbody:first-of-type", "ZE WIFI!")
         b.wait_text("tr[data-ssid='ZE WIFI!'] th", "ZE WIFI!")
+        testlib.sit()
         self.assertEqual(b.get_pf_progress_value("tr[data-ssid='ZE WIFI!'] [data-label='Signal']"), 100)
         # sadly, mac80211_hwsim's data rate reporting is flaky, so just ensure at least one of our networks is correct
         b.wait_in_text("table[aria-label='Available networks']", "54 Mbps")

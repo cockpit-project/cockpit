@@ -192,6 +192,9 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.click_devices_dropdown("Create Stratis pool")
         self.dialog_wait_open()
         b.wait_count("#dialog .select-space-name", 1)
+        # Passphrase encryption is available, but Tang/clevis is hidden in Anaconda mode
+        b.wait_visible(self.dialog_field("encrypt_pass.on"))
+        b.wait_not_present(self.dialog_field("encrypt_tang.on"))
         self.dialog_set_val("disks", {disk: True})
         self.dialog_set_val("encrypt_pass.on", val=True)
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
@@ -251,6 +254,9 @@ class TestStorageAnaconda(storagelib.StorageCase):
         # Check and delete pool
         b.click(self.card_parent_link())
         b.wait_visible(self.card_row("Encrypted Stratis pool", name=disk))
+        # Managing passphrases is allowed, but adding a Tang keyserver is hidden in Anaconda mode
+        b.wait_visible(self.card("Encryption tokens"))
+        self.assertNotIn("keyserver", b.text(self.card("Encryption tokens")).lower())
         self.click_card_dropdown("Encrypted Stratis pool", "Delete")
         self.confirm()
         m.execute("! findmnt --fstab -n /sysroot/var")

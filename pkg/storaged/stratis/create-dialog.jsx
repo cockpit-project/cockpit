@@ -117,6 +117,7 @@ export function create_stratis_pool() {
                        }),
             CheckBoxes("encrypt_tang", "",
                        {
+                           visible: () => !client.in_anaconda_mode(),
                            fields: [
                                { tag: "on", title: _("Encrypt data with a Tang keyserver") }
                            ],

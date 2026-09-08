@@ -7,14 +7,10 @@
 
 import netlib
 import testlib
-from lib.constants import TEST_OS_DEFAULT
 
 
+@testlib.nondestructive
 class TestNetworkingMAC(netlib.NetworkCase):
-    provision = {
-        "machine1": {},
-        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True}
-    }
 
     def testMac(self):
         b = self.browser
@@ -23,7 +19,9 @@ class TestNetworkingMAC(netlib.NetworkCase):
         self.login_and_go("/network")
         b.wait_visible("#networking")
 
-        iface = self.add_iface()
+        iface = "cockpit1"
+        self.add_veth(iface, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
+        self.nm_activate_eth(iface)
         self.wait_for_iface(iface)
 
         mac = m.execute(f"cat /sys/class/net/{iface}/address").strip()
@@ -31,7 +29,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         self.select_iface(iface)
         b.wait_text("#network-interface-mac", mac.upper())
 
-        new_mac = self.network.interface()["mac"]
+        new_mac = "02:aa:bb:cc:dd:01"
         b.click("#network-interface-mac button")
         b.wait_visible("#network-mac-settings-dialog")
         b.set_input_text('#network-mac-settings-mac-input input', new_mac)
@@ -40,7 +38,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         b.wait_not_present("#network-mac-settings-dialog")
 
         b.wait_text("#network-interface-mac", new_mac.upper())
-        self.assertIn(new_mac.lower(), m.execute(f"ip link show '{iface}'"))
+        self.assertIn(new_mac, m.execute(f"ip link show '{iface}'"))
 
     def testBondMac(self):
         b = self.browser
@@ -49,8 +47,12 @@ class TestNetworkingMAC(netlib.NetworkCase):
         self.login_and_go("/network")
         b.wait_visible("#networking")
 
-        iface1 = self.add_iface()
-        iface2 = self.add_iface()
+        iface1 = "cockpit1"
+        self.add_veth(iface1, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
+        self.nm_activate_eth(iface1)
+        iface2 = "cockpit2"
+        self.add_veth(iface2, dhcp_cidr="10.111.114.1/24", dhcp_range=['10.111.114.2', '10.111.114.254'])
+        self.nm_activate_eth(iface2)
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
@@ -68,7 +70,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         mac = m.execute("cat /sys/class/net/tbond/address").strip()
         b.wait_text("#network-interface-mac", mac.upper())
 
-        new_mac = self.network.interface()["mac"]
+        new_mac = "02:aa:bb:cc:dd:02"
         b.click("#network-interface-mac button")
         b.wait_visible("#network-mac-settings-dialog")
         b.set_input_text('#network-mac-settings-mac-input input', new_mac)
@@ -77,7 +79,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         b.wait_not_present("#network-mac-settings-dialog")
 
         b.wait_text("#network-interface-mac", new_mac.upper())
-        self.assertIn(new_mac.lower(), m.execute("ip link show tbond"))
+        self.assertIn(new_mac, m.execute("ip link show tbond"))
 
 
 if __name__ == '__main__':

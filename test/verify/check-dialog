@@ -362,7 +362,7 @@ class TestDialog(testlib.MachineCase):
         b = self.browser
         m = self.machine
         d = dialoglib.DialogHelpers(b, "#dialog")
-        df = dialoglib.DialogHelpers(b, ".file-chooser")
+        fc = dialoglib.FileChooserHelpers(b, ".file-chooser")
 
         # Inject a mock xdg-user-dir utility.
 
@@ -409,24 +409,19 @@ echo $HOME/Downloads
         d.set_FileChooserInput("file", test_files)
         b.wait_in_text(d.helper_text("file"), "directory")
 
-        def file(name):
-            return f".file-chooser-listing-body tr[data-name='{name}']"
-
         # Navigate to empty directory
 
         b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
         b.wait_visible(".file-chooser")
-        b.mouse(file("cockpittest"), "dblclick")
-        b.mouse(file("file-chooser-test"), "dblclick")
-        b.mouse(file("empty"), "dblclick")
+        fc.set_path("cockpittest/file-chooser-test/empty")
         b.wait_in_text(".file-chooser-listing-body", "Directory is empty")
 
         # Go up and choose tmpdir/file-chooser-test/foo
 
         b.click(".file-chooser-listing-breadcrumbs a:contains('file-chooser-test')")
         b.assert_pixels(".file-chooser", "basic")
-        b.mouse(file("foo"), "click")
-        b.click(df.apply_button())
+        b.mouse(fc.file("foo"), "click")
+        b.click(fc.apply_button())
 
         d.wait_FileChooserInput("file", test_files + "/file-chooser-test/foo")
         b.wait_in_text(d.helper_text("file"), "ASCII text")
@@ -435,13 +430,13 @@ echo $HOME/Downloads
 
         b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
         b.wait_visible(".file-chooser-listing-breadcrumbs nav")
-        b.wait_visible(file("foo"))
-        b.click(".file-chooser-sidebar tr:contains('Recent')")
+        b.wait_visible(fc.file("foo"))
+        b.click(fc.sidebar("Recent"))
         b.wait_not_present(".file-chooser-listing-breadcrumbs nav")
-        b.wait_visible(file("foo"))
-        b.wait_in_text(file("foo"), test_files + "/file-chooser-test")
-        b.mouse(file("foo"), "click")
-        b.click(df.apply_button())
+        b.wait_visible(fc.file("foo"))
+        b.wait_in_text(fc.file("foo"), test_files + "/file-chooser-test")
+        b.mouse(fc.file("foo"), "click")
+        b.click(fc.apply_button())
         d.wait_FileChooserInput("file", test_files + "/file-chooser-test/foo")
         b.wait_in_text(d.helper_text("file"), "ASCII text")
 
@@ -450,18 +445,18 @@ echo $HOME/Downloads
         m.execute("echo hi > ~admin/.dot-file")
 
         b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
-        b.click(".file-chooser-sidebar tr:contains('Home')")
+        b.click(fc.sidebar("Home"))
         # home can be /home/admin or /var/home/admin.
         home = m.execute("echo -n ~admin")
         b.wait_text(".file-chooser-listing-breadcrumbs", home.replace("/", ""))
         b.click(".file-chooser-listing-breadcrumbs a:contains('home')")
-        b.mouse(file("admin"), "dblclick")
+        b.mouse(fc.file("admin"), "dblclick")
         b.wait_in_text(".file-chooser-listing-body", "This directory contains only hidden files")
         b.click(".file-chooser-listing-body button:contains('Show hidden files')")
-        b.wait_visible(file(".ssh"))
+        b.wait_visible(fc.file(".ssh"))
         b.click(".file-chooser-listing-header button:contains('All files')")
-        b.click(file(".dot-file"))
-        b.click(df.apply_button())
+        b.click(fc.file(".dot-file"))
+        b.click(fc.apply_button())
 
         d.wait_FileChooserInput("file", f"{home}/.dot-file")
         b.wait_in_text(d.helper_text("file"), "ASCII text")
@@ -475,8 +470,7 @@ echo $HOME/Downloads
 
         # Check that we can't read /root
 
-        b.click(".file-chooser-sidebar tr:contains('Filesystem')")
-        b.mouse(file("root"), "dblclick")
+        fc.set_path("/root")
         b.wait_in_text(".file-chooser-listing-body", "Permission denied")
         b.assert_pixels(".file-chooser", "denied")
         b.click(".file-chooser .pf-v6-c-modal-box__close button")
@@ -486,31 +480,31 @@ echo $HOME/Downloads
 
         d.set_FileChooserInput("file", "")
         b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
-        b.click(".file-chooser-sidebar tr:contains('Test files')")
-        b.mouse(file("file-chooser-test"), "dblclick")
+        b.click(fc.sidebar("Test files"))
+        fc.set_path("file-chooser-test")
 
-        b.wait_visible(file("bar"))
-        b.wait_visible(file("foo"))
-        b.wait_visible(file("foobar"))
+        b.wait_visible(fc.file("bar"))
+        b.wait_visible(fc.file("foo"))
+        b.wait_visible(fc.file("foobar"))
 
         b.set_input_text(".file-chooser-listing-header input", "fo")
-        b.wait_visible(file("foo"))
-        b.wait_not_present(file("bar"))
-        b.wait_visible(file("foobar"))
+        b.wait_visible(fc.file("foo"))
+        b.wait_not_present(fc.file("bar"))
+        b.wait_visible(fc.file("foobar"))
         b.assert_pixels(".file-chooser", "filtered")
 
         b.set_input_text(".file-chooser-listing-header input", "ba")
-        b.wait_not_present(file("foo"))
-        b.wait_visible(file("bar"))
-        b.wait_visible(file("foobar"))
+        b.wait_not_present(fc.file("foo"))
+        b.wait_visible(fc.file("bar"))
+        b.wait_visible(fc.file("foobar"))
 
         b.set_input_text(".file-chooser-listing-header input", "xxx")
         b.wait_in_text(".file-chooser-listing-body", "No matching results")
         b.click(".file-chooser-listing-body button:contains('Clear filters')")
 
-        b.wait_visible(file("bar"))
-        b.wait_visible(file("foo"))
-        b.wait_visible(file("foobar"))
+        b.wait_visible(fc.file("bar"))
+        b.wait_visible(fc.file("foo"))
+        b.wait_visible(fc.file("foobar"))
 
         # Prepared filtering.
 
@@ -519,15 +513,15 @@ echo $HOME/Downloads
 
         b.click(".file-chooser-listing-header button:contains('All files')")
 
-        b.wait_visible(file("bar"))
-        b.wait_visible(file("foo"))
-        b.wait_visible(file("foobar"))
-        b.wait_visible(file("dots.txt"))
-        b.wait_visible(file("only.dots"))
+        b.wait_visible(fc.file("bar"))
+        b.wait_visible(fc.file("foo"))
+        b.wait_visible(fc.file("foobar"))
+        b.wait_visible(fc.file("dots.txt"))
+        b.wait_visible(fc.file("only.dots"))
 
-        b.mouse(file("only.dots"), "dblclick")
-        b.wait_visible(file("one.dot"))
-        b.wait_visible(file("two.dots"))
+        b.mouse(fc.file("only.dots"), "dblclick")
+        b.wait_visible(fc.file("one.dot"))
+        b.wait_visible(fc.file("two.dots"))
 
         b.click(".file-chooser-listing-header button:contains('No dots')")
 
@@ -538,8 +532,8 @@ echo $HOME/Downloads
 
         b.click(".file-chooser-listing-body button:contains('Clear filters')")
 
-        b.wait_visible(file("one.dot"))
-        b.wait_visible(file("two.dots"))
+        b.wait_visible(fc.file("one.dot"))
+        b.wait_visible(fc.file("two.dots"))
 
         b.click(".file-chooser .pf-v6-c-modal-box__close button")
         b.wait_not_present(".file-chooser")
@@ -547,14 +541,14 @@ echo $HOME/Downloads
         # Test the collection
 
         b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
-        b.click(".file-chooser-sidebar tr:contains('Some files')")
-        b.wait_visible(file("foo"))
-        b.wait_not_present(file("dots.txt"))
+        b.click(fc.sidebar("Some files"))
+        b.wait_visible(fc.file("foo"))
+        b.wait_not_present(fc.file("dots.txt"))
         b.click(".file-chooser-listing-header button:contains('All files')")
-        b.wait_visible(file("foo"))
-        b.wait_visible(file("dots.txt"))
-        b.click(file("dots.txt"))
-        b.click(df.apply_button())
+        b.wait_visible(fc.file("foo"))
+        b.wait_visible(fc.file("dots.txt"))
+        b.click(fc.file("dots.txt"))
+        b.click(fc.apply_button())
 
         d.wait_FileChooserInput("file", "/var/lib/cockpittest/file-chooser-test/dots.txt")
         b.wait_in_text(d.helper_text("file"), "ASCII text")
@@ -566,10 +560,8 @@ echo $HOME/Downloads
         b.become_superuser()
 
         b.click(d.field("file") + " .pf-v6-c-text-input-group__utilities button")
-        b.click(".file-chooser-sidebar tr:contains('Filesystem')")
-        b.mouse(file("root"), "dblclick")
-        b.mouse(file("hello"), "click")
-        b.click(df.apply_button())
+        fc.set_path("/root/hello")
+        b.click(fc.apply_button())
         d.wait_FileChooserInput("file", "/root/hello")
         b.wait_in_text(d.helper_text("file"), "ASCII text")
 
@@ -579,20 +571,20 @@ echo $HOME/Downloads
         b.click(d.field("dir") + " .pf-v6-c-text-input-group__utilities button")
 
         b.wait_in_text(".file-chooser-listing-body", "No recent directories")
-        b.click(".file-chooser-sidebar tr:contains('Test files')")
-        b.click(file("file-chooser-test"))
-        b.click(df.apply_button())
+        b.click(fc.sidebar("Test files"))
+        b.click(fc.file("file-chooser-test"))
+        b.click(fc.apply_button())
 
         d.wait_FileChooserInput("dir", test_files + "/file-chooser-test")
 
         b.click(d.field("dir") + " .pf-v6-c-text-input-group__utilities button")
-        b.wait_visible(file("only.dots"))
-        b.click(".file-chooser-sidebar tr:contains('Recent')")
-        b.wait_visible(file("file-chooser-test"))
-        b.wait_not_present(file("foo"))
-        b.wait_in_text(file("file-chooser-test"), test_files)
+        b.wait_visible(fc.file("only.dots"))
+        b.click(fc.sidebar("Recent"))
+        b.wait_visible(fc.file("file-chooser-test"))
+        b.wait_not_present(fc.file("foo"))
+        b.wait_in_text(fc.file("file-chooser-test"), test_files)
 
-        b.wait_visible(df.apply_button() + ":disabled")
+        b.wait_visible(fc.apply_button() + ":disabled")
         b.click(".file-chooser .pf-v6-c-modal-box__close button")
         b.wait_not_present(".file-chooser")
 
@@ -605,8 +597,8 @@ echo $HOME/Downloads
         b.wait_visible(".file-chooser-kebab")
 
         b.select_PF(".file-chooser-kebab", "Test files")
-        b.mouse(file("file-chooser-test"), "dblclick")
-        b.wait_visible(file("empty"))
+        b.mouse(fc.file("file-chooser-test"), "dblclick")
+        b.wait_visible(fc.file("empty"))
 
         b.click(".file-chooser .pf-v6-c-modal-box__close button")
         b.wait_not_present(".file-chooser")
@@ -617,26 +609,25 @@ echo $HOME/Downloads
 
         b.click("#open-file-chooser")
         b.wait_visible(".file-chooser")
-        b.click(".file-chooser-sidebar tr:contains('Some TXT files')")
-        b.wait_visible(file("foo.txt"))
-        b.wait_not_present(file("no-such-file.txt"))
-        b.click(file("foo.txt"))
-        b.wait_text(df.apply_button(), "Load")
-        b.click(df.apply_button())
+        b.click(fc.sidebar("Some TXT files"))
+        b.wait_visible(fc.file("foo.txt"))
+        b.wait_not_present(fc.file("no-such-file.txt"))
+        b.click(fc.file("foo.txt"))
+        b.wait_text(fc.apply_button(), "Load")
+        b.click(fc.apply_button())
         b.wait_not_present(".file-chooser")
 
         b.click("#open-file-chooser")
         b.wait_visible(".file-chooser")
-        b.click(".file-chooser-sidebar tr:contains('Test files')")
-        b.mouse(file("file-chooser-test"), "dblclick")
-        b.mouse(file("text"), "dblclick")
-        b.wait_visible(file("foo.txt"))
-        b.wait_visible(file("bar.txt"))
-        b.click(file("bar.txt"))
-        b.click(df.apply_button())
-        b.wait_in_text(df.error(), "Does not start with \"foo\"")
-        b.click(file("foo.txt"))
-        b.click(df.apply_button())
+        b.click(fc.sidebar("Test files"))
+        fc.set_path("file-chooser-test/text")
+        b.wait_visible(fc.file("foo.txt"))
+        b.wait_visible(fc.file("bar.txt"))
+        b.click(fc.file("bar.txt"))
+        b.click(fc.apply_button())
+        b.wait_in_text(fc.error(), "Does not start with \"foo\"")
+        b.click(fc.file("foo.txt"))
+        b.click(fc.apply_button())
         b.wait_not_present(".file-chooser")
 
 

@@ -159,3 +159,24 @@ class DialogHelpers:
 
     def set_FileChooserInput(self, path: str, val: str) -> None:
         self.browser.set_input_text(self.field(path) + " input", val)
+
+
+class FileChooserHelpers(DialogHelpers):
+
+    def file(self, name: str) -> str:
+        return f"{self.dialogSelector} .file-chooser-listing-body tr[data-name='{name}']"
+
+    def sidebar(self, name: str) -> str:
+        return f"{self.dialogSelector} .file-chooser-sidebar tr:contains('{name}')"
+
+    def wait_path(self, path: str) -> None:
+        self.browser.wait_js_func(
+            "((sel, path) => ph_select(sel).map(e => e.textContent).join('/') === path)",
+            f"{self.dialogSelector} .file-chooser-listing-breadcrumbs li a", path)
+
+    def set_path(self, path: str) -> None:
+        for p in path.split("/"):
+            if p == "":
+                self.browser.click(self.sidebar("Filesystem"))
+            else:
+                self.browser.mouse(self.file(p), "dblclick")

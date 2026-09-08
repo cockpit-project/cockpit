@@ -1,0 +1,39 @@
+# GitHub Projects lets you import from multiple repositories on creation, but the
+# built-in "Auto-add to project" workflow only supports a single repository (without
+# paying for more). This workflow replicates that functionality across all of our
+# repositories.
+#
+# We also considered:
+#   - a single workflow in a single repository (eg: bots) that checks all of
+#     the repositories periodically: this wouldn't be realtime, and it would
+#     be a lot of wasted action runs, 99% of which would do nothing at all
+#   - driving a small Python helper from our webhook: this would be a nice
+#     option, but most of our "GitHub administrativia" tasks are done via GitHub
+#     workflows, so let's keep with the trend
+
+name: Add issues and bot PRs to Cockpit GitHub Project
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request_target:
+    types:
+      - labeled
+
+jobs:
+  add-to-project:
+    if: >-
+      github.event_name == 'issues' ||
+      (
+        github.event_name == 'pull_request_target' &&
+        contains(github.event.pull_request.labels.*.name, 'bot')
+      )
+    name: Add to project
+    environment: gh-project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v2
+        with:
+          project-url: https://github.com/orgs/cockpit-project/projects/10
+          github-token: ${{ secrets.GH_PROJECT }}

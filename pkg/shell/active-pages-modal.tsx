@@ -36,8 +36,8 @@ export const ActivePagesDialog = ({
         const result = [];
         for (const frame of Object.values(state.frames)) {
             if (frame.url) {
-                const active = (frame == state.current_frame ||
-                                state.most_recent_path_for_host(frame.host) == frame.path);
+                const active = (frame === state.current_frame ||
+                                state.most_recent_path_for_host(frame.host) === frame.path);
                 result.push({
                     frame,
                     active,

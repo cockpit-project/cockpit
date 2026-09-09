@@ -130,7 +130,7 @@ function make_generic_logical_volume_card(next, vgroup, lvol) {
 export function make_lvm2_logical_volume_page(parent, vgroup, lvol) {
     const generic_card = make_generic_logical_volume_card(null, vgroup, lvol);
 
-    if (lvol.Type == "pool") {
+    if (lvol.Type === "pool") {
         make_thin_pool_logical_volume_page(parent, vgroup, lvol);
     } else {
         const block = client.lvols_block[lvol.path];
@@ -151,7 +151,7 @@ export function make_lvm2_logical_volume_page(parent, vgroup, lvol) {
 }
 
 function make_logical_volume_pages(parent, vgroup) {
-    const isVDOPool = lvol => Object.keys(client.vdo_vols).some(v => client.vdo_vols[v].VDOPool == lvol.path);
+    const isVDOPool = lvol => Object.keys(client.vdo_vols).some(v => client.vdo_vols[v].VDOPool === lvol.path);
 
     (client.vgroups_lvols[vgroup.path] || []).forEach(lvol => {
         // We ignore volumes in a thin pool; they appear as children
@@ -164,7 +164,7 @@ function make_logical_volume_pages(parent, vgroup) {
         // We ignore vdo pools; they appear as a card for their
         // single contained logical volume.
         //
-        if (lvol.ThinPool == "/" && lvol.Origin == "/" && !isVDOPool(lvol))
+        if (lvol.ThinPool === "/" && lvol.Origin === "/" && !isVDOPool(lvol))
             make_lvm2_logical_volume_page(parent, vgroup, lvol);
     });
 }
@@ -177,7 +177,7 @@ function add_disk(vgroup) {
         const lvol = (block &&
                       client.blocks_lvm2[block.path] &&
                       client.lvols[client.blocks_lvm2[block.path].LogicalVolume]);
-        return !lvol || lvol.VolumeGroup != vgroup.path;
+        return !lvol || lvol.VolumeGroup !== vgroup.path;
     }
 
     dialog_open({
@@ -209,7 +209,7 @@ export function make_lvm2_volume_group_page(parent, vgroup) {
     let lvol_excuse = null;
     if (has_missing_pvs)
         lvol_excuse = _("Volume group is missing physical volumes");
-    else if (vgroup.FreeSize == 0)
+    else if (vgroup.FreeSize === 0)
         lvol_excuse = _("No free space");
 
     if (should_ignore(client, vgroup.path))
@@ -278,7 +278,7 @@ const LVM2VolumeGroupCard = ({ card, vgroup }) => {
     function is_partial_linear_lvol(block) {
         const lvm2 = client.blocks_lvm2[block.path];
         const lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
-        return lvol && lvol.Layout == "linear" && client.lvols_status[lvol.path] == "partial";
+        return lvol && lvol.Layout === "linear" && client.lvols_status[lvol.path] === "partial";
     }
 
     function remove_missing() {

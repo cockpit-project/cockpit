@@ -177,7 +177,7 @@ function getSeverityIcon(info, secSeverity) {
     let classes = "severity-icon";
     if (secSeverity)
         classes += " severity-" + secSeverity;
-    if (info == Severity.CRITICAL)
+    if (info === Severity.CRITICAL)
         return <Icon isInline status="danger"><SecurityIcon aria-label={secSeverity || _("security")} className={classes} /></Icon>;
     else if (info >= Severity.IMPORTANT)
         return <Icon isInline className='pf-m-important'><BugIcon className={classes} aria-label={_("bug fix")} /></Icon>;
@@ -186,7 +186,7 @@ function getSeverityIcon(info, secSeverity) {
 }
 
 function getPageStatusSeverityIcon(severity) {
-    if (severity == Severity.CRITICAL)
+    if (severity === Severity.CRITICAL)
         return "security";
     else if (severity >= Severity.IMPORTANT)
         return "bug";
@@ -514,7 +514,7 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
          * updated, don't reboot (as that's their whole raison d'être) */
         const pkgs = Object.keys(history[0]?.packages ?? {});
         const only_kpatch = pkgs.filter(p => p.startsWith("kpatch")).length > 0 &&
-                            pkgs.filter(p => !p.startsWith("kernel") && !p.startsWith("kpatch")).length == 0;
+                            pkgs.filter(p => !p.startsWith("kernel") && !p.startsWith("kpatch")).length === 0;
 
         const paragraph = only_kpatch ? null : _("Updated packages may require a reboot to take effect.");
         const actions = only_kpatch
@@ -633,7 +633,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, restartPack
 
     const notifications = [];
     if (numUpdates > 0) {
-        if (numUpdates == numSecurity) {
+        if (numUpdates === numSecurity) {
             const stateStr = cockpit.ngettext("$0 security fix available", "$0 security fixes available", numSecurity);
             notifications.push({
                 id: "security-updates-available",
@@ -979,7 +979,7 @@ class OsUpdates extends React.Component {
                     ])
                             .then(([serviceResult, rebootResult]) => {
                                 // --services format: one unit name per line
-                                if (serviceResult.status == 'fulfilled') {
+                                if (serviceResult.status === 'fulfilled') {
                                     debug("dnf needs-restarting --services succeeded:", serviceResult.value);
                                     serviceResult.value.trim()
                                             .split("\n")
@@ -991,7 +991,7 @@ class OsUpdates extends React.Component {
                                 }
 
                                 // --reboothint format: "  * kernel-rt" plus header/footer; exit nonzero iff reboot required, inverted above
-                                if (rebootResult.status == 'fulfilled') {
+                                if (rebootResult.status === 'fulfilled') {
                                     debug("dnf needs-restarting --reboothint exited nonzero, wants reboot:", rebootResult.value);
                                     rebootResult.value.split("\n").forEach(line => {
                                         if (line.startsWith("  * "))
@@ -1238,8 +1238,8 @@ class OsUpdates extends React.Component {
             const highest_severity = find_highest_severity(this.state.updates);
 
             applyAll = (
-                <Button id={num_updates == num_security_updates ? "install-security" : "install-all"} variant="primary" onClick={ () => this.applyUpdates(UPDATES.ALL) }>
-                    { num_updates == num_security_updates
+                <Button id={num_updates === num_security_updates ? "install-security" : "install-all"} variant="primary" onClick={ () => this.applyUpdates(UPDATES.ALL) }>
+                    { num_updates === num_security_updates
                         ? _("Install security updates")
                         : _("Install all updates") }
                 </Button>);
@@ -1259,7 +1259,7 @@ class OsUpdates extends React.Component {
             }
 
             let text;
-            if (highest_severity == Severity.CRITICAL)
+            if (highest_severity === Severity.CRITICAL)
                 text = _("Security updates available");
             else if (highest_severity >= Severity.IMPORTANT)
                 text = _("Bug fix updates available");
@@ -1324,7 +1324,7 @@ class OsUpdates extends React.Component {
                     <CodeBlock className='pf-v6-u-mx-auto error-log'>
                         <CodeBlockCode>
                             {this.state.errorMessages
-                                    .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
+                                    .filter((m, index) => index === 0 || m !== this.state.errorMessages[index - 1])
                                     .map(m => <span key={m}>{m}</span>)}
                         </CodeBlockCode>
                     </CodeBlock>

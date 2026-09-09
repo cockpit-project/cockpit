@@ -76,18 +76,18 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
     // however, are ok, even for "disabled" and "ignored".  But
     // since that doesn't make sense, we remove routes as well for
     // these methods.
-    const isOff = (method == "disabled" || method == "ignore");
-    const canHaveExtra = !(method == "link-local" || method == "shared" || isOff);
+    const isOff = (method === "disabled" || method === "ignore");
+    const canHaveExtra = !(method === "link-local" || method === "shared" || isOff);
 
     // The auto_*_btns only make sense when the address method
     // is "auto" or "dhcp".
-    const canAuto = (method == "auto" || method == "dhcp");
+    const canAuto = (method === "auto" || method === "dhcp");
 
-    const prefixText = (topic == "ipv4") ? _("Prefix length or netmask") : _("Prefix length");
+    const prefixText = (topic === "ipv4") ? _("Prefix length or netmask") : _("Prefix length");
 
     useEffect(() => {
         // The manual method needs at least one address
-        if (method == 'manual' && addresses.length == 0)
+        if (method === 'manual' && addresses.length === 0)
             setAddresses([{ address: "", prefix: "" }]);
 
         if (!canHaveExtra) {
@@ -213,7 +213,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      title={topic == "ipv4" ? _("IPv4 settings") : _("IPv6 settings")}
+                      title={topic === "ipv4" ? _("IPv4 settings") : _("IPv6 settings")}
                       isFormHorizontal={false}
         >
             <FormFieldGroup
@@ -264,7 +264,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 </FormGroup>
                                 <FormGroup className="pf-m-1-col-on-sm remove-button-group">
                                     <Button variant='plain'
-                                            isDisabled={method == 'manual' && i == 0}
+                                            isDisabled={method === 'manual' && i === 0}
                                             onClick={() => removeAddress(i)}
                                             aria-label={_("Remove item")}
                                             icon={<TrashIcon />} />

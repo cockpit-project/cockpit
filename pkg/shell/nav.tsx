@@ -31,7 +31,7 @@ export const SidebarToggle = () => {
          * Additionally, when clicking on an element in the same iframe make sure to unset the 'active' state of the 'System' dropdown selector.
          */
         const handleClickOutside = (ev: Event) => {
-            if ((ev.target as Element).id == "nav-system-item")
+            if ((ev.target as Element).id === "nav-system-item")
                 return;
 
             setActive(false);
@@ -135,13 +135,13 @@ export class CockpitNav<T, X extends T> extends React.Component {
         }
 
         const navigate_apps = (ev: KeyboardEvent) => {
-            if (ev.key == "Enter")
+            if (ev.key === "Enter")
                 clickActiveItem();
-            else if (ev.key == "ArrowDown")
+            else if (ev.key === "ArrowDown")
                 focusNextItem(0, 1);
-            else if (ev.key == "ArrowUp")
+            else if (ev.key === "ArrowUp")
                 focusNextItem(-1, -1);
-            else if (ev.key == "Escape") {
+            else if (ev.key === "Escape") {
                 this.setState({ search: "" });
                 document.querySelector<HTMLElement>("#" + sel + " .pf-v6-c-text-input-group__text-input")?.focus();
             }
@@ -167,7 +167,7 @@ export class CockpitNav<T, X extends T> extends React.Component {
         const groups: ItemGroup<X>[] = [];
         const term = this.state.search.toLowerCase();
         this.props.groups.forEach(g => {
-            const new_items = g.items.map(i => this.props.filtering(i, term)).filter(i => i != null);
+            const new_items = g.items.map(i => this.props.filtering(i, term)).filter(i => i !== null);
             new_items.sort(this.props.sorting);
             if (new_items.length > 0)
                 groups.push({ name: g.name, items: new_items, action: g.action });
@@ -311,7 +311,7 @@ export const PageNav = ({ state } : { state: ShellState }) => {
         page_status,
     } = state;
 
-    if (!current_machine || current_machine.state != "connected")
+    if (!current_machine || current_machine.state !== "connected")
         return null;
 
     cockpit.assert(current_machine_manifest_items && current_manifest_item);
@@ -329,10 +329,10 @@ export const PageNav = ({ state } : { state: ShellState }) => {
                     _m = _(m);
                 score = -1;
                 // Best score when starts in translate language
-                if (translate && _m.indexOf(term) == 0)
+                if (translate && _m.indexOf(term) === 0)
                     score = 4 + weight;
                 // Second best score when starts in English
-                else if (m.indexOf(term) == 0)
+                else if (m.indexOf(term) === 0)
                     score = 3 + weight;
                 // Substring consider only when at least 3 letters were used
                 else if (term.length >= 3) {

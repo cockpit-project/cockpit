@@ -72,7 +72,7 @@ async function btrfs_delete(uuid, card) {
                 for (let i = 0; i < blocks.length; i++) {
                     // All block devices share the same Configuration
                     // property, so we only tear down the first.
-                    await blocks[i].Format("empty", { 'tear-down': { t: 'b', v: i == 0 } });
+                    await blocks[i].Format("empty", { 'tear-down': { t: 'b', v: i === 0 } });
                 }
                 await reload_systemd();
                 navigate_away_from_card(card);

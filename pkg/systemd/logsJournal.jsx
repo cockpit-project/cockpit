@@ -53,7 +53,7 @@ export class JournalBox extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.dataFollowing != this.props.dataFollowing) {
+        if (prevProps.dataFollowing !== this.props.dataFollowing) {
             if (this.props.dataFollowing) {
                 const cursor = document.querySelector(".cockpit-logline");
                 if (cursor)
@@ -191,7 +191,7 @@ export class JournalBox extends React.Component {
         this.followingProcs.push(journal.journalctl(this.match, journalctlOptions)
                 .fail(this.queryError)
                 .stream(entries => {
-                    if (entries[0].__CURSOR == cursor)
+                    if (entries[0].__CURSOR === cursor)
                         entries.shift();
                     this.prependEntries(entries);
                 }));
@@ -292,7 +292,7 @@ export class JournalBox extends React.Component {
                                  const promise = journal.journalctl(this.match, journalctlOptions)
                                          .fail(this.queryError)
                                          .stream(entries => {
-                                             if (entries[0].__CURSOR == this.state.cursor)
+                                             if (entries[0].__CURSOR === this.state.cursor)
                                                  entries.shift();
                                              count += entries.length;
                                              this.appendEntries(entries);

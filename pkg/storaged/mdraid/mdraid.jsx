@@ -135,7 +135,7 @@ function add_disk(mdraid) {
         let block = spc.block;
         if (client.blocks_part[block.path])
             block = client.blocks[client.blocks_part[block.path].Table];
-        return block && block.MDRaid != mdraid.path;
+        return block && block.MDRaid !== mdraid.path;
     }
 
     function rescan(path) {
@@ -172,14 +172,14 @@ function missing_bitmap(mdraid) {
         policy = mdraid.ConsistencyPolicy;
     else if (mdraid.ActiveDevices.some(a => a[2].indexOf("journal") >= 0))
         policy = "journal";
-    else if (mdraid.BitmapLocation && decode_filename(mdraid.BitmapLocation) != "none")
+    else if (mdraid.BitmapLocation && decode_filename(mdraid.BitmapLocation) !== "none")
         policy = "bitmap";
     else
         policy = "resync";
 
-    return (mdraid.Level != "raid0" &&
+    return (mdraid.Level !== "raid0" &&
             client.mdraids_members[mdraid.path].some(m => m.Size > 100 * 1024 * 1024 * 1024) &&
-            policy == "resync");
+            policy === "resync");
 }
 
 export function make_mdraid_page(parent, mdraid) {
@@ -214,7 +214,7 @@ export function make_mdraid_page(parent, mdraid) {
                  action: () => mdraid_start(mdraid),
                  tag: "device"
              }),
-            (mdraid.Level != "raid0" &&
+            (mdraid.Level !== "raid0" &&
              {
                  title: _("Add disk"),
                  action: () => add_disk(mdraid),

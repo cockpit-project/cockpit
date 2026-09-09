@@ -70,7 +70,7 @@ export function initial_mount_options(client, block) {
 
 export function format_dialog(client, path, start, size, enable_dos_extended) {
     const block = client.blocks[path];
-    if (block.IdUsage == "crypto") {
+    if (block.IdUsage === "crypto") {
         cockpit.spawn(["cryptsetup", "luksDump", decode_filename(block.Device)], { superuser: "require" })
                 .then(output => {
                     if (output.indexOf("Keyslots:") >= 0) // This is what luksmeta-monitor-hack looks for
@@ -94,7 +94,7 @@ function find_root_fsys_block() {
     for (const p in client.blocks) {
         if (client.blocks_fsys[p] && client.blocks_fsys[p].MountPoints.map(decode_filename).indexOf(root) >= 0)
             return client.blocks[p];
-        if (client.blocks[p].Configuration.find(c => c[0] == "fstab" && decode_filename(c[1].dir.v) == root))
+        if (client.blocks[p].Configuration.find(c => c[0] === "fstab" && decode_filename(c[1].dir.v) === root))
             return client.blocks[p];
     }
     return null;
@@ -104,9 +104,9 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     const block = client.blocks[path];
     const block_part = client.blocks_part[path];
     const block_ptable = client.blocks_ptable[path] || client.blocks_ptable[block_part?.Table];
-    const content_block = block.IdUsage == "crypto" ? client.blocks_cleartext[path] : block;
+    const content_block = block.IdUsage === "crypto" ? client.blocks_cleartext[path] : block;
 
-    const offer_keep_keys = block.IdUsage == "crypto";
+    const offer_keep_keys = block.IdUsage === "crypto";
     const unlock_before_format = offer_keep_keys && (!content_block || content_block.ReadOnly);
 
     const create_partition = (start !== undefined);
@@ -118,7 +118,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         title = cockpit.format(_("Format $0"), block_name(block));
 
     function is_filesystem(vals) {
-        return vals.type != "empty" && vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "swap";
+        return vals.type !== "empty" && vals.type !== "dos-extended" && vals.type !== "biosboot" && vals.type !== "swap";
     }
 
     function add_fsys(storaged_name, entry) {
@@ -137,7 +137,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
     add_fsys("swap", { value: "swap", title: "Swap" });
     if (client.in_anaconda_mode()) {
-        if (block_ptable && block_ptable.Type == "gpt" && !client.anaconda.efi)
+        if (block_ptable && block_ptable.Type === "gpt" && !client.anaconda.efi)
             add_fsys(true, { value: "biosboot", title: "BIOS boot partition" });
         if (block_ptable && client.anaconda.efi)
             add_fsys(true, { value: "efi", title: "EFI system partition" });
@@ -147,11 +147,11 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         add_fsys(true, { value: "dos-extended", title: _("Extended partition") });
 
     function is_supported(type) {
-        return filesystem_options.find(o => o.value == type);
+        return filesystem_options.find(o => o.value === type);
     }
 
     let default_type = null;
-    if (content_block?.IdUsage == "filesystem" && is_supported(content_block.IdType))
+    if (content_block?.IdUsage === "filesystem" && is_supported(content_block.IdType))
         default_type = content_block.IdType;
     else {
         const root_block = find_root_fsys_block();
@@ -169,8 +169,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     }
 
     function add_crypto_type(value, title, recommended) {
-        if ((client.manager.SupportedEncryptionTypes && client.manager.SupportedEncryptionTypes.indexOf(value) != -1) ||
-            value == "luks1") {
+        if ((client.manager.SupportedEncryptionTypes && client.manager.SupportedEncryptionTypes.indexOf(value) !== -1) ||
+            value === "luks1") {
             crypto_types.push({
                 value,
                 title: title + (recommended ? " " + _("(recommended)") : "")
@@ -201,7 +201,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         return;
     }
 
-    const crypto_config = block.Configuration.find(c => c[0] == "crypttab");
+    const crypto_config = block.Configuration.find(c => c[0] === "crypttab");
     let crypto_options;
     if (crypto_config) {
         crypto_options = (decode_filename(crypto_config[1].options.v)
@@ -221,10 +221,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     const crypto_extra_options = unparse_options(crypto_split_options);
 
     let [, old_dir, old_opts] = get_fstab_config(block, true,
-                                                 content_block?.IdType == "btrfs"
+                                                 content_block?.IdType === "btrfs"
                                                      ? { pathname: "/", id: 5 }
                                                      : undefined);
-    if (old_opts == undefined)
+    if (old_opts === undefined)
         old_opts = initial_mount_options(client, block);
 
     old_dir = client.strip_mount_point_prefix(old_dir);
@@ -290,7 +290,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                               return is_valid_mount_point(client,
                                                           block,
                                                           client.add_mount_point_prefix(val),
-                                                          variant == "nomount");
+                                                          variant === "nomount");
                           }
                       }),
             SelectOne("type", _("Type"),
@@ -317,29 +317,29 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                       {
                           choices: crypto_types,
                           value: offer_keep_keys ? " keep" : "none",
-                          visible: vals => vals.type != "dos-extended" && vals.type != "biosboot" && vals.type != "efi",
+                          visible: vals => vals.type !== "dos-extended" && vals.type !== "biosboot" && vals.type !== "efi",
                           nested_fields: [
                               PassInput("passphrase", _("Passphrase"),
                                         {
                                             validate: function (phrase, vals) {
-                                                if (vals.crypto != " keep" && phrase === "")
+                                                if (vals.crypto !== " keep" && phrase === "")
                                                     return _("Passphrase cannot be empty");
                                             },
-                                            visible: vals => is_encrypted(vals) && vals.crypto != " keep",
+                                            visible: vals => is_encrypted(vals) && vals.crypto !== " keep",
                                             new_password: true
                                         }),
                               PassInput("passphrase2", _("Confirm"),
                                         {
                                             validate: function (phrase2, vals) {
-                                                if (vals.crypto != " keep" && phrase2 != vals.passphrase)
+                                                if (vals.crypto !== " keep" && phrase2 !== vals.passphrase)
                                                     return _("Passphrases do not match");
                                             },
-                                            visible: vals => is_encrypted(vals) && vals.crypto != " keep",
+                                            visible: vals => is_encrypted(vals) && vals.crypto !== " keep",
                                             new_password: true
                                         }),
                               CheckBoxes("store_passphrase", "",
                                          {
-                                             visible: vals => is_encrypted(vals) && vals.crypto != " keep",
+                                             visible: vals => is_encrypted(vals) && vals.crypto !== " keep",
                                              value: {
                                                  on: false,
                                              },
@@ -353,7 +353,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                                 if (phrase === "")
                                                     return _("Passphrase cannot be empty");
                                             },
-                                            visible: vals => vals.crypto == " keep" && vals.needs_explicit_passphrase,
+                                            visible: vals => vals.crypto === " keep" && vals.needs_explicit_passphrase,
                                             explanation: _("The disk needs to be unlocked before formatting. Please provide an existing passphrase.")
                                         }),
                               TextInput("crypto_options", _("Encryption options"),
@@ -368,18 +368,18 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         ],
         update: function (dlg, vals, trigger) {
             update_at_boot_input(dlg, vals, trigger);
-            if (trigger == "type") {
-                if (dlg.get_value("type") == "empty") {
+            if (trigger === "type") {
+                if (dlg.get_value("type") === "empty") {
                     dlg.update_actions({ Variants: action_variants_for_empty });
-                } else if (dlg.get_value("type") == "swap") {
+                } else if (dlg.get_value("type") === "swap") {
                     dlg.update_actions({ Variants: action_variants_for_swap });
                 } else {
                     dlg.update_actions({ Variants: action_variants });
                 }
-                if (vals.type == "efi" && !vals.mount_point)
+                if (vals.type === "efi" && !vals.mount_point)
                     dlg.set_values({ mount_point: "/boot/efi" });
-            } else if (trigger == "crypto") {
-                if (vals.crypto != "none" && vals.crypto != " keep")
+            } else if (trigger === "crypto") {
+                if (vals.crypto !== "none" && vals.crypto !== " keep")
                     dlg.show_field("crypto_options");
             }
         },
@@ -389,22 +389,22 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             disable_on_error: usage.Teardown,
             action: function (vals) {
-                const mount_now = vals.variant != "nomount";
+                const mount_now = vals.variant !== "nomount";
                 let type = vals.type;
                 let partition_type = "";
 
-                if (type == "efi") {
+                if (type === "efi") {
                     type = "vfat";
-                    partition_type = block_ptable.Type == "dos" ? "0xEF" : "c12a7328-f81f-11d2-ba4b-00a0c93ec93b";
+                    partition_type = block_ptable.Type === "dos" ? "0xEF" : "c12a7328-f81f-11d2-ba4b-00a0c93ec93b";
                 }
 
-                if (type == "biosboot") {
+                if (type === "biosboot") {
                     type = "empty";
                     partition_type = "21686148-6449-6e6f-744e-656564454649";
                 }
 
-                if (type == "swap") {
-                    partition_type = (block_ptable && block_ptable.Type == "dos"
+                if (type === "swap") {
+                    partition_type = (block_ptable && block_ptable.Type === "dos"
                         ? "0x82"
                         : "0657fd6d-a4ab-43c4-84e5-0933c84b4f4f");
                 }
@@ -422,7 +422,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     options['no-discard'] = { t: 'b', v: true };
                 }
 
-                const keep_keys = is_encrypted(vals) && offer_keep_keys && vals.crypto == " keep";
+                const keep_keys = is_encrypted(vals) && offer_keep_keys && vals.crypto === " keep";
 
                 const config_items = [];
                 let new_crypto_options;
@@ -431,11 +431,11 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     if (is_filesystem(vals)) {
                         if (vals.mount_options?.ro)
                             opts.push("readonly");
-                        if (!mount_now || vals.at_boot == "never")
+                        if (!mount_now || vals.at_boot === "never")
                             opts.push("noauto");
-                        if (vals.at_boot == "nofail")
+                        if (vals.at_boot === "nofail")
                             opts.push("nofail");
-                        if (vals.at_boot == "netdev")
+                        if (vals.at_boot === "netdev")
                             opts.push("_netdev");
                     }
 
@@ -462,25 +462,25 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
                 if (is_filesystem(vals)) {
                     const mount_options = [];
-                    if (!mount_now || vals.at_boot == "never") {
+                    if (!mount_now || vals.at_boot === "never") {
                         mount_options.push("noauto");
                     }
                     if (vals.mount_options?.ro)
                         mount_options.push("ro");
-                    if (vals.at_boot == "never")
+                    if (vals.at_boot === "never")
                         mount_options.push("x-cockpit-never-auto");
-                    if (vals.at_boot == "nofail")
+                    if (vals.at_boot === "nofail")
                         mount_options.push("nofail");
-                    if (vals.at_boot == "netdev")
+                    if (vals.at_boot === "netdev")
                         mount_options.push("_netdev");
                     if (vals.mount_options?.extra)
                         mount_options.push(vals.mount_options.extra);
-                    if (type == "btrfs")
+                    if (type === "btrfs")
                         mount_options.push("subvol=/");
 
                     mount_point = vals.mount_point;
-                    if (mount_point != "") {
-                        if (mount_point[0] != "/")
+                    if (mount_point !== "") {
+                        if (mount_point[0] !== "/")
                             mount_point = "/" + mount_point;
                         mount_point = client.add_mount_point_prefix(mount_point);
 
@@ -495,7 +495,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     }
                 }
 
-                if (type == "swap") {
+                if (type === "swap") {
                     config_items.push(["fstab", {
                         dir: { t: 'ay', v: encode_filename("none") },
                         type: { t: 'ay', v: encode_filename("swap") },
@@ -531,7 +531,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
                 function format() {
                     if (create_partition) {
-                        if (type == "dos-extended")
+                        if (type === "dos-extended")
                             return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
                         else
                             return block_ptable.CreatePartitionAndFormat(start, vals.size, partition_type, "", { },
@@ -549,7 +549,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     } else {
                         return block.Format(type, options)
                                 .then(() => {
-                                    if (partition_type != "" && block_part)
+                                    if (partition_type !== "" && block_part)
                                         return block_part.SetType(partition_type, {});
                                 });
                     }
@@ -601,11 +601,11 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         const block_fsys = await client.wait_for(() => block_fsys_for_block(path));
                         await client.mount_at(client.blocks[block_fsys.path], mount_point);
                     }
-                    if (type == "swap" && mount_now) {
+                    if (type === "swap" && mount_now) {
                         const block_swap = await client.wait_for(() => block_swap_for_block(path));
                         await block_swap.Start({});
                     }
-                    if (is_encrypted(vals) && vals.type != "empty" && !mount_now && !client.in_anaconda_mode()) {
+                    if (is_encrypted(vals) && vals.type !== "empty" && !mount_now && !client.in_anaconda_mode()) {
                         const block_crypto = await client.wait_for(() => block_crypto_for_block(path));
                         await block_crypto.Lock({ });
                     }

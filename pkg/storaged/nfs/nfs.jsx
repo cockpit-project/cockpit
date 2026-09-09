@@ -74,7 +74,7 @@ function get_exported_directories(server) {
 
 export function nfs_fstab_dialog(entry, card) {
     const mount_options = entry ? entry.fields[3] : "defaults";
-    const split_options = parse_options(mount_options == "defaults" ? "" : mount_options);
+    const split_options = parse_options(mount_options === "defaults" ? "" : mount_options);
     const opt_auto = !extract_option(split_options, "noauto");
     const opt_ro = extract_option(split_options, "ro");
     const extra_options = unparse_options(split_options);
@@ -109,7 +109,7 @@ export function nfs_fstab_dialog(entry, card) {
                 server_check_timeout = null;
                 dlg.set_options("remote", { choices: [] });
                 get_exported_directories(server).then(choices => {
-                    if (server == server_to_check)
+                    if (server === server_to_check)
                         dlg.set_options("remote", { choices });
                 });
             }, delay);
@@ -181,7 +181,7 @@ export function nfs_fstab_dialog(entry, card) {
                     ];
                     if (entry) {
                         await client.nfs.update_entry(entry, fields);
-                        if (entry.fields[0] != fields[0] || entry.fields[1] != fields[1])
+                        if (entry.fields[0] !== fields[0] || entry.fields[1] !== fields[1])
                             navigate_to_new_card_location(card, ["nfs", fields[0], fields[1]]);
                     } else
                         await client.nfs.add_entry(fields);

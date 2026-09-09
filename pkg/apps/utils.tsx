@@ -14,7 +14,7 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 const _ = cockpit.gettext;
 
 export function debug(...args: unknown[]) {
-    if (window.debugging == "all" || window.debugging?.includes("apps")) {
+    if (window.debugging === "all" || window.debugging?.includes("apps")) {
         console.debug("apps:", ...args);
     }
 }
@@ -23,7 +23,7 @@ export function icon_url(path_or_url: string): string {
     if (!path_or_url)
         return "default.png";
 
-    if (path_or_url[0] != '/')
+    if (path_or_url[0] !== '/')
         return path_or_url;
 
     interface QueryObj {
@@ -99,7 +99,7 @@ export class ProgressReporter {
             const newPercentage = this.base + data.percentage / 100 * this.range;
             // PackageKit with Apt backend reports wrong percentages https://github.com/PackageKit/PackageKit/issues/516
             // Double check here that we have an increasing only progress value
-            if (this.percentage == undefined || newPercentage >= this.percentage)
+            if (this.percentage === undefined || newPercentage >= this.percentage)
                 this.percentage = newPercentage;
         }
         this.callback({ ...data, percentage: this.percentage });
@@ -109,17 +109,17 @@ export class ProgressReporter {
 // ex is a PackageKit error; requires typing pkg/lib/packagekit.js first
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const show_error = (ex: any) => {
-    if (ex.code == "cancelled")
+    if (ex.code === "cancelled")
         return;
 
-    if (ex.code == "not-found")
+    if (ex.code === "not-found")
         ex.detail = _("No installation package found for this application.");
 
     show_modal_dialog(
         {
             title: _("Error"),
             body: (
-                <p>{typeof ex == 'string' ? ex : (ex.detail || ex.message)}</p>
+                <p>{typeof ex === 'string' ? ex : (ex.detail || ex.message)}</p>
             )
         },
         {
@@ -149,7 +149,7 @@ export interface Component {
 
 export const launch = (comp: Component) => {
     for (let i = 0; i < comp.launchables.length; i++) {
-        if (comp.launchables[i].type == "cockpit-manifest") {
+        if (comp.launchables[i].type === "cockpit-manifest") {
             debug("launching", comp.launchables[i].name, "in component", JSON.stringify(comp));
             cockpit.jump([comp.launchables[i].name]);
             return;

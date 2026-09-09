@@ -51,7 +51,7 @@ export function ServiceTabs({
                         <NavItem itemId={key}
                                  key={key}
                                  preventDefault
-                                 isActive={activeItem == key}>
+                                 isActive={activeItem === key}>
                             <Button variant="link" component="a">
                                 {service_tabs.get(key)}
                                 {tabErrors[key] ? <Icon status="danger"><ExclamationCircleIcon className="ct-exclamation-circle" /></Icon> : null}

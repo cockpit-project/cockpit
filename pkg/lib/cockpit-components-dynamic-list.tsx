@@ -142,7 +142,7 @@ export class DynamicListForm extends React.Component<DynamicListFormProps, Dynam
                                         // If a row doesn't contain any fields with errors anymore, we delete the item of the array
                                         // Deleting an item of an array replaces an item with an "empty item".
                                         // This guarantees that an array of validation errors maps to the correct rows
-                                        if (Object.keys(delta[idx]).length == 0)
+                                        if (Object.keys(delta[idx]).length === 0)
                                             delete delta[idx];
 
                                         onValidationChange?.(delta);

@@ -60,7 +60,7 @@ export const UploadDemo = () => {
                 }, abort.signal);
             } catch (exc) {
                 cockpit.assert(exc instanceof Error, "Unknown exception type");
-                if (exc instanceof DOMException && exc.name == 'AbortError') {
+                if (exc instanceof DOMException && exc.name === 'AbortError') {
                     setAlert({ variant: "warning", title: 'Aborted', message: '' });
                 } else {
                     setAlert({ variant: "danger", title: 'Upload Error', message: exc.message });

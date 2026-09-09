@@ -174,7 +174,7 @@ export class Keys extends EventTarget {
         let failure = _("No such file or directory");
 
         // Exactly one of new_type or old_pass must be given
-        console.assert((new_type == null) != (old_pass == null));
+        console.assert((new_type === null) !== (old_pass == null));
 
         const cmd = ["ssh-keygen", "-f", file];
         if (new_type)

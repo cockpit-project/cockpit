@@ -49,12 +49,12 @@ QUnit.test("error message fail", async assert => {
 
 QUnit.test("nonexisting executable", assert => {
     assert.rejects(cockpit.spawn(["/bin/nonexistent"]),
-                   (ex: cockpit.BasicError) => ex.problem == "not-found");
+                   (ex: cockpit.BasicError) => ex.problem === "not-found");
 });
 
 QUnit.test("permission denied", assert => {
     assert.rejects(cockpit.spawn(["/etc/hostname"]),
-                   (ex: cockpit.BasicError) => ex.problem == "access-denied");
+                   (ex: cockpit.BasicError) => ex.problem === "access-denied");
 });
 
 QUnit.test("write eof read", async assert => {

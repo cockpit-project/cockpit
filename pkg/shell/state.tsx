@@ -102,7 +102,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
 
         /* Host switcher enabled? */
         const meta_multihost = document.head.querySelector("meta[name='allow-multihost']");
-        if (meta_multihost instanceof HTMLMetaElement && meta_multihost.content == "yes")
+        if (meta_multihost instanceof HTMLMetaElement && meta_multihost.content === "yes")
             config.host_switcher_enabled = true;
 
         /* Should show warning before connecting? */
@@ -110,12 +110,12 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetString",
                                                      ["Session", "WarnBeforeConnecting"], {})
                 .then(([result]) => {
-                    if (result == "false" || result == "no") {
+                    if (result === "false" || result === "no") {
                         window.sessionStorage.setItem("connection-warning-shown", "yes");
                     }
                 })
                 .catch(e => {
-                    if (e.name != "cockpit.Config.KeyError")
+                    if (e.name !== "cockpit.Config.KeyError")
                         console.warn("Error reading WarnBeforeConnecting configuration:", e.message);
                 })
                 .finally(() => {
@@ -167,9 +167,9 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
     #init_oops() {
         const old_onerror = window.onerror;
         window.onerror = (msg, url, line) => {
-            // Errors with url == "" are not logged apparently, so let's
+            // Errors with url === "" are not logged apparently, so let's
             // not show the "Oops" for them either.
-            if (url != "") {
+            if (url !== "") {
                 this.has_oops = true;
                 this.update();
             }
@@ -212,7 +212,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
            single place (in hosts.jsx) so that we can get the
            options right, and show a warning dialog.
         */
-        if (machine.address != "localhost" && machine.state !== "connected")
+        if (machine.address !== "localhost" && machine.state !== "connected")
             return null;
 
         const name = "cockpit1:" + machine.connection_string + "/" + path;
@@ -237,7 +237,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
     }
 
     ensure_frame_loaded (): void {
-        if (this.current_frame && this.current_frame.url == null) {
+        if (this.current_frame && this.current_frame.url === null) {
             // Let update() recreate the frame.
             delete this.frames[this.current_frame.name];
             this.current_frame = null;
@@ -259,7 +259,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
     #remove_machine_frames (machine: Machine): void {
         const names = Object.keys(this.frames);
         for (const n of names) {
-            if (this.frames[n].host == machine.address)
+            if (this.frames[n].host === machine.address)
                 this.#kill_frame(n);
         }
         this.update();
@@ -272,7 +272,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
             const preload = manifests[c].preload as unknown as string[];
             if (preload && preload.length) {
                 for (const p of preload) {
-                    const path = (p == "index") ? c : c + "/" + p;
+                    const path = (p === "index") ? c : c + "/" + p;
                     const item = compiled.find_path_item(path);
                     this.#ensure_frame(machine, path, null, item.label);
                 }
@@ -339,7 +339,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
              * named "cockpit1".
              */
             perform_frame_jump_command: (frame_name: string, location: string) => {
-                if (frame_name == "cockpit1" || (this.current_frame && this.current_frame.name == frame_name)) {
+                if (frame_name === "cockpit1" || (this.current_frame && this.current_frame.name === frame_name)) {
                     this.jump(location);
                     this.ensure_connection();
                 }
@@ -396,7 +396,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
     }
 
     #send_frame_hidden_hint (frame_name: string) {
-        const hidden = !this.current_frame || this.current_frame.name != frame_name;
+        const hidden = !this.current_frame || this.current_frame.name !== frame_name;
         this.router.hint(frame_name, { hidden });
     }
 
@@ -473,7 +473,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
             location.path = this.most_recent_path_for_host(location.host);
 
         if (!location.hash) {
-            if (location.host != current.host || location.path != current.path)
+            if (location.host !== current.host || location.path !== current.path)
                 location.hash = this.#most_recent_hash_for_path(location.host, location.path) || "/";
             else
                 console.warn('Shell jump with hash and no frame change. Please use "/" as the hash to jump to the top sub-page.');
@@ -499,7 +499,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
             // mess up connecting to localhost. So we avoid relying on
             // the bigger machinery for it.
             //
-            if (this.current_machine.connection_string == "localhost") {
+            if (this.current_machine.connection_string === "localhost") {
                 this.loader.connect("localhost");
                 return;
             }
@@ -622,10 +622,10 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         this.current_manifest = compiled.find_path_manifest(location.path);
 
         let frame = null;
-        if (location.path && (machine.state == "connected" || machine.state == "connecting"))
+        if (location.path && (machine.state === "connected" || machine.state === "connecting"))
             frame = this.#ensure_frame(machine, location.path, location.hash, item.label);
 
-        if (frame != this.current_frame) {
+        if (frame !== this.current_frame) {
             const prev_frame = this.current_frame;
             this.current_frame = frame;
 
@@ -637,7 +637,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
 
         // Remove all dead frames that are not the current one.
         for (const n of Object.keys(this.frames)) {
-            if (this.frames[n].url == null && this.frames[n] != this.current_frame)
+            if (this.frames[n].url === null && this.frames[n] !== this.current_frame)
                 delete this.frames[n];
         }
 

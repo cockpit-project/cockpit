@@ -31,7 +31,7 @@ import btrfs_tool_py from "./btrfs/btrfs-tool.py";
  */
 
 function debug() {
-    if (window.debugging == "all" || window.debugging?.includes("storaged")) // not-covered: debugging
+    if (window.debugging === "all" || window.debugging?.includes("storaged")) // not-covered: debugging
         console.debug.apply(console, arguments); // not-covered: debugging
 }
 
@@ -93,7 +93,7 @@ function instance_sampler(metrics, source) {
             for (let m = 0; m < metrics.length; m++) {
                 const inst = metrics[m];
                 for (let i = 0; i < inst.length; i++) {
-                    if (inst[i] !== null && inst[i] != self.data[instances[m][i]][m]) {
+                    if (inst[i] !== null && inst[i] !== self.data[instances[m][i]][m]) {
                         changed = true;
                         self.data[instances[m][i]][m] = inst[i];
                     }
@@ -459,7 +459,7 @@ function update_indices() {
          * device.
          */
 
-        if (!client.drives_block[path] && client.drives_multipath_blocks[path].length == 1) {
+        if (!client.drives_block[path] && client.drives_multipath_blocks[path].length === 1) {
             client.drives_block[path] = client.drives_multipath_blocks[path][0];
             client.drives_multipath_blocks[path] = [];
         } else {
@@ -472,7 +472,7 @@ function update_indices() {
     client.mdraids_block = { };
     for (path in client.blocks) {
         block = client.blocks[path];
-        if (block.MDRaid != "/")
+        if (block.MDRaid !== "/")
             client.mdraids_block[block.MDRaid] = block;
     }
 
@@ -527,7 +527,7 @@ function update_indices() {
                 // HACK - this is needed below to deal with a UDisks2 bug.
                 // https://github.com/storaged-project/udisks/pull/1206
                 const block = client.blocks[path];
-                if (block && utils.decode_filename(block.Device).indexOf("/dev/dm-") == 0)
+                if (block && utils.decode_filename(block.Device).indexOf("/dev/dm-") === 0)
                     vgroups_with_dm_pvs[pvol.VolumeGroup] = true;
             }
         }
@@ -559,7 +559,7 @@ function update_indices() {
 
     client.lvols_pool_members = { };
     for (path in client.lvols) {
-        if (client.lvols[path].Type == "pool")
+        if (client.lvols[path].Type === "pool")
             client.lvols_pool_members[path] = [];
     }
     for (path in client.lvols) {
@@ -601,12 +601,12 @@ function update_indices() {
 
         let summary;
         let status = "";
-        if (lvol.Layout != "thin" && struct && struct.segments) {
+        if (lvol.Layout !== "thin" && struct && struct.segments) {
             summary = summarize_stripe(struct.size.v, struct.segments.v);
             if (summary["/"])
                 status = "partial";
         } else if (struct && struct.data && struct.metadata &&
-                   (struct.data.v.length == struct.metadata.v.length || struct.metadata.v.length == 0)) {
+                   (struct.data.v.length === struct.metadata.v.length || struct.metadata.v.length === 0)) {
             summary = [];
             const n_total = struct.data.v.length;
             let n_missing = 0;
@@ -628,11 +628,11 @@ function update_indices() {
             }
             if (n_missing > 0) {
                 status = "partial";
-                if (lvol.Layout == "raid1") {
+                if (lvol.Layout === "raid1") {
                     if (n_total - n_missing >= 1)
                         status = "degraded";
                 }
-                if (lvol.Layout == "raid10") {
+                if (lvol.Layout === "raid10") {
                     // This is correct for two-way mirroring, which is
                     // the only setup supported by lvm2.
                     if (n_missing > n_total / 2) {
@@ -650,11 +650,11 @@ function update_indices() {
                         status = "degraded";
                     }
                 }
-                if (lvol.Layout == "raid4" || lvol.Layout == "raid5") {
+                if (lvol.Layout === "raid4" || lvol.Layout === "raid5") {
                     if (n_missing <= 1)
                         status = "degraded";
                 }
-                if (lvol.Layout == "raid6") {
+                if (lvol.Layout === "raid6") {
                     if (n_missing <= 2)
                         status = "degraded";
                 }
@@ -757,7 +757,7 @@ function update_indices() {
     client.blocks_cleartext = { };
     for (path in client.blocks) {
         block = client.blocks[path];
-        if (block.CryptoBackingDevice != "/")
+        if (block.CryptoBackingDevice !== "/")
             client.blocks_cleartext[block.CryptoBackingDevice] = block;
     }
 
@@ -849,7 +849,7 @@ function update_lvm2_polling(for_visibility) {
         }
     }
 
-    if (need_polling && lvm2_poll_timer == null) {
+    if (need_polling && lvm2_poll_timer === null) {
         lvm2_poll_timer = window.setInterval(poll, 2000);
         if (for_visibility)
             poll();
@@ -930,8 +930,8 @@ function init_model(callback) {
            be clear enough to help people figure out what needs to be
            done.
          */
-        if (await exit_code(["vdoformat", "--version"]) == 0 ||
-            await exit_code(["lvmconfig", "--list", "allocation/vdo_use_kernel_format"]) == 0) {
+        if (await exit_code(["vdoformat", "--version"]) === 0 ||
+            await exit_code(["lvmconfig", "--list", "allocation/vdo_use_kernel_format"]) === 0) {
             client.features.lvm_create_vdo = true;
         }
     }
@@ -985,7 +985,7 @@ function init_model(callback) {
 
     function enable_stratis_feature() {
         return client.stratis_start().catch(error => {
-            if (error.problem != "not-found")
+            if (error.problem !== "not-found")
                 console.warn("Failed to start Stratis support", error);
             return Promise.resolve();
         });
@@ -1092,7 +1092,7 @@ client.stop_mount_users = (users) => {
  */
 
 client.mount_at = (block, target) => {
-    const entry = block.Configuration.find(c => c[0] == "fstab" && utils.decode_filename(c[1].dir.v) == target);
+    const entry = block.Configuration.find(c => c[0] === "fstab" && utils.decode_filename(c[1].dir.v) === target);
     if (entry)
         return cockpit.script('set -e; mkdir -p "$2"; mount "$1" "$2" -o "$3"',
                               [utils.decode_filename(block.Device), target, utils.get_block_mntopts(entry[1])],
@@ -1151,7 +1151,7 @@ function nfs_mounts() {
                     }
                 })
                 .catch(function (error) {
-                    if (error != "closed") {
+                    if (error !== "closed") {
                         console.warn(error);
                     }
                 });
@@ -1214,7 +1214,7 @@ function nfs_mounts() {
 
     function find_entry(remote, local) {
         for (let i = 0; i < self.entries.length; i++) {
-            if (self.entries[i].fields[0] == remote && self.entries[i].fields[1] == local)
+            if (self.entries[i].fields[0] === remote && self.entries[i].fields[1] === local)
                 return self.entries[i];
         }
     }
@@ -1327,7 +1327,7 @@ function legacy_vdo_overlay() {
         return cockpit.spawn(["/bin/sh", "-c", "head -1 $(command -v vdo || echo /dev/null)"],
                              { err: "ignore" })
                 .then(function (shebang) {
-                    if (shebang != "") {
+                    if (shebang !== "") {
                         self.python = shebang.replace(/#! */, "").trim("\n");
                         cockpit.spawn([self.python, "--", "-"], { superuser: "try", err: "message" })
                                 .input(inotify_py + vdo_monitor_py)
@@ -1340,7 +1340,7 @@ function legacy_vdo_overlay() {
                                     }
                                 })
                                 .catch(function (error) {
-                                    if (error != "closed") {
+                                    if (error !== "closed") {
                                         console.warn(error);
                                     }
                                 });
@@ -1450,9 +1450,9 @@ async function stratis3_start() {
         const devs = client.stratis_manager.StoppedPools[uuid]?.devs;
         if (!devs)
             return [];
-        if (devs.t == 'aa{ss}')
+        if (devs.t === 'aa{ss}')
             return devs.v.map(d => d.devnode);
-        else if (devs.t == 'aa{sv}')
+        else if (devs.t === 'aa{sv}')
             return devs.v.map(d => d.devnode.v);
         else
             return [];
@@ -1527,11 +1527,11 @@ client.strip_mount_point_prefix = (dir) => {
     const mpp = client.anaconda?.mount_point_prefix;
 
     if (dir && mpp) {
-        if (dir.indexOf(mpp) != 0)
+        if (dir.indexOf(mpp) !== 0)
             return false;
 
         dir = dir.substring(mpp.length);
-        if (dir == "")
+        if (dir === "")
             dir = "/";
     }
 
@@ -1540,8 +1540,8 @@ client.strip_mount_point_prefix = (dir) => {
 
 client.add_mount_point_prefix = (dir) => {
     const mpp = client.anaconda?.mount_point_prefix;
-    if (mpp && dir != "") {
-        if (dir == "/")
+    if (mpp && dir !== "") {
+        if (dir === "/")
             dir = mpp;
         else
             dir = mpp + dir;
@@ -1550,7 +1550,7 @@ client.add_mount_point_prefix = (dir) => {
 };
 
 client.should_ignore_device = (devname) => {
-    return client.anaconda?.available_devices && client.anaconda.available_devices.indexOf(devname) == -1;
+    return client.anaconda?.available_devices && client.anaconda.available_devices.indexOf(devname) === -1;
 };
 
 client.should_ignore_block = (block) => {

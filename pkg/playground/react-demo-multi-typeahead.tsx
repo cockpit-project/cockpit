@@ -21,7 +21,7 @@ const MultiTypeahead = ({ options } : { options: MultiTypeaheadSelectOption[] })
     }
 
     function rem(val: string | number) {
-        setSelected(selected.filter(v => v != val));
+        setSelected(selected.filter(v => v !== val));
     }
 
     return (

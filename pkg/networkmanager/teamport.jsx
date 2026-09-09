@@ -28,7 +28,7 @@ export const TeamPortDialog = ({ connection, dev, settings }) => {
     if (!config)
         config = { };
 
-    const [priority, setPriority] = useState(teamMode == 'activebackup' ? config.prio : config.lacp_prio);
+    const [priority, setPriority] = useState(teamMode === 'activebackup' ? config.prio : config.lacp_prio);
     const [sticky, setSticky] = useState(config.sticky);
     const [key, setKey] = useState(config.lacp_key);
     const [dialogError, setDialogError] = useState(undefined);
@@ -39,8 +39,8 @@ export const TeamPortDialog = ({ connection, dev, settings }) => {
             team_port: {
                 config: {
                     ...config,
-                    ...(teamMode == 'activebackup' && { prio: priority, sticky }),
-                    ...(teamMode == 'lacp' && { lacp_prio: priority, lacp_key: key }),
+                    ...(teamMode === 'activebackup' && { prio: priority, sticky }),
+                    ...(teamMode === 'lacp' && { lacp_prio: priority, lacp_key: key }),
                 }
             }
         });
@@ -70,12 +70,12 @@ export const TeamPortDialog = ({ connection, dev, settings }) => {
             <FormGroup fieldId={idPrefix + "-" + teamMode + "-prio-input"} label={_("Priority")}>
                 <TextInput id={idPrefix + "-" + teamMode + "-prio-input"} value={priority} onChange={(_event, value) => setPriority(value)} />
             </FormGroup>
-            {teamMode == 'activebackup'
+            {teamMode === 'activebackup'
                 ? <FormGroup fieldId={idPrefix + "-activebackup-sticky-input"}>
                     <Checkbox id={idPrefix + "-activebackup-sticky-input"} isChecked={sticky} onChange={(_, s) => setSticky(s)} label={_("Sticky")} />
                 </FormGroup>
                 : null}
-            {teamMode == 'lacp'
+            {teamMode === 'lacp'
                 ? <FormGroup fieldId={idPrefix + "-" + teamMode + "-key-input"} label={_("LACP key")}>
                     <TextInput id={idPrefix + "-" + teamMode + "-key-input"} value={key} onChange={(_event, value) => setKey(value)} />
                 </FormGroup>

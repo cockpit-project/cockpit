@@ -99,7 +99,7 @@ function compute_sigkey_thps(adv) {
     function is_signing_key(jwk) {
         if (!jwk.use && !jwk.key_ops)
             return true;
-        if (jwk.use == "sig")
+        if (jwk.use === "sig")
             return true;
         if (jwk.key_ops && jwk.key_ops.indexOf("verify") >= 0)
             return true;

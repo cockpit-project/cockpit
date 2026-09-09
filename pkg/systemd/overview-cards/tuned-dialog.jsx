@@ -37,7 +37,7 @@ function poll_tuned_state(tuned, tunedService) {
             .catch((ex) => {
                 if (!tunedService.exists)
                     return ({ state: "not-installed" });
-                else if (tunedService.state != "running")
+                else if (tunedService.state !== "running")
                     return ({ state: "not-running" });
                 else
                     return Promise.reject(ex);
@@ -59,17 +59,17 @@ export const TunedPerformanceProfile = () => {
             const { state, active, recommended } = await poll_tuned_state(tuned, tunedService);
             let status;
 
-            if (state == "not-installed")
+            if (state === "not-installed")
                 status = _("Tuned is not available");
-            else if (state == "not-running")
+            else if (state === "not-running")
                 status = _("Tuned is not running");
-            else if (active == "none")
+            else if (active === "none")
                 status = _("Tuned is off");
-            else if (active == recommended)
+            else if (active === recommended)
                 status = _("This system is using the recommended profile");
             else
                 status = _("This system is using a custom profile");
-            setBtnText(state == "running" ? active : _("none"));
+            setBtnText(state === "running" ? active : _("none"));
             setState(state);
             setStatus(status);
         } catch (ex) {
@@ -100,7 +100,7 @@ export const TunedPerformanceProfile = () => {
     return (
         <Tooltip id="tuned-status-tooltip" content={status}>
             <Button id="tuned-status-button"
-                    isAriaDisabled={btnText == "error" || state == "not-installed" || !superuser.allowed}
+                    isAriaDisabled={btnText === "error" || state === "not-installed" || !superuser.allowed}
                     isInline
                     onClick={showDialog}
                     variant='link'>
@@ -131,7 +131,7 @@ const TunedDialog = ({
     const setProfile = () => {
         const setService = () => {
             /* When the profile is none we disable tuned */
-            const enable = (selected != "none");
+            const enable = (selected !== "none");
             const action = enable ? "start" : "stop";
             return tunedDbus.call('/Tuned', 'com.redhat.tuned.control', action, [])
                     .then(results => {
@@ -158,7 +158,7 @@ const TunedDialog = ({
 
         let promise;
 
-        if (selected == "none") {
+        if (selected === "none") {
             promise = tunedDbus.call("/Tuned", 'com.redhat.tuned.control', 'disable', [])
                     .then(results => {
                     /* Yup this is how tuned returns failures */
@@ -197,13 +197,13 @@ const TunedDialog = ({
                     name = p[0];
                     desc = p[1];
                 }
-                if (name != "none") {
+                if (name !== "none") {
                     model.push({
                         name,
                         title: name,
                         description: desc,
-                        active: name == active,
-                        recommended: name == recommended,
+                        active: name === active,
+                        recommended: name === recommended,
                     });
                 }
             });
@@ -212,8 +212,8 @@ const TunedDialog = ({
                 name: "none",
                 title: _("None"),
                 description: _("Disable tuned"),
-                active: active == "none",
-                recommended: recommended == "none",
+                active: active === "none",
+                recommended: recommended === "none",
             });
 
             setProfiles(model);
@@ -234,7 +234,7 @@ const TunedDialog = ({
             return poll_tuned_state(tunedDbus, tunedService)
                     .then(res => {
                         const { state, active, recommended } = res;
-                        if (state != "running") {
+                        if (state !== "running") {
                             setError(_("Tuned has failed to start"));
                             return;
                         }
@@ -297,7 +297,7 @@ const TunedDialog = ({
                 help={help}
             />
             <ModalBody>
-                {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
+                {error && <ModalError dialogError={typeof error === 'string' ? error : error.message} />}
                 {loading && <EmptyStatePanel loading />}
                 {activeProfile && <ProfilesMenuDialogBody active_profile={activeProfile}
                                                    change_selected={setSelected}

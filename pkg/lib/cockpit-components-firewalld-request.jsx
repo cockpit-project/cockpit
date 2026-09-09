@@ -17,7 +17,7 @@ const _ = cockpit.gettext;
 const firewalld = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
 function debug() {
-    if (window.debugging == "all" || window.debugging?.includes("firewall"))
+    if (window.debugging === "all" || window.debugging?.includes("firewall"))
         console.debug.apply(console, arguments);
 }
 

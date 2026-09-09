@@ -70,7 +70,7 @@ class ImplBase {
         }
 
         // now there should only be a time left
-        if (words.length == 1 && validTime.test(words[0]))
+        if (words.length === 1 && validTime.test(words[0]))
             this.time = words[0].replace(/^0+/, "");
         else
             this.supported = false;
@@ -127,7 +127,7 @@ class Dnf4Impl extends ImplBase {
         let script = "set -e; ";
 
         if (type !== null) {
-            const value = (type == "security") ? "security" : "default";
+            const value = (type === "security") ? "security" : "default";
 
             // normally upgrade_type = should already be in the file, so replace that line;
             // if it's not already present, append it to the file
@@ -145,9 +145,9 @@ class Dnf4Impl extends ImplBase {
                 // restore defaults
                 script += "rm -f " + timerConf + "; ";
             } else {
-                if (day == null)
+                if (day === null)
                     day = this.day;
-                if (time == null)
+                if (time === null)
                     time = this.time;
                 script += "mkdir -p /etc/systemd/system/dnf-automatic-install.timer.d; ";
                 script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
@@ -261,16 +261,16 @@ class Dnf5Impl extends ImplBase {
         const settings = [];
 
         if (type !== null)
-            settings.push(["upgrade_type", (type == "security") ? "security" : "default"]);
+            settings.push(["upgrade_type", (type === "security") ? "security" : "default"]);
 
         if (time !== null || day !== null) {
             if (day === "" && time === "") {
                 // restore defaults
                 script += "rm -f " + timerConf + "; ";
             } else {
-                if (day == null)
+                if (day === null)
                     day = this.day;
-                if (time == null)
+                if (time === null)
                     time = this.time;
                 script += "mkdir -p " + timerConfD + "; ";
                 script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
@@ -402,8 +402,8 @@ const AutoUpdatesDialog = ({ backend }) => {
                             <Flex className="auto-update-group">
                                 <FormSelect id="auto-update-day"
                                              isDisabled={pending}
-                                             value={day == "" ? "everyday" : day}
-                                             onChange={(_, d) => setDay(d == "everyday" ? "" : d) }>
+                                             value={day === "" ? "everyday" : day}
+                                             onChange={(_, d) => setDay(d === "everyday" ? "" : d) }>
                                     <FormSelectOption value="everyday" label={_("every day")} />
                                     <FormSelectOption value="mon" label={_("Mondays")} />
                                     <FormSelectOption value="tue" label={_("Tuesdays")} />
@@ -473,7 +473,7 @@ export const AutoUpdates = ({ privileged, packagekit_backend, initial_backend })
     if (backend.enabled && backend.supported) {
         const day = days[backend.day];
         const time = backend.time;
-        desc = backend.type == "security"
+        desc = backend.type === "security"
             ? cockpit.format(_("Security updates will be applied $0 at $1"), day, time)
             : cockpit.format(_("Updates will be applied $0 at $1"), day, time);
     }

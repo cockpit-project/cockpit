@@ -77,7 +77,7 @@ export function make_thin_pool_logical_volume_page(parent, vgroup, lvol) {
 
 function make_lvm2_thin_pool_card(next, vgroup, lvol) {
     let grow_excuse = null;
-    if (vgroup.FreeSize == 0)
+    if (vgroup.FreeSize === 0)
         grow_excuse = _("Not enough space");
 
     const card = new_card({

@@ -77,12 +77,12 @@ function toDec(n) {
 
 function bytes_from_nm32(num) {
     const bytes = [];
-    if (byteorder == "be") {
+    if (byteorder === "be") {
         for (let i = 3; i >= 0; i--) {
             bytes[i] = num & 0xFF;
             num = num >>> 8;
         }
-    } else if (byteorder == "le") {
+    } else if (byteorder === "le") {
         for (let i = 0; i < 4; i++) {
             bytes[i] = num & 0xFF;
             num = num >>> 8;
@@ -123,7 +123,7 @@ export function ip4_from_text(text, empty_is_zero) {
         return 0;
 
     const parts = text.split('.');
-    if (parts.length != 4)
+    if (parts.length !== 4)
         invalid();
 
     const bytes = parts.map(function(s) {
@@ -140,11 +140,11 @@ export function ip4_from_text(text, empty_is_zero) {
         num = 0x100 * num + b;
     }
 
-    if (byteorder == "be") {
+    if (byteorder === "be") {
         for (let i = 0; i < 4; i++) {
             shift(bytes[i]);
         }
-    } else if (byteorder == "le") {
+    } else if (byteorder === "le") {
         for (let i = 3; i >= 0; i--) {
             shift(bytes[i]);
         }
@@ -214,7 +214,7 @@ export function ip6_to_text(data, zero_is_empty) {
     for (let i = 0; i < 8; i++)
         parts[i] = ((bytes[2 * i] << 8) + bytes[2 * i + 1]).toString(16);
     const result = parts.join(':');
-    if (result == "0:0:0:0:0:0:0:0" && zero_is_empty)
+    if (result === "0:0:0:0:0:0:0:0" && zero_is_empty)
         return "";
     return ip6_shorten(result);
 }
@@ -260,7 +260,7 @@ export function ip6_from_text(text, empty_is_zero) {
             bytes[2 * j + 1] = n & 0xFF;
         }
     }
-    if (j != 8)
+    if (j !== 8)
         invalid();
 
     return cockpit.base64_encode(bytes);
@@ -343,6 +343,6 @@ export function createNewConnSettings(settings, iface_name) {
 }
 
 export function debug() {
-    if (window.debugging == "all" || window.debugging?.includes("networkmanager")) // not-covered: debugging
+    if (window.debugging === "all" || window.debugging?.includes("networkmanager")) // not-covered: debugging
         console.debug("networkmanager:", ...arguments); // not-covered: debugging
 }

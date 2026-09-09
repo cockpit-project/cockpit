@@ -19,7 +19,7 @@ export class FirewallSwitch extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        if (props.firewall.enabled == state.pendingTarget) {
+        if (props.firewall.enabled === state.pendingTarget) {
             return {
                 pendingTarget: null
             };

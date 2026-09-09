@@ -35,7 +35,7 @@ export function check_mismounted_fsys(backing_block, content_block, fstab_config
     function ignore_mount(m) {
         // We don't complain about the rootfs, it's probably
         // configured somewhere else, like in the bootloader.
-        if (m == "/")
+        if (m === "/")
             return true;
 
         // This is the mount point used for monitoring btrfs filesystems.
@@ -51,7 +51,7 @@ export function check_mismounted_fsys(backing_block, content_block, fstab_config
     const opt_noauto_intent = extract_option(split_options, "x-cockpit-never-auto");
     const opt_systemd_automount = split_options.indexOf("x-systemd.automount") >= 0;
     const is_mounted = mounted_at.indexOf(dir) >= 0;
-    const other_mounts = mounted_at.filter(m => m != dir && !ignore_mount(m));
+    const other_mounts = mounted_at.filter(m => m !== dir && !ignore_mount(m));
     const crypto_backing_noauto = get_cryptobacking_noauto(client, backing_block);
 
     let type;
@@ -93,9 +93,9 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
 
     function fix_config() {
         let opts = [];
-        if (type == "mount-on-boot")
+        if (type === "mount-on-boot")
             opts.push("noauto");
-        if (type == "locked-on-boot-mount") {
+        if (type === "locked-on-boot-mount") {
             opts.push("noauto");
             opts.push("x-cockpit-never-auto");
         }
@@ -125,7 +125,7 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
             all_new_opts = old_parents;
 
         let new_dir = old_dir;
-        if (type == "change-mount-on-boot" || type == "mounted-no-config")
+        if (type === "change-mount-on-boot" || type === "mounted-no-config")
             new_dir = other;
 
         const new_config = [
@@ -142,9 +142,9 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
         function fixup_crypto_backing() {
             if (!backing_block)
                 return;
-            if (type == "no-mount-on-boot")
+            if (type === "no-mount-on-boot")
                 return set_crypto_auto_option(backing_block, true);
-            if (type == "locked-on-boot-mount")
+            if (type === "locked-on-boot-mount")
                 return set_crypto_auto_option(backing_block, false);
         }
 
@@ -171,21 +171,21 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
         function do_unmount(dir) {
             return client.unmount_at(dir)
                     .then(() => {
-                        if (backing_block != content_block)
+                        if (backing_block !== content_block)
                             return crypto_backing_crypto.Lock({});
                     });
         }
 
-        if (type == "change-mount-on-boot")
+        if (type === "change-mount-on-boot")
             return client.unmount_at(other).then(() => client.mount_at(content_block, old_dir));
-        else if (type == "mount-on-boot")
+        else if (type === "mount-on-boot")
             return do_mount();
-        else if (type == "no-mount-on-boot")
+        else if (type === "no-mount-on-boot")
             return do_unmount(old_dir);
-        else if (type == "mounted-no-config")
+        else if (type === "mounted-no-config")
             return do_unmount(other);
-        else if (type == "locked-on-boot-mount") {
-            if (backing_block != content_block)
+        else if (type === "locked-on-boot-mount") {
+            if (backing_block !== content_block)
                 return set_crypto_auto_option(backing_block, true);
         }
     }
@@ -194,23 +194,23 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
     let fix_config_text;
     let fix_mount_text;
 
-    if (type == "change-mount-on-boot") {
+    if (type === "change-mount-on-boot") {
         text = cockpit.format(_("The filesystem is currently mounted on $0 but will be mounted on $1 on the next boot."), other, old_dir);
         fix_config_text = cockpit.format(_("Mount automatically on $0 on boot"), other);
         fix_mount_text = cockpit.format(_("Mount on $0 now"), old_dir);
-    } else if (type == "mount-on-boot") {
+    } else if (type === "mount-on-boot") {
         text = _("The filesystem is currently not mounted but will be mounted on the next boot.");
         fix_config_text = _("Do not mount automatically on boot");
         fix_mount_text = _("Mount now");
-    } else if (type == "no-mount-on-boot") {
+    } else if (type === "no-mount-on-boot") {
         text = _("The filesystem is currently mounted but will not be mounted after the next boot.");
         fix_config_text = _("Mount also automatically on boot");
         fix_mount_text = _("Unmount now");
-    } else if (type == "mounted-no-config") {
+    } else if (type === "mounted-no-config") {
         text = cockpit.format(_("The filesystem is currently mounted on $0 but will not be mounted after the next boot."), other);
         fix_config_text = cockpit.format(_("Mount automatically on $0 on boot"), other);
         fix_mount_text = _("Unmount now");
-    } else if (type == "locked-on-boot-mount") {
+    } else if (type === "locked-on-boot-mount") {
         text = _("The filesystem is configured to be automatically mounted on boot but its encryption container will not be unlocked at that time.");
         fix_config_text = _("Do not mount automatically on boot");
         fix_mount_text = _("Unlock automatically on boot");

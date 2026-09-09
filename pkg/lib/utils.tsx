@@ -9,7 +9,7 @@ import cockpit from "cockpit";
 
 export function fmt_to_fragments(format: string, ...args: React.ReactNode[]) {
     const fragments = format.split(/(\$[0-9]+)/g).map(part => {
-        if (part[0] == "$") {
+        if (part[0] === "$") {
             return args[parseInt(part.slice(1))]; // placeholder, from `args`
         } else
             return part; // literal string content

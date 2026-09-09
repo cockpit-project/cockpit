@@ -112,7 +112,7 @@ const RESOURCES = {
     use_memory: {
         name: _("Memory usage"),
         event_description: _("Memory"),
-        // assume used == total - available
+        // assume used === total - available
         normalize: ([totalKiB, availKiB]) => 1 - (availKiB / totalKiB),
         format: ([totalKiB, availKiB]) => `${cockpit.format_bytes((totalKiB - availKiB) * 1024)} / ${cockpit.format_bytes(totalKiB * 1024)}`,
     },
@@ -195,7 +195,7 @@ const HISTORY_METRICS = [
 ];
 
 function debug() {
-    if (window.debugging == "all" || window.debugging?.includes("metrics"))
+    if (window.debugging === "all" || window.debugging?.includes("metrics"))
         console.debug.apply(console, arguments);
 }
 
@@ -427,7 +427,7 @@ class CurrentMetrics extends React.Component {
 
         // Collect CPU cores
         newState.cpuCoresUsed = [];
-        if (this.samples[11] && this.samples[11].length == this.samples[12].length && this.samples[12].length == this.samples[13].length) {
+        if (this.samples[11] && this.samples[11].length === this.samples[12].length && this.samples[12].length === this.samples[13].length) {
             for (let i = 0; i < this.samples[11].length; i++) {
                 // CPU cores metrics are in ms/s; divide by 10 to get percentage
                 newState.cpuCoresUsed[i] = Math.round((this.samples[11][i] + this.samples[12][i] + this.samples[13][i]) / 10);
@@ -440,7 +440,7 @@ class CurrentMetrics extends React.Component {
             names.forEach((k, i) => {
                 const v = values[i];
                 // filter out invalid values, the empty (root) cgroup, non-services
-                if (k.endsWith('.service') && typeof v === 'number' && v != 0) {
+                if (k.endsWith('.service') && typeof v === 'number' && v !== 0) {
                     const is_user = k.match(/^user.*user@\d+\.service.+/);
                     const label = k.replace(/.*\//, '').replace(/\.service$/, '');
                     // only keep cgroup basenames, and drop redundant .service suffix
@@ -460,7 +460,7 @@ class CurrentMetrics extends React.Component {
                         uid = parseInt(umatches.groups.userid);
                     }
 
-                    if (uid === 0 || this.state.userid == uid) {
+                    if (uid === 0 || this.state.userid === uid) {
                         merged.push([containerid, v, is_user, true, uid]);
                     }
                 }
@@ -534,7 +534,7 @@ class CurrentMetrics extends React.Component {
                     const isUser = !!umatches;
                     const uid = parseInt(umatches?.groups.userid) || 0;
 
-                    if (uid === 0 || this.state.userid == uid) {
+                    if (uid === 0 || this.state.userid === uid) {
                         merged.push([containerid, valuesA[i], valuesB[i], isUser, true, uid]);
                         return;
                     }
@@ -1172,7 +1172,7 @@ class MetricsHour extends React.Component {
             this.state.isHourExpanded !== nextState.isHourExpanded ||
             this.props.startTime !== nextProps.startTime ||
             this.props.boots !== nextProps.boots ||
-            Object.keys(this.props.selectedVisibility).some(itm => this.props.selectedVisibility[itm] != nextProps.selectedVisibility[itm])) {
+            Object.keys(this.props.selectedVisibility).some(itm => this.props.selectedVisibility[itm] !== nextProps.selectedVisibility[itm])) {
             this.updateGraphs(nextProps.data, nextProps.startTime, nextProps.selectedVisibility, nextState.isHourExpanded);
             return false;
         }
@@ -1862,7 +1862,7 @@ class MetricsHistory extends React.Component {
         const options = Array(15).fill()
                 .map((_undef, i) => {
                     const date = this.today_midnight - i * 86400000;
-                    const text = i == 0 ? _("Today") : timeformat.weekdayDate(date);
+                    const text = i === 0 ? _("Today") : timeformat.weekdayDate(date);
                     return { value: date, content: text };
                 });
 
@@ -1949,14 +1949,14 @@ class MetricsHistory extends React.Component {
                                                                                            reboot.started.getYear() === date_time.getYear() &&
                                                                                            reboot.started.getHours() === date_time.getHours())
                                             .map(reboot => reboot.started.getMinutes());
-                                    const showHeader = i == 0 || timeformat.date(time) != timeformat.date(this.state.hours[i - 1]);
+                                    const showHeader = i === 0 || timeformat.date(time) !== timeformat.date(this.state.hours[i - 1]);
 
                                     return (
                                         <React.Fragment key={timeformat.dateTime(time)}>
                                             {showHeader && <Content><Content component={ContentVariants.h3} className="metrics-time"><time>{ timeformat.date(time) }</time></Content></Content>}
                                             <MetricsHour key={time} startTime={parseInt(time)}
                                                          selectedVisibility={this.state.selectedVisibility}
-                                                         data={this.data[time]} clipLeading={i == 0}
+                                                         data={this.data[time]} clipLeading={i === 0}
                                                          boots={boot_minutes} />
                                         </React.Fragment>
                                     );

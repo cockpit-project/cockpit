@@ -39,7 +39,7 @@ export const UncleanShutdownStatus = () => {
             } else {
                 const epoch = started.getTime().toString();
                 setUncleanShutdownId(epoch);
-                setUncleanShutdownStatusVisible(epoch != cockpit.sessionStorage.getItem("dismissed-unclean-shutdown-id"));
+                setUncleanShutdownStatusVisible(epoch !== cockpit.sessionStorage.getItem("dismissed-unclean-shutdown-id"));
             }
         });
     });

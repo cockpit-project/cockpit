@@ -229,7 +229,7 @@ export class Dnf5DaemonManager implements PackageManager {
             }
 
             pkgnames.forEach((name: string) => {
-                if (!installed_names.has(name) && data.missing_names.indexOf(name) == -1)
+                if (!installed_names.has(name) && data.missing_names.indexOf(name) === -1)
                     data.unavailable_names.push(name);
             });
         }
@@ -257,13 +257,13 @@ export class Dnf5DaemonManager implements PackageManager {
 
                 data.download_size += pkg.download_size.v;
 
-                if (reason == "Dependency") {
-                    if (data.missing_names.indexOf(name) == -1)
+                if (reason === "Dependency") {
+                    if (data.missing_names.indexOf(name) === -1)
                         data.extra_names.push(name);
                 }
 
-                if (action == "Replaced") {
-                    if (data.remove_names.indexOf(name) == -1)
+                if (action === "Replaced") {
+                    if (data.remove_names.indexOf(name) === -1)
                         data.remove_names.push(name);
                 }
             }
@@ -432,7 +432,7 @@ export class Dnf5DaemonManager implements PackageManager {
             const [_transaction_items, result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as InstallResolveResult;
             if (result !== 0) {
                 const [problems] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems", []) as TransactionProblem[][];
-                if (problems.every((p: TransactionProblem) => p.problem.v == GoalProblem.ALREADY_INSTALLED)) {
+                if (problems.every((p: TransactionProblem) => p.problem.v === GoalProblem.ALREADY_INSTALLED)) {
                     await call(session, "org.rpm.dnf.v0.Goal", "reset", []);
                     return;
                 }
@@ -567,9 +567,9 @@ export class Dnf5DaemonManager implements PackageManager {
                             }
 
                             // Map the advisory type to the severity which PackageKit uses
-                            // Critical == Security update
-                            // Important == Bug fix
-                            // Moderate == Enhancement
+                            // Critical === Security update
+                            // Important === Bug fix
+                            // Moderate === Enhancement
                             let severity = Severity.LOW;
                             switch (advisory.type.v) {
                             case "bugfix":

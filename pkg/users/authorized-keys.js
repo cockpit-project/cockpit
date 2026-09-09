@@ -21,9 +21,9 @@ function AuthorizedKeys (user_name, home_dir) {
 
     function process_failure (ex) {
         self.keys = [];
-        if (ex.problem == "access-denied") {
+        if (ex.problem === "access-denied") {
             self.state = ex.problem;
-        } else if (ex.problem == "not-found") {
+        } else if (ex.problem === "not-found") {
             self.state = "ready";
         } else {
             self.state = "failed";
@@ -66,7 +66,7 @@ function AuthorizedKeys (user_name, home_dir) {
                             obj.size = match[1];
                             obj.fp = match[2];
                             obj.comment = match[3].trim();
-                            if (obj.comment == "authorized_keys" || obj.comment == "no comment")
+                            if (obj.comment === "authorized_keys" || obj.comment === "no comment")
                                 obj.comment = null;
                             obj.algorithm = match[4];
 

@@ -100,9 +100,9 @@ function create_promise(state) {
     };
 
     self.state = function state_() {
-        if (state.status == 1)
+        if (state.status === 1)
             return "resolved";
-        if (state.status == 2)
+        if (state.status === 2)
             return "rejected";
         return "pending";
     };

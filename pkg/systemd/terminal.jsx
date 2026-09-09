@@ -111,6 +111,7 @@ const _ = cockpit.gettext;
                 channel: this.createChannel(prevState.user, cockpit.location.options.path),
                 changePathBusy: false,
             }));
+            this.terminalRef.current.focus();
         }
 
         dismiss() {
@@ -119,6 +120,7 @@ const _ = cockpit.gettext;
                 changePathBusy: false,
             });
             cockpit.location.replace("");
+            this.terminalRef.current.focus();
         }
 
         async onNavigate() {
@@ -136,6 +138,7 @@ const _ = cockpit.gettext;
             if (changeNow) {
                 const user = await cockpit.user();
                 this.setState({ channel: this.createChannel(user, cockpit.location.options.path) });
+                this.terminalRef.current.focus();
             }
         }
 
@@ -171,6 +174,7 @@ const _ = cockpit.gettext;
                 localStorage.setItem('terminal:font-size', state.size + 1);
                 return { size: state.size + 1 };
             });
+            this.terminalRef.current.focus();
         }
 
         onMinus() {
@@ -178,11 +182,13 @@ const _ = cockpit.gettext;
                 localStorage.setItem('terminal:font-size', state.size - 1);
                 return { size: state.size - 1 };
             });
+            this.terminalRef.current.focus();
         }
 
         onThemeChanged(_, value) {
             this.setState({ theme: value });
             localStorage.setItem('terminal:theme', value);
+            this.terminalRef.current.focus();
         }
 
         onResetClick(event) {

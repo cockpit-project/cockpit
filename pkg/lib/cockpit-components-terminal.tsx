@@ -281,6 +281,8 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
     }
 
     componentDidUpdate(prevProps: TerminalComponentProps, prevState: TerminalComponentState) {
+        const hadFocus = this.terminal_state.wrapper_element.matches(":focus-within");
+
         if (this.props.state && prevProps.state !== this.props.state) {
             cockpit.assert(!this.props.channel);
             cockpit.assert(prevProps.state);
@@ -317,7 +319,8 @@ export class Terminal extends React.Component<TerminalComponentProps, TerminalCo
         if (this.props.theme && prevProps.theme !== this.props.theme)
             this.setTerminalTheme(this.props.theme);
 
-        this.terminal.focus();
+        if (hadFocus)
+            this.terminal.focus();
     }
 
     render() {

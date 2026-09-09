@@ -320,8 +320,14 @@ class PcpMetricsChannel(AsyncChannel):
                 archive_start = float(log_label.start) * 1000
                 yield ArchiveInfo(context, archive_start, archive_path)
             except pmapi.pmErr as exc:
+                # A single unreadable archive (for example an empty or corrupted
+                # *.index left behind by an interrupted or freshly rotated
+                # pmlogger) must not hide the metrics history of the other,
+                # healthy archives in this directory. Skip it and carry on;
+                # get_archives() still reports 'not-found' when *no* archive in
+                # the directory can be read.
                 if exc.errno() != c_api.PM_ERR_LOGFILE:
-                    raise ChannelError('not-found', message=f'could not read archive {archive_path}') from None
+                    logger.warning('could not read archive %s: %s', archive_path, exc)
 
     @staticmethod
     def semantic_val(sem_id: int) -> str:

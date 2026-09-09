@@ -20,6 +20,7 @@ import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { useDialogs } from "dialogs.jsx";
 
 import { debug } from "./utils";
+import { read_os_release } from "os-release";
 
 const _ = cockpit.gettext;
 
@@ -75,6 +76,29 @@ class ImplBase {
         else
             this.supported = false;
     }
+
+    // Generate shell script fragment to create a systemd timer drop-in
+    generateTimerConfigScript(configFile, day, time) {
+        let script = "";
+
+        if (time !== null || day !== null) {
+            if (day === "" && time === "") {
+                // restore defaults
+                script += `rm -f ${configFile}; `;
+            } else {
+                if (day == null) day = this.day;
+                if (time == null) time = this.time;
+
+                const confDir = configFile.substring(0, configFile.lastIndexOf('/'));
+                script += `mkdir -p ${confDir}; `;
+                script += `printf '[Timer]\\nOnBootSec=\\nOnCalendar=${day} ${time}\\nRandomizedDelaySec=0\\n' > ${configFile}; `;
+            }
+
+            script += "systemctl daemon-reload; ";
+        }
+
+        return script;
+    }
 }
 
 class Dnf4Impl extends ImplBase {
@@ -123,7 +147,6 @@ class Dnf4Impl extends ImplBase {
     }
 
     async setConfig(enabled, type, day, time) {
-        const timerConf = "/etc/systemd/system/dnf-automatic-install.timer.d/time.conf";
         let script = "set -e; ";
 
         if (type !== null) {
@@ -140,20 +163,8 @@ class Dnf4Impl extends ImplBase {
         if (enabled && !this.enabled && !this.time && !this.day)
             time = "6:00";
 
-        if (time !== null || day !== null) {
-            if (day === "" && time === "") {
-                // restore defaults
-                script += "rm -f " + timerConf + "; ";
-            } else {
-                if (day == null)
-                    day = this.day;
-                if (time == null)
-                    time = this.time;
-                script += "mkdir -p /etc/systemd/system/dnf-automatic-install.timer.d; ";
-                script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
-                script += "systemctl daemon-reload; ";
-            }
-        }
+        const timerConf = "/etc/systemd/system/dnf-automatic-install.timer.d/time.conf";
+        script += this.generateTimerConfigScript(timerConf, day, time);
 
         if (enabled !== null) {
             const rebootConf = "/etc/systemd/system/dnf-automatic-install.service.d/autoreboot.conf";
@@ -253,8 +264,6 @@ class Dnf5Impl extends ImplBase {
     }
 
     async setConfig(enabled, type, day, time) {
-        const timerConfD = "/etc/systemd/system/dnf5-automatic.timer.d";
-        const timerConf = timerConfD + "/time.conf";
         let script = "set -e; ";
 
         // there's no default config file, admins are supposed to put their own settings into a new file
@@ -263,20 +272,8 @@ class Dnf5Impl extends ImplBase {
         if (type !== null)
             settings.push(["upgrade_type", (type == "security") ? "security" : "default"]);
 
-        if (time !== null || day !== null) {
-            if (day === "" && time === "") {
-                // restore defaults
-                script += "rm -f " + timerConf + "; ";
-            } else {
-                if (day == null)
-                    day = this.day;
-                if (time == null)
-                    time = this.time;
-                script += "mkdir -p " + timerConfD + "; ";
-                script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
-                script += "systemctl daemon-reload; ";
-            }
-        }
+        const timerConf = "/etc/systemd/system/dnf5-automatic.timer.d/time.conf";
+        script += this.generateTimerConfigScript(timerConf, day, time);
 
         if (enabled !== null) {
             script += "systemctl " + (enabled ? "enable" : "disable") + " --now dnf5-automatic.timer; ";
@@ -322,6 +319,160 @@ class Dnf5Impl extends ImplBase {
     }
 }
 
+class AptImpl extends ImplBase {
+    constructor() {
+        super();
+        this.configFile = "/etc/apt/apt.conf.d/52unattended-upgrades-cockpit";
+    }
+
+    async getConfig() {
+        this.packageName = "unattended-upgrades";
+
+        try {
+            await cockpit.spawn(["dpkg", "-l", this.packageName], { err: "ignore" });
+            this.installed = true;
+        } catch (ex) {
+            this.installed = false;
+            debug("apt getConfig: not installed:", ex);
+            return;
+        }
+
+        try {
+            // Detect distribution to determine the apt-config key and wildcard pattern
+            const osRelease = await read_os_release();
+            const distro = (osRelease.ID || "").toLowerCase();
+
+            if (distro === 'ubuntu') {
+                this.configKey = 'Allowed-Origins';
+                this.allPattern = '"*:*";';
+            } else if (distro === 'debian') {
+                this.configKey = 'Origins-Pattern';
+                this.allPattern = '"origin=*";';
+            } else {
+                console.error(`AptImpl: Unsupported distribution: ${distro}. Only Ubuntu and Debian are supported.`);
+                this.supported = false;
+                return;
+            }
+
+            // Check timer status and schedule
+            // - apt-daily.timer / apt-daily-upgrade.timer must both be enabled
+            // - OnCalendar= from the upgrade timer determines the schedule
+            // - APT::Periodic::Unattended-Upgrade must be "1" (not "0" or missing)
+            const timerOutput = await cockpit.script(
+                "set -eu; " +
+                "if systemctl --quiet is-enabled apt-daily.timer 2>/dev/null; then echo update-enabled; fi; " +
+                "if systemctl --quiet is-enabled apt-daily-upgrade.timer 2>/dev/null; then echo upgrade-enabled; fi; " +
+                "systemctl cat apt-daily-upgrade.timer 2>/dev/null | grep '^OnCalendar=' | tail -n1 || true; " +
+                "apt-config dump APT::Periodic::Unattended-Upgrade 2>/dev/null || true; ",
+                [], { err: "message" });
+
+            const updateTimerEnabled = timerOutput.includes("update-enabled");
+            const upgradeTimerEnabled = timerOutput.includes("upgrade-enabled");
+
+            const periodicMatch = timerOutput.match(/APT::Periodic::Unattended-Upgrade\s+"(\d+)"/);
+            const periodicEnabled = periodicMatch ? periodicMatch[1] !== "0" : false;
+
+            this.enabled = (updateTimerEnabled && upgradeTimerEnabled && periodicEnabled);
+
+            // Parse timer schedule
+            const calIdx = timerOutput.indexOf("OnCalendar=");
+            if (calIdx >= 0) {
+                const calendarSpec = timerOutput.substring(calIdx).split('\n')[0].split("=")[1];
+                this.parseCalendar(calendarSpec);
+            } else if (this.installed) {
+                this.supported = false;
+            }
+
+            // Check apt config: effective origins, and #clear overrides
+            // - Wildcard in effective origins -> "all"
+            // - No `#clear` of origins -> "security" (stock config)
+            const aptOutput = await cockpit.script(
+                `apt-config dump Unattended-Upgrade::${this.configKey} 2>/dev/null || true; ` +
+                `grep -rq '^#clear Unattended-Upgrade::${this.configKey}' /etc/apt/apt.conf.d/ && echo has-clear || true`,
+                [], { err: "message" });
+
+            const dumpHasWildcard = aptOutput.includes(this.allPattern);
+            const hasClear = aptOutput.includes("has-clear");
+
+            if (dumpHasWildcard) {
+                // Wildcard is active -> "all updates"
+                this.type = "all";
+            } else if (!hasClear) {
+                // No `#clear` of origins -> stock origins present -> "security"
+                this.type = "security";
+            } else {
+                // `#clear` of origins without wildcard -> we dont manage this
+                this.supported = false;
+            }
+
+            debug(`apt getConfig: distro ${distro}, supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; timerOutput: '${timerOutput}'; aptOutput: '${aptOutput}'`);
+        } catch (error) {
+            console.error("AptImpl: getConfig failed:", error);
+            this.supported = false;
+        }
+    }
+
+    async setConfig(enabled, type, day, time) {
+        let script = "set -e; ";
+
+        if (type !== null) {
+            // Build our custom config file
+            script += "cat > " + this.configFile + " << 'EOF'\n";
+            script += "// Cockpit managed configuration\n";
+            script += 'Unattended-Upgrade::Automatic-Reboot "true";\n\n';
+            script += 'APT::Periodic::Update-Package-Lists "1";\n';
+            script += 'APT::Periodic::Unattended-Upgrade "1";\n';
+
+            if (type === "all") {
+                // add wildcard pattern
+                script += `Unattended-Upgrade::${this.configKey} {\n`;
+                script += `        ${this.allPattern}\n`;
+                script += "};\n";
+            }
+            // "security" mode: no custom origins -> default 50-config takes effect
+            script += "EOF\n";
+        }
+
+        // Configure timers
+        const timerConfigs = [
+            "/etc/systemd/system/apt-daily.timer.d/time.conf",
+            "/etc/systemd/system/apt-daily-upgrade.timer.d/time.conf"
+        ];
+
+        timerConfigs.forEach(conf => {
+            script += this.generateTimerConfigScript(conf, day, time);
+        });
+
+        if (enabled !== null) {
+            const action = enabled ? "enable --now" : "disable --now";
+            const timers = ["apt-daily-upgrade.timer", "apt-daily.timer"];
+
+            timers.forEach(timer => { script += `systemctl ${action} ${timer}; ` });
+
+            if (!enabled) {
+                script += `rm -f ${this.configFile}; `;
+            }
+        }
+
+        debug(`apt setConfig(${enabled}, "${type}", "${day}", "${time}"): script "${script}"`);
+
+        try {
+            await cockpit.script(script, [], { superuser: "require" });
+            debug("apt setConfig: configuration updated successfully");
+            if (enabled !== null)
+                this.enabled = enabled;
+            if (type !== null)
+                this.type = type;
+            if (day !== null)
+                this.day = day;
+            if (time !== null)
+                this.time = time;
+        } catch (error) {
+            console.error("apt setConfig failed:", error instanceof Error ? error.toString() : String(error));
+        }
+    }
+}
+
 // Returns a promise for instantiating "backend"; this will never fail, if
 // automatic updates are not supported, backend will be null.
 export function getBackend(packagekit_backend, forceReinit) {
@@ -342,8 +493,11 @@ export function getBackend(packagekit_backend, forceReinit) {
                             console.error("failed to run dnf --version:", ex);
                             resolve(null);
                         });
+            } else if (packagekit_backend === "apt") {
+                const backend = new AptImpl();
+                backend.getConfig().then(() => resolve(backend));
             } else {
-                // TODO: apt backend
+                // TODO: other backends
                 resolve(null);
             }
         });
@@ -484,7 +638,7 @@ export const AutoUpdates = ({ privileged, packagekit_backend, initial_backend })
                 <Alert isInline
                        variant="info"
                        className="autoupdates-card-error"
-                       title={_("Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install.timer. Please remove custom overrides to configure automatic updates.")} />
+                       title={_("Failed to parse configuration for automatic updates. Please remove custom overrides to configure automatic updates.")} />
             </div>
         );
 

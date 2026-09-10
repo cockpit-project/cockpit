@@ -12,7 +12,7 @@ import testlib
 @testlib.nondestructive
 class TestNetworkingMAC(netlib.NetworkCase):
 
-    def testMac(self):
+    def testMac(self) -> None:
         b = self.browser
         m = self.machine
 
@@ -40,7 +40,7 @@ class TestNetworkingMAC(netlib.NetworkCase):
         b.wait_text("#network-interface-mac", new_mac.upper())
         self.assertIn(new_mac, m.execute(f"ip link show '{iface}'"))
 
-    def testBondMac(self):
+    def testBondMac(self) -> None:
         b = self.browser
         m = self.machine
 

@@ -2563,6 +2563,12 @@ class MachineCase(unittest.TestCase):
         for m in self.machines:
             self.authorize_pubkey(self.machines[m], "admin", pubkey)
 
+    def enterAnacondaMode(self, config: JsonObject, page_identifier: str) -> None:
+        b = self.browser
+        b.call_js_func("window.sessionStorage.setItem", "cockpit_anaconda", json.dumps(config))
+        b.reload()
+        b.enter_page(page_identifier)
+
 
 ###########################
 # Global helper functions

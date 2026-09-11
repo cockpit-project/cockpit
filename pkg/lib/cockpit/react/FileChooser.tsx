@@ -356,6 +356,14 @@ interface FileChooserValues {
     showHidden: boolean;
 }
 
+const HideOnWide = ({ children } : { children: React.ReactNode }) => {
+    return (
+        <div className="file-chooser-hide-on-wide">
+            {children}
+        </div>
+    );
+};
+
 export const FileChooser = ({
     title,
     shortcuts = [],
@@ -558,25 +566,27 @@ export const FileChooser = ({
 
         function shortcut(sc: FileChooserShortcut) {
             return (
-                <DropdownItem
-                    key={sc.label}
-                    onClick={() => setPath(dlg, sc.path)}
-                    className="file-chooser-hide-on-wide"
-                >
-                    {sc.label}
-                </DropdownItem>
+                <HideOnWide>
+                    <DropdownItem
+                        key={sc.label}
+                        onClick={() => setPath(dlg, sc.path)}
+                    >
+                        {sc.label}
+                    </DropdownItem>
+                </HideOnWide>
             );
         }
 
         function collection(cl: FileChooserCollection) {
             return (
-                <DropdownItem
-                    key={cl.label}
-                    onClick={() => setCollection(dlg, cl)}
-                    className="file-chooser-hide-on-wide"
-                >
-                    {cl.label}
-                </DropdownItem>
+                <HideOnWide>
+                    <DropdownItem
+                        key={cl.label}
+                        onClick={() => setCollection(dlg, cl)}
+                    >
+                        {cl.label}
+                    </DropdownItem>
+                </HideOnWide>
             );
         }
 

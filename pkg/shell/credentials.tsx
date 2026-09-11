@@ -10,7 +10,6 @@ import { ClipboardCopy, ClipboardCopyVariant } from "@patternfly/react-core/dist
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ActionGroup, Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
-import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import {
     Modal, ModalBody, ModalFooter, ModalHeader
@@ -22,65 +21,16 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { InfoCircleIcon } from '@patternfly/react-icons';
 
 import * as credentials from "credentials";
-import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { useEvent, useObject } from 'hooks';
-import { DialogResult } from "dialogs";
+import { WithDialogs, useDialogs, DialogResult } from "dialogs";
+import { FileChooser } from "cockpit/react/FileChooser";
 
 import "./credentials.scss";
 
 const _ = cockpit.gettext;
-
-const AddNewKey = ({
-    keys,
-    unlockKey,
-    onClose
-} : {
-    keys: credentials.Keys,
-    unlockKey: (name: string) => void,
-    onClose: () => void
-}) => {
-    const [addNewKeyLoading, setAddNewKeyLoading] = useState(false);
-    const [newKeyPath, setNewKeyPath] = useState("");
-    const [newKeyPathError, setNewKeyPathError] = useState("");
-
-    const addCustomKey = () => {
-        setAddNewKeyLoading(true);
-        keys.load(newKeyPath, "")
-                .then(onClose)
-                .catch(ex => {
-                    if (!(ex instanceof credentials.KeyLoadError) || !ex.sent_password)
-                        setNewKeyPathError(ex.message);
-                    else
-                        unlockKey(newKeyPath);
-                })
-                .finally(() => setAddNewKeyLoading(false));
-    };
-
-    return (
-        <Grid hasGutter>
-            <GridItem span={9} id="ssh-file-add-key">
-                <FileAutoComplete onChange={setNewKeyPath}
-                                  placeholder={_("Path to file")}
-                                  superuser="try" />
-                {newKeyPathError && <HelperText className="pf-v6-c-form__helper-text">
-                    <HelperTextItem variant="error">{newKeyPathError}</HelperTextItem>
-                </HelperText>}
-            </GridItem>
-            <GridItem span={1}>
-                <Button id="ssh-file-add"
-                        isDisabled={addNewKeyLoading || !newKeyPath}
-                        isLoading={addNewKeyLoading}
-                        onClick={addCustomKey}
-                        variant="secondary">
-                    {_("Add")}
-                </Button>
-            </GridItem>
-        </Grid>
-    );
-};
 
 const KeyDetails = ({ currentKey } : { currentKey: credentials.Key }) => {
     return (
@@ -232,13 +182,42 @@ const UnlockKey = ({
     );
 };
 
+const AddKeyButton = ({
+    callback
+} : {
+    callback: (path: string) => Promise<void>,
+}) => {
+    const Dialogs = useDialogs();
+
+    return (
+        <Button
+            variant='secondary'
+            id="ssh-file-add-custom"
+            onClick={
+                async () => {
+                    const user = await cockpit.user();
+                    Dialogs.show(
+                        <FileChooser
+                            title={_("Add private SSH key")}
+                            action={callback}
+                            actionLabel={_("Add key")}
+                            path={user.home + "/.ssh"}
+                        />
+                    );
+                }
+            }
+        >
+            {_("Add key")}
+        </Button>
+    );
+};
+
 export const CredentialsModal = ({
     dialogResult
 } : {
     dialogResult: DialogResult<void>
 }) => {
     const keys = useObject(() => credentials.keys_instance(), null, []);
-    const [addNewKey, setAddNewKey] = useState(false);
     const [dialogError, setDialogError] = useState();
     const [unlockKey, setUnlockKey] = useState<string | undefined>();
 
@@ -262,6 +241,17 @@ export const CredentialsModal = ({
         }
     }
 
+    const addCustomKey = async (newKeyPath: string): Promise<void> => {
+        try {
+            await keys.load(newKeyPath, "");
+        } catch (ex) {
+            if (!(ex instanceof credentials.KeyLoadError) || !ex.sent_password)
+                throw ex;
+            else
+                setUnlockKey(newKeyPath);
+        }
+    };
+
     return (
         <>
             <Modal isOpen position="top" variant="medium"
@@ -274,13 +264,10 @@ export const CredentialsModal = ({
                         {dialogError && <ModalError dialogError={dialogError} />}
                         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
                             <FlexItem>{_("Use the following keys to authenticate against other systems")}</FlexItem>
-                            <Button variant='secondary'
-                                    id="ssh-file-add-custom"
-                                    onClick={() => setAddNewKey(true)}>
-                                {_("Add key")}
-                            </Button>
+                            <WithDialogs>
+                                <AddKeyButton callback={addCustomKey} />
+                            </WithDialogs>
                         </Flex>
-                        {addNewKey && <AddNewKey keys={keys} unlockKey={setUnlockKey} onClose={() => setAddNewKey(false)} />}
                         <ListingTable
                             aria-label={ _("SSH keys") }
                             gridBreakPoint=''
@@ -339,7 +326,7 @@ export const CredentialsModal = ({
                     <Button variant='secondary' onClick={() => dialogResult.resolve()}>{_("Close")}</Button>
                 </ModalFooter>
             </Modal>
-            {unlockKey && <UnlockKey keyName={unlockKey} keys={keys} onClose={() => { setUnlockKey(undefined); setAddNewKey(false) }} />}
+            {unlockKey && <UnlockKey keyName={unlockKey} keys={keys} onClose={() => setUnlockKey(undefined)} />}
         </>
     );
 };

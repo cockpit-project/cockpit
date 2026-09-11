@@ -20,6 +20,26 @@ import { getPackageManager } from "packagemanager.js";
 
 const _ = cockpit.gettext;
 
+/**
+ * @typedef {import("_internal/packagemanager-abstract").ProgressCB} ProgressCB
+ */
+
+/**
+ * Checks if the package is installed on the system.
+ * @param {string} pkgname Package name to check.
+ * @returns {Promise<boolean>} true if installed, otherwise false
+ */
+async function is_installed(pkgname) {
+    const packagemanager = await getPackageManager();
+    return packagemanager.is_installed([pkgname])
+}
+
+/**
+ * Installs a package.
+ * @param {string} pkgname Package name to install.
+ * @param {ProgressCB} progress_cb Callback function to indicate the progress of checking if a package is installed.
+ * @returns {Promise<void>}
+ */
 async function install_package(pkgname, progress_cb) {
     const packagemanager = await getPackageManager();
     await packagemanager.install_packages([pkgname], progress_cb);
@@ -36,7 +56,7 @@ async function remove_package(filename, progress_cb) {
     await reload_bridge_packages();
 }
 
-export const ActionButton = ({ comp, progress, action }) => {
+export const ActionButton = ({ comp, progress, action, isInstalled=false }) => {
     function install(comp) {
         action(install_package, comp.pkgname, _("Installing"), comp.id);
     }
@@ -47,7 +67,7 @@ export const ActionButton = ({ comp, progress, action }) => {
 
     if (progress) {
         return <CancelButton data={progress} />;
-    } else if (comp.installed) {
+    } else if (isInstalled) {
         return <Button variant="danger" onClick={() => remove(comp)}>{_("Remove")}</Button>;
     } else {
         return <Button variant="secondary" onClick={() => install(comp)}>{_("Install")}</Button>;
@@ -59,6 +79,10 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
         return null;
 
     const comp = metainfo_db.components[id];
+    let isInstalled = false
+    if (comp) {
+        isInstalled = is_installed(comp.name)
+    }
 
     function render_homepage_link(urls) {
         return urls.map((url, index) => {
@@ -85,15 +109,8 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
         if (!description)
             return <p>{_("No description provided.")}</p>;
 
-        return description.map((paragraph, index) => {
-            if (paragraph.tag == 'ul') {
-                return <ul key={`paragraph-${index}`}>{paragraph.items.map(item => <li key={item}>{item}</li>)}</ul>;
-            } else if (paragraph.tag == 'ol') {
-                return <ol key={`paragraph-${index}`}>{paragraph.items.map(item => <li key={item}>{item}</li>)}</ol>;
-            } else {
-                return <p key={`paragraph-${index}`}>{paragraph}</p>;
-            }
-        });
+        // TODO: Fix
+        return <p>{description}</p>;
     }
 
     // Render the icon, name, homepage link, summary, description, and screenshots of the component,

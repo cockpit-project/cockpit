@@ -29,7 +29,7 @@ class NetworkHelpers(MachineCase):
             udevadm trigger --subsystem-match=net
             udevadm settle
             """)
-        self.addCleanup(self.machine.execute, f"rm /run/udev/rules.d/99-nm-veth-{name}-test.rules; ip link del dev {name}")
+        self.addCleanup(self.machine.execute, f"rm /run/udev/rules.d/99-nm-veth-{name}-test.rules; nmcli dev del {name}")
         if dhcp_cidr:
             # up the remote end, give it an IP, and start DHCP server
             self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")

@@ -705,6 +705,7 @@ const StratisV1TokenDescriptions = ({
                     }
                 </Flex>
             </StorageDescription>
+            { (clevis_infos.length > 0 || !client.in_anaconda_mode()) &&
             <StorageDescription title={_("Keyserver")}>
                 <Flex>
                     { clevis_infos.length == 0
@@ -735,7 +736,7 @@ const StratisV1TokenDescriptions = ({
                         )
                     }
                 </Flex>
-            </StorageDescription>
+            </StorageDescription>}
         </>
     );
 };
@@ -822,12 +823,14 @@ const StratisV2TokenTable = ({
             action: add_passphrase,
             excuse: add_excuse
         },
-        {
+    ];
+
+    if (!client.in_anaconda_mode())
+        actions.push({
             title: _("Add keyserver"),
             action: add_tang,
             excuse: add_excuse
-        },
-    ];
+        });
 
     const v2_table = (
         <Table variant="compact">

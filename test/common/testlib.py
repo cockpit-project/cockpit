@@ -2686,6 +2686,18 @@ def no_retry_when_changed(testEntity: _T) -> _T:
     return testEntity
 
 
+def only_when_changed(*paths: str) -> Callable[[_T], _T]:
+    """Only run this test when the given paths have changes.
+
+    Only run these tests when affected code has been changed, for example only
+    run the testlib tests when anything in test/common was changed.
+    """
+    def wrapper(testEntity: _T) -> _T:
+        setattr(testEntity, '_testlib__only_when_changed', paths)
+        return testEntity
+    return wrapper
+
+
 def todo(reason: str = '') -> Callable[[_T], _T]:
     """Tests decorated with @todo are expected to fail.
 

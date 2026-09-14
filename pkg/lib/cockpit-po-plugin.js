@@ -30,16 +30,19 @@ function get_plural_expr(statement) {
     return expr;
 }
 
-function buildFile(po_file, subdir, filename, filter) {
-    return new Promise((resolve, reject) => {
-        // Read the PO file, remove fuzzy/disabled lines to avoid tripping up the validator
-        const po_data = fs.readFileSync(po_file, 'utf8')
-                .split('\n')
-                .filter(line => !line.startsWith('#~'))
-                .join('\n');
-        const parsed = gettext_parser.po.parse(po_data, { defaultCharset: 'utf8', validation: true });
-        delete parsed.translations[""][""]; // second header copy
+function parsePo(po_file) {
+    // Read the PO file, remove fuzzy/disabled lines to avoid tripping up the validator
+    const po_data = fs.readFileSync(po_file, 'utf8')
+            .split('\n')
+            .filter(line => !line.startsWith('#~'))
+            .join('\n');
+    const parsed = gettext_parser.po.parse(po_data, { defaultCharset: 'utf8', validation: true });
+    delete parsed.translations[""][""]; // second header copy
+    return parsed;
+}
 
+function buildFile(parsed, subdir, filename, filter) {
+    return new Promise((resolve, reject) => {
         const rtl_langs = ["ar", "fa", "he", "ur"];
         const dir = rtl_langs.includes(parsed.headers.Language) ? "rtl" : "ltr";
 
@@ -96,14 +99,18 @@ function init(options) {
 }
 
 function run() {
+    const parsedPoFiles = get_po_files().map(po_file => ({
+        data: parsePo(po_file),
+        lang: path.basename(po_file).slice(0, -3),
+    }));
+
     const promises = [];
     for (const subdir of config.subdirs) {
-        for (const po_file of get_po_files()) {
-            const lang = path.basename(po_file).slice(0, -3);
+        for (const { data, lang } of parsedPoFiles) {
             promises.push(Promise.all([
                 // Separate translations for the manifest.json file and normal pages
-                buildFile(po_file, subdir, `po.${lang}.js`, str => !str.includes('manifest.json')),
-                buildFile(po_file, subdir, `po.manifest.${lang}.js`, str => str.includes('manifest.json'))
+                buildFile(data, subdir, `po.${lang}.js`, str => !str.includes('manifest.json')),
+                buildFile(data, subdir, `po.manifest.${lang}.js`, str => str.includes('manifest.json'))
             ]));
         }
     }

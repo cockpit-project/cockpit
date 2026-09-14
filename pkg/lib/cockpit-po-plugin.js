@@ -48,48 +48,46 @@ function buildFile(data, subdir, filename, filter) {
     const parsed = data.parsed;
     const dir = data.dir;
 
-    return new Promise((resolve, reject) => {
-        const chunks = [
-            '{\n',
-            ' "": {\n',
-            `  "plural-forms": ${get_plural_expr(parsed.headers['Plural-Forms'])},\n`,
-            `  "language": "${parsed.headers.Language}",\n`,
-            `  "language-direction": "${dir}"\n`,
-            ' }'
-        ];
-        for (const [msgctxt, context] of Object.entries(parsed.translations)) {
-            const context_prefix = msgctxt ? msgctxt + '\u0004' : ''; /* for cockpit.ngettext */
+    // cockpit.js only looks at "plural-forms" and "language"
+    const chunks = [
+        '{\n',
+        ' "": {\n',
+        `  "plural-forms": ${get_plural_expr(parsed.headers['Plural-Forms'])},\n`,
+        `  "language": "${parsed.headers.Language}",\n`,
+        `  "language-direction": "${dir}"\n`,
+        ' }'
+    ];
+    for (const [msgctxt, context] of Object.entries(parsed.translations)) {
+        const context_prefix = msgctxt ? msgctxt + '\u0004' : ''; /* for cockpit.ngettext */
 
-            for (const [msgid, translation] of Object.entries(context)) {
-                /* Only include msgids which appear in this source directory */
-                const references = translation.comments.reference.split(/\s/);
-                if (!references.some(str => str.startsWith(`pkg/${subdir}`) || str.startsWith(config.src_directory) || str.startsWith(`pkg/lib`)))
-                    continue;
+        for (const [msgid, translation] of Object.entries(context)) {
+            /* Only include msgids which appear in this source directory */
+            const references = translation.comments.reference.split(/\s/);
+            if (!references.some(str => str.startsWith(`pkg/${subdir}`) || str.startsWith(config.src_directory) || str.startsWith(`pkg/lib`)))
+                continue;
 
-                if (translation.comments.flag?.match(/\bfuzzy\b/))
-                    continue;
+            if (translation.comments.flag?.match(/\bfuzzy\b/))
+                continue;
 
-                if (!references.some(filter))
-                    continue;
+            if (!references.some(filter))
+                continue;
 
-                const key = JSON.stringify(context_prefix + msgid);
-                // cockpit.js always ignores the first item
-                chunks.push(`,\n ${key}: [\n  null`);
-                for (const str of translation.msgstr) {
-                    chunks.push(',\n  ' + JSON.stringify(str));
-                }
-                chunks.push('\n ]');
+            const key = JSON.stringify(context_prefix + msgid);
+            // cockpit.js always ignores the first item
+            chunks.push(`,\n ${key}: [\n  null`);
+            for (const str of translation.msgstr) {
+                chunks.push(',\n  ' + JSON.stringify(str));
             }
+            chunks.push('\n ]');
         }
-        chunks.push('\n}');
+    }
+    chunks.push('\n}');
 
-        const wrapper = config.wrapper?.(subdir) || DEFAULT_WRAPPER;
-        const output = wrapper.replace('PO_DATA', chunks.join('')) + '\n';
+    const wrapper = config.wrapper?.(subdir) || DEFAULT_WRAPPER;
+    const output = wrapper.replace('PO_DATA', chunks.join('')) + '\n';
 
-        const out_path = path.join(subdir ? (subdir + '/') : '', filename);
-        fs.writeFileSync(path.resolve(config.outdir, out_path), output);
-        return resolve();
-    });
+    const out_path = path.join(subdir ? (subdir + '/') : '', filename);
+    fs.writeFileSync(path.resolve(config.outdir, out_path), output);
 }
 
 function init(options) {
@@ -106,23 +104,19 @@ function run() {
         lang: path.basename(po_file).slice(0, -3),
     }));
 
-    const promises = [];
     for (const subdir of config.subdirs) {
         for (const { data, lang } of parsedPoFiles) {
-            promises.push(Promise.all([
-                // Separate translations for the manifest.json file and normal pages
-                buildFile(data, subdir, `po.${lang}.js`, str => !str.includes('manifest.json')),
-                buildFile(data, subdir, `po.manifest.${lang}.js`, str => str.includes('manifest.json'))
-            ]));
+            // Separate translations for the manifest.json file and normal pages
+            buildFile(data, subdir, `po.${lang}.js`, str => !str.includes('manifest.json'));
+            buildFile(data, subdir, `po.manifest.${lang}.js`, str => str.includes('manifest.json'));
         }
     }
-    return Promise.all(promises);
 }
 
 export const cockpitPoEsbuildPlugin = options => ({
     name: 'cockpitPoEsbuildPlugin',
     setup(build) {
         init({ ...options, outdir: build.initialOptions.outdir });
-        build.onEnd(async result => { result.errors.length === 0 && await run() });
+        build.onEnd(result => { result.errors.length === 0 && run() });
     },
 });

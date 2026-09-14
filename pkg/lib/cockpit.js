@@ -267,8 +267,9 @@ function factory() {
         return format_units(byte_sec_suffixes, number, ...args);
     };
 
+    // https://en.wikipedia.org/wiki/Data-rate_units#Decimal_multiples_of_bits
     const bit_suffixes = {
-        1000: ["bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps"]
+        1000: ["bps", "kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps"]
     };
 
     cockpit.format_bits_per_sec = function format_bits_per_sec(number, ...args) {

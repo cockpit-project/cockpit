@@ -197,9 +197,9 @@ QUnit.test("format_bits_per_sec", function (assert) {
         [55, "55 bps"],
         [55.23456789, "55.2 bps"],
         [55.98765432, "56.0 bps"],
-        [2555, "2.56 Kbps"],
-        [2000, "2 Kbps"],
-        [2003, "2.00 Kbps"]
+        [2555, "2.56 kbps"],
+        [2000, "2 kbps"],
+        [2003, "2.00 kbps"]
     ] as const;
 
     assert.expect(checks.length);

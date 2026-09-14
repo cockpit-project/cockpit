@@ -72,9 +72,9 @@ function findMemoryDevices(udevdb, info) {
         }
 
         let memoryRank = props[`MEMORY_DEVICE_${slot}_RANK`];
-        if (memoryRank == 1) {
+        if (memoryRank === 1) {
             memoryRank = _("Single rank");
-        } else if (memoryRank == 2) {
+        } else if (memoryRank === 2) {
             memoryRank = _("Dual rank");
         } else {
             memoryRank = _("Unknown");

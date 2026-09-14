@@ -79,7 +79,7 @@ export class SessionController extends EventEmitter<SessionControllerEvents> {
     }
 
     continue_session() {
-        if (this.countdown != -1) {
+        if (this.countdown !== -1) {
             this.#send_activity_notification();
             this.countdown = -1;
             this.emit("changed");

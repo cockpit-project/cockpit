@@ -66,7 +66,7 @@ export class ConfigFile {
             return;
         }
 
-        if (rawContent == this._rawContent)
+        if (rawContent === this._rawContent)
             return;
 
         // if (skipNotify === undefined)
@@ -188,7 +188,7 @@ export class ConfigFile {
         this.settings.compression.enabled = (
             ("core_collector" in this.settings._internal) &&
             this.settings._internal.core_collector.value &&
-            (this.settings._internal.core_collector.value.split(" ").indexOf("-c") != -1)
+            (this.settings._internal.core_collector.value.split(" ").indexOf("-c") !== -1)
         );
 
         this.settings.core_collector = this.settings._internal?.core_collector?.value ?? defaultCoreCollector;
@@ -222,9 +222,9 @@ export class ConfigFile {
             // wipe old target settings
             for (const key in this.settings.targets) {
                 const oldTarget = this.settings.targets[key];
-                if (oldTarget.type == "mount") {
+                if (oldTarget.type === "mount") {
                     delete settings._internal[oldTarget.fsType];
-                } else if (oldTarget.type == "ssh") {
+                } else if (oldTarget.type === "ssh") {
                     delete settings._internal.ssh;
                     delete settings._internal.sshkey;
                 } else {
@@ -253,7 +253,7 @@ export class ConfigFile {
                     settings._internal.core_collector.value =
                         settings._internal.core_collector.value
                                 .split(" ")
-                                .filter(e => e != "-F")
+                                .filter(e => e !== "-F")
                                 .join(" ");
             } else {
                 settings._internal.core_collector = { value: defaultCoreCollector };
@@ -263,7 +263,7 @@ export class ConfigFile {
             }
         }
         // compression
-        if (this.settings.compression.enabled != settings.compression.enabled) {
+        if (this.settings.compression.enabled !== settings.compression.enabled) {
             if (settings.compression.enabled) {
                 // enable compression
                 if ("core_collector" in settings._internal)
@@ -277,7 +277,7 @@ export class ConfigFile {
                     settings._internal.core_collector.value =
                         settings._internal.core_collector.value
                                 .split(" ")
-                                .filter((e) => { return (e != "-c") })
+                                .filter((e) => { return (e !== "-c") })
                                 .join(" ");
                 } else {
                     // if we don't have anything on this in the original settings,

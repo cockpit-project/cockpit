@@ -105,7 +105,7 @@ function getLocation(target, config) {
 
     if (target.type === "ssh") {
         path = `${target.server}:${path}`;
-    } else if (target.type == "nfs") {
+    } else if (target.type === "nfs") {
         if (!config.nfs_supports_directory) {
             path = '';
         }
@@ -396,7 +396,7 @@ export class KdumpPage extends React.Component {
                     ' ' + _("Results of the crash will be stored in $0 as $1, if kdump is properly configured."),
                     <span className="pf-v6-u-font-family-monospace-vf">{path}</span>,
                     <span className="pf-v6-u-font-family-monospace-vf">vmcore</span>);
-            } else if (target.type === "ssh" || target.type == "nfs") {
+            } else if (target.type === "ssh" || target.type === "nfs") {
                 verifyMessage = fmt_to_fragments(
                     ' ' + _("Results of the crash will be copied through $0 to $1 as $2, if kdump is properly configured."),
                     <span className="pf-v6-u-font-family-monospace-vf">{target.type === "ssh" ? "SSH" : "NFS"}</span>,
@@ -474,26 +474,26 @@ ${enableCrashKernel}
                 kdumpLocation = _("invalid: multiple targets defined");
             } else {
                 const locationPath = getLocation(target, this.props.kdumpStatus.config);
-                if (target.type == "local") {
+                if (target.type === "local") {
                     kdumpLocation = cockpit.format(_("Local, $0"), locationPath);
                     targetCanChange = true;
-                } else if (target.type == "ssh") {
+                } else if (target.type === "ssh") {
                     kdumpLocation = cockpit.format(_("Remote over SSH, $0"), locationPath);
                     targetCanChange = true;
-                } else if (target.type == "nfs") {
+                } else if (target.type === "nfs") {
                     kdumpLocation = cockpit.format(_("Remote over NFS, $0"), locationPath);
                     targetCanChange = true;
-                } else if (target.type == "raw") {
+                } else if (target.type === "raw") {
                     kdumpLocation = _("Raw to a device");
-                } else if (target.type == "mount") {
+                } else if (target.type === "mount") {
                     /* mount targets outside of nfs are too complex for the
                      * current target dialog */
                     kdumpLocation = _("On a mounted device");
-                } else if (target.type == "ftp") {
+                } else if (target.type === "ftp") {
                     kdumpLocation = _("Remote over FTP");
-                } else if (target.type == "sftp") {
+                } else if (target.type === "sftp") {
                     kdumpLocation = _("Remote over SFTP");
-                } else if (target.type == "cifs") {
+                } else if (target.type === "cifs") {
                     kdumpLocation = _("Remote over CIFS/SMB");
                 } else {
                     kdumpLocation = _("No configuration found");
@@ -573,7 +573,7 @@ ${enableCrashKernel}
         let alertDetail;
         if (!this.props.stateChanging && this.props.kdumpStatus && this.props.kdumpStatus.installed !== undefined) {
             if (this.props.kdumpStatus.installed) {
-                if (this.props.reservedMemory == 0) {
+                if (this.props.reservedMemory === 0) {
                     alertMessage = fmt_to_fragments(
                         _("Kernel did not boot with the $0 setting"),
                         <span className="pf-v6-u-font-family-monospace-vf">crashkernel</span>
@@ -585,7 +585,7 @@ ${enableCrashKernel}
                         <span className="pf-v6-u-font-family-monospace-vf">GRUB_CMDLINE_LINUX</span>,
                         <span className="pf-v6-u-font-family-monospace-vf">/etc/default/grub</span>
                     );
-                } else if (this.props.kdumpStatus.state == "failed") {
+                } else if (this.props.kdumpStatus.state === "failed") {
                     alertMessage = (
                         <>
                             {_("Service has an error")}

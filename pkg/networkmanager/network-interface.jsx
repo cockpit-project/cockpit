@@ -95,7 +95,7 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
                     return _("SSID can not be empty");
             });
         }
-        if (!isHidden || dlg.values.security != "none") {
+        if (!isHidden || dlg.values.security !== "none") {
             dlg.field("password").validate(val => {
                 if (val.trim() === "")
                     return _("Password can not be empty");
@@ -370,31 +370,31 @@ export const NetworkInterfacePage = ({
         let desc;
         let cs;
         if (dev) {
-            if (dev.DeviceType == 'ethernet' || dev.IdVendor || dev.IdModel) {
+            if (dev.DeviceType === 'ethernet' || dev.IdVendor || dev.IdModel) {
                 desc = cockpit.format("$IdVendor $IdModel $Driver", dev);
-            } else if (dev.DeviceType == 'bond') {
+            } else if (dev.DeviceType === 'bond') {
                 desc = _("Bond");
-            } else if (dev.DeviceType == 'team') {
+            } else if (dev.DeviceType === 'team') {
                 desc = _("Team");
-            } else if (dev.DeviceType == 'vlan') {
+            } else if (dev.DeviceType === 'vlan') {
                 desc = _("VLAN");
-            } else if (dev.DeviceType == 'bridge') {
+            } else if (dev.DeviceType === 'bridge') {
                 desc = _("Bridge");
-            } else if (dev.Driver == 'wireguard') {
+            } else if (dev.Driver === 'wireguard') {
                 desc = "WireGuard";
             } else
                 desc = cockpit.format(_("Unknown \"$0\""), dev.DeviceType);
         } else if (iface) {
             cs = connection_settings(iface.Connections[0]);
-            if (cs.type == "bond")
+            if (cs.type === "bond")
                 desc = _("Bond");
-            else if (cs.type == "team")
+            else if (cs.type === "team")
                 desc = _("Team");
-            else if (cs.type == "vlan")
+            else if (cs.type === "vlan")
                 desc = _("VLAN");
-            else if (cs.type == "bridge")
+            else if (cs.type === "bridge")
                 desc = _("Bridge");
-            else if (cs.type == "wireguard")
+            else if (cs.type === "wireguard")
                 desc = "WireGuard";
             else if (cs.type)
                 desc = cockpit.format(_("Unknown \"$0\""), cs.type);
@@ -420,8 +420,8 @@ export const NetworkInterfacePage = ({
         }
 
         const can_edit_mac = (privileged && iface && iface.MainConnection &&
-                              (connection_settings(iface.MainConnection).type == "802-3-ethernet" ||
-                               connection_settings(iface.MainConnection).type == "bond"));
+                              (connection_settings(iface.MainConnection).type === "802-3-ethernet" ||
+                               connection_settings(iface.MainConnection).type === "bond"));
 
         let mac_desc;
         if (can_edit_mac) {
@@ -457,7 +457,7 @@ export const NetworkInterfacePage = ({
 
         if (!dev)
             state = _("Inactive");
-        else if (isManaged && dev.State != 100)
+        else if (isManaged && dev.State !== 100)
             state = dev.StateText;
         else
             state = null;
@@ -485,10 +485,10 @@ export const NetworkInterfacePage = ({
             const params = settings[topic];
             const parts = [];
 
-            if (params.method != "manual")
+            if (params.method !== "manual")
                 parts.push(choice_title(get_ip_method_choices(topic), params.method, _("Unknown configuration")));
 
-            const addr_is_extra = (params.method != "manual");
+            const addr_is_extra = (params.method !== "manual");
             const addrs = [];
             params.address_data?.forEach(function (a) {
                 addrs.push(a.address + "/" + a.prefix);
@@ -499,10 +499,10 @@ export const NetworkInterfacePage = ({
                                           { val: addrs.join(", ") }));
 
             const gateway = params.gateway;
-            if (gateway && gateway != "0.0.0.0" && gateway != "::")
+            if (gateway && gateway !== "0.0.0.0" && gateway !== "::")
                 parts.push(cockpit.format(_("Gateway $gateway"), { gateway }));
 
-            const dns_is_extra = (!params["ignore-auto-dns"] && params.method != "manual");
+            const dns_is_extra = (!params["ignore-auto-dns"] && params.method !== "manual");
             if (params.dns_data?.length > 0)
                 parts.push(cockpit.format(dns_is_extra ? _("Additional DNS $val") : _("DNS $val"),
                                           { val: params.dns_data.join(", ") }));
@@ -646,7 +646,7 @@ export const NetworkInterfacePage = ({
             else {
                 if (config.runner)
                     parts.push(choice_title(team_runner_choices, config.runner.name, config.runner.name));
-                if (config.link_watch && config.link_watch.name != "ethtool")
+                if (config.link_watch && config.link_watch.name !== "ethtool")
                     parts.push(choice_title(team_watch_choices, config.link_watch.name, config.link_watch.name));
             }
 
@@ -671,8 +671,8 @@ export const NetworkInterfacePage = ({
                 !group_settings.team ||
                 !group_settings.team.config ||
                 !group_settings.team.config.runner ||
-                !(group_settings.team.config.runner.name == "activebackup" ||
-                  group_settings.team.config.runner.name == "lacp"))
+                !(group_settings.team.config.runner.name === "activebackup" ||
+                  group_settings.team.config.runner.name === "lacp"))
                 return null;
 
             const config = settings.team_port.config;
@@ -700,13 +700,13 @@ export const NetworkInterfacePage = ({
 
             if (options.stp) {
                 addRow(_("Spanning tree protocol"));
-                if (options.priority != 32768)
+                if (options.priority !== 32768)
                     addRow(_("Priority $priority"), options);
-                if (options.forward_delay != 15)
+                if (options.forward_delay !== 15)
                     addRow(_("Forward delay $forward_delay"), options);
-                if (options.hello_time != 2)
+                if (options.hello_time !== 2)
                     addRow(_("Hello time $hello_time"), options);
-                if (options.max_age != 20)
+                if (options.max_age !== 20)
                     addRow(_("Maximum message age $max_age"), options);
             }
 
@@ -725,9 +725,9 @@ export const NetworkInterfacePage = ({
                 rows.push(cockpit.format(fmt, args));
             }
 
-            if (options.priority != 32)
+            if (options.priority !== 32)
                 addRow(_("Priority $priority"), options);
-            if (options.path_cost != 100)
+            if (options.path_cost !== 100)
                 addRow(_("Path cost $path_cost"), options);
             if (options.hairpin_mode)
                 addRow(_("Hairpin mode"));
@@ -1112,7 +1112,7 @@ export const NetworkInterfacePage = ({
         };
 
         const cs = con && connection_settings(con);
-        if (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge")) {
+        if (!con || (cs.type !== "bond" && cs.type !== "team" && cs.type !== "bridge")) {
             plot_state.plot_instances('rx', rx_plot_data, [dev_name], true);
             plot_state.plot_instances('tx', tx_plot_data, [dev_name], true);
             return null;
@@ -1122,7 +1122,7 @@ export const NetworkInterfacePage = ({
 
         con.Members.forEach(member_con => {
             member_con.Interfaces.forEach(iface => {
-                if (iface.MainConnection != member_con)
+                if (iface.MainConnection !== member_con)
                     return;
 
                 const dev = iface.Device;
@@ -1192,18 +1192,18 @@ export const NetworkInterfacePage = ({
                         excuse={ _("Not permitted to configure network devices") }>
                 <Switch id="interface-switch"
                         isChecked={!!(dev && dev.ActiveConnection)}
-                        isDisabled={!iface || (dev && dev.State == 20) || !privileged}
+                        isDisabled={!iface || (dev && dev.State === 20) || !privileged}
                         onChange={(_event, enable) => enable ? connect() : disconnect()}
                         aria-label={_("Enable or disable the device")} />
             </Privileged>
         );
     }
 
-    const isDeletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' ||
-                                                    dev.DeviceType == 'team' ||
-                                                    dev.DeviceType == 'vlan' ||
-                                                    dev.DeviceType == 'bridge' ||
-                                                    dev.DeviceType == 'wireguard'));
+    const isDeletable = (iface && !dev) || (dev && (dev.DeviceType === 'bond' ||
+                                                    dev.DeviceType === 'team' ||
+                                                    dev.DeviceType === 'vlan' ||
+                                                    dev.DeviceType === 'bridge' ||
+                                                    dev.DeviceType === 'wireguard'));
 
     const settingsRows = renderConnectionSettingsRows(iface.MainConnection, connectionSettings)
             .map((component, idx) => <React.Fragment key={idx}>{component}</React.Fragment>);

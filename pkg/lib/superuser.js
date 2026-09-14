@@ -65,13 +65,13 @@ function Superuser() {
     let reload_on_change = false;
 
     const compute_allowed = () => {
-        if (!proxy.valid || proxy.Current == "init")
+        if (!proxy.valid || proxy.Current === "init")
             return null;
-        return proxy.Current != "none";
+        return proxy.Current !== "none";
     };
 
     const compute_configured = () => {
-        if (proxy.Current == "init")
+        if (proxy.Current === "init")
             return null;
         return (proxy.Bridges?.length ?? 0) > 0;
     };
@@ -83,15 +83,15 @@ function Superuser() {
     });
 
     function changed(allowed) {
-        if (self.allowed != allowed) {
-            if (self.allowed != null && reload_on_change) {
+        if (self.allowed !== allowed) {
+            if (self.allowed !== null && reload_on_change) {
                 window.location.reload(true);
             } else {
                 const prev = self.allowed;
                 self.allowed = allowed;
                 self.configured = compute_configured();
                 self.dispatchEvent("changed");
-                if (prev != null)
+                if (prev !== null)
                     self.dispatchEvent("reconnect");
             }
         }

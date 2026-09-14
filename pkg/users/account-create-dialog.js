@@ -142,7 +142,7 @@ function validate_username(username, accounts) {
     }
 
     for (let k = 0; k < accounts.length; k++) {
-        if (accounts[k].name == username)
+        if (accounts[k].name === username)
             return _("This user name already exists");
     }
 
@@ -293,38 +293,38 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
         state[field] = value;
         errors = { };
 
-        if (field == "user_name") {
+        if (field === "user_name") {
             user_name_dirty = true;
             if (!state.home_dir_dirty)
                 state.home_dir = get_default_home_dir(state.base_home_dir, value);
         }
 
-        if (!user_name_dirty && field == "real_name") {
+        if (!user_name_dirty && field === "real_name") {
             const suggested_username = suggest_username(state.real_name);
             state.user_name = suggested_username;
             if (!state.home_dir_dirty)
                 state.home_dir = get_default_home_dir(state.base_home_dir, suggested_username);
         }
 
-        if (state.password != old_password) {
+        if (state.password !== old_password) {
             state.confirm_weak = false;
             old_password = state.password;
         }
 
-        if (field == "change_passw_force")
+        if (field === "change_passw_force")
             state.locked = false;
 
         // Once password and confirm password are the same length, validate them after each keystroke
-        if (field == "password_confirm" && value.length >= state.password.length)
+        if (field === "password_confirm" && value.length >= state.password.length)
             state.password_confirm_dirty = true;
 
-        if (field == "locked")
+        if (field === "locked")
             state.change_passw_force = false;
 
-        if (field == "uid")
+        if (field === "uid")
             state.uid_exists = false;
 
-        if (field == "home_dir") {
+        if (field === "home_dir") {
             state.home_dir_dirty = true;
             state.home_dir_exists = false;
             state.home_dir_is_file = false;

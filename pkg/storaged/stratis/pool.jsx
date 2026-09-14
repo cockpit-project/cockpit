@@ -60,7 +60,7 @@ const fsys_round_size = 1024 * 1024;
  * { slot: number | null, keydesc: string }
  *
  * A V1 pool will have at most one entry in the array, and it will
- * have `slot == null`.  V2 pools have zero or more entries with
+ * have `slot === null`.  V2 pools have zero or more entries with
  * numbered slots.
  */
 
@@ -112,10 +112,10 @@ function get_key_descriptions(pool) {
          */
         if ("t" in key_descs)
             key_descs = key_descs.v;
-        if (pool.MetadataVersion == 1) {
+        if (pool.MetadataVersion === 1) {
             if (key_descs[0] && key_descs[1][0])
                 result.push({ slot: null, keydesc: key_descs[1][1] });
-        } else if (pool.MetadataVersion == 2) {
+        } else if (pool.MetadataVersion === 2) {
             for (const key_desc of key_descs)
                 result.push({ slot: key_desc[0], keydesc: key_desc[1] });
         }
@@ -130,7 +130,7 @@ function get_key_descriptions(pool) {
  * | { slot: number | null, pin: string }
  *
  * A V1 pool will have at most one entry in the array, and it will
- * have `slot == null`.  V2 pools have zero or more entries with
+ * have `slot === null`.  V2 pools have zero or more entries with
  * numbered slots.
  */
 
@@ -164,7 +164,7 @@ function get_clevis_infos(pool) {
            in order to extract the url from it.
          */
         if (clevis_info[0] && clevis_info[1][0]) {
-            if (clevis_info[1][1][0] == "tang") {
+            if (clevis_info[1][1][0] === "tang") {
                 const config = JSON.parse(clevis_info[1][1][1]);
                 result.push({ slot: null, pin: "tang", url: config.url });
             } else {
@@ -192,18 +192,18 @@ function get_clevis_infos(pool) {
          */
         if ("t" in clevis_infos)
             clevis_infos = clevis_infos.v;
-        if (pool.MetadataVersion == 1) {
+        if (pool.MetadataVersion === 1) {
             if (clevis_infos[0] && clevis_infos[1][0]) {
-                if (clevis_infos[1][1][0] == "tang") {
+                if (clevis_infos[1][1][0] === "tang") {
                     const config = JSON.parse(clevis_infos[1][1][1]);
                     result.push({ slot: null, pin: "tang", url: config.url });
                 } else {
                     result.push({ slot: null, pin: clevis_infos[1][1][0] });
                 }
             }
-        } else if (pool.MetadataVersion == 2) {
+        } else if (pool.MetadataVersion === 2) {
             for (const clevis_info of clevis_infos) {
-                if (clevis_info[1][0] == "tang") {
+                if (clevis_info[1][0] === "tang") {
                     const config = JSON.parse(clevis_info[1][1]);
                     result.push({ slot: clevis_info[0], pin: "tang", url: config.url });
                 } else {
@@ -267,7 +267,7 @@ async function get_new_keydesc(pool) {
     let desc;
     for (let i = 0; i < 1000; i++) {
         desc = pool.Name + (i > 0 ? "." + i.toFixed() : "");
-        if (!key_descs.find(kd => kd.keydesc == desc) && !stored_keydescs.includes(desc))
+        if (!key_descs.find(kd => kd.keydesc === desc) && !stored_keydescs.includes(desc))
             break;
     }
     return desc;
@@ -280,9 +280,9 @@ function PoolPassphrase(tag, pool, main, stored_keydescs, force) {
     const available_key_descs = all_key_descs.filter(kd => !stored_keydescs.includes(kd.keydesc));
     const can_use_passphrase = available_key_descs.length > 0;
     const have_stored_passphrase = all_key_descs.length > available_key_descs.length;
-    const need_passphrase = (force || clevis_infos.length == 0) && !have_stored_passphrase;
-    const single_tang_url = (clevis_infos.length == 1 && clevis_infos[0].pin == "tang" && !have_stored_passphrase && clevis_infos[0].url);
-    const only_tang = clevis_infos.every(ci => ci.pin == "tang") && !have_stored_passphrase;
+    const need_passphrase = (force || clevis_infos.length === 0) && !have_stored_passphrase;
+    const single_tang_url = (clevis_infos.length === 1 && clevis_infos[0].pin === "tang" && !have_stored_passphrase && clevis_infos[0].url);
+    const only_tang = clevis_infos.every(ci => ci.pin === "tang") && !have_stored_passphrase;
 
     if (can_use_passphrase) {
         let extra_explanation;
@@ -317,7 +317,7 @@ async function with_pool_passphrase(pool, passphrase, func) {
     const stored_keydescs = await get_stored_keydescs();
     const key_descs = get_key_descriptions(pool).filter(kd => !stored_keydescs.includes(kd.key_descs));
 
-    if (!passphrase || key_descs.length == 0)
+    if (!passphrase || key_descs.length === 0)
         return func();
 
     let err;
@@ -407,7 +407,7 @@ function create_fs(pool) {
                               return is_valid_mount_point(client,
                                                           null,
                                                           client.add_mount_point_prefix(val),
-                                                          variant == "nomount");
+                                                          variant === "nomount");
                           }
                       }),
             mount_options(false, false),
@@ -481,7 +481,7 @@ function rename_pool(pool) {
 
 async function add_disks(pool) {
     const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
-    const is_v1_pool = client.stratis_interface_revision < 8 || pool.MetadataVersion == 1;
+    const is_v1_pool = client.stratis_interface_revision < 8 || pool.MetadataVersion === 1;
     const stored_keydescs = await get_stored_keydescs();
 
     dialog_open({
@@ -516,10 +516,10 @@ async function add_disks(pool) {
                             const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
 
                             function add() {
-                                if (vals.tier == "data") {
+                                if (vals.tier === "data") {
                                     return pool.AddDataDevs(devs).then(std_reply);
-                                } else if (vals.tier == "cache") {
-                                    const has_cache = blockdevs.some(bd => bd.Tier == 1);
+                                } else if (vals.tier === "cache") {
+                                    const has_cache = blockdevs.some(bd => bd.Tier === 1);
                                     const method = has_cache ? "AddCacheDevs" : "InitCache";
                                     return pool[method](devs).then(std_reply);
                                 }
@@ -677,7 +677,7 @@ const StratisV1TokenDescriptions = ({
         <>
             <StorageDescription title={_("Passphrase")}>
                 <Flex>
-                    { key_descs.length == 0
+                    { key_descs.length === 0
                         ? <FlexItem>
                             <StorageLink
                                   onClick={add_passphrase}
@@ -707,7 +707,7 @@ const StratisV1TokenDescriptions = ({
             </StorageDescription>
             <StorageDescription title={_("Keyserver")}>
                 <Flex>
-                    { clevis_infos.length == 0
+                    { clevis_infos.length === 0
                         ? <FlexItem>
                             <StorageLink
                                   onClick={add_tang}
@@ -715,7 +715,7 @@ const StratisV1TokenDescriptions = ({
                                 {_("Add keyserver")}
                             </StorageLink>
                         </FlexItem>
-                        : (clevis_infos[0].pin == "tang"
+                        : (clevis_infos[0].pin === "tang"
                             ? <>
                                 <FlexItem>
                                     {clevis_infos[0].url}
@@ -781,7 +781,7 @@ const StratisV2TokenTable = ({
                     danger: true,
                 },
             ];
-        } else if (info.pin == "tang") {
+        } else if (info.pin === "tang") {
             test_location = info.url;
             description = info.url;
             actions = [
@@ -843,7 +843,7 @@ const StratisV2TokenTable = ({
 const StratisEncryptionCard = ({ card, pool }) => {
     const key_descs = get_key_descriptions(pool);
     const clevis_infos = get_clevis_infos(pool);
-    const is_v1_pool = client.stratis_interface_revision < 8 || pool.MetadataVersion == 1;
+    const is_v1_pool = client.stratis_interface_revision < 8 || pool.MetadataVersion === 1;
 
     const tokens = key_descs.concat(clevis_infos).sort((a, b) => a.slot - b.slot);
 
@@ -856,7 +856,7 @@ const StratisEncryptionCard = ({ card, pool }) => {
                 PassInput("passphrase", _("Passphrase"),
                           { validate: val => !val.length && _("Passphrase cannot be empty") }),
                 PassInput("passphrase2", _("Confirm"),
-                          { validate: (val, vals) => vals.passphrase.length && vals.passphrase != val && _("Passphrases do not match") }),
+                          { validate: (val, vals) => vals.passphrase.length && vals.passphrase !== val && _("Passphrases do not match") }),
                 PoolPassphrase("pool_passphrase", pool, _("Adding a passphrase requires unlocking the pool."), stored_keydescs),
             ],
             Action: {
@@ -886,7 +886,7 @@ const StratisEncryptionCard = ({ card, pool }) => {
                 PassInput("new_passphrase", _("New passphrase"),
                           { validate: val => !val.length && _("Passphrase cannot be empty") }),
                 PassInput("new_passphrase2", _("Confirm"),
-                          { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match") })
+                          { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase !== val && _("Passphrases do not match") })
             ],
             Action: {
                 Title: _("Save"),
@@ -955,9 +955,9 @@ const StratisEncryptionCard = ({ card, pool }) => {
 
     function remove_clevis(info) {
         dialog_open({
-            Title: info.pin == "tang" ? _("Remove Tang keyserver?") : _("Remove Clevis token?"),
+            Title: info.pin === "tang" ? _("Remove Tang keyserver?") : _("Remove Clevis token?"),
             Body: <div>
-                <p>{ fmt_to_fragments(_("Remove $0?"), <b>{info.pin == "tang" ? info.url : info.pin}</b>) }</p>
+                <p>{ fmt_to_fragments(_("Remove $0?"), <b>{info.pin === "tang" ? info.url : info.pin}</b>) }</p>
                 <p className="slot-warning">{ fmt_to_fragments(_("Removal may prevent unlocking $0."), <b>{pool.Name}</b>) }</p>
             </div>,
             Action: {
@@ -984,7 +984,7 @@ const StratisEncryptionCard = ({ card, pool }) => {
             add_tang,
             remove_clevis,
         });
-    } else if (pool.MetadataVersion == 2) {
+    } else if (pool.MetadataVersion === 2) {
         [v2_table, actions] = StratisV2TokenTable({
             pool,
             tokens,

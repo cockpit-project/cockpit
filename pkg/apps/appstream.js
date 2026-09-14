@@ -8,7 +8,7 @@ import * as python from "python.js";
 import inotify_py from "inotify.py";
 
 import { debug } from "./utils";
-import watch_appstream_py from "./watch-appstream.py";
+import watch_appstream_gobject from "./watch_appstream_gobject.py";
 
 let metainfo_db = null;
 
@@ -21,7 +21,7 @@ export function get_metainfo_db() {
         });
 
         let buf = "";
-        python.spawn([inotify_py, watch_appstream_py], [],
+        python.spawn([inotify_py, watch_appstream_gobject], [],
                      { environ: ["LANGUAGE=" + (cockpit.language || "en")] })
                 .stream(function (data) {
                     buf += data;
@@ -29,8 +29,7 @@ export function get_metainfo_db() {
                     buf = lines[lines.length - 1];
                     if (lines.length >= 2) {
                         const metadata = JSON.parse(lines[lines.length - 2]);
-                        metainfo_db.components = metadata.components;
-                        metainfo_db.origin_files = metadata.origin_files;
+                        metainfo_db.components = metadata;
                         metainfo_db.ready = true;
                         metainfo_db.dispatchEvent("changed");
                         debug("read metainfo_db:", metainfo_db);

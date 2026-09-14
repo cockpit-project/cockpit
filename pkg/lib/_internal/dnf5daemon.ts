@@ -242,6 +242,12 @@ export class Dnf5DaemonManager implements PackageManager {
             await call(session, "org.rpm.dnf.v0.rpm.Rpm", "install", [pkgnames, {}]);
             const [transaction_items, result] = await call(session, "org.rpm.dnf.v0.Goal", "resolve", [{}]) as InstallResolveResult;
             if (result !== 0) {
+                const [problems] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems", []) as TransactionProblem[][];
+                if (problems.every((p: TransactionProblem) => p.problem.v === GoalProblem.ALREADY_INSTALLED)) {
+                    await call(session, "org.rpm.dnf.v0.Goal", "reset", []);
+                    return;
+                }
+
                 const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
                 throw new ResolveError(`Resolving install failed with result=${result}. ${problem}`);
             }

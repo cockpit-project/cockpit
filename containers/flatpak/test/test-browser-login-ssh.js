@@ -1,4 +1,4 @@
-/* global ph_mouse ph_set_result ph_wait_present ph_wait_visible ph_wait_in_text */
+/* global ph_mouse ph_set_result ph_wait_present ph_wait_visible ph_wait_in_text ph_wait_not_visible */
 
 async function assert_conversation(match) {
     await ph_wait_present("#conversation-prompt");
@@ -9,6 +9,7 @@ async function assert_conversation(match) {
 async function test() {
     try {
         await ph_wait_present("#server-field");
+        await ph_wait_visible("#server-field");
         document.getElementById("server-field").value = "%HOST%";
         ph_mouse("#login-button", "click");
 
@@ -19,9 +20,10 @@ async function test() {
             ph_mouse("#login-button", "click");
         }
 
-        await ph_wait_present("#conversation-prompt");
         await assert_conversation("password");
         document.getElementById("conversation-input").value = "%PASS%";
+
+        await ph_wait_not_visible("#login-button:disabled");
 
         // this will cause a page load, ending the test
         ph_mouse("#login-button", "click");

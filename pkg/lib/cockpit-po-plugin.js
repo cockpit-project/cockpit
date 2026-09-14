@@ -8,6 +8,7 @@ import gettext_parser from "gettext-parser";
 const config = {};
 
 const DEFAULT_WRAPPER = 'cockpit.locale(PO_DATA);';
+const RTL_LANGS = new Set(["ar", "fa", "he", "ur"]);
 
 function get_po_files() {
     const poDir = path.resolve(config.srcdir, 'po');
@@ -38,15 +39,16 @@ function parsePo(po_file) {
             .join('\n');
     const parsed = gettext_parser.po.parse(po_data, { defaultCharset: 'utf8', validation: true });
     delete parsed.translations[""][""]; // second header copy
-    return parsed;
+
+    const dir = RTL_LANGS.has(parsed.headers.Language) ? "rtl" : "ltr";
+    return { parsed, dir };
 }
 
-function buildFile(parsed, subdir, filename, filter) {
-    return new Promise((resolve, reject) => {
-        const rtl_langs = ["ar", "fa", "he", "ur"];
-        const dir = rtl_langs.includes(parsed.headers.Language) ? "rtl" : "ltr";
+function buildFile(data, subdir, filename, filter) {
+    const parsed = data.parsed;
+    const dir = data.dir;
 
-        // cockpit.js only looks at "plural-forms" and "language"
+    return new Promise((resolve, reject) => {
         const chunks = [
             '{\n',
             ' "": {\n',

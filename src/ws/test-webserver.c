@@ -825,6 +825,13 @@ test_handle_resource_url_root (Fixture *fixture,
   g_assert_cmpstr (invoked, ==, "default");
   invoked = NULL;
 
+  /* Exact url-root without trailing slash */
+  resp = perform_http_request (fixture->localport, "GET /path HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "index");
+  invoked = NULL;
+  cockpit_assert_strmatch (resp, "*Yello from index");
+  g_free (resp);
+
   /* Should fail */
   if (fixture->hostport)
     {

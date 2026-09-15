@@ -72,7 +72,8 @@ class NetworkCase(NetworkHelpers):
 
             def cleanupDevs() -> None:
                 new = devs() - self.orig_devs
-                self.machine.execute(f"for d in {' '.join(new)}; do nmcli dev del $d; done")
+                if len(new) > 0:
+                    self.machine.execute(f"nmcli dev del {' '.join(new)}")
 
             self.orig_devs = devs()
             self.restore_dir("/etc/NetworkManager", restart_unit="NetworkManager")

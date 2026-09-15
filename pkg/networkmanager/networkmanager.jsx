@@ -120,7 +120,7 @@ const App = () => {
     if (path.length == 0) {
         return (
             <ModelContext.Provider value={model}>
-                <WithDialogs key="1">
+                <WithDialogs key="networking">
                     <NetworkPage privileged={superuser.allowed}
                                  operationInProgress={model.operationInProgress}
                                  usage_monitor={usage_monitor}
@@ -135,7 +135,7 @@ const App = () => {
         if (iface) {
             return (
                 <ModelContext.Provider value={model}>
-                    <WithDialogs key="2">
+                    <WithDialogs key="networking-interface">
                         <NetworkInterfacePage privileged={superuser.allowed}
                                               operationInProgress={model.operationInProgress}
                                               usage_monitor={usage_monitor}

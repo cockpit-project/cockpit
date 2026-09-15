@@ -32,6 +32,7 @@ static struct {
   bool initialized;
   int first_listener;
   int last_listener;
+  unsigned max_connections;
   int epollfd;
 
   /* rw, protected by mutex */
@@ -134,6 +135,14 @@ handle_accept (int listen_fd)
         timerfd_settime (server.idle_timerfd, 0, &zero, NULL);
       }
 
+    if (server.connection_count >= server.max_connections)
+      {
+        pthread_mutex_unlock (&server.connection_mutex);
+        warnx ("too many connections");
+        close (fd);
+        return;
+      }
+
     server.connection_count++;
 
     debug (CONNECTION, "  -> server.connection_count is now %i", server.connection_count);
@@ -186,13 +195,15 @@ void
 server_init (const char *wsinstance_sockdir,
              const char *cert_session_dir,
              int idle_timeout,
-             uint16_t port)
+             uint16_t port,
+             unsigned max_connections)
 {
   const char *env_listen_fds;
   struct epoll_event ev = { .events = EPOLLIN };
 
   assert (!server.initialized);
   server.initialized = true;
+  server.max_connections = max_connections;
   server.idle_timerfd = -1;
 
   connection_set_directories (wsinstance_sockdir, cert_session_dir);

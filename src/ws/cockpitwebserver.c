@@ -790,6 +790,10 @@ cockpit_web_request_process (CockpitWebRequest *self,
   else
     self->query = "";
 
+  /* Normalize path after URL Root is removed, exact URL Root requests yield an empty suffix */
+  if (self->path[0] == '\0')
+    self->path = "/";
+
   /* See if we have any takers... */
   g_signal_emit (self->web_server, sig_handle_stream, 0, self, &claimed);
 

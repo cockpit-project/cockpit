@@ -61,7 +61,12 @@ typedef struct {
   const char *client_fingerprint;
   const char *priority;
   int expected_pk_algo;
+  unsigned max_connections;
 } TestFixture;
+
+static const TestFixture fixture_max_connections_10 = {
+  .max_connections = 10,
+};
 
 static const TestFixture fixture_separate_crt_key = {
   .certfile = CERTFILE,
@@ -468,8 +473,10 @@ setup (TestCase *tc, gconstpointer data)
     }
   close (socket_dir_fd);
 
+  unsigned max_connections = (fixture && fixture->max_connections != 0) ? fixture->max_connections : 1024;
+
   /* Let the kernel assign a port */
-  server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, 0);
+  server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, 0, max_connections);
 
   if (fixture && fixture->certfile)
     {
@@ -669,6 +676,47 @@ test_no_tls_many_parallel (TestCase *tc, gconstpointer data)
         --i;
       }
   }
+}
+
+static void
+test_no_tls_too_many_parallel (TestCase *tc, gconstpointer data)
+{
+  int i;
+  int fds[20];
+
+  for (i = 0; i < 20; ++i)
+    {
+      fds[i] = do_connect (tc);
+      server_poll_event (50);
+    }
+
+  for (i = 0; i < 20; ++i)
+    {
+      char buf[4096];
+
+      send_request (fds[i], "GET / HTTP/1.0\r\nHost: localhost\r\n\r\n");
+
+    again:
+      int r = recv (fds[i], buf, 100, 0);
+      if (r < 0 && errno == EAGAIN)
+        {
+          sleep (1);
+          goto again;
+        }
+
+      if (r < 0)
+        g_error ("recv: unexpected error: %m");
+
+      if (i < 10) {
+        /* the first 10 are allowed to connect and will receive a reply */
+        g_assert_cmpint (r, >=, 50);
+      } else {
+        /* the rest gets disconnected immediately */
+        g_assert_cmpint (r, ==, 0);
+      }
+
+      close(fds[i]);
+    }
 }
 
 static void
@@ -970,6 +1018,8 @@ main (int argc, char *argv[])
               setup, test_no_tls_many_serial, teardown);
   g_test_add ("/server/no-tls/many-parallel", TestCase, NULL,
               setup, test_no_tls_many_parallel, teardown);
+  g_test_add ("/server/no-tls/too-many-parallel", TestCase, &fixture_max_connections_10,
+              setup, test_no_tls_too_many_parallel, teardown);
   g_test_add ("/server/no-tls/redirect", TestCase, NULL,
               setup, test_no_tls_redirect, teardown);
   g_test_add ("/server/tls/no-client-cert", TestCase, &fixture_separate_crt_key,

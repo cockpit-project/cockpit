@@ -219,22 +219,33 @@ function getSeverityURL(urls) {
     return highestURL;
 }
 
+function isSafeUrl(href) {
+    try {
+        const url = new URL(href);
+        return ["https:", "http:"].includes(url.protocol);
+    } catch {
+        return false;
+    }
+}
+
 // Overrides the link_open function to apply our required HTML attributes
 function customRemarkable() {
     const remarkable = new Remarkable();
 
-    const orig_link_open = remarkable.renderer.rules.link_open;
-    remarkable.renderer.rules.link_open = function() {
-        let result = orig_link_open.apply(null, arguments);
+    remarkable.renderer.rules.link_open = function(tokens, idx) {
+        try {
+            const url = tokens[idx].href;
+            if (!isSafeUrl(url))
+                return "<a>";
 
-        const parser = new DOMParser();
-        const htmlDocument = parser.parseFromString(result, "text/html");
-        const links = htmlDocument.getElementsByTagName("a");
-        if (links.length === 1) {
-            const href = links[0].getAttribute("href");
-            result = `<a rel="noopener noreferrer" target="_blank" href="${href}">`;
+            const a = document.createElement("a");
+            a.setAttribute("href", url);
+            a.rel = "noopener noreferrer";
+            a.target = "_blank";
+            return a.outerHTML.replace("</a>", "");
+        } catch {
+            return "<a>";
         }
-        return result;
     };
     return remarkable;
 }

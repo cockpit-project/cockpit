@@ -28,6 +28,7 @@ install-python:
 	@# This needs to work on RHEL8 up through modern Fedora, offline, with
 	@# system packages available to the build.
 	@# See https://github.com/pypa/pip/issues/3063 for --ignore-installed
+	$(PIP_INSTALL_ENV) \
 	$(PYTHON3) -m pip install --no-index --force-reinstall --ignore-installed --root='$(DESTDIR)/' --prefix='$(prefix)' \
 		"$$($(PYTHON3) '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
 	mkdir -p $(DESTDIR)$(libexecdir)

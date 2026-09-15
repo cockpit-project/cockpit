@@ -92,6 +92,12 @@ ForwardedForHeader = X-Forwarded-For
   unauthenticated connections. The probability increases linearly and
   all connection attempts are refused if the number of unauthenticated
   connections reaches *full* (60).
+*MaxConcurrentConnections*::
+  Limits the number of concurrent HTTP connections on the Cockpit port.
+  Connection attempts that exceed this limit are rejected early on
+  without reading a single byte. This can be used during brute-force
+  attacks.  It differs from *MaxStartups*, which protects against too
+  many concurrent authentication attempts. Defaults to 500.
 *AllowUnencrypted*::
   If true, cockpit will accept unencrypted HTTP connections. Otherwise,
   it redirects all HTTP connections to HTTPS. Exceptions are connections

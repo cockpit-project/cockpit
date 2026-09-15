@@ -14,7 +14,8 @@ void
 server_init (const char *wsinstance_sockdir,
              const char *cert_session_dir,
              int idle_timeout,
-             uint16_t port);
+             uint16_t port,
+             unsigned int max_connections);
 
 void
 server_run (void);

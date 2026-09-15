@@ -36,6 +36,8 @@ static struct {
   /* rw, protected by mutex */
   pthread_mutex_t connection_mutex;
   unsigned int connection_count;
+  unsigned int max_connection_count;
+  bool max_connection_warning_issued;
   int idle_timerfd;
   struct itimerspec idle_timeout;
 } server;
@@ -132,6 +134,26 @@ handle_accept (int listen_fd)
         timerfd_settime (server.idle_timerfd, 0, &zero, NULL);
       }
 
+    if (server.connection_count >= server.max_connection_count)
+      {
+        if (!server.max_connection_warning_issued)
+          {
+            warnx ("too many connections");
+            server.max_connection_warning_issued = true;
+          }
+
+        pthread_mutex_unlock (&server.connection_mutex);
+
+        // Send a immediate RST to the client to immediately free up
+        // our resources associated with the socket.  This results in
+        // a "Connection reset" error on the other end, which is
+        // useful as well.
+        struct linger opt = { .l_onoff = 1, .l_linger = 0 };
+        setsockopt (fd, SOL_SOCKET, SO_LINGER, &opt, sizeof(opt));
+        close (fd);
+        return;
+      }
+
     server.connection_count++;
 
     debug (CONNECTION, "  -> server.connection_count is now %i", server.connection_count);
@@ -179,13 +201,15 @@ void
 server_init (const char *wsinstance_sockdir,
              const char *cert_session_dir,
              int idle_timeout,
-             uint16_t port)
+             uint16_t port,
+             unsigned int max_connection_count)
 {
   const char *env_listen_fds;
   struct epoll_event ev = { .events = EPOLLIN };
 
   assert (!server.initialized);
   server.initialized = true;
+  server.max_connection_count = max_connection_count;
   server.idle_timerfd = -1;
 
   connection_set_directories (wsinstance_sockdir, cert_session_dir);

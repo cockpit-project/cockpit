@@ -19,6 +19,8 @@ ProtectSystem=strict
 PrivateDevices=yes
 ProtectKernelTunables=yes
 MemoryDenyWriteExecute=yes
+# This effectively limits concurrent connections
+LimitNOFILE=1024
 
 # cockpit-tls speaks to the outside world via socket activation, and to cockpit-ws via Unix socket
 PrivateIPC=yes

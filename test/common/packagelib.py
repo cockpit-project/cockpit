@@ -345,6 +345,9 @@ post_upgrade() {{
                 changes += f" (Closes: {', '.join([('#' + str(b)) for b in info['bugs']])})"
             if info.get("cves"):
                 changes += "\n  * " + ", ".join(info["cves"])
+            if info.get("invalid_cves"):
+                assert isinstance(info["invalid_cves"], list)
+                changes += "\n  * " + ", ".join(info["invalid_cves"])
 
             path = f"{self.repo_dir}/changelogs/{pkg[0]}/{pkg}/{pkg}_{ver}-{rel}"
             contents = f"""{pkg} ({ver}-{rel}) unstable; urgency=medium
@@ -368,6 +371,10 @@ post_upgrade() {{
                                                                                                                                                         "securitySeverity"])
             for e in info.get("errata", []):
                 refs += f'      <reference href="https://access.redhat.com/errata/{e}" id="{e}" title="{e}" type="self"/>\n'
+
+            # Inject invalid urls
+            for i in info.get("invalid_cves", []):
+                refs += f'      <reference href="{i}" onmouseover="alert(document.domain);" id="invalid" title="invalid" type="cve"/>\n'
 
             xml += """  <update from="test@example.com" status="stable" type="{severity}" version="2.0">
     <id>UPDATE-{pkg}-{ver}-{rel}</id>

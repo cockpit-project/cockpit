@@ -815,6 +815,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.createPackage("sevcritical", "5", "1", install=True)
         self.createPackage("sevcritical", "5", "2", cves=["CVE-2014-54321"], securitySeverity="critical",
                            errata=["RHSA-2000:0001", "RHSA-2000:0002"],
+                           invalid_cves=["javascript:alert(document.cookie)", "https://example.com"],
                            changes='See [malicious link](https://example.invalid/"onmouseover="alert(document.domain)) for info')
 
         self.enableRepo(refresh_repo=True)
@@ -836,10 +837,20 @@ ExecStart=/usr/local/bin/{packageName}
         self.check_nth_update(2, "secparse", "4-2", "security", 2,
                               desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."],
                               cves=["CVE-2014-54321", "CVE-2017-9999"])
-        # onmouseover does not survive our sanitization
-        sel = self.check_nth_update(3, "sevcritical", "5-2", "security", 1,
+        apt_based = m.image.startswith(("debian-", "ubuntu-"))
+        # We cannot insert example.com as an url in apts' changelog format only accepts cve ids or issues,
+        # so it does not appear in the UI.
+        sel = self.check_nth_update(3, "sevcritical", "5-2", "security", 1 if apt_based else 2,
                                     desc_matches=["See malicious link for info"],
-                                    absent_anchor_attributes=["onmouseover"])
+                                    absent_anchor_attributes=["onmouseover"])  # onmouseover does not survive our sanitization
+        # Malicious cve urls don't end up being rendered
+        # PackageKit parses the apt changelog and constructs CVE urls from it, so we can't insert a malicious javascript: uri
+        if apt_based:
+            b.wait_in_text(sel, "javascript:alert")
+            b.wait_not_present(f"{sel} a[href='javascript:alert(document.cookie)']")
+        else:
+            self.assertIsNone(b.attr(f"{sel} a[href='https://example.com']", "onmouseover"))
+            b.wait_not_in_text(sel, "javascript:alert")
 
         # buggy: bug refs, no security
         sel = self.check_nth_update(4, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])

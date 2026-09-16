@@ -740,6 +740,70 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_not_in_text("#restart-services-modal .pf-v6-l-stack__item", packageName)
         b.wait_visible("#restart-services-modal .pf-v6-c-alert")
 
+    @testlib.skipImage("Partial updates are not supported", "arch", "opensuse-tumbleweed")
+    def testSelectUpdates(self):
+        b = self.browser
+
+        self.createPackage("xeroxed", "10", "1", install=True)
+        self.createPackage("xeroxed", "12", "1", severity="enhancement", bugs=["789"],
+                           changes="Uniqueness is boring")
+        self.createPackage("norefs-bin", "1", "1", install=True)
+        self.createPackage("norefs-bin", "2", "1", severity="enhancement",
+                           changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
+        self.createPackage("norefs-doc", "1", "1", install=True)
+        self.createPackage("norefs-doc", "2", "1", severity="enhancement",
+                           changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
+        self.createPackage("buggy", "2", "1", install=True)
+        self.createPackage("buggy", "2", "2", changes="* Fixit", bugs=["123", "456"])
+        self.enableRepo(refresh_repo=True)
+
+        self.login_and_go("/updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
+        b.wait_in_text("#status", "4 updates available")
+        self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
+
+        # Select one
+        b.click("[id^='selectable-buggy']")
+        self.assertEqual(b.text("#available-updates button#install-all"), "Install selected updates (1)")
+        # Select one with two packages
+        b.click("[id^='selectable-norefs']")
+        self.assertEqual(b.text("#available-updates button#install-all"), "Install selected updates (3)")
+        # Select last unselected package
+        b.click("[id^='selectable-xeroxed']")
+        self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
+
+        # Unselect all, make sure we still have "Install all updates"
+        b.click("[id^='selectable-buggy']")
+        b.click("[id^='selectable-norefs']")
+        b.click("[id^='selectable-xeroxed']")
+        self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
+
+        # Select one and install it
+        b.click("[id^='selectable-buggy']")
+        b.click("#available-updates button#install-all")
+        with b.wait_timeout(60):
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
+        b.click("#ignore")
+        b.wait_in_text("#status", "3 updates available")
+
+        # Select one with 2 packages
+        b.click("[id^='selectable-norefs']")
+        b.click("#available-updates button#install-all")
+        with b.wait_timeout(60):
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
+        b.click("#ignore")
+        b.wait_in_text("#status", "1 update available")
+
+        # Install last one without selection
+        b.click("#available-updates button#install-all")
+        with b.wait_timeout(60):
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
+
+        # All updates should now be installed
+        b.click("#ignore")
+        b.wait_in_text("#status", "System is up to date")
+
     @testlib.skipImage("No security changelog support in packagekit", "arch")
     def testInfoSecurity(self):
         b = self.browser

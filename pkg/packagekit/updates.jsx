@@ -250,9 +250,9 @@ function customRemarkable() {
 }
 
 function updateItem(remarkable, info, pkgNames, key) {
-    const bug_urls = info.bug_urls || [];
-    const cve_urls = info.cve_urls || [];
-    const vendor_urls = info.vendor_urls || [];
+    const bug_urls = (info.bug_urls || []).filter(isSafeUrl);
+    const cve_urls = (info.cve_urls || []).filter(isSafeUrl);
+    const vendor_urls = (info.vendor_urls || []).filter(isSafeUrl);
 
     let bugs = null;
     if (bug_urls.length > 0) {

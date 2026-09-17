@@ -1170,6 +1170,85 @@ test_receive_fragmented (void)
 }
 
 static gpointer
+send_too_big_fragments_thread (gpointer user_data)
+{
+  GIOStream *io = user_data;
+  GOutputStream *out = g_io_stream_get_output_stream (io);
+  gsize written;
+  gchar discard[4096];
+
+  /* Send a minimal WebSocket upgrade request (acting as client) */
+  const gchar *request =
+    "GET / HTTP/1.1\r\n"
+    "Host: localhost\r\n"
+    "Upgrade: websocket\r\n"
+    "Connection: Upgrade\r\n"
+    "Sec-WebSocket-Version: 13\r\n"
+    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
+    "\r\n";
+
+  if (!g_output_stream_write_all (out, request, strlen (request), &written, NULL, NULL))
+    g_assert_not_reached ();
+
+  /* Drain the server's 101 Switching Protocols response */
+  g_input_stream_read (g_io_stream_get_input_stream (io), discard, sizeof (discard), NULL, NULL);
+
+  /*
+   * Send 3 binary fragments individually under MAX_PAYLOAD (128 KiB = 131072)
+   * but exceeding it in total:
+   *   frame 1: fin=0, opcode=0x02, payload=65535 → accumulated: 65535
+   *   frame 2: fin=0, opcode=0x00, payload=65535 → accumulated: 131070 (< 131072, passes)
+   *   frame 3: fin=1, opcode=0x00, payload=2    → accumulated: 131072 (= limit, rejected)
+   */
+  g_autofree guchar *payload = g_malloc0 (65535);
+
+  const guchar frame1_header[] = { 0x02, 126, 0xFF, 0xFF };
+  if (!g_output_stream_write_all (out, frame1_header, sizeof (frame1_header), &written, NULL, NULL)
+   || !g_output_stream_write_all (out, payload, 65535, &written, NULL, NULL))
+    g_assert_not_reached ();
+
+  const guchar frame2_header[] = { 0x00, 126, 0xFF, 0xFF };
+  if (!g_output_stream_write_all (out, frame2_header, sizeof (frame2_header), &written, NULL, NULL)
+   || !g_output_stream_write_all (out, payload, 65535, &written, NULL, NULL))
+    g_assert_not_reached ();
+
+  /* Final fragment: 2 bytes pushes accumulated total to MAX_PAYLOAD */
+  const guchar frame3[] = { 0x80, 0x02, 0x00, 0x00 };
+  g_output_stream_write_all (out, frame3, sizeof (frame3), &written, NULL, NULL);
+
+  return NULL;
+}
+
+static void
+test_receive_fragmented_too_big (void)
+{
+  WebSocketConnection *server;
+  GIOStream *io_a;
+  GIOStream *io_b;
+  GThread *thread;
+  GError *error = NULL;
+  guint logid;
+
+  cockpit_socket_streampair (&io_a, &io_b);
+  thread = g_thread_new ("big-frag-thread", send_too_big_fragments_thread, io_a);
+
+  server = web_socket_server_new_for_stream (NULL, NULL, io_b, NULL, NULL);
+  g_signal_connect (server, "error", G_CALLBACK (on_error_copy), &error);
+
+  logid = g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, null_log_handler, NULL);
+
+  WAIT_UNTIL (error != NULL);
+  g_assert_error (error, WEB_SOCKET_ERROR, WEB_SOCKET_CLOSE_TOO_BIG);
+
+  g_thread_join (thread);
+  g_error_free (error);
+  g_log_remove_handler (G_LOG_DOMAIN, logid);
+  g_object_unref (server);
+  g_object_unref (io_a);
+  g_object_unref (io_b);
+}
+
+static gpointer
 client_thread (gpointer data)
 {
   GIOStream *io = data;
@@ -1311,6 +1390,7 @@ main (int argc,
   if (g_test_slow ())
     g_test_add_func ("/web-socket/close-after-timeout", test_close_after_timeout);
   g_test_add_func ("/web-socket/receive-fragmented", test_receive_fragmented);
+  g_test_add_func ("/web-socket/receive-fragmented-too-big", test_receive_fragmented_too_big);
   g_test_add_func ("/web-socket/handshake-with-buffer-headers", test_handshake_with_buffer_and_headers);
 
   g_test_add ("/web-socket/message-after-closing", Test, NULL, setup_pair, test_message_after_closing, teardown);

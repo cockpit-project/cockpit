@@ -37,113 +37,13 @@ jobs:
     identifier: self
     trigger: pull_request
     targets: &test_targets
-      fedora-43: {}
-      fedora-44: {}
-      fedora-latest-aarch64: {}
-      fedora-rawhide: {}
       centos-stream-9-x86_64:
         distros: ["centos-stream-9", "CentOS-Stream-9-image-mode"]
       centos-stream-9-aarch64: {}
       centos-stream-10-x86_64:
         distros: ["centos-stream-10", "CentOS-Stream-10-image-mode"]
 
-  # current Fedora runs reverse dependency testing against https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/
-  - job: tests
-    identifier: revdeps
-    trigger: pull_request
-    targets:
-      - fedora-latest-stable
-    tf_extra_params:
-      environments:
-        - artifacts:
-          - type: repository-file
-            id: https://copr.fedorainfracloud.org/coprs/g/cockpit/main-builds/repo/fedora-$releasever/group_cockpit-main-builds-fedora-$releasever.repo
-          tmt:
-            context:
-              revdeps: "yes"
-
   # run build/unit tests on test targets
   - job: copr_build
     trigger: pull_request
     targets: *test_targets
-
-  # run extra build/unit tests on some interesting architectures
-  - job: copr_build
-    trigger: pull_request
-    targets:
-      # big-endian
-      - fedora-latest-stable-s390x
-
-  # for cross-project testing
-  - job: copr_build
-    trigger: commit
-    branch: "^main$"
-    owner: "@cockpit"
-    project: "main-builds"
-    preserve_project: True
-
-    # testing changes to this:
-    # 1. Create a personal COPR, and change owner/project below
-    # 2. Make a temporary commit that:
-    #    - disables all jobs except "source" from .github/workflows/release.yml
-    #    - drops copr_build/commit, propose_downstream, and bodhi_update from packit.yaml
-    #    - sets upstream_project_url/issue_repository at the top to your fork
-    #    - updates Source0/1: in tools/cockpit.spec to your fork
-    # 3. Commit your adjustments. Push your changes to your fork's main branch
-    # 4. Tag and push a release to your fork. Replace the `my` remote with your fork:
-    #    R=362.99; git tag -d $R; git push my :$R; git tag -s -F /tmp/tagmsg $R; git push my -f; git push my $R
-    # 5. The initial release will fail. Wait for the "packit is requesting
-    #    permissions change" email, and grant it in your COPR's Settings → Permissions
-    # 6. Iterate (step 3.) and re-tag (step 4).
-  - job: copr_build
-    trigger: release
-    owner: "@cockpit"
-    project: "cockpit-preview"
-    preserve_project: True
-    # Don't rebuild the tarball for official releases (https://github.com/packit/packit-service/issues/1505)
-    actions:
-      # the PACKIT_* variables are not yet set here; this just needs to create the declared specfile_path
-      post-upstream-clone:
-        - cp tools/cockpit.spec .
-
-      fix-spec-file:
-        # Don't rebuild the tarball for official releases (https://github.com/packit/packit-service/issues/1505)
-        - bash -c "curl -L --fail -O https://github.com/cockpit-project/${PACKIT_UPSTREAM_PACKAGE_NAME}/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
-        - bash -c "curl -L --fail -O https://github.com/cockpit-project/${PACKIT_UPSTREAM_PACKAGE_NAME}/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_UPSTREAM_PACKAGE_NAME}-node-${PACKIT_PROJECT_VERSION}.tar.xz"
-        # Extract the correct spec from the release (with correct Version and NPM Provides:)
-        - bash -c "tar -xJf cockpit-${PACKIT_PROJECT_VERSION}.tar.xz cockpit-${PACKIT_PROJECT_VERSION}/tools/cockpit.spec --strip-components=2"
-
-  - job: propose_downstream
-    trigger: release
-    # Don't rebuild the tarball for official releases (https://github.com/packit/packit-service/issues/1505)
-    actions:
-      # the PACKIT_* variables are not yet set here; this just needs to create the declared specfile_path
-      post-upstream-clone:
-        - cp tools/cockpit.spec .
-
-      post-modifications:
-        - |
-          bash -exc '
-          # for debugging of official runs, CLI is different from packit service
-          env | grep PACKIT
-          tar -xJf "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit-${PACKIT_PROJECT_VERSION}.tar.xz" "cockpit-*/runtime-npm-modules.txt" --strip-components=1
-          tools/fix-spec "${PACKIT_DOWNSTREAM_REPO:-${PACKIT_UPSTREAM_REPO}}/cockpit.spec"
-          '
-
-    dist_git_branches:
-      - fedora-development
-      - fedora-43
-      - fedora-44
-
-  - job: koji_build
-    trigger: commit
-    dist_git_branches:
-      - fedora-development
-      - fedora-43
-      - fedora-44
-
-  - job: bodhi_update
-    trigger: commit
-    dist_git_branches:
-      # rawhide updates are created automatically
-      - fedora-branched

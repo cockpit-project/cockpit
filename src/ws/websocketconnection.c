@@ -793,6 +793,15 @@ process_contents_rfc6455 (WebSocketConnection *self,
             }
           /* fall through */
         case 0x02:
+          if (pv->message_data->len + payload_len >= MAX_PAYLOAD)
+            {
+              gsize total = pv->message_data->len + payload_len;
+              g_byte_array_unref (pv->message_data);
+              pv->message_data = NULL;
+              pv->message_opcode = 0;
+              too_big_error_and_close (self, total);
+              return;
+            }
           g_byte_array_append (pv->message_data, payload, payload_len);
           break;
         default:

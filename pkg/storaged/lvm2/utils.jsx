@@ -8,10 +8,10 @@ import cockpit from "cockpit";
 import { get_block_link_parts } from "../utils.js";
 
 export function check_partial_lvols(client, path, enter_warning) {
-    if (client.lvols_status[path] && client.lvols_status[path] != "") {
+    if (client.lvols_status[path] && client.lvols_status[path] !== "") {
         enter_warning(path, {
             warning: "partial-lvol",
-            danger: client.lvols_status[path] != "degraded"
+            danger: client.lvols_status[path] !== "degraded"
         });
     }
 }
@@ -29,7 +29,7 @@ export function next_default_logical_volume_name(client, vgroup, prefix) {
     function find_lvol(name) {
         const lvols = client.vgroups_lvols[vgroup.path];
         for (let i = 0; i < lvols.length; i++) {
-            if (lvols[i].Name == name)
+            if (lvols[i].Name === name)
                 return lvols[i];
         }
         return null;

@@ -219,13 +219,13 @@ function processMemory(info) {
         }
 
         let memoryTechnology = memoryProperty["Memory technology"];
-        if (!memoryTechnology || memoryTechnology == "<OUT OF SPEC>")
+        if (!memoryTechnology || memoryTechnology === "<OUT OF SPEC>")
             memoryTechnology = _("Unknown");
 
         let memoryRank = memoryProperty.Rank || _("Unknown");
-        if (memoryRank == 1)
+        if (memoryRank === 1)
             memoryRank = _("Single rank");
-        if (memoryRank == 2)
+        if (memoryRank === 2)
             memoryRank = _("Dual rank");
 
         memoryArray.push({
@@ -233,7 +233,7 @@ function processMemory(info) {
             technology: memoryTechnology,
             type: memoryProperty.Type || _("Unknown"),
             size: memorySize,
-            state: memoryProperty["Total Width"] == "Unknown" ? _("Absent") : _("Present"),
+            state: memoryProperty["Total Width"] === "Unknown" ? _("Absent") : _("Present"),
             rank: memoryRank,
             speed: memoryProperty.Speed || _("Unknown")
         });

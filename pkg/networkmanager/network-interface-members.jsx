@@ -48,7 +48,7 @@ export const NetworkInterfaceMembers = ({
         members.forEach(iface => {
             const member_con = iface.MainConnection;
             const dev = iface.Device;
-            const isActive = (dev && dev.State == 100 && dev.Carrier === true);
+            const isActive = (dev && dev.State === 100 && dev.Carrier === true);
             const onoff = (
                 <Switch
                     aria-label={cockpit.format(_("Switch off $0"), iface.Name)}
@@ -131,7 +131,7 @@ export const NetworkInterfaceMembers = ({
     const dropdownItems = [];
 
     interfaces.forEach(i => {
-        if (is_interesting_interface(i) && !memberIfaces[i.Name] && i != iface) {
+        if (is_interesting_interface(i) && !memberIfaces[i.Name] && i !== iface) {
             const onClick = () => {
                 with_checkpoint(
                     model,
@@ -194,7 +194,7 @@ export const NetworkInterfaceMembers = ({
                           className="networking-interface-members"
                           variant='compact'
                           columns={[
-                              { title: (cs && cs.type == "bond") ? _("Interfaces") : _("Ports"), props: { width: 25 } },
+                              { title: (cs && cs.type === "bond") ? _("Interfaces") : _("Ports"), props: { width: 25 } },
                               { title: _("Sending"), props: { width: 25 } },
                               { title: _("Receiving"), props: { width: 25 } },
                               { title: "" },

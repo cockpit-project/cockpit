@@ -51,7 +51,7 @@ export function get_init_superuser_for_options(options) {
      * hopefully.
      */
 
-    if (value == "sudo" && !options.password)
+    if (value === "sudo" && !options.password)
         value = "none";
 
     return value;
@@ -196,7 +196,7 @@ function Machines() {
                                                                    machine.address);
 
             if (!machine.label) {
-                if (host == "localhost" || host == "localhost.localdomain") {
+                if (host === "localhost" || host === "localhost.localdomain") {
                     const application = cockpit.transport.application();
                     if (application.indexOf('cockpit+=') === 0)
                         machine.label = application.replace('cockpit+=', '');
@@ -246,7 +246,7 @@ function Machines() {
         const values_variant = {};
         for (const prop in values) {
             if (values[prop] !== null) {
-                if (prop == "visible")
+                if (prop === "visible")
                     values_variant[prop] = cockpit.variant('b', values[prop]);
                 else
                     values_variant[prop] = cockpit.variant('s', values[prop].toString());
@@ -308,7 +308,7 @@ function Machines() {
         const norm = mod.colors.parse(color);
         for (const key in machines) {
             const machine = machines[key];
-            if (machine.color && mod.colors.parse(machine.color) == norm)
+            if (machine.color && mod.colors.parse(machine.color) === norm)
                 return true;
         }
         return false;
@@ -421,7 +421,7 @@ function Loader(machines, session_only) {
 
     function process_session_key(key, value) {
         const parts = key.split("/");
-        if (parts[0] == session_prefix &&
+        if (parts[0] === session_prefix &&
             parts.length === 2) {
             const host = parts[1];
             if (value) {
@@ -452,12 +452,12 @@ function Loader(machines, session_only) {
 
     function state(host, value, problem) {
         const values = { state: value, problem };
-        if (value == "connected") {
+        if (value === "connected") {
             values.restarting = false;
         } else if (problem) {
             values.manifests = null;
             values.checksum = null;
-            if (problem == "authentication-failed" || problem == "authentication-not-supported")
+            if (problem === "authentication-failed" || problem === "authentication-not-supported")
                 values.restarting = false;
         }
         machines.overlay(host, values);
@@ -488,7 +488,7 @@ function Loader(machines, session_only) {
             overlay.label = label;
 
         const os = props.OperatingSystemPrettyName;
-        if (os && os != machine.os)
+        if (os && os !== machine.os)
             overlay.os = props.OperatingSystemPrettyName;
 
         if (Object.keys(overlay).length > 0)
@@ -499,7 +499,7 @@ function Loader(machines, session_only) {
          * explicitly connect as necessary.
          */
         if (machine.visible) {
-            if (old_conns && machine.connection_string != old_conns) {
+            if (old_conns && machine.connection_string !== old_conns) {
                 cockpit.kill(old_conns);
                 self.disconnect(host);
                 self.connect(host);
@@ -600,7 +600,7 @@ function Loader(machines, session_only) {
                 member: "PropertiesChanged"
             },
                            function (path, iface, member, args) {
-                               if (args[0] == "cockpit.Packages") {
+                               if (args[0] === "cockpit.Packages") {
                                    if (args[1].Manifests) {
                                        const manifests = JSON.parse(args[1].Manifests.v);
                                        machines.overlay(host, { manifests: import_manifests(manifests) });

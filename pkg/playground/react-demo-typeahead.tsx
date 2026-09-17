@@ -112,7 +112,7 @@ export const TypeaheadDemo = () => {
     options.push({ value: "start", content: "The Start" });
 
     for (const st of Object.keys(states).sort()) {
-        if (st[0] != last) {
+        if (st[0] !== last) {
             options.push({ decorator: "divider", key: "_divider-" + st });
             options.push({
                 decorator: "header",

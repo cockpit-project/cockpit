@@ -56,7 +56,7 @@ function manager_create_pool(name, devs, key_desc, clevis_info) {
 export function create_stratis_pool() {
     function find_pool(name) {
         for (const p in client.stratis_pools) {
-            if (client.stratis_pools[p].Name == name)
+            if (client.stratis_pools[p].Name === name)
                 return client.stratis_pools[p];
         }
         return null;
@@ -107,7 +107,7 @@ export function create_stratis_pool() {
                                PassInput("passphrase2", _("Confirm"),
                                          {
                                              validate: function (phrase2, vals) {
-                                                 if (phrase2 != vals.passphrase)
+                                                 if (phrase2 !== vals.passphrase)
                                                      return _("Passphrases do not match");
                                              },
                                              visible: vals => vals.encrypt_pass.on,

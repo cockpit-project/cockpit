@@ -239,7 +239,7 @@ type Comparator<T> = (a: T, b: T) => boolean;
 type Comparators<T extends Tuple> = {[ t in keyof T ]?: Comparator<T[t]>};
 
 function deps_changed<T extends Tuple>(old_deps: T | null, new_deps: T, comps: Comparators<T>): boolean {
-    return (!old_deps || old_deps.length != new_deps.length ||
+    return (!old_deps || old_deps.length !== new_deps.length ||
             old_deps.findIndex((o, i) => !(comps[i] || Object.is)(o, new_deps[i])) >= 0);
 }
 

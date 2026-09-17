@@ -105,7 +105,7 @@ export async function install_dialog(pkg, options) {
                     caption: _("Install"),
                     style: "primary",
                     clicked: install_missing,
-                    disabled: data == null
+                    disabled: data === null
                 }
             ],
             idle_message: footer_message,
@@ -129,7 +129,7 @@ export async function install_dialog(pkg, options) {
                                                        pm = _("Waiting for other software management operations to finish");
                                                    else
                                                        pm = _("Checking installed software");
-                                                   if (pm != progress_message) {
+                                                   if (pm !== progress_message) {
                                                        progress_message = pm;
                                                        update();
                                                    }
@@ -160,9 +160,9 @@ export async function install_dialog(pkg, options) {
                                                                 text = _("Waiting for other software management operations to finish");
                                                             } else if (p.package) {
                                                                 let fmt;
-                                                                if (p.info == InstallProgressType.DOWNLOADING)
+                                                                if (p.info === InstallProgressType.DOWNLOADING)
                                                                     fmt = _("Downloading $0");
-                                                                else if (p.info == InstallProgressType.REMOVING)
+                                                                else if (p.info === InstallProgressType.REMOVING)
                                                                     fmt = _("Removing $0");
                                                                 else
                                                                     fmt = _("Installing $0");

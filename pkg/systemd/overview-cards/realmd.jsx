@@ -109,7 +109,7 @@ export class RealmdClient {
     checkRealm(name) {
         return this.dbus_realmd.call(MANAGER, PROVIDER, "Discover", [name, {}])
                 .then(([relevance, realms]) => {
-                    if (realms.length == 0)
+                    if (realms.length === 0)
                         return { result: false };
 
                     // the first realm
@@ -138,7 +138,7 @@ export class RealmdClient {
             return kerberosMembership.call("Join", [credentials, options])
                     .then(() => this.installWSCredentials(realm, user, password))
                     .catch(ex => {
-                        if (ex.name == "org.freedesktop.realmd.Error.Cancelled")
+                        if (ex.name === "org.freedesktop.realmd.Error.Cancelled")
                             return Promise.resolve();
                         ex.diagnostics = diagnostics;
                         return Promise.reject(ex);
@@ -332,7 +332,7 @@ const JoinDialog = ({ realmd_client }) => {
                         setRealm(reply.realm);
 
                         // handle initial auto-detection
-                        if (name == "") {
+                        if (name === "") {
                             if (!address)
                                 setAddress(reply.realm.Name);
                         }
@@ -415,7 +415,7 @@ const JoinDialog = ({ realmd_client }) => {
                 <Form isHorizontal onSubmit={onJoin}>
                     <FormGroup label={ _("Domain address") } fieldId="realms-op-address" validated={addressValid}>
                         <TextInput id="realms-op-address" placeholder="domain.example.com"
-                                   data-discover={ (!addressValid || addressValid == "default") ? null : "done" }
+                                   data-discover={ (!addressValid || addressValid === "default") ? null : "done" }
                                    autoComplete="url"
                                    value={address} onChange={(_event, value) => validateAddress(value)} isDisabled={pending} />
                     </FormGroup>
@@ -426,7 +426,7 @@ const JoinDialog = ({ realmd_client }) => {
                     <FormGroup label={ _("Domain administrator password") } fieldId="realms-op-admin-password">
                         <TextInput id="realms-op-admin-password" type="password" value={adminPassword} autoComplete="current-password" onChange={(_event, value) => setAdminPassword(value)} isDisabled={pending} />
                     </FormGroup>
-                    <FormHelper fieldId="realms-op-address" helperText={domainHelperText} helperTextInvalid={addressValid == "error" && domainHelperText} icon={domainHelperIcon} />
+                    <FormHelper fieldId="realms-op-address" helperText={domainHelperText} helperTextInvalid={addressValid === "error" && domainHelperText} icon={domainHelperIcon} />
                 </Form>
             </ModalBody>
             <ModalFooter>

@@ -38,7 +38,7 @@ export function event_mixin(obj, handlers) {
                     args = Array.prototype.slice.call(arguments, 1);
 
                     let detail = null;
-                    if (arguments.length == 2)
+                    if (arguments.length === 2)
                         detail = arguments[1];
                     else if (arguments.length > 2)
                         detail = args;

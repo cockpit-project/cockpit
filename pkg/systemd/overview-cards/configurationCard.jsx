@@ -261,7 +261,7 @@ const PageSystemInformationChangeHostname = () => {
         return false;
     }
 
-    const disabled = error.length || (init_hostname == hostname && init_pretty == pretty);
+    const disabled = error.length || (init_hostname === hostname && init_pretty === pretty);
     return (
         <Modal isOpen position="top" variant="medium"
                onClose={Dialogs.close}

@@ -35,7 +35,7 @@ const onDialogStandardClicked = function(mode: string, progress_cb: (text: strin
 
     return new Promise<void>((resolve, reject) => {
         progress_cb("Starting something long");
-        if (mode == 'steps') {
+        if (mode === 'steps') {
             let interval: number = 0;
             const cancel = function() {
                 window.clearTimeout(interval);
@@ -53,7 +53,7 @@ const onDialogStandardClicked = function(mode: string, progress_cb: (text: strin
                 window.clearTimeout(interval);
                 resolve();
             }, 5000);
-        } else if (mode == 'reject') {
+        } else if (mode === 'reject') {
             reject(new Error("Some error occurred"));
         } else {
             resolve();

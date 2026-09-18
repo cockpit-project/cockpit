@@ -312,6 +312,19 @@ AC_MSG_RESULT($enable_strict)
 
 AM_PATH_PYTHON([3.6])
 
+# Debian/Ubuntu Python 3.12+ defaults to 'posix_local' sysconfig scheme which
+# causes pip to ignore --prefix and install scripts to /usr/local/bin.  Detect
+# this and set DEB_PYTHON_INSTALL_LAYOUT=deb_system to override.
+AC_MSG_CHECKING([whether pip needs DEB_PYTHON_INSTALL_LAYOUT override])
+PIP_INSTALL_ENV=""
+if $PYTHON -c "import sysconfig; exit(0 if sysconfig.get_default_scheme() == 'posix_local' else 1)" 2>/dev/null; then
+    PIP_INSTALL_ENV="DEB_PYTHON_INSTALL_LAYOUT=deb_system"
+    AC_MSG_RESULT([yes])
+else
+    AC_MSG_RESULT([no])
+fi
+AC_SUBST([PIP_INSTALL_ENV])
+
 # Generate
 #
 

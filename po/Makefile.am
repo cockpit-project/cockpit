@@ -8,6 +8,7 @@ po/cockpit.html.pot: $(srcdir)/package-lock.json
 		$$(cd $(srcdir) && find pkg/ -name '*.html')
 
 # Extract cockpit style javascript translations
+# Recommended to have appstream installed as it includes the newest metadata its files
 po/cockpit.js.pot:
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	xgettext --default-domain=cockpit --output=- --language=C --keyword= \
@@ -18,7 +19,8 @@ po/cockpit.js.pot:
 		--keyword=gettextCatalog.getString:1,3c --keyword=gettextCatalog.getPlural:2,3,4c \
 		--from-code=UTF-8 --directory=$(srcdir) \
 		$$( cd $(srcdir) && find pkg/ ! -name 'test-*' -name '*.[jt]s' -o -name '*.[jt]sx') | \
-		sed '/^#/ s/, c-format//' > $@
+		sed '/^#/ s/, c-format//' > $@ && \
+		sed -i 's/charset=CHARSET/charset=UTF-8/g' $@
 
 po/cockpit.manifest.pot:
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
@@ -28,17 +30,19 @@ po/cockpit.manifest.pot:
 po/cockpit.appstream.pot:
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ --directory=$(srcdir) \
-		$$(cd $(srcdir) && find pkg/ src/ -name '*.appdata.xml.in' -o -name '*.metainfo.xml.in')
+		$$(cd $(srcdir) && find pkg/ src/ -name '*.appdata.xml.in' -o -name '*.metainfo.xml.in') && \
+		sed -i 's/charset=CHARSET/charset=UTF-8/g' $@
 
 po/cockpit.polkit.pot:
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ --directory=$(srcdir) \
-		$$(cd $(srcdir) && find src/ -name '*.policy.in')
+		$$(cd $(srcdir) && find src/ -name '*.policy.in') && \
+		sed -i 's/charset=CHARSET/charset=UTF-8/g' $@
 
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
-	msgcat --sort-output --output-file=$@ $^
+	xgettext --output=$@ $^
 
 CLEANFILES += \
 	dist/shell/*.po \

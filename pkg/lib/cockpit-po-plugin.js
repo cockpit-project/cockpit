@@ -145,7 +145,7 @@ function buildFile(data, subdir, filename, filter) {
         '{\n',
         ' "": {\n',
         `  "plural-forms": ${data.plural_forms},\n`,
-        `  "language": "${parsed.headers.Language}",\n`,
+        `  "language": ${JSON.stringify(parsed.headers.Language)},\n`,
         `  "language-direction": "${dir}"\n`,
         ' }'
     ];

@@ -161,3 +161,24 @@ storage, in the "cockpit_passphrases" entry. This is a map from device
 names to cleartext passphrases. This is only done when Cockpit runs in
 a "secure context", see
 https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts
+
+Cockpit Networking in Anaconda Mode
+===================================
+
+The Cockpit networking page also behaves differently when it is
+used in Anaconda mode. Instead of the full networking page it shows a
+simplified layout that is adjusted for the requirements of the Anaconda
+installer.
+
+Entering Anaconda mode
+----------------------
+
+Anaconda mode is activated the same way as on the storage page, by
+storing a "cockpit_anaconda" item in `window.sessionStorage`. The value
+should be a JSON encoded object. Unlike on the storage page, none of the
+contents are actually used by the networking page, so setting any valid
+JSON encoded object is enough to activate the Anaconda layout.
+
+The code for this alternative layout lives in
+`pkg/networkmanager/anaconda` and is a simplified version of the regular
+networking page.

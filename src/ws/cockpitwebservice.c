@@ -9,7 +9,10 @@
 
 #include "cockpitws.h"
 
+#include <pwd.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include <json-glib/json-glib.h>
 #include <gio/gunixinputstream.h>
@@ -25,9 +28,6 @@
 #include "cockpitwebserver.h"
 
 #include "websocket.h"
-
-
-#include <stdlib.h>
 
 guint cockpit_ws_ping_interval = 5;
 
@@ -440,6 +440,79 @@ out:
   return ret;
 }
 
+static gchar *
+decode_authorize_subject (const gchar *subject)
+{
+  /* plain1 authorization subjects carry the user name as cockpit_hex_encode(). */
+  gsize length = strlen (subject);
+  g_autofree gchar *decoded = NULL;
+  gsize i;
+
+  if (length % 2 != 0)
+    return NULL;
+
+  decoded = g_malloc (length / 2 + 1);
+  for (i = 0; i < length; i += 2)
+    {
+      gint high = g_ascii_xdigit_value (subject[i]);
+      gint low = g_ascii_xdigit_value (subject[i + 1]);
+      gchar value;
+
+      if (high < 0 || low < 0)
+        return NULL;
+
+      value = (high << 4) | low;
+      if (value == '\0')
+        return NULL;
+
+      decoded[i / 2] = value;
+    }
+
+  decoded[length / 2] = '\0';
+  return g_steal_pointer (&decoded);
+}
+
+static gboolean
+lookup_user_uid (const gchar *user,
+                 uid_t *uid)
+{
+  struct passwd *pwd = getpwnam (user);
+
+  if (!pwd)
+    return FALSE;
+
+  *uid = pwd->pw_uid;
+  return TRUE;
+}
+
+gboolean
+cockpit_web_service_authorize_user_matches_subject (const gchar *user,
+                                                    const gchar *subject,
+                                                    CockpitAuthorizeLookupUserUidFunc lookup_uid)
+{
+  g_autofree gchar *subject_user = NULL;
+  g_autofree char *encoded = NULL;
+  uid_t user_uid;
+  uid_t subject_uid;
+
+  encoded = cockpit_hex_encode (user, -1);
+  if (g_str_equal (encoded, subject))
+    return TRUE;
+
+  subject_user = decode_authorize_subject (subject);
+  if (!subject_user || !lookup_uid)
+    return FALSE;
+
+  /*
+   * PAM can accept aliases that NSS canonicalizes differently.  Keep the
+   * authorize protocol string-based, but accept aliases that resolve to the
+   * same Unix identity.
+   */
+  return lookup_uid (user, &user_uid) &&
+         lookup_uid (subject_user, &subject_uid) &&
+         user_uid == subject_uid;
+}
+
 static gboolean
 authorize_check_user (CockpitCreds *creds,
                       const char *challenge)
@@ -464,20 +537,7 @@ authorize_check_user (CockpitCreds *creds,
         }
       else
         {
-          char *encoded = cockpit_hex_encode (user, -1);
-          ret = g_str_equal (encoded, subject);
-          free (encoded);
-
-          /* domain users are often case insensitive, while NSS/Linux converts them to the canonical lower-case form;
-           * accept the lower-case form of the creds user as well */
-          if (!ret)
-            {
-              gchar *user_lower = g_ascii_strdown (user, -1);
-              encoded = cockpit_hex_encode (user_lower, -1);
-              free (user_lower);
-              ret = g_str_equal (encoded, subject);
-              free (encoded);
-            }
+          ret = cockpit_web_service_authorize_user_matches_subject (user, subject, lookup_user_uid);
         }
     }
 

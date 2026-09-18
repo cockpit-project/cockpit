@@ -94,7 +94,9 @@ main (int argc, char **argv)
   if (!runtimedir)
     errx (EXIT_FAILURE, "$RUNTIME_DIRECTORY environment variable must be set to a private directory");
 
-  server_init ("/run/cockpit/wsinstance", runtimedir, arguments.idle_timeout, arguments.port);
+  unsigned int max_connections = cockpit_conf_uint ("WebService", "MaxConcurrentConnections", 500, 10, UINT_MAX);
+
+  server_init ("/run/cockpit/wsinstance", runtimedir, arguments.idle_timeout, arguments.port, max_connections);
 
   if (!arguments.no_tls)
     {

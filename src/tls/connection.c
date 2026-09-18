@@ -426,7 +426,8 @@ connection_connect_to_dynamic_wsinstance (Connection *self)
   if (af_unix_connectat (self->ws_fd, parameters.wsinstance_sockdir, sockname) == 0)
     return true;
 
-  if (errno != ENOENT && errno != ECONNREFUSED)
+  /* EACCES: systemd does not atomically set the socket's permissions before we try to connect to it */
+  if (errno != ENOENT && errno != ECONNREFUSED && errno != EACCES)
     warn ("connect(%s) failed on the first attempt", sockname);
 
   debug (CONNECTION, "  -> failed (%m).  Requesting activation.");

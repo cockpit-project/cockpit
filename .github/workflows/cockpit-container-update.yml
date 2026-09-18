@@ -1,0 +1,35 @@
+name: cockpit-container-update
+on:
+  schedule:
+    - cron: '0 4 * * 1'
+  # can be run manually on https://github.com/cockpit-project/cockpit/actions
+  workflow_dispatch:
+jobs:
+  cockpit-container-update:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/cockpit-project/tasks
+      options: --user root
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Set up configuration and secrets
+        run: |
+          printf '[user]\n\tname = Cockpit Project\n\temail=cockpituous@gmail.com\n' > ~/.gitconfig
+          mkdir ~/.config
+          echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/github-token
+
+      # https://github.blog/2022-04-12-git-security-vulnerability-announced/
+      - name: Pacify git's permission check
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          git config --global --add safe.directory /__w/${REPO_NAME}/${REPO_NAME}
+
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Run cockpit-container-update
+        run: |
+          ./test/common/make-bots
+          bots/cockpit-container-update containers/ws/Containerfile

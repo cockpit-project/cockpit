@@ -519,6 +519,7 @@ class Browser:
         altKey: bool = False,
         metaKey: bool = False,
         scrollVisible: bool = True,
+        synthetic: bool = False,
     ) -> None:
         """Do a mouse event in the browser.
 
@@ -538,7 +539,13 @@ class Browser:
 
         # TODO: x and y are not currently implemented: webdriver (0, 0) is the element's center, not top left corner
         # in these cases, use the old MouseEvent emulation
-        if x is not None or y is not None or (self.browser == "chromium" and self.chromium_fake_mouse):
+        if x is not None or y is not None:
+            synthetic = True
+
+        if self.browser == "chromium" and self.chromium_fake_mouse:
+            synthetic = True
+
+        if synthetic:
             self.call_js_func('ph_mouse', selector, event, x or 0, y or 0, btn, ctrlKey, shiftKey, altKey, metaKey)
             return
 
@@ -1092,9 +1099,9 @@ class Browser:
             # happens when cockpit is still running
             self.open_session_menu()
             try:
-                # HACK: scrolling into view sometimes triggers TopNav's handleClickOutside() hack
-                # we don't need it here, if the session menu is visible then so is the dropdown
-                self.mouse('#logout', "click", scrollVisible=False)
+                # HACK: real events seem to get lost occasionally, so
+                # let's use the more reliable synthetic ones.
+                self.mouse('#logout', "click", synthetic=True)
             except RuntimeError as e:
                 # logging out does destroy the current frame context, it races with the driver finishing the command
                 if "Execution context was destroyed" not in str(e):

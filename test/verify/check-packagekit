@@ -61,7 +61,8 @@ class TestUpdates(NoSubManCase):
 
     def check_nth_update(self, index: int, pkgname: list[str] | str, version: str, severity: str = "bug",
                          num_issues: 'int | None' = None, desc_matches: Collection[str] = (),
-                         cves: Collection[str] = (), bugs: Collection[str] = (), arch: 'str | None' = None) -> str:
+                         cves: Collection[str] = (), bugs: Collection[str] = (), arch: 'str | None' = None,
+                         absent_anchor_attributes: Collection[str] = ()) -> str:
         """Check the contents of the package update table row at index
 
         None properties will not be tested.
@@ -99,6 +100,9 @@ class TestUpdates(NoSubManCase):
         # details should contain all description bits, CVEs and bug numbers
         for m in (*desc_matches, *cves, *bugs):
             self.assertIn(m, desc)
+
+        for absent_anchor in absent_anchor_attributes:
+            self.assertIsNone(b.attr(f"{row} [data-label='Details'] a", absent_anchor))
 
         return row
 
@@ -807,10 +811,12 @@ ExecStart=/usr/local/bin/{packageName}
         # security fix with parsing from changes
         self.createPackage("secparse", "4", "1", install=True)
         self.createPackage("secparse", "4", "2", changes="Fix CVE-2014-54321 and CVE-2017-9999.")
-        # security fix with RHEL severity and errata
+        # security fix with RHEL severity, errata and XSS
         self.createPackage("sevcritical", "5", "1", install=True)
         self.createPackage("sevcritical", "5", "2", cves=["CVE-2014-54321"], securitySeverity="critical",
-                           errata=["RHSA-2000:0001", "RHSA-2000:0002"], changes="More broken stuff")
+                           errata=["RHSA-2000:0001", "RHSA-2000:0002"],
+                           invalid_cves=["javascript:alert(document.cookie)", "https://example.com"],
+                           changes='See [malicious link](https://example.invalid/"onmouseover="alert(document.domain)) for info')
 
         self.enableRepo(refresh_repo=True)
 
@@ -831,8 +837,20 @@ ExecStart=/usr/local/bin/{packageName}
         self.check_nth_update(2, "secparse", "4-2", "security", 2,
                               desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."],
                               cves=["CVE-2014-54321", "CVE-2017-9999"])
-        sel = self.check_nth_update(3, "sevcritical", "5-2", "security", 1,
-                                    desc_matches=["More broken stuff"])
+        apt_based = m.image.startswith(("debian-", "ubuntu-"))
+        # We cannot insert example.com as an url in apts' changelog format only accepts cve ids or issues,
+        # so it does not appear in the UI.
+        sel = self.check_nth_update(3, "sevcritical", "5-2", "security", 1 if apt_based else 2,
+                                    desc_matches=["See malicious link for info"],
+                                    absent_anchor_attributes=["onmouseover"])  # onmouseover does not survive our sanitization
+        # Malicious cve urls don't end up being rendered
+        # PackageKit parses the apt changelog and constructs CVE urls from it, so we can't insert a malicious javascript: uri
+        if apt_based:
+            b.wait_in_text(sel, "javascript:alert")
+            b.wait_not_present(f"{sel} a[href='javascript:alert(document.cookie)']")
+        else:
+            self.assertIsNone(b.attr(f"{sel} a[href='https://example.com']", "onmouseover"))
+            b.wait_not_in_text(sel, "javascript:alert")
 
         # buggy: bug refs, no security
         sel = self.check_nth_update(4, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])

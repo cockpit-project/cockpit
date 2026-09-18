@@ -197,7 +197,7 @@ function getPageStatusSeverityIcon(severity) {
 }
 
 function getSeverityURL(urls) {
-    if (!urls)
+    if (urls.length === 0)
         return null;
 
     // in ascending severity
@@ -218,31 +218,46 @@ function getSeverityURL(urls) {
     return highestURL;
 }
 
+function isSafeUrl(href) {
+    try {
+        const url = new URL(href);
+        return ["https:", "http:"].includes(url.protocol);
+    } catch {
+        return false;
+    }
+}
+
 // Overrides the link_open function to apply our required HTML attributes
 function customRemarkable() {
     const remarkable = new Remarkable();
 
-    const orig_link_open = remarkable.renderer.rules.link_open;
-    remarkable.renderer.rules.link_open = function() {
-        let result = orig_link_open.apply(null, arguments);
+    remarkable.renderer.rules.link_open = function(tokens, idx) {
+        try {
+            const url = tokens[idx].href;
+            if (!isSafeUrl(url))
+                return "<a>";
 
-        const parser = new DOMParser();
-        const htmlDocument = parser.parseFromString(result, "text/html");
-        const links = htmlDocument.getElementsByTagName("a");
-        if (links.length === 1) {
-            const href = links[0].getAttribute("href");
-            result = `<a rel="noopener noreferrer" target="_blank" href="${href}">`;
+            const a = document.createElement("a");
+            a.setAttribute("href", url);
+            a.rel = "noopener noreferrer";
+            a.target = "_blank";
+            return a.outerHTML.replace("</a>", "");
+        } catch {
+            return "<a>";
         }
-        return result;
     };
     return remarkable;
 }
 
 function updateItem(remarkable, info, pkgNames, key) {
+    const bug_urls = (info.bug_urls || []).filter(isSafeUrl);
+    const cve_urls = (info.cve_urls || []).filter(isSafeUrl);
+    const vendor_urls = (info.vendor_urls || []).filter(isSafeUrl);
+
     let bugs = null;
-    if (info.bug_urls && info.bug_urls.length) {
+    if (bug_urls.length > 0) {
         // we assume a bug URL ends with a number; if not, show the complete URL
-        bugs = insertCommas(info.bug_urls.map(url => (
+        bugs = insertCommas(bug_urls.map(url => (
             <a key={url} rel="noopener noreferrer" target="_blank" href={url}>
                 {url.match(/[0-9]+$/) || url}
             </a>)
@@ -250,8 +265,8 @@ function updateItem(remarkable, info, pkgNames, key) {
     }
 
     let cves = null;
-    if (info.cve_urls && info.cve_urls.length) {
-        cves = insertCommas(info.cve_urls.map(url => (
+    if (cve_urls.length > 0) {
+        cves = insertCommas(cve_urls.map(url => (
             <a key={url} href={url} rel="noopener noreferrer" target="_blank">
                 {url.match(/[^/=]+$/)}
             </a>)
@@ -259,8 +274,8 @@ function updateItem(remarkable, info, pkgNames, key) {
     }
 
     let errata = null;
-    if (info.vendor_urls) {
-        errata = insertCommas(info.vendor_urls.filter(url => url.indexOf("/errata/") > 0).map(url => (
+    if (vendor_urls.length > 0) {
+        errata = insertCommas(vendor_urls.filter(url => url.indexOf("/errata/") > 0).map(url => (
             <a key={url} href={url} rel="noopener noreferrer" target="_blank">
                 {url.match(/[^/=]+$/)}
             </a>)
@@ -269,7 +284,7 @@ function updateItem(remarkable, info, pkgNames, key) {
             errata = null; // simpler testing below
     }
 
-    let secSeverityURL = getSeverityURL(info.vendor_urls);
+    let secSeverityURL = getSeverityURL(vendor_urls);
     const secSeverity = secSeverityURL ? secSeverityURL.slice(secSeverityURL.indexOf("#") + 1) : null;
     const icon = getSeverityIcon(info.severity, secSeverity);
     let type;
@@ -280,7 +295,7 @@ function updateItem(remarkable, info, pkgNames, key) {
             <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
                 <span>
                     {icon}
-                    { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
+                    { cve_urls.length > 0 && cve_urls.length}
                 </span>
             </Tooltip>
         );
@@ -290,7 +305,7 @@ function updateItem(remarkable, info, pkgNames, key) {
             <Tooltip id="tip-severity" content={tip}>
                 <span>
                     {icon}
-                    { bugs ? info.bug_urls.length : "" }
+                    { bug_urls.length > 0 && bug_urls.length }
                 </span>
             </Tooltip>
         );

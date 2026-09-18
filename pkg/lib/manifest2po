@@ -85,7 +85,7 @@ def main() -> None:
     with open(args.output, 'w') as fp:
         fp.write(PO_HEADER)
         for msgid in strings:
-            manifest_filenames = ' '.join([f'{fname}:0' for fname in strings[msgid]])
+            manifest_filenames = ' '.join([f'{fname}:0' for fname in sorted(strings[msgid])])
             fp.write(f"\n#: {manifest_filenames}\n")
             fp.write(f'msgid "{msgid}"\n')
             fp.write('msgstr ""\n')

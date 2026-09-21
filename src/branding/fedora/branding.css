@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
+
+/* @import must precede all other rules per CSS spec */
+@import url("anaconda-branding.css");
+
 #badge {
     inline-size: 225px;
     block-size: 80px;
@@ -12,11 +16,6 @@
 }
 
 .anaconda {
-    /* Brand palette */
-    --brand-default-light: #51a2da;
-    --brand-default: #3c6eb4;
-    --brand-default-dark: #294172;
-
     .logo {
         background-image: url("logo.png");
     }

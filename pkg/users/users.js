@@ -29,14 +29,11 @@ superuser.reload_page_on_change();
 export const admins = ['sudo', 'root', 'wheel'];
 const sortGroups = groups => {
     return groups.sort((a, b) => {
-        if (a.isAdmin)
+        if (a.isAdmin && !b.isAdmin)
             return -1;
-        if (b.isAdmin)
+        if (!a.isAdmin && b.isAdmin)
             return 1;
-        if (a.members === b.members)
-            return a.name.localeCompare(b.name);
-        else
-            return b.members - a.members;
+        return a.name.localeCompare(b.name);
     });
 };
 

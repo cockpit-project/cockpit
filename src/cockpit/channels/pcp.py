@@ -365,7 +365,10 @@ class PcpMetricsChannel(AsyncChannel):
 
                     for j in range(results.contents.get_numval(i)):
                         value = results.contents.get_vlist(i, j)
-                        instance_desc = context.pmNameInDom(metric_desc.desc, value.inst)
+                        try:
+                            instance_desc = context.pmNameInDom(metric_desc.desc, value.inst)
+                        except pmapi.pmErr:
+                            instance_desc = f"[{value.inst}]"
                         insts.append(instance_desc)
 
                 desc['instances'] = insts

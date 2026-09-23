@@ -1883,7 +1883,7 @@ class MachineCase(unittest.TestCase):
         self.multihost_enabled = image.startswith(("rhel-9", "centos-9"))
 
         # sudo-rs behaves quite differently, tests need to adapt
-        self.has_sudo_rs = image.startswith("ubuntu") and image not in ["ubuntu-stable"]
+        self.has_sudo_rs = image.startswith("ubuntu")
 
     def nonDestructiveSetup(self) -> None:
         """generic setUp/tearDown for @nondestructive tests"""

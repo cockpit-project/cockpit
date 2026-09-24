@@ -107,6 +107,7 @@ def login(self):
         self.login_and_go("/metrics")
 
 
+@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 @testlib.skipDistroPackage()
 class TestHistoryMetrics(testlib.MachineCase):
     def setUp(self):
@@ -1271,6 +1272,7 @@ BEGIN {{
 
 
 @testlib.skipImage("TODO: Arch Linux packagekit support", "arch")
+@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 @testlib.skipDistroPackage()
 class TestMetricsPackages(packagelib.PackageCase):
     # HACK: PF modal can have multiple id's in certain scenario's https://github.com/patternfly/patternfly-react/issues/9399
@@ -1386,6 +1388,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         self.assertIn("redis", m.execute("systemctl show -p Wants --value pmproxy").strip())
 
 
+@testlib.skipImage("FIXME: python3-pcp not currently on image", "rhel-8-10")
 @testlib.skipDistroPackage()
 class TestMultiCPU(testlib.MachineCase):
 

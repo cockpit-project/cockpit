@@ -46,26 +46,26 @@ function find_blocks_for_mount_point(client, mount_point, self_block, self_subvo
     function same_btrfs_volume(a, b) {
         return (client.blocks_fsys_btrfs[a.path] &&
                 client.blocks_fsys_btrfs[b.path] &&
-                client.blocks_fsys_btrfs[a.path].data.uuid == client.blocks_fsys_btrfs[b.path].data.uuid);
+                client.blocks_fsys_btrfs[a.path].data.uuid === client.blocks_fsys_btrfs[b.path].data.uuid);
     }
 
     function same_btrfs_subvol(a, b) {
         return (a && b &&
-                ((a.pathname && a.pathname == b.pathname) ||
-                 (a.id && a.id == b.id)));
+                ((a.pathname && a.pathname === b.pathname) ||
+                 (a.id && a.id === b.id)));
     }
 
     function is_self(b, subvol) {
         if (client.blocks_fsys_btrfs[self_block.path])
             return same_btrfs_volume(b, self_block) && same_btrfs_subvol(subvol, self_subvol);
         else
-            return self_block && (b == self_block || client.blocks[b.CryptoBackingDevice] == self_block);
+            return self_block && (b === self_block || client.blocks[b.CryptoBackingDevice] === self_block);
     }
 
     function fmt_block_and_subvol(block, subvol) {
         if (subvol)
             return cockpit.format(_("btrfs subvolume $0 of $1"),
-                                  (subvol.pathname == "/" || subvol.id == 5) ? "top-level" : subvol.pathname || subvol.id,
+                                  (subvol.pathname === "/" || subvol.id === 5) ? "top-level" : subvol.pathname || subvol.id,
                                   block.IdLabel || block.IdUUID);
         else
             return nice_block_name(block);
@@ -77,12 +77,12 @@ function find_blocks_for_mount_point(client, mount_point, self_block, self_subvo
     for (const p in client.blocks) {
         const b = client.blocks[p];
         for (const c of b.Configuration) {
-            if (c[0] == "fstab") {
+            if (c[0] === "fstab") {
                 let dir = decode_filename(c[1].dir.v);
-                if (dir[0] != "/")
+                if (dir[0] !== "/")
                     dir = "/" + dir;
                 const subvol = parse_subvol_from_options(decode_filename(c[1].opts.v));
-                if (dir == mount_point && !is_self(b, subvol)) {
+                if (dir === mount_point && !is_self(b, subvol)) {
                     if (!seen_uuids[b.IdUUID]) {
                         seen_uuids[b.IdUUID] = true;
                         blocks.push(fmt_block_and_subvol(b, subvol));
@@ -121,11 +121,11 @@ export function is_valid_mount_point(client, block, val, will_not_mount, allow_e
 }
 
 export function get_cryptobacking_noauto(client, block) {
-    const crypto_backing = block.IdUsage == "crypto" ? block : client.blocks[block.CryptoBackingDevice];
+    const crypto_backing = block.IdUsage === "crypto" ? block : client.blocks[block.CryptoBackingDevice];
     if (!crypto_backing)
         return false;
 
-    const crypto_config = crypto_backing.Configuration.find(c => c[0] == "crypttab");
+    const crypto_config = crypto_backing.Configuration.find(c => c[0] === "crypttab");
     if (!crypto_config)
         return false;
 
@@ -181,7 +181,7 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
                 extra_text = _("The filesystem has no permanent mount point.");
             else
                 extra_text = _("The filesystem is not mounted.");
-        } else if (backing_block != content_block) {
+        } else if (backing_block !== content_block) {
             if (!opt_never_auto)
                 extra_text = _("The filesystem will be unlocked and mounted on the next boot. This might require inputting a passphrase.");
         }
@@ -216,7 +216,7 @@ export const mount_point_text = (mount_point, mounted) => {
     let mp_text;
     if (mount_point) {
         mp_text = client.strip_mount_point_prefix(mount_point);
-        if (mp_text == false)
+        if (mp_text === false)
             return null;
         if (!mounted && !client.in_anaconda_mode())
             mp_text = mp_text + " " + _("(not mounted)");

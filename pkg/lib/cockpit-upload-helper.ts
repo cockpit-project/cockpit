@@ -10,7 +10,7 @@ const BLOCK_SIZE = 16 << 10; // 16kiB
 const FLOW_WINDOW = 2 << 20; // 2MiB
 
 function debug(...args: unknown[]) {
-    if (window.debugging == 'all' || window.debugging?.includes('upload'))
+    if (window.debugging === 'all' || window.debugging?.includes('upload'))
         console.debug('upload', ...args);
 }
 

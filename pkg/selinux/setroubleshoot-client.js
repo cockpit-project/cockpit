@@ -39,7 +39,7 @@ client.init = function() {
     client.alertCallback = null;
 
     function handleSignal(event, name, args) {
-        if (client.alertCallback && name == "alert") {
+        if (client.alertCallback && name === "alert") {
             const level = args[0];
             const localId = args[1];
             client.alertCallback(level, localId);

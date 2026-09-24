@@ -90,7 +90,7 @@ export async function unlock_with_type(client, block, passphrase, passphrase_typ
     let luksname = null;
 
     for (const c of block.Configuration) {
-        if (c[0] == "crypttab") {
+        if (c[0] === "crypttab") {
             const options = parse_options(decode_filename(c[1].options.v));
             readonly = extract_option(options, "readonly") || extract_option(options, "read-only");
             luksname = decode_filename(c[1].name.v);
@@ -106,9 +106,9 @@ export async function unlock_with_type(client, block, passphrase, passphrase_typ
     if (passphrase) {
         await crypto.Unlock(passphrase, unlock_options);
         remember_passphrase(block, passphrase);
-    } else if (passphrase_type == "stored") {
+    } else if (passphrase_type === "stored") {
         await crypto.Unlock("", unlock_options);
-    } else if (passphrase_type == "clevis") {
+    } else if (passphrase_type === "clevis") {
         await clevis_unlock(client, block, luksname, readonly);
     } else {
         // This should always be caught and should never show up in the UI
@@ -171,13 +171,13 @@ export function existing_passphrase_fields(explanation) {
 }
 
 function get_stored_passphrase(block, just_type) {
-    const pub_config = block.Configuration.find(c => c[0] == "crypttab");
-    if (pub_config && pub_config[1]["passphrase-path"] && decode_filename(pub_config[1]["passphrase-path"].v) != "") {
+    const pub_config = block.Configuration.find(c => c[0] === "crypttab");
+    if (pub_config && pub_config[1]["passphrase-path"] && decode_filename(pub_config[1]["passphrase-path"].v) !== "") {
         if (just_type)
             return Promise.resolve("stored");
         return block.GetSecretConfiguration({}).then(function (items) {
             for (let i = 0; i < items.length; i++) {
-                if (items[i][0] == 'crypttab' && items[i][1]['passphrase-contents'])
+                if (items[i][0] === 'crypttab' && items[i][1]['passphrase-contents'])
                     return decode_filename(items[i][1]['passphrase-contents'].v);
             }
             return "";
@@ -239,9 +239,9 @@ function ensure_package_installed(steps, progress, package_name) {
                 text = _("Waiting for other software management operations to finish");
             } else if (p.package) {
                 let fmt;
-                if (p.info == InstallProgressType.DOWNLOADING)
+                if (p.info === InstallProgressType.DOWNLOADING)
                     fmt = _("Downloading $0");
-                else if (p.info == InstallProgressType.REMOVING)
+                else if (p.info === InstallProgressType.REMOVING)
                     fmt = _("Removing $0");
                 else
                     fmt = _("Installing $0");
@@ -276,7 +276,7 @@ function ensure_package_installed(steps, progress, package_name) {
                 steps.push({
                     title: cockpit.format(_("The $0 package must be installed."), package_name),
                     func: progress => {
-                        if (error.problem == "not-found") {
+                        if (error.problem === "not-found") {
                             return Promise.reject(cockpit.format(_("Error installing $0: PackageKit or dnf5daemon-server is not installed"), package_name));
                         } else {
                             return Promise.reject(cockpit.format(_("Unexpected PackageManager error during installation of $0: $1"), package_name, error.toString())); // not-covered: OS error
@@ -319,8 +319,8 @@ function ensure_fstab_option(steps, progress, client, block, option) {
     const cleartext = client.blocks_cleartext[block.path];
     const crypto = client.blocks_crypto[block.path];
     const fsys_config = cleartext
-        ? cleartext.Configuration.find(c => c[0] == "fstab")
-        : crypto?.ChildConfiguration.find(c => c[0] == "fstab");
+        ? cleartext.Configuration.find(c => c[0] === "fstab")
+        : crypto?.ChildConfiguration.find(c => c[0] === "fstab");
     const fsys_options = fsys_config && parse_options(get_block_mntopts(fsys_config[1]));
 
     if (!fsys_options || fsys_options.indexOf(option) >= 0)
@@ -342,7 +342,7 @@ function ensure_fstab_option(steps, progress, client, block, option) {
 }
 
 function ensure_crypto_option(steps, progress, client, block, option) {
-    const crypto_config = block.Configuration.find(c => c[0] == "crypttab");
+    const crypto_config = block.Configuration.find(c => c[0] === "crypttab");
     const crypto_options = crypto_config && parse_options(decode_filename(crypto_config[1].options.v));
     if (!crypto_options || crypto_options.indexOf(option) >= 0)
         return Promise.resolve();
@@ -359,7 +359,7 @@ function ensure_systemd_unit_enabled(steps, progress, name, package_name) {
     progress(cockpit.format(_("Enabling $0"), name));
     return cockpit.spawn(["systemctl", "is-enabled", name], { err: "message" })
             .catch((err, output) => {
-                if (err && (output == "" || output.trim() == "not-found") && package_name) {
+                if (err && (output === "" || output.trim() === "not-found") && package_name) {
                     // We assume that installing the package will enable the unit.
                     return ensure_package_installed(steps, progress, package_name);
                 } else
@@ -440,23 +440,23 @@ function add_dialog(client, block) {
             Skip("medskip"),
             PassInput("new_passphrase", _("New passphrase"),
                       {
-                          visible: vals => !client.features.clevis || vals.type == "luks-passphrase",
+                          visible: vals => !client.features.clevis || vals.type === "luks-passphrase",
                           validate: val => !val.length && _("Passphrase cannot be empty"),
                           new_password: true
                       }),
             PassInput("new_passphrase2", _("Repeat passphrase"),
                       {
-                          visible: vals => !client.features.clevis || vals.type == "luks-passphrase",
+                          visible: vals => !client.features.clevis || vals.type === "luks-passphrase",
                           validate: (val, vals) => {
                               return (vals.new_passphrase.length &&
-                                                        vals.new_passphrase != val &&
+                                                        vals.new_passphrase !== val &&
                                                         _("Passphrases do not match"));
                           },
                           new_password: true
                       }),
             TextInput("tang_url", _("Keyserver address"),
                       {
-                          visible: vals => client.features.clevis && vals.type == "tang",
+                          visible: vals => client.features.clevis && vals.type === "tang",
                           validate: validate_url
                       })
         ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
@@ -464,7 +464,7 @@ function add_dialog(client, block) {
             Title: _("Add"),
             action: function (vals, progress) {
                 const existing_passphrase = vals.passphrase || recovered_passphrase;
-                if (!client.features.clevis || vals.type == "luks-passphrase") {
+                if (!client.features.clevis || vals.type === "luks-passphrase") {
                     return passphrase_add(block, vals.new_passphrase, existing_passphrase);
                 } else {
                     return get_tang_adv(vals.tang_url)
@@ -495,7 +495,7 @@ function edit_passphrase_dialog(block, key) {
                       }),
             PassInput("new_passphrase2", _("Repeat passphrase"),
                       {
-                          validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match"),
+                          validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase !== val && _("Passphrases do not match"),
                           new_password: true
                       })
         ],
@@ -665,13 +665,13 @@ export class CryptoKeyslots extends React.Component {
     render() {
         const { client, block, slots, slot_error, max_slots } = this.props;
 
-        if ((slots == null && slot_error == null) || slot_error == "not-found")
+        if ((slots === null && slot_error === null) || slot_error === "not-found")
             return null;
 
         function decode_clevis_slot(slot) {
             if (slot.ClevisConfig) {
                 const clevis = JSON.parse(slot.ClevisConfig.v);
-                if (clevis.pin && clevis.pin == "tang" && clevis.tang) {
+                if (clevis.pin && clevis.pin === "tang" && clevis.tang) {
                     return {
                         slot: slot.Index.v,
                         type: "tang",
@@ -695,10 +695,10 @@ export class CryptoKeyslots extends React.Component {
         const keys = slots ? slots.map(decode_clevis_slot).filter(k => !!k) : [];
 
         let table;
-        if (keys.length == 0) {
+        if (keys.length === 0) {
             let text;
             if (slot_error) {
-                if (slot_error.problem == "access-denied")
+                if (slot_error.problem === "access-denied")
                     text = _("The currently logged in user is not permitted to see information about keys.");
                 else
                     text = slot_error.toString();
@@ -725,7 +725,7 @@ export class CryptoKeyslots extends React.Component {
                                 ariaLabel={_("Edit")}
                                 excuse={
                                     edit_excuse ||
-                                        ((keys.length == max_slots)
+                                        ((keys.length === max_slots)
                                             ? _("Editing a key requires a free slot")
                                             : null)
                                 }
@@ -735,7 +735,7 @@ export class CryptoKeyslots extends React.Component {
                             { "\n" }
                             <StorageButton onClick={remove}
                                 ariaLabel={_("Remove")}
-                                excuse={keys.length == 1 ? _("The last key slot can not be removed") : null}>
+                                excuse={keys.length === 1 ? _("The last key slot can not be removed") : null}>
                                 <MinusIcon />
                             </StorageButton>
                         </Td>
@@ -744,12 +744,12 @@ export class CryptoKeyslots extends React.Component {
             };
 
             keys.sort((a, b) => a.slot - b.slot).forEach(key => {
-                if (key.type == "luks-passphrase") {
+                if (key.type === "luks-passphrase") {
                     add_row(key.slot,
                             _("Passphrase"), "",
                             () => edit_passphrase_dialog(block, key), null,
                             () => remove_passphrase_dialog(block, key));
-                } else if (key.type == "tang") {
+                } else if (key.type === "tang") {
                     add_row(key.slot,
                             _("Keyserver"), key.url,
                             () => edit_clevis_dialog(client, block, key), null,
@@ -782,7 +782,7 @@ export class CryptoKeyslots extends React.Component {
                         </span>
                         <StorageButton onClick={() => add_dialog(client, block)}
                                            ariaLabel={_("Add")}
-                                           excuse={(keys.length == max_slots)
+                                           excuse={(keys.length === max_slots)
                                                ? _("No free key slots")
                                                : null}>
                             <PlusIcon />

@@ -120,7 +120,7 @@ QUnit.test("format_bytes", function (assert) {
             continue;
         }
 
-        const base2 = checks[i][1] == 1024;
+        const base2 = checks[i][1] === 1024;
         assert.strictEqual(cockpit.format_bytes(checks[i][0], { base2 }), checks[i][2],
                            f`format_bytes(${checks[i][0]}, ${{ base2 }})`);
     }
@@ -174,7 +174,7 @@ QUnit.test("format_bytes_per_sec", function (assert) {
             continue;
         }
 
-        const base2 = checks[i][1] == 1024;
+        const base2 = checks[i][1] === 1024;
         assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0], { base2, ...checks[i][2] }), checks[i][3],
                            f`format_bytes_per_sec(${checks[i][0]}, ${{ base2, ...checks[i][2] }})`);
     }

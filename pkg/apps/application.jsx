@@ -62,7 +62,7 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
 
     function render_homepage_link(urls) {
         return urls.map((url, index) => {
-            if (url.type == 'homepage') {
+            if (url.type === 'homepage') {
                 return (
                     <Button isInline variant="link" component='a' href={url.link}
                             key={"project-url-" + index}
@@ -86,9 +86,9 @@ export const Application = ({ metainfo_db, id, progress, action }) => {
             return <p>{_("No description provided.")}</p>;
 
         return description.map((paragraph, index) => {
-            if (paragraph.tag == 'ul') {
+            if (paragraph.tag === 'ul') {
                 return <ul key={`paragraph-${index}`}>{paragraph.items.map(item => <li key={item}>{item}</li>)}</ul>;
-            } else if (paragraph.tag == 'ol') {
+            } else if (paragraph.tag === 'ol') {
                 return <ol key={`paragraph-${index}`}>{paragraph.items.map(item => <li key={item}>{item}</li>)}</ol>;
             } else {
                 return <p key={`paragraph-${index}`}>{paragraph}</p>;

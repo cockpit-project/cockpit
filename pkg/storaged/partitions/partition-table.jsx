@@ -57,10 +57,10 @@ function make_partition_pages(parent, block) {
         let p;
         for (i = 0; i < partitions.length; i++) {
             p = partitions[i];
-            if (p.type == 'free') {
+            if (p.type === 'free') {
                 register_available_free_space(client, block, p);
                 make_free_space_page(parent, p.start, p.size, enable_dos_extended);
-            } else if (p.type == 'container')
+            } else if (p.type === 'container')
                 make_extended_partition_page(parent, p);
             else {
                 const card = make_partition_card(null, p.block);
@@ -70,7 +70,7 @@ function make_partition_pages(parent, block) {
     }
 
     process_partitions(parent, get_partitions(client, block),
-                       block_ptable.Type == 'dos');
+                       block_ptable.Type === 'dos');
 }
 
 export function make_partition_table_page(parent, block, next_card, partitionable) {

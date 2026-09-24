@@ -88,17 +88,17 @@ function prepend_flush() {
 function jexpect(assert, label, expected) {
     function jequal(a, b) {
         if (a.day)
-            return a.day == b.day;
+            return a.day === b.day;
         else if (a.message)
-            return a.message == b.message && a.count == b.count;
+            return a.message === b.message && a.count === b.count;
         else if (a.reboot)
-            return a.reboot == b.reboot;
+            return a.reboot === b.reboot;
         else
             return false;
     }
 
     function check(expected) {
-        if (output.length != expected.length)
+        if (output.length !== expected.length)
             return false;
         for (let i = 0; i < output.length; i++)
             if (!jequal(output[i], expected[i]))

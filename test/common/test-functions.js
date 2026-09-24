@@ -110,7 +110,7 @@ window.ph_count = function(sel) {
 };
 
 window.ph_count_check = function(sel, expected_num) {
-    return (window.ph_count(sel) == expected_num);
+    return (window.ph_count(sel) === expected_num);
 };
 
 window.ph_val = function(sel) {
@@ -130,7 +130,7 @@ window.ph_set_val = function(sel, val) {
 };
 
 window.ph_has_val = function(sel, val) {
-    return window.ph_val(sel) == val;
+    return window.ph_val(sel) === val;
 };
 
 window.ph_collected_text_is = function(sel, val) {
@@ -174,7 +174,7 @@ window.ph_set_attr = function(sel, attr, val) {
 };
 
 window.ph_has_attr = function(sel, attr, val) {
-    return window.ph_attr(sel, attr) == val;
+    return window.ph_attr(sel, attr) === val;
 };
 
 window.ph_attr_contains = function(sel, attr, val) {
@@ -186,7 +186,7 @@ window.ph_mouse = function(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, meta
     const el = window.ph_find(sel);
 
     /* The element has to be visible, and not collapsed */
-    if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName != 'svg')
+    if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName !== 'svg')
         throw new Error(sel + " is not visible");
 
     /* The event has to actually work */
@@ -250,13 +250,13 @@ window.ph_set_checked = function(sel, val) {
     if (el.checked === undefined)
         throw new Error(sel + " is not checkable");
 
-    if (el.checked != val)
+    if (el.checked !== val)
         window.ph_mouse(sel, "click", 0, 0, 0);
 };
 
 window.ph_is_visible = function(sel) {
     const el = window.ph_find(sel);
-    return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(getComputedStyle(el).visibility == "hidden" || getComputedStyle(el).display == "none"));
+    return el.tagName === "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(getComputedStyle(el).visibility === "hidden" || getComputedStyle(el).display === "none"));
 };
 
 window.ph_is_present = function(sel) {
@@ -265,11 +265,11 @@ window.ph_is_present = function(sel) {
 };
 
 window.ph_in_text = function(sel, text) {
-    return window.ph_text(sel).indexOf(text) != -1;
+    return window.ph_text(sel).indexOf(text) !== -1;
 };
 
 window.ph_text_is = function(sel, text) {
-    return window.ph_text(sel) == text;
+    return window.ph_text(sel) === text;
 };
 
 window.ph_text_matches = function(sel, pattern) {
@@ -399,7 +399,7 @@ window.ph_count_animations = function(sel) {
 window.ph_set_texts = function(new_texts) {
     for (const sel in new_texts) {
         const elts = window.ph_select(sel);
-        if (elts.length == 0)
+        if (elts.length === 0)
             throw new Error(sel + " not found");
         for (let elt of elts) {
             // We have to be careful to not replace any actual nodes
@@ -415,13 +415,13 @@ window.ph_set_texts = function(new_texts) {
             //
             // However, for convenience, this function digs into
             // elements that have exactly one other child element.
-            while (elt.children.length == 1)
+            while (elt.children.length === 1)
                 elt = elt.children[0];
-            if (elt.children.length != 0)
+            if (elt.children.length !== 0)
                 throw new Error(sel + " can not be mocked since it contains more than text");
             let subst = new_texts[sel];
             for (const n of elt.childNodes) {
-                if (n.nodeType == 3) { // 3 == TEXT
+                if (n.nodeType === 3) { // 3 === TEXT
                     n.data = subst;
                     subst = "";
                 }

@@ -58,12 +58,12 @@ function get_rw_mount_point_in_parent(volume, subvol) {
         return null;
 
     for (const p of subvols) {
-        const has_parent_subvol = (p.pathname == "/" && subvol.pathname !== "/") ||
-                                  (subvol.pathname.substring(0, p.pathname.length) == p.pathname &&
-                                   subvol.pathname[p.pathname.length] == "/");
+        const has_parent_subvol = (p.pathname === "/" && subvol.pathname !== "/") ||
+                                  (subvol.pathname.substring(0, p.pathname.length) === p.pathname &&
+                                   subvol.pathname[p.pathname.length] === "/");
         const parent_rw_mp = get_rw_mount_point(volume, p);
         if (has_parent_subvol && parent_rw_mp) {
-            if (p.pathname == "/") {
+            if (p.pathname === "/") {
                 return parent_rw_mp + "/" + subvol.pathname;
             } else {
                 return parent_rw_mp + subvol.pathname.substring(p.pathname.length);
@@ -75,27 +75,27 @@ function get_rw_mount_point_in_parent(volume, subvol) {
 
 function set_mount_options(subvol, block, vals) {
     const mount_options = [];
-    const mount_now = vals.variant != "nomount";
+    const mount_now = vals.variant !== "nomount";
 
-    if (!mount_now || vals.at_boot == "never") {
+    if (!mount_now || vals.at_boot === "never") {
         mount_options.push("noauto");
     }
     if (vals.mount_options?.ro)
         mount_options.push("ro");
-    if (vals.at_boot == "never")
+    if (vals.at_boot === "never")
         mount_options.push("x-cockpit-never-auto");
-    if (vals.at_boot == "nofail")
+    if (vals.at_boot === "nofail")
         mount_options.push("nofail");
-    if (vals.at_boot == "netdev")
+    if (vals.at_boot === "netdev")
         mount_options.push("_netdev");
 
-    const name = (subvol.pathname == "/" ? vals.name : subvol.pathname + "/" + vals.name);
+    const name = (subvol.pathname === "/" ? vals.name : subvol.pathname + "/" + vals.name);
     mount_options.push("subvol=" + name);
     if (vals.mount_options?.extra)
         mount_options.push(vals.mount_options.extra);
 
     let mount_point = vals.mount_point;
-    if (mount_point[0] != "/")
+    if (mount_point[0] !== "/")
         mount_point = "/" + mount_point;
     mount_point = client.add_mount_point_prefix(mount_point);
 
@@ -150,7 +150,7 @@ function subvolume_create(volume, subvol) {
                               return is_valid_mount_point(client,
                                                           block,
                                                           client.add_mount_point_prefix(val),
-                                                          variant == "nomount");
+                                                          variant === "nomount");
                           }
                       }),
             mount_options(false, false),
@@ -168,7 +168,7 @@ function subvolume_create(volume, subvol) {
                 else {
                     await btrfs_tool(["do", volume.data.uuid,
                         "btrfs", "subvolume", "create",
-                        subvol.pathname == "/" ? vals.name : subvol.pathname + "/" + vals.name
+                        subvol.pathname === "/" ? vals.name : subvol.pathname + "/" + vals.name
                     ]);
                 }
                 await btrfs_poll();
@@ -188,9 +188,9 @@ function subvolume_delete(volume, subvol, card) {
     function get_direct_subvol_children(subvol) {
         function is_direct_parent(sv) {
             return (sv.pathname.length > subvol.pathname.length &&
-                        sv.pathname.substring(0, subvol.pathname.length) == subvol.pathname &&
-                        sv.pathname[subvol.pathname.length] == "/" &&
-                        sv.pathname.substring(subvol.pathname.length + 1).indexOf("/") == -1);
+                        sv.pathname.substring(0, subvol.pathname.length) === subvol.pathname &&
+                        sv.pathname[subvol.pathname.length] === "/" &&
+                        sv.pathname.substring(subvol.pathname.length + 1).indexOf("/") === -1);
         }
 
         return subvols.filter(is_direct_parent);
@@ -281,7 +281,7 @@ export function make_btrfs_subvolume_pages(parent, volume) {
         subvols = [{ pathname: "/", id: 5, fake_id: fake_id++ }];
         const subvols_by_pathname = { };
         for (const config of block.Configuration) {
-            if (config[0] == "fstab") {
+            if (config[0] === "fstab") {
                 const opts = config[1].opts;
                 if (!opts)
                     continue;
@@ -301,7 +301,7 @@ export function make_btrfs_subvolume_pages(parent, volume) {
             let dn = pn;
             while (true) {
                 dn = dirname(dn);
-                if (dn == "." || dn == "/") {
+                if (dn === "." || dn === "/") {
                     subvols_by_pathname[pn].parent = 5;
                     break;
                 } else if (subvols_by_pathname[dn]) {
@@ -312,7 +312,7 @@ export function make_btrfs_subvolume_pages(parent, volume) {
         }
     }
 
-    const root = subvols.find(s => s.id == 5);
+    const root = subvols.find(s => s.id === 5);
     if (root)
         make_btrfs_subvolume_page(parent, volume, root, "", subvols);
 }
@@ -328,7 +328,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
     const mismount_warning = check_mismounted_fsys(block, block, fstab_config, subvol);
     const mounted = is_mounted(client, block, subvol);
     const mp_text = mount_point_text(mount_point, mounted);
-    if (mp_text == null)
+    if (mp_text === null)
         return null;
     const forced_options = [`subvol=${subvol.pathname}`];
 
@@ -365,10 +365,10 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
     let create_excuse = "";
     let delete_excuse = "";
     if (!client.in_anaconda_mode()) {
-        if (!block_fsys || block_fsys.MountPoints.length == 0)
+        if (!block_fsys || block_fsys.MountPoints.length === 0)
             create_excuse = delete_excuse = _("At least one subvolume needs to be mounted");
-        else if (block_fsys && block_fsys.MountPoints.length == 1 &&
-            decode_filename(block_fsys.MountPoints[0]) == mount_point) {
+        else if (block_fsys && block_fsys.MountPoints.length === 1 &&
+            decode_filename(block_fsys.MountPoints[0]) === mount_point) {
             delete_excuse = _("The last mounted subvolume can not be deleted");
         }
     }

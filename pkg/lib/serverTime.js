@@ -141,8 +141,8 @@ export function ServerTime() {
                 client.notify(data);
             })
             .catch(error => {
-                if (error.name != "org.freedesktop.DBus.Error.UnknownProperty" &&
-                        error.problem != "not-found")
+                if (error.name !== "org.freedesktop.DBus.Error.UnknownProperty" &&
+                        error.problem !== "not-found")
                     console.log("can't get NTPSynchronized property", error);
             });
 
@@ -212,19 +212,19 @@ export function ServerTime() {
 
         const timesyncd_server_regex = /.*time server (.*)\./i;
 
-        const timesyncd_status = (timesyncd_service.state == "running" &&
+        const timesyncd_status = (timesyncd_service.state === "running" &&
                                 timesyncd_service.service?.StatusText);
 
-        if (timesyncd_service.state == "running")
+        if (timesyncd_service.state === "running")
             status.service = "systemd-timesyncd.service";
-        else if (chronyd_service.state == "running")
+        else if (chronyd_service.state === "running")
             status.service = "chronyd.service";
 
         if (timesyncd_status) {
             const match = timesyncd_status.match(timesyncd_server_regex);
             if (match)
                 status.server = match[1];
-            else if (timesyncd_status != "Idle." && timesyncd_status !== "")
+            else if (timesyncd_status !== "Idle." && timesyncd_status !== "")
                 status.sub_status = timesyncd_status;
         }
 
@@ -235,9 +235,9 @@ export function ServerTime() {
         return python.spawn(get_timesync_backend_py, [], { superuser: "try", err: "message" })
                 .then(data => {
                     const unit = data.trim();
-                    if (unit == "systemd-timesyncd.service")
+                    if (unit === "systemd-timesyncd.service")
                         return "timesyncd";
-                    else if (unit == "chrony.service" || unit == "chronyd.service")
+                    else if (unit === "chrony.service" || unit === "chronyd.service")
                         return "chronyd";
                     else
                         return null;
@@ -309,7 +309,7 @@ export function ServerTime() {
             const servers = [];
             data.split("\n").forEach(function(line) {
                 const parts = line.split(" ");
-                if (parts[0] == "server")
+                if (parts[0] === "server")
                     servers.push(parts[1]);
             });
             return servers;
@@ -346,7 +346,7 @@ export function ServerTime() {
         function ensure_sourcedir() {
             function add_sourcedir(data) {
                 const line = "sourcedir " + chronyd_sourcedir;
-                if (data && data.indexOf(line) == -1)
+                if (data && data.indexOf(line) === -1)
                     data += "\n# Added by Cockpit\n" + line + "\n";
                 return data;
             }
@@ -364,9 +364,9 @@ export function ServerTime() {
 
     self.get_custom_ntp = function () {
         return get_timesync_backend().then(backend => {
-            if (backend == "timesyncd") {
+            if (backend === "timesyncd") {
                 return get_custom_ntp_timesyncd();
-            } else if (backend == "chronyd") {
+            } else if (backend === "chronyd") {
                 return get_custom_ntp_chronyd();
             } else {
                 return Promise.resolve({ backend: null, servers: [], enabled: false });
@@ -375,9 +375,9 @@ export function ServerTime() {
     };
 
     self.set_custom_ntp = function (config) {
-        if (config.backend == "timesyncd") {
+        if (config.backend === "timesyncd") {
             return set_custom_ntp_timesyncd(config);
-        } else if (config.backend == "chronyd") {
+        } else if (config.backend === "chronyd") {
             return set_custom_ntp_chronyd(config);
         } else {
             return Promise.resolve();
@@ -386,7 +386,7 @@ export function ServerTime() {
 
     self.get_timezones = function() {
         return cockpit.spawn(["/usr/bin/timedatectl", "list-timezones"])
-                .then(content => content.split('\n').filter(tz => tz != ""));
+                .then(content => content.split('\n').filter(tz => tz !== ""));
     };
 
     /* NTPSynchronized needs to be polled so we just do that
@@ -550,7 +550,7 @@ function ChangeSystimeBody({ state, errors, change }) {
             {
                 value: "ntp_time_custom",
                 isDisabled: !ntp_supported,
-                content: (custom_ntp.backend == "chronyd")
+                content: (custom_ntp.backend === "chronyd")
                     ? _("Automatically using additional NTP servers")
                     : _("Automatically using specific NTP servers")
             });
@@ -575,7 +575,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                     selected={mode}
                     toggleProps={{ id: "change_systime_btn" }}
                     onSelect={value => change("mode", value)} />
-                { mode == "manual_time" &&
+                { mode === "manual_time" &&
                     <Flex spaceItems={{ default: 'spaceItemsSm' }} id="systime-manual-row">
                         <ValidatedInput errors={errors} error_key="manual_date">
                             <DatePicker id="systime-date-input"
@@ -601,7 +601,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                         <Validated errors={errors} error_key="manual_time" />
                     </Flex>
                 }
-                { mode == "ntp_time_custom" &&
+                { mode === "ntp_time_custom" &&
                     <Validated errors={errors} error_key="ntp_servers">
                         <div id="systime-ntp-servers">
                             { ntp_servers }
@@ -646,10 +646,10 @@ function change_systime_dialog(server_time, timezone) {
         state[field] = value;
         errors = { };
 
-        if (field == "mode" && value == "manual_time")
+        if (field === "mode" && value === "manual_time")
             get_current_time();
 
-        if (field == "manual_time")
+        if (field === "manual_time")
             state.manual_time_valid = value && isValid;
 
         update();
@@ -658,10 +658,10 @@ function change_systime_dialog(server_time, timezone) {
     function validate() {
         errors = { };
 
-        if (state.time_zone == "")
+        if (state.time_zone === "")
             errors.time_zone = _("Invalid timezone");
 
-        if (state.mode == "manual_time") {
+        if (state.mode === "manual_time") {
             const new_date = new Date(state.manual_date);
             if (isNaN(new_date.getTime()) || new_date.getTime() < 0)
                 errors.manual_date = _("Invalid date format");
@@ -670,8 +670,8 @@ function change_systime_dialog(server_time, timezone) {
                 errors.manual_time = _("Invalid time format");
         }
 
-        if (state.mode == "ntp_time_custom") {
-            if (state.custom_ntp.servers.filter(s => !!s).length == 0)
+        if (state.mode === "ntp_time_custom") {
+            if (state.custom_ntp.servers.filter(s => !!s).length === 0)
                 errors.ntp_servers = _("Need at least one NTP server");
         }
 
@@ -681,13 +681,13 @@ function change_systime_dialog(server_time, timezone) {
     function apply() {
         return server_time.set_time_zone(state.time_zone)
                 .then(() => {
-                    if (state.mode == "manual_time") {
+                    if (state.mode === "manual_time") {
                         return server_time.set_ntp(false)
                                 .then(() => server_time.change_time(state.manual_date,
                                                                     state.manual_time));
                     } else {
                         // Switch off NTP, write the config file, and switch NTP back on
-                        state.custom_ntp.enabled = (state.mode == "ntp_time_custom");
+                        state.custom_ntp.enabled = (state.mode === "ntp_time_custom");
                         state.custom_ntp.servers = state.custom_ntp.servers.filter(s => !!s);
                         return server_time.set_ntp(false)
                                 .then(() => server_time.set_custom_ntp(state.custom_ntp))
@@ -730,7 +730,7 @@ function change_systime_dialog(server_time, timezone) {
 
     Promise.all([server_time.get_custom_ntp(), server_time.get_timezones()])
             .then(([custom_ntp, time_zones]) => {
-                if (custom_ntp.servers.length == 0)
+                if (custom_ntp.servers.length === 0)
                     custom_ntp.servers = [""];
                 state.custom_ntp = custom_ntp;
                 state.time_zones = time_zones;

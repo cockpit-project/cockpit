@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 import '../lib/patternfly/patternfly-6-cockpit.scss';
-import "./network-anaconda.scss";
+import "./anaconda/network-anaconda.scss";
 import cockpit from "cockpit";
 import 'cockpit-dark-theme'; // once per page
 import React, { useRef } from 'react';
@@ -25,6 +25,8 @@ import { PlotState } from 'plot';
 
 import { useObject, useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
+import { AnacondaNetworkPage } from "./anaconda/anaconda-main";
+import { in_anaconda_mode } from "utils";
 
 const _ = cockpit.gettext;
 
@@ -99,11 +101,26 @@ const App = () => {
 
     const interfaces = model.list_interfaces();
 
+    const anaconda_mode = in_anaconda_mode();
+
+    if (anaconda_mode) {
+        return (
+            <ModelContext.Provider value={model}>
+                <WithDialogs key="networking-anaconda">
+                    <AnacondaNetworkPage privileged={superuser.allowed}
+                                         operationInProgress={model.operationInProgress}
+                                         usage_monitor={usage_monitor}
+                                         interfaces={interfaces} />
+                </WithDialogs>
+            </ModelContext.Provider>
+        );
+    }
+
     /* At this point NM is running and the model is ready */
     if (path.length == 0) {
         return (
             <ModelContext.Provider value={model}>
-                <WithDialogs key="1">
+                <WithDialogs key="networking">
                     <NetworkPage privileged={superuser.allowed}
                                  operationInProgress={model.operationInProgress}
                                  usage_monitor={usage_monitor}
@@ -118,7 +135,7 @@ const App = () => {
         if (iface) {
             return (
                 <ModelContext.Provider value={model}>
-                    <WithDialogs key="2">
+                    <WithDialogs key="networking-interface">
                         <NetworkInterfacePage privileged={superuser.allowed}
                                               operationInProgress={model.operationInProgress}
                                               usage_monitor={usage_monitor}

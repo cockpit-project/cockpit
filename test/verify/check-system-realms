@@ -883,6 +883,38 @@ class TestAD(TestRealms, CommonTests):
     def checkBackendSpecificCleanup(self):
         """Check domain backend specific integration after leaving domain"""
 
+    def testDefaultDomainSuffixUserElevation(self):
+        m = self.machine
+        b = self.browser
+
+        # default_domain_suffix is different from fully-qualified-names = no:
+        # PAM accepts the short login name, while NSS may report a qualified
+        # canonical identity for the same Unix user.
+        m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = yes\n", append=True)
+        m.execute(f"echo {self.admin_password} | realm join -vU {self.admin_user} cockpit.lan", timeout=300)
+
+        m.execute(r"""
+            set -eux
+            sed -i '/^\[sssd\]/a default_domain_suffix = cockpit.lan' /etc/sssd/sssd.conf
+            sss_cache -E || true
+            systemctl restart sssd
+        """)
+
+        m.execute(f"""
+            set -eux
+            while ! id {self.admin_user} || ! id {self.admin_user}@cockpit.lan; do
+                sleep 5
+                sss_cache -E || true
+                systemctl restart sssd
+            done
+        """, timeout=300)
+        self.assertEqual(m.execute(f"id -u {self.admin_user}").strip(),
+                         m.execute(f"id -u {self.admin_user}@cockpit.lan").strip())
+
+        b.login_and_go("/system", user=self.admin_user, password=self.admin_password, superuser=True)
+        b.switch_to_top()
+        b.check_superuser_indicator("Administrative access")
+
     def testUnqualifiedUsers(self):
         """Extend the test to check a new AD user"""
 

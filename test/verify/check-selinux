@@ -55,6 +55,10 @@ class TestSelinux(testlib.MachineCase):
         self.allow_journal_messages("audit: type=1405 .* bool=daemons_dump_core val=1 old_val=0.*")
         self.allow_journal_messages(".*couldn't .* /org/fedoraproject/Setroubleshootd: GDBus.Error:org.freedesktop.DBus.Error.NoReply:.*")
 
+        # These are the audit messages we provoke in this test
+        self.allow_journal_messages(".*avc:  denied  { read } for .* comm=ls name=public_html .* scontext=system_u:system_r:httpd_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:httpd_user_content_t:s0 tclass=dir .*")
+        self.allow_journal_messages(".*avc:  denied  { read } for .* comm=sshd-session name=authorized_keys .* scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:httpd_exec_t:s0 tclass=file .*")
+
         self.login_and_go("/selinux")
 
         dismiss_sel = ".selinux-alert-dismiss"

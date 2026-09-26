@@ -214,6 +214,37 @@ def instances_change_archive(tmpdir_factory):
 
 
 @pytest.fixture
+def transient_instance_archive(tmpdir_factory):
+    """Archive with a multi-instance metric simulating transient network interfaces.
+
+    Models the real-world case where Podman/Docker create and destroy veth pairs
+    during the day: the archive records data for instance id 2 ("veth0"), but
+    when the channel reads it back via PM_MODE_INTERP, pmNameInDom() can raise
+    PM_ERR_INST_LOG because the instance name is no longer present in the InDom
+    log at that interpolated point in time.
+    """
+    pcp_dir = tmpdir_factory.mktemp('transient-instance-archives')
+    archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
+
+    domain = 60  # Linux kernel
+    pmid = archive_1.pmiID(domain, 2, 0)
+    indom = archive_1.pmiInDom(domain, 2)
+    units = archive_1.pmiUnits(0, 0, 0, 0, 0, 0)
+
+    archive_1.pmiAddMetric("network.interface.out.bytes", pmid, PM_TYPE_U64, indom,
+                           PM_SEM_COUNTER, units)
+    archive_1.pmiAddInstance(indom, "eth0", 1)
+    archive_1.pmiAddInstance(indom, "veth0", 2)  # transient: gone after container stops
+
+    archive_1.pmiPutValue("network.interface.out.bytes", "eth0", "1000")
+    archive_1.pmiPutValue("network.interface.out.bytes", "veth0", "500")
+    archive_1.pmiWrite(0, 0)
+    archive_1.pmiEnd()
+
+    return pcp_dir
+
+
+@pytest.fixture
 def instances_rate_archive(tmpdir_factory):
     pcp_dir = tmpdir_factory.mktemp('instances-rate-archives')
     archive_1 = pmi.pmiLogImport(f"{pcp_dir}/0")
@@ -659,3 +690,43 @@ async def test_pcp_unsupported_metric(transport, unsupported_metric_archive):
 
     meta = json.loads(data)
     assert_metrics_meta(meta, str(unsupported_metric_archive), 0, 1000)
+
+
+@pytest.mark.asyncio
+async def test_pcp_missing_instance_name(transport, transient_instance_archive, monkeypatch):
+    """Verify the PCP channel handles PM_ERR_INST_LOG gracefully.
+
+    When pmlogger records metrics for transient network interfaces (e.g. veth
+    pairs created by Podman/Docker), the interpolated archive data may reference
+    instance IDs that no longer have a name in the InDom log at that point in
+    time, causing pmNameInDom() to raise PM_ERR_INST_LOG.  The channel must not
+    crash; it should fall back to a bracketed numeric label like "[2]".
+    See: https://github.com/cockpit-project/cockpit/issues/23774
+    """
+    from cpmapi import PM_ERR_INST_LOG
+    from pcp import pmapi
+
+    original_pmNameInDom = pmapi.pmContext.pmNameInDom
+
+    def patched_pmNameInDom(self, pmdesc, instval):
+        if instval == 2:  # simulate veth0 (inst_id=2) missing from InDom
+            raise pmapi.pmErr(PM_ERR_INST_LOG)
+        return original_pmNameInDom(self, pmdesc, instval)
+
+    monkeypatch.setattr(pmapi.pmContext, "pmNameInDom", patched_pmNameInDom)
+
+    await transport.check_open('metrics1', source=str(transient_instance_archive),
+                               metrics=[{"name": "network.interface.out.bytes"}])
+
+    _, data = await transport.next_frame()
+    meta = json.loads(data)
+
+    assert_metrics_meta(meta, str(transient_instance_archive))
+    metrics = meta['metrics']
+    assert len(metrics) == 1
+
+    metric = metrics[0]
+    assert metric['name'] == 'network.interface.out.bytes'
+    instances = metric['instances']
+    assert 'eth0' in instances    # valid instance resolves normally
+    assert '[2]' in instances     # missing instance falls back to bracketed ID

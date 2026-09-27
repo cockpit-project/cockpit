@@ -28,6 +28,11 @@ install-python:
 	@# This needs to work on RHEL8 up through modern Fedora, offline, with
 	@# system packages available to the build.
 	@# See https://github.com/pypa/pip/issues/3063 for --ignore-installed
+	@# Debian/Ubuntu Python 3.12+ defaults to 'posix_local' sysconfig scheme which
+	@# causes pip to ignore --prefix and install scripts to /usr/local/bin.
+	@# Setting DEB_PYTHON_INSTALL_LAYOUT=deb_system overrides this and is safely
+	@# ignored by other distributions. 
+	DEB_PYTHON_INSTALL_LAYOUT=deb_system \
 	$(PYTHON3) -m pip install --no-index --force-reinstall --ignore-installed --root='$(DESTDIR)/' --prefix='$(prefix)' \
 		"$$($(PYTHON3) '$(srcdir)'/src/build_backend.py --wheel '$(srcdir)' tmp/wheel)"
 	mkdir -p $(DESTDIR)$(libexecdir)

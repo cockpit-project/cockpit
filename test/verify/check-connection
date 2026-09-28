@@ -1400,7 +1400,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
 
         m.stop_cockpit()
         # make sure that this doesn't use the session socket
-        m.execute('systemctl stop cockpit-session.socket; systemctl mask cockpit-session.socket')
+        m.execute('systemctl mask --now cockpit-session.socket')
         self.addCleanup(m.execute, 'systemctl unmask cockpit-session.socket')
         m.write('/etc/cockpit/cockpit.conf', f"""
 [Negotiate]

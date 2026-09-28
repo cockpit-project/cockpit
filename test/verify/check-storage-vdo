@@ -170,7 +170,7 @@ class TestStorageLegacyVDO(storagelib.StorageCase):
     def setUp(self):
         super().setUp()
         # packagekit eats too much CPU/memory in the background
-        self.machine.execute("systemctl mask packagekit; systemctl stop packagekit")
+        self.machine.execute("systemctl mask --now packagekit")
 
     def testVdo(self):
         m = self.machine

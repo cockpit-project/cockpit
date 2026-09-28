@@ -1168,8 +1168,8 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # case 1: disable package backend
         if self.backend == 'dnf5':
-            m.execute("systemctl mask dnf5daemon-server; systemctl stop dnf5daemon-server.service || true")
-        m.execute("systemctl mask packagekit; systemctl stop packagekit.service || true")
+            m.execute("systemctl mask --now dnf5daemon-server")
+        m.execute("systemctl mask --now packagekit")
         self.allow_browser_errors('checkRealm failed.*"problem":"not-found"')
         self.login_and_go("/system")
         b.wait_text(self.domain_sel, "Join domain")
@@ -1222,7 +1222,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # disable the realmd package's service, so that we can restore it, but
         # the package install code path will be triggered
-        m.execute("systemctl stop realmd; systemctl mask realmd")
+        m.execute("systemctl mask --now realmd")
 
         self.login_and_go("/system")
 

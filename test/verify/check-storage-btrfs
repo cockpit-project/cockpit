@@ -28,7 +28,10 @@ class TestStorageBtrfs(storagelib.StorageCase):
         m = self.machine
         b = self.browser
 
-        mount_point = "/run/butter"
+        # Chinese name to test utf-8 encoding
+        # Emoji to test against lone surrogates e.g. 😄 -> ['\ud83d', '\ude04']
+        mount_name = "😄数据ö资料😄"
+        mount_point = f"/run/{mount_name}"
         # btrfs requires a 128 MB
         dev_1 = self.add_ram_disk(size=128)
 
@@ -37,14 +40,17 @@ class TestStorageBtrfs(storagelib.StorageCase):
             b.wait_visible(self.card_row("Storage", name="sda"))
 
         self.click_dropdown(self.card_row("Storage", name=dev_1), "Format")
-        self.dialog({"name": "butter", "type": "btrfs", "mount_point": mount_point, "mount_options.ro": True})
+        self.dialog({"name": mount_name, "type": "btrfs", "mount_point": mount_point, "mount_options.ro": True})
 
         # disk(s) are part of the volume card
         b.wait_visible(self.card_row("Storage", location=mount_point))
-        self.assertIn("subvol=/", m.execute(f"findmnt --fstab -n -o OPTIONS {mount_point}"))
+        # Use LANG=C.UTF-8 so distros without it set shows the label as we want it
+        fstab = m.execute(f"LANG=C.UTF-8 findmnt --fstab -n -o OPTIONS,LABEL {mount_point}")
+        self.assertIn("subvol=/", fstab)
+        self.assertIn(mount_name, fstab)
         self.click_card_row("Storage", name="sda")
 
-        b.wait_text(self.card_desc("btrfs filesystem", "Label"), "butter")
+        b.wait_text(self.card_desc("btrfs filesystem", "Label"), mount_name)
 
         # Can't relabel a filesystem that is mounted read-only
         b.wait_visible(self.card_desc_action("btrfs filesystem", "Label") + ":disabled")
@@ -71,7 +77,7 @@ class TestStorageBtrfs(storagelib.StorageCase):
         b.wait_text(self.card_desc("btrfs filesystem", "Label"), label)
 
         # detect new subvolume
-        subvol = "/run/butter/cake"
+        subvol = os.path.join(mount_point, "cake")
         m.execute(f"btrfs subvolume create {subvol}")
         b.wait_visible(self.card_row("btrfs filesystem", name=os.path.basename(subvol)))
 
@@ -132,9 +138,9 @@ class TestStorageBtrfs(storagelib.StorageCase):
         self.checkTeardownAction(1, "Device", os.path.basename(dev_1))
         self.checkTeardownAction(1, "Location", "/run/basement")
         self.checkTeardownAction(1, "Action", "unmount, format")
-        self.checkTeardownAction(2, "Location", mount_point)
+        self.checkTeardownAction(2, "Location", subvol_mount_point)
         self.checkTeardownAction(2, "Action", "unmount, format")
-        self.checkTeardownAction(3, "Location", subvol_mount_point)
+        self.checkTeardownAction(3, "Location", mount_point)
         self.checkTeardownAction(3, "Action", "unmount, format")
         self.dialog_set_val("type", "empty")
         self.dialog_apply()

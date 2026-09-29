@@ -57,6 +57,17 @@ const App = () => {
     if (model.ready === undefined)
         return <EmptyStatePanel loading />;
 
+    const anaconda_mode = in_anaconda_mode();
+
+    // No services page in anaconda mode
+    const emptyStateSecondary = anaconda_mode
+        ? null
+        : (<Button component="a"
+                    variant="secondary"
+                    onClick={() => cockpit.jump("/system/services#/NetworkManager.service", cockpit.transport.host)}>
+            {_("Troubleshoot…")}
+        </Button>);
+
     /* Show EmptyStatePanel when nm is not running */
     if (!nmRunning_ref.current) {
         if (nmService.enabled) {
@@ -66,13 +77,8 @@ const App = () => {
                                      title={ _("NetworkManager is not running") }
                                      action={nmService.exists ? _("Start service") : null}
                                      onAction={ nmService.start }
-                                     secondary={
-                                         <Button component="a"
-                                                 variant="secondary"
-                                                 onClick={() => cockpit.jump("/system/services#/NetworkManager.service", cockpit.transport.host)}>
-                                             {_("Troubleshoot…")}
-                                         </Button>
-                                     } />
+                                     secondary={emptyStateSecondary}
+                    />
                 </div>
             );
         } else if (!nmService.exists) {
@@ -100,8 +106,6 @@ const App = () => {
     }
 
     const interfaces = model.list_interfaces();
-
-    const anaconda_mode = in_anaconda_mode();
 
     if (anaconda_mode) {
         return (

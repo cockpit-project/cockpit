@@ -165,7 +165,7 @@ https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts
 Cockpit Networking in Anaconda Mode
 ===================================
 
-The Cockpit networking page also behaves differently when it is
+The Cockpit networking page behaves differently when it is
 used in Anaconda mode. Instead of the full networking page it shows a
 simplified layout that is adjusted for the requirements of the Anaconda
 installer.

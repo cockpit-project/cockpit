@@ -95,3 +95,41 @@ export function get_manifest_config_matchlist(
         return default_value;
     }
 }
+
+export function Uint8Array_toBase64(array: Uint8Array) {
+    return btoa(String.fromCharCode(...array));
+}
+
+export function Uint8Array_fromBase64(value: string) {
+    const value_latin1 = atob(value);
+    return Uint8Array.from(
+        { length: value_latin1.length },
+        (_element, index) => value_latin1.charCodeAt(index)
+    );
+}
+
+/**
+ * Encodes a string into base64 with support for UTF-8. By default `
+btoa`
+ * doesn't support anything other than Latin1, but this can be fixed
+ * by using TextEncoder.
+ * @param {string} value What you want to encode
+ * @returns string
+ */
+
+export function btoa_utf8(value: string): string {
+    return Uint8Array_toBase64(new TextEncoder().encode(value));
+}
+
+/**
+ * Decodes a string from base64 with support for UTF-8. By default `
+atob`
+ * doesn't support anything other than Latin1, but this can be fixed
+ * by using TextDecoder.
+ * @param {string} value What you want to decode
+ * @returns string
+ */
+
+export function atob_utf8(value: string): string {
+    return new TextDecoder().decode(Uint8Array_fromBase64(value));
+}

@@ -5,6 +5,8 @@
 
 import cockpit from "cockpit";
 
+import { atob_utf8, btoa_utf8 } from "utils";
+
 import * as service from "service";
 import * as timeformat from "timeformat";
 
@@ -140,8 +142,8 @@ export function flatten(array_of_arrays) {
         return [];
 }
 
-export const decode_filename = encoded => window.atob(encoded).replace('\u0000', '');
-export const encode_filename = decoded => window.btoa(decoded + '\u0000');
+export const decode_filename = encoded => atob_utf8(encoded).replace('\u0000', '');
+export const encode_filename = decoded => btoa_utf8(decoded + '\u0000');
 
 export function get_block_mntopts(config) {
     // treat an absent field as "default", like util-linux

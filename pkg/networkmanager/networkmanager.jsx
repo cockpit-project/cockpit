@@ -42,13 +42,7 @@ const App = () => {
     const nmRunning_ref = useRef(undefined);
     useEvent(model.client, "owner", (event, owner) => { nmRunning_ref.current = owner !== null });
 
-    const { path } = usePageLocation();
-
     useEvent(superuser, "changed");
-
-    const usage_monitor = useObject(() => new UsageMonitor(), null, []);
-    const plot_state_main = useObject(() => new PlotState(), null, []);
-    const plot_state_iface = useObject(() => new PlotState(), null, []);
 
     if (model.curtain == 'testing' || model.curtain == 'restoring') {
         return <EmptyStatePanel loading title={model.curtain == 'testing' ? _("Testing connection") : _("Restoring connection")} />;
@@ -105,20 +99,33 @@ const App = () => {
         }
     }
 
-    const interfaces = model.list_interfaces();
-
     if (anaconda_mode) {
         return (
             <ModelContext.Provider value={model}>
                 <WithDialogs key="networking-anaconda">
                     <AnacondaNetworkPage privileged={superuser.allowed}
                                          operationInProgress={model.operationInProgress}
-                                         usage_monitor={usage_monitor}
-                                         interfaces={interfaces} />
+                                         interfaces={model.list_interfaces()} />
                 </WithDialogs>
             </ModelContext.Provider>
         );
     }
+
+    return (
+        <CockpitNetworkPage privileged={superuser.allowed}
+            model={model}
+        />
+    );
+};
+
+const CockpitNetworkPage = ({ privileged, model }) => {
+    const { path } = usePageLocation();
+
+    const usage_monitor = useObject(() => new UsageMonitor(), null, []);
+    const plot_state_main = useObject(() => new PlotState(), null, []);
+    const plot_state_iface = useObject(() => new PlotState(), null, []);
+
+    const interfaces = model.list_interfaces();
 
     /* At this point NM is running and the model is ready */
     if (path.length == 0) {

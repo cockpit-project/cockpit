@@ -1,0 +1,50 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+@use "page";
+@use "ct-card.scss";
+@use "global-variables" as *;
+
+.folders-path-form {
+  max-inline-size: 60rem;
+}
+
+.folders-path-input {
+  font-family: var(--pf-t--global--font--family--mono);
+}
+
+.folders-preview-focused {
+  .folders-editor {
+    min-block-size: 60vh;
+  }
+
+  img {
+    max-block-size: 70vh;
+  }
+}
+
+.folders-filter {
+  max-inline-size: 22rem;
+}
+
+.folders-meta {
+  color: var(--pf-t--global--text--color--subtle);
+  font-size: var(--pf-t--global--font--size--sm);
+}
+
+.folders-preview-pane {
+  min-block-size: 12rem;
+}
+
+.folders-preview-pane img {
+  max-inline-size: 100%;
+  max-block-size: 24rem;
+  object-fit: contain;
+  display: block;
+  margin-inline: auto;
+}
+
+.folders-editor {
+  inline-size: 100%;
+  min-block-size: 16rem;
+  font-family: var(--pf-t--global--font--family--mono);
+  font-size: var(--pf-t--global--font--size--sm);
+}

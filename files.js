@@ -6,6 +6,7 @@ const info = {
     entries: [
         "base1/cockpit.js",
         "apps/apps.jsx",
+        "folders/folders.jsx",
         "kdump/kdump.js",
         // do *not* call this metrics/metrics -- uBlock origin etc. like to block metrics.{css,js}
         "metrics/index.js",
@@ -98,6 +99,8 @@ const info = {
     files: [
         "apps/index.html",
         "apps/default.png",
+
+        "folders/index.html",
 
         "kdump/index.html",
 

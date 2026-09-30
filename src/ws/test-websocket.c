@@ -1032,6 +1032,45 @@ test_message_after_closing (Test *test,
   g_bytes_unref (message);
 }
 
+/*
+ * Regression test for #23790: messages that were queued before the server
+ * side asked to close must still reach the peer. This is what an external
+ * channel does when its backend fails, e.g. when the VNC server of
+ * cockpit-machines rejects the password: the "Authentication failed"
+ * protocol message is queued, and the connection is closed right after.
+ */
+static void
+test_close_flushes_queued_messages (Test *test,
+                                    gconstpointer data)
+{
+  GBytes *message;
+  GBytes *received = NULL;
+  GError *error;
+
+  /* This test triggers an error on purpose */
+  g_signal_handlers_disconnect_by_func (test->server, on_error_not_reached, NULL);
+  g_signal_connect (test->client, "message", G_CALLBACK (on_text_message), &received);
+
+  WAIT_UNTIL (web_socket_connection_get_ready_state (test->server) == WEB_SOCKET_STATE_OPEN);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (test->client) == WEB_SOCKET_STATE_OPEN);
+
+  message = g_bytes_new_static ("authentication failed", 20);
+  web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, NULL, message);
+
+  /* Now close, without giving the main loop a chance to send the message */
+  error = g_error_new_literal (WEB_SOCKET_ERROR, WEB_SOCKET_CLOSE_SERVER_ERROR, "authentication-failed");
+  _web_socket_connection_error_and_close (test->server, error, FALSE);
+  g_assert_cmpint (web_socket_connection_get_ready_state (test->server), ==, WEB_SOCKET_STATE_CLOSING);
+
+  WAIT_UNTIL (web_socket_connection_get_ready_state (test->client) == WEB_SOCKET_STATE_CLOSED);
+
+  /* The message queued before the close must not have been dropped */
+  g_assert (received != NULL);
+  g_assert (g_bytes_equal (message, received));
+
+  g_bytes_unref (received);
+}
+
 static void
 mock_perform_handshake (GIOStream *io)
 {
@@ -1314,6 +1353,8 @@ main (int argc,
   g_test_add_func ("/web-socket/handshake-with-buffer-headers", test_handshake_with_buffer_and_headers);
 
   g_test_add ("/web-socket/message-after-closing", Test, NULL, setup_pair, test_message_after_closing, teardown);
+  g_test_add ("/web-socket/close-flushes-queued-messages", Test, NULL, setup_pair,
+              test_close_flushes_queued_messages, teardown);
 
   return g_test_run ();
 }

@@ -555,7 +555,16 @@ _web_socket_connection_error_and_close (WebSocketConnection *self,
   else
     {
       g_debug ("requesting close due to error");
-      send_close_rfc6455 (self, WEB_SOCKET_QUEUE_URGENT | WEB_SOCKET_QUEUE_LAST, code, NULL);
+
+      /*
+       * Queue the close behind the messages that are already pending.
+       * Marking it WEB_SOCKET_QUEUE_URGENT would move it in front of them,
+       * and as soon as the close frame has been sent on_web_socket_output()
+       * tears the connection down, so those messages would be dropped
+       * without ever reaching the peer. WEB_SOCKET_QUEUE_LAST still closes
+       * the connection, but only once the queue has been drained.
+       */
+      send_close_rfc6455 (self, WEB_SOCKET_QUEUE_LAST, code, NULL);
     }
 }
 

@@ -10,6 +10,7 @@ import cockpit from "cockpit";
 import React from "react";
 import { createRoot } from 'react-dom/client';
 
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { CodeBlock, CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
@@ -81,6 +82,30 @@ const UPDATES = {
     SECURITY: 1,
     KPATCHES: 2,
 };
+
+/* On apt-based systems (Debian, Raspberry Pi OS) some upgrades require *replacing* a
+ * package: the new package declares "Breaks"/"Replaces"/"Conflicts" against an older
+ * one (e.g. Raspberry Pi OS moving from "pcmanfm" to "pcmanfm-pi"). PackageKit update
+ * transactions are not allowed to remove packages, so they fail with an "unmet
+ * dependencies" error. Installing the replacement package with apt is allowed to remove
+ * the old one, which resolves the conflict.
+ *
+ * Parse the failing PackageKit/apt error text and return the replacement package names
+ * (the ones on the left of the "Breaks/Replaces/Conflicts:" relation) so we can offer to
+ * install them directly. */
+function parseAptConflictPackages(errorMessages) {
+    const packages = new Set();
+    const re = /(?:^|\n)\s*([a-z0-9][a-z0-9+.-]*)\s*:\s*(?:Breaks|Replaces|Conflicts)\s*:/gi;
+    for (const message of errorMessages) {
+        const text = typeof message === "string"
+            ? message
+            : (message?.detail || message?.message || String(message ?? ""));
+        let m;
+        while ((m = re.exec(text)) !== null)
+            packages.add(m[1]);
+    }
+    return Array.from(packages);
+}
 
 function init() {
     STATE_HEADINGS.loading = _("Loading available updates, please wait...");
@@ -865,12 +890,14 @@ class OsUpdates extends React.Component {
             backend: "",
             rebootAfterSuccess: false,
             packageManager: null,
+            resolvingConflict: false,
         };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.loadUpdates = this.loadUpdates.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
         this.checkNeedsRestart = this.checkNeedsRestart.bind(this);
+        this.resolveAptConflicts = this.resolveAptConflicts.bind(this);
     }
 
     onValueChanged(key, value) {
@@ -1321,13 +1348,17 @@ class OsUpdates extends React.Component {
         }
 
         case "loadError":
-        case "updateError":
+        case "updateError": {
             page_status.set_own({
                 type: "error",
                 title: STATE_HEADINGS[this.state.state],
             });
+            // On apt-based systems, offer to auto-resolve "package needs replacing" conflicts
+            const conflictPackages = this.state.backend === "apt"
+                ? parseAptConflictPackages(this.state.errorMessages)
+                : [];
             return (
-                <Stack>
+                <Stack hasGutter>
                     <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
                                     icon={ ExclamationCircleIcon }
                                     paragraph={
@@ -1336,6 +1367,29 @@ class OsUpdates extends React.Component {
                                         </Content>
                                     }
                     />
+                    { conflictPackages.length > 0 &&
+                        <Alert isInline variant="warning"
+                            className="pf-v6-u-mx-auto"
+                            title={_("Some updates require replacing installed packages")}>
+                            <Content component={ContentVariants.p}>
+                                {cockpit.format(
+                                    cockpit.ngettext(
+                                        "This update needs to install $0, which replaces a package that is currently installed. The automatic updater cannot remove packages, but this can be done for you.",
+                                        "This update needs to install $0, which replace packages that are currently installed. The automatic updater cannot remove packages, but this can be done for you.",
+                                        conflictPackages.length),
+                                    conflictPackages.join(", "))}
+                            </Content>
+                            <Button variant="primary"
+                                className="pf-v6-u-mt-sm"
+                                isLoading={this.state.resolvingConflict}
+                                isDisabled={this.state.resolvingConflict}
+                                onClick={() => this.resolveAptConflicts(conflictPackages)}>
+                                {this.state.resolvingConflict
+                                    ? _("Resolving…")
+                                    : cockpit.format(_("Install $0 and continue"), conflictPackages.join(", "))}
+                            </Button>
+                        </Alert>
+                    }
                     <CodeBlock className='pf-v6-u-mx-auto error-log'>
                         <CodeBlockCode>
                             {this.state.errorMessages
@@ -1345,6 +1399,7 @@ class OsUpdates extends React.Component {
                     </CodeBlock>
                 </Stack>
             );
+        }
 
         case "applying":
             page_status.set_own(null);
@@ -1451,6 +1506,29 @@ class OsUpdates extends React.Component {
             page_status.set_own(null);
             return null;
         }
+    }
+
+    // Install the replacement package(s) with apt, which is allowed to remove the
+    // conflicting old package that PackageKit refused to remove. Uses the superuser
+    // channel, so Cockpit prompts for administrative access if not already elevated.
+    resolveAptConflicts(packages) {
+        this.setState({ resolvingConflict: true });
+        cockpit.spawn(["apt-get", "install", "-y", ...packages],
+                      { superuser: "require", err: "message", environ: ["DEBIAN_FRONTEND=noninteractive"] })
+                .then(() => {
+                    if (!this._mounted)
+                        return;
+                    this.setState({ resolvingConflict: false, errorMessages: [] });
+                    this.loadUpdates();
+                })
+                .catch(ex => {
+                    if (!this._mounted)
+                        return;
+                    this.setState(prevState => ({
+                        resolvingConflict: false,
+                        errorMessages: [...prevState.errorMessages, ex.message || String(ex)],
+                    }));
+                });
     }
 
     handleRefresh() {

@@ -45,6 +45,10 @@ import { EmptyStatePanel } from 'cockpit-components-empty-state.jsx';
 import { KebabDropdown } from 'cockpit-components-dropdown';
 import { ListingTable } from 'cockpit-components-table.jsx';
 
+import {
+    extension, formatMode, formatOwner, joinPath, pathSegments, resolveUserPath
+} from './paths.js';
+
 import './folders.scss';
 
 const _ = cockpit.gettext;
@@ -65,19 +69,6 @@ const TEXT_EXT = new Set([
 const MAX_TEXT_BYTES = 512 * 1024;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
-function joinPath(base, name) {
-    if (base === '/')
-        return `/${name}`;
-    return `${base}/${name}`;
-}
-
-function extension(path) {
-    const base = basename(path);
-    const dot = base.lastIndexOf('.');
-    if (dot <= 0)
-        return '';
-    return base.slice(dot + 1).toLowerCase();
-}
 
 function formatSize(type, size) {
     if (type === 'dir')
@@ -93,17 +84,6 @@ function formatMtime(mtime) {
     return timeformat.dateTime(mtime * 1000);
 }
 
-function formatMode(mode) {
-    if (mode === undefined)
-        return '—';
-    return (mode & 0o7777).toString(8).padStart(4, '0');
-}
-
-function formatOwner(entry) {
-    const user = entry.user ?? '?';
-    const group = entry.group ?? '?';
-    return `${user}:${group}`;
-}
 
 function navigate(options) {
     cockpit.location.go([], options);
@@ -545,16 +525,6 @@ function FilePreview({ filePath, isFocused }) {
 
 /* --- Navigation --------------------------------------------------------- */
 
-function pathSegments(dir) {
-    const parts = dir.split('/').filter(p => p !== '');
-    const out = [{ name: '/', path: '/' }];
-    let acc = '';
-    for (const part of parts) {
-        acc += `/${part}`;
-        out.push({ name: part, path: acc });
-    }
-    return out;
-}
 
 function PathBar({ dir, home }) {
     const [value, setValue] = useState(dir);
@@ -569,18 +539,14 @@ function PathBar({ dir, home }) {
     const submit = async event => {
         event?.preventDefault();
 
-        let target = value.trim();
-        if (!target)
+        const resolved = resolveUserPath(value, home);
+        if (resolved.empty)
             return;
-        if (target === '~')
-            target = home;
-        else if (target.startsWith('~/'))
-            target = joinPath(home, target.slice(2));
-        if (!target.startsWith('/')) {
+        if (resolved.error === 'relative') {
             setError(_("Enter an absolute path, starting with /"));
             return;
         }
-        target = target.replace(/\/+/g, '/').replace(/(.)\/$/, '$1');
+        const target = resolved.path;
 
         setBusy(true);
         setError(null);

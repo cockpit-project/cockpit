@@ -85,9 +85,12 @@ const info = {
         "base1/test-websocket.js",
         "base1/test-import-json.ts",
 
+        "folders/test-paths.js",
         "kdump/test-config-client.js",
 
         "networkmanager/test-utils.js",
+
+        "packagekit/test-apt-conflicts.js",
 
         "shell/machines/test-machines.js",
 

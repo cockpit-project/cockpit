@@ -60,6 +60,7 @@ import * as PK from "packagekit.js";
 import * as python from "python.js";
 import * as timeformat from "timeformat";
 
+import { parseAptConflictPackages } from './apt-conflicts.js';
 import { debug, watchRedHatSubscription } from './utils';
 import { read_os_release } from "os-release.js";
 import callTracerScript from './callTracer.py';
@@ -82,30 +83,6 @@ const UPDATES = {
     SECURITY: 1,
     KPATCHES: 2,
 };
-
-/* On apt-based systems (Debian, Raspberry Pi OS) some upgrades require *replacing* a
- * package: the new package declares "Breaks"/"Replaces"/"Conflicts" against an older
- * one (e.g. Raspberry Pi OS moving from "pcmanfm" to "pcmanfm-pi"). PackageKit update
- * transactions are not allowed to remove packages, so they fail with an "unmet
- * dependencies" error. Installing the replacement package with apt is allowed to remove
- * the old one, which resolves the conflict.
- *
- * Parse the failing PackageKit/apt error text and return the replacement package names
- * (the ones on the left of the "Breaks/Replaces/Conflicts:" relation) so we can offer to
- * install them directly. */
-function parseAptConflictPackages(errorMessages) {
-    const packages = new Set();
-    const re = /(?:^|\n)\s*([a-z0-9][a-z0-9+.-]*)\s*:\s*(?:Breaks|Replaces|Conflicts)\s*:/gi;
-    for (const message of errorMessages) {
-        const text = typeof message === "string"
-            ? message
-            : (message?.detail || message?.message || String(message ?? ""));
-        let m;
-        while ((m = re.exec(text)) !== null)
-            packages.add(m[1]);
-    }
-    return Array.from(packages);
-}
 
 function init() {
     STATE_HEADINGS.loading = _("Loading available updates, please wait...");

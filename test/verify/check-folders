@@ -1,0 +1,61 @@
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/../common/pywrap", sys.argv)
+
+#
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+import testlib
+
+
+@testlib.nondestructive
+class TestFolders(testlib.MachineCase):
+    def testBrowse(self) -> None:
+        b = self.browser
+        m = self.machine
+        testdir = "/home/admin/cockpit-folders-test"
+
+        m.execute(f"""
+            rm -rf {testdir}
+            mkdir -p {testdir}/subdir
+            printf 'hello\\n' > {testdir}/readme.txt
+            printf 'secret\\n' > {testdir}/.hidden
+            chown -R admin:admin {testdir}
+        """)
+        self.addCleanup(m.execute, f"rm -rf {testdir}")
+
+        self.login_and_go("/folders")
+        b.wait_visible("#folders-path-input")
+        b.wait_in_text("#app", "Folders")
+
+        b.set_input_text("#folders-path-input", testdir)
+        b.click("button:contains('Go')")
+        b.wait_in_text("#folders-path-input", testdir)
+        b.wait_in_text(".pf-v6-c-table", "readme.txt")
+        b.wait_in_text(".pf-v6-c-table", "subdir")
+        b.wait_not_in_text(".pf-v6-c-table", ".hidden")
+
+        b.set_checked("#folders-show-hidden", True)
+        b.wait_in_text(".pf-v6-c-table", ".hidden")
+
+        b.set_input_text("#folders-filter", "read")
+        b.wait_in_text(".pf-v6-c-table", "readme.txt")
+        b.wait_not_in_text(".pf-v6-c-table", "subdir")
+
+        b.set_input_text("#folders-filter", "")
+        b.wait_in_text(".pf-v6-c-table", "subdir")
+
+        b.click("button:contains('New folder')")
+        b.wait_visible("#folders-prompt-value")
+        b.set_input_text("#folders-prompt-value", "created")
+        b.click(".pf-v6-c-modal-box button:contains('Create')")
+        b.wait_not_present(".pf-v6-c-modal-box")
+        b.wait_in_text(".pf-v6-c-table", "created")
+        m.execute(f"test -d {testdir}/created")
+
+        b.click("button:contains('readme.txt')")
+        b.wait_visible("textarea.folders-editor")
+        b.wait_in_text("textarea.folders-editor", "hello")
+
+    def testMenu(self) -> None:
+        self.login_and_go("/system")
+        self.browser.switch_to_top()
+        self.browser.wait_visible("#host-apps a:contains('Folders')")

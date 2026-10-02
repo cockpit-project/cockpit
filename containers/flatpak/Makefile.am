@@ -1,4 +1,7 @@
-build-for-flatpak: cockpit-ws
+build-for-flatpak: flatpak-enable-extensions cockpit-ws
+
+flatpak-enable-extensions:
+	mkdir -p /app/extensions/share/cockpit
 
 INSTALL_FLATPAK_TARGETS = \
 	install-cockpitwsPROGRAMS \

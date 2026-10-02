@@ -48,7 +48,8 @@ import { KpatchSettings, KpatchStatus } from "./kpatch";
 import { History, PackageList } from "./history";
 import { RestartServicesDialog } from './restartservices-dialog';
 import { TwoColumnContent, TwoColumnTitle } from "./two-column";
-import { page_status } from "notifications";
+import { page_status } from "shell";
+import { health_status } from "overview";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
@@ -192,6 +193,17 @@ function getPageStatusSeverityIcon(severity) {
         return "bug";
     else
         return "enhancement";
+}
+
+function publish_updates_status(status) {
+    if (!status) {
+        page_status.publish(null);
+        health_status.clear();
+        return;
+    }
+    const { type = null, title, link, pficon } = status;
+    page_status.publish({ type, title });
+    health_status.publish([{ type: pficon ?? type, title, ...(link ? { link } : {}) }]);
 }
 
 function getSeverityURL(urls) {
@@ -1206,13 +1218,7 @@ class OsUpdates extends React.Component {
          * repositories enabled which don't require subscriptions. But there are a lot of cases (cloud repos, nightly internal
          * repos) which don't need a subscription, there it would just be confusing */
         if (this.state.unregistered && this.state.haveOsRepo === false) {
-            page_status.set_own({
-                type: "warning",
-                title: _("Not registered"),
-                details: {
-                    link: "subscriptions",
-                }
-            });
+            publish_updates_status({ type: "warning", title: _("Not registered"), link: "subscriptions" });
 
             return <EmptyStatePanel
                 title={_("This system is not registered")}
@@ -1228,14 +1234,7 @@ class OsUpdates extends React.Component {
         case "loading":
         case "refreshing":
         case "locked":
-            page_status.set_own({
-                type: null,
-                title: _("Checking for package updates..."),
-                details: {
-                    link: false,
-                    pficon: "spinner",
-                }
-            });
+            publish_updates_status({ title: _("Checking for package updates..."), pficon: "spinner" });
 
             if (this.state.loadPercent)
                 return <Progress value={this.state.loadPercent} title={STATE_HEADINGS[this.state.state]} />;
@@ -1283,12 +1282,11 @@ class OsUpdates extends React.Component {
             else
                 text = _("Updates available");
 
-            page_status.set_own({
+            publish_updates_status({
                 type: num_security_updates > 0 ? "warning" : "info",
                 title: text,
-                details: {
-                    pficon: getPageStatusSeverityIcon(highest_severity)
-                }
+                pficon: getPageStatusSeverityIcon(highest_severity),
+                link: "updates",
             });
 
             return (
@@ -1322,10 +1320,7 @@ class OsUpdates extends React.Component {
 
         case "loadError":
         case "updateError":
-            page_status.set_own({
-                type: "error",
-                title: STATE_HEADINGS[this.state.state],
-            });
+            publish_updates_status({ type: "error", title: STATE_HEADINGS[this.state.state], link: "updates" });
             return (
                 <Stack>
                     <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
@@ -1347,7 +1342,7 @@ class OsUpdates extends React.Component {
             );
 
         case "applying":
-            page_status.set_own(null);
+            publish_updates_status(null);
             return <ApplyUpdates transactionProps={this.state.applyTransactionProps}
                                  actions={this.state.applyActions}
                                  onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
@@ -1379,10 +1374,7 @@ class OsUpdates extends React.Component {
             }
 
             if (warningTitle) {
-                page_status.set_own({
-                    type: "warning",
-                    title: warningTitle
-                });
+                publish_updates_status({ type: "warning", title: warningTitle, link: "updates" });
             }
 
             return (
@@ -1411,7 +1403,7 @@ class OsUpdates extends React.Component {
         }
 
         case "restart":
-            page_status.set_own(null);
+            publish_updates_status(null);
             return <EmptyStatePanel loading title={ _("Restarting") }
                                     headingLevel="h5"
                                     paragraph={ _("Your server will close the connection soon. You can reconnect after it has restarted.") }
@@ -1419,13 +1411,7 @@ class OsUpdates extends React.Component {
 
         case "uptodate":
         {
-            page_status.set_own({
-                title: STATE_HEADINGS[this.state.state],
-                details: {
-                    link: false,
-                    pficon: "check",
-                }
-            });
+            publish_updates_status({ title: STATE_HEADINGS[this.state.state], pficon: "check" });
 
             return (
                 <PageSection hasBodyWrapper={false}>
@@ -1448,7 +1434,7 @@ class OsUpdates extends React.Component {
         }
 
         default:
-            page_status.set_own(null);
+            publish_updates_status(null);
             return null;
         }
     }

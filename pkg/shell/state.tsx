@@ -6,7 +6,8 @@
 import cockpit from "cockpit";
 
 import { EventEmitter } from "cockpit/event";
-import { Status } from "notifications";
+import { aggregate_notification_control, NotificationControlMessage, reset_notifications, board_index, PAGE_STATUS_BOARD } from "_internal/notifications";
+import { PageStatus, is_page_status } from "shell";
 
 import { Router } from "./router.jsx";
 import {
@@ -54,7 +55,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         this.router = this.#init_router();
 
         this.#init_oops();
-        this.#init_page_status();
+        reset_notifications();
 
         this.#on_ready();
     }
@@ -281,25 +282,8 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
         this.update();
     }
 
-    /* PAGE STATUS
-     *
-     * Page status notifications arrive from the Router (see
-     * below). We also store them in the session storage so that
-     * individual pages have access to all collected statuses.
-     */
-
-    page_status: { [host: string]: { [page: string]: Status } } = { };
-
-    #init_page_status() {
-        sessionStorage.removeItem("cockpit:page_status");
-    }
-
-    #notify_page_status(host: string, page: string, status: Status) {
-        if (!this.page_status[host])
-            this.page_status[host] = { };
-        this.page_status[host][page] = status;
-        sessionStorage.setItem("cockpit:page_status", JSON.stringify(this.page_status));
-        this.update();
+    get page_status(): { [host: string]: { [page: string]: PageStatus } } {
+        return board_index(PAGE_STATUS_BOARD, is_page_status);
     }
 
     /* ROUTER
@@ -366,15 +350,12 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
                 }
             },
 
-            /* A notification has been received from a frame. We only
-             * handle page status notifications, such as the ones that
-             * tell you when software updates are available.  PAGE is the
-             * "well-known name" of a page, such as "system",
+            /* PAGE is the "well-known name" of a page, such as "system",
              * "network/firewall", or "updates".
              */
-            handle_notifications: (host: string, page: string, data: { page_status?: Status }) => {
-                if (data.page_status !== undefined)
-                    this.#notify_page_status(host, page, data.page_status);
+            handle_notifications: (host: string, page: string, data: NotificationControlMessage) => {
+                if (aggregate_notification_control({ host, page, data }) === PAGE_STATUS_BOARD)
+                    this.update();
             },
 
             /* One of the frames has experienced a unhandled JavaScript exception.

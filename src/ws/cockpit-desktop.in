@@ -105,6 +105,11 @@ esac
 
 detect_browser
 
+if ! ${2:+ssh "$2"} command -v cockpit-bridge >/dev/null 2>&1; then
+    echo "cockpit-bridge is not installed${2:+ on $2}" >&2
+    exit 1
+fi
+
 # start the bridge; this needs to run in the normal user session/namespace
 coproc ${2:+ssh "$2"} cockpit-bridge
 trap "kill $COPROC_PID; wait $COPROC_PID || true" EXIT INT QUIT PIPE

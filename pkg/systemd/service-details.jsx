@@ -110,6 +110,44 @@ const ServiceConfirmDialog = ({ id, title, message, confirmText, confirmAction }
  *  - disabled
  *      Button is disabled
  */
+/**
+ * Primary service actions rendered as direct buttons (not in kebab menu).
+ * Addresses issue #23060: service actions are too hidden.
+ */
+const ServicePrimaryActions = ({ masked, active, failed, canReload, actionCallback, disabled }) => {
+    if (masked)
+        return null;
+
+    return (
+        <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+            {active ? (
+                <>
+                    {canReload && (
+                        <Button variant="secondary" isDisabled={disabled} onClick={() => actionCallback("ReloadUnit")}>
+                            {_("Reload")}
+                        </Button>
+                    )}
+                    <Button variant="secondary" isDisabled={disabled} onClick={() => actionCallback("RestartUnit")}>
+                        {_("Restart")}
+                    </Button>
+                    <Button variant="danger" isDisabled={disabled} onClick={() => actionCallback("StopUnit")}>
+                        {_("Stop")}
+                    </Button>
+                </>
+            ) : (
+                <Button variant="primary" isDisabled={disabled} onClick={() => actionCallback("StartUnit")}>
+                    {_("Start")}
+                </Button>
+            )}
+            {failed && (
+                <Button variant="link" isDisabled={disabled} onClick={() => actionCallback("ResetFailedUnit", [])}>
+                    {_("Clear failed")}
+                </Button>
+            )}
+        </Flex>
+    );
+};
+
 const ServiceActions = ({ masked, active, failed, canReload, actionCallback, editActionCallback, deleteActionCallback, fileActionCallback, disabled, isPinned, pinUnitCallback }) => {
     const Dialogs = useDialogs();
 
@@ -710,6 +748,9 @@ export class ServiceDetails extends React.Component {
                                                 onChange={this.onOnOffSwitch} />
                                     </Tooltip>
                                 }
+                                <ServicePrimaryActions { ...{ active, failed, masked } } canReload={this.props.unit.CanReload}
+                                                        actionCallback={this.unitAction}
+                                                        disabled={this.state.waitsAction || this.state.waitsFileAction} />
                                 <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}
                                                 actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
                                                 editActionCallback={isCustom && isTimer && this.state.cockpitManaged ? this.editTimerAction : null}

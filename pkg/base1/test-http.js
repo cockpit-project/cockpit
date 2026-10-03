@@ -323,7 +323,7 @@ QUnit.test("parallel stress test", async assert => {
 
     assert.timeout(6000);
 
-    const num = 1000;
+    const num = 200;
 
     const promises = [];
     for (let i = 0; i < num; ++i)

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 import '../lib/patternfly/patternfly-6-cockpit.scss';
-import "./network-anaconda.scss";
+import "./anaconda/network-anaconda.scss";
 import cockpit from "cockpit";
 import 'cockpit-dark-theme'; // once per page
 import React, { useRef } from 'react';
@@ -25,6 +25,8 @@ import { PlotState } from 'plot';
 
 import { useObject, useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
+import { AnacondaNetworkPage } from "./anaconda/anaconda-main";
+import { in_anaconda_mode } from "utils";
 
 const _ = cockpit.gettext;
 
@@ -40,13 +42,7 @@ const App = () => {
     const nmRunning_ref = useRef(undefined);
     useEvent(model.client, "owner", (event, owner) => { nmRunning_ref.current = owner !== null });
 
-    const { path } = usePageLocation();
-
     useEvent(superuser, "changed");
-
-    const usage_monitor = useObject(() => new UsageMonitor(), null, []);
-    const plot_state_main = useObject(() => new PlotState(), null, []);
-    const plot_state_iface = useObject(() => new PlotState(), null, []);
 
     if (model.curtain == 'testing' || model.curtain == 'restoring') {
         return <EmptyStatePanel loading title={model.curtain == 'testing' ? _("Testing connection") : _("Restoring connection")} />;
@@ -54,6 +50,17 @@ const App = () => {
 
     if (model.ready === undefined)
         return <EmptyStatePanel loading />;
+
+    const anaconda_mode = in_anaconda_mode();
+
+    // No services page in anaconda mode
+    const emptyStateSecondary = anaconda_mode
+        ? null
+        : (<Button component="a"
+                    variant="secondary"
+                    onClick={() => cockpit.jump("/system/services#/NetworkManager.service", cockpit.transport.host)}>
+            {_("Troubleshoot…")}
+        </Button>);
 
     /* Show EmptyStatePanel when nm is not running */
     if (!nmRunning_ref.current) {
@@ -64,13 +71,8 @@ const App = () => {
                                      title={ _("NetworkManager is not running") }
                                      action={nmService.exists ? _("Start service") : null}
                                      onAction={ nmService.start }
-                                     secondary={
-                                         <Button component="a"
-                                                 variant="secondary"
-                                                 onClick={() => cockpit.jump("/system/services#/NetworkManager.service", cockpit.transport.host)}>
-                                             {_("Troubleshoot…")}
-                                         </Button>
-                                     } />
+                                     secondary={emptyStateSecondary}
+                    />
                 </div>
             );
         } else if (!nmService.exists) {
@@ -97,13 +99,39 @@ const App = () => {
         }
     }
 
+    if (anaconda_mode) {
+        return (
+            <ModelContext.Provider value={model}>
+                <WithDialogs key="networking-anaconda">
+                    <AnacondaNetworkPage privileged={superuser.allowed}
+                                         operationInProgress={model.operationInProgress}
+                                         interfaces={model.list_interfaces()} />
+                </WithDialogs>
+            </ModelContext.Provider>
+        );
+    }
+
+    return (
+        <CockpitNetworkPage privileged={superuser.allowed}
+            model={model}
+        />
+    );
+};
+
+const CockpitNetworkPage = ({ privileged, model }) => {
+    const { path } = usePageLocation();
+
+    const usage_monitor = useObject(() => new UsageMonitor(), null, []);
+    const plot_state_main = useObject(() => new PlotState(), null, []);
+    const plot_state_iface = useObject(() => new PlotState(), null, []);
+
     const interfaces = model.list_interfaces();
 
     /* At this point NM is running and the model is ready */
     if (path.length == 0) {
         return (
             <ModelContext.Provider value={model}>
-                <WithDialogs key="1">
+                <WithDialogs key="networking">
                     <NetworkPage privileged={superuser.allowed}
                                  operationInProgress={model.operationInProgress}
                                  usage_monitor={usage_monitor}
@@ -118,7 +146,7 @@ const App = () => {
         if (iface) {
             return (
                 <ModelContext.Provider value={model}>
-                    <WithDialogs key="2">
+                    <WithDialogs key="networking-interface">
                         <NetworkInterfacePage privileged={superuser.allowed}
                                               operationInProgress={model.operationInProgress}
                                               usage_monitor={usage_monitor}

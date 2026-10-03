@@ -14,3 +14,10 @@
 }
 
 @include anaconda.anaconda-body-overflow-hack;
+
+// Remove padding above device name (header) in the detail view
+#networking.anaconda #network-interface {
+  .pf-v6-c-card.pf-m-plain .pf-v6-c-card__header, .pf-v6-c-card.pf-m-plain > .pf-v6-c-card__title {
+    padding-block-start: 0;
+  }
+}

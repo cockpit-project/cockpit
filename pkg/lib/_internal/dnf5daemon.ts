@@ -5,7 +5,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -610,7 +610,7 @@ export class Dnf5DaemonManager implements PackageManager {
         return Array.from(update_map.values()) as T extends true ? UpdateDetail[] : Update[];
     }
 
-    async update_packages(updates: Update[] | UpdateDetail[], progress_cb?: ProgressCB, _transaction_path?: string): Promise<void> {
+    async update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateProgressHandlers): Promise<TransactionExitStatus> {
         const pkgnames = updates.map(update => update.id);
         let last_progress = 0;
         let total_packages: number;
@@ -627,13 +627,10 @@ export class Dnf5DaemonManager implements PackageManager {
             }
             }
 
-            if (progress_cb) {
-                progress_cb({
-                    waiting: false,
-                    percentage: last_progress,
-                    cancel: null,
-                });
-            }
+            handlers.on_notify({
+                percentage: last_progress,
+                cancel: null,
+            });
         }
 
         await this.with_session(async (session) => {
@@ -645,6 +642,12 @@ export class Dnf5DaemonManager implements PackageManager {
             }
             await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
         }, signal_emitted);
+
+        return TransactionExitStatus.SUCCESS;
+    }
+
+    async get_running_update(_handlers: UpdateProgressHandlers): Promise<Promise<TransactionExitStatus> | null> {
+        return null;
     }
 
     async get_backend(): Promise<string> {

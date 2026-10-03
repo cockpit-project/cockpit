@@ -119,18 +119,8 @@ th {
   overflow: visible;
 }
 
-// Use a grid to lay out elements. This could've been a flex, but a grid lets
-// us size elements from the parent element instead of having to specify
-// individual elements
-#network-mtu-settings-custom + .pf-v6-c-radio__label {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  gap: var(--pf-t--global--spacer--md);
-}
-
 // Set the width of the input element; with a little extra space
-.mtu-label-input > input {
+.mtu-label-input {
   inline-size: 7ch;
   font-variant: tabular-nums;
 }
@@ -245,32 +235,6 @@ th {
 
 #add-zone-dialog .add-zone-zones .pf-v6-c-radio__label {
   text-transform: capitalize;
-}
-
-/* Move firewalld zones higher in z-index (so lines can go behind) */
-.add-zone-zones-firewalld {
-  input {
-    position: relative;
-    z-index: 2;
-  }
-
-  > label {
-    /* FIXME: Add lines behind the radio buttons */
-    &::after {
-      border-block-end: 1px solid #d1d1d1;
-      content: "";
-    }
-
-    /* Start line at the midpoint for the first radio */
-    &:first-of-type::after {
-      inset-inline-start: 50%;
-    }
-
-    /* End line at the midpoint for the last radio */
-    &:last-of-type::after {
-      inset-inline-end: 50%;
-    }
-  }
 }
 
 /* Display labels below buttons */

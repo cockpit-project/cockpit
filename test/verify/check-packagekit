@@ -26,7 +26,7 @@ class NoSubManCase(packagelib.PackageCase):
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in dnf, so it should not get in the way there
         if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos"):
-            self.machine.execute("systemctl stop rhsm.service; systemctl mask rhsm.service")
+            self.machine.execute("systemctl mask --now rhsm.service")
             self.addCleanup(self.machine.execute, "systemctl unmask rhsm.service")
 
         # expected journal messages from enabling/disabling auto upgrade services

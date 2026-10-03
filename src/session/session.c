@@ -46,6 +46,30 @@ static const char *env_names[] = {
 /* Holds environment values to set in pam context */
 static char *env_saved[sizeof (env_names) / sizeof (env_names)[0]] = { NULL, };
 
+typedef struct _pam_conv_data {
+  char *password;
+  // challenge data that can be used with strtok_r
+  char *challenge_ptr;
+  // pointer to challenge original data that can be freed
+  char *challenge_data;
+} pam_conv_data;
+
+static void pam_conv_data_init(pam_conv_data *data)
+{
+  data->password = NULL;
+  data->challenge_ptr = NULL;
+  data->challenge_data = NULL;
+}
+
+static void pam_conv_data_free(pam_conv_data *data)
+{
+  if (data->challenge_data) {
+    free(data->challenge_data);
+    data->challenge_data = NULL;
+    data->challenge_ptr = NULL;
+  }
+}
+
 static const char *
 gssapi_strerror (gss_OID mech_type,
                  OM_uint32 major_status,
@@ -124,7 +148,9 @@ pam_conv_func (int num_msg,
                struct pam_response **ret_resp,
                void *appdata_ptr)
 {
-  char **password = (char **)appdata_ptr;
+  // Provide initial data to PAM
+  pam_conv_data *appdata = (pam_conv_data *) appdata_ptr;
+  char **password = (char **)&appdata->password;
 
   /* For keeping track of messages returned by PAM */
   char *err_msg = NULL;
@@ -135,6 +161,12 @@ pam_conv_func (int num_msg,
   char *prompt = NULL;
   int success = 1;
   int i;
+
+  /* For handling X-Conversation with newlines */
+  char *prompt_token = NULL;
+  // TODO: make sure that all the callers of this function reserve space for this
+  // char **prompt_token_ptr = &password[1];
+  char **prompt_token_ptr = &appdata->challenge_ptr;
 
   /* Any messages from the last conversation pass? */
   txt_msg = last_txt_msg;
@@ -175,6 +207,16 @@ pam_conv_func (int num_msg,
         }
       else
         {
+          if (*prompt_token_ptr == NULL) {
+          // _converse in pam-u2f calls this function (pam_conf_func)
+          // with a single arg, so if we want to reply to the conv in a
+          // single x-conversation and loop, we need to modify
+          // pam-u2f conv logic to give us multiple message at once
+          // or have one convo that accepts the big arugment string
+          // that has all the challenge parts joined with new lines
+          // and then parse the data and newline on the pam-u2f side
+          // ooor we write this pam_conv function to have a external pointer for data stuff
+          //
           debug ("prompt for more data");
           write_authorize_begin ();
           prompt = cockpit_authorize_build_x_conversation (msg[i]->msg, &conversation);
@@ -202,17 +244,41 @@ pam_conv_func (int num_msg,
               free (txt_msg);
               txt_msg = NULL;
             }
+          } else {
+              debug("prompt_token is not null, reusing it");
+          }
 
-          char *authorization = read_authorize_response (msg[i]->msg);
-          char *response = get_authorize_key (authorization, "response", true);
-          char *prompt_resp = cockpit_authorize_parse_x_conversation (response, NULL);
-          cockpit_memory_clear (response, -1);
-          free (response);
-
-          debug ("got prompt response");
-          if (prompt_resp)
+          char *authorization, *response, *prompt_resp, *prompt_part;
+          if (*prompt_token_ptr == NULL) {
+            authorization = read_authorize_response(msg[i]->msg);
+            response = get_authorize_key(authorization, "response", true);
+            prompt_resp = cockpit_authorize_parse_x_conversation(response, NULL);
+            // TODO: this allocation needs to be freed
+            asprintf(prompt_token_ptr, "%s", prompt_resp);
+            // save the original pointer so it can be freed after strtok_r calls
+            appdata->challenge_data = *prompt_token_ptr;
+            prompt_part = strtok_r(*prompt_token_ptr, "\n", prompt_token_ptr);
+            asprintf(&prompt_token, "%s", prompt_part);
+            debug("got prompt response %s", response);
+            debug("got prompt token %s", prompt_token);
+            debug("got prompt token ptr %s", *prompt_token_ptr);
+            cockpit_memory_clear (response, -1);
+            free (response);
+            cockpit_memory_clear (authorization, -1);
+            free (authorization);
+          } else {
+            prompt_part = strtok_r(*prompt_token_ptr, "\n", prompt_token_ptr);
+            asprintf(&prompt_token, "%s", prompt_part);
+            debug("using prior prompt %s '%s'", prompt_token, *prompt_token_ptr);
+            if (*prompt_token_ptr == NULL || (*prompt_token_ptr)[0] == '\0') {
+              debug("freeing appdata prompt token %p %p!", appdata->challenge_ptr, *prompt_token_ptr);
+              pam_conv_data_free(appdata);
+              debug("freeing appdata prompt after: '%s' '%s'", appdata->challenge_ptr, *prompt_token_ptr);
+            }
+          }
+          if (prompt_token)
             {
-              resp[i].resp = prompt_resp;
+              resp[i].resp = prompt_token;
               resp[i].resp_retcode = 0;
               prompt_resp = NULL;
             }

@@ -69,7 +69,7 @@ const initStore = function(rootElement) {
     const runFix = function(alertId, analysisId, fixId, runCommand) {
         let idx;
         for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
-            if (dataStore.entries[idx].key == alertId)
+            if (dataStore.entries[idx].key === alertId)
                 break;
         }
         if (idx < 0) {
@@ -119,7 +119,7 @@ const initStore = function(rootElement) {
                 .then(() => {
                     let idx;
                     for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
-                        if (dataStore.entries[idx].key == alertId)
+                        if (dataStore.entries[idx].key === alertId)
                             break;
                     }
                     if (idx < 0)
@@ -168,7 +168,7 @@ const initStore = function(rootElement) {
         // we start at the back because that's where we push new entries
         // if we receive an alert multiple times, this is where it will be
         for (let idx = dataStore.entries.length - 1; idx >= 0; --idx) {
-            if (dataStore.entries[idx].key == localId) {
+            if (dataStore.entries[idx].key === localId) {
                 if (description === undefined || count === undefined) {
                     dataStore.entries[idx].details = details;
                     return;
@@ -199,7 +199,7 @@ const initStore = function(rootElement) {
      */
     const handleMultipleMessages = function(entries) {
         const detailPromises = [];
-        for (let idxEntry = 0; idxEntry != entries.length; ++idxEntry) {
+        for (let idxEntry = 0; idxEntry !== entries.length; ++idxEntry) {
             const entry = entries[idxEntry];
             maybeUpdateAlert(entry.localId, entry.summary, entry.reportCount, undefined);
             detailPromises.push(dataStore.getAlertDetails(entry.localId));

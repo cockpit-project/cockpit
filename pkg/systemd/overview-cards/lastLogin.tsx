@@ -33,7 +33,7 @@ const generate_line = (host?: string, line?: string): string => {
 const getFormattedDateTime = (time: number): string => {
     const now = new Date();
     const date = new Date(time);
-    if (date.getFullYear() == now.getFullYear()) {
+    if (date.getFullYear() === now.getFullYear()) {
         return timeformat.dateTimeNoYear(date);
     }
     return timeformat.dateTime(date);
@@ -59,7 +59,7 @@ const LastLogin = () => {
         try {
             const [reply] = await bridge.call("/LoginMessages", "cockpit.LoginMessages", "Get", []);
             const obj = JSON.parse(reply as string);
-            if (obj.version == 1) {
+            if (obj.version === 1) {
                 setLoginMessages(obj);
             } else {
                 // empty reply is okay -- older bridges just don't send that information

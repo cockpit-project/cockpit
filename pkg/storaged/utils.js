@@ -27,7 +27,7 @@ export function compare_versions(a, b) {
     let i;
 
     for (i = 0; i < len; i++) {
-        if (a_ints[i] == b_ints[i])
+        if (a_ints[i] === b_ints[i])
             continue;
         return a_ints[i] - b_ints[i];
     }
@@ -39,7 +39,7 @@ export function parse_options(options) {
     if (options)
         return (options.split(",")
                 .map(function (s) { return s.trim() })
-                .filter(function (s) { return s != "" }));
+                .filter(function (s) { return s !== "" }));
     else
         return [];
 }
@@ -72,7 +72,7 @@ export function edit_crypto_config(block, modify) {
 
     return block.GetSecretConfiguration({}).then(
         function (items) {
-            old_config = items.find(c => c[0] == "crypttab");
+            old_config = items.find(c => c[0] === "crypttab");
             new_config = ["crypttab", old_config ? Object.assign({ }, old_config[1]) : { }];
 
             // UDisks insists on always having a "passphrase-contents" field when
@@ -220,7 +220,7 @@ export function validate_fsys_label(label, type) {
     if (limit && bytes.length > limit) {
         // Let's not confuse people with encoding issues unless
         // they use funny characters.
-        if (bytes.length == label.length)
+        if (bytes.length === label.length)
             return cockpit.format(_("Name cannot be longer than $0 characters"), limit);
         else
             return cockpit.format(_("Name cannot be longer than $0 bytes"), limit);
@@ -241,7 +241,7 @@ export function mdraid_name(mdraid) {
 
     const parts = mdraid.Name.split(":");
 
-    if (parts.length != 2)
+    if (parts.length !== 2)
         return mdraid.Name;
 
     /* Check the static (from /etc/hostname) and transient (acquired from DHCP server via
@@ -253,7 +253,7 @@ export function mdraid_name(mdraid) {
      * fulfilled, it will not be valid yet (hostnamed properties are undefined);
      * it's too inconvenient to make this function asynchronous, so just don't
      * show the host name in this case. */
-    if (hostnamed.StaticHostname === undefined || parts[0] == hostnamed.StaticHostname || parts[0] == hostnamed.Hostname)
+    if (hostnamed.StaticHostname === undefined || parts[0] === hostnamed.StaticHostname || parts[0] === hostnamed.Hostname)
         return parts[1];
     else
         return cockpit.format(_("$name (from $host)"),
@@ -265,11 +265,11 @@ export function mdraid_name(mdraid) {
 
 export function lvol_name(lvol) {
     let type;
-    if (lvol.Type == "pool")
+    if (lvol.Type === "pool")
         type = _("Pool for thin logical volumes");
-    else if (lvol.ThinPool != "/")
+    else if (lvol.ThinPool !== "/")
         type = _("Thin logical volume");
-    else if (lvol.Origin != "/")
+    else if (lvol.Origin !== "/")
         type = _("Logical volume (snapshot)");
     else
         type = _("Logical volume");
@@ -420,7 +420,7 @@ export function get_partitions(client, block) {
             if (level === 0 && is_contained)
                 continue;
 
-            if (level == 1 && !is_contained)
+            if (level === 1 && !is_contained)
                 continue;
 
             if (start < container_start || start + size > container_start + container_size)
@@ -478,9 +478,9 @@ export function register_available_free_space(client, block, partition) {
 
 export function prepare_available_spaces(client, spcs) {
     function prepare(spc) {
-        if (spc.type == 'block')
+        if (spc.type === 'block')
             return Promise.resolve(spc.block.path);
-        else if (spc.type == 'free') {
+        else if (spc.type === 'free') {
             const block_ptable = client.blocks_ptable[spc.block.path];
             return block_ptable.CreatePartition(spc.start, spc.size, "", "", { });
         }
@@ -491,7 +491,7 @@ export function prepare_available_spaces(client, spcs) {
 
 export function is_snap(client, block) {
     const block_fsys = client.blocks_fsys[block.path];
-    return block_fsys && block_fsys.MountPoints.map(decode_filename).some(mp => mp.indexOf("/snap/") == 0 || mp.indexOf("/var/lib/snapd/snap/") == 0);
+    return block_fsys && block_fsys.MountPoints.map(decode_filename).some(mp => mp.indexOf("/snap/") === 0 || mp.indexOf("/var/lib/snapd/snap/") === 0);
 }
 
 export function get_other_devices(client) {
@@ -500,11 +500,11 @@ export function get_other_devices(client) {
         const block_part = client.blocks_part[path];
         const block_lvm2 = client.blocks_lvm2[path];
 
-        return ((!block_part || block_part.Table == "/") &&
-                block.Drive == "/" &&
-                block.CryptoBackingDevice == "/" &&
-                block.MDRaid == "/" &&
-                (!block_lvm2 || block_lvm2.LogicalVolume == "/") &&
+        return ((!block_part || block_part.Table === "/") &&
+                block.Drive === "/" &&
+                block.CryptoBackingDevice === "/" &&
+                block.MDRaid === "/" &&
+                (!block_lvm2 || block_lvm2.LogicalVolume === "/") &&
                 !block.HintIgnore &&
                 block.Size > 0 &&
                 !client.legacy_vdo_overlay.find_by_block(block) &&
@@ -594,9 +594,9 @@ export function get_parent_blocks(client, path) {
 export function is_netdev(client, path) {
     const block = client.blocks[path];
     const drive = block && client.drives[block.Drive];
-    if (drive && drive.Vendor == "LIO-ORG")
+    if (drive && drive.Vendor === "LIO-ORG")
         return true;
-    if (block && block.Major == 43) // NBD
+    if (block && block.Major === 43) // NBD
         return true;
     return false;
 }
@@ -621,7 +621,7 @@ export function should_ignore(client, path) {
         return false;
 
     const parents = get_direct_parent_blocks(client, path);
-    if (parents.length == 0) {
+    if (parents.length === 0) {
         return block && client.should_ignore_block(block);
     } else {
         return parents.some(p => should_ignore(client, p));
@@ -694,19 +694,19 @@ export function get_children(client, path) {
 
     if (client.blocks[path]) {
         const mdraid = client.blocks[path].MDRaidMember;
-        if (mdraid != "/")
+        if (mdraid !== "/")
             children.push(mdraid);
     }
 
     if (client.blocks_pvol[path]) {
         const vgroup = client.blocks_pvol[path].VolumeGroup;
-        if (vgroup != "/")
+        if (vgroup !== "/")
             children.push(vgroup);
     }
 
     if (client.blocks_stratis_blockdev[path]) {
         const pool = client.blocks_stratis_blockdev[path].Pool;
-        if (pool != "/")
+        if (pool !== "/")
             children.push(pool);
     }
 
@@ -735,7 +735,7 @@ export function find_children_for_mount_point(client, mount_point, self, self_su
     const children = {};
 
     function is_self(b) {
-        return self && (b == self || client.blocks[b.CryptoBackingDevice] == self);
+        return self && (b === self || client.blocks[b.CryptoBackingDevice] === self);
     }
 
     for (const p in client.blocks) {
@@ -765,7 +765,7 @@ export function find_children_for_mount_point(client, mount_point, self, self_su
 
 export function get_fstab_config_with_client(client, block, also_child_config, subvol) {
     function match(c) {
-        if (c[0] != "fstab")
+        if (c[0] !== "fstab")
             return false;
         if (subvol !== undefined) {
             if (!c[1].opts)
@@ -791,9 +791,9 @@ export function get_fstab_config_with_client(client, block, also_child_config, s
     let config = block.Configuration.find(match);
 
     if (!config && also_child_config && client.blocks_crypto[block.path])
-        config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] == "fstab");
+        config = client.blocks_crypto[block.path]?.ChildConfiguration.find(c => c[0] === "fstab");
 
-    if (config && decode_filename(config[1].type.v) != "swap") {
+    if (config && decode_filename(config[1].type.v) !== "swap") {
         const mnt_opts = get_block_mntopts(config[1]).split(",");
         let dir = decode_filename(config[1].dir.v);
         let opts = mnt_opts
@@ -802,9 +802,9 @@ export function get_fstab_config_with_client(client, block, also_child_config, s
         const parents = mnt_opts
                 .filter(function (s) { return s.indexOf("x-parent") === 0 })
                 .join(",");
-        if (dir[0] != "/")
+        if (dir[0] !== "/")
             dir = "/" + dir;
-        if (opts == "defaults")
+        if (opts === "defaults")
             opts = "";
         return [config, dir, opts, parents];
     } else
@@ -830,7 +830,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
             const actions = [];
             if (teardown_action)
                 actions.push(teardown_action);
-            const global_action = (level == 0 || (block && client.blocks[block.CryptoBackingDevice] && level == 1)) ? top_action : child_action || top_action;
+            const global_action = (level === 0 || (block && client.blocks[block.CryptoBackingDevice] && level === 1)) ? top_action : child_action || top_action;
             if (global_action)
                 actions.push(global_action);
             return actions;
@@ -838,7 +838,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
 
         function enter_unmount(block, location, is_top) {
             const [, mount_point] = get_fstab_config_with_client(client, block);
-            const has_fstab_entry = is_temporary && location == mount_point;
+            const has_fstab_entry = is_temporary && location === mount_point;
 
             // Ignore the secret btrfs mount point unless we are
             // formatting (in which case subvol is false).
@@ -846,7 +846,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                 return;
 
             for (const u of usage) {
-                if (u.usage == 'mounted' && u.location == location) {
+                if (u.usage === 'mounted' && u.location === location) {
                     if (is_top) {
                         u.actions = get_actions(_("unmount"));
                         u.set_noauto = false;
@@ -902,7 +902,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                 });
             }
         } else if (mdraid) {
-            const active_state = mdraid.ActiveDevices.find(as => as[0] == block.path);
+            const active_state = mdraid.ActiveDevices.find(as => as[0] === block.path);
             usage.push({
                 level,
                 usage: 'mdraid-member',
@@ -921,7 +921,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
                 pvol,
                 location: vgroup.Name,
                 actions: get_actions(_("remove from LVM2")),
-                blocking: pvol.FreeSize != pvol.Size
+                blocking: pvol.FreeSize !== pvol.Size
             });
         } else if (vdo) {
             usage.push({
@@ -960,7 +960,7 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
     usage.Blocking = usage.some(u => u.blocking);
     usage.Teardown = usage.some(u => !u.blocking);
 
-    if (usage.length == 1 && usage[0].level == 0 && usage[0].usage == "none")
+    if (usage.length === 1 && usage[0].level === 0 && usage[0].usage === "none")
         usage.Teardown = false;
 
     return usage;
@@ -968,8 +968,8 @@ export function get_active_usage(client, path, top_action, child_action, is_temp
 
 async function set_fsys_noauto(client, block, mount_point) {
     for (const conf of block.Configuration) {
-        if (conf[0] == "fstab" &&
-            decode_filename(conf[1].dir.v) == mount_point) {
+        if (conf[0] === "fstab" &&
+            decode_filename(conf[1].dir.v) === mount_point) {
             const options = parse_options(get_block_mntopts(conf[1]));
             if (options.indexOf("noauto") >= 0)
                 continue;
@@ -1038,7 +1038,7 @@ export function teardown_active_usage(client, usage) {
             const pvs = by_vgroup[p];
             // If we would remove all physical volumes of a volume
             // group, remove the whole volume group instead.
-            if (pvs.length == client.vgroups_pvols[p].length) {
+            if (pvs.length === client.vgroups_pvols[p].length) {
                 return vg.Delete(true, { 'tear-down': { t: 'b', v: true } }).then(reload_systemd);
             } else {
                 return Promise.all(pvs.map(pv => vg.RemoveDevice(pv.path, true, {})));
@@ -1049,17 +1049,17 @@ export function teardown_active_usage(client, usage) {
     }
 
     return Promise.all(Array.prototype.concat(
-        unmount(usage.filter(function(use) { return use.usage == "mounted" })),
-        stop_swap(usage.filter(function(use) { return use.usage == "swap" })),
-        mdraid_remove(usage.filter(function(use) { return use.usage == "mdraid-member" })),
-        pvol_remove(usage.filter(function(use) { return use.usage == "pvol" }))
+        unmount(usage.filter(function(use) { return use.usage === "mounted" })),
+        stop_swap(usage.filter(function(use) { return use.usage === "swap" })),
+        mdraid_remove(usage.filter(function(use) { return use.usage === "mdraid-member" })),
+        pvol_remove(usage.filter(function(use) { return use.usage === "pvol" }))
     ));
 }
 
 export async function undo_temporary_teardown(client, usage) {
     for (let i = usage.length - 1; i >= 0; i--) {
         const u = usage[i];
-        if (u.usage == "mounted" && u.has_fstab_entry) {
+        if (u.usage === "mounted" && u.has_fstab_entry) {
             await client.mount_at(u.block, u.location);
         }
     }
@@ -1140,13 +1140,13 @@ export function contains_rootfs(client, path) {
     let fsys_config = null;
 
     if (block)
-        fsys_config = block.Configuration.find(c => c[0] == "fstab");
+        fsys_config = block.Configuration.find(c => c[0] === "fstab");
     if (!fsys_config && crypto)
-        fsys_config = crypto.ChildConfiguration.find(c => c[0] == "fstab");
+        fsys_config = crypto.ChildConfiguration.find(c => c[0] === "fstab");
 
     if (fsys_config) {
         const dir = decode_filename(fsys_config[1].dir.v);
-        return dir == "/";
+        return dir === "/";
     }
 
     return get_children(client, path).some(p => contains_rootfs(client, p));

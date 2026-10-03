@@ -60,13 +60,13 @@ const DeleteDropdown = ({ items }) => {
 };
 
 function serviceRow(props) {
-    let tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
-    let udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
+    let tcp = props.service.ports.filter(p => p.protocol.toUpperCase() === 'TCP');
+    let udp = props.service.ports.filter(p => p.protocol.toUpperCase() === 'UDP');
 
     for (const s of props.service.includes) {
         if (firewall.services[s]) {
-            tcp = tcp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'TCP'));
-            udp = udp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'UDP'));
+            tcp = tcp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() === 'TCP'));
+            udp = udp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() === 'UDP'));
         }
     }
 
@@ -521,7 +521,7 @@ class AddEditServicesModal extends React.Component {
                 let ports;
                 if (port.indexOf("-") > -1) {
                     ports = port.split("-");
-                    if (ports.length != 2) {
+                    if (ports.length !== 2) {
                         error = _("Invalid range");
                         return;
                     }
@@ -639,7 +639,7 @@ class AddEditServicesModal extends React.Component {
                                        value="ports"
                                        isChecked={this.state.custom}
                                        onChange={this.onToggleType}
-                                       isDisabled={this.state.avail_services == null}
+                                       isDisabled={this.state.avail_services === null}
                                        label={_("Custom ports")} />
                             </FormGroup>
                         }
@@ -686,7 +686,7 @@ class AddEditServicesModal extends React.Component {
                                 <FormGroup label="TCP">
                                     <TextInput id="tcp-ports" type="text" onChange={this.validate}
                                                validated={this.state.tcp_error ? "error" : "default"}
-                                               isDisabled={this.state.avail_services == null}
+                                               isDisabled={this.state.avail_services === null}
                                                value={this.state.custom_tcp_value}
                                                placeholder={_("Example: 22,ssh,8080,5900-5910")} />
                                     <FormHelper helperTextInvalid={this.state.tcp_error} helperText={_("Comma-separated ports, ranges, and services are accepted")} />
@@ -695,20 +695,20 @@ class AddEditServicesModal extends React.Component {
                                 <FormGroup label="UDP">
                                     <TextInput id="udp-ports" type="text" onChange={this.validate}
                                                validated={this.state.udp_error ? "error" : "default"}
-                                               isDisabled={this.state.avail_services == null}
+                                               isDisabled={this.state.avail_services === null}
                                                value={this.state.custom_udp_value}
                                                placeholder={_("Example: 88,2019,nfs,rsync")} />
                                     <FormHelper helperTextInvalid={this.state.udp_error} helperText={_("Comma-separated ports, ranges, and services are accepted")} />
                                 </FormGroup>
 
                                 <FormGroup label={_("ID")}>
-                                    <TextInput id="service-name" onChange={(_event, value) => this.setId(value)} isDisabled={!!this.props.custom_id || this.state.avail_services == null}
+                                    <TextInput id="service-name" onChange={(_event, value) => this.setId(value)} isDisabled={!!this.props.custom_id || this.state.avail_services === null}
                                                value={this.state.custom_id} />
                                     <FormHelper helperText={_("If left empty, ID will be generated based on associated port services and port numbers")} />
                                 </FormGroup>
 
                                 <FormGroup label={_("Description")}>
-                                    <TextInput id="service-description" onChange={(_event, value) => this.setDescription(value)} isDisabled={this.state.avail_services == null}
+                                    <TextInput id="service-description" onChange={(_event, value) => this.setDescription(value)} isDisabled={this.state.avail_services === null}
                                                value={this.state.custom_description} />
                                 </FormGroup>
                             </>
@@ -839,7 +839,7 @@ class ActivateZoneModal extends React.Component {
                                     { zones.filter(z => firewall.predefinedZones.indexOf(z) !== -1).sort((a, b) => firewall.predefinedZones.indexOf(a) - firewall.predefinedZones.indexOf(b))
                                             .map(z =>
                                                 <Radio key={z} id={z} name="zone" value={z}
-                                                       isChecked={this.state.zone == z}
+                                                       isChecked={this.state.zone === z}
                                                        onChange={e => this.onChange("zone", e.target.value)}
                                                        label={ firewall.zones[z].id } />
                                             )}
@@ -848,7 +848,7 @@ class ActivateZoneModal extends React.Component {
                                     { customZones.length > 0 && <legend>{ _("Custom zones") }</legend> }
                                     { customZones.map(z =>
                                         <Radio key={z} id={z} name="zone" value={z}
-                                               isChecked={this.state.zone == z}
+                                               isChecked={this.state.zone === z}
                                                onChange={e => this.onChange("zone", e.target.value)}
                                                label={ firewall.zones[z].id } />
                                     )}
@@ -888,13 +888,13 @@ class ActivateZoneModal extends React.Component {
 
                         <FormGroup label={ _("Allowed addresses") } hasNoPaddingTop isInline>
                             <Radio name="add-zone-ip"
-                                   isChecked={this.state.ipRange == "ip-entire-subnet"}
+                                   isChecked={this.state.ipRange === "ip-entire-subnet"}
                                    value="ip-entire-subnet"
                                    id="ip-entire-subnet"
                                    onChange={e => this.onChange("ipRange", e.target.value)}
                                    label={ _("Entire subnet") } />
                             <Radio name="add-zone-ip"
-                                   isChecked={this.state.ipRange == "ip-range"}
+                                   isChecked={this.state.ipRange === "ip-range"}
                                    value="ip-range"
                                    id="ip-range"
                                    onChange={e => this.onChange("ipRange", e.target.value)}

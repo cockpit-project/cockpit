@@ -44,7 +44,7 @@ const App = () => {
                                 action={action}
                                 appProgress={progress}
                                 appProgressTitle={progressTitle} />;
-    } else if (path.length == 1) {
+    } else if (path.length === 1) {
         const id = path[0];
         return <Application metainfo_db={metainfo_db}
                             action={action}

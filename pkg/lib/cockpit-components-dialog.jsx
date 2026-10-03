@@ -140,14 +140,14 @@ class DialogFooter extends React.Component {
                 caption = _("Ok");
 
             let variant = action.style || "secondary";
-            if (variant == "primary" && action.danger)
+            if (variant === "primary" && action.danger)
                 variant = "danger";
 
             return (<Button
                 key={ caption }
                 className="apply"
                 variant={ variant }
-                isLoading={ this.state.action_in_progress && this.state.action_caption_in_progress == caption }
+                isLoading={ this.state.action_in_progress && this.state.action_caption_in_progress === caption }
                 isDanger={ action.danger }
                 onClick={ this.action_click.bind(this, action.clicked, caption) }
                 isDisabled={ actions_disabled || action.disabled }
@@ -312,7 +312,7 @@ export function show_modal_dialog(props, footerProps) {
     }
     dialogObj.setFooterProps = function(footerProps) {
         dialogObj.footerProps = footerProps;
-        if (dialogObj.footerProps.dialog_done != closeCallback) {
+        if (dialogObj.footerProps.dialog_done !== closeCallback) {
             origCallback = dialogObj.footerProps.dialog_done;
             dialogObj.footerProps.dialog_done = closeCallback;
         }

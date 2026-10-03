@@ -77,7 +77,7 @@ export const MotdCard = () => {
             /* trim initial empty lines and trailing space, but keep initial spaces to not break ASCII art */
             if (content)
                 content = content.trimEnd().replace(/^\s*\n/, '');
-            if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
+            if (content && content !== cockpit.localStorage.getItem('dismissed-motd')) {
                 setMotdText(content);
                 setMotdTag(tag);
                 setMotdVisible(true);

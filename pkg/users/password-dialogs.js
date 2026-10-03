@@ -53,7 +53,7 @@ function passwd_self(old_pass, new_pass) {
                     resolve();
                 })
                 .fail(function(ex) {
-                    if (ex.exit_status || ex.problem == "timeout")
+                    if (ex.exit_status || ex.problem === "timeout")
                         ex = new Error(failure);
                     reject(ex);
                 })
@@ -143,7 +143,7 @@ function SetPasswordDialogBody({ state, errors, change }) {
 export function set_password_dialog(account, current_user) {
     let dlg = null;
 
-    const change_self = (account.name == current_user && !superuser.allowed);
+    const change_self = (account.name === current_user && !superuser.allowed);
 
     const state = {
         need_old: change_self,
@@ -161,7 +161,7 @@ export function set_password_dialog(account, current_user) {
     function change(field, value) {
         state[field] = value;
 
-        if (state.password != old_password) {
+        if (state.password !== old_password) {
             state.confirm_weak = false;
             old_password = state.password;
             errors = { };
@@ -173,7 +173,7 @@ export function set_password_dialog(account, current_user) {
     function validate(force, password, password_confirm) {
         const errs = { };
 
-        if (password != password_confirm)
+        if (password !== password_confirm)
             errs.password_confirm = _("The passwords do not match");
 
         if (password.length > 256)

@@ -56,7 +56,7 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
 
     const enabled = UnitFileState && UnitFileState.includes("enabled");
     const disabled = UnitFileState && UnitFileState.includes("disabled");
-    const isStatic = UnitFileState && UnitFileState == "static";
+    const isStatic = UnitFileState && UnitFileState === "static";
     const masked = LoadState && LoadState.includes("masked");
     let unitFileState;
     if (enabled || disabled)
@@ -90,7 +90,7 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
                                 <ThumbtackIcon className='service-thumbtack-icon-color' />
                             </Tooltip>}
                     </Flex>
-                    {props.Description != shortId && <div className='service-unit-description'>{props.Description}</div>}
+                    {props.Description !== shortId && <div className='service-unit-description'>{props.Description}</div>}
                 </div>
             )
         },

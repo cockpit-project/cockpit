@@ -131,7 +131,7 @@ export const at_boot_input = (at_boot, is_visible) => {
 };
 
 export function update_at_boot_input(dlg, vals, trigger) {
-    if (trigger == "at_boot")
+    if (trigger === "at_boot")
         dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
 }
 
@@ -168,8 +168,8 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         else
             all_new_opts = old_parents;
 
-        if (new_dir != "") {
-            if (new_dir[0] != "/")
+        if (new_dir !== "") {
+            if (new_dir[0] !== "/")
                 new_dir = "/" + new_dir;
             new_config = [
                 "fstab", {
@@ -188,7 +188,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                 return block.RemoveConfigurationItem(new_config, {});
             else if (old_config && !new_config)
                 return block.AddConfigurationItem(old_config, {});
-            else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts)) {
+            else if (old_config && new_config && (new_dir !== old_dir || new_opts !== old_opts)) {
                 return block.UpdateConfigurationItem(new_config, old_config, {});
             }
         }
@@ -202,7 +202,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         }
 
         function maybe_mount() {
-            if (mode == "mount" || (mode == "update" && is_filesystem_mounted)) {
+            if (mode === "mount" || (mode === "update" && is_filesystem_mounted)) {
                 return (get_block_fsys()
                         .then(block_fsys => {
                             const block = client.blocks[block_fsys.path];
@@ -214,7 +214,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                                         // code runs to fix a inconsistent mount.
                                         return (is_mounted_synch(block)
                                                 .then(mounted_at => {
-                                                    if (mounted_at == new_dir)
+                                                    if (mounted_at === new_dir)
                                                         return;
                                                     return (undo()
                                                             .then(() => {
@@ -233,11 +233,11 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         }
 
         async function maybe_unlock() {
-            if (mode == "mount" || (mode == "update" && is_filesystem_mounted)) {
+            if (mode === "mount" || (mode === "update" && is_filesystem_mounted)) {
                 let crypto = client.blocks_crypto[block.path];
                 const backing = client.blocks[block.CryptoBackingDevice];
 
-                if (backing && block.ReadOnly != crypto_unlock_readonly) {
+                if (backing && block.ReadOnly !== crypto_unlock_readonly) {
                     // We are working on a open crypto device, but it
                     // has the wrong readonly-ness. Close it so that we can reopen it below.
                     crypto = client.blocks_crypto[backing.path];
@@ -261,7 +261,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         }
 
         function maybe_lock() {
-            if (mode == "unmount" && !subvol && !client.in_anaconda_mode()) {
+            if (mode === "unmount" && !subvol && !client.in_anaconda_mode()) {
                 const crypto_backing = client.blocks[block.CryptoBackingDevice];
                 const crypto_backing_crypto = crypto_backing && client.blocks_crypto[crypto_backing.path];
                 if (crypto_backing_crypto) {
@@ -307,7 +307,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         at_boot = "local";
 
     let fields = null;
-    if (mode == "mount" || mode == "update") {
+    if (mode === "mount" || mode === "update") {
         fields = [
             TextInput("mount_point", _("Mount point"),
                       {
@@ -315,8 +315,8 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                           validate: val => is_valid_mount_point(client,
                                                                 block,
                                                                 client.add_mount_point_prefix(val),
-                                                                mode == "update" && !is_filesystem_mounted,
-                                                                mode == "update",
+                                                                mode === "update" && !is_filesystem_mounted,
+                                                                mode === "update",
                                                                 subvol)
                       }),
             mount_options(opt_ro, extra_options, null),
@@ -378,10 +378,10 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
 
     function update_explicit_passphrase(vals_ro) {
         const backing = client.blocks[block.CryptoBackingDevice];
-        let need_passphrase = (block.IdUsage == "crypto" && mode == "mount");
+        let need_passphrase = (block.IdUsage === "crypto" && mode === "mount");
         if (backing) {
             // XXX - take subvols into account.
-            if (block.ReadOnly != vals_ro)
+            if (block.ReadOnly !== vals_ro)
                 need_passphrase = true;
         }
         dlg.set_values({ needs_explicit_passphrase: need_passphrase && !passphrase_type });
@@ -393,26 +393,26 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         Teardown: TeardownMessage(usage, old_dir || true),
         update: function (dlg, vals, trigger) {
             update_at_boot_input(dlg, vals, trigger);
-            if (trigger == "mount_options")
+            if (trigger === "mount_options")
                 update_explicit_passphrase(vals.mount_options.ro);
         },
         Action: {
             Title: mode_action[mode],
             disable_on_error: usage.Teardown,
             action: function (vals) {
-                if (mode == "unmount") {
+                if (mode === "unmount") {
                     return do_unmount();
-                } else if (mode == "mount" || mode == "update") {
+                } else if (mode === "mount" || mode === "update") {
                     let opts = [];
-                    if ((mode == "update" && !is_filesystem_mounted) || vals.at_boot == "never")
+                    if ((mode === "update" && !is_filesystem_mounted) || vals.at_boot === "never")
                         opts.push("noauto");
                     if (vals.mount_options?.ro)
                         opts.push("ro");
-                    if (vals.at_boot == "never")
+                    if (vals.at_boot === "never")
                         opts.push("x-cockpit-never-auto");
-                    if (vals.at_boot == "nofail")
+                    if (vals.at_boot === "nofail")
                         opts.push("nofail");
-                    if (vals.at_boot == "netdev")
+                    if (vals.at_boot === "netdev")
                         opts.push("_netdev");
                     if (forced_options)
                         opts = opts.concat(forced_options);
@@ -426,9 +426,9 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                                                 passphrase_type,
                                                 crypto_unlock_readonly)
                             .then(() => maybe_set_crypto_options(vals.mount_options?.ro,
-                                                                 opts.indexOf("noauto") == -1,
-                                                                 vals.at_boot == "nofail",
-                                                                 vals.at_boot == "netdev")));
+                                                                 opts.indexOf("noauto") === -1,
+                                                                 vals.at_boot === "nofail",
+                                                                 vals.at_boot === "netdev")));
                 }
             }
         },

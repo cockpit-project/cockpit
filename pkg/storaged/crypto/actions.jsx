@@ -78,7 +78,7 @@ export function lock(block) {
 }
 
 export function std_lock_action(backing_block, content_block) {
-    if (backing_block == content_block)
+    if (backing_block === content_block)
         return null;
 
     return { title: _("Lock"), action: () => lock(backing_block) };

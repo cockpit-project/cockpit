@@ -61,13 +61,13 @@ function MockPeer() {
         const channel = this;
 
         function Transport() {
-            this.close = function(problem) { console.assert(arguments.length == 1) };
+            this.close = function(problem) { console.assert(arguments.length === 1) };
         }
 
         this.transport = new Transport();
 
         this.send = function(payload) {
-            console.assert(arguments.length == 1);
+            console.assert(arguments.length === 1);
             console.assert(this.valid);
             peer.dispatchEvent("recv", channel, payload);
         };

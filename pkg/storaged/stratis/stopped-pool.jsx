@@ -52,7 +52,7 @@ function is_v1_pool(uuid) {
         return true;
 
     const stopped_info = client.stratis_manager.StoppedPools[uuid];
-    return !stopped_info.metadata_version.v[0] || stopped_info.metadata_version.v[1] == 1;
+    return !stopped_info.metadata_version.v[0] || stopped_info.metadata_version.v[1] === 1;
 }
 
 function stratis_r8_manager_start_pool(uuid, slot, passphrase) {

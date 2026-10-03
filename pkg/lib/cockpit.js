@@ -64,7 +64,7 @@ function factory() {
             return;
         if (!options)
             options = transport_globals.default_host;
-        if (typeof options == "string")
+        if (typeof options === "string")
             options = { host: options };
         options.hint = name;
         cockpit.transport.control("hint", options);
@@ -129,7 +129,7 @@ function factory() {
 
     const fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
     cockpit.format = function format(fmt, args) {
-        if (arguments.length != 2 || !is_object(args) || args === null)
+        if (arguments.length !== 2 || !is_object(args) || args === null)
             args = Array.prototype.slice.call(arguments, 1);
 
         function replace(m, x, y) {
@@ -211,7 +211,7 @@ function factory() {
             keys.sort().reverse();
             for (let y = 0; y < keys.length; y++) {
                 for (let x = 0; x < suffixes[keys[y]].length; x++) {
-                    if (factor == suffixes[keys[y]][x]) {
+                    if (factor === suffixes[keys[y]][x]) {
                         number = number / Math.pow(keys[y], x);
                         suffix = factor;
                         break;
@@ -614,7 +614,7 @@ function factory() {
             for (let i = 0; i < fetches.length; i++)
                 fetch(fetches[i][0], fetches[i][1], for_walking);
 
-            if (last != end)
+            if (last !== end)
                 fetch(last, end, for_walking);
         };
 
@@ -704,7 +704,7 @@ function factory() {
 
         /* An undocumented function called by DataGrid */
         self._register = function _register(grid, id) {
-            if (grid.interval != interval)
+            if (grid.interval !== interval)
                 throw Error("mismatched metric interval between grid and sink");
             let gdata = registered[id];
             if (!gdata) {
@@ -1233,7 +1233,7 @@ function factory() {
     cockpit.ProcessError = ProcessError;
 
     function spawn_debug() {
-        if (window.debugging == "all" || window.debugging?.includes("spawn"))
+        if (window.debugging === "all" || window.debugging?.includes("spawn"))
             console.debug.apply(console, arguments);
     }
 
@@ -1317,12 +1317,12 @@ function factory() {
     };
 
     function dbus_debug() {
-        if (window.debugging == "all" || window.debugging?.includes("dbus"))
+        if (window.debugging === "all" || window.debugging?.includes("dbus"))
             console.debug.apply(console, arguments);
     }
 
     function DBusError(arg, arg1) {
-        if (typeof (arg) == "string") {
+        if (typeof (arg) === "string") {
             this.problem = arg;
             this.name = null;
             this.message = arg1 || cockpit.message(arg);
@@ -1401,7 +1401,7 @@ function factory() {
         self.each = function each(iface, callback) {
             for (const path in self.data) {
                 for (const ifa in self.data[path]) {
-                    if (ifa == iface)
+                    if (ifa === iface)
                         callback(self.data[path][iface], path);
                 }
             }
@@ -1459,7 +1459,7 @@ function factory() {
             defined = true;
 
             Object.keys(meta.methods || { }).forEach(function(name) {
-                if (name[0].toLowerCase() == name[0])
+                if (name[0].toLowerCase() === name[0])
                     return; /* Only map upper case */
 
                 /* Again, make sure these don't show up in enumerations */
@@ -1476,7 +1476,7 @@ function factory() {
             });
 
             Object.keys(meta.properties || { }).forEach(function(name) {
-                if (name[0].toLowerCase() == name[0])
+                if (name[0].toLowerCase() === name[0])
                     return; /* Only map upper case */
 
                 const config = {
@@ -1519,7 +1519,7 @@ function factory() {
 
         function signal(path, iface, name, args) {
             self.dispatchEvent("signal", name, args);
-            if (name[0].toLowerCase() != name[0]) {
+            if (name[0].toLowerCase() !== name[0]) {
                 args = args.slice();
                 args.unshift(name);
                 self.dispatchEvent.apply(self, args);
@@ -1774,7 +1774,7 @@ function factory() {
         }
 
         this.close = function close(options) {
-            if (typeof options == "string")
+            if (typeof options === "string")
                 options = { problem: options };
             if (!options)
                 options = { };
@@ -1933,7 +1933,7 @@ function factory() {
          */
         const keys = Object.keys(options);
         const bus = options.bus;
-        const shared = !name && keys.length == 1 && bus in shared_dbus;
+        const shared = !name && keys.length === 1 && bus in shared_dbus;
 
         if (shared && shared_dbus[bus])
             return shared_dbus[bus];
@@ -1952,7 +1952,7 @@ function factory() {
                     old_close.apply(client, arguments);
             };
             client.addEventListener("close", function() {
-                if (shared_dbus[bus] == client)
+                if (shared_dbus[bus] === client)
                     shared_dbus[bus] = null;
             });
             shared_dbus[bus] = client;
@@ -2028,7 +2028,7 @@ function factory() {
                 read_channel.addEventListener("close", function (event, message) {
                     read_channel = null;
 
-                    if (message.problem == "change-conflict") {
+                    if (message.problem === "change-conflict") {
                         try_read();
                         return;
                     }
@@ -2043,7 +2043,7 @@ function factory() {
                     }
 
                     let content;
-                    if (message.tag == "-")
+                    if (message.tag === "-")
                         content = null;
                     else {
                         try {
@@ -2131,7 +2131,7 @@ function factory() {
                         dfd.resolve(new_content, new_tag);
                     })
                     .fail(function (error) {
-                        if (error.problem == "change-conflict")
+                        if (error.problem === "change-conflict")
                             read_then_update();
                         else
                             dfd.reject(error);
@@ -2203,7 +2203,7 @@ function factory() {
                             } catch (e) {
                                 message = null;
                             }
-                            if (message && message.path == path && message.tag && message.tag != watch_tag) {
+                            if (message && message.path === path && message.tag && message.tag !== watch_tag) {
                                 if (options && options.read !== undefined && !options.read)
                                     fire_watch_callbacks(null, message.tag);
                                 else
@@ -2326,14 +2326,14 @@ function factory() {
                 const el = list[i];
 
                 let val = el.getAttribute("translate") || "yes";
-                if (val == "no")
+                if (val === "no")
                     continue;
 
                 /* Each thing to translate */
                 const tasks = val.split(" ");
                 val = el.getAttribute("translate-context") || el.getAttribute("context");
                 for (let t = 0; t < tasks.length; t++) {
-                    if (tasks[t] == "yes" || tasks[t] == "translate")
+                    if (tasks[t] === "yes" || tasks[t] === "translate")
                         el.textContent = cockpit.gettext(val, el.textContent);
                     else if (tasks[t])
                         el.setAttribute(tasks[t], cockpit.gettext(val, el.getAttribute(tasks[t]) || ""));
@@ -2347,7 +2347,7 @@ function factory() {
 
     cockpit.gettext = function gettext(context, string) {
         /* Missing first parameter */
-        if (arguments.length == 1) {
+        if (arguments.length === 1) {
             string = context;
             context = undefined;
         }
@@ -2371,7 +2371,7 @@ function factory() {
 
     cockpit.ngettext = function ngettext(context, string1, stringN, num) {
         /* Missing first parameter */
-        if (arguments.length == 3) {
+        if (arguments.length === 3) {
             num = stringN;
             stringN = string1;
             string1 = context;
@@ -2387,7 +2387,7 @@ function factory() {
                     return translated[i];
             }
         }
-        if (num == 1)
+        if (num === 1)
             return string1;
         return stringN;
     };
@@ -2408,37 +2408,37 @@ function factory() {
             problem = arg.problem;
         else
             problem = arg + "";
-        if (problem == "terminated")
+        if (problem === "terminated")
             return _("Your session has been terminated.");
-        else if (problem == "no-session")
+        else if (problem === "no-session")
             return _("Your session has expired. Please log in again.");
-        else if (problem == "access-denied")
+        else if (problem === "access-denied")
             return _("Not permitted to perform this action.");
-        else if (problem == "authentication-failed")
+        else if (problem === "authentication-failed")
             return _("Login failed");
-        else if (problem == "authentication-not-supported")
+        else if (problem === "authentication-not-supported")
             return _("The server refused to authenticate using any supported methods.");
-        else if (problem == "unknown-hostkey")
+        else if (problem === "unknown-hostkey")
             return _("Untrusted host");
-        else if (problem == "unknown-host")
+        else if (problem === "unknown-host")
             return _("Untrusted host");
-        else if (problem == "invalid-hostkey")
+        else if (problem === "invalid-hostkey")
             return _("Host key is incorrect");
-        else if (problem == "internal-error")
+        else if (problem === "internal-error")
             return _("Internal error");
-        else if (problem == "timeout")
+        else if (problem === "timeout")
             return _("Connection has timed out.");
-        else if (problem == "no-cockpit")
+        else if (problem === "no-cockpit")
             return _("Cockpit is not installed on the system.");
-        else if (problem == "no-forwarding")
+        else if (problem === "no-forwarding")
             return _("Cannot forward login credentials");
-        else if (problem == "disconnected")
+        else if (problem === "disconnected")
             return _("Server has closed the connection.");
-        else if (problem == "not-supported")
+        else if (problem === "not-supported")
             return _("Cockpit is not compatible with the software on the system.");
-        else if (problem == "no-host")
+        else if (problem === "no-host")
             return _("Cockpit could not contact the given host.");
-        else if (problem == "too-large")
+        else if (problem === "too-large")
             return _("Too much data");
         else
             return problem;
@@ -2459,7 +2459,7 @@ function factory() {
     }
 
     function http_debug() {
-        if (window.debugging == "all" || window.debugging?.includes("http"))
+        if (window.debugging === "all" || window.debugging?.includes("http"))
             console.debug.apply(console, arguments);
     }
 
@@ -2468,7 +2468,7 @@ function factory() {
             return undefined;
         name = name.toLowerCase();
         for (const head in headers) {
-            if (head.toLowerCase() == name)
+            if (head.toLowerCase() === name)
                 return headers[head];
         }
         return undefined;
@@ -2572,7 +2572,7 @@ function factory() {
 
             function on_control(event, options) {
                 /* Anyone looking for response details? */
-                if (options.command == "response") {
+                if (options.command === "response") {
                     resp = options;
                     if (responders) {
                         resp.headers = resp.headers || { };
@@ -2721,7 +2721,7 @@ function factory() {
 
         function maybe_reload() {
             if (api.valid && self.allowed !== null) {
-                if (self.allowed != (api.Current != "none"))
+                if (self.allowed !== (api.Current !== "none"))
                     window.location.reload(true);
             }
         }
@@ -2837,14 +2837,14 @@ function factory() {
                     following = false;
 
                 if (options_list.length > 1 &&
-                    (close_options.problem == "not-supported" || close_options.problem == "not-found")) {
+                    (close_options.problem === "not-supported" || close_options.problem === "not-found")) {
                     transfer(options_list.slice(1), callback);
                 } else if (close_options.problem) {
-                    if (close_options.problem != "terminated" &&
-                        close_options.problem != "disconnected" &&
-                        close_options.problem != "authentication-failed" &&
-                        (close_options.problem != "not-found" || !is_archive) &&
-                        (close_options.problem != "not-supported" || !is_archive)) {
+                    if (close_options.problem !== "terminated" &&
+                        close_options.problem !== "disconnected" &&
+                        close_options.problem !== "authentication-failed" &&
+                        (close_options.problem !== "not-found" || !is_archive) &&
+                        (close_options.problem !== "not-supported" || !is_archive)) {
                         console.warn("metrics channel failed: " + close_options.problem);
                     }
                 } else if (is_archive) {
@@ -2987,9 +2987,9 @@ function factory() {
 
     const old_onerror = window.onerror;
     window.onerror = function(msg, url, line) {
-        // Errors with url == "" are not logged apparently, so let's
+        // Errors with url === "" are not logged apparently, so let's
         // not show the "Oops" for them either.
-        if (url != "")
+        if (url !== "")
             cockpit.oops();
         if (old_onerror)
             return old_onerror(msg, url, line);

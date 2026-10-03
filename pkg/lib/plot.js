@@ -288,7 +288,7 @@ class Plot {
         const beg = -Math.ceil((x_range_seconds * 1000 + x_offset) / this.interval);
         const end = -Math.floor(x_offset / this.interval);
 
-        if (this.grid && this.grid.interval == this.interval) {
+        if (this.grid && this.grid.interval === this.interval) {
             this.grid.move(beg, end);
         } else {
             if (this.grid)
@@ -490,7 +490,7 @@ class SinglePlotState {
             // whole thing (because of limitations of Metrics_stacked_instances_series above).
             // So we do that, but only when there is at least one instance
             // that needs to be removed.  That avoids a lot of events and React warnings.
-            if (Object.keys(this._stacked_instances_series.instances).some(old => insts.indexOf(old) == -1))
+            if (Object.keys(this._stacked_instances_series.instances).some(old => insts.indexOf(old) === -1))
                 this._stacked_instances_series.clear_instances();
         }
 

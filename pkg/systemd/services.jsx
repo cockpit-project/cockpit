@@ -52,7 +52,7 @@ let monotonic_timer_base = null; // µs
 export const MAX_UINT64 = 2 ** 64 - 1;
 
 function debug() {
-    if (window.debugging == "all" || window.debugging?.includes("services"))
+    if (window.debugging === "all" || window.debugging?.includes("services"))
         console.debug.apply(console, arguments);
 }
 
@@ -252,10 +252,10 @@ class ServicesPageBody extends React.Component {
     onOptionsChanged(options) {
         const currentOptions = { ...cockpit.location.options, ...options };
 
-        if (!currentOptions.activestate || options.activestate == "[]")
+        if (!currentOptions.activestate || options.activestate === "[]")
             delete currentOptions.activestate;
 
-        if (!currentOptions.filestate || options.filestate == "[]")
+        if (!currentOptions.filestate || options.filestate === "[]")
             delete currentOptions.filestate;
 
         if (!currentOptions.name)
@@ -269,8 +269,8 @@ class ServicesPageBody extends React.Component {
             this.systemd_subscription = systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "Subscribe", null)
                     .finally(this.listUnits)
                     .catch(error => {
-                        if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
-                        error.name != "org.freedesktop.DBus.Error.FileExists")
+                        if (error.name !== "org.freedesktop.systemd1.AlreadySubscribed" &&
+                        error.name !== "org.freedesktop.DBus.Error.FileExists")
                             this.setState({ error: cockpit.format(_("Subscribing to systemd signals failed: $0"), error.toString()) });
                     });
         })
@@ -429,7 +429,7 @@ class ServicesPageBody extends React.Component {
     isTemplate(id) {
         const tp = id.indexOf("@");
         const sp = id.lastIndexOf(".");
-        return (tp != -1 && (tp + 1 == sp || tp + 1 == id.length));
+        return (tp !== -1 && (tp + 1 === sp || tp + 1 === id.length));
     }
 
     listUnits() {
@@ -523,9 +523,9 @@ class ServicesPageBody extends React.Component {
         if (!unit_a || !unit_b)
             return 0;
 
-        if (failed_a != failed_b)
+        if (failed_a !== failed_b)
             return failed_b - failed_a;
-        else if (pinned_a != pinned_b)
+        else if (pinned_a !== pinned_b)
             return pinned_b - pinned_a;
         else
             return unit_a_t[0].localeCompare(unit_b_t[0]);
@@ -560,7 +560,7 @@ class ServicesPageBody extends React.Component {
 
     /* Add some computed properties into a unit object - does not call setState */
     updateComputedProperties(unit) {
-        unit.HasFailed = unit.ActiveState == "failed" || (
+        unit.HasFailed = unit.ActiveState === "failed" || (
             unit.LoadState && unit.LoadState !== "loaded" && unit.LoadState !== "masked");
 
         unit.CombinedState = this.activeState[unit.ActiveState] || unit.ActiveState;
@@ -577,7 +577,7 @@ class ServicesPageBody extends React.Component {
         const tabErrors = { };
 
         Object.values(this.units).forEach(u => {
-            if (u.ActiveState == "failed" && u.LoadState != "not-found") {
+            if (u.ActiveState === "failed" && u.LoadState !== "not-found") {
                 const suffix = u.Id.substring(u.Id.lastIndexOf('.') + 1);
                 if (service_tabs_suffixes.includes(suffix)) {
                     tabErrors[suffix] = true;
@@ -659,7 +659,7 @@ class ServicesPageBody extends React.Component {
         /* Navigation: unit details page with a path, service list without;
          * the details page does its own loading, we don't need to wait for isFullyLoaded */
         const path = cockpit.location.path;
-        if (path.length == 1) {
+        if (path.length === 1) {
             const unit_id = path[0];
 
             return <Service unitIsValid={unitId => this.unit_files[unitId] || this.knownIds.has(unitId) }
@@ -720,7 +720,7 @@ class ServicesPageBody extends React.Component {
                         />
                     </CardHeader>
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
-                                  isTimer={activeTab == 'timer'}
+                                  isTimer={activeTab === 'timer'}
                                   onClearAllFilters={onClearAllFilters}
                                   units={this.computeSelectedUnits()} />
                 </Card>
@@ -769,9 +769,9 @@ const ServicesPageFilters = ({
     };
 
     const getFilterLabelKey = (typeLabel) => {
-        if (typeLabel == 'Active state')
+        if (typeLabel === 'Active state')
             return 'activeState';
-        else if (typeLabel == 'File state')
+        else if (typeLabel === 'File state')
             return 'fileState';
     };
 
@@ -899,7 +899,7 @@ const ServicesPage = () => {
     return (
         <WithDialogs>
             <Page className='pf-m-no-sidebar'>
-                {cockpit.location.path.length == 0 &&
+                {cockpit.location.path.length === 0 &&
                 <PageSection hasBodyWrapper={false} className="services-header">
                     <Flex>
                         <ServiceTabs activeTab={activeTab}
@@ -909,17 +909,17 @@ const ServicesPage = () => {
                                       }} />
                         <FlexItem align={{ default: 'alignRight' }}>
                             {loggedUser && loggedUser !== 'root' && <ToggleGroup>
-                                <ToggleGroupItem isSelected={owner == "system"}
+                                <ToggleGroupItem isSelected={owner === "system"}
                                                                                           buttonId="system"
                                                                                           text={_("System")}
                                                                                           onChange={() => setOwner("system")} />
-                                <ToggleGroupItem isSelected={owner == "user"}
+                                <ToggleGroupItem isSelected={owner === "user"}
                                                                                           buttonId="user"
                                                                                           text={_("User")}
                                                                                           onChange={() => setOwner("user")} />
                             </ToggleGroup>}
                         </FlexItem>
-                        {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialogButton isLoading={isLoading} owner={owner} />}
+                        {activeTab === "timer" && owner === "system" && superuser.allowed && <CreateTimerDialogButton isLoading={isLoading} owner={owner} />}
                     </Flex>
                 </PageSection>}
                 <ServicesPageBody

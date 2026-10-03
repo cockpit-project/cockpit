@@ -38,7 +38,7 @@ window.addEventListener('beforeunload', () => {
 }, false);
 
 function transport_debug(...args: unknown[]) {
-    if (window.debugging == "all" || window.debugging?.includes("channel"))
+    if (window.debugging === "all" || window.debugging?.includes("channel"))
         console.debug(...args);
 }
 
@@ -150,23 +150,23 @@ class Transport extends EventEmitter<{ ready(): void }> {
         const channel = data.channel;
 
         /* Init message received */
-        if (data.command == "init") {
+        if (data.command === "init") {
             this.#process_init(data);
         } else if (this.#waiting_for_init) {
             this.#waiting_for_init = false;
-            if (data.command != "close" || channel) {
+            if (data.command !== "close" || channel) {
                 console.error("received message before init: ", data.command);
                 data = { problem: "protocol-error" };
             }
             this.close(data);
 
             /* Any pings get sent back as pongs */
-        } else if (data.command == "ping") {
+        } else if (data.command === "ping") {
             data.command = "pong";
             this.send_control(data);
-        } else if (data.command == "pong") {
+        } else if (data.command === "pong") {
             /* Any pong commands are ignored */
-        } else if (data.command == "hint") {
+        } else if (data.command === "hint") {
             if (transport_globals.process_hints)
                 transport_globals.process_hints(data);
         } else if (typeof channel === 'string') {
@@ -206,7 +206,7 @@ class Transport extends EventEmitter<{ ready(): void }> {
         } else {
             const nl = message.indexOf('\n');
             channel = message.substring(0, nl);
-            if (nl == 0) {
+            if (nl === 0) {
                 control = JSON.parse(message);
                 transport_debug("recv control:", control);
             } else {
@@ -282,10 +282,10 @@ class Transport extends EventEmitter<{ ready(): void }> {
     }
 
     send_control(data: JsonObject): boolean {
-        if (!this.#ws && (data.command == "close" || data.command == "kill"))
+        if (!this.#ws && (data.command === "close" || data.command === "kill"))
             return false; /* don't complain if closed and closing */
         if (this.#check_health_timer &&
-            data.command == "hint" && data.hint == "ignore_transport_health_check") {
+            data.command === "hint" && data.hint === "ignore_transport_health_check") {
             /* This is for us, process it directly. */
             this.#ignore_health_check = !!data.data;
             return false;

@@ -10,7 +10,7 @@
        dialog_show({ Title: _("What is your name?"),
                      Fields: [
                        TextInput("name", _("Name"),
-                                 { validate: val => (val == ""? _("Name can't be empty") : null) })
+                                 { validate: val => (val === ""? _("Name can't be empty") : null) })
                      ]
                      Action: {
                        Title: _("Ok"),
@@ -244,7 +244,7 @@ function make_rows(fields, values, errors, onChange) {
 }
 
 function is_visible(field, values) {
-    return !field.options || field.options.visible == undefined || field.options.visible(values);
+    return !field.options || field.options.visible === undefined || field.options.visible(values);
 }
 
 const Field = ({ field, values, errors, onChange }) => {
@@ -288,7 +288,7 @@ const Row = ({ field, values, errors, onChange }) => {
             nested_elts = make_rows(options.nested_fields, values, errors, onChange);
     }
 
-    if (title || title == "") {
+    if (title || title === "") {
         let titleLabel = title;
 
         if (options.widest_title)
@@ -318,7 +318,7 @@ const Row = ({ field, values, errors, onChange }) => {
 const Body = ({ body, teardown, fields, values, errors, isFormHorizontal, onChange }) => {
     let error_alert = null;
 
-    if (errors && errors.toString() != "[object Object]") {
+    if (errors && errors.toString() !== "[object Object]") {
         // This is a global error from a failed action
         error_alert = <Alert variant='danger' isInline title={errors.toString()} />;
         errors = null;
@@ -419,7 +419,7 @@ export const dialog_open = (def) => {
                             return def.Action.action(visible_values, progress_callback);
                     })
                     .catch(errs => {
-                        if (errs && errs.toString() != "[object Object]") {
+                        if (errs && errs.toString() !== "[object Object]") {
                         // Log errors from failed actions, for debugging and
                         // to allow the test suite to catch known issues.
                             console.warn(errs.toString());
@@ -439,11 +439,11 @@ export const dialog_open = (def) => {
         function add_action(variant) {
             actions.push({
                 caption: variant.Title,
-                style: actions.length == 0 ? "primary" : "secondary",
+                style: actions.length === 0 ? "primary" : "secondary",
                 danger: def.Action.Danger || def.Action.DangerButton,
-                disabled: (running_promise != null ||
+                disabled: (running_promise !== null ||
                            (def.Action.disable_on_error &&
-                            errors && errors.toString() != "[object Object]") ||
+                            errors && errors.toString() !== "[object Object]") ||
                            (confirmation && !confirmed)),
                 clicked: progress_callback => run_action(progress_callback, variant.tag),
             });
@@ -583,7 +583,7 @@ export const dialog_open = (def) => {
 
         get_options: (tag) => {
             for (const f of fields) {
-                if (f.tag == tag) {
+                if (f.tag === tag) {
                     return f.options;
                 }
             }
@@ -591,7 +591,7 @@ export const dialog_open = (def) => {
 
         set_options: (tag, new_options) => {
             fields.forEach(f => {
-                if (f.tag == tag) {
+                if (f.tag === tag) {
                     Object.assign(f.options, new_options);
                     update();
                 }
@@ -758,7 +758,7 @@ export const SelectOneRadio = (tag, title, options) => {
         render: (val, change) => {
             const vertical = options?.vertical || false;
             const fields = options.choices.map(c => (
-                <Radio key={c.value} isChecked={val == c.value} data-data={c.value}
+                <Radio key={c.value} isChecked={val === c.value} data-data={c.value}
                             id={tag + '.' + c.value}
                             onChange={() => change(c.value)} label={c.title} />));
 
@@ -795,7 +795,7 @@ export const SelectRow = (tag, headers, options) => {
                             return (
                                 <tr key={row.value}
                                     onMouseDown={ev => { if (ev && ev.button === 0) change(row.value); }}
-                                    className={row.value == val ? "highlight-ct" : ""}>
+                                    className={row.value === val ? "highlight-ct" : ""}>
                                     {row.columns.map(c => <td key={c}>{c}</td>)}
                                 </tr>
                             );
@@ -818,7 +818,7 @@ export const SelectSpaces = (tag, title, options) => {
         title,
         options,
         initial_value: options.value || [],
-        hasNoPaddingTop: options.spaces.length == 0,
+        hasNoPaddingTop: options.spaces.length === 0,
 
         render: (val, change) => {
             if (options.spaces.length === 0)
@@ -835,9 +835,9 @@ export const SelectSpaces = (tag, title, options) => {
                         const on_change = (_event, checked) => {
                             // Be careful to keep "val" in the same order as "options.spaces".
                             if (checked && !selected)
-                                change(options.spaces.filter(v => val.indexOf(v) >= 0 || v == spc));
+                                change(options.spaces.filter(v => val.indexOf(v) >= 0 || v === spc));
                             else if (!checked && selected)
-                                change(val.filter(v => (v != spc)));
+                                change(val.filter(v => (v !== spc)));
                         };
 
                         const datalistcells = (
@@ -905,7 +905,7 @@ export const SelectSpace = (tag, title, options) => {
                                 <DataListItemRow>
                                     <div className="pf-v6-c-data-list__item-control">
                                         <div className="pf-v6-c-data-list__check">
-                                            <input type='radio' value={desc} name='space' checked={val == spc} onChange={on_change} />
+                                            <input type='radio' value={desc} name='space' checked={val === spc} onChange={on_change} />
                                         </div>
                                     </div>
                                     <DataListItemCells
@@ -965,7 +965,7 @@ export const CheckBoxes = (tag, title, options) => {
                     change(val);
                 }
 
-                if (field.type === undefined || field.type == "checkbox")
+                if (field.type === undefined || field.type === "checkbox")
                     return <CheckBoxComponent key={`checkbox-${ftag}`}
                                               tag={ftag}
                                               val={fval}
@@ -974,7 +974,7 @@ export const CheckBoxes = (tag, title, options) => {
                                               tooltip={field.tooltip}
                                               options={options}
                                               update_function={fchange} />;
-                else if (field.type == "checkboxWithInput")
+                else if (field.type === "checkboxWithInput")
                     return <TextInputCheckedComponent key={`checkbox-with-text-${ftag}`}
                                                       tag={ftag}
                                                       val={fval}
@@ -984,7 +984,7 @@ export const CheckBoxes = (tag, title, options) => {
                     return null;
             });
 
-            if (options.fields.length == 1)
+            if (options.fields.length === 1)
                 return fieldset;
 
             // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -1028,7 +1028,7 @@ export const Message = (text, options) => {
 
 function size_slider_round(value, round) {
     if (round) {
-        if (typeof round == "function")
+        if (typeof round === "function")
             value = round(value);
         else
             value = Math.round(value / round) * round;
@@ -1123,7 +1123,7 @@ export const SizeSlider = (tag, title, options) => {
                 const fmt = cockpit.format_number(limit / unit);
                 const parse = +fmt * unit;
 
-                if (val == parse)
+                if (val === parse)
                     val = limit;
             };
 
@@ -1257,7 +1257,7 @@ const UsersPopover = ({ users }) => {
                         : null
                     }
                 </>}>
-            <Button icon={<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />} variant="link" style={{ visibility: users.length == 0 ? "hidden" : null }}>
+            <Button icon={<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />} variant="link" style={{ visibility: users.length === 0 ? "hidden" : null }}>
                 { "\n" }
                 {_("Currently in use")}
             </Button>
@@ -1265,8 +1265,8 @@ const UsersPopover = ({ users }) => {
 };
 
 function is_expected_unmount(usage, expect_single_unmount) {
-    return (expect_single_unmount && usage.length == 1 &&
-            usage[0].usage == "mounted" && usage[0].location == expect_single_unmount);
+    return (expect_single_unmount && usage.length === 1 &&
+            usage[0].usage === "mounted" && usage[0].location === expect_single_unmount);
 }
 
 const teardown_block_name = use => {
@@ -1307,7 +1307,7 @@ export const TeardownMessage = (usage, expect_single_unmount) => {
             if (location && location.startsWith(BTRFS_TOOL_MOUNT_PATH))
                 return;
 
-            if (use.usage == "mounted") {
+            if (use.usage === "mounted") {
                 location = client.strip_mount_point_prefix(location);
                 if (location === false)
                     location = _("(Not part of target)");
@@ -1325,7 +1325,7 @@ export const TeardownMessage = (usage, expect_single_unmount) => {
         }
     });
 
-    if (rows.length == 0)
+    if (rows.length === 0)
         return null;
 
     return (
@@ -1396,16 +1396,16 @@ export function init_teardown_usage(client, usage, expect_single_unmount) {
         func: async function (dlg) {
             let have_data = false;
             for (const u of usage) {
-                if (u.usage == "mounted") {
+                if (u.usage === "mounted") {
                     u.users = await client.find_mount_users(u.location);
                 }
                 if (client.in_anaconda_mode() && !expect_single_unmount && u.block) {
-                    if (u.block.IdUsage == "filesystem" &&
+                    if (u.block.IdUsage === "filesystem" &&
                         ["xfs", "ext2", "ext3", "ext4", "btrfs", "vfat", "ntfs"].indexOf(u.block.IdType) >= 0) {
                         const empty = await cockpit.script(fsys_is_empty_sh,
                                                            [decode_filename(u.block.PreferredDevice)],
                                                            { superuser: "require", err: "message" });
-                        if (empty.trim() != "yes") {
+                        if (empty.trim() !== "yes") {
                             try {
                                 const info = JSON.parse(empty);
                                 u.data_warning = cockpit.format(_("$0 used, $1 total"),
@@ -1415,10 +1415,10 @@ export function init_teardown_usage(client, usage, expect_single_unmount) {
                                 u.data_warning = _("Device contains unrecognized data");
                             }
                         }
-                    } else if (u.block.IdUsage == "crypto" && !client.blocks_cleartext[u.block.path]) {
+                    } else if (u.block.IdUsage === "crypto" && !client.blocks_cleartext[u.block.path]) {
                         u.data_warning = _("Locked encrypted device might contain data");
                     } else if (!client.blocks_ptable[u.block.path] &&
-                               u.block.IdUsage && u.block.IdUsage != "raid") {
+                               u.block.IdUsage && u.block.IdUsage !== "raid") {
                         u.data_warning = _("Device contains unrecognized data");
                     }
                     if (u.data_warning)
@@ -1442,7 +1442,7 @@ export function init_teardown_usage(client, usage, expect_single_unmount) {
 }
 
 export const StopProcessesMessage = ({ mount_point, users }) => {
-    if (!users || users.length == 0)
+    if (!users || users.length === 0)
         return null;
 
     const process_rows = users.filter(u => u.pid).map(u => {

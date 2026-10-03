@@ -62,14 +62,14 @@ export class FileAutoComplete extends React.Component<FileAutoCompleteProps, Fil
             return;
         }
 
-        const cb = (dirPath: string) => this.updateFiles(dirPath == '' ? '/' : dirPath);
+        const cb = (dirPath: string) => this.updateFiles(dirPath === '' ? '/' : dirPath);
 
         let path = value;
-        if (value.lastIndexOf('/') == value.length - 1)
+        if (value.lastIndexOf('/') === value.length - 1)
             path = value.slice(0, value.length - 1);
 
         const match = this.state.displayFiles
-                .find(entry => (entry.type == 'directory' && entry.path == path + '/') || (entry.type == 'file' && entry.path == path));
+                .find(entry => (entry.type === 'directory' && entry.path === path + '/') || (entry.type === 'file' && entry.path === path));
 
         if (match) {
             // If match file path is a prefix of another file, do not update current directory,
@@ -78,7 +78,7 @@ export class FileAutoComplete extends React.Component<FileAutoCompleteProps, Fil
             const isPrefix = this.state.displayFiles.filter(entry => entry.path.startsWith(value)).length > 1;
             // If the inserted string corresponds to a directory listed in the results
             // update the current directory and refetch results
-            if (match.type == 'directory' && !isPrefix)
+            if (match.type === 'directory' && !isPrefix)
                 cb(match.path);
             else
                 this.setState({ value: match.path });
@@ -87,7 +87,7 @@ export class FileAutoComplete extends React.Component<FileAutoCompleteProps, Fil
             // in the state object we need to update the parent directory and recreate the displayFiles
             const parentDir = value.slice(0, value.lastIndexOf('/'));
 
-            if (parentDir + '/' != this.state.directory) {
+            if (parentDir + '/' !== this.state.directory) {
                 return this.updateFiles(parentDir + '/');
             }
         }
@@ -102,7 +102,7 @@ export class FileAutoComplete extends React.Component<FileAutoCompleteProps, Fil
     }
 
     updateFiles(path: string) {
-        if (this.state.directory == path)
+        if (this.state.directory === path)
             return;
 
         const channel = cockpit.channel({
@@ -123,9 +123,9 @@ export class FileAutoComplete extends React.Component<FileAutoCompleteProps, Fil
 
         channel.addEventListener("message", (_ev, data) => {
             const item = JSON.parse(data);
-            if (item && item.path && item.event == 'present' &&
-                (!this.props.onlyDirectories || item.type == 'directory')) {
-                item.path = item.path + (item.type == 'directory' ? '/' : '');
+            if (item && item.path && item.event === 'present' &&
+                (!this.props.onlyDirectories || item.type === 'directory')) {
+                item.path = item.path + (item.type === 'directory' ? '/' : '');
                 results.push(item);
             }
         });
@@ -138,7 +138,7 @@ export class FileAutoComplete extends React.Component<FileAutoCompleteProps, Fil
 
         const listItems: FileEntry[] = results.map(file => ({
             type: file.type,
-            path: (directory == '' ? '/' : directory) + file.path
+            path: (directory === '' ? '/' : directory) + file.path
         }));
 
         if (directory) {

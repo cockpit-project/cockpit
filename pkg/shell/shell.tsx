@@ -135,7 +135,7 @@ const Shell = () => {
     let failure = null;
     if (problem) {
         failure = <Disconnected problem={problem} />;
-    } else if (current_machine.state != "connected") {
+    } else if (current_machine.state !== "connected") {
         failure = <MachineTroubleshoot machine={current_machine}
                                        onClick={() => connect_host(host_modal_state, state, current_machine)} />;
     }
@@ -144,7 +144,7 @@ const Shell = () => {
         <div id="main" className="page"
              style={
                  {
-                     '--ct-color-host-accent': (current_machine.address == "localhost" ? undefined : current_machine.color)
+                     '--ct-color-host-accent': (current_machine.address === "localhost" ? undefined : current_machine.color)
                  } as React.CSSProperties
              }>
 
@@ -208,10 +208,10 @@ function init() {
 
     function follow(arg: unknown) {
         /* A promise of some sort */
-        if (arguments.length == 1 && arg && typeof arg == "object" && "then" in arg && typeof arg.then == "function") {
+        if (arguments.length === 1 && arg && typeof arg == "object" && "then" in arg && typeof arg.then == "function") {
             arg.then(function(...args: unknown[]) { console.log(...args) },
                      function(...args: unknown[]) { console.error(...args) });
-            if ("stream" in arg && typeof arg.stream == "function")
+            if ("stream" in arg && typeof arg.stream === "function")
                 arg.stream(function(...args: unknown[]) { console.log(...args) });
         }
     }

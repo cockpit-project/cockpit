@@ -154,7 +154,7 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
     const Dialogs = useDialogs();
     const model = useContext(ModelContext);
 
-    if (type == "team" && !model.get_manager().Capabilities.includes(NM_CAPABILITY_TEAM))
+    if (type === "team" && !model.get_manager().Capabilities.includes(NM_CAPABILITY_TEAM))
         return null;
 
     const con = iface && iface.MainConnection;
@@ -175,11 +175,11 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
 
     let settings = connectionSettings;
     if (!settings) {
-        if (type == 'bond') settings = getBondGhostSettings({ newIfaceName });
-        if (type == 'vlan') settings = getVlanGhostSettings();
-        if (type == 'team') settings = getTeamGhostSettings({ newIfaceName });
-        if (type == 'bridge') settings = getBridgeGhostSettings({ newIfaceName });
-        if (type == 'wg') settings = getWireGuardGhostSettings({ newIfaceName });
+        if (type === 'bond') settings = getBondGhostSettings({ newIfaceName });
+        if (type === 'vlan') settings = getVlanGhostSettings();
+        if (type === 'team') settings = getTeamGhostSettings({ newIfaceName });
+        if (type === 'bridge') settings = getBridgeGhostSettings({ newIfaceName });
+        if (type === 'wg') settings = getWireGuardGhostSettings({ newIfaceName });
     }
 
     const properties = { connection: con, dev, settings };
@@ -205,27 +205,27 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
 
     function show() {
         let dlg = null;
-        if (type == 'bond')
+        if (type === 'bond')
             dlg = <BondDialog {...properties} />;
-        else if (type == 'vlan')
+        else if (type === 'vlan')
             dlg = <VlanDialog {...properties} />;
-        else if (type == 'team')
+        else if (type === 'team')
             dlg = <TeamDialog {...properties} />;
-        else if (type == 'bridge')
+        else if (type === 'bridge')
             dlg = <BridgeDialog {...properties} />;
-        else if (type == 'wg')
+        else if (type === 'wg')
             dlg = <WireGuardDialog {...properties} />;
-        else if (type == 'mtu')
+        else if (type === 'mtu')
             dlg = <MtuDialog {...properties} />;
-        else if (type == 'mac')
+        else if (type === 'mac')
             dlg = <MacDialog {...properties} />;
-        else if (type == 'teamport')
+        else if (type === 'teamport')
             dlg = <TeamPortDialog {...properties} />;
-        else if (type == 'bridgeport')
+        else if (type === 'bridgeport')
             dlg = <BridgePortDialog {...properties} />;
-        else if (type == 'ipv4')
+        else if (type === 'ipv4')
             dlg = <IpSettingsDialog topic="ipv4" {...properties} />;
-        else if (type == 'ipv6')
+        else if (type === 'ipv6')
             dlg = <IpSettingsDialog topic="ipv6" {...properties} />;
 
         if (dlg)
@@ -246,7 +246,7 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
 
 function reactivateConnection({ con, dev }) {
     if (con.Settings.connection.interface_name &&
-        con.Settings.connection.interface_name != dev.Interface) {
+        con.Settings.connection.interface_name !== dev.Interface) {
         return dev.disconnect()
                 .then(() => con.activate(null, null))
                 .catch(show_unexpected_error);
@@ -260,7 +260,7 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
     const apply_settings = settings_applier(model, dev, connection);
     const iface = settings.connection.interface_name ?? dev?.Interface;
     const type = settings.connection.type;
-    const membersChanged = members ? Object.keys(membersInit).some(iface => membersInit[iface] != members[iface]) : false;
+    const membersChanged = members ? Object.keys(membersInit).some(iface => membersInit[iface] !== members[iface]) : false;
 
     model.set_operation_in_progress(true);
 
@@ -289,10 +289,10 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
     if (connection) {
         with_settings_checkpoint(model, modify,
                                  {
-                                     ...(type != 'vlan' && {
+                                     ...(type !== 'vlan' && {
                                          devices: (membersChanged ? [] : connection_devices(connection))
                                      }),
-                                     hack_does_add_or_remove: type == 'vlan' || membersChanged || isNonPersistentMultiCon(connection),
+                                     hack_does_add_or_remove: type === 'vlan' || membersChanged || isNonPersistentMultiCon(connection),
                                      rollback_on_failure: type !== 'vlan' && membersChanged
                                  });
     } else {
@@ -301,10 +301,10 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                 model,
                 modify,
                 {
-                    fail_text: cockpit.format(_("Creating this $0 will break the connection to the server, and will make the administration UI unavailable."), type == 'vlan' ? 'VLAN' : type),
+                    fail_text: cockpit.format(_("Creating this $0 will break the connection to the server, and will make the administration UI unavailable."), type === 'vlan' ? 'VLAN' : type),
                     anyway_text: _("Create it"),
                     hack_does_add_or_remove: true,
-                    rollback_on_failure: type != 'vlan',
+                    rollback_on_failure: type !== 'vlan',
                 });
         } catch (e) {
             setDialogError(typeof e === 'string' ? e : e.message);

@@ -53,7 +53,7 @@ function validate_name(name, groups) {
     }
 
     for (let k = 0; k < groups.length; k++) {
-        if (groups[k].name == name)
+        if (groups[k].name === name)
             return _("A group with this name already exists");
     }
 

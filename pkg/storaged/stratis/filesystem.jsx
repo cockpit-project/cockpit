@@ -70,7 +70,7 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
                                   return is_valid_mount_point(client,
                                                               null,
                                                               client.add_mount_point_prefix(val),
-                                                              variant == "nomount");
+                                                              variant === "nomount");
                               }
                           }),
                 mount_options(false, false),
@@ -125,7 +125,7 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
     }
 
     const mp_text = mount_point_text(mount_point, fs_is_mounted);
-    if (mp_text == null)
+    if (mp_text === null)
         return null;
 
     const fsys_card = new_card({

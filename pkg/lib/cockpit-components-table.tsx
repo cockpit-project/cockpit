@@ -66,7 +66,7 @@ interface ListingTableRowColumnProps {
 type ListingTableRowColumn = React.ReactNode | ListingTableRowColumnProps;
 
 function cell_is_props(cell: ListingTableRowColumn): cell is ListingTableRowColumnProps {
-    return typeof cell == "object" && (cell as ListingTableRowColumnProps).title !== undefined;
+    return typeof cell === "object" && (cell as ListingTableRowColumnProps).title !== undefined;
 }
 
 export interface ListingTableRowProps {
@@ -161,7 +161,7 @@ export const ListingTable = ({
             onExpand(expanded);
     }, [expanded, onExpand]);
 
-    const isSortable = cells.some(col => typeof col != "string" && col.sortable);
+    const isSortable = cells.some(col => typeof col !== "string" && col.sortable);
     const isExpandable = rows.some(row => row.expandedContent);
 
     const tableProps: TableProps = {
@@ -175,11 +175,11 @@ export const ListingTable = ({
     tableProps.className = "ct-table";
     if (className)
         tableProps.className = tableProps.className + " " + className;
-    if (rows.length == 0)
+    if (rows.length === 0)
         tableProps.className += ' ct-table-empty';
 
     const header = (
-        (caption || actions.length != 0)
+        (caption || actions.length !== 0)
             ? <header className='ct-table-header'>
                 <h3 className='ct-table-heading'> {caption} </h3>
                 {actions && <div className='ct-table-actions'> {actions} </div>}
@@ -194,7 +194,7 @@ export const ListingTable = ({
             </EmptyStateBody>
         </EmptyState>;
 
-    if (rows.length == 0) {
+    if (rows.length === 0) {
         let emptyState = null;
         if (emptyComponent)
             emptyState = emptyComponent;
@@ -228,12 +228,12 @@ export const ListingTable = ({
 
     const sortRows = (): ListingTableRowProps[] => {
         function sortkey(col: ListingTableRowColumn): string {
-            if (typeof col == "string")
+            if (typeof col === "string")
                 return col;
             if (cell_is_props(col)) {
                 if (col.sortKey)
                     return col.sortKey;
-                if (typeof col.title == "string")
+                if (typeof col.title === "string")
                     return col.title;
             }
             return "";
@@ -263,7 +263,7 @@ export const ListingTable = ({
         if (rowProps.key && newItems.indexOf(rowProps.key) >= 0)
             rowProps.className = (rowProps.className || "") + " ct-new-item";
 
-        cockpit.assert(typeof rowProps.key != "bigint");
+        cockpit.assert(typeof rowProps.key !== "bigint");
 
         const rowKey = rowProps.key || rowIndex;
         const isExpanded = expanded[rowKey] === undefined ? !!row.initiallyExpanded : expanded[rowKey];
@@ -312,12 +312,12 @@ export const ListingTable = ({
                         }
                         const { key, ...cellProps } = props;
                         const headerCell = cells[columnSpanCnt];
-                        const dataLabel = typeof headerCell == 'object' ? headerCell.title : headerCell;
+                        const dataLabel = typeof headerCell === 'object' ? headerCell.title : headerCell;
                         const colKey = dataLabel || columnSpanCnt;
 
                         columnSpanCnt += cellProps.colSpan || 1;
 
-                        if (typeof headerCell != "string" && headerCell?.header) {
+                        if (typeof headerCell !== "string" && headerCell?.header) {
                             return (
                                 <Th key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel}
                                     {...cellProps as ThProps}>
@@ -362,9 +362,9 @@ export const ListingTable = ({
                             isSelected: rows.every(r => r.selected)
                         }} />}
                         {cells.map((column, columnIndex) => {
-                            const columnProps = typeof column == "string" ? {} : column.props;
+                            const columnProps = typeof column === "string" ? {} : column.props;
                             const sortParams = (
-                                (typeof column != "string" && column.sortable)
+                                (typeof column !== "string" && column.sortable)
                                     ? {
                                         sort: {
                                             sortBy: {
@@ -380,7 +380,7 @@ export const ListingTable = ({
 
                             return (
                                 <Th key={columnIndex} {...columnProps} {...sortParams}>
-                                    {typeof column == 'object' ? column.title : column}
+                                    {typeof column === 'object' ? column.title : column}
                                 </Th>
                             );
                         })}

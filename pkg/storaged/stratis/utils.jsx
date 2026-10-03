@@ -14,9 +14,9 @@ import { TangKeyVerification } from "../crypto/tang.jsx";
 const _ = cockpit.gettext;
 
 export function validate_pool_name(pool, name) {
-    if (name == "")
+    if (name === "")
         return _("Name can not be empty.");
-    if ((!pool || name != pool.Name) && client.stratis_poolnames_pool[name])
+    if ((!pool || name !== pool.Name) && client.stratis_poolnames_pool[name])
         return _("A pool with this name exists already.");
 }
 
@@ -57,7 +57,7 @@ export function get_unused_keydesc(client, desc_prefix) {
                 let desc;
                 for (let i = 0; i < 1000; i++) {
                     desc = desc_prefix + (i > 0 ? "." + i.toFixed() : "");
-                    if (keys.indexOf(desc) == -1)
+                    if (keys.indexOf(desc) === -1)
                         break;
                 }
                 return desc;
@@ -98,11 +98,11 @@ export function destroy_filesystem(fsys) {
 }
 
 export function validate_fs_name(fsys, name, filesystems) {
-    if (name == "")
+    if (name === "")
         return _("Name can not be empty.");
-    if (!fsys || name != fsys.Name) {
+    if (!fsys || name !== fsys.Name) {
         for (const fs of filesystems) {
-            if (fs.Name == name)
+            if (fs.Name === name)
                 return _("A filesystem with this name exists already in this pool.");
         }
     }
@@ -111,15 +111,15 @@ export function validate_fs_name(fsys, name, filesystems) {
 export function set_mount_options(path, vals, forced_options) {
     let mount_options = [];
 
-    if (vals.variant == "nomount" || vals.at_boot == "never")
+    if (vals.variant === "nomount" || vals.at_boot === "never")
         mount_options.push("noauto");
     if (vals.mount_options?.ro)
         mount_options.push("ro");
-    if (vals.at_boot == "never")
+    if (vals.at_boot === "never")
         mount_options.push("x-cockpit-never-auto");
-    if (vals.at_boot == "nofail")
+    if (vals.at_boot === "nofail")
         mount_options.push("nofail");
-    if (vals.at_boot == "netdev")
+    if (vals.at_boot === "netdev")
         mount_options.push("_netdev");
     if (vals.mount_options?.extra)
         mount_options.push(vals.mount_options.extra);
@@ -127,9 +127,9 @@ export function set_mount_options(path, vals, forced_options) {
     mount_options = mount_options.concat(forced_options);
 
     let mount_point = vals.mount_point;
-    if (mount_point == "")
+    if (mount_point === "")
         return Promise.resolve();
-    if (mount_point[0] != "/")
+    if (mount_point[0] !== "/")
         mount_point = "/" + mount_point;
     mount_point = client.add_mount_point_prefix(mount_point);
 
@@ -159,7 +159,7 @@ export function set_mount_options(path, vals, forced_options) {
                                         return block.AddConfigurationItem(config, {})
                                                 .then(reload_systemd)
                                                 .then(() => {
-                                                    if (vals.variant != "nomount")
+                                                    if (vals.variant !== "nomount")
                                                         return client.mount_at(block, mount_point);
                                                     else
                                                         return Promise.resolve();

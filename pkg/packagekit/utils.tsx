@@ -2,7 +2,7 @@
 import cockpit from "cockpit";
 
 export function debug(...args: unknown[]) {
-    if (window.debugging == 'all' || window.debugging?.includes('packagekit'))
+    if (window.debugging === 'all' || window.debugging?.includes('packagekit'))
         console.debug('packagekit:', ...args);
 }
 
@@ -50,7 +50,7 @@ export function watchRedHatSubscription(callback: (registered: boolean) => void)
                 check();
             })
             .catch(ex => {
-                if (ex.problem != "not-found")
+                if (ex.problem !== "not-found")
                     console.warn("Failed to query RHSM products:", JSON.stringify(ex));
             });
 }

@@ -43,9 +43,9 @@ export class Location {
         const out = [];
         for (let i = 0; i < parts.length; i++) {
             const part = parts[i];
-            if (part === "" || part == ".") {
+            if (part === "" || part === ".") {
                 continue;
-            } else if (part == "..") {
+            } else if (part === "..") {
                 if (out.length === 0)
                     return [];
                 out.pop();
@@ -88,14 +88,14 @@ export class Location {
             if (pre_parts[i] !== result[i])
                 break;
         }
-        if (i == pre_parts.length)
+        if (i === pre_parts.length)
             result.splice(0, pre_parts.length);
 
         return result;
     }
 
     encode(path: string | string[], options: Options, with_root: boolean = false): string {
-        if (typeof path == "string")
+        if (typeof path === "string")
             path = this.#decode_path(path);
 
         let href = "/" + path.map(encodeURIComponent).join("/");
@@ -126,7 +126,7 @@ export class Location {
 
     // NOTE: The options argument is modified in place
     decode(href: string, options: Options): string[] {
-        if (href[0] == '#')
+        if (href[0] === '#')
             href = href.substring(1);
 
         const pos = href.indexOf('?');

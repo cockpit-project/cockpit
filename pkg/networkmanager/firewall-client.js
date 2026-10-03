@@ -37,7 +37,7 @@ const firewalld_service = service.proxy('firewalld');
 let firewalld_dbus = null;
 
 function debug() {
-    if (window.debugging == "all" || window.debugging?.includes("firewalld")) // not-covered: debugging
+    if (window.debugging === "all" || window.debugging?.includes("firewalld")) // not-covered: debugging
         console.debug("firewalld:", ...arguments); // not-covered: debugging
 }
 
@@ -338,7 +338,7 @@ function dbus_watch_name_owner(name, owner_callback) {
     let owner = null;
 
     function owner_changed(new_owner) {
-        if (new_owner != owner) {
+        if (new_owner !== owner) {
             owner = new_owner;
             owner_callback(owner);
         }
@@ -361,7 +361,7 @@ function dbus_watch_name_owner(name, owner_callback) {
                 owner_changed(owner);
             })
             .catch(ex => {
-                if (ex.name == "org.freedesktop.DBus.Error.NameHasNoOwner")
+                if (ex.name === "org.freedesktop.DBus.Error.NameHasNoOwner")
                     owner_changed("");
                 else
                     throw ex;

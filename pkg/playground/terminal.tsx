@@ -57,7 +57,7 @@ const TabbedTerminal = () => {
             res.push(<ToggleGroupItem
                          key={t}
                          text={"Terminal " + String(t + 1)}
-                         isSelected={tab == t}
+                         isSelected={tab === t}
                          onChange={() => setTab(t)}
             />);
         }

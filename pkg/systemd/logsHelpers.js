@@ -22,7 +22,7 @@ export function checkJournalctlGrep(setShowTextSearch) {
 export const getFilteredQuery = ({ match, options }) => {
     const cmd = journal.build_cmd(match, options);
     const filtered_cmd = cmd.filter(i => i !== "-q" && i !== "--output=json");
-    if (filtered_cmd[filtered_cmd.length - 1] == "--")
+    if (filtered_cmd[filtered_cmd.length - 1] === "--")
         filtered_cmd.pop();
 
     return filtered_cmd.join(" ");
@@ -112,7 +112,7 @@ export const getOptionsFromTextInput = (value) => {
                 const map_keys = (key) => {
                     if (key === "identifier")
                         return "tag";
-                    if (key == "service")
+                    if (key === "service")
                         return "unit";
                     return key;
                 };

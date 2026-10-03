@@ -6,7 +6,7 @@ const pig_latin = {
     "": {
         language: "pig",
         "plural-forms": function(n) {
-            const plural = (n != 1);
+            const plural = (n !== 1);
             return plural;
         }
     },
@@ -31,7 +31,7 @@ const ru = {
         language: "ru",
         "plural-forms":
         function(n) {
-            const plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
+            const plural = (n % 10 === 1 && n % 100 !== 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
             return plural;
         }
     },
@@ -209,7 +209,7 @@ function init() {
     QUnit.start();
 }
 
-if (document.readyState == "loading")
+if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", init);
 else
     init();

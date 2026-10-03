@@ -204,7 +204,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                                                action={action} />);
     }
 
-    const data_missing_msg = (dataPackagesInstalled == false && !refresh_progress)
+    const data_missing_msg = (dataPackagesInstalled === false && !refresh_progress)
         ? _("Application information is missing")
         : null;
 
@@ -227,7 +227,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                     </FlexItem>
                 </Flex>
             </PageSection>
-            {comps.length == 0
+            {comps.length === 0
                 ? <EmptyStatePanel title={ _("No applications installed or available.") }
                                    paragraph={data_missing_msg}
                                    action={ data_missing_msg && _("Install application information")} onAction={refresh} />

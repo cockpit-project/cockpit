@@ -103,7 +103,7 @@ QUnit.test("replace large", async assert => {
     await cockpit.file(dir + "/large").replace(str);
     const res = await cockpit.spawn(["cat", dir + "/large"]);
     assert.equal(res.length, str.length, "correct large length");
-    assert.ok(res == str, "correct large data");
+    assert.ok(res === str, "correct large data");
 });
 
 QUnit.test("binary replace large", async assert => {
@@ -159,7 +159,7 @@ QUnit.test("abort replace", async assert => {
     let n = 0;
     function start_after_two() {
         n += 1;
-        if (n == 2)
+        if (n === 2)
             done();
     }
 
@@ -266,7 +266,7 @@ QUnit.test("modify with conflict", async assert => {
                 await file.modify(old => {
                     cockpit.assert(old !== null, "old is null");
                     n += 1;
-                    if (n == 1)
+                    if (n === 1)
                         assert.equal(old, "ABCD\n", "correct old (out-of-date) content");
                     else
                         assert.equal(old, "XYZ\n", "correct old (current) content");
@@ -288,17 +288,17 @@ QUnit.test("watching", assert => {
     let n = 0;
     const watch = file.watch((content, tag) => {
         n += 1;
-        if (n == 1) {
+        if (n === 1) {
             assert.equal(content, null, "initially non-existent");
             assert.equal(tag, "-", "empty tag");
             cockpit.spawn(["bash", "-c", "cd " + dir + " && echo 1234 > foobar.tmp && mv foobar.tmp foobar"]);
-        } else if (n == 2) {
+        } else if (n === 2) {
             assert.equal(content, "1234\n", "correct new content");
             assert.notEqual(tag, "-");
             cockpit.assert(tag !== null, "tag is null");
             assert.ok(tag.length > 5, "tag has a reasonable size");
             cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
-        } else if (n == 3) {
+        } else if (n === 3) {
             assert.equal(content, null, "finally non-existent");
             assert.equal(tag, "-", "empty tag");
             watch.remove();
@@ -315,13 +315,13 @@ QUnit.test("binary watching", assert => {
     let n = 0;
     const watch = file.watch(content => {
         n += 1;
-        if (n == 1) {
+        if (n === 1) {
             assert.equal(content, null, "initially non-existent");
             cockpit.spawn(["bash", "-c", "cd " + dir + " && echo '//8BAg==' | base64 -d > foobar.tmp && mv foobar.tmp foobar"]);
-        } else if (n == 2) {
+        } else if (n === 2) {
             assert.deepEqual(content, new Uint8Array([255, 255, 1, 2]), "correct new content");
             cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
-        } else if (n == 3) {
+        } else if (n === 3) {
             assert.equal(content, null, "finally non-existent");
             watch.remove();
             done();
@@ -337,13 +337,13 @@ QUnit.test("syntax watching", assert => {
     let n = 0;
     const watch = file.watch((content, _tag, err) => {
         n += 1;
-        if (n == 1) {
+        if (n === 1) {
             assert.equal(content, null, "initially non-existent");
             cockpit.spawn(["bash", "-c", "cd " + dir + " && echo '[ 1, 2, 3, 4 ]' > foobar.json.tmp && mv foobar.json.tmp foobar.json"]);
-        } else if (n == 2) {
+        } else if (n === 2) {
             assert.deepEqual(content, [1, 2, 3, 4], "correct new content");
             cockpit.spawn(["bash", "-c", "echo 'hi-there-this-is-not-json'  > " + dir + "/foobar.json"]);
-        } else if (n == 3) {
+        } else if (n === 3) {
             assert.ok(err instanceof SyntaxError, "got SyntaxError error");
             watch.remove();
             done();
@@ -360,17 +360,17 @@ QUnit.test("watching without reading", assert => {
     let n = 0;
     const watch = file.watch((content, tag) => {
         n += 1;
-        if (n == 1) {
+        if (n === 1) {
             assert.equal(content, null, "initially non-existent");
             assert.equal(tag, "-", "empty tag");
             cockpit.spawn(["bash", "-c", "cd " + dir + " && echo 1234 > foobar.tmp && mv foobar.tmp foobar"]);
-        } else if (n == 2) {
+        } else if (n === 2) {
             assert.equal(content, null, "no content as reading is disabled");
             assert.notEqual(tag, "-");
             cockpit.assert(tag !== null, "tag is null");
             assert.ok(tag.length > 5, "tag has a reasonable size");
             cockpit.spawn(["bash", "-c", "rm " + dir + "/foobar"]);
-        } else if (n == 3) {
+        } else if (n === 3) {
             assert.equal(content, null, "finally non-existent");
             assert.equal(tag, "-", "empty tag");
             watch.remove();
@@ -406,34 +406,34 @@ QUnit.test("watching directory", assert => {
         const msg = JSON.parse(payload);
         n += 1;
 
-        if (n == 1) {
+        if (n === 1) {
             assert.equal(msg.event, "created", "world.txt created");
             assert.equal(msg.path, dir + "/world.txt");
             assert.equal(msg.type, "file");
             assert.notEqual(msg.tag, "-");
-        } else if (n == 2) {
+        } else if (n === 2) {
             assert.equal(msg.event, "changed", "world.txt changed");
             assert.equal(msg.path, dir + "/world.txt");
             assert.notEqual(msg.tag, "-");
-        } else if (n == 3) {
+        } else if (n === 3) {
             assert.equal(msg.event, "done-hint", "world.txt done-hint");
             assert.equal(msg.path, dir + "/world.txt");
             assert.notEqual(msg.tag, "-");
 
             cockpit.spawn(["chmod", "001", `${dir}/world.txt`]);
-        } else if (n == 4) {
+        } else if (n === 4) {
             assert.equal(msg.event, "attribute-changed", "world.txt attribute-changed");
             assert.equal(msg.path, dir + "/world.txt");
             assert.notEqual(msg.tag, "-");
 
             cockpit.spawn(["rm", `${dir}/world.txt`]);
-        } else if (n == 5) {
+        } else if (n === 5) {
             assert.equal(msg.event, "deleted", "world.txt deleted");
             assert.equal(msg.path, dir + "/world.txt");
             assert.equal(msg.tag, "-");
 
             cockpit.spawn(["mkdir", `${dir}/somedir`]);
-        } else if (n == 6) {
+        } else if (n === 6) {
             assert.equal(msg.event, "created", "somedir created");
             assert.equal(msg.path, dir + "/somedir");
             assert.equal(msg.type, "directory");
@@ -491,7 +491,7 @@ QUnit.test("closing", assert => {
     let n = 0;
     function start_after_two() {
         n += 1;
-        if (n == 2) {
+        if (n === 2) {
             watch.remove();
             done();
         }

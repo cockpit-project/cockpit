@@ -23,13 +23,13 @@ const _ = cockpit.gettext;
 
 async function set_swap_noauto(block, noauto) {
     for (const conf of block.Configuration) {
-        if (conf[0] == "fstab") {
+        if (conf[0] === "fstab") {
             const options = parse_options(decode_filename(conf[1].opts.v));
             extract_option(options, "defaults");
             extract_option(options, "noauto");
             if (noauto)
                 options.push("noauto");
-            if (options.length == 0)
+            if (options.length === 0)
                 options.push("defaults");
             const new_conf = [
                 "fstab",

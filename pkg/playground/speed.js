@@ -42,7 +42,7 @@ function update() {
 function echo(ev) {
     stop();
 
-    const sideband = ev.target.id == "echo-sideband";
+    const sideband = ev.target.id === "echo-sideband";
 
     function generate(length, binary) {
         if (binary)
@@ -123,7 +123,7 @@ function echo(ev) {
 function read(ev) {
     stop();
 
-    const sideband = ev.target.id == "read-sideband";
+    const sideband = ev.target.id === "read-sideband";
     const path = document.getElementById("read-path");
 
     const options = {

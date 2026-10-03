@@ -12,7 +12,7 @@ function parse_simple_vars(text: string): Record<string, string> {
         if (pos > 0) {
             const name = l.substring(0, pos);
             let val = l.substring(pos + 1);
-            if (val[0] == '"' && val[val.length - 1] == '"')
+            if (val[0] === '"' && val[val.length - 1] === '"')
                 val = val.substring(1, val.length - 1);
             res[name] = val;
         }

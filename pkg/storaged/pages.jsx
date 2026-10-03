@@ -199,7 +199,7 @@ export function new_page(parent, card, options) {
     }
     if (page.location) {
         pages.set(JSON.stringify(page.location), page);
-        if (page.location.length == 0) {
+        if (page.location.length === 0) {
             // This is the Overview page. Make it the parent of the
             // special "not found" page (but don't make the "not
             // found" page a child of the Overview...)
@@ -288,7 +288,7 @@ export function navigate_away_from_card(card) {
 
     const loc = cockpit.location;
     const page = card.page;
-    if (page.parent && JSON.stringify(loc.path) == JSON.stringify(page.location))
+    if (page.parent && JSON.stringify(loc.path) === JSON.stringify(page.location))
         loc.go(page.parent.location);
 }
 
@@ -298,7 +298,7 @@ export function navigate_to_new_card_location(card, location) {
 
     const loc = cockpit.location;
     const page = card.page;
-    if (JSON.stringify(loc.path) == JSON.stringify(page.location))
+    if (JSON.stringify(loc.path) === JSON.stringify(page.location))
         loc.go(location);
 }
 
@@ -337,14 +337,14 @@ function make_page_kebab(page) {
         c = c.next;
     }
 
-    if (items.length == 0)
+    if (items.length === 0)
         return null;
 
     return <StorageBarMenu menuItems={items} isKebab />;
 }
 
 function make_actions_kebab(actions) {
-    if (!actions || actions.length == 0)
+    if (!actions || actions.length === 0)
         return null;
 
     return <StorageBarMenu menuItems={actions.map(make_menu_item)} isKebab />;
@@ -523,8 +523,8 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
 
         function find_button(element, parent_node_name, field) {
             let column = 0;
-            while (element && element.nodeName != parent_node_name) {
-                if (element.nodeName == "TD") {
+            while (element && element.nodeName !== parent_node_name) {
+                if (element.nodeName === "TD") {
                     let td = element;
                     while (td) {
                         column++;
@@ -552,20 +552,20 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
                 event.preventDefault();
             }
 
-            if (code == "ArrowDown")
+            if (code === "ArrowDown")
                 step("TR", "nextElementSibling");
-            else if (code == "ArrowUp")
+            else if (code === "ArrowUp")
                 step("TR", "previousElementSibling");
-            else if (code == "ArrowRight")
+            else if (code === "ArrowRight")
                 step("TD", "nextElementSibling");
-            else if (code == "ArrowLeft")
+            else if (code === "ArrowLeft")
                 step("TD", "previousElementSibling");
         }
 
         function location_link(id, location) {
             if (!location)
                 return null;
-            if (typeof location == "string")
+            if (typeof location === "string")
                 return location;
             if (!location.to)
                 return location.label;
@@ -577,7 +577,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
             );
         }
 
-        const is_new = firstKeys.current != false && !firstKeys.current.has(key);
+        const is_new = firstKeys.current !== false && !firstKeys.current.has(key);
         row_keys.add(key);
 
         if (narrow) {
@@ -651,9 +651,9 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
     function make_page_rows(pages, level, last_has_border, key, sorted) {
         const sorted_pages = sort(pages, p => p, sorted);
         for (const p of sorted_pages) {
-            const is_last = (level == 0 || p == sorted_pages[pages.length - 1]);
+            const is_last = (level === 0 || p === sorted_pages[pages.length - 1]);
             const p_key = key + ":" + (p.key || p.name);
-            make_row(p, null, level, is_last && p.children.length == 0 && last_has_border, p_key);
+            make_row(p, null, level, is_last && p.children.length === 0 && last_has_border, p_key);
             make_page_rows(p.children, level + 1, is_last && last_has_border, p_key, p.options.sorted);
         }
     }
@@ -677,7 +677,7 @@ export const PageTable = ({ emptyCaption, aria_label, pages, crossrefs, sorted, 
         });
     }
 
-    if (rows.length == 0) {
+    if (rows.length === 0) {
         return <EmptyState>
             <EmptyStateBody>
                 {emptyCaption}
@@ -795,7 +795,7 @@ const StorageBreadcrumb = ({ page }) => {
 
 export const StorageCard = ({ card, alert, alerts, actions, children }) => {
     return (
-        <Card isPlain={card.page_location && card.page_location.length == 0} data-test-card-title={card.title}>
+        <Card isPlain={card.page_location && card.page_location.length === 0} data-test-card-title={card.title}>
             { (client.in_anaconda_mode() && card.page.parent && !card.next) &&
             <CardBody>
                 <StorageBreadcrumb page={card.page} />

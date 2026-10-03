@@ -65,7 +65,7 @@ class SELinuxEventDetails extends React.Component {
             }
 
             if (fixable) {
-                if ((itm.fix) && (itm.fix.plugin == itm.analysisId)) {
+                if ((itm.fix) && (itm.fix.plugin === itm.analysisId)) {
                     if (itm.fix.running) {
                         msg = (
                             <div>
@@ -127,7 +127,7 @@ class SELinuxEventDetails extends React.Component {
                 const lines = itm.doText.split("\n");
                 let lastCommand = false;
                 lines.forEach(l => {
-                    if (l[0] == "#") { // command
+                    if (l[0] === "#") { // command
                         if (lastCommand) // When appending command remove "# ". Only the first command keeps it and it is removed later on
                             parts[parts.length - 1] += ("\n" + l.substring(2));
                         else
@@ -138,7 +138,7 @@ class SELinuxEventDetails extends React.Component {
                         lastCommand = false;
                     }
                 });
-                doElement = parts.map((p, index) => p[0] == "#"
+                doElement = parts.map((p, index) => p[0] === "#"
                     ? codeBlock(p.substring(2), index)
                     : <span key={p}>{p}</span>);
             }
@@ -160,7 +160,7 @@ class SELinuxEventDetails extends React.Component {
                         </div>
                         {fixit}
                     </div>
-                    {itmIdx != self.props.details.pluginAnalysis.length - 1 && <Divider />}
+                    {itmIdx !== self.props.details.pluginAnalysis.length - 1 && <Divider />}
                 </StackItem>
             );
         });
@@ -353,7 +353,7 @@ export class SETroubleshootPage extends React.Component {
                     },
                 ];
                 // if the alert has level "red", it's critical
-                const criticalAlert = (itm.details && 'level' in itm.details && itm.details.level == "red")
+                const criticalAlert = (itm.details && 'level' in itm.details && itm.details.level === "red")
                     ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle pf-v6-c-icon pf-m-lg" />
                     : null;
                 const columns = [

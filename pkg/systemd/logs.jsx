@@ -65,7 +65,7 @@ const getPrioFilterOption = options => {
 
 const getTimeFilterOption = options => {
     function find_key(key, value) {
-        return timeFilterOptions.find(o => o.value.key == key && o.value.value == value)?.value;
+        return timeFilterOptions.find(o => o.value.key === key && o.value.value === value)?.value;
     }
     if (options.boot)
         return find_key('boot', options.boot);
@@ -105,7 +105,7 @@ export const LogsPage = () => {
             const { options, path } = cockpit.location;
             const full_grep = getGrepFiltersFromOptions({ options })[0];
 
-            if (path.length == 1) return;
+            if (path.length === 1) return;
 
             setJournalPrio(getPrioFilterOption(options));
             setIdentifiersFilter(options.tag || "all");
@@ -117,7 +117,7 @@ export const LogsPage = () => {
         return () => cockpit.removeEventListener("locationchanged", onNavigate);
     }, []);
 
-    if (path.length == 1) {
+    if (path.length === 1) {
         return <LogEntry />;
     } else if (path.length > 1) { /* redirect */
         console.warn("not a journal location: " + path);
@@ -137,7 +137,7 @@ export const LogsPage = () => {
     const onIdentifiersFilterChange = (value) => {
         setUpdateIdentifiersList(false);
 
-        if (value == "all") {
+        if (value === "all") {
             delete options.tag;
             updateUrl(Object.assign(options));
         } else {
@@ -154,7 +154,7 @@ export const LogsPage = () => {
     const onTimeFilterChange = (newTimeFilter) => {
         setUpdateIdentifiersList(true);
 
-        if (newTimeFilter.key == 'boot' && newTimeFilter.value !== "0") // Don't follow if specific boot is picked
+        if (newTimeFilter.key === 'boot' && newTimeFilter.value !== "0") // Don't follow if specific boot is picked
             setDataFollowing(false);
         else if (options.boot && options.boot !== "0" && newTimeFilter.key !== "boot") // Start following is specific boot is removed
             setDataFollowing(true);
@@ -227,7 +227,7 @@ export const LogsPage = () => {
                                                 isDisabled={options.boot && options.boot !== "0"}
                                                 onClick={() => {
                                                     // Reset time filter if following mode is now selected but we are on a specific boot
-                                                    if (!dataFollowing && timeFilter && timeFilter.key == "boot" && timeFilter.value !== "0") {
+                                                    if (!dataFollowing && timeFilter && timeFilter.key === "boot" && timeFilter.value !== "0") {
                                                         setTimeFilter(undefined);
                                                     }
 
@@ -285,7 +285,7 @@ const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, curre
                          selected={identifiersFilter}
                          selectedIsTrusted
                          onSelect={(e, selection) => { onIdentifiersFilterChange(selection) }}
-                         onClearSelection={identifiersFilter != "all" && (() => { onIdentifiersFilterChange("all") })}
+                         onClearSelection={identifiersFilter !== "all" && (() => { onIdentifiersFilterChange("all") })}
         />
     );
 };

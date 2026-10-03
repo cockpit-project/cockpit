@@ -91,7 +91,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                 options: {
                     ...options,
                     mode,
-                    ...(linkMonitoring == 'mii' && {
+                    ...(linkMonitoring === 'mii' && {
                         miimon: linkMonitoringInterval,
                         updelay: linkUpDelay,
                         downdelay: linkDownDelay,
@@ -187,7 +187,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                 <FormGroup fieldId={idPrefix + "-link-monitoring-interval-input"} label={_("Monitoring interval")}>
                     <TextInput id={idPrefix + "-link-monitoring-interval-input"} className="network-number-field" value={linkMonitoringInterval} onChange={(_event, value) => setLinkMonitoringInterval(value)} />
                 </FormGroup>
-                {linkMonitoring == 'mii' && <>
+                {linkMonitoring === 'mii' && <>
                     <FormGroup fieldId={idPrefix + "-link-up-delay-input"} label={_("Link up delay")}>
                         <TextInput id={idPrefix + "-link-up-delay-input"} className="network-number-field" value={linkUpDelay} onChange={(_event, value) => setLinkUpDelay(value)} />
                     </FormGroup>
@@ -195,7 +195,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                         <TextInput id={idPrefix + "-link-down-delay-input"} className="network-number-field" value={linkDownDelay} onChange={(_event, value) => setLinkDownDelay(value)} />
                     </FormGroup>
                 </>}
-                {linkMonitoring == 'arp' && <FormGroup fieldId={idPrefix + "-monitoring-targets-input"} label={_("Monitoring targets")}>
+                {linkMonitoring === 'arp' && <FormGroup fieldId={idPrefix + "-monitoring-targets-input"} label={_("Monitoring targets")}>
                     <TextInput id={idPrefix + "-monitoring-targets-input"} value={monitoringTargets} onChange={(_event, value) => setMonitoringTargets(value)} />
                 </FormGroup>}
             </>

@@ -24,7 +24,7 @@ export const MtuDialog = ({ connection, dev, settings }) => {
     const [mtu, setMtu] = useState(settings.ethernet.mtu ? settings.ethernet.mtu : '');
 
     const onSubmit = (ev) => {
-        const mtuNew = mode == 'auto' ? 0 : parseInt(mtu, 10);
+        const mtuNew = mode === 'auto' ? 0 : parseInt(mtu, 10);
         if (isNaN(mtuNew) || mtuNew < 0) {
             setDialogError(_("MTU must be a positive number"));
             return;
@@ -61,13 +61,13 @@ export const MtuDialog = ({ connection, dev, settings }) => {
         >
             <>
                 <Radio id={idPrefix + "-auto"}
-                       isChecked={mode == "auto"}
+                       isChecked={mode === "auto"}
                        label={_("Automatic")}
                        name="mtu-mode"
                        onChange={() => setMode("auto")}
                        value="auto" />
                 <Radio id={idPrefix + "-custom"}
-                       isChecked={mode == "custom"}
+                       isChecked={mode === "custom"}
                        className="ct-align-center"
                        label={
                            <>

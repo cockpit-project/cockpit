@@ -12,7 +12,7 @@ import { PackageKitManager } from './_internal/packagekit';
 let package_manager: PackageManager | null = null;
 
 function debug(...args: unknown[]) {
-    if (window.debugging == 'all' || window.debugging?.includes('packagemanager'))
+    if (window.debugging === 'all' || window.debugging?.includes('packagemanager'))
         console.debug('packagemanager', ...args);
 }
 

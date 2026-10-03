@@ -84,11 +84,11 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
     const { state, keys } = manager;
     let error = "";
 
-    if (state == "access-denied")
+    if (state === "access-denied")
         error = _("You do not have permission to view the authorized public keys for this account.");
-    else if (state == "failed")
+    else if (state === "failed")
         error = _("Failed to load authorized keys.");
-    else if (state == "ready")
+    else if (state === "ready")
         error = _("There are no authorized public keys for this account.");
     else
         return null;

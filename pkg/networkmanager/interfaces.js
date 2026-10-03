@@ -239,7 +239,7 @@ export function NetworkManagerModel() {
     }
 
     function get_object(path, type) {
-        if (path == "/")
+        if (path === "/")
             return null;
         function Constructor() {
             this[' priv'] = { };
@@ -330,7 +330,7 @@ export function NetworkManagerModel() {
         if (obj) {
             const type = priv(obj).type;
 
-            if (signal == "PropertiesChanged") {
+            if (signal === "PropertiesChanged") {
                 push_refresh();
                 const props = remove_signatures(args[0]);
                 set_object_properties(obj, props);
@@ -583,7 +583,7 @@ export function NetworkManagerModel() {
             };
         }
 
-        if (settings["team-port"] || result.connection.member_type == "team") {
+        if (settings["team-port"] || result.connection.member_type === "team") {
             result.team_port = { config: JSON_parse_carefully(get("team-port", "config", "{}")), };
         }
 
@@ -599,7 +599,7 @@ export function NetworkManagerModel() {
             };
         }
 
-        if (settings["bridge-port"] || result.connection.member_type == "bridge") {
+        if (settings["bridge-port"] || result.connection.member_type === "bridge") {
             result.bridge_port = {
                 priority: get("bridge-port", "priority", 32),
                 path_cost: get("bridge-port", "path-cost", 100),
@@ -1018,7 +1018,7 @@ export function NetworkManagerModel() {
                 // Find connection for this SSID (undefined if none exists)
                 obj.Connection = (self.get_settings()?.Connections || []).find(con => {
                     if (con.Settings?.["802-11-wireless"]?.ssid)
-                        return utils.ssid_from_nm(con.Settings["802-11-wireless"].ssid) == obj.Ssid;
+                        return utils.ssid_from_nm(con.Settings["802-11-wireless"].ssid) === obj.Ssid;
                     return false;
                 });
             }
@@ -1099,7 +1099,7 @@ export function NetworkManagerModel() {
                 function check_con(con) {
                     const group_settings = connection_settings(con);
                     const my_settings = connection_settings(obj);
-                    if (group_settings.type == my_settings.member_type) {
+                    if (group_settings.type === my_settings.member_type) {
                         obj.Groups.push(con);
                         con.Members.push(obj);
                     }
@@ -1388,7 +1388,7 @@ export function NetworkManagerModel() {
 
                 if (obj.Device) {
                     obj.Device.AvailableConnections.forEach(function (con) {
-                        if (obj.Connections.indexOf(con) == -1)
+                        if (obj.Connections.indexOf(con) === -1)
                             obj.Connections.push(con);
                     });
                 }
@@ -1455,7 +1455,7 @@ export function NetworkManagerModel() {
                         function add_to_interface(name) {
                             if (name) {
                                 const cons = get_interface(name)._NonDeviceConnections;
-                                if (cons.indexOf(con) == -1)
+                                if (cons.indexOf(con) === -1)
                                     cons.push(con);
                             }
                         }
@@ -1503,7 +1503,7 @@ export function NetworkManagerModel() {
                                           0)
                         .then(([checkpoint]) => checkpoint)
                         .catch(function (error) {
-                            if (error.name != "org.freedesktop.DBus.Error.UnknownMethod")
+                            if (error.name !== "org.freedesktop.DBus.Error.UnknownMethod")
                                 console.warn(error.message || error);
                         });
             },
@@ -1611,7 +1611,7 @@ export function syn_click(model, fun) {
 
 export function is_managed(dev) {
     // Never let the user manage loopback devices, nothing good can come from that.
-    return dev.State != 10 && dev.DeviceType != "loopback" && dev.Interface != "lo";
+    return dev.State !== 10 && dev.DeviceType !== "loopback" && dev.Interface !== "lo";
 }
 
 function render_interface_link(iface) {
@@ -1624,7 +1624,7 @@ function render_interface_link(iface) {
 export function device_state_text(dev) {
     if (!dev)
         return _("Inactive");
-    if (dev.State == 100 && dev.Carrier === false)
+    if (dev.State === 100 && dev.Carrier === false)
         return _("No carrier");
     if (!is_managed(dev)) {
         if (!dev.ActiveConnection &&
@@ -1694,7 +1694,7 @@ export function complete_settings(settings, device) {
     settings.connection.id = device.Interface;
     settings.connection.uuid = uuidv4();
 
-    if (device.DeviceType == 'ethernet') {
+    if (device.DeviceType === 'ethernet') {
         settings.connection.type = '802-3-ethernet';
         settings.ethernet = { };
     } else {
@@ -1742,7 +1742,7 @@ export function settings_applier(model, device, connection) {
 
 export function choice_title(choices, choice, def) {
     for (let i = 0; i < choices.length; i++) {
-        if (choices[i].choice == choice)
+        if (choices[i].choice === choice)
             return choices[i].title;
     }
     return def;
@@ -1957,7 +1957,7 @@ export function connection_devices(con) {
 }
 
 export function is_interface_connection(iface, connection) {
-    return connection && connection.Interfaces.indexOf(iface) != -1;
+    return connection && connection.Interfaces.indexOf(iface) !== -1;
 }
 
 export function is_interesting_interface(iface) {
@@ -2005,9 +2005,9 @@ export function set_member(model, group_connection, group_settings, member_type,
         if (main_connection) {
             member_settings = main_connection.Settings;
 
-            if (member_settings.connection.group == group_settings.connection.uuid ||
-                member_settings.connection.group == group_settings.connection.id ||
-                member_settings.connection.group == group_iface)
+            if (member_settings.connection.group === group_settings.connection.uuid ||
+                member_settings.connection.group === group_settings.connection.id ||
+                member_settings.connection.group === group_iface)
                 return Promise.resolve();
 
             member_settings.connection.member_type = member_type;
@@ -2036,7 +2036,7 @@ export function set_member(model, group_connection, group_settings, member_type,
             // the settings actually apply and the interface becomes a
             // member.  Otherwise we activate it later when the group
             // is created.
-            if (group_connection && group_connection.Interfaces[0].Name == group_iface) {
+            if (group_connection && group_connection.Interfaces[0].Name === group_iface) {
                 const group_dev = group_connection.Interfaces[0].Device;
                 if (group_dev && group_dev.ActiveConnection)
                     return main_connection.activate(iface.Device);
@@ -2048,7 +2048,7 @@ export function set_member(model, group_connection, group_settings, member_type,
         /* Free the main_connection from being a member if it is our member.  If there is
          * no main_connection, we don't need to do anything.
          */
-        if (main_connection && main_connection.Groups.indexOf(group_connection) != -1) {
+        if (main_connection && main_connection.Groups.indexOf(group_connection) !== -1) {
             free_member_connection(main_connection);
         }
     }
@@ -2077,7 +2077,7 @@ export function apply_group_member(choices, model, apply_group, group_connection
                     });
         }
 
-        if (active_settings.length == 1) {
+        if (active_settings.length === 1) {
             group_settings.ipv4 = JSON.parse(JSON.stringify(active_settings[0].ipv4));
             group_settings.ipv6 = JSON.parse(JSON.stringify(active_settings[0].ipv6));
         }

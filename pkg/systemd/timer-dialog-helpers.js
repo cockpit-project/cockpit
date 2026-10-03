@@ -158,25 +158,25 @@ export function create_timer({ name, description, command, delay, delayUnit, del
         return `${month_str.padStart(2, '0')}-${day_str.padStart(2, '0')}`;
     }
 
-    if (delay == "specific-time" && repeat == "no") {
+    if (delay === "specific-time" && repeat === "no") {
         const today = new Date(clock_realtime_now);
         timer_unit.OnCalendar = `OnCalendar=${today.getFullYear()}-${month_day_str(today)} ${specificTime}:00`;
-    } else if (repeat == "minutely") {
+    } else if (repeat === "minutely") {
         timer_unit.repeat_second = repeat_array.map(item => Number(item.second));
         timer_unit.OnCalendar = "OnCalendar=*-*-* *:*:" + timer_unit.repeat_second.join(",");
-    } else if (repeat == "hourly") {
+    } else if (repeat === "hourly") {
         timer_unit.repeat_minute = repeat_array.map(item => Number(item.minute));
         timer_unit.OnCalendar = "OnCalendar=*-*-* *:" + timer_unit.repeat_minute.join(",");
-    } else if (repeat == "daily") {
+    } else if (repeat === "daily") {
         timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-*-* ${item.time}:00`);
-    } else if (repeat == "weekly") {
+    } else if (repeat === "weekly") {
         timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=${item.day} *-*-* ${item.time}:00`);
-    } else if (repeat == "monthly") {
+    } else if (repeat === "monthly") {
         timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-*-${item.day} ${item.time}:00`);
-    } else if (repeat == "yearly") {
+    } else if (repeat === "yearly") {
         timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-${month_day_str(new Date(item.date))} ${item.time}:00`);
     }
-    if (repeat != "hourly" && repeat != "minutely" && delay == "specific-time")
+    if (repeat !== "hourly" && repeat !== "minutely" && delay === "specific-time")
         timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replaceAll(",", "\n");
     return create_timer_file({ timer_unit, delay, owner });
 }
@@ -188,7 +188,7 @@ function create_timer_file({ timer_unit, delay, owner }) {
     const install = "[Install]\nWantedBy=timers.target\n";
     const service_file = CockpitManagedMarker + unit + timer_unit.Description + service + timer_unit.Command + "\n";
     let timer_file = CockpitManagedMarker;
-    if (delay == "system-boot") {
+    if (delay === "system-boot") {
         const boottimer = timer + "OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit + "\n";
         timer_file += unit + timer_unit.Description + boottimer;
     } else if (timer_unit.OnCalendar) {

@@ -127,6 +127,16 @@ export class TerminalState {
             screenReaderMode: true,
         });
         this.terminal.loadAddon(new WebglAddon());
+        this.terminal.attachCustomKeyEventHandler((event: KeyboardEvent) => {
+            // Allow terminal applications (such as Midnight Commander) to use function keys
+            // without triggering browser shortcuts (such as F5 reloading the page).
+            // Leave F11 (fullscreen) and F12 (developer tools) to the browser.
+            if (event.type === 'keydown' && /^F([1-9]|10)$/.test(event.key)) {
+                event.preventDefault();
+                return true;
+            }
+            return true;
+        });
         this.wrapper_element = document.createElement("div");
         this.channel = channel;
         this.#connectChannel(channel);

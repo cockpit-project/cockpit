@@ -17,73 +17,7 @@ from lib.constants import TEST_OS_DEFAULT
 class TestNetworkingWifi(netlib.NetworkCase):
     def setUp(self):
         super().setUp()
-        m = self.machine
-
-        # firewalld blocks local dnsmasq/hostapd
-        m.execute("systemctl stop firewalld")
-        self.addCleanup(m.execute, "systemctl start firewalld")
-
-        # tell NM to ignore router and BSS interfaces
-        self.write_file("/run/udev/rules.d/99-nm-wifi-test.rules", 'ENV{INTERFACE}=="wlan0*", ENV{NM_UNMANAGED}="1"',
-                        post_restore_action="udevadm control --reload")
-        m.execute("udevadm control --reload")
-
-        # start fake wifi wlan0/1 pair and wait for it
-        m.execute("modprobe mac80211_hwsim; while ! [ -e /sys/class/net/wlan0 ]; do sleep 0.1; done")
-        self.addCleanup(m.execute, "rmmod mac80211_hwsim")
-
-        # start hostapd with multiple BSSes
-        self.write_file("/tmp/hostapd.conf", """
-interface=wlan0
-hw_mode=g
-channel=1
-
-# First network: WPA2-PSK
-ssid=ZE WIFI!
-wpa=2
-wpa_passphrase=12345678
-
-# Second network: WPA2-PSK
-bss=wlan0_0
-ssid=PrivateNet
-wpa=2
-wpa_passphrase=secret123
-
-# Third network: Open
-bss=wlan0_1
-ssid=OpenNet
-
-# Fourth network: second AP for same SSID
-bss=wlan0_2
-ssid=OpenNet
-
-# Fifth network: Hidden WPA2-PSK
-bss=wlan0_3
-ssid=HiddenNet
-ignore_broadcast_ssid=1
-wpa=2
-wpa_passphrase=hidden99""")
-        hostapd_pid = m.spawn("hostapd /tmp/hostapd.conf", "hostapd.log")
-        self.addCleanup(m.execute, f"kill {hostapd_pid}")
-
-        # give router ends an IP
-        m.execute("until [ -e /sys/class/net/wlan0_3 ]; do sleep 0.1; done")
-        m.execute("ip addr add 10.0.42.1/24 dev wlan0")
-        m.execute("ip addr add 10.0.42.2/24 dev wlan0_0")
-        m.execute("ip addr add 10.0.42.3/24 dev wlan0_1")
-        m.execute("ip addr add 10.0.42.4/24 dev wlan0_2")
-        m.execute("ip addr add 10.0.42.5/24 dev wlan0_3")
-
-        # start DNS server
-        dnsmasq_pid = m.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
-                              "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases "
-                              "--bind-interfaces --except-interface=lo "
-                              "--interface=wlan0 --interface=wlan0_0 --interface=wlan0_1 --interface=wlan0_2 --interface=wlan0_3 "
-                              "--dhcp-range=10.0.42.10,10.0.42.200", "wifi-dnsmasq.log")
-        self.addCleanup(m.execute, f"kill {dnsmasq_pid}")
-
-        # client-side interface
-        self.iface = "wlan1"
+        self.setup_wireless_networks()
 
     def testWifi(self):
         m = self.machine

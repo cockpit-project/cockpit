@@ -106,7 +106,8 @@ Server = file://{empty_repo_dir}
         else:
             self.restore_dir("/etc/yum.repos.d", reboot_safe=True)
             self.restore_dir("/var/cache/dnf", reboot_safe=True)
-            self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/dnf/*")
+            self.restore_dir("/usr/share/dnf5/repos.d", reboot_safe=True)
+            self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/dnf/* /usr/share/dnf5/repos.d/*")
 
         # have PackageKit start from a clean slate
         self.machine.execute("systemctl stop packagekit")

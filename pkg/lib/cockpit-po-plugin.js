@@ -72,12 +72,12 @@ function plural_forms_as_arrow(statement) {
                 stack.push('?');
             } else if (consume(':')) {
                 if (stack.pop() !== '?') {
-                    throw Error(`unexpected ':' at position ${i-1}`);
+                    throw Error(`unexpected ':' at position ${i - 1}`);
                 }
                 have_rvalue = false;
             } else if (consume(')')) {
                 if (stack.pop() !== '(') {
-                    throw Error(`unexpected ')' at position ${i-1}`);
+                    throw Error(`unexpected ')' at position ${i - 1}`);
                 }
             } else {
                 throw Error(`expected operator near ${JSON.stringify(expr.slice(i))}`);
@@ -134,7 +134,6 @@ function parsePo(po_file) {
 
     return { parsed, dir, plural_forms };
 }
-
 
 function buildFile(data, subdir, filename, filter) {
     const parsed = data.parsed;

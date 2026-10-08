@@ -29,10 +29,6 @@
     - require+:
         # required by TestLogin.testBasic
         - tcsh
-        # required by TestNetworkingWifi
-        - hostapd
-        - kernel-modules-internal
-        - NetworkManager-wifi
         # HACK: RHEL has these bundled in cockpit-system, but Fedora doesn't; Provides: break in CentOS/RHEL 10
         - cockpit-kdump
         - cockpit-networkmanager
@@ -43,6 +39,10 @@
     - require+:
         # required by TestTeam
         - NetworkManager-team
+        # required by TestNetworkingWifi
+        - hostapd
+        - kernel-modules-internal
+        - NetworkManager-wifi
       when: distro ~ fedora and distro != fedora-eln
 
     # RHEL only packages

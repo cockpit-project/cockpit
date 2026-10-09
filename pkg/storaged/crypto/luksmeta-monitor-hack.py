@@ -3,6 +3,7 @@
 
 # This simulates the org.freedesktop.UDisks.Encrypted.Slots property
 # et al for versions of UDisks that don't have them yet.
+# https://github.com/storaged-project/udisks/pull/539
 
 import atexit
 import base64
@@ -42,6 +43,12 @@ def get_clevis_config_from_protected_header(protected_header):
             else:
                 subpins[subpin].append(subconf[subpin])
         return {"pin": "sss", "sss": {"t": clevis["sss"]["t"], "pins": subpins}}
+    elif pin == "tpm2":
+        return {"pin": pin, "tpm2": {"hash": clevis["tpm2"]["hash"],
+                                     "key": clevis["tpm2"]["key"],
+                                     "pcr_ids": clevis["tpm2"].get("pcr_ids", ""),
+                                     "pcr_bank": clevis["tpm2"].get("pcr_bank", "")
+                                     }}
     else:
         return {"pin": pin, pin: {}}
 

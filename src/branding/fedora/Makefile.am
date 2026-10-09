@@ -11,3 +11,4 @@ install-data-hook::
 	ln -sTfr $(DESTDIR)/usr/share/pixmaps/fedora-logo-sprite.png $(DESTDIR)$(fedorabrandingdir)/apple-touch-icon.png
 	ln -sTfr $(DESTDIR)/etc/favicon.png $(DESTDIR)$(fedorabrandingdir)/favicon.ico
 	ln -sTfr $(DESTDIR)/usr/share/anaconda/pixmaps/fedora-webui.css $(DESTDIR)$(fedorabrandingdir)/anaconda-branding.css
+	ln -sTfr $(DESTDIR)/usr/share/anaconda/pixmaps/webui-header-logo.png $(DESTDIR)$(fedorabrandingdir)/webui-header-logo.png

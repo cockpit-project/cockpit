@@ -4,7 +4,7 @@
  */
 
 import cockpit from 'cockpit';
-import * as PK from 'packagekit';
+import { getPackageManager } from 'packagemanager';
 import { superuser } from 'superuser';
 import { get_manifest_config_matchlist, in_anaconda_mode, read_anaconda_session_storage } from 'utils';
 
@@ -977,10 +977,12 @@ function init_model(callback) {
 
     function enable_pk_features() {
         if (client.in_anaconda_mode()) {
-            client.features.packagekit = false;
+            client.features.packagemanager = false;
             return Promise.resolve();
         }
-        return PK.detect().then(function (available) { client.features.packagekit = available });
+        return getPackageManager()
+                .then(() => { client.features.packagemanager = true })
+                .catch(() => { client.features.packagemanager = false });
     }
 
     function enable_stratis_feature() {

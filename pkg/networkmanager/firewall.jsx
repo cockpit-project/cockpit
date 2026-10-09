@@ -986,7 +986,7 @@ export class Firewall extends React.Component {
                                               target={zone}
                                               onCancel={Dialogs.close}
                                               onDelete={ () => {
-                                                  firewall.deactiveateZone(zone);
+                                                  firewall.deactivateZone(zone);
                                                   Dialogs.close();
                                               }} />
         );

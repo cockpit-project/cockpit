@@ -286,7 +286,7 @@ test_echo_large (TestCase *tc,
   g_bytes_unref (received);
   received = NULL;
 
-  /* Double check that didn't csrew things up */
+  /* Double check that didn't screw things up */
   sent = g_bytes_new_static ("yello", 5);
   cockpit_transport_send (tc->transport, "546", sent);
   WAIT_UNTIL (received != NULL);

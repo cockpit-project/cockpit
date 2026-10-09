@@ -218,7 +218,7 @@ test_environment (Fixture *fix,
 }
 
 static void
-test_environment_env_overides (Fixture *fix,
+test_environment_env_overrides (Fixture *fix,
                                gconstpointer user_data)
 {
   setenv ("PATH", "bad", 1);
@@ -232,7 +232,7 @@ test_environment_env_overides (Fixture *fix,
 }
 
 static void
-test_environment_overides (Fixture *fix,
+test_environment_overrides (Fixture *fix,
                            gconstpointer user_data)
 {
   setenv ("XDG_RUNTIME_DIR", "bad", 1);
@@ -400,9 +400,9 @@ main (int argc,
   g_test_add ("/pam-ssh-add/environment", Fixture, &environment_fixture,
               setup, test_environment, teardown);
   g_test_add ("/pam-ssh-add/environment-env-overides", Fixture, &environment_fixture,
-              setup, test_environment_env_overides, teardown);
+              setup, test_environment_env_overrides, teardown);
   g_test_add ("/pam-ssh-add/environment-overides", Fixture, &environment_fixture,
-              setup, test_environment_overides, teardown);
+              setup, test_environment_overrides, teardown);
   g_test_add ("/pam-ssh-add/good-agent-vars", Fixture, &good_agent_fixture,
               setup, test_good_agent_vars, teardown);
   g_test_add ("/pam-ssh-add/bad-agent-vars", Fixture, &bad_agent_fixture,

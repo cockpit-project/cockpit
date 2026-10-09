@@ -34,7 +34,7 @@ interface MachinesEvents extends EventMap {
 export interface Machines extends EventSource<MachinesEvents> {
     ready: boolean;
 
-    lookup: (conection_string: string) => Machine;
+    lookup: (connection_string: string) => Machine;
     list: Machine[];
     change: (key: string, props: Partial<Machine>) => void;
 }

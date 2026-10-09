@@ -544,7 +544,7 @@ firewall.activateZone = (zone, interfaces, sources) => {
 /*
  * A zone is considered deactivated when it has no interfaces or sources.
  */
-firewall.deactiveateZone = (zone) => {
+firewall.deactivateZone = (zone) => {
     const zoneObject = firewall.zones[zone];
     let promises = zoneObject.interfaces.map(i => firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                                                       'org.fedoraproject.FirewallD1.zone',

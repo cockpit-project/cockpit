@@ -163,7 +163,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         b.wait_not_present(self.card_row("Storage", location="/var"))
 
     @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
-    @testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
+    @testlib.skipImage("commit 817c957899a4 removed Stratis 2 support", "rhel-8-*")
     @testlib.skipImage("Stratis v1 pools are unsupported", "rhel-9-*")
     def testStratis(self):
         m = self.machine

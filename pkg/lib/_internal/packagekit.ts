@@ -4,7 +4,7 @@
  */
 
 import cockpit from "cockpit";
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify, RunningUpdate } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify, RunningUpdate, Severity } from './packagemanager-abstract';
 import * as PK from "packagekit.js";
 
 const UpdateProgressMap: Record<number, UpdateProgressType> = {
@@ -23,6 +23,67 @@ const InstallProgressMap = {
     [PK.Enum.INFO_REINSTALLING]: InstallProgressType.REINSTALLING,
     [PK.Enum.INFO_DOWNGRADING]: InstallProgressType.DOWNGRADING,
 };
+
+function debug(...args: unknown[]) {
+    if (window.debugging == 'all' || window.debugging?.includes('packagekit'))
+        console.debug(...args);
+}
+
+/**
+ * On Debian the update_text starts with "== version ==" which is
+ * redundant; we don't want Markdown headings in the table
+ *
+ * @param {string} text - update_text to filter
+ */
+function removeHeading(text: string) {
+    if (text)
+        return text.trim().replace(/^== .* ==\n/, "")
+                .trim();
+    return text;
+}
+
+// parse CVEs from an arbitrary text (changelog) and return URL array
+function parseCVEs(text: string) {
+    if (!text)
+        return [];
+
+    const cves = text.match(/CVE-\d{4}-\d+/g);
+    if (!cves)
+        return [];
+    return cves.map(n => "https://www.cve.org/CVERecord?id=" + n);
+}
+
+function deduplicate<T>(list: T[]): T[] {
+    return [...new Set(list)].sort();
+}
+
+function loadUpdateDetailsBatch(pkg_ids: string[], update_details: Record<string, Partial<UpdateDetail> & Update>, progress_cb?: ProgressCB) {
+    return PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], progress_cb, {
+        UpdateDetail: (packageId: string, _updates: unknown, _obsoletes: unknown,
+            vendor_urls: string[], bug_urls: string[], cve_urls: string[],
+            _restart: boolean, update_text: string, changelog: string /* state, issued, updated */) => {
+            const u = update_details[packageId];
+            if (!u) {
+                console.warn("Mismatching update:", packageId);
+                return;
+            }
+
+            u.vendor_urls = vendor_urls;
+            u.description = removeHeading(update_text) || changelog;
+            if (update_text)
+                u.markdown = true;
+
+            u.bug_urls = deduplicate(bug_urls);
+            // many backends don't support proper severities; parse CVEs from description as a fallback
+            u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
+            if (u.cve_urls && u.cve_urls.length > 0)
+                u.severity = Severity.CRITICAL;
+            u.vendor_urls = vendor_urls || [];
+            // u.restart = restart; // broken (always "1") at least in Fedora
+            debug("UpdateDetail:", u);
+        }
+    });
+}
 
 export class PackageKitManager implements PackageManager {
     name: string;
@@ -244,9 +305,80 @@ export class PackageKitManager implements PackageManager {
         return installed;
     }
 
-    async get_updates<T extends boolean>(detail: T, progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]> {
-        const updates = await PK.get_updates(detail, progress_cb);
-        return updates as unknown as T extends true ? UpdateDetail[] : Update[];
+    /**
+     * Get Updates
+     * updates = { id, name, version, arch }
+     * with details
+     * updates = { id, name, version, arch, severity, bug_urls, cve_urls, vendor_urls, description, markdown }
+     * @param {boolean} details - fetch detailed package information (security information)
+     */
+    async get_updates<T extends boolean>(details: T, progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]> {
+        const updates: Record<string, Partial<UpdateDetail> & Update> = {};
+
+        await PK.cancellableTransaction(
+            "GetUpdates", [0],
+            progress_cb,
+            {
+                Package: (info: number, packageId: string, summary: string) => {
+                    // HACK: security updates have 0x50008 with PackageKit 1.2.8, so just consider the lower 8 bits
+                    info = info & 0xff;
+                    const id_fields = packageId.split(";");
+                    // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
+                    if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
+                        info = PK.Enum.INFO_NORMAL;
+
+                    if (info == PK.Enum.INFO_LOW)
+                        info = Severity.LOW;
+                    else if (info == PK.Enum.INFO_ENHANCEMENT)
+                        info = Severity.MODERATE;
+                    else if (info == PK.Enum.INFO_SECURITY)
+                        info = Severity.CRITICAL;
+                    else if (info >= PK.Enum.INFO_NORMAL)
+                        info = Severity.IMPORTANT;
+                    else
+                        info = Severity.MODERATE;
+
+                    updates[packageId] = { id: packageId, name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2], summary };
+                }
+            });
+
+        const pkg_ids = Object.keys(updates);
+
+        if (details && pkg_ids.length > 0) {
+            const processBatch = async (remaining_ids: string[], current_batch_size: number) => {
+                if (remaining_ids.length === 0) {
+                    return;
+                }
+
+                const batch = remaining_ids.slice(0, current_batch_size);
+                const next_ids = remaining_ids.slice(current_batch_size);
+
+                try {
+                    await loadUpdateDetailsBatch(batch, updates, progress_cb);
+                    // continue with next batch using same batch size
+                    await processBatch(next_ids, current_batch_size);
+                } catch (ex) {
+                    console.warn("GetUpdateDetail failed with batch size", current_batch_size, ":", JSON.stringify(ex));
+
+                    if (current_batch_size > 1) {
+                        // Reduce batch size to 1 and retry
+                        console.log("Reducing GetUpdateDetail batch size to 1 and retrying");
+                        await processBatch(remaining_ids, 1);
+                    } else {
+                        // Even batch size 1 failed, skip this batch and continue
+                        console.warn("Failed to load update details for package:", batch[0]);
+                        await processBatch(next_ids, 1);
+                    }
+                }
+            };
+
+            // Avoid exceeding cockpit-ws frame size, so batch the loading of details
+            // if we run into https://issues.redhat.com/browse/RHEL-109779 then we need to fall back to load packages
+            // individually
+            await processBatch(pkg_ids, 500);
+        }
+
+        return Object.entries(updates).map(([key, u]) => ({ ...u, id: key })) as unknown as T extends true ? UpdateDetail[] : Update[];
     }
 
     async update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateProgressHandlers): Promise<TransactionExitStatus> {

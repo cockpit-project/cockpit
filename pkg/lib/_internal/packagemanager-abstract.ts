@@ -67,6 +67,7 @@ export interface Update {
 
 export interface UpdateDetail extends Update {
   severity: Severity
+  summary?: string
   description: string
   markdown: boolean
   bug_urls: string[]

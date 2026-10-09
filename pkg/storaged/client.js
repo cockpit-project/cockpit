@@ -977,12 +977,12 @@ function init_model(callback) {
 
     function enable_pk_features() {
         if (client.in_anaconda_mode()) {
-            client.features.packagekit = false;
+            client.features.packagemanager = false;
             return Promise.resolve();
         }
         return getPackageManager()
-                .then(() => { client.features.packagekit = true })
-                .catch(() => { client.features.packagekit = false });
+                .then(() => { client.features.packagemanager = true })
+                .catch(() => { client.features.packagemanager = false });
     }
 
     function enable_stratis_feature() {

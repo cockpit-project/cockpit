@@ -293,7 +293,7 @@ test_file_slash_denied (TestCase *tc,
 }
 
 static void
-test_file_breakout_non_existant (TestCase *tc,
+test_file_breakout_non_existent (TestCase *tc,
                                  gconstpointer user_data)
 {
   gchar *root = realpath ( SRCDIR "/src", NULL);
@@ -999,7 +999,7 @@ test_web_filter_passthrough (TestCase *tc,
 }
 
 static void
-on_response_done_not_resuable (CockpitWebResponse *response,
+on_response_done_not_reusable (CockpitWebResponse *response,
                                gboolean reusable,
                                gpointer user_data)
 {
@@ -1014,7 +1014,7 @@ test_abort (TestCase *tc,
   GBytes *content;
 
   cockpit_web_response_headers (tc->response, 200, "OK", 11, NULL);
-  g_signal_connect (tc->response, "done", G_CALLBACK (on_response_done_not_resuable), NULL);
+  g_signal_connect (tc->response, "done", G_CALLBACK (on_response_done_not_reusable), NULL);
 
   while (g_main_context_iteration (NULL, FALSE));
 
@@ -1044,7 +1044,7 @@ test_connection_close (TestCase *tc,
 
   g_assert (data == &fixture_connection_close);
 
-  g_signal_connect (tc->response, "done", G_CALLBACK (on_response_done_not_resuable), NULL);
+  g_signal_connect (tc->response, "done", G_CALLBACK (on_response_done_not_reusable), NULL);
 
   content = g_bytes_new_static ("the content", 11);
   cockpit_web_response_content (tc->response, NULL, content, NULL);
@@ -1418,7 +1418,7 @@ main (int argc,
   g_test_add ("/web-response/file/file-slash-denied", TestCase, NULL,
               setup, test_file_slash_denied, teardown);
   g_test_add ("/web-response/file/breakout-non-existant", TestCase, NULL,
-              setup, test_file_breakout_non_existant, teardown);
+              setup, test_file_breakout_non_existent, teardown);
   g_test_add ("/web-reponse/file/template", TestCase, &template_fixture,
               setup, test_template, teardown);
   g_test_add ("/web-response/content-type/html", TestCase, &content_type_fixture_html,

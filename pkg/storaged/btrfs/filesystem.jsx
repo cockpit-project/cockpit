@@ -22,7 +22,7 @@ const _ = cockpit.gettext;
 
 /**
  * For single btrfs volumes we show the data as a filesystem card with the
- * subvolumes directly undernearth. This differentiates from multi device
+ * subvolumes directly underneath. This differentiates from multi device
  * volumes, there they are shown under a different card.
  */
 export function make_btrfs_filesystem_card(next, backing_block, content_block) {

@@ -23,7 +23,7 @@ void     _cockpit_expect_logged_msg         (const char *domain,
                                              const char *func,
                                              GLogLevelFlags log_level,
                                              const gchar *pattern,
-                                             gboolean skipable,
+                                             gboolean skippable,
                                              gboolean optional);
 
 #define cockpit_expect_log(domain, level, pattern) \

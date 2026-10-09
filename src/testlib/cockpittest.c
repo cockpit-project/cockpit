@@ -40,7 +40,7 @@ typedef struct {
   const gchar *file;
   int line;
   const gchar *func;
-  gboolean skipable;
+  gboolean skippable;
   gboolean optional;
 } ExpectedMessage;
 
@@ -128,7 +128,7 @@ expected_message_handler (const gchar *log_domain,
           g_test_log_set_fatal_handler (expected_fatal_handler, NULL);
         }
 
-      /* Loop until we find a non-skipable message or have a match */
+      /* Loop until we find a non-skippable message or have a match */
       for (l = expected_messages; l != NULL; l = l->next)
         {
           expected = l->data;
@@ -141,7 +141,7 @@ expected_message_handler (const gchar *log_domain,
               skip = TRUE;
               break;
             }
-          else if (!expected->skipable)
+          else if (!expected->skippable)
             {
               break;
             }
@@ -223,7 +223,7 @@ _cockpit_expect_logged_msg (const char *domain,
                             const gchar *func,
                             GLogLevelFlags log_level,
                             const gchar *pattern,
-                            gboolean skipable,
+                            gboolean skippable,
                             gboolean optional)
 {
   ExpectedMessage *expected;
@@ -242,7 +242,7 @@ _cockpit_expect_logged_msg (const char *domain,
   expected->file = file;
   expected->line = line;
   expected->func = func;
-  expected->skipable = optional ? TRUE : skipable;
+  expected->skippable = optional ? TRUE : skippable;
   expected->optional = optional;
 
   G_LOCK (expected);

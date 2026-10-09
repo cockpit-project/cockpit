@@ -207,7 +207,7 @@ export class ShellState extends EventEmitter<ShellStateEvents> {
     #ensure_frame(machine: Machine, path: string, hash: string | null, title: string): ShellFrame | null {
         /* Never create new frames for machines that are not
            connected yet. That would open a channel to them (for
-           loading the URL), which woould trigger the bridge to
+           loading the URL), which would trigger the bridge to
            attempt a log in. We want all logins to happen in a
            single place (in hosts.jsx) so that we can get the
            options right, and show a warning dialog.

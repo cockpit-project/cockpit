@@ -137,7 +137,7 @@ export class PackageKitManager implements PackageManager {
         let last_info = 0;
         let last_name = "";
 
-        function report_progess() {
+        function report_progress() {
             if (progress_cb && last_progress !== null)
                 progress_cb({
                     waiting: last_progress.waiting,
@@ -153,13 +153,13 @@ export class PackageKitManager implements PackageManager {
         await PK.cancellableTransaction("InstallPackages", [0, data.missing_ids],
                                         (p: ProgressData) => {
                                             last_progress = p;
-                                            report_progess();
+                                            report_progress();
                                         },
                                         {
                                             Package: (info: number, id: string) => {
                                                 last_info = info;
                                                 last_name = id.split(";")[0];
-                                                report_progess();
+                                                report_progress();
                                             }
                                         });
     }

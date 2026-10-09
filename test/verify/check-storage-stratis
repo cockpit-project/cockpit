@@ -49,7 +49,7 @@ def create_legacy_pool(machine, disks, name="pool0", keydesc=None, tang=None):
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
 @testlib.skipImage("stratis not installed", "*-bootc")
-@testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
+@testlib.skipImage("commit 817c957899a4 removed Stratis 2 support", "rhel-8-*")
 @testlib.nondestructive
 class TestStorageStratis(storagelib.StorageCase):
     def setUp(self):
@@ -573,7 +573,7 @@ systemctl restart stratisd
 
 @testlib.skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
 @testlib.skipImage("stratis not installed", "*-bootc")
-@testlib.skipImage("commit 817c957899a4 removed Statis 2 support", "rhel-8-*")
+@testlib.skipImage("commit 817c957899a4 removed Stratis 2 support", "rhel-8-*")
 class TestStorageStratisReboot(storagelib.StorageCase):
     def setUp(self):
         super().setUp()

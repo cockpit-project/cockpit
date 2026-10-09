@@ -5,28 +5,291 @@
 
 import cockpit from "cockpit";
 import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify, RunningUpdate, Severity } from './packagemanager-abstract';
-import * as PK from "packagekit.js";
+
+import { superuser } from 'superuser';
+
+const _ = cockpit.gettext;
+
+// see https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
+export const Enum = {
+    EXIT_SUCCESS: 1,
+    EXIT_FAILED: 2,
+    EXIT_CANCELLED: 3,
+    ROLE_REFRESH_CACHE: 13,
+    ROLE_UPDATE_PACKAGES: 22,
+    INFO_UNKNOWN: -1,
+    INFO_LOW: 3,
+    INFO_ENHANCEMENT: 4,
+    INFO_NORMAL: 5,
+    INFO_BUGFIX: 6,
+    INFO_IMPORTANT: 7,
+    INFO_SECURITY: 8,
+    INFO_DOWNLOADING: 10,
+    INFO_UPDATING: 11,
+    INFO_INSTALLING: 12,
+    INFO_REMOVING: 13,
+    INFO_REINSTALLING: 19,
+    INFO_DOWNGRADING: 20,
+    STATUS_WAIT: 1,
+    STATUS_DOWNLOAD: 8,
+    STATUS_INSTALL: 9,
+    STATUS_UPDATE: 10,
+    STATUS_CLEANUP: 11,
+    STATUS_SIGCHECK: 14,
+    STATUS_WAITING_FOR_LOCK: 30,
+    FILTER_INSTALLED: (1 << 2),
+    FILTER_NOT_INSTALLED: (1 << 3),
+    FILTER_NEWEST: (1 << 16),
+    FILTER_ARCH: (1 << 18),
+    FILTER_NOT_SOURCE: (1 << 21),
+    ERROR_ALREADY_INSTALLED: 9,
+    TRANSACTION_FLAG_SIMULATE: (1 << 2),
+};
 
 const UpdateProgressMap: Record<number, UpdateProgressType> = {
-    [PK.Enum.STATUS_DOWNLOAD]: UpdateProgressType.DOWNLOADING,
-    [PK.Enum.STATUS_INSTALL]: UpdateProgressType.INSTALLING,
-    [PK.Enum.STATUS_UPDATE]: UpdateProgressType.UPDATING,
-    [PK.Enum.STATUS_CLEANUP]: UpdateProgressType.CLEANUP,
-    [PK.Enum.STATUS_SIGCHECK]: UpdateProgressType.SIGCHECK,
+    [Enum.STATUS_DOWNLOAD]: UpdateProgressType.DOWNLOADING,
+    [Enum.STATUS_INSTALL]: UpdateProgressType.INSTALLING,
+    [Enum.STATUS_UPDATE]: UpdateProgressType.UPDATING,
+    [Enum.STATUS_CLEANUP]: UpdateProgressType.CLEANUP,
+    [Enum.STATUS_SIGCHECK]: UpdateProgressType.SIGCHECK,
 };
 
 const InstallProgressMap = {
-    [PK.Enum.INFO_DOWNLOADING]: InstallProgressType.DOWNLOADING,
-    [PK.Enum.INFO_UPDATING]: InstallProgressType.UPDATING,
-    [PK.Enum.INFO_REMOVING]: InstallProgressType.REMOVING,
-    [PK.Enum.INFO_INSTALLING]: InstallProgressType.INSTALLING,
-    [PK.Enum.INFO_REINSTALLING]: InstallProgressType.REINSTALLING,
-    [PK.Enum.INFO_DOWNGRADING]: InstallProgressType.DOWNGRADING,
+    [Enum.INFO_DOWNLOADING]: InstallProgressType.DOWNLOADING,
+    [Enum.INFO_UPDATING]: InstallProgressType.UPDATING,
+    [Enum.INFO_REMOVING]: InstallProgressType.REMOVING,
+    [Enum.INFO_INSTALLING]: InstallProgressType.INSTALLING,
+    [Enum.INFO_REINSTALLING]: InstallProgressType.REINSTALLING,
+    [Enum.INFO_DOWNGRADING]: InstallProgressType.DOWNGRADING,
 };
 
 function debug(...args: unknown[]) {
     if (window.debugging == 'all' || window.debugging?.includes('packagekit'))
         console.debug(...args);
+}
+
+interface SignalHandlers {
+    Package?: (info: number, packageId: string, summary: string) => void;
+    UpdateDetail?: (packageId: string, updates: unknown, obsoletes: unknown,
+        vendor_urls: string[], bug_urls: string[], cve_urls: string[],
+        restart: boolean, update_text: string, changelog: string) => void;
+    ErrorCode?: (code: string, detail: string) => void;
+    Finished?: (exit: number) => void;
+    Details?: (details: { size: { v: number, t: string } }) => void;
+    Transaction?: (objPath: string, timeSpec: string, succeeded: string,
+        role: number, duration: string, data: string) => void;
+}
+
+const transactionInterface = "org.freedesktop.PackageKit.Transaction";
+
+let _dbus_client: cockpit.DBusClient | null = null;
+/**
+ * Get PackageKit D-Bus client
+ *
+ * This will get lazily initialized and re-initialized after PackageKit
+ * disconnects (due to a crash or idle timeout).
+ */
+function dbus_client() {
+    if (_dbus_client === null) {
+        _dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", track: true });
+        _dbus_client.addEventListener("close", () => {
+            console.log("PackageKit went away from D-Bus");
+            _dbus_client = null;
+        });
+    }
+
+    return _dbus_client;
+}
+
+// Reconnect when privileges change
+superuser.addEventListener("changed", () => { _dbus_client = null });
+
+/**
+ * Call a PackageKit method
+ */
+export function call(objectPath: string, iface: string, method: string, args?: unknown[] | null, opts?: cockpit.DBusCallOptions) {
+    return dbus_client().call(objectPath, iface, method, args, opts);
+}
+
+/**
+ * Watch a running PackageKit transaction
+ *
+ * transactionPath (string): D-Bus object path of the PackageKit transaction
+ * signalHandlers, notifyHandler: As in method #transaction
+ * Returns: If notifyHandler is set, Cockpit promise that resolves when the watch got set up
+ */
+export function watchTransaction(transactionPath: string, signalHandlers: SignalHandlers, notifyHandler?: (props: Record<string, unknown>, path: string) => void) {
+    const subscriptions: { remove: () => void }[] = [];
+    let notifyReturn: cockpit.DeferredPromise<void> | undefined;
+    const client = dbus_client();
+
+    // Listen for PackageKit crashes while the transaction runs
+    function onClose(_event: unknown, ex: unknown) {
+        console.warn("PackageKit went away during transaction", transactionPath, ":", JSON.stringify(ex));
+        if (signalHandlers.ErrorCode)
+            signalHandlers.ErrorCode("close", _("PackageKit crashed"));
+        if (signalHandlers.Finished)
+            signalHandlers.Finished(Enum.EXIT_FAILED);
+    }
+    client.addEventListener("close", onClose);
+
+    if (signalHandlers) {
+        for (const [member, handler] of Object.entries(signalHandlers)) {
+            if (handler) {
+                subscriptions.push(
+                    client.subscribe({ interface: transactionInterface, path: transactionPath, member },
+                                     (_path, _iface, _signal, args) => handler(...args))
+                );
+            }
+        }
+    }
+
+    if (notifyHandler) {
+        notifyReturn = client.watch(transactionPath);
+        subscriptions.push(notifyReturn as unknown as { remove: () => void });
+        client.addEventListener("notify", (event: CustomEvent) => {
+            const data = event.detail as Record<string, Record<string, unknown>>;
+            const iface = data?.[transactionPath]?.[transactionInterface];
+            if (iface)
+                notifyHandler(iface as Record<string, unknown>, transactionPath);
+        });
+    }
+
+    // unsubscribe when transaction finished
+    subscriptions.push(client.subscribe(
+        { interface: transactionInterface, path: transactionPath, member: "Finished" },
+        () => {
+            subscriptions.map(s => s.remove());
+            client.removeEventListener("close", onClose);
+        })
+    );
+
+    return notifyReturn;
+}
+
+/**
+ * Run a PackageKit transaction
+ *
+ * method (string): D-Bus method name on the https://www.freedesktop.org/software/PackageKit/gtk-doc/Transaction.html interface
+ *                  If undefined, only a transaction will be created without calling a method on it
+ * arglist (array): "in" arguments of @method
+ * signalHandlers (object): maps PackageKit.Transaction signal names to handlers
+ * notifyHandler (function): handler for https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-dbus.html#cockpit-dbus-onnotify
+ *                           signals, called on property changes with (changed_properties, transaction_path)
+ * Returns: Promise that resolves with transaction path on success, or rejects on an error
+ *
+ * Note that most often you don't really need the transaction path, but want to
+ * listen to the "Finished" signal.
+ *
+ * Example:
+ *     transaction("GetUpdates", [0], {
+ *             Package: (info, packageId, _summary) => { ... },
+ *             ErrorCode: (code, details) => { ... },
+ *         },
+ *         changedProps => { ... }  // notify handler
+ *     )
+ *        .then(transactionPath => { ... })
+ *        .catch(ex => { handle exception });
+ */
+export function transaction(method: string, arglist: unknown[], signalHandlers?: SignalHandlers, notifyHandler?: (props: Record<string, unknown>, path: string) => void): Promise<unknown> {
+    return call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [])
+            .then(([transactionPath]) => {
+                if (!signalHandlers && !notifyHandler)
+                    return transactionPath;
+
+                const watchPromise = watchTransaction(transactionPath as string, signalHandlers!, notifyHandler) || Promise.resolve();
+                return watchPromise.then(() => {
+                    if (method) {
+                        return call(transactionPath as string, transactionInterface, method, arglist)
+                                .then(() => transactionPath);
+                    } else {
+                        return transactionPath;
+                    }
+                });
+            });
+}
+
+export class TransactionError extends Error {
+    detail: string;
+    code: string;
+
+    constructor(code: string, detail: string) {
+        super(detail);
+        this.detail = detail;
+        this.code = code;
+    }
+}
+
+/**
+ * Run a long cancellable PackageKit transaction
+ *
+ * method (string): D-Bus method name on the https://www.freedesktop.org/software/PackageKit/gtk-doc/Transaction.html interface
+ * arglist (array): "in" arguments of @method
+ * progress_cb: Callback that receives a {waiting, percentage, cancel} object regularly; if cancel is not null, it can
+ *              be called to cancel the current transaction. if wait is true, PackageKit is waiting for its lock (i. e.
+ *              on another package operation)
+ * signalHandlers, notifyHandler: As in method #transaction, but ErrorCode and Finished are handled internally
+ * Returns: Promise that resolves when the transaction finished successfully, or rejects with TransactionError
+ *          on failure.
+ */
+export function cancellableTransaction(method: string, arglist: unknown[], progress_cb: ProgressCB | null | undefined, signalHandlers?: SignalHandlers): Promise<void> {
+    if (signalHandlers?.ErrorCode || signalHandlers?.Finished)
+        throw Error("cancellableTransaction handles ErrorCode and Finished signals internally");
+
+    return new Promise((resolve, reject) => {
+        let cancelled = false;
+        let status: number | undefined;
+        let allow_wait_status = false;
+        const progress_data: ProgressData = {
+            waiting: false,
+            percentage: 0,
+            cancel: null
+        };
+
+        function changed(props: Record<string, unknown>, transaction_path: string) {
+            function cancel() {
+                call(transaction_path, transactionInterface, "Cancel", []);
+                cancelled = true;
+            }
+
+            if (progress_cb) {
+                if ("Status" in props)
+                    status = props.Status as number;
+                progress_data.waiting = allow_wait_status && (status === Enum.STATUS_WAIT || status === Enum.STATUS_WAITING_FOR_LOCK);
+                if ("AllowCancel" in props)
+                    progress_data.cancel = props.AllowCancel ? cancel : null;
+                if ("Percentage" in props && (props.Percentage as number) <= 100)
+                    progress_data.percentage = props.Percentage as number;
+
+                progress_cb(progress_data);
+            }
+        }
+
+        // We ignore STATUS_WAIT and friends during the first second of a transaction.  They
+        // are always reported briefly even when a transaction doesn't really need to wait.
+        window.setTimeout(() => {
+            allow_wait_status = true;
+            changed({}, "");
+        }, 1000);
+
+        transaction(method, arglist,
+                    Object.assign({
+                        // avoid calling progress_cb after ending the transaction, to avoid flickering cancel buttons
+                        ErrorCode: (code: string, detail: string) => {
+                            progress_cb = null;
+                            reject(new TransactionError(cancelled ? "cancelled" : code, detail));
+                        },
+                        Finished: (_exit: number) => {
+                            progress_cb = null;
+                            resolve();
+                        },
+                    }, signalHandlers || {}),
+                    changed)
+                .catch(ex => {
+                    progress_cb = null;
+                    reject(ex);
+                });
+    });
 }
 
 /**
@@ -58,7 +321,7 @@ function deduplicate<T>(list: T[]): T[] {
 }
 
 function loadUpdateDetailsBatch(pkg_ids: string[], update_details: Record<string, Partial<UpdateDetail> & Update>, progress_cb?: ProgressCB) {
-    return PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], progress_cb, {
+    return cancellableTransaction("GetUpdateDetail", [pkg_ids], progress_cb, {
         UpdateDetail: (packageId: string, _updates: unknown, _obsoletes: unknown,
             vendor_urls: string[], bug_urls: string[], cve_urls: string[],
             _restart: boolean, update_text: string, changelog: string /* state, issued, updated */) => {
@@ -136,58 +399,58 @@ export class PackageKitManager implements PackageManager {
 
         await this.refresh(false, progress_cb);
 
-        await PK.cancellableTransaction("Resolve",
-                                        [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, pkgnames],
-                                        progress_cb,
-                                        {
-                                            Package: (_info: number, package_id: string) => {
-                                                const parts = package_id.split(";");
-                                                const repos = parts[3].split(":");
-                                                if (repos.indexOf("installed") >= 0) {
-                                                    installed_names.add(parts[0]);
-                                                } else {
-                                                    data.missing_ids.push(package_id);
-                                                    data.missing_names.push(parts[0]);
-                                                }
-                                            },
-                                        });
+        await cancellableTransaction("Resolve",
+                                     [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST, pkgnames],
+                                     progress_cb,
+                                     {
+                                         Package: (_info: number, package_id: string) => {
+                                             const parts = package_id.split(";");
+                                             const repos = parts[3].split(":");
+                                             if (repos.indexOf("installed") >= 0) {
+                                                 installed_names.add(parts[0]);
+                                             } else {
+                                                 data.missing_ids.push(package_id);
+                                                 data.missing_names.push(parts[0]);
+                                             }
+                                         },
+                                     });
         pkgnames.forEach(name => {
             if (!installed_names.has(name) && data.missing_names.indexOf(name) == -1)
                 data.unavailable_names.push(name);
         });
 
         if (data.missing_ids.length > 0 && data.unavailable_names.length === 0) {
-            await PK.cancellableTransaction("InstallPackages",
-                                            [PK.Enum.TRANSACTION_FLAG_SIMULATE, data.missing_ids],
-                                            progress_cb,
-                                            {
-                                                Package: (info: number, package_id: string) => {
-                                                    const name = package_id.split(";")[0];
-                                                    if (info == PK.Enum.INFO_REMOVING) {
-                                                        data.remove_names.push(name);
-                                                    } else if (info == PK.Enum.INFO_INSTALLING ||
-                                                             info == PK.Enum.INFO_UPDATING) {
-                                                        install_ids.push(package_id);
-                                                        if (data.missing_names.indexOf(name) == -1)
-                                                            data.extra_names.push(name);
-                                                    }
-                                                }
-                                            });
+            await cancellableTransaction("InstallPackages",
+                                         [Enum.TRANSACTION_FLAG_SIMULATE, data.missing_ids],
+                                         progress_cb,
+                                         {
+                                             Package: (info: number, package_id: string) => {
+                                                 const name = package_id.split(";")[0];
+                                                 if (info == Enum.INFO_REMOVING) {
+                                                     data.remove_names.push(name);
+                                                 } else if (info == Enum.INFO_INSTALLING ||
+                                                             info == Enum.INFO_UPDATING) {
+                                                     install_ids.push(package_id);
+                                                     if (data.missing_names.indexOf(name) == -1)
+                                                         data.extra_names.push(name);
+                                                 }
+                                             }
+                                         });
             data.missing_names.sort();
             data.extra_names.sort();
             data.remove_names.sort();
         }
 
         if (install_ids.length > 0) {
-            await PK.cancellableTransaction("GetDetails",
-                                            [install_ids],
-                                            progress_cb,
-                                            {
-                                                Details: (details: { size: { v: number, t: string } }) => {
-                                                    if (details.size)
-                                                        data.download_size += details.size.v;
-                                                }
-                                            });
+            await cancellableTransaction("GetDetails",
+                                         [install_ids],
+                                         progress_cb,
+                                         {
+                                             Details: (details: { size: { v: number, t: string } }) => {
+                                                 if (details.size)
+                                                     data.download_size += details.size.v;
+                                             }
+                                         });
         }
 
         return data;
@@ -220,22 +483,22 @@ export class PackageKitManager implements PackageManager {
                 });
         }
 
-        await PK.cancellableTransaction("InstallPackages", [0, data.missing_ids],
-                                        (p: ProgressData) => {
-                                            last_progress = p;
-                                            report_progress();
-                                        },
-                                        {
-                                            Package: (info: number, id: string) => {
-                                                last_info = info;
-                                                last_name = id.split(";")[0];
-                                                report_progress();
-                                            }
-                                        });
+        await cancellableTransaction("InstallPackages", [0, data.missing_ids],
+                                     (p: ProgressData) => {
+                                         last_progress = p;
+                                         report_progress();
+                                     },
+                                     {
+                                         Package: (info: number, id: string) => {
+                                             last_info = info;
+                                             last_name = id.split(";")[0];
+                                             report_progress();
+                                         }
+                                     });
     }
 
     async refresh(force: boolean, progress_cb?: ProgressCB): Promise<void> {
-        return PK.cancellableTransaction("RefreshCache", [force], progress_cb);
+        return cancellableTransaction("RefreshCache", [force], progress_cb);
     }
 
     async is_installed(pkgnames: string[]): Promise<boolean> {
@@ -244,34 +507,34 @@ export class PackageKitManager implements PackageManager {
         if (uninstalled.size === 0)
             return true;
 
-        await PK.cancellableTransaction("Resolve",
-                                        [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_INSTALLED, pkgnames],
-                                        null,
-                                        {
-                                            Package: (_info: unknown, package_id: string) => {
-                                                const parts = package_id.split(";");
-                                                uninstalled.delete(parts[0]);
-                                            },
-                                        });
+        await cancellableTransaction("Resolve",
+                                     [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, pkgnames],
+                                     null,
+                                     {
+                                         Package: (_info: unknown, package_id: string) => {
+                                             const parts = package_id.split(";");
+                                             uninstalled.delete(parts[0]);
+                                         },
+                                     });
 
         return uninstalled.size === 0;
     }
 
     async install_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
-        const flags = PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST;
+        const flags = Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST;
         const ids: string[] = [];
 
-        await PK.cancellableTransaction("Resolve", [flags | PK.Enum.FILTER_NOT_INSTALLED, Array.from(pkgnames)], null,
-                                        {
-                                            Package: (_info: unknown, package_id: string) => ids.push(package_id),
-                                        });
+        await cancellableTransaction("Resolve", [flags | Enum.FILTER_NOT_INSTALLED, Array.from(pkgnames)], null,
+                                     {
+                                         Package: (_info: unknown, package_id: string) => ids.push(package_id),
+                                     });
 
         if (ids.length === 0)
-            return Promise.reject(new PK.TransactionError("not-found", "Can't resolve package(s)"));
+            return Promise.reject(new TransactionError("not-found", "Can't resolve package(s)"));
         else
-            return PK.cancellableTransaction("InstallPackages", [0, ids], progress_cb)
+            return cancellableTransaction("InstallPackages", [0, ids], progress_cb)
                     .catch(ex => {
-                        if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
+                        if (ex.code != Enum.ERROR_ALREADY_INSTALLED)
                             return Promise.reject(ex);
                     });
     }
@@ -279,28 +542,28 @@ export class PackageKitManager implements PackageManager {
     async remove_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<void> {
         const ids: string[] = [];
 
-        await PK.cancellableTransaction("Resolve", [PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_INSTALLED | PK.Enum.FILTER_NOT_SOURCE, pkgnames], null,
-                                        {
-                                            Package: (_info: unknown, package_id: string) => ids.push(package_id),
-                                        });
+        await cancellableTransaction("Resolve", [Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED | Enum.FILTER_NOT_SOURCE, pkgnames], null,
+                                     {
+                                         Package: (_info: unknown, package_id: string) => ids.push(package_id),
+                                     });
 
         if (ids.length === 0)
             return Promise.resolve();
 
-        return PK.cancellableTransaction("RemovePackages", [0, ids, true, false], progress_cb);
+        return cancellableTransaction("RemovePackages", [0, ids, true, false], progress_cb);
     }
 
     async find_file_packages(files: string[], progress_cb?: ProgressCB): Promise<string[]> {
         const installed: string[] = [];
-        await PK.cancellableTransaction("SearchFiles",
-                                        [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_INSTALLED, files],
-                                        progress_cb,
-                                        {
-                                            Package: (_info: unknown, package_id: string) => {
-                                                const pkg = package_id.split(";")[0];
-                                                installed.push(pkg);
-                                            },
-                                        });
+        await cancellableTransaction("SearchFiles",
+                                     [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_INSTALLED, files],
+                                     progress_cb,
+                                     {
+                                         Package: (_info: unknown, package_id: string) => {
+                                             const pkg = package_id.split(";")[0];
+                                             installed.push(pkg);
+                                         },
+                                     });
 
         return installed;
     }
@@ -315,7 +578,7 @@ export class PackageKitManager implements PackageManager {
     async get_updates<T extends boolean>(details: T, progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]> {
         const updates: Record<string, Partial<UpdateDetail> & Update> = {};
 
-        await PK.cancellableTransaction(
+        await cancellableTransaction(
             "GetUpdates", [0],
             progress_cb,
             {
@@ -324,16 +587,16 @@ export class PackageKitManager implements PackageManager {
                     info = info & 0xff;
                     const id_fields = packageId.split(";");
                     // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
-                    if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
-                        info = PK.Enum.INFO_NORMAL;
+                    if (info < Enum.INFO_LOW || info > Enum.INFO_SECURITY)
+                        info = Enum.INFO_NORMAL;
 
-                    if (info == PK.Enum.INFO_LOW)
+                    if (info == Enum.INFO_LOW)
                         info = Severity.LOW;
-                    else if (info == PK.Enum.INFO_ENHANCEMENT)
+                    else if (info == Enum.INFO_ENHANCEMENT)
                         info = Severity.MODERATE;
-                    else if (info == PK.Enum.INFO_SECURITY)
+                    else if (info == Enum.INFO_SECURITY)
                         info = Severity.CRITICAL;
-                    else if (info >= PK.Enum.INFO_NORMAL)
+                    else if (info >= Enum.INFO_NORMAL)
                         info = Severity.IMPORTANT;
                     else
                         info = Severity.MODERATE;
@@ -387,40 +650,40 @@ export class PackageKitManager implements PackageManager {
         const errorMessages: string[] = [];
 
         return new Promise<TransactionExitStatus>((resolve, reject) => {
-            PK.transaction("UpdatePackages", [0, update_ids],
-                           {
-                               ErrorCode: (_code: string, details: string) => errorMessages.push(details),
-                               Finished: (exit: number) => {
-                                   if (exit === PK.Enum.EXIT_SUCCESS) {
-                                       resolve(TransactionExitStatus.SUCCESS);
-                                   } else if (exit === PK.Enum.EXIT_CANCELLED) {
-                                       resolve(TransactionExitStatus.CANCELLED);
-                                   } else {
-                                       if (exit !== PK.Enum.EXIT_FAILED)
-                                           errorMessages.push(cockpit.format(cockpit.gettext("PackageKit reported error code $0"), exit));
-                                       reject(new UpdateError(errorMessages));
-                                   }
-                               },
-                               Package: (status: number, packageId: string) => {
-                                   if (status in UpdateProgressMap)
-                                       handlers.on_package(UpdateProgressMap[status], packageId);
-                               },
-                           },
-                           (notify: Record<string, unknown>, path: string) => {
-                               transactionPath = path;
-                               const props: UpdateNotify = {
-                                   cancel: notify.AllowCancel
-                                       ? () => PK.call(transactionPath!, PK.transactionInterface, "Cancel", [])
-                                       : null,
-                               };
-                               if (notify.Percentage !== undefined)
-                                   props.percentage = notify.Percentage as number;
-                               if (notify.RemainingTime !== undefined)
-                                   props.remaining_time = notify.RemainingTime as number;
-                               if (notify.LastPackage !== undefined)
-                                   props.last_package = notify.LastPackage as string;
-                               handlers.on_notify(props);
-                           },
+            transaction("UpdatePackages", [0, update_ids],
+                        {
+                            ErrorCode: (_code: string, details: string) => errorMessages.push(details),
+                            Finished: (exit: number) => {
+                                if (exit === Enum.EXIT_SUCCESS) {
+                                    resolve(TransactionExitStatus.SUCCESS);
+                                } else if (exit === Enum.EXIT_CANCELLED) {
+                                    resolve(TransactionExitStatus.CANCELLED);
+                                } else {
+                                    if (exit !== Enum.EXIT_FAILED)
+                                        errorMessages.push(cockpit.format(cockpit.gettext("PackageKit reported error code $0"), exit));
+                                    reject(new UpdateError(errorMessages));
+                                }
+                            },
+                            Package: (status: number, packageId: string) => {
+                                if (status in UpdateProgressMap)
+                                    handlers.on_package(UpdateProgressMap[status], packageId);
+                            },
+                        },
+                        (notify: Record<string, unknown>, path: string) => {
+                            transactionPath = path;
+                            const props: UpdateNotify = {
+                                cancel: notify.AllowCancel
+                                    ? () => call(transactionPath!, transactionInterface, "Cancel", [])
+                                    : null,
+                            };
+                            if (notify.Percentage !== undefined)
+                                props.percentage = notify.Percentage as number;
+                            if (notify.RemainingTime !== undefined)
+                                props.remaining_time = notify.RemainingTime as number;
+                            if (notify.LastPackage !== undefined)
+                                props.last_package = notify.LastPackage as string;
+                            handlers.on_notify(props);
+                        },
             ).catch(reject);
         });
     }
@@ -430,9 +693,9 @@ export class PackageKitManager implements PackageManager {
         let roles: unknown[];
 
         try {
-            [transactions] = await PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", []);
-            roles = await Promise.all(transactions.map(path => PK.call(path, "org.freedesktop.DBus.Properties",
-                                                                       "Get", [PK.transactionInterface, "Role"])));
+            [transactions] = await call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", []) as [string[]];
+            roles = await Promise.all(transactions.map(path => call(path, "org.freedesktop.DBus.Properties",
+                                                                    "Get", [transactionInterface, "Role"])));
         } catch (ex) {
             console.warn("GetTransactionList: failed to read PackageKit transaction roles:", String(ex));
             return null;
@@ -441,46 +704,46 @@ export class PackageKitManager implements PackageManager {
         for (let idx = 0; idx < roles.length; ++idx) {
             const [role] = roles[idx] as [{ v: number }];
 
-            if (role.v !== PK.Enum.ROLE_UPDATE_PACKAGES) {
+            if (role.v !== Enum.ROLE_UPDATE_PACKAGES) {
                 continue;
             }
 
             const transactionPath = transactions[idx];
             const errorMessages: string[] = [];
             const promise = new Promise<TransactionExitStatus>((resolve, reject) => {
-                PK.watchTransaction(transactionPath,
-                                    {
-                                        ErrorCode: (_code: string, details: string) => errorMessages.push(details),
-                                        Finished: (exit: number) => {
-                                            if (exit === PK.Enum.EXIT_SUCCESS) {
-                                                resolve(TransactionExitStatus.SUCCESS);
-                                            } else if (exit === PK.Enum.EXIT_CANCELLED) {
-                                                resolve(TransactionExitStatus.CANCELLED);
-                                            } else {
-                                                if (exit !== PK.Enum.EXIT_FAILED)
-                                                    errorMessages.push(cockpit.format(cockpit.gettext("PackageKit reported error code $0"), exit));
-                                                reject(new UpdateError(errorMessages));
-                                            }
-                                        },
-                                        Package: (status: number, packageId: string) => {
-                                            if (status in UpdateProgressMap)
-                                                handlers.on_package(UpdateProgressMap[status], packageId);
-                                        },
-                                    },
-                                    (notify: Record<string, unknown>) => {
-                                        const props: UpdateNotify = {
-                                            cancel: notify.AllowCancel ? () => PK.call(transactionPath, PK.transactionInterface, "Cancel", []) : null,
-                                        };
+                watchTransaction(transactionPath,
+                                 {
+                                     ErrorCode: (_code: string, details: string) => errorMessages.push(details),
+                                     Finished: (exit: number) => {
+                                         if (exit === Enum.EXIT_SUCCESS) {
+                                             resolve(TransactionExitStatus.SUCCESS);
+                                         } else if (exit === Enum.EXIT_CANCELLED) {
+                                             resolve(TransactionExitStatus.CANCELLED);
+                                         } else {
+                                             if (exit !== Enum.EXIT_FAILED)
+                                                 errorMessages.push(cockpit.format(cockpit.gettext("PackageKit reported error code $0"), exit));
+                                             reject(new UpdateError(errorMessages));
+                                         }
+                                     },
+                                     Package: (status: number, packageId: string) => {
+                                         if (status in UpdateProgressMap)
+                                             handlers.on_package(UpdateProgressMap[status], packageId);
+                                     },
+                                 },
+                                 (notify: Record<string, unknown>) => {
+                                     const props: UpdateNotify = {
+                                         cancel: notify.AllowCancel ? () => call(transactionPath, transactionInterface, "Cancel", []) : null,
+                                     };
 
-                                        if (notify.Percentage !== undefined)
-                                            props.percentage = notify.Percentage as number;
-                                        if (notify.RemainingTime !== undefined)
-                                            props.remaining_time = notify.RemainingTime as number;
-                                        if (notify.LastPackage !== undefined)
-                                            props.last_package = notify.LastPackage as string;
+                                     if (notify.Percentage !== undefined)
+                                         props.percentage = notify.Percentage as number;
+                                     if (notify.RemainingTime !== undefined)
+                                         props.remaining_time = notify.RemainingTime as number;
+                                     if (notify.LastPackage !== undefined)
+                                         props.last_package = notify.LastPackage as string;
 
-                                        handlers.on_notify(props);
-                                    },
+                                     handlers.on_notify(props);
+                                 },
                 );
             });
 
@@ -491,14 +754,14 @@ export class PackageKitManager implements PackageManager {
     }
 
     async get_backend(): Promise<string> {
-        const [result] = await PK.call("/org/freedesktop/PackageKit",
-                                       "org.freedesktop.DBus.Properties",
-                                       "Get", ["org.freedesktop.PackageKit", "BackendName"]) as [{ v: string, t: string }];
+        const [result] = await call("/org/freedesktop/PackageKit",
+                                    "org.freedesktop.DBus.Properties",
+                                    "Get", ["org.freedesktop.PackageKit", "BackendName"]) as [{ v: string, t: string }];
         return result.v;
     }
 
     async get_last_refresh_time(): Promise<number> {
-        const [seconds] = await PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction", [PK.Enum.ROLE_REFRESH_CACHE]);
+        const [seconds] = await call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction", [Enum.ROLE_REFRESH_CACHE]) as [number];
         return seconds;
     }
 
@@ -506,9 +769,9 @@ export class PackageKitManager implements PackageManager {
         const history = [] as History[];
 
         // would be nice to filter only for "update-packages" role, but can't here
-        await PK.transaction("GetOldTransactions", [0], {
+        await transaction("GetOldTransactions", [0], {
             Transaction: (_objPath: string, timeSpec: string, _succeeded: string, role: number, _duration: string, data: string) => {
-                if (role !== PK.Enum.ROLE_UPDATE_PACKAGES)
+                if (role !== Enum.ROLE_UPDATE_PACKAGES)
                     return;
 
                 /**
@@ -574,15 +837,15 @@ export class PackageKitManager implements PackageManager {
         if (pkgnames && pkgnames.length === 0)
             return true;
 
-        await PK.cancellableTransaction("Resolve",
-                                        [PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED, pkgnames],
-                                        null,
-                                        {
-                                            Package: (_info: unknown, package_id: string) => {
-                                                const pkgname = package_id.split(";")[0];
-                                                available.add(pkgname);
-                                            },
-                                        });
+        await cancellableTransaction("Resolve",
+                                     [Enum.FILTER_ARCH | Enum.FILTER_NEWEST | Enum.FILTER_NOT_INSTALLED, pkgnames],
+                                     null,
+                                     {
+                                         Package: (_info: unknown, package_id: string) => {
+                                             const pkgname = package_id.split(";")[0];
+                                             available.add(pkgname);
+                                         },
+                                     });
 
         return available.size === new Set(pkgnames).size;
     }

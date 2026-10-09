@@ -277,15 +277,6 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
 }
 
 /**
- * Refresh PackageKit Cache
- * @param {boolean} force - force refresh the cache (expensive)
- * @param {*} progress_cb - progress callback
- */
-export function refresh(force = false, progress_cb) {
-    return cancellableTransaction("RefreshCache", [force], progress_cb);
-}
-
-/**
  * On Debian the update_text starts with "== version ==" which is
  * redundant; we don't want Markdown headings in the table
  *

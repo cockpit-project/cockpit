@@ -142,7 +142,15 @@ function subvolume_create(volume, subvol) {
         Fields: [
             TextInput("name", _("Name"),
                       {
-                          validate: name => validate_subvolume_name(name)
+                          validate: name => {
+                              const err = validate_subvolume_name(name);
+                              if (err)
+                                  return err;
+                              const subvols = client.uuids_btrfs_subvols?.[volume.data.uuid] || [];
+                              const full_name = subvol.pathname == "/" ? name : subvol.pathname + "/" + name;
+                              if (subvols.some(s => s.pathname == full_name || s.pathname == `/${full_name}`))
+                                  return cockpit.format(_("A subvolume named \"$0\" already exists"), name);
+                          }
                       }),
             TextInput("mount_point", _("Mount Point"),
                       {
@@ -163,13 +171,19 @@ function subvolume_create(volume, subvol) {
                 // HACK: cannot use block_btrfs.CreateSubvolume as it always creates a subvolume relative to MountPoints[0] which
                 // makes it impossible to handle a situation where we have multiple subvolumes mounted.
                 // https://github.com/storaged-project/udisks/issues/1242
-                if (parent_dir)
-                    await cockpit.spawn(["btrfs", "subvolume", "create", `${parent_dir}/${vals.name}`], { superuser: "require", err: "message" });
-                else {
-                    await btrfs_tool(["do", volume.data.uuid,
-                        "btrfs", "subvolume", "create",
-                        subvol.pathname == "/" ? vals.name : subvol.pathname + "/" + vals.name
-                    ]);
+                try {
+                    if (parent_dir)
+                        await cockpit.spawn(["btrfs", "subvolume", "create", `${parent_dir}/${vals.name}`], { superuser: "require", err: "message" });
+                    else {
+                        await btrfs_tool(["do", volume.data.uuid,
+                            "btrfs", "subvolume", "create",
+                            subvol.pathname == "/" ? vals.name : subvol.pathname + "/" + vals.name
+                        ]);
+                    }
+                } catch (error) {
+                    if (error.message && (error.message.includes("File exists") || error.message.includes("already exists")))
+                        throw new Error(cockpit.format(_("A subvolume named \"$0\" already exists"), vals.name));
+                    throw error;
                 }
                 await btrfs_poll();
                 if (vals.mount_point !== "") {

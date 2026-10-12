@@ -1764,6 +1764,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         with b.wait_timeout(60):
             b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
         b.click("#ignore")
+        b.wait_in_text("#status", "System is up to date")
 
         if "dnf" in self.backend:
             b.wait_in_text("#autoupdates-settings", "Not set up")

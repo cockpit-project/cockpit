@@ -111,7 +111,7 @@ export const MachineTroubleshoot = ({
     machine: Machine,
     onClick: () => void
 }) => {
-    const connecting = (machine.state == "connecting");
+    const connecting = (machine.state === "connecting");
     let title;
     let message;
     if (machine.restarting) {
@@ -122,7 +122,7 @@ export const MachineTroubleshoot = ({
         message = "";
     } else {
         title = _("Not connected to host");
-        if (machine.problem == "not-found") {
+        if (machine.problem === "not-found") {
             message = _("Cannot connect to an unknown host");
         } else {
             const error = machine.problem || machine.state;
@@ -140,7 +140,7 @@ export const MachineTroubleshoot = ({
     }
 
     const restarting = !!machine.restarting;
-    const reconnect = !connecting && machine.problem != "not-found" && !troubleshooting;
+    const reconnect = !connecting && machine.problem !== "not-found" && !troubleshooting;
 
     return (
         <EarlyFailureReady loading={connecting || restarting}

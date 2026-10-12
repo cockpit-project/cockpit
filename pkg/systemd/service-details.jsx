@@ -240,7 +240,7 @@ export class ServiceDetails extends React.Component {
         this.doMemoryCurrentPolling = this.doMemoryCurrentPolling.bind(this);
 
         // MemoryCurrent property does not emit a changed signal - do polling for this property
-        if (props.unit.ActiveState == "active") {
+        if (props.unit.ActiveState === "active") {
             this.doMemoryCurrentPolling();
             this.interval = setInterval(this.doMemoryCurrentPolling, METRICS_POLL_DELAY);
         }
@@ -305,7 +305,7 @@ export class ServiceDetails extends React.Component {
     }
 
     addUnitProperties(prop, value) {
-        if (prop == "MemoryCurrent" && this.state.unit_properties.MemoryCurrent !== value)
+        if (prop === "MemoryCurrent" && this.state.unit_properties.MemoryCurrent !== value)
             this.setState(prevState => ({ unit_properties: { ...prevState.unit_properties, [prop]: value } }));
     }
 
@@ -346,7 +346,7 @@ export class ServiceDetails extends React.Component {
 
     pinUnit() {
         const newPinned = this.state.isPinned
-            ? this.props.pinnedUnits.filter(unitId => unitId != this.props.unit.Id)
+            ? this.props.pinnedUnits.filter(unitId => unitId !== this.props.unit.Id)
             : [...this.props.pinnedUnits, this.props.unit.Id];
 
         localStorage.setItem('systemd:pinnedUnits', JSON.stringify(newPinned));
@@ -358,10 +358,10 @@ export class ServiceDetails extends React.Component {
         this.setState({ waitsFileAction: true });
         const args = [[this.props.unit.Names[0]], false];
         if (force !== undefined)
-            args.push(force == "true");
+            args.push(force === "true");
         const promise = systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, method, args)
                 .then(([results]) => {
-                    if (results.length == 2 && !results[0])
+                    if (results.length === 2 && !results[0])
                         this.show_note(_("This unit is not designed to be enabled explicitly."));
                     /* Executing daemon reload after file operations is necessary -
                      * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
@@ -392,7 +392,7 @@ export class ServiceDetails extends React.Component {
             }
 
             const [cmd, args] = exec[0];
-            if (cmd !== "/bin/sh" || args.length !== 3 || args[1] != "-c") {
+            if (cmd !== "/bin/sh" || args.length !== 3 || args[1] !== "-c") {
                 console.warn(`ExecStart= entry is not of the form "/bin/sh -c CMD"`);
                 return null;
             }
@@ -476,7 +476,7 @@ export class ServiceDetails extends React.Component {
         const failed = this.props.unit.ActiveState === "failed";
         const masked = this.props.unit.LoadState === "masked";
         const unit = this.state.unit_properties;
-        const showAction = this.props.permitted || this.props.owner == "user";
+        const showAction = this.props.permitted || this.props.owner === "user";
         const isCustom = this.props.unit.FragmentPath.startsWith("/etc/systemd/system") && !masked;
         const isTimer = (this.unitType === "timer");
         const isQuadlet = this.props.unit.SourcePath?.includes("/containers/systemd/");

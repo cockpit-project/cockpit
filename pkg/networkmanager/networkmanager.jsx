@@ -48,8 +48,8 @@ const App = () => {
     const plot_state_main = useObject(() => new PlotState(), null, []);
     const plot_state_iface = useObject(() => new PlotState(), null, []);
 
-    if (model.curtain == 'testing' || model.curtain == 'restoring') {
-        return <EmptyStatePanel loading title={model.curtain == 'testing' ? _("Testing connection") : _("Restoring connection")} />;
+    if (model.curtain === 'testing' || model.curtain === 'restoring') {
+        return <EmptyStatePanel loading title={model.curtain === 'testing' ? _("Testing connection") : _("Restoring connection")} />;
     }
 
     if (model.ready === undefined)
@@ -100,7 +100,7 @@ const App = () => {
     const interfaces = model.list_interfaces();
 
     /* At this point NM is running and the model is ready */
-    if (path.length == 0) {
+    if (path.length === 0) {
         return (
             <ModelContext.Provider value={model}>
                 <WithDialogs key="1">
@@ -112,8 +112,8 @@ const App = () => {
                 </WithDialogs>
             </ModelContext.Provider>
         );
-    } else if (path.length == 1) {
-        const iface = interfaces.find(iface => iface.Name == path[0]);
+    } else if (path.length === 1) {
+        const iface = interfaces.find(iface => iface.Name === path[0]);
 
         if (iface) {
             return (

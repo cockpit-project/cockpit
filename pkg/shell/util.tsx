@@ -38,15 +38,15 @@ export function decode_location(string: string): Location {
         hash = string.substring(pos + 1);
         string = string.substring(0, pos);
     }
-    if (string[0] != '/')
+    if (string[0] !== '/')
         string = "/" + string;
     const path = cockpit.location.decode(string);
     let host;
-    if (path[0] && path[0][0] == "@")
+    if (path[0] && path[0][0] === "@")
         host = (path.shift() as string).substring(1);
     else
         host = "localhost";
-    if (path.length && path[path.length - 1] == "index")
+    if (path.length && path[path.length - 1] === "index")
         path.pop();
     return { host, path: path.join("/"), hash };
 }
@@ -126,7 +126,7 @@ export class CompiledComponents {
                 /* Fix component for compatibility and normalize it */
                 if (item.path.indexOf("/") === -1)
                     item.path = name + "/" + item.path;
-                if (item.path.slice(-6) == "/index")
+                if (item.path.slice(-6) === "/index")
                     item.path = item.path.slice(0, -6);
                 this.items[item.path] = item;
             });
@@ -213,7 +213,7 @@ export function compute_frame_url(machine: Machine, path: string): string {
     else
         checksum = machine.checksum;
 
-    if (checksum && checksum == component_checksum(machine, path)) {
+    if (checksum && checksum === component_checksum(machine, path)) {
         if (machine.connection_string === "localhost")
             base = "..";
         else

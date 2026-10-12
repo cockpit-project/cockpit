@@ -30,7 +30,7 @@ import { register_available_block_space } from "../utils";
  */
 
 export function make_block_page(parent, block, card, options) {
-    let is_crypto = block.IdUsage == 'crypto';
+    let is_crypto = block.IdUsage === 'crypto';
     let content_block = is_crypto ? client.blocks_cleartext[block.path] : block;
     const fstab_config = get_fstab_config(content_block || block, true);
 
@@ -38,7 +38,7 @@ export function make_block_page(parent, block, card, options) {
     const block_stratis_stopped_pool = client.blocks_stratis_stopped_pool[block.path];
     const legacy_vdo = client.legacy_vdo_overlay.find_by_backing_block(block);
 
-    const is_stratis = ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "stratis") ||
+    const is_stratis = ((content_block && content_block.IdUsage === "raid" && content_block.IdType === "stratis") ||
                         (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) ||
                         block_stratis_stopped_pool);
 
@@ -70,7 +70,7 @@ export function make_block_page(parent, block, card, options) {
     if (!content_block) {
         if (!is_crypto) {
             // can not happen unless there is a bug in the code above.
-            console.error("Assertion failure: is_crypto == false");
+            console.error("Assertion failure: is_crypto === false");
         }
         if (fstab_config.length > 0 && !is_btrfs) {
             card = make_filesystem_card(card, block, null, fstab_config);
@@ -78,7 +78,7 @@ export function make_block_page(parent, block, card, options) {
             card = make_locked_encrypted_data_card(card, block);
         }
     } else {
-        const is_filesystem = content_block.IdUsage == 'filesystem';
+        const is_filesystem = content_block.IdUsage === 'filesystem';
         const block_pvol = client.blocks_pvol[content_block.path];
         const block_swap = client.blocks_swap[content_block.path];
 
@@ -89,16 +89,16 @@ export function make_block_page(parent, block, card, options) {
                 card = make_btrfs_device_card(card, block, content_block, block_btrfs_blockdev);
         } else if (is_filesystem) {
             card = make_filesystem_card(card, block, content_block, fstab_config);
-        } else if ((content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
+        } else if ((content_block.IdUsage === "raid" && content_block.IdType === "LVM2_member") ||
                    (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {
             card = make_lvm2_physical_volume_card(card, block, content_block);
         } else if (is_stratis) {
             card = make_stratis_blockdev_card(card, block, content_block);
-        } else if ((content_block.IdUsage == "raid") ||
+        } else if ((content_block.IdUsage === "raid") ||
                    (client.mdraids[content_block.MDRaidMember])) {
             card = make_mdraid_disk_card(card, block, content_block);
         } else if (block_swap ||
-                   (content_block.IdUsage == "other" && content_block.IdType == "swap")) {
+                   (content_block.IdUsage === "other" && content_block.IdType === "swap")) {
             card = make_swap_card(card, block, content_block);
         } else if (!content_block.IdUsage) {
             if (!block.HintIgnore)

@@ -413,7 +413,7 @@
    to be validated together.  Consider this example:
 
        field.validate(v => {
-         if (v.mode != "auto" && v.size == 0)
+         if (v.mode != "auto" && v.size === 0)
            return { "size": "Can't be zero in manual mode." }
        });
 
@@ -624,7 +624,7 @@ import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
 const _ = cockpit.gettext;
 
 function debug(...args: unknown[]) {
-    if (window.debugging == "all" || window.debugging?.includes("dialog"))
+    if (window.debugging === "all" || window.debugging?.includes("dialog"))
         console.debug("dialog:", ...args);
 }
 
@@ -791,7 +791,7 @@ export class DialogField<T> {
 
         const getter = (): T[K] => {
             const container = this.get();
-            if (Array.isArray(container) && typeof sub.tag == "number") {
+            if (Array.isArray(container) && typeof sub.tag === "number") {
                 return container[sub.tag];
             } else {
                 return container[tag];
@@ -800,7 +800,7 @@ export class DialogField<T> {
 
         const setter = (val: T[K]) => {
             const container = this.get();
-            if (Array.isArray(container) && typeof sub.tag == "number") {
+            if (Array.isArray(container) && typeof sub.tag === "number") {
                 this.#setter(toSpliced(container, sub.tag, 1, val) as T);
             } else {
                 this.#setter({ ...container, [tag]: val });
@@ -853,9 +853,9 @@ export class DialogField<T> {
 }
 
 function get_validation_result_own_string(result: unknown): string | undefined {
-    if (typeof result == "string")
+    if (typeof result === "string")
         return result;
-    else if (result && typeof result == "object" && "" in result && typeof result[""] == "string")
+    else if (result && typeof result === "object" && "" in result && typeof result[""] == "string")
         return result[""];
     else
         return undefined;
@@ -1201,7 +1201,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 this.#validation_failed = true;
                 this.#online_validation = true;
             }
-            if (typeof result == "object") {
+            if (typeof result === "object") {
                 for (const [k, v] of Object.entries(result)) {
                     const sub = k && state.sub.get(k);
                     if (sub)
@@ -1300,7 +1300,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                     }
                 },
                 task => {
-                    if (state.validation_task == task)
+                    if (state.validation_task === task)
                         state.validation_task = null;
                 }
             );
@@ -1324,7 +1324,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 }
             },
             task => {
-                if (state.update_task == task)
+                if (state.update_task === task)
                     state.update_task = null;
             }
         );
@@ -1460,7 +1460,7 @@ export class DialogError {
     }
 
     static fromError(title: string, err: unknown) {
-        if (err && typeof err == "object" && "message" in err && typeof err.message == "string") {
+        if (err && typeof err === "object" && "message" in err && typeof err.message == "string") {
             return new DialogError(title, err.message);
         } else {
             return new DialogError(title, String(err));
@@ -1474,7 +1474,7 @@ export function useDialogState<V extends object>(
 ) : DialogState<V> {
     const dlg = useObject(
         () => new DialogState(
-            typeof init == "function" ? init() : init,
+            typeof init === "function" ? init() : init,
             validate
         ),
         null,
@@ -1520,7 +1520,7 @@ export function DialogErrorMessage<V>({
     if (err instanceof DialogError) {
         title = err.title;
         details = err.details;
-    } else if (err && typeof err == "object" && "message" in err && typeof err.message == "string") {
+    } else if (err && typeof err === "object" && "message" in err && typeof err.message == "string") {
         title = _("Failed");
         details = err.message;
     } else {
@@ -1863,7 +1863,7 @@ export function DialogRadioSelect<T extends string>({
                         id={random_id + o.value}
                         ouiaId={field.ouia_id(o.value)}
                         name={o.value}
-                        isChecked={field.get() == o.value}
+                        isChecked={field.get() === o.value}
                         label={makeLabel(o, i)}
                         onChange={() => field.set(o.value)}
                         isDisabled={!!o.excuse}
@@ -1929,7 +1929,7 @@ export function DialogDropdownSelectObject<T>({
     warning,
     explanation,
     options,
-    option_label = (o: T): string => { cockpit.assert(typeof o == "string"); return o },
+    option_label = (o: T): string => { cockpit.assert(typeof o === "string"); return o },
     id,
     ...props
 } : {
@@ -1948,7 +1948,7 @@ export function DialogDropdownSelectObject<T>({
                 id={fid}
                 ouiaId={field.ouia_id()}
                 onChange={(_event, val) => {
-                    const opt = options.find(o => option_label(o) == val);
+                    const opt = options.find(o => option_label(o) === val);
                     field.set(opt!);
                 }}
                 validated={warning ? "warning" : undefined}

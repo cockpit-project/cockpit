@@ -25,13 +25,13 @@ import "./page-status.scss";
 import { page_status } from "notifications";
 
 function icon_for_type(type) {
-    if (type == "error")
+    if (type === "error")
         return (
             <Icon status="danger">
                 <ExclamationCircleIcon />
             </Icon>
         );
-    else if (type == "warning")
+    else if (type === "warning")
         return (
             <Icon status="warning">
                 <ExclamationTriangleIcon />
@@ -47,15 +47,15 @@ function icon_for_type(type) {
 
 function get_pficon(name) {
     // set data-pficon for the tests
-    if (name == "security")
+    if (name === "security")
         return <Icon isInline status="danger"><SecurityIcon data-pficon={name} /></Icon>;
-    if (name == "enhancement")
+    if (name === "enhancement")
         return <Icon isInline status="custom"><EnhancementIcon data-pficon={name} /></Icon>;
-    if (name == "bug")
+    if (name === "bug")
         return <Icon isInline className="pf-m-important"><BugIcon data-pficon={name} /></Icon>;
-    if (name == "check")
+    if (name === "check")
         return <Icon isInline status="success"><CheckIcon data-pficon={name} /></Icon>;
-    if (name == "spinner")
+    if (name === "spinner")
         return <Spinner diameter="1em" data-pficon={name} />;
 
     throw new Error(`get_pficon(): unknown icon name ${name}`);

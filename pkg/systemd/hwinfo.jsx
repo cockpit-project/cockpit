@@ -164,7 +164,7 @@ const CPUSecurityMitigationsDialog = () => {
             // this may either be an argument of its own, or part of mitigations=
             const ma = cachedMitigations.mitigations_arg;
             if (ma && ma.indexOf("nosmt") >= 0) {
-                const new_args = ma.split(',').filter(opt => opt != 'nosmt');
+                const new_args = ma.split(',').filter(opt => opt !== 'nosmt');
                 options = ['set', 'mitigations=' + new_args.join(',')];
             } else {
                 options = ['remove', 'nosmt'];

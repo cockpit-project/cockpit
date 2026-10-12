@@ -28,8 +28,8 @@ import cockpit from "cockpit";
  * - proxy.exists
  *
  * A boolean that tells whether the service is known or not.  A
- * proxy with 'exists == false' will have 'state == undefined' and
- * 'enabled == undefined'.
+ * proxy with 'exists === false' will have 'state === undefined' and
+ * 'enabled === undefined'.
  *
  * - proxy.state
  *
@@ -107,8 +107,8 @@ function with_systemd_manager(done) {
         wait_valid(systemd_manager, () => {
             systemd_manager.Subscribe()
                     .catch(error => {
-                        if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
-                        error.name != "org.freedesktop.DBus.Error.FileExists")
+                        if (error.name !== "org.freedesktop.systemd1.AlreadySubscribed" &&
+                        error.name !== "org.freedesktop.DBus.Error.FileExists")
                             console.warn("Subscribing to systemd signals failed", error);
                     });
         });
@@ -142,30 +142,30 @@ export function proxy(name, kind) {
     let wait_promise_resolve;
     const wait_promise = new Promise(resolve => { wait_promise_resolve = resolve });
 
-    if (name.indexOf(".") == -1)
+    if (name.indexOf(".") === -1)
         name = name + ".service";
     if (kind === undefined)
         kind = "Service";
 
     function update_from_unit() {
-        self.exists = (unit.LoadState != "not-found" || unit.ActiveState != "inactive");
+        self.exists = (unit.LoadState !== "not-found" || unit.ActiveState !== "inactive");
 
-        if (unit.ActiveState == "activating")
+        if (unit.ActiveState === "activating")
             self.state = "starting";
-        else if (unit.ActiveState == "deactivating")
+        else if (unit.ActiveState === "deactivating")
             self.state = "stopping";
-        else if (unit.ActiveState == "active" || unit.ActiveState == "reloading")
+        else if (unit.ActiveState === "active" || unit.ActiveState === "reloading")
             self.state = "running";
-        else if (unit.ActiveState == "failed")
+        else if (unit.ActiveState === "failed")
             self.state = "failed";
-        else if (unit.ActiveState == "inactive" && self.exists)
+        else if (unit.ActiveState === "inactive" && self.exists)
             self.state = "stopped";
         else
             self.state = undefined;
 
-        if (unit.UnitFileState == "enabled" || unit.UnitFileState == "linked")
+        if (unit.UnitFileState === "enabled" || unit.UnitFileState === "linked")
             self.enabled = true;
-        else if (unit.UnitFileState == "disabled" || unit.UnitFileState == "masked")
+        else if (unit.UnitFileState === "disabled" || unit.UnitFileState === "masked")
             self.enabled = false;
         else
             self.enabled = undefined;
@@ -221,7 +221,7 @@ export function proxy(name, kind) {
     }
 
     function on_job_new_removed_refresh(event, number, path, unit_id, result) {
-        if (unit_id == name)
+        if (unit_id === name)
             refresh();
     }
 
@@ -242,7 +242,7 @@ export function proxy(name, kind) {
 
     // This is what we want to do:
     // systemd_manager.addEventListener("UnitNew", function (event, unit_id, path) {
-    //     if (unit_id == name)
+    //     if (unit_id === name)
     //         refresh();
     // });
 
@@ -278,7 +278,7 @@ export function proxy(name, kind) {
             const subscription = dbus.subscribe(
                 { interface: "org.freedesktop.systemd1.Manager", member: "JobRemoved" },
                 (_path, _iface, _signal, [_number, path, _unit_id, result]) => {
-                    if (path == pending_job_path) {
+                    if (path === pending_job_path) {
                         subscription.remove();
                         dbus.close();
                         refresh().then(() => {

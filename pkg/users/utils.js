@@ -6,7 +6,7 @@ export const get_locked = name =>
             .then(content => {
                 const status = content.split(" ")[1];
                 // libuser uses "LK", shadow-utils use "L".
-                return status == "LK" || status == "L";
+                return status === "LK" || status === "L";
             })
             .catch(exc => {
                 if (exc.problem !== "access-denied") {

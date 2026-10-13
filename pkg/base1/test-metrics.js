@@ -183,7 +183,7 @@ QUnit.test("metrics object validation", assert => {
         source: "internal",
         interval: 1000,
         metrics: [
-            { name: "nonexistant", derive: "rate" },
+            { name: "nonexistent", derive: "rate" },
         ]
     });
 

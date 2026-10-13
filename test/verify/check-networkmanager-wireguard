@@ -155,7 +155,7 @@ class TestWireGuard(packagelib.PackageCase, netlib.NetworkCase):
         m1.execute(f"until wg show wg0 | grep -q 'allowed ips.*{m2_ip4}/32'; do sleep 1; done")
         m1.execute(f"until ip route | grep -q '10.0.0.0/24 dev wg0 proto kernel scope link src {m1_ip4} metric 50'; do sleep 1; done")
 
-        # endpoint and port is not necessary for a peer if that peer estalishes the connectio first (i.e. the client)
+        # endpoint and port is not necessary for a peer if that peer establishes the connection first (i.e. the client)
         b2.click("button:contains('Add peer')")
         b2.set_input_text("#network-wireguard-settings-publickey-peer-0", m1_pubkey)
         b2.set_input_text("#network-wireguard-settings-allowedips-peer-0", f"{m1_ip4}/32")

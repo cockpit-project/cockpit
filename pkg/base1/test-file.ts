@@ -10,7 +10,7 @@ QUnit.test("simple read", async assert => {
     assert.equal(await file.read(), "1234\n", "correct result");
 });
 
-QUnit.test("read non-existant", async assert => {
+QUnit.test("read non-existent", async assert => {
     assert.equal(await cockpit.file(dir + "/blah").read(), null, "correct result");
 });
 
@@ -387,7 +387,7 @@ QUnit.test("watching without reading pre-created", async assert => {
     const file = cockpit.file(dir + "/fsinfo");
     await file.replace("1234");
     const watch = file.watch((content, tag) => {
-        assert.equal(content, null, "non-existant because read is false");
+        assert.equal(content, null, "non-existent because read is false");
         assert.notEqual(tag, null, "non empty tag");
         cockpit.assert(tag !== null, "tag is null");
         assert.equal(tag.startsWith("1:"), true, "tag always starts with 1:");

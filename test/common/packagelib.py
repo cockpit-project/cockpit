@@ -53,6 +53,9 @@ class PackageCase(MachineCase):
             self.machine.execute("nmcli con add type dummy con-name fake ifname fake0 ip4 1.2.3.4/24 gw4 1.2.3.1")
             self.addCleanup(self.machine.execute, "nmcli con delete fake")
 
+            # Stop Packagekit to not run into locking issues with apt
+            self.machine.execute("systemctl stop packagekit; systemctl reset-failed packagekit || true")
+
         self.addCleanup(self.machine.execute, "systemctl stop packagekit; systemctl reset-failed packagekit || true")
 
         # disable all existing repositories to avoid hitting the network

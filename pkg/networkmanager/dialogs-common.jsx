@@ -126,6 +126,11 @@ export const Name = ({ idPrefix, iface, setIface }) => {
 export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, children, isFormHorizontal, isCreateDialog, submitDisabled = false }) => {
     const Dialogs = useDialogs();
 
+    useEffect(() => {
+        window.sessionStorage.setItem("cockpit_has_modal", true);
+        return () => window.sessionStorage.setItem("cockpit_has_modal", false);
+    }, []);
+
     return (
         <Modal id={idPrefix + "-dialog"} position="top" variant="medium"
             isOpen

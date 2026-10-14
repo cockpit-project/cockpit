@@ -872,7 +872,7 @@ class TestConnection(testlib.MachineCase):
                 m.execute("pacman -U --noconfirm /var/tmp/build/cockpit-*.pkg.tar.zst")
             else:
                 m.execute("if rpm -q cockpit-ws; then rpm --verify cockpit-ws; fi")
-                m.execute("rpm --upgrade --force /var/tmp/build/cockpit-ws-*.rpm")
+                m.execute("rpm --upgrade --force --nosignature /var/tmp/build/cockpit-ws-*.rpm")
                 m.execute("rpm --verify cockpit-ws")
 
         def remove():

@@ -5,7 +5,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus, RunningUpdate } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus, RunningUpdate, UpdateProgressType } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -154,6 +154,27 @@ type RemoveResolveResult = [TransactionItem[], number]
 type UpgradeResolveResult = [TransactionItem[], number]
 
 type SignalCB = (_path: string, _iface: string, signal: string, args: unknown[]) => void
+
+// Convert NEVRA (e.g. "kernel-core-0:7.3.0-0.rc7.58.fc46.x86_64")
+// to PackageKit-style "name;version-release;arch"
+function nevraToPackageId(nevra: string): string {
+    const dotIdx = nevra.lastIndexOf('.');
+    if (dotIdx === -1) return nevra;
+    const arch = nevra.substring(dotIdx + 1);
+    const nameEvr = nevra.substring(0, dotIdx);
+
+    const relDash = nameEvr.lastIndexOf('-');
+    if (relDash === -1) return nevra;
+    const release = nameEvr.substring(relDash + 1);
+    const nameVer = nameEvr.substring(0, relDash);
+
+    const verDash = nameVer.lastIndexOf('-');
+    if (verDash === -1) return nevra;
+    const name = nameVer.substring(0, verDash);
+    const epochVersion = nameVer.substring(verDash + 1);
+
+    return `${name};${epochVersion}-${release};${arch}`;
+}
 
 /**
  * Call a dnf5daemon method
@@ -612,25 +633,102 @@ export class Dnf5DaemonManager implements PackageManager {
 
     async update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateProgressHandlers): Promise<TransactionExitStatus> {
         const pkgnames = updates.map(update => update.id);
-        let last_progress = 0;
-        let total_packages: number;
+
+        // dnf5daemon transaction action codes
+        const ACTION_INSTALL = 0;
+        const ACTION_REMOVE = 1;
+        const ACTION_UPGRADE = 2;
+
+        let totalDownloadBytes = 0;
+        let downloadedBytes = 0;
+        const downloadSizes = new Map<string, number>();
+        const downloadCompleted = new Set<string>();
+
+        let totalTransactionItems = 0;
+
+        function notifyDownloadProgress() {
+            if (totalDownloadBytes > 0)
+                handlers.on_notify({ percentage: (downloadedBytes / totalDownloadBytes) * 50, cancel: null });
+            else
+                handlers.on_notify({ percentage: 0, cancel: null });
+        }
 
         function signal_emitted(_path: string, _iface: string, signal: string, args: unknown[]) {
             switch (signal) {
-            case 'transaction_before_begin':
-                [, total_packages] = args as [string, number];
-                break;
-            case 'transaction_elem_progress': {
-                const [, _last_name, processed,] = args as [string, string, number, number];
-                last_progress = processed / total_packages * 100;
-                break;
+            // Phase 1: Download
+            case 'download_add_new': {
+                const [, downloadId, nevra, totalBytes] = args as [string, string, string, number];
+                downloadSizes.set(downloadId, totalBytes);
+                totalDownloadBytes += totalBytes;
+                handlers.on_package(UpdateProgressType.DOWNLOADING, nevraToPackageId(nevra));
+                notifyDownloadProgress();
+                return;
             }
+            case 'download_progress': {
+                const [, downloadId, , downloaded] = args as [string, string, number, number];
+                if (!downloadCompleted.has(downloadId)) {
+                    const otherCompleted = [...downloadCompleted].reduce((sum, id) => sum + (downloadSizes.get(id) ?? 0), 0);
+                    downloadedBytes = otherCompleted + Math.min(downloaded, downloadSizes.get(downloadId) ?? 0);
+                }
+                notifyDownloadProgress();
+                return;
+            }
+            case 'download_end': {
+                const [, downloadId] = args as [string, string, number, string];
+                downloadCompleted.add(downloadId);
+                downloadedBytes = [...downloadCompleted].reduce((sum, id) => sum + (downloadSizes.get(id) ?? 0), 0);
+                notifyDownloadProgress();
+                return;
             }
 
-            handlers.on_notify({
-                percentage: last_progress,
-                cancel: null,
-            });
+            // Phase 2: Verify (0/65 .. 64/65)
+            case 'transaction_verify_start':
+                handlers.on_package(UpdateProgressType.SIGCHECK, "");
+                return;
+            case 'transaction_verify_progress': {
+                const [, current, total] = args as [string, number, number];
+                handlers.on_notify({ percentage: 50 + (current / total) * 10, cancel: null });
+                return;
+            }
+
+            // Phase 3: Prepare (0/126 .. 125/126)
+            case 'transaction_transaction_progress': {
+                const [, current, total] = args as [string, number, number];
+                handlers.on_notify({ percentage: 60 + (current / total) * 10, cancel: null });
+                return;
+            }
+
+            // Phase 3 also: record total for elem_progress
+            case 'transaction_before_begin':
+                [, totalTransactionItems] = args as [string, number];
+                return;
+
+            // Phase 4: Per-package actions
+            case 'transaction_action_start': {
+                const [, nevra, action] = args as [string, string, number, number];
+                let status: UpdateProgressType;
+                switch (action) {
+                case ACTION_INSTALL:
+                    status = UpdateProgressType.INSTALLING;
+                    break;
+                case ACTION_REMOVE:
+                    status = UpdateProgressType.CLEANUP;
+                    break;
+                case ACTION_UPGRADE:
+                    status = UpdateProgressType.UPDATING;
+                    break;
+                default:
+                    status = UpdateProgressType.UPDATING;
+                }
+                handlers.on_package(status, nevraToPackageId(nevra));
+                return;
+            }
+            case 'transaction_elem_progress': {
+                const [, , processed] = args as [string, string, number, number];
+                if (totalTransactionItems > 0)
+                    handlers.on_notify({ percentage: 70 + (processed / totalTransactionItems) * 30, cancel: null });
+            }
+            }
         }
 
         await this.with_session(async (session) => {

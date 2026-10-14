@@ -680,7 +680,7 @@ export class Dnf5DaemonManager implements PackageManager {
                 if (result.upgraded.v.length === 0)
                     continue;
 
-                const timestamp = result.end.v;
+                const timestamp = result.end.v * 1000;
                 const pkgs = { timestamp, packages: {} } as History;
 
                 for (const pkg of result.upgraded.v) {

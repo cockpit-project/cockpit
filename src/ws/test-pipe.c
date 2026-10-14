@@ -267,7 +267,7 @@ test_echo_large (TestCase *tc,
 
   g_byte_array_set_size (echo_pipe->received, 0);
 
-  /* Double check that didn't csrew things up */
+  /* Double check that didn't screw things up */
   sent = g_bytes_new_static ("yello", 5);
   cockpit_pipe_write (tc->pipe, sent);
   while (echo_pipe->received->len < g_bytes_get_size (sent))

@@ -613,7 +613,7 @@ done:
 int
 pam_ssh_add_start_agent (pam_handle_t *pamh,
                          struct passwd *pwd,
-                         const char *xdg_runtime_overide,
+                         const char *xdg_runtime_override,
                          char **out_auth_sock_var,
                          char **out_agent_pid_var)
 {
@@ -642,7 +642,7 @@ pam_ssh_add_start_agent (pam_handle_t *pamh,
 
   assert (pwd);
   xdg_runtime = get_optional_env ("XDG_RUNTIME_DIR",
-                                  xdg_runtime_overide);
+                                  xdg_runtime_override);
   if (!build_environment (env,
                           "PATH", PATH,
                           "LC_ALL", "C",

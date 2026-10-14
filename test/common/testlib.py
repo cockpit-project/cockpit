@@ -1787,7 +1787,7 @@ class MachineCase(unittest.TestCase):
             if self.is_nondestructive():
                 pass
             elif os.getenv("DESTRUCTIVE") and not self.is_nondestructive():
-                print("Run destructive test, be careful, may lead to upredictable state of machine")
+                print("Run destructive test, be careful, may lead to unpredictable state of machine")
             else:
                 raise unittest.SkipTest("Skip destructive test by default")
             if os.getenv("BROWSER"):

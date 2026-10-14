@@ -22,7 +22,7 @@ extern pam_ssh_add_logger pam_ssh_add_log_handler;
 
 int     pam_ssh_add_start_agent     (pam_handle_t *pamh,
                                      struct passwd *pwd,
-                                     const char *xdg_runtime_overide,
+                                     const char *xdg_runtime_override,
                                      char **out_auth_sock_var,
                                      char **out_agent_pid_var);
 

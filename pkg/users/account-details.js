@@ -124,7 +124,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
 
     const [editedRealName, setEditedRealName] = useState(null);
     const [realNameError, setRealNameError] = useState("");
-    const [comittingRealName, setCommittingRealName] = useState(false);
+    const [committingRealName, setCommittingRealName] = useState(false);
     const [disableLockedEdit, setDisableLockedEdit] = useState(false);
 
     useEffect(() => {
@@ -262,7 +262,7 @@ export function AccountDetails({ account, groups, isLoading, current_user, shell
                                     { superuser.allowed
                                         ? <>
                                             <TextInput id="account-real-name"
-                                                     isDisabled={comittingRealName || account.uid == 0}
+                                                     isDisabled={committingRealName || account.uid == 0}
                                                      value={editedRealName !== null ? editedRealName : account.gecos}
                                                      onKeyDown={event => {
                                                          if (event.key == "Enter") {

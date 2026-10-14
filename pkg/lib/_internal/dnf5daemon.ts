@@ -744,8 +744,46 @@ export class Dnf5DaemonManager implements PackageManager {
         return TransactionExitStatus.SUCCESS;
     }
 
+    /**
+     * Best effort implementation of detecting a running dnf update. Since DNF
+     * 5.4 dnf drops a lockfile in /run/dnf/ when a transaction is executed,
+     * this is the only way for Cockpit to know that there is an active dnf
+     * upgrade process running.
+     *
+     * This lockfile is only created during the transaction phase so not when
+     * dnf is downloading new packages. Cockpit also cannot subscribe to any
+     * update events when a transaction is running.
+     *
+     * The implementation below doesn not first try to read the lock file and
+     * then watch it as that would be racy and as cockpit.file().watch() does
+     * not return a promise it is wrapped in a promise and requires us to track
+     * if we are dealing with the initial watch callback or not.
+     */
     async get_running_update(_handlers: UpdateProgressHandlers): Promise<RunningUpdate | null> {
-        return null;
+        const lockfile = "/run/dnf/rpmtransaction.lock";
+        let initial_callback = true;
+
+        let watch_resolve: (status: TransactionExitStatus) => void;
+        const promise = new Promise<TransactionExitStatus>(resolve => { watch_resolve = resolve });
+
+        return new Promise<RunningUpdate | null>((resolve, _reject) => {
+            const watch = cockpit.file(lockfile, { superuser: "try" }).watch((content) => {
+                if (initial_callback) {
+                    initial_callback = false;
+                    if (content === null)
+                        resolve(null);
+                    else {
+                        // HACK: The lock file holds does not emit progress changes but only holds some static transaction information
+                        resolve({ promise });
+                    }
+                } else {
+                    if (content === null) {
+                        watch_resolve(TransactionExitStatus.SUCCESS);
+                        watch.remove();
+                    }
+                }
+            });
+        });
     }
 
     async get_backend(): Promise<string> {

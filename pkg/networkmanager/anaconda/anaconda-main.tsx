@@ -20,7 +20,6 @@ import {
 } from "../interfaces.js";
 import { NetworkInterfacePage } from "../network-interface.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.js";
-import { UsageMonitor } from "../helpers.js";
 
 const _ = cockpit.gettext;
 
@@ -58,12 +57,11 @@ const AnacondaInterfaceRow = ({ iface, setSelectedIfaceName }: AnacondaInterface
 interface AnacondaNetworkPageProps {
     privileged: boolean;
     operationInProgress: boolean;
-    usage_monitor: UsageMonitor;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     interfaces: any[];
 }
 
-export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_monitor, interfaces }: AnacondaNetworkPageProps) => {
+export const AnacondaNetworkPage = ({ privileged, operationInProgress, interfaces }: AnacondaNetworkPageProps) => {
     const [selectedIfaceName, setSelectedIfaceName] = useState<string | null>(null);
     const selectedIface = interfaces.find(iface => iface.Name === selectedIfaceName) ?? null;
 
@@ -120,7 +118,7 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, usage_mon
                         ? <NetworkInterfacePage
                             privileged={privileged}
                             operationInProgress={operationInProgress}
-                            usage_monitor={usage_monitor}
+                            usage_monitor={undefined}
                             plot_state={undefined}
                             interfaces={interfaces}
                             iface={selectedIface} />

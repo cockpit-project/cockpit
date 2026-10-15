@@ -41,7 +41,7 @@ import {
     SecurityIcon,
 } from "@patternfly/react-icons";
 import { TableText } from "@patternfly/react-table";
-import Markdown from "markdown-to-jsx";
+import Markdown, { RuleType } from "markdown-to-jsx";
 
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
@@ -280,6 +280,30 @@ function isSafeUrl(href) {
     }
 }
 
+// Link issue references in Markdown text, except for text that is already part of a link.
+// markdown-to-jsx renders a node's children inside its next() call, so track link nesting
+// here; state.inAnchor is only set while parsing, not while rendering.
+let markdownLinkDepth = 0;
+
+function renderMarkdownWithIssueLinks(next, node, _renderChildren, state) {
+    if (node.type === RuleType.link || (node.type === RuleType.htmlBlock && node.tag === "a")) {
+        markdownLinkDepth++;
+        try {
+            return next();
+        } finally {
+            markdownLinkDepth--;
+        }
+    }
+
+    if (node.type === RuleType.text && markdownLinkDepth === 0) {
+        const linked = renderChangelogWithIssueLinks(node.text);
+        if (linked !== node.text)
+            return <React.Fragment key={state.key}>{linked}</React.Fragment>;
+    }
+
+    return next();
+}
+
 const markdownOptions = {
     overrides: {
         a: {
@@ -290,6 +314,7 @@ const markdownOptions = {
         },
     },
     forceInline: true,
+    renderRule: renderMarkdownWithIssueLinks,
 };
 
 function updateItem(info, pkgNames, key) {

@@ -127,4 +127,16 @@ export function injectMockUpdates(updates) {
         severity: 4,
         description: "Fixes rhbz#12345 and RHEL-67890 in one update.",
     });
+
+    // Markdown changelog: plain references get linked, existing links are kept as they are
+    updates.push({
+        id: "tracker-links-markdown;1-1",
+        name: "tracker-links-markdown",
+        version: "1-1",
+        bug_urls: [],
+        cve_urls: [],
+        severity: 4,
+        description: "Fixes rhbz#12345 and *RHEL-67890*\n\n * already linked: [RHEL-11111](https://redhat.atlassian.net/browse/RHEL-11111)\n * not a reference: `RHEL-22222`",
+        markdown: true,
+    });
 }

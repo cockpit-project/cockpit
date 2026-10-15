@@ -12,8 +12,6 @@ import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 import cockpit from "cockpit";
 import * as service from "service.js";
 
-import "./insights.scss";
-
 const _ = cockpit.gettext;
 
 export class InsightsStatus extends React.Component {

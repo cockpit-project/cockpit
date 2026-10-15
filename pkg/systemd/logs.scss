@@ -47,14 +47,9 @@
     padding: var(--pf-t--global--spacer--md);
   }
 
-  .pf-v6-c-card__title,
-  .multiline {
+  .pf-v6-c-card__title {
     word-break: break-all;
     white-space: pre-wrap !important;
-  }
-
-  .multiline {
-    font-family: monospace, monospace;
   }
 
   .pf-v6-l-split {
@@ -69,16 +64,6 @@
   // For abrt log details: add some gutter between the tabs and their content
   .pf-v6-c-tab-content > .pf-v6-c-description-list {
     padding-block-start: var(--pf-t--global--spacer--md);
-  }
-
-  .table-hide-labels {
-    [data-label] {
-      display: revert;
-    }
-
-    [data-label]::before {
-      display: none;
-    }
   }
 
   // Let the description list set the color, not the wrapper accordion component
@@ -125,10 +110,6 @@
   // Make text filter stretch to all the available space
   .pf-v6-c-toolbar__item.text-search, .journal-filters-grep {
     flex-grow: 1;
-  }
-
-  .text-help {
-    padding-inline-start: var(--pf-t--global--spacer--xs);
   }
 
   // Hide filters from advanced search dropdown entries which already exist in the toolbar

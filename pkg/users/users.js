@@ -129,7 +129,7 @@ function AccountsPage() {
         })
     ), [groups, accountsInfo, min_gid, max_gid]);
 
-    if (groupsExtraInfo.length == 0 || accountsInfo.length == 0) {
+    if (groupsExtraInfo.length === 0 || accountsInfo.length === 0) {
         return <EmptyStatePanel loading />;
     } else if (path.length === 0) {
         return (

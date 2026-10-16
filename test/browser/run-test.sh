@@ -223,6 +223,8 @@ if [ "$PLAN" = "storage-extra" ]; then
               TestStorageMountingLUKS.testEncryptedMountingHelp
               TestStorageMountingLUKS.testDuplicateMountPoints
               TestStorageMountingLUKS.testNeverAuto
+
+              TestStorageLuks.testClevisTPM
               "
 
     if [ "$TEST_OS" = "centos-10-bootc" ]; then

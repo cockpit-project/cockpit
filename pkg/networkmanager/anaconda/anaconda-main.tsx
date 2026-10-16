@@ -19,7 +19,7 @@ import {
     is_wireless,
 } from "../interfaces.js";
 import { NetworkInterfacePage } from "../network-interface.jsx";
-import { EmptyStatePanel } from "cockpit-components-empty-state.js";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 const _ = cockpit.gettext;
 

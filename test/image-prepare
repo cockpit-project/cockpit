@@ -250,7 +250,7 @@ def main() -> int:
     # esbuild likes to use a lot of memory.
     customize += ["--memory-mb", str(BUILD_VM_MEMORY_MB)]
 
-    dist_tars = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip().splitlines()
+    dist_tars = subprocess.check_output([f'{BASE_DIR}/tools/make-dist-cached'], text=True).strip().splitlines()
 
     # Don't rebuild bundle if built with NODE_ENV=development
     if os.environ.get('NODE_ENV') == 'development':

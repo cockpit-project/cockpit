@@ -1078,8 +1078,8 @@ class TestAccounts(testlib.MachineCase):
         # Try to expire a password
         b.wait_text("#password-expiration-text", "Never expire password")
 
-        # arch now uses the "modern" value "-1" to indicate the password has no expiration set
-        EXPIRE_NEVER_VALUE = "-1" if m.image in SHADOW_UTILS_WITHOUT_EXPIRE else "99999"
+        # The default "never expire" value depends on PASS_MAX_DAYS in login.defs which varies per distro and is unset in Arch Linux.
+        EXPIRE_NEVER_VALUE = m.execute("awk '/^PASS_MAX_DAYS/ {print $2}' /etc/login.defs").strip() or "-1"
         self.assertEqual(self.accountExpiryInfo("scruffy", "Maximum number of days between password change"), EXPIRE_NEVER_VALUE)
         b.click("#password-expiration-button")
         b.wait_visible("#password-expiration")

@@ -37,7 +37,7 @@ export class ConfigFileSUSE extends ConfigFile {
         }
 
         // if nothing changed, don't bother parsing the content
-        if (rawContent == this._rawContent)
+        if (rawContent === this._rawContent)
             return;
 
         this._rawContent = rawContent;
@@ -206,7 +206,7 @@ export class ConfigFileSUSE extends ConfigFile {
             this._updateSetting(settings, "KDUMP_SAVEDIR", savedir);
         }
         // compression
-        if (this.settings.compression.enabled != settings.compression.enabled) {
+        if (this.settings.compression.enabled !== settings.compression.enabled) {
             if (settings.compression.enabled) {
                 this._updateSetting(settings, "KDUMP_DUMPFORMAT", "compressed");
             } else {

@@ -26,7 +26,7 @@ function AccountExpirationDialogBody({ state, errors, change, validate, update }
             <FormGroup validated={errors?.date ? "error" : "default"}>
                 <Radio id="account-expiration-never" name="mode" value="never"
                        label={_("Never expire account")}
-                       isChecked={mode == "never"} onChange={() => change("mode", "never")} />
+                       isChecked={mode === "never"} onChange={() => change("mode", "never")} />
                 <Radio id="account-expiration-expires" name="mode" value="expires"
                        label={
                            <Flex>
@@ -44,7 +44,7 @@ function AccountExpirationDialogBody({ state, errors, change, validate, update }
                                            isDisabled={mode !== "expires"} />
                            </Flex>
                        }
-                       isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
+                       isChecked={mode === "expires"} onChange={() => change("mode", "expires")} />
                 <FormHelper helperTextInvalid={errors?.date} />
             </FormGroup>
         </Form>
@@ -75,7 +75,7 @@ export function account_expiration_dialog(account, expire_date) {
     function validate() {
         errors = { };
 
-        if (state.mode == "expires") {
+        if (state.mode === "expires") {
             if (!state.date)
                 errors.date = _("Please specify an expiration date");
             else {
@@ -103,7 +103,7 @@ export function account_expiration_dialog(account, expire_date) {
                     clicked: () => {
                         if (validate()) {
                             const prog = ["/usr/sbin/usermod", "-e"];
-                            if (state.mode == "expires") {
+                            if (state.mode === "expires") {
                                 const date = new Date(state.date + "T12:00:00Z");
                                 prog.push(date.toISOString().substring(0, 10));
                             } else
@@ -138,16 +138,16 @@ function PasswordExpirationDialogBody({ state, errors, change }) {
             <FormGroup>
                 <Radio id="password-expiration-never" name="mode" value="never"
                        label={_("Never expire password")}
-                       isChecked={mode == "never"} onChange={() => change("mode", "never")} />
+                       isChecked={mode === "never"} onChange={() => change("mode", "never")} />
                 <Radio id="password-expiration-expires" name="mode" value="expires"
                        label={<>
                            <span id="password-expiration-before">{before}</span>
                            <TextInput className="size-text-ct" id="password-expiration-input"
                                   validated={(errors?.days) ? "error" : "default"}
-                                  value={days} onChange={(_event, value) => change("days", value)} isDisabled={mode != "expires"} />
+                                  value={days} onChange={(_event, value) => change("days", value)} isDisabled={mode !== "expires"} />
                            <span id="password-expiration-after">{after}</span>
                        </>}
-                       isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
+                       isChecked={mode === "expires"} onChange={() => change("mode", "expires")} />
                 <FormHelper helperTextInvalid={errors?.days} />
             </FormGroup>
         </Form>
@@ -177,7 +177,7 @@ export function password_expiration_dialog(account, expire_days) {
     function validate() {
         errors = { };
 
-        if (state.mode == "expires") {
+        if (state.mode === "expires") {
             const days = parseInt(state.days);
             if (isNaN(days) || days < 0)
                 errors.days = _("Invalid number of days");
@@ -201,7 +201,7 @@ export function password_expiration_dialog(account, expire_days) {
                     style: "primary",
                     clicked: () => {
                         if (validate()) {
-                            const days = state.mode == "expires" ? parseInt(state.days) : -1;
+                            const days = state.mode === "expires" ? parseInt(state.days) : -1;
                             return cockpit.spawn(["passwd", "-x", String(days), account.name],
                                                  { superuser: "require", err: "message" });
                         } else {

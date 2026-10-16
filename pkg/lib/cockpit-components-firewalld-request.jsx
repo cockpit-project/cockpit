@@ -11,7 +11,6 @@ import { PageSection } from "@patternfly/react-core/dist/esm/components/Page/ind
 import { SimpleSelect } from "cockpit-components-simple-select";
 
 import cockpit from 'cockpit';
-import './cockpit-components-firewalld-request.scss';
 
 const _ = cockpit.gettext;
 const firewalld = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });

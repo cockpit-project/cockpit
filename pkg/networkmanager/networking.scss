@@ -23,14 +23,6 @@
   }
 }
 
-#network-interface {
-  @at-root {
-    .network-interface-status > span {
-      overflow-wrap: anywhere;
-    }
-  }
-}
-
 .network-number-field {
   inline-size: 4em;
 }
@@ -45,20 +37,6 @@
 }
 
 // Constrain widths of networking headers (on both the main page and in network-interface-members)
-th {
-  &.networking-speed {
-    inline-size: 20%;
-  }
-
-  &.networking-spacer {
-    inline-size: var(--pf-t--global--spacer--4xl);
-  }
-
-  &.networking-action {
-    inline-size: var(--pf-t--global--spacer--3xl);
-  }
-}
-
 .network-interface-details {
   &-title {
     display: grid;
@@ -68,17 +46,6 @@ th {
 
   &-delete {
     margin-inline-end: var(--pf-t--global--spacer--lg);
-  }
-
-  // Seems to be used for the "general" checkbox
-  .networking-controls {
-    label {
-      font-weight: inherit;
-    }
-
-    input {
-      margin-inline-start: 0;
-    }
   }
 }
 

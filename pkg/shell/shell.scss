@@ -27,10 +27,6 @@ html.index-page body {
   overflow: hidden;
 }
 
-#machine-change-auth > p {
-  margin-block-end: 5px;
-}
-
 // Fix fingerprint layout
 .add-host-fingerprint {
   margin-block-start: var(--pf-t--global--spacer--md);
@@ -52,11 +48,6 @@ html.index-page body {
   white-space: pre-line;
   padding-block: var(--pf-t--global--spacer--xs);
   padding-inline: var(--pf-t--global--spacer--sm);
-}
-
-.login-setup-checkbox-wrapper {
-  // Use a flex layout to better vertically align the contents to the grid
-  display: flex;
 }
 
 #edit-machine-port {
@@ -207,12 +198,6 @@ $desktop: $phone + 1px;
 
 .hostkey-verify-help {
   margin-block-end: 1.5em;
-}
-
-/* Alert fixups */
-.modal-content .pf-v6-c-alert {
-  text-align: start;
-  margin-block-end: 24px;
 }
 
 .early-failure {

@@ -127,6 +127,9 @@ def build_install_package(dist_tars: list[str], image: str, *, quick: bool) -> l
         # older OSes don't yet know about watch format v5
         if image in ["debian-trixie"]:
             suppress.add("missing-debian-watch-file-standard")
+            # HACK: Debian trixie does not know about woff-font-in-wrong-dir and you cannot suppress unknown tags.
+            # So instead we suppress the no unknown tags lintian rule.
+            suppress.add("alien-tag")
 
         args.append(fr"""
             cd /var/tmp/build;

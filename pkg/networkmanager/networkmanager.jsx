@@ -103,8 +103,7 @@ const App = () => {
         return (
             <ModelContext.Provider value={model}>
                 <WithDialogs key="networking-anaconda">
-                    <AnacondaNetworkPage privileged={superuser.allowed}
-                                         operationInProgress={model.operationInProgress}
+                    <AnacondaNetworkPage operationInProgress={model.operationInProgress}
                                          interfaces={model.list_interfaces()} />
                 </WithDialogs>
             </ModelContext.Provider>

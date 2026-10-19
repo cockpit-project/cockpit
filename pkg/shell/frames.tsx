@@ -78,7 +78,7 @@ export const Frames = ({ state, hidden }: { state: ShellState, hidden: boolean }
         for (let i = 0; i < content.children.length; i++) {
             const c = content.children[i];
             const name = c.getAttribute('name');
-            if (c.nodeName == "IFRAME" && name) {
+            if (c.nodeName === "IFRAME" && name) {
                 iframes_by_name[name] = c as HTMLIFrameElement;
             }
         }
@@ -104,7 +104,7 @@ export const Frames = ({ state, hidden }: { state: ShellState, hidden: boolean }
                 iframe.addEventListener("load", () => setup_iframe(frame, iframe));
             }
 
-            if (iframe.getAttribute("title") != frame.title)
+            if (iframe.getAttribute("title") !== frame.title)
                 iframe.setAttribute("title", frame.title);
 
             if (frame.loaded && iframe.getAttribute("data-loaded") == null)
@@ -114,7 +114,7 @@ export const Frames = ({ state, hidden }: { state: ShellState, hidden: boolean }
 
             const src = frame.url + "#" + frame.hash;
 
-            if (iframe.getAttribute('src') != src) {
+            if (iframe.getAttribute('src') !== src) {
                 if (iframe.contentWindow) {
                     // This prevents the browser from creating a new
                     // history entry.  It would do that whenever the "src"
@@ -129,7 +129,7 @@ export const Frames = ({ state, hidden }: { state: ShellState, hidden: boolean }
                 iframe.setAttribute('src', src);
             }
 
-            iframe.style.display = (!hidden && frame == current_frame && frame.ready) ? "block" : "none";
+            iframe.style.display = (!hidden && frame === current_frame && frame.ready) ? "block" : "none";
         }
     });
 

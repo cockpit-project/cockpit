@@ -20,6 +20,7 @@ supported_oses: 'list[dict[str, str | None]]' = [
     {"ID": "fedora", "VERSION_ID": "42"},
     {"ID": "fedora", "VERSION_ID": "43"},
     {"ID": "fedora", "VERSION_ID": "44"},
+    {"ID": "fedora", "VERSION_ID": "45"},
 
     {"ID": "ubuntu", "VERSION_ID": "24.04"},
     {"ID": "ubuntu", "VERSION_ID": "25.10"},

@@ -32,6 +32,9 @@ class TestStorageLuks(storagelib.StorageCase):
 
         mount_point_secret = "/run/secret"
 
+        # Reduce memory consumption as Ubuntu 26.04 sometimes OOM's
+        self.disable_preload("packagekit", "playground")
+
         self.login_and_go("/storage")
 
         # Add a disk and partition it

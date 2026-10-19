@@ -617,8 +617,6 @@ def run(opts: CliOpts, image: str) -> int:
                 test.start()
                 running_tests.append(test)
                 made_progress = True
-                # Avoid VM boot storms; unreliable especially with nested KVM. This should be enough time to let VMs boot
-                time.sleep(15)
 
         # are we done?
         if not running_tests:

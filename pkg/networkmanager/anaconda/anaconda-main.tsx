@@ -18,8 +18,8 @@ import {
     is_managed,
     is_wireless,
 } from "../interfaces.js";
-import { NetworkInterfacePage } from "../network-interface.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { AnacondaNetworkInterface } from "./anaconda-network-interface.jsx";
 
 const _ = cockpit.gettext;
 
@@ -99,7 +99,7 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, interface
 
     return (
         <Page data-test-wait={operationInProgress} id="networking" className="pf-m-no-sidebar anaconda">
-            <Split hasGutter id="networking-interfaces">
+            <Split hasGutter id="networking-interfaces" isWrappable>
                 <SplitItem>
                     <SimpleList>
                         {managedWireless.length !== 0 &&
@@ -115,13 +115,7 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, interface
                 </SplitItem>
                 <SplitItem isFilled>
                     {selectedIface
-                        ? <NetworkInterfacePage
-                            privileged={privileged}
-                            operationInProgress={operationInProgress}
-                            usage_monitor={undefined}
-                            plot_state={undefined}
-                            interfaces={interfaces}
-                            iface={selectedIface} />
+                        ? <AnacondaNetworkInterface iface={selectedIface} />
                         : <EmptyStatePanel
                             title={_("No interface selected")}
                             paragraph={_("Select a network interface to configure the connection.")}

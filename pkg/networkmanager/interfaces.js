@@ -1687,7 +1687,7 @@ export function active_connection_gateway(dev, topic) {
     const ipProp = topic === "ipv4" ? "Ip4Config" : "Ip6Config";
     const ipconfig = con ? con[ipProp] : dev[ipProp];
 
-    return ipconfig.Gateway;
+    return ipconfig?.Gateway || _("Not configured");
 }
 
 export function render_active_connection(dev, with_link, hide_link_local) {

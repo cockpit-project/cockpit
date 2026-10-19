@@ -484,7 +484,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
             self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-8")
             self.dialog_apply()
             self.dialog_wait_close()
-            # unlock volume with the negwly created passphrase
+            # unlock volume with the newly created passphrase
             b.click(self.card_button("Filesystem", "Mount"))
             self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-8"})
             self.wait_mounted("ext4 filesystem")

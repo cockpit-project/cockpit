@@ -465,6 +465,8 @@ def detect_tests(
     # execution but let's make sure we always test them both ways around; hash the image name, which is
     # robust, reproducible, and provides an even distribution of both directions
     nondestructive_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
+    # Start the biggest destructive tests first, so they can run first and we avoid stragglers.
+    destructive_tests.sort(key=lambda t: t.ram_gb, reverse=True)
 
     return (nondestructive_tests, destructive_tests, machine_class)
 

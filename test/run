@@ -22,6 +22,10 @@ cat /proc/meminfo
 grep -r . /sys/kernel/mm/ksm/
 
 test/common/make-bots
+
+# Background downloading the test image, this is safe as image-download locks and image-prepare waits.
+bots/image-download "$TEST_OS" &cat&
+
 if [ "$(cat test/reference-image)" = "$TEST_OS" ]; then
     test/common/pixel-tests pull
 fi

@@ -17,6 +17,10 @@
 
 set -eu
 
+cat /proc/meminfo
+
+grep -r . /sys/kernel/mm/ksm/
+
 test/common/make-bots
 if [ "$(cat test/reference-image)" = "$TEST_OS" ]; then
     test/common/pixel-tests pull
@@ -82,3 +86,8 @@ fi
 
 test/image-prepare --verbose ${PREPARE_OPTS} "$TEST_OS"
 test/common/run-tests --test-dir test/verify --track-naughties ${RUN_OPTS}
+
+grep -H . /sys/kernel/mm/ksm/pages_{shared,sharing,unshared}
+awk '{print $1 * 4 / 1024 " MB saved"}' /sys/kernel/mm/ksm/pages_sharing
+grep -r . /sys/kernel/mm/ksm/
+cat /proc/meminfo

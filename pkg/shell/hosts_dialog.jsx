@@ -89,7 +89,7 @@ export async function edit_host(state, shell_state, machine) {
     const connection_string = await state.show_modal({ address: machine.address });
     if (connection_string) {
         const addr = split_connection_string(connection_string).address;
-        if (machine == current_machine && addr != machine.address)
+        if (machine === current_machine && addr !== machine.address)
             jump_to_new_connection_string(shell_state, connection_string);
     }
 }
@@ -106,9 +106,9 @@ export async function connect_host(state, shell_state, machine) {
     // loader without any extra credentials and we never want to
     // show any dialogs for it.
     //
-    if (machine.connection_string == "localhost" ||
-        machine.state == "connected" ||
-        machine.state == "connecting") {
+    if (machine.connection_string === "localhost" ||
+        machine.state === "connected" ||
+        machine.state === "connecting") {
         shell_state.loader.connect(machine.address);
         return machine.connection_string;
     }
@@ -340,7 +340,7 @@ class AddMachine extends React.Component {
         else {
             const machine = this.props.machines_ins.lookup(this.state.address);
             const machine_address = machine ? full_address(this.props.machines_ins, machine.address) : undefined;
-            if (machine && machine.on_disk && machine_address != this.props.old_address) {
+            if (machine && machine.on_disk && machine_address !== this.props.old_address) {
                 if (machine.visible)
                     error = _("This machine has already been added.");
                 else if (!this.state.userChanged)
@@ -388,7 +388,7 @@ class AddMachine extends React.Component {
                 this.props.machines_ins.add(address, this.state.color)
                         .then(() => {
                             // When changing address of machine, hide the old one
-                            if (this.state.old_machine && this.state.old_machine != this.props.machines_ins.lookup(address)) {
+                            if (this.state.old_machine && this.state.old_machine !== this.props.machines_ins.lookup(address)) {
                                 this.props.machines_ins.change(this.state.old_machine.key, { visible: false })
                                         .then(resolve);
                             } else {
@@ -596,7 +596,7 @@ class HostKey extends React.Component {
         if (!this.props.error_options || !this.props.error_options["host-key"]) {
             const options = {};
             let match_problem = this.props.template;
-            if (this.props.template == "unknown-host") {
+            if (this.props.template === "unknown-host") {
                 options.session = "private";
                 match_problem = "unknown-hostkey";
             }
@@ -629,7 +629,7 @@ class HostKey extends React.Component {
         this.props.run(q.then(() => {
             return try2Connect(this.props.machines_ins, this.props.full_address, {})
                     .catch(ex => {
-                        if ((ex.problem == "invalid-hostkey" || ex.problem == "unknown-hostkey") && machine && !machine.on_disk)
+                        if ((ex.problem === "invalid-hostkey" || ex.problem === "unknown-hostkey") && machine && !machine.on_disk)
                             this.props.machines_ins.change(this.props.full_address, { host_key: null });
                         else {
                             this.setState({ inProgress: false });

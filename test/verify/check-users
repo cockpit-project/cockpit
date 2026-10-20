@@ -12,7 +12,7 @@ import testlib
 from machine import testvm
 
 good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
-SHADOW_UTILS_WITHOUT_EXPIRE = ["arch", "debian-testing"]
+SHADOW_UTILS_WITHOUT_EXPIRE = ["arch", "debian-testing", "opensuse-tumbleweed"]
 
 
 def getUserAddDetails(machine: testvm.Machine) -> dict[str, str]:
@@ -1079,7 +1079,8 @@ class TestAccounts(testlib.MachineCase):
         b.wait_text("#password-expiration-text", "Never expire password")
 
         # The default "never expire" value depends on PASS_MAX_DAYS in login.defs which varies per distro and is unset in Arch Linux.
-        EXPIRE_NEVER_VALUE = m.execute("awk '/^PASS_MAX_DAYS/ {print $2}' /etc/login.defs").strip() or "-1"
+        login_def_path = "/usr/etc/login.defs" if "opensuse" in m.image else "/etc/login.defs"
+        EXPIRE_NEVER_VALUE = m.execute(f"awk '/^PASS_MAX_DAYS/ {{print $2}}' {login_def_path}").strip() or "-1"
         self.assertEqual(self.accountExpiryInfo("scruffy", "Maximum number of days between password change"), EXPIRE_NEVER_VALUE)
         b.click("#password-expiration-button")
         b.wait_visible("#password-expiration")

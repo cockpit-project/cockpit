@@ -63,7 +63,7 @@ export const ShutDownStatus = () => {
     if (shutdownTime) {
         const date = new Date(shutdownTime / 1000);
         const now = new Date();
-        if (date.getFullYear() == now.getFullYear()) {
+        if (date.getFullYear() === now.getFullYear()) {
             displayDate = timeformat.dateTimeNoYear(date);
         } else {
             displayDate = timeformat.dateTime(date);

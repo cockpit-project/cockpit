@@ -70,7 +70,7 @@ class OverviewPage extends React.Component {
         const static_hostname = this.state.hostnameData.StaticHostname;
         let str = this.state.hostnameData.Hostname;
 
-        if (pretty_hostname && static_hostname && static_hostname != pretty_hostname)
+        if (pretty_hostname && static_hostname && static_hostname !== pretty_hostname)
             str = pretty_hostname + " (" + static_hostname + ")";
         else if (static_hostname)
             str = static_hostname;
@@ -134,8 +134,8 @@ class OverviewPage extends React.Component {
             );
 
         const show_superuser = (
-            cockpit.transport.host && cockpit.transport.host != "localhost" &&
-            !(window.parent.name == "cockpit1" && window.parent.features &&
+            cockpit.transport.host && cockpit.transport.host !== "localhost" &&
+            !(window.parent.name === "cockpit1" && window.parent.features &&
               window.parent.features.navbar_is_for_current_machine));
 
         return (

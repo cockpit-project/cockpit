@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 02:57+0000\n"
+"POT-Creation-Date: 2026-10-19 02:55+0000\n"
 "PO-Revision-Date: 2026-10-01 14:18+0000\n"
 "Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
 "memory@weblate.org>\n"
@@ -95,7 +95,7 @@ msgstr "Nome utente"
 #: pkg/lib/superuser-dialogs.tsx:176 pkg/lib/cockpit-connect-ssh.tsx:432
 #: pkg/lib/cockpit-connect-ssh.tsx:442 pkg/users/account-create-dialog.js:125
 #: pkg/users/account-details.js:314
-#: pkg/networkmanager/network-interface.jsx:197
+#: pkg/networkmanager/network-interface.jsx:195
 #: pkg/storaged/iscsi/create-dialog.jsx:20
 #: pkg/storaged/iscsi/create-dialog.jsx:126
 msgid "Password"
@@ -132,7 +132,7 @@ msgstr "Accedi"
 #: pkg/systemd/overview-cards/motdCard.jsx:63 pkg/systemd/hwinfo.jsx:221
 #: pkg/systemd/service-details.jsx:82 pkg/systemd/service-details.jsx:804
 #: pkg/packagekit/kpatch.tsx:331 pkg/packagekit/restartservices-dialog.tsx:125
-#: pkg/packagekit/updates.jsx:463 pkg/packagekit/autoupdates.jsx:441
+#: pkg/packagekit/updates.jsx:451 pkg/packagekit/autoupdates.jsx:441
 #: pkg/networkmanager/dialogs-common.jsx:146
 #: pkg/networkmanager/firewall.jsx:728 pkg/networkmanager/firewall.jsx:918
 #: pkg/networkmanager/firewall.jsx:942 pkg/apps/utils.tsx:78
@@ -193,18 +193,18 @@ msgid "Software updates"
 msgstr "Aggiornamenti software"
 
 #: pkg/networkmanager/index.html:9 pkg/networkmanager/firewall.jsx:1084
-#: pkg/networkmanager/network-interface.jsx:1220
+#: pkg/networkmanager/network-interface.jsx:1233
 #: pkg/networkmanager/manifest.json:0
 #: src/appstream/org.cockpit_project.cockpit_networkmanager.metainfo.xml.in:5
 msgid "Networking"
 msgstr "Rete"
 
 #: pkg/networkmanager/firewall.html:8 pkg/networkmanager/firewall.jsx:1085
-#: pkg/networkmanager/firewall.jsx:1092 pkg/networkmanager/network-main.jsx:183
+#: pkg/networkmanager/firewall.jsx:1092 pkg/networkmanager/network-main.jsx:175
 msgid "Firewall"
 msgstr "Firewall"
 
-#: pkg/apps/index.html:9 pkg/apps/application-list.jsx:216
+#: pkg/apps/index.html:9 pkg/apps/application-list.jsx:223
 #: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Applicazioni"
@@ -348,10 +348,10 @@ msgstr "Utilizza le seguenti chiavi per autenticarti in altri sistemi"
 
 #: pkg/shell/credentials.tsx:278 pkg/systemd/timer-dialog.jsx:129
 #: pkg/systemd/hwinfo.jsx:74 pkg/users/group-create-dialog.js:25
-#: pkg/users/authorized-keys-panel.js:113 pkg/packagekit/updates.jsx:429
+#: pkg/users/authorized-keys-panel.js:113 pkg/packagekit/updates.jsx:417
 #: pkg/networkmanager/dialogs-common.jsx:120
-#: pkg/networkmanager/network-main.jsx:203
-#: pkg/networkmanager/network-main.jsx:219 pkg/storaged/btrfs/subvolume.jsx:143
+#: pkg/networkmanager/network-main.jsx:195
+#: pkg/networkmanager/network-main.jsx:211 pkg/storaged/btrfs/subvolume.jsx:143
 #: pkg/storaged/btrfs/subvolume.jsx:456 pkg/storaged/btrfs/volume.jsx:131
 #: pkg/storaged/partitions/partition.jsx:213 pkg/storaged/lvm2/vdo-pool.jsx:64
 #: pkg/storaged/lvm2/volume-group.jsx:49 pkg/storaged/lvm2/volume-group.jsx:104
@@ -384,8 +384,8 @@ msgstr "Attiva/disattiva"
 # translation auto-copied from project libreport, version master, document
 # libreport
 #: pkg/shell/credentials.tsx:286 pkg/systemd/overview-cards/realmd.jsx:404
-#: pkg/packagekit/updates.jsx:432 pkg/networkmanager/network-main.jsx:207
-#: pkg/networkmanager/network-main.jsx:223
+#: pkg/packagekit/updates.jsx:420 pkg/networkmanager/network-main.jsx:199
+#: pkg/networkmanager/network-main.jsx:215
 msgid "Details"
 msgstr "Dettagli"
 
@@ -652,9 +652,9 @@ msgstr "Per saperne di più"
 msgid "You will be reminded once per session."
 msgstr "Ti verrà ricordato una volta per sessione."
 
-#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:206
+#: pkg/shell/hosts_dialog.jsx:272 pkg/networkmanager/network-interface.jsx:204
+#: pkg/networkmanager/network-interface.jsx:991
 #: pkg/networkmanager/network-interface.jsx:992
-#: pkg/networkmanager/network-interface.jsx:993
 msgid "Connect"
 msgstr "Connetti"
 
@@ -971,7 +971,7 @@ msgstr ""
 msgid "Reconnect"
 msgstr "Riconnettiti"
 
-#: pkg/shell/failures.tsx:97
+#: pkg/shell/failures.tsx:97 pkg/networkmanager/anaconda/anaconda-main.tsx:37
 msgid "Disconnected"
 msgstr "Disconnesso"
 
@@ -1152,12 +1152,12 @@ msgstr "Cancella il valore immesso"
 msgid "Invalid date format and invalid time format"
 msgstr "Formato data non valido e formato ora non valido"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:103 pkg/lib/serverTime.js:670
+#: pkg/lib/cockpit-components-shutdown.jsx:103 pkg/lib/serverTime.js:678
 #: pkg/packagekit/autoupdates.jsx:422
 msgid "Invalid time format"
 msgstr "Formato ora non valido"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:106 pkg/lib/serverTime.js:667
+#: pkg/lib/cockpit-components-shutdown.jsx:106 pkg/lib/serverTime.js:675
 msgid "Invalid date format"
 msgstr "Formato data non valido"
 
@@ -1218,82 +1218,82 @@ msgstr "Messaggio agli utenti autenticati"
 msgid "Delay"
 msgstr "Ritardo"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:194 pkg/lib/serverTime.js:582
+#: pkg/lib/cockpit-components-shutdown.jsx:194 pkg/lib/serverTime.js:590
 #: pkg/systemd/timer-dialog.jsx:321 pkg/users/expiration-dialogs.js:34
 msgid "Pick date"
 msgstr "Scegli una data"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:195 pkg/lib/serverTime.js:583
+#: pkg/lib/cockpit-components-shutdown.jsx:195 pkg/lib/serverTime.js:591
 #: pkg/systemd/timer-dialog.jsx:322 pkg/users/expiration-dialogs.js:35
 msgid "Toggle date picker"
 msgstr "Attiva/disattiva la selezione della data"
 
-#: pkg/lib/serverTime.js:433
+#: pkg/lib/serverTime.js:441
 msgid "Synchronized"
 msgstr "Sincronizzato"
 
-#: pkg/lib/serverTime.js:435
+#: pkg/lib/serverTime.js:443
 msgid "Synchronized with $0"
 msgstr "Sincronizzato con $0"
 
-#: pkg/lib/serverTime.js:439
+#: pkg/lib/serverTime.js:447
 msgid "Synchronizing"
 msgstr "Sincronizzazione"
 
-#: pkg/lib/serverTime.js:440
+#: pkg/lib/serverTime.js:448
 msgid "Trying to synchronize with $0"
 msgstr "Tentativo di sincronizzazione con $0"
 
-#: pkg/lib/serverTime.js:443
+#: pkg/lib/serverTime.js:451
 msgid "Not synchronized"
 msgstr "Non sincronizzato"
 
-#: pkg/lib/serverTime.js:449
+#: pkg/lib/serverTime.js:457
 msgid "Log messages"
 msgstr "Messaggi di log"
 
-#: pkg/lib/serverTime.js:532
+#: pkg/lib/serverTime.js:540
 msgid "NTP server"
 msgstr "Server NTP"
 
-#: pkg/lib/serverTime.js:544
+#: pkg/lib/serverTime.js:552
 msgid "Manually"
 msgstr "Manualmente"
 
-#: pkg/lib/serverTime.js:545
+#: pkg/lib/serverTime.js:553
 msgid "Automatically using NTP"
 msgstr "Automaticamente utilizzando NTP"
 
-#: pkg/lib/serverTime.js:554
+#: pkg/lib/serverTime.js:562
 msgid "Automatically using additional NTP servers"
 msgstr "Automaticamente utilizzando server NTP addizionali"
 
-#: pkg/lib/serverTime.js:555
+#: pkg/lib/serverTime.js:563
 msgid "Automatically using specific NTP servers"
 msgstr "Automaticamente utilizzando server NTP specifici"
 
 # ctx::sourcefile::/rhn/account/LocalePreferences
-#: pkg/lib/serverTime.js:560
+#: pkg/lib/serverTime.js:568
 msgid "Time zone"
 msgstr "Fuso Orario"
 
-#: pkg/lib/serverTime.js:571
+#: pkg/lib/serverTime.js:579
 msgid "Set time"
 msgstr "Imposta tempo"
 
-#: pkg/lib/serverTime.js:662
+#: pkg/lib/serverTime.js:670
 msgid "Invalid timezone"
 msgstr "Fuso orario non valido"
 
-#: pkg/lib/serverTime.js:675
+#: pkg/lib/serverTime.js:683
 msgid "Need at least one NTP server"
 msgstr "E' necessario almeno un server NTP"
 
-#: pkg/lib/serverTime.js:702
+#: pkg/lib/serverTime.js:710
 msgid "Change system time"
 msgstr "Modifica dell'ora di sistema"
 
-#: pkg/lib/serverTime.js:709
+#: pkg/lib/serverTime.js:717
 #: pkg/systemd/overview-cards/configurationCard.jsx:291
 #: pkg/users/shell-dialog.js:64 pkg/users/expiration-dialogs.js:101
 #: pkg/users/expiration-dialogs.js:200 pkg/storaged/stratis/pool.jsx:693
@@ -1447,21 +1447,21 @@ msgstr "1 giorno"
 msgid "1 week"
 msgstr "1 settimana"
 
-#: pkg/lib/cockpit-components-firewalld-request.jsx:99
+#: pkg/lib/cockpit-components-firewalld-request.jsx:98
 msgid "Failed to enable $0 in firewalld"
 msgstr "Impossibile abilitare firewalld$0"
 
-#: pkg/lib/cockpit-components-firewalld-request.jsx:103
-#: pkg/lib/cockpit-components-firewalld-request.jsx:139
+#: pkg/lib/cockpit-components-firewalld-request.jsx:102
+#: pkg/lib/cockpit-components-firewalld-request.jsx:138
 msgid "Visit firewall"
 msgstr "Vai al firewall"
 
-#: pkg/lib/cockpit-components-firewalld-request.jsx:118
-#: pkg/lib/cockpit-components-firewalld-request.jsx:126
+#: pkg/lib/cockpit-components-firewalld-request.jsx:117
+#: pkg/lib/cockpit-components-firewalld-request.jsx:125
 msgid "Zone"
 msgstr "Zona"
 
-#: pkg/lib/cockpit-components-firewalld-request.jsx:131
+#: pkg/lib/cockpit-components-firewalld-request.jsx:130
 #: pkg/networkmanager/network-interface-members.jsx:146
 msgid "Add $0"
 msgstr "Aggiungi $0"
@@ -1539,7 +1539,7 @@ msgid "$0 will be installed."
 msgstr "$0 sarà installato."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:105
-#: pkg/packagekit/kpatch.tsx:260 pkg/apps/application-list.jsx:239
+#: pkg/packagekit/kpatch.tsx:260 pkg/apps/application-list.jsx:246
 #: pkg/apps/application.jsx:53
 msgid "Install"
 msgstr "Installa"
@@ -1598,6 +1598,14 @@ msgstr "[nessun dato]"
 #: pkg/lib/journal.js:204
 msgid "[binary data]"
 msgstr "[dati binari]"
+
+#: pkg/lib/_internal/packagekit.ts:130
+msgid "PackageKit crashed"
+msgstr "PackageKit si è interrotto"
+
+#: pkg/lib/_internal/packagekit.ts:663 pkg/lib/_internal/packagekit.ts:724
+msgid "PackageKit reported error code $0"
+msgstr "Codice di errore segnalato da PackageKit $0"
 
 #: pkg/lib/cockpit-components-inline-notification.tsx:33
 msgid "show less"
@@ -1998,10 +2006,6 @@ msgstr "Password non accettata"
 #: pkg/lib/cockpit-components-typeahead-select.tsx:179
 msgid "Select an option"
 msgstr "Seleziona un'opzione"
-
-#: pkg/lib/packagekit.js:122
-msgid "PackageKit crashed"
-msgstr "PackageKit si è interrotto"
 
 #: pkg/lib/cockpit.js:1219
 msgid "$0 killed with signal $1"
@@ -3044,11 +3048,11 @@ msgid_plural "$0 disks are failing"
 msgstr[0] "Il disco $0 è difettoso"
 msgstr[1] "I dischi $0 sono difettosi"
 
-#: pkg/systemd/overview-cards/insights.jsx:42
+#: pkg/systemd/overview-cards/insights.jsx:40
 msgid "Connected to Insights"
 msgstr "Connesso a Insights"
 
-#: pkg/systemd/overview-cards/insights.jsx:49
+#: pkg/systemd/overview-cards/insights.jsx:47
 msgid "Not connected to Insights"
 msgstr "Non connesso a Insights"
 
@@ -3143,7 +3147,7 @@ msgstr "Impossibile cambiare profilo"
 # FIXME: consultare bug 572158
 #: pkg/systemd/overview-cards/tuned-dialog.jsx:213
 #: pkg/networkmanager/firewall.jsx:867
-#: pkg/networkmanager/network-interface.jsx:189 pkg/kdump/kdump-view.jsx:516
+#: pkg/networkmanager/network-interface.jsx:187 pkg/kdump/kdump-view.jsx:516
 msgid "None"
 msgstr "Nessuno"
 
@@ -3362,7 +3366,7 @@ msgstr "Mitigazioni"
 
 # translation auto-copied from project subscription-manager, version 1.9.X,
 # document keys
-#: pkg/systemd/hwinfo.jsx:79 pkg/packagekit/updates.jsx:430
+#: pkg/systemd/hwinfo.jsx:79 pkg/packagekit/updates.jsx:418
 msgid "Version"
 msgstr "Versione"
 
@@ -3532,7 +3536,7 @@ msgstr "Avvia"
 #: pkg/users/delete-group-dialog.js:37 pkg/networkmanager/firewall.jsx:105
 #: pkg/networkmanager/firewall.jsx:151 pkg/networkmanager/firewall.jsx:165
 #: pkg/networkmanager/firewall.jsx:939
-#: pkg/networkmanager/network-interface.jsx:1240
+#: pkg/networkmanager/network-interface.jsx:1256
 #: pkg/storaged/btrfs/subvolume.jsx:239 pkg/storaged/btrfs/subvolume.jsx:386
 #: pkg/storaged/btrfs/volume.jsx:67
 #: pkg/storaged/partitions/partition-table.jsx:48
@@ -3600,7 +3604,7 @@ msgstr ""
 msgid "Forbidden from running"
 msgstr "Esecuzione non autorizzata"
 
-#: pkg/systemd/service-details.jsx:517 pkg/networkmanager/networkmanager.jsx:65
+#: pkg/systemd/service-details.jsx:517 pkg/networkmanager/networkmanager.jsx:72
 msgid "Start service"
 msgstr "Avvia il servizio"
 
@@ -3738,7 +3742,7 @@ msgstr "L'eliminazione rimuoverà i seguenti file:"
 msgid "Pinned unit"
 msgstr "Unità pinnate"
 
-#: pkg/systemd/service-details.jsx:727 pkg/packagekit/updates.jsx:772
+#: pkg/systemd/service-details.jsx:727 pkg/packagekit/updates.jsx:760
 #: pkg/networkmanager/network-interface.jsx:468
 msgid "Status"
 msgstr "Stato"
@@ -4090,8 +4094,7 @@ msgid "Group"
 msgstr "Gruppo"
 
 #: pkg/users/accounts-list.js:360 pkg/networkmanager/firewall.jsx:198
-#: pkg/networkmanager/network-interface.jsx:1085
-#: pkg/apps/application-list.jsx:133 pkg/storaged/drive/smart-details.jsx:92
+#: pkg/apps/application-list.jsx:140 pkg/storaged/drive/smart-details.jsx:92
 #: pkg/storaged/pages.jsx:716
 msgid "Actions"
 msgstr "Azioni"
@@ -4584,11 +4587,11 @@ msgstr[1] "Verranno riavviati i seguenti servizi:"
 msgid "Restart services"
 msgstr "Riavvia i servizi"
 
-#: pkg/packagekit/restartservices-dialog.tsx:113 pkg/packagekit/updates.jsx:799
+#: pkg/packagekit/restartservices-dialog.tsx:113 pkg/packagekit/updates.jsx:787
 msgid "Web Console will restart"
 msgstr "La Console Web verrà riavviata"
 
-#: pkg/packagekit/restartservices-dialog.tsx:116 pkg/packagekit/updates.jsx:804
+#: pkg/packagekit/restartservices-dialog.tsx:116 pkg/packagekit/updates.jsx:792
 msgid ""
 "When the Web Console is restarted, you will no longer see progress "
 "information. However, the update process will continue in the background. "
@@ -4599,259 +4602,255 @@ msgstr ""
 "background. Riconnettiti per continuare a monitorare il processo di "
 "aggiornamento."
 
-#: pkg/packagekit/updates.jsx:86
+#: pkg/packagekit/updates.jsx:85
 msgid "Loading available updates, please wait..."
 msgstr "Caricamento degli aggiornamenti disponibili, attendere....."
 
-#: pkg/packagekit/updates.jsx:87
+#: pkg/packagekit/updates.jsx:86
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
 "Qualche altro programma sta attualmente utilizzando il gestore di pacchetti, "
 "si prega di attendere..."
 
-#: pkg/packagekit/updates.jsx:88
+#: pkg/packagekit/updates.jsx:87
 msgid "Refreshing package information"
 msgstr "Aggiorno le informazioni sul pacchetto"
 
 # ctx::sourcefile::/systems/SystemEntitlements
-#: pkg/packagekit/updates.jsx:89
+#: pkg/packagekit/updates.jsx:88
 msgid "System is up to date"
 msgstr "Il sistema è aggiornato"
 
-#: pkg/packagekit/updates.jsx:90
+#: pkg/packagekit/updates.jsx:89
 msgid "Applying updates"
 msgstr "Sto installando gli aggiornamenti"
 
-#: pkg/packagekit/updates.jsx:91
+#: pkg/packagekit/updates.jsx:90
 msgid "Applying updates failed"
 msgstr "Impossibile installare gli aggiornamenti"
 
-#: pkg/packagekit/updates.jsx:92
+#: pkg/packagekit/updates.jsx:91
 msgid "Loading available updates failed"
 msgstr "Caricamento degli aggiornamenti disponibili non riuscito"
 
-#: pkg/packagekit/updates.jsx:94
+#: pkg/packagekit/updates.jsx:93
 msgid "Downloading"
 msgstr "Download in corso"
 
-#: pkg/packagekit/updates.jsx:95 pkg/apps/application.jsx:41
+#: pkg/packagekit/updates.jsx:94 pkg/apps/application.jsx:41
 msgid "Installing"
 msgstr "Installazione in corso"
 
-#: pkg/packagekit/updates.jsx:96
+#: pkg/packagekit/updates.jsx:95
 msgid "Updating"
 msgstr "Aggiornamento in corso"
 
-#: pkg/packagekit/updates.jsx:97
+#: pkg/packagekit/updates.jsx:96
 msgid "Setting up"
 msgstr "Impostazione"
 
-#: pkg/packagekit/updates.jsx:98
+#: pkg/packagekit/updates.jsx:97
 msgid "Verifying"
 msgstr "Verifica"
 
-#: pkg/packagekit/updates.jsx:100
+#: pkg/packagekit/updates.jsx:99
 msgid "Downloaded"
 msgstr "Scaricato"
 
 # translation auto-copied from project subscription-manager, version 1.9.X,
 # document keys
-#: pkg/packagekit/updates.jsx:101
+#: pkg/packagekit/updates.jsx:100
 msgid "Installed"
 msgstr "Installato"
 
-#: pkg/packagekit/updates.jsx:102
+#: pkg/packagekit/updates.jsx:101
 msgid "Updated"
 msgstr "Aggiornato"
 
-#: pkg/packagekit/updates.jsx:103
+#: pkg/packagekit/updates.jsx:102
 msgid "Set up"
 msgstr "Configura"
 
-#: pkg/packagekit/updates.jsx:104
+#: pkg/packagekit/updates.jsx:103
 msgid "Verified"
 msgstr "Verificato"
 
-#: pkg/packagekit/updates.jsx:181 pkg/packagekit/updates.jsx:293
+#: pkg/packagekit/updates.jsx:180 pkg/packagekit/updates.jsx:282
 #: pkg/packagekit/manifest.json:0
 msgid "security"
 msgstr "sicurezza"
 
-#: pkg/packagekit/updates.jsx:183 pkg/packagekit/updates.jsx:301
+#: pkg/packagekit/updates.jsx:182 pkg/packagekit/updates.jsx:290
 msgid "bug fix"
 msgstr "bug fix"
 
-#: pkg/packagekit/updates.jsx:185 pkg/packagekit/updates.jsx:301
+#: pkg/packagekit/updates.jsx:184 pkg/packagekit/updates.jsx:290
 msgid "enhancement"
 msgstr "miglioramento"
 
-#: pkg/packagekit/updates.jsx:326
+#: pkg/packagekit/updates.jsx:315
 msgid "patches"
 msgstr "patch"
 
-#: pkg/packagekit/updates.jsx:346
+#: pkg/packagekit/updates.jsx:335
 msgid "Packages"
 msgstr "Pacchetti"
 
-#: pkg/packagekit/updates.jsx:351
+#: pkg/packagekit/updates.jsx:340
 msgid "CVE"
 msgstr "CVE"
 
 # translation auto-copied from project Customer Portal Translations, version
 # PCM_template, document template, author fvalen
-#: pkg/packagekit/updates.jsx:357 pkg/packagekit/updates.jsx:431
+#: pkg/packagekit/updates.jsx:346 pkg/packagekit/updates.jsx:419
 msgid "Severity"
 msgstr "Severità"
 
-#: pkg/packagekit/updates.jsx:363
+#: pkg/packagekit/updates.jsx:352
 msgid "Errata"
 msgstr "Errata"
 
 # ctx::sourcefile::/rhn/errata/manage/Create.do
-#: pkg/packagekit/updates.jsx:369
+#: pkg/packagekit/updates.jsx:358
 msgid "Bugs"
 msgstr "Bug"
 
-#: pkg/packagekit/updates.jsx:426 pkg/packagekit/updates.jsx:791
+#: pkg/packagekit/updates.jsx:414 pkg/packagekit/updates.jsx:779
 msgid "Available updates"
 msgstr "Aggiornamenti disponibili"
 
-#: pkg/packagekit/updates.jsx:467
+#: pkg/packagekit/updates.jsx:455
 msgid "Initializing..."
 msgstr "Inizializzazione..."
 
-#: pkg/packagekit/updates.jsx:488
+#: pkg/packagekit/updates.jsx:476
 msgid "Time remaining: "
 msgstr "Tempo rimanente: "
 
-#: pkg/packagekit/updates.jsx:488
+#: pkg/packagekit/updates.jsx:476
 msgid "Update progress"
 msgstr "Aggiorna i progressi"
 
-#: pkg/packagekit/updates.jsx:498
+#: pkg/packagekit/updates.jsx:486
 msgid "Reboot after completion"
 msgstr "Riavvio dopo il completamento"
 
-#: pkg/packagekit/updates.jsx:503
+#: pkg/packagekit/updates.jsx:491
 msgid "View update log"
 msgstr "Visualizza log aggiornamento"
 
-#: pkg/packagekit/updates.jsx:534
+#: pkg/packagekit/updates.jsx:522
 msgid "Updated packages may require a reboot to take effect."
 msgstr ""
 "I pacchetti aggiornati potrebbero richiedere un riavvio per avere effetto."
 
-#: pkg/packagekit/updates.jsx:536 pkg/packagekit/updates.jsx:624
+#: pkg/packagekit/updates.jsx:524 pkg/packagekit/updates.jsx:612
 msgid "Continue"
 msgstr "Continua"
 
-#: pkg/packagekit/updates.jsx:538 pkg/packagekit/updates.jsx:620
-#: pkg/packagekit/updates.jsx:686
+#: pkg/packagekit/updates.jsx:526 pkg/packagekit/updates.jsx:608
+#: pkg/packagekit/updates.jsx:674
 msgid "Reboot system..."
 msgstr "Riavvio del sistema..."
 
-#: pkg/packagekit/updates.jsx:539 pkg/packagekit/updates.jsx:623
+#: pkg/packagekit/updates.jsx:527 pkg/packagekit/updates.jsx:611
 #: pkg/networkmanager/ip-settings.jsx:32
 msgid "Ignore"
 msgstr "Ignora"
 
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/updates.jsx:610
+#: pkg/packagekit/updates.jsx:532 pkg/packagekit/updates.jsx:598
 msgid "Update was successful"
 msgstr "Aggiornamento riuscito"
 
-#: pkg/packagekit/updates.jsx:550 pkg/packagekit/updates.jsx:630
+#: pkg/packagekit/updates.jsx:538 pkg/packagekit/updates.jsx:618
 msgid "Package information"
 msgstr "Informazioni sul pacchetto"
 
-#: pkg/packagekit/updates.jsx:564 pkg/packagekit/updates.jsx:680
+#: pkg/packagekit/updates.jsx:552 pkg/packagekit/updates.jsx:668
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 pacchetto richiede un riavvio di sistema"
 msgstr[1] "$0 pacchetti richiedono un riavvio di sistema"
 
-#: pkg/packagekit/updates.jsx:581 pkg/packagekit/updates.jsx:692
+#: pkg/packagekit/updates.jsx:569 pkg/packagekit/updates.jsx:680
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 servizio deve essere riavviato"
 msgstr[1] "$0 servizi devono essere riavviati"
 
-#: pkg/packagekit/updates.jsx:598 pkg/packagekit/updates.jsx:706
-#: pkg/packagekit/updates.jsx:1378
+#: pkg/packagekit/updates.jsx:586 pkg/packagekit/updates.jsx:694
+#: pkg/packagekit/updates.jsx:1345
 msgid "Some software needs to be restarted manually"
 msgstr "Alcuni software devono essere riavviati manualmente"
 
-#: pkg/packagekit/updates.jsx:614
+#: pkg/packagekit/updates.jsx:602
 msgid "Update Success Table"
 msgstr "Tabella esito aggiornamento"
 
-#: pkg/packagekit/updates.jsx:615
+#: pkg/packagekit/updates.jsx:603
 msgid "Info"
 msgstr "Info"
 
-#: pkg/packagekit/updates.jsx:621 pkg/packagekit/updates.jsx:698
+#: pkg/packagekit/updates.jsx:609 pkg/packagekit/updates.jsx:686
 msgid "Restart services..."
 msgstr "Riavvia i servizi..."
 
-#: pkg/packagekit/updates.jsx:647
+#: pkg/packagekit/updates.jsx:635
 msgid "Last checked: $0"
 msgstr "Ultimo controllo: $0"
 
-#: pkg/packagekit/updates.jsx:652
+#: pkg/packagekit/updates.jsx:640
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "$0 Aggiornamento di sicurezza disponibile"
 msgstr[1] "$0 Aggiornamenti di sicurezza disponibili"
 
-#: pkg/packagekit/updates.jsx:660
+#: pkg/packagekit/updates.jsx:648
 msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 aggiornamento disponibile"
 msgstr[1] "$0 aggiornamenti disponibili"
 
-#: pkg/packagekit/updates.jsx:662
+#: pkg/packagekit/updates.jsx:650
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", compresa $1 correzione di sicurezza"
 msgstr[1] ", comprese $1 correzioni di sicurezza"
 
-#: pkg/packagekit/updates.jsx:773
+#: pkg/packagekit/updates.jsx:761
 msgid "Check for updates"
 msgstr "Controlla gli aggiornamenti"
 
-#: pkg/packagekit/updates.jsx:783
+#: pkg/packagekit/updates.jsx:771
 msgid "Settings"
 msgstr "Impostazioni"
 
-#: pkg/packagekit/updates.jsx:798
+#: pkg/packagekit/updates.jsx:786
 msgid "Danger alert:"
 msgstr "Avviso di pericolo:"
 
-#: pkg/packagekit/updates.jsx:805
+#: pkg/packagekit/updates.jsx:793
 msgid "More info..."
 msgstr "Più informazioni..."
 
-#: pkg/packagekit/updates.jsx:821
+#: pkg/packagekit/updates.jsx:809
 msgid "Update history"
 msgstr "Cronologia degli aggiornamenti"
 
-#: pkg/packagekit/updates.jsx:1048
+#: pkg/packagekit/updates.jsx:1030
 msgid "PackageKit is not installed"
 msgstr "PackageKit non è installato"
 
-#: pkg/packagekit/updates.jsx:1149
-msgid "PackageKit reported error code $0"
-msgstr "Codice di errore segnalato da PackageKit $0"
-
-#: pkg/packagekit/updates.jsx:1211
+#: pkg/packagekit/updates.jsx:1179
 msgid "Not registered"
 msgstr "Non Registrato"
 
-#: pkg/packagekit/updates.jsx:1218
+#: pkg/packagekit/updates.jsx:1186
 msgid "This system is not registered"
 msgstr "Questo sistema non è registrato"
 
-#: pkg/packagekit/updates.jsx:1220
+#: pkg/packagekit/updates.jsx:1188
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -4860,55 +4859,55 @@ msgstr ""
 "registrato con Red Hat, utilizzando il portale clienti Red Hat o un server "
 "locale in abbonamento."
 
-#: pkg/packagekit/updates.jsx:1222
+#: pkg/packagekit/updates.jsx:1190
 msgid "Register…"
 msgstr "Registrati…"
 
-#: pkg/packagekit/updates.jsx:1233
+#: pkg/packagekit/updates.jsx:1201
 msgid "Checking for package updates..."
 msgstr "Controllo degli aggiornamenti del pacchetto..."
 
-#: pkg/packagekit/updates.jsx:1243
+#: pkg/packagekit/updates.jsx:1211
 msgid "Checking software status"
 msgstr "Controllo stato software"
 
-#: pkg/packagekit/updates.jsx:1258 pkg/packagekit/updates.jsx:1265
+#: pkg/packagekit/updates.jsx:1226 pkg/packagekit/updates.jsx:1233
 msgid "Install security updates"
 msgstr "Installa gli aggiornamenti di sicurezza"
 
-#: pkg/packagekit/updates.jsx:1259
+#: pkg/packagekit/updates.jsx:1227
 msgid "Install all updates"
 msgstr "Installa tutti gli aggiornamenti"
 
-#: pkg/packagekit/updates.jsx:1272
+#: pkg/packagekit/updates.jsx:1240
 msgid "Install kpatch updates"
 msgstr "Installa gli aggiornamenti kpatch"
 
-#: pkg/packagekit/updates.jsx:1278
+#: pkg/packagekit/updates.jsx:1246
 msgid "Security updates available"
 msgstr "Aggiornamenti di sicurezza disponibili"
 
-#: pkg/packagekit/updates.jsx:1280
+#: pkg/packagekit/updates.jsx:1248
 msgid "Bug fix updates available"
 msgstr "Aggiornamenti per bug fix disponibili"
 
-#: pkg/packagekit/updates.jsx:1282
+#: pkg/packagekit/updates.jsx:1250
 msgid "Enhancement updates available"
 msgstr "Aggiornamenti disponibili"
 
-#: pkg/packagekit/updates.jsx:1284
+#: pkg/packagekit/updates.jsx:1252
 msgid "Updates available"
 msgstr "Aggiornamenti disponibili"
 
-#: pkg/packagekit/updates.jsx:1335
+#: pkg/packagekit/updates.jsx:1303
 msgid "Please resolve the issue and reload this page."
 msgstr "Per favore risolvi il problema e ricarica questa pagina."
 
-#: pkg/packagekit/updates.jsx:1367
+#: pkg/packagekit/updates.jsx:1334
 msgid "Reboot recommended"
 msgstr "Riavvio consigliato"
 
-#: pkg/packagekit/updates.jsx:1370
+#: pkg/packagekit/updates.jsx:1337
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
@@ -4919,7 +4918,7 @@ msgstr[1] ""
 "Alcuni pacchietti richiedono un riavvio di sistema perché gli aggiornamenti "
 "prendano effetto:"
 
-#: pkg/packagekit/updates.jsx:1374
+#: pkg/packagekit/updates.jsx:1341
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
@@ -4929,11 +4928,11 @@ msgstr[1] ""
 "Alcuni servizi devono essere riavviati perché gli aggiornamenti prendano "
 "effetto:"
 
-#: pkg/packagekit/updates.jsx:1415
+#: pkg/packagekit/updates.jsx:1382
 msgid "Restarting"
 msgstr "Riavvio"
 
-#: pkg/packagekit/updates.jsx:1417
+#: pkg/packagekit/updates.jsx:1384
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -5092,39 +5091,39 @@ msgstr "Indirizzo $0 non valido"
 msgid "Invalid prefix or netmask $0"
 msgstr "Prefisso o maschera di rete non valido $0"
 
-#: pkg/networkmanager/networkmanager.jsx:52
+#: pkg/networkmanager/networkmanager.jsx:48
 msgid "Testing connection"
 msgstr "Test connessione"
 
-#: pkg/networkmanager/networkmanager.jsx:52
+#: pkg/networkmanager/networkmanager.jsx:48
 msgid "Restoring connection"
 msgstr "Ripristino della connessione"
 
-#: pkg/networkmanager/networkmanager.jsx:64
-msgid "NetworkManager is not running"
-msgstr "NetworkManager non è in esecuzione"
-
-#: pkg/networkmanager/networkmanager.jsx:71
+#: pkg/networkmanager/networkmanager.jsx:62
 msgid "Troubleshoot…"
 msgstr "Risoluzione problemi…"
 
-#: pkg/networkmanager/networkmanager.jsx:80
+#: pkg/networkmanager/networkmanager.jsx:71
+msgid "NetworkManager is not running"
+msgstr "NetworkManager non è in esecuzione"
+
+#: pkg/networkmanager/networkmanager.jsx:82
 msgid "NetworkManager is not installed"
 msgstr "NetworkManager non è installato"
 
-#: pkg/networkmanager/networkmanager.jsx:88
+#: pkg/networkmanager/networkmanager.jsx:90
 msgid "Network devices and graphs require NetworkManager"
 msgstr "I dispositivi di rete e i grafici richiedono NetworkManager"
 
-#: pkg/networkmanager/networkmanager.jsx:89
+#: pkg/networkmanager/networkmanager.jsx:91
 msgid "Enable service"
 msgstr "Attiva il servizio"
 
-#: pkg/networkmanager/networkmanager.jsx:134
+#: pkg/networkmanager/networkmanager.jsx:160
 msgid "Network interface '$0' not found"
 msgstr "Interfaccia di rete '$0' non trovata"
 
-#: pkg/networkmanager/networkmanager.jsx:135
+#: pkg/networkmanager/networkmanager.jsx:161
 msgid "Return to overview page"
 msgstr "Torna alla pagina panoramica"
 
@@ -5333,7 +5332,7 @@ msgstr "Servizi inclusi"
 msgid "The cockpit service is automatically included"
 msgstr "Il servizio cockpit è incluso automaticamente"
 
-#: pkg/networkmanager/firewall.jsx:872 pkg/networkmanager/network-main.jsx:198
+#: pkg/networkmanager/firewall.jsx:872 pkg/networkmanager/network-main.jsx:190
 #: pkg/networkmanager/bond.jsx:158
 #: pkg/networkmanager/network-interface-members.jsx:197
 msgid "Interfaces"
@@ -5404,40 +5403,72 @@ msgstr ""
 "Le richieste in ingresso sono bloccate per impostazione predefinita. Le "
 "richieste in uscita non sono bloccate."
 
-#: pkg/networkmanager/network-interface.jsx:95
+#: pkg/networkmanager/anaconda/anaconda-main.tsx:37
+#, fuzzy
+#| msgid "Connect"
+msgid "Connected"
+msgstr "Connetti"
+
+#: pkg/networkmanager/anaconda/anaconda-main.tsx:106
+msgid "Wireless"
+msgstr ""
+
+#: pkg/networkmanager/anaconda/anaconda-main.tsx:109
+#, fuzzy
+#| msgid "WireGuard"
+msgid "Wired"
+msgstr "WireGuard"
+
+#: pkg/networkmanager/anaconda/anaconda-main.tsx:112
+#, fuzzy
+#| msgid "Network bond"
+msgid "No networks found"
+msgstr "Bond di Rete"
+
+#: pkg/networkmanager/anaconda/anaconda-main.tsx:126
+#, fuzzy
+#| msgid "No interfaces available"
+msgid "No interface selected"
+msgstr "Nessuna interfaccia disponibile"
+
+#: pkg/networkmanager/anaconda/anaconda-main.tsx:127
+msgid "Select a network interface to configure the connection."
+msgstr ""
+
+#: pkg/networkmanager/network-interface.jsx:93
 msgid "SSID can not be empty"
 msgstr "Il nome non può essere vuoto"
 
-#: pkg/networkmanager/network-interface.jsx:101
+#: pkg/networkmanager/network-interface.jsx:99
 msgid "Password can not be empty"
 msgstr "La password non può essere vuota"
 
-#: pkg/networkmanager/network-interface.jsx:162
+#: pkg/networkmanager/network-interface.jsx:160
 msgid "Failed to connect"
 msgstr "Impossibile connettersi"
 
-#: pkg/networkmanager/network-interface.jsx:164
+#: pkg/networkmanager/network-interface.jsx:162
 msgid "Check your password."
 msgstr "Password della chiave."
 
-#: pkg/networkmanager/network-interface.jsx:175
-#: pkg/networkmanager/network-interface.jsx:1062
+#: pkg/networkmanager/network-interface.jsx:173
+#: pkg/networkmanager/network-interface.jsx:1073
 msgid "Connect to hidden network"
 msgstr "Connetti a rete nascosta"
 
-#: pkg/networkmanager/network-interface.jsx:175
+#: pkg/networkmanager/network-interface.jsx:173
 msgid "Connect to $0"
 msgstr "Connettersi a $0"
 
-#: pkg/networkmanager/network-interface.jsx:182
+#: pkg/networkmanager/network-interface.jsx:180
 msgid "Network name"
 msgstr "Nome della rete"
 
-#: pkg/networkmanager/network-interface.jsx:186
+#: pkg/networkmanager/network-interface.jsx:184
 msgid "Security"
 msgstr "Sicurezza"
 
-#: pkg/networkmanager/network-interface.jsx:190
+#: pkg/networkmanager/network-interface.jsx:188
 msgid "WPA/WPA2 Personal"
 msgstr "WPA/WPA2 Personal"
 
@@ -5687,62 +5718,74 @@ msgstr "Disconnessione dalla rete non consentita"
 msgid "Disconnect"
 msgstr "Disconnetti"
 
-#: pkg/networkmanager/network-interface.jsx:986
+#: pkg/networkmanager/network-interface.jsx:985
 msgid "Not permitted to connect to network"
 msgstr "Connessione alla rete non consentita"
 
-#: pkg/networkmanager/network-interface.jsx:1006
-#: pkg/networkmanager/network-interface.jsx:1007
+#: pkg/networkmanager/network-interface.jsx:1018
+#: pkg/networkmanager/network-interface.jsx:1021
 msgid "Forget"
 msgstr "Dimentica"
 
-#: pkg/networkmanager/network-interface.jsx:1030
+#: pkg/networkmanager/network-interface.jsx:1040
 msgid "$0 hidden network"
 msgid_plural "$0 hidden networks"
 msgstr[0] "$0 rete nascosta"
 msgstr[1] "$0 reti nascoste"
 
-#: pkg/networkmanager/network-interface.jsx:1051
+#: pkg/networkmanager/network-interface.jsx:1062
 msgid "Filter"
 msgstr "Filtri"
 
-#: pkg/networkmanager/network-interface.jsx:1070
+#: pkg/networkmanager/network-interface.jsx:1081
 msgid "Refresh"
 msgstr "Aggiorna"
 
-#: pkg/networkmanager/network-interface.jsx:1076
-#: pkg/networkmanager/network-interface.jsx:1078
+#: pkg/networkmanager/network-interface.jsx:1087
+#: pkg/networkmanager/network-interface.jsx:1089
 msgid "Available networks"
 msgstr "Reti disponibili"
 
-#: pkg/networkmanager/network-interface.jsx:1081 pkg/metrics/metrics.jsx:929
+#: pkg/networkmanager/network-interface.jsx:1092 pkg/metrics/metrics.jsx:929
 #: pkg/metrics/metrics.jsx:1553 pkg/metrics/metrics.jsx:1924
 #: pkg/metrics/metrics.jsx:1937
 msgid "Network"
 msgstr "Rete"
 
-#: pkg/networkmanager/network-interface.jsx:1082
+#: pkg/networkmanager/network-interface.jsx:1093
 #: pkg/networkmanager/bond.jsx:164
 msgid "Mode"
 msgstr "Modalità"
 
-#: pkg/networkmanager/network-interface.jsx:1083
+#: pkg/networkmanager/network-interface.jsx:1094
 msgid "Signal"
 msgstr "Segnale"
 
-#: pkg/networkmanager/network-interface.jsx:1084
+#: pkg/networkmanager/network-interface.jsx:1095
 msgid "Rate"
 msgstr "Rate"
 
-#: pkg/networkmanager/network-interface.jsx:1192
+#: pkg/networkmanager/network-interface.jsx:1096
+#, fuzzy
+#| msgid "Primary"
+msgid "Primary action"
+msgstr "Primario"
+
+#: pkg/networkmanager/network-interface.jsx:1097
+#, fuzzy
+#| msgid "File chooser actions"
+msgid "Secondary actions"
+msgstr "Azioni per scegliere il file"
+
+#: pkg/networkmanager/network-interface.jsx:1206
 msgid "Not permitted to configure network devices"
 msgstr "Non è consentito configurare i dispositivi di rete"
 
-#: pkg/networkmanager/network-interface.jsx:1197
+#: pkg/networkmanager/network-interface.jsx:1211
 msgid "Enable or disable the device"
 msgstr "Abilita o disabilita il dispositivo"
 
-#: pkg/networkmanager/network-interface.jsx:1261
+#: pkg/networkmanager/network-interface.jsx:1277
 msgid "This device cannot be managed here."
 msgstr "Questo dispositivo non può essere gestito qui."
 
@@ -5842,7 +5885,7 @@ msgstr ""
 msgid "Change the settings"
 msgstr "Modifica le impostazioni"
 
-#: pkg/networkmanager/bridge.jsx:81 pkg/networkmanager/network-main.jsx:160
+#: pkg/networkmanager/bridge.jsx:81 pkg/networkmanager/network-main.jsx:154
 msgid "Add bridge"
 msgstr "Aggiungi bridge"
 
@@ -5911,7 +5954,7 @@ msgstr "ARP ping"
 msgid "NSNA ping"
 msgstr "ping NSNA"
 
-#: pkg/networkmanager/team.jsx:139 pkg/networkmanager/network-main.jsx:159
+#: pkg/networkmanager/team.jsx:139 pkg/networkmanager/network-main.jsx:153
 msgid "Add team"
 msgstr "Aggiungi team"
 
@@ -6065,61 +6108,61 @@ msgstr "Ethernet MAC"
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/networkmanager/network-main.jsx:100
+#: pkg/networkmanager/network-main.jsx:94
 msgid "$0 network"
 msgid_plural "$0 networks"
 msgstr[0] "Rete $0"
 msgstr[1] "RetI $0"
 
-#: pkg/networkmanager/network-main.jsx:157
+#: pkg/networkmanager/network-main.jsx:151
 msgid "Add VPN"
 msgstr "Aggiungi VPN"
 
-#: pkg/networkmanager/network-main.jsx:158 pkg/networkmanager/bond.jsx:130
+#: pkg/networkmanager/network-main.jsx:152 pkg/networkmanager/bond.jsx:130
 msgid "Add bond"
 msgstr "Aggiungi bond"
 
-#: pkg/networkmanager/network-main.jsx:161 pkg/networkmanager/vlan.jsx:76
+#: pkg/networkmanager/network-main.jsx:155 pkg/networkmanager/vlan.jsx:76
 msgid "Add VLAN"
 msgstr "Aggiungi VLAN"
 
-#: pkg/networkmanager/network-main.jsx:179
+#: pkg/networkmanager/network-main.jsx:171
 msgid "Edit rules and zones"
 msgstr "Modifica regole e zone"
 
-#: pkg/networkmanager/network-main.jsx:192
+#: pkg/networkmanager/network-main.jsx:184
 msgid "$0 active zone"
 msgid_plural "$0 active zones"
 msgstr[0] "zona attiva $0"
 msgstr[1] "zona attive $0"
 
-#: pkg/networkmanager/network-main.jsx:200
+#: pkg/networkmanager/network-main.jsx:192
 msgid "Managed interfaces"
 msgstr "Interfacce gestite"
 
-#: pkg/networkmanager/network-main.jsx:204
-#: pkg/networkmanager/network-main.jsx:220
+#: pkg/networkmanager/network-main.jsx:196
+#: pkg/networkmanager/network-main.jsx:212
 msgid "IP address"
 msgstr "Indirizzo IP"
 
-#: pkg/networkmanager/network-main.jsx:205
-#: pkg/networkmanager/network-main.jsx:221
+#: pkg/networkmanager/network-main.jsx:197
+#: pkg/networkmanager/network-main.jsx:213
 #: pkg/networkmanager/network-interface-members.jsx:198
 msgid "Sending"
 msgstr "Invio"
 
-#: pkg/networkmanager/network-main.jsx:206
-#: pkg/networkmanager/network-main.jsx:222 pkg/networkmanager/plots.js:30
+#: pkg/networkmanager/network-main.jsx:198
+#: pkg/networkmanager/network-main.jsx:214 pkg/networkmanager/plots.js:30
 #: pkg/networkmanager/network-interface-members.jsx:199
 msgid "Receiving"
 msgstr "Ricevo"
 
-#: pkg/networkmanager/network-main.jsx:214
-#: pkg/networkmanager/network-main.jsx:216
+#: pkg/networkmanager/network-main.jsx:206
+#: pkg/networkmanager/network-main.jsx:208
 msgid "Unmanaged interfaces"
 msgstr "Interfacce non gestite"
 
-#: pkg/networkmanager/network-main.jsx:227
+#: pkg/networkmanager/network-main.jsx:219
 msgid "Network logs"
 msgstr "Log di rete"
 
@@ -6370,27 +6413,27 @@ msgstr "Aggiungi membro"
 msgid "Interface members"
 msgstr "Membri interfaccia"
 
-#: pkg/apps/application-list.jsx:123
+#: pkg/apps/application-list.jsx:130
 msgid "icon of $0"
 msgstr "icona di $0"
 
-#: pkg/apps/application-list.jsx:196
+#: pkg/apps/application-list.jsx:203
 msgid "Update package information"
 msgstr "Aggiorna informazioni sul pacchetto"
 
-#: pkg/apps/application-list.jsx:208
+#: pkg/apps/application-list.jsx:215
 msgid "Application information is missing"
 msgstr "Mancano le informazioni sull'applicazione"
 
-#: pkg/apps/application-list.jsx:231
+#: pkg/apps/application-list.jsx:238
 msgid "No applications installed or available."
 msgstr "Nessuna applicazione installata o disponibile."
 
-#: pkg/apps/application-list.jsx:233
+#: pkg/apps/application-list.jsx:240
 msgid "Install application information"
 msgstr "Installa le informazioni sull'applicazione"
 
-#: pkg/apps/application-list.jsx:243
+#: pkg/apps/application-list.jsx:250
 msgid "Applications list"
 msgstr "Lista applicazioni"
 
@@ -6672,114 +6715,114 @@ msgstr "la chiave ssh non è un percorso"
 msgid "Storage logs"
 msgstr "Log archiviazione"
 
-#: pkg/storaged/utils.js:159
+#: pkg/storaged/utils.js:161
 msgctxt "format-bytes"
 msgid "bytes"
 msgstr "byte"
 
-#: pkg/storaged/utils.js:197 pkg/storaged/btrfs/utils.jsx:71
+#: pkg/storaged/utils.js:199 pkg/storaged/btrfs/utils.jsx:71
 msgid "Name cannot be empty."
 msgstr "Il nome non può essere vuoto."
 
-#: pkg/storaged/utils.js:199
+#: pkg/storaged/utils.js:201
 msgid "Name cannot be longer than 127 characters."
 msgstr "Il nome non può essere più lungo di 127 caratteri."
 
-#: pkg/storaged/utils.js:203
+#: pkg/storaged/utils.js:205
 msgid "Name cannot contain the character '$0'."
 msgstr "Il nome non può contenere il carattere '$0''."
 
-#: pkg/storaged/utils.js:205
+#: pkg/storaged/utils.js:207
 msgid "Name cannot contain whitespace."
 msgstr "Il nome non può contenere spazi bianchi."
 
-#: pkg/storaged/utils.js:224
+#: pkg/storaged/utils.js:226
 msgid "Name cannot be longer than $0 characters"
 msgstr "Il nome non può essere più lungo di $0 caratteri"
 
-#: pkg/storaged/utils.js:226
+#: pkg/storaged/utils.js:228
 msgid "Name cannot be longer than $0 bytes"
 msgstr "Il nome non può essere più lungo di $0 byte"
 
-#: pkg/storaged/utils.js:259
+#: pkg/storaged/utils.js:261
 msgid "$name (from $host)"
 msgstr "$name (da $host)"
 
-#: pkg/storaged/utils.js:269
+#: pkg/storaged/utils.js:271
 msgid "Pool for thin logical volumes"
 msgstr "Pool per volumi logici thin"
 
-#: pkg/storaged/utils.js:271
+#: pkg/storaged/utils.js:273
 msgid "Thin logical volume"
 msgstr "Volume logico thin"
 
-#: pkg/storaged/utils.js:273
+#: pkg/storaged/utils.js:275
 msgid "Logical volume (snapshot)"
 msgstr "Volume logico (snapshot)"
 
-#: pkg/storaged/utils.js:275
+#: pkg/storaged/utils.js:277
 msgid "Logical volume"
 msgstr "Volume logico"
 
-#: pkg/storaged/utils.js:322
+#: pkg/storaged/utils.js:324
 msgid "MDRAID device $0"
 msgstr "Dispositivo MDRAID $0"
 
-#: pkg/storaged/utils.js:328
+#: pkg/storaged/utils.js:330
 msgid "LVM2 volume group $0"
 msgstr "Gruppo di volumi LVM2 $0"
 
-#: pkg/storaged/utils.js:333 pkg/storaged/legacy-vdo/legacy-vdo.jsx:125
+#: pkg/storaged/utils.js:335 pkg/storaged/legacy-vdo/legacy-vdo.jsx:125
 msgid "VDO device $0"
 msgstr "Dispositivo VDO $0"
 
-#: pkg/storaged/utils.js:346
+#: pkg/storaged/utils.js:348
 msgid "Encrypted logical volume of $0"
 msgstr "Volume logico criptato di $0"
 
-#: pkg/storaged/utils.js:348
+#: pkg/storaged/utils.js:350
 msgid "Encrypted partition of $0"
 msgstr "Partizione criptata di $0"
 
-#: pkg/storaged/utils.js:350
+#: pkg/storaged/utils.js:352
 msgid "Logical volume of $0"
 msgstr "Volume logico di $0"
 
-#: pkg/storaged/utils.js:352
+#: pkg/storaged/utils.js:354
 msgid "Partition of $0"
 msgstr "Partizione di $0"
 
-#: pkg/storaged/utils.js:354
+#: pkg/storaged/utils.js:356
 msgid "Encrypted $0"
 msgstr "$0 crittografato"
 
-#: pkg/storaged/utils.js:475
+#: pkg/storaged/utils.js:477
 msgid "unpartitioned space on $0"
 msgstr "spazio non partizionato su $0"
 
-#: pkg/storaged/utils.js:851 pkg/storaged/utils.js:864
+#: pkg/storaged/utils.js:853 pkg/storaged/utils.js:866
 #: pkg/storaged/btrfs/subvolume.jsx:221 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "smonta"
 
-#: pkg/storaged/utils.js:864 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:866 pkg/storaged/manifest.json:0
 msgid "mount"
 msgstr "mount"
 
-#: pkg/storaged/utils.js:882
+#: pkg/storaged/utils.js:884
 msgid "remove from btrfs volume"
 msgstr "rimuovi da volume btrfs"
 
-#: pkg/storaged/utils.js:901 pkg/storaged/mdraid/mdraid.jsx:45
+#: pkg/storaged/utils.js:903 pkg/storaged/mdraid/mdraid.jsx:45
 #: pkg/storaged/legacy-vdo/legacy-vdo.jsx:32
 msgid "stop"
 msgstr "ferma"
 
-#: pkg/storaged/utils.js:912
+#: pkg/storaged/utils.js:914
 msgid "remove from MDRAID"
 msgstr "rimuovi da MDRAID"
 
-#: pkg/storaged/utils.js:923
+#: pkg/storaged/utils.js:925
 msgid "remove from LVM2"
 msgstr "rimuovere da LVM2"
 
@@ -10443,8 +10486,10 @@ msgid "updates"
 msgstr "aggiornamenti"
 
 #: pkg/packagekit/manifest.json:0
-msgid "Managing software updates"
-msgstr "Gestione degli aggiornamenti software"
+#, fuzzy
+#| msgid "Apply kernel live patches"
+msgid "Applying live kernel patching"
+msgstr "Applicare le patch live del kernel"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "interface"
@@ -10787,6 +10832,9 @@ msgid ""
 msgstr ""
 "E' necessario autenticarsi per eseguire azioni privilegiate con Cockpit Web "
 "Console"
+
+#~ msgid "Managing software updates"
+#~ msgstr "Gestione degli aggiornamenti software"
 
 #~ msgid "Keyserver removal may prevent unlocking $0."
 #~ msgstr "La rimozione del key server può impedire lo sblocco di $0."

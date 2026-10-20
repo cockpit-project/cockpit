@@ -63,6 +63,7 @@ import { read_os_release } from "os-release.js";
 import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
+import { Checkbox } from '@patternfly/react-core';
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
 import { Severity, TransactionExitStatus, UpdateProgressType, UpdateError } from '_internal/packagemanager-abstract';
 import { getPackageManager } from 'packagemanager';
@@ -79,7 +80,19 @@ const UPDATES = {
     ALL: 0,
     SECURITY: 1,
     KPATCHES: 2,
+    SELECTED: 3,
 };
+
+const SUPPORTED_PARTIAL_UPDATE_BACKEND = [
+    "apt",
+    "dnf",
+    "dnf5",
+    "zypp",
+];
+
+export function is_partial_updates_supported(backend) {
+    return SUPPORTED_PARTIAL_UPDATE_BACKEND.includes(backend);
+}
 
 function init() {
     STATE_HEADINGS.loading = _("Loading available updates, please wait...");
@@ -103,8 +116,146 @@ function init() {
     STATUS_LOG_STRINGS[UpdateProgressType.SIGCHECK] = _("Verified");
 }
 
-const WebConsoleRestartWarn = () => {
+/** @import { UpdateDetail } from "_internal/packagemanager-abstract" */
+
+/**
+ * @typedef SelectedState
+ * @type {object}
+ * @property {Object.<string, UpdateDetail | null | undefined>} selected - (Un)selected updates.
+ */
+
+/**
+ * @typedef SelectedAction
+ * @type {object}
+ * @property {"ADD" | "REMOVE" | "RESET"} type - Type of reducer action
+ * @property {UpdateDetail[]=} updates - Added/removed items, only used by "ADD" and "REMOVE"
+ */
+
+const SelectedContext = React.createContext({ selected: {} });
+
+/**
+ * Selected store for conveniently updating the state of selected items.
+ * Updating all items naively causes performance issues if there are hundreds of updates
+ */
+const SelectedStore = props => {
+    /**
+     * @argument {SelectedState} state
+     * @argument {SelectedAction} action
+     */
+    const reducer = (state, action) => {
+        switch (action.type) {
+        case "ADD":
+            if (action.updates) {
+                for (const update of action.updates) {
+                    state.selected[update.id] = update;
+                }
+            }
+            break;
+        case "REMOVE":
+            if (action.updates) {
+                for (const update of action.updates) {
+                    delete state.selected[update.id];
+                }
+            }
+            break;
+        case "RESET":
+            state.selected = {};
+            break;
+        default:
+            break;
+        }
+
+        return { ...state };
+    };
+
+    const [state, dispatch] = React.useReducer(reducer, { selected: {} });
+
+    return <SelectedContext.Provider value={{ state, dispatch }} {...props} />;
+};
+
+/**
+ * @returns {{state: SelectedState, dispatch: (arg: SelectedAction) => void}}
+ */
+export const useSelected = () => React.useContext(SelectedContext);
+
+/**
+ * @param {{
+ *      onClick: (state: SelectedState) => void
+ *      securityOnly: boolean
+ *      num_updates: number
+ * }} props;
+ */
+const SelectedButton = (props) => {
+    const { state, dispatch } = useSelected();
+    const {
+        onClick,
+        securityOnly,
+        num_updates,
+    } = props;
+    const buttonId = securityOnly ? "install-security" : "install-all";
+
+    const buttonText = () => {
+        const selectedCount = Object.keys(state.selected).length;
+        if (selectedCount === 0 || selectedCount === num_updates) {
+            if (securityOnly) {
+                return _("Install security updates");
+            } else {
+                return _("Install all updates");
+            }
+        } else {
+            return `${_("Install selected updates")} (${selectedCount})`;
+        }
+    };
+
+    return (
+        <Button id={buttonId} ouiaId={buttonId} variant="primary" onClick={ () => { onClick(state); dispatch({ type: "RESET" }) } }>
+            {buttonText()}
+        </Button>
+    );
+};
+
+/**
+ * @param {{
+ *      info: UpdateDetail,
+ *      updates: UpdateDetail[],
+ * }} props;
+ */
+const SelectedSwitch = (props) => {
+    const { state, dispatch } = useSelected();
+    const checkboxId = () => `selectable-${props.info.id.replaceAll(';', '-')}`;
+
+    const dispatchChecked = checked => {
+        if (checked) {
+            dispatch({ type: "ADD", updates: props.updates });
+        } else {
+            dispatch({ type: "REMOVE", updates: props.updates });
+        }
+    };
+
+    const isChecked = () => {
+        return !!state.selected[props.info.id];
+    };
+
+    return (
+        <Checkbox
+            id={checkboxId()}
+            ouiaId={checkboxId()}
+            aria-label="select-update-checkbox"
+            isChecked={isChecked()}
+            onChange={(_event, checked) => dispatchChecked(checked)} />
+    );
+};
+
+/**
+ * @param {{
+*      updates: UpdateDetail[],
+* }} props;
+*/
+const WebConsoleRestartWarn = (props) => {
     const { state } = useSelected();
+
+    if (calculateSelected(props.updates, state).findIndex((value) => value.id.includes("cockpit-ws")) === -1)
+        return null;
 
     return (
         <Flex flex={{ default: 'inlineFlex' }} className="cockpit-update-warning">
@@ -124,6 +275,21 @@ const WebConsoleRestartWarn = () => {
         </Flex>
     );
 };
+
+/**
+ * @param {UpdateDetail[]} allUpdates
+ * @param {SelectedState} state
+ * @returns {UpdateDetail[]}
+ */
+function calculateSelected(allUpdates, state) {
+    const selected = Object.values(state.selected).filter(update => !!update);
+
+    if (selected.length === 0) {
+        return allUpdates;
+    } else {
+        return selected;
+    }
+}
 
 function deduplicate(list) {
     return [...new Set(list)].sort();
@@ -258,7 +424,7 @@ const markdownOptions = {
     forceInline: true,
 };
 
-function updateItem(info, pkgNames, key) {
+function updateItem(info, pkgNames, key, partialUpdates) {
     const bug_urls = (info.bug_urls || []).filter(isSafeUrl);
     const cve_urls = (info.cve_urls || []).filter(isSafeUrl);
     const vendor_urls = (info.vendor_urls || []).filter(isSafeUrl);
@@ -386,8 +552,16 @@ function updateItem(info, pkgNames, key) {
         </Flex>
     );
 
+    let selectColumn = [];
+    if (partialUpdates) {
+        selectColumn = [
+            { title: <SelectedSwitch info={info} updates={ pkgNames } />, props: { className: "select-update" } },
+        ];
+    }
+
     return {
         columns: [
+            ...selectColumn,
             { title: pkgsTruncated },
             { title: <TableText wrapModifier="truncate">{info.version}</TableText>, props: { className: "version" } },
             { title: <TableText wrapModifier="nowrap">{type}</TableText>, props: { className: "type" } },
@@ -402,7 +576,7 @@ function updateItem(info, pkgNames, key) {
     };
 }
 
-const UpdatesList = ({ updates }) => {
+const UpdatesList = ({ updates, partialUpdates }) => {
     const combined_updates = [];
 
     // PackageKit doesn"t expose source package names, so group packages with the same version and changelog
@@ -414,11 +588,11 @@ const UpdatesList = ({ updates }) => {
         const hash = u.version + u.description;
         const seenId = sameUpdate[hash];
         if (seenId) {
-            packageNames[seenId].push({ name: u.name, arch: u.arch, summary: u.summary });
+            packageNames[seenId].push(u);
         } else {
             // this is a new update
             sameUpdate[hash] = u.id;
-            packageNames[u.id] = [{ name: u.name, arch: u.arch, summary: u.summary }];
+            packageNames[u.id] = [u];
             combined_updates.push(u);
         }
     }
@@ -432,16 +606,30 @@ const UpdatesList = ({ updates }) => {
         return a.name.localeCompare(b.name);
     });
 
+    let selectColumn = [];
+    if (partialUpdates) {
+        selectColumn = [
+            { title: "", props: { hidden: true, 'aria-label': _("Select update") } }
+        ];
+    }
     return (
         <ListingTable aria-label={_("Available updates")}
                 gridBreakPoint='grid-lg'
                 columns={[
+                    ...selectColumn,
                     { title: _("Name"), props: { width: 40 } },
                     { title: _("Version"), props: { width: 15 } },
                     { title: _("Severity"), props: { width: 15 } },
                     { title: _("Details"), props: { width: 30 } },
                 ]}
-                rows={combined_updates.map(update => updateItem(update, packageNames[update.id].sort((a, b) => a.name > b.name), update.id))} />
+                rows={combined_updates.map(update => {
+                    return updateItem(update,
+                                      packageNames[update.id].sort((a, b) => a.name > b.name),
+                                      update.id,
+                                      partialUpdates,
+                    );
+                })
+                } />
     );
 };
 
@@ -800,13 +988,13 @@ class CardsPage extends React.Component {
                 id: "available-updates",
                 title: _("Available updates"),
                 actions: (<div className="pk-updates--header--actions">
-                    {this.props.cockpitUpdate && <WebConsoleRestartWarn />}
+                    <WebConsoleRestartWarn updates={this.props.updates} />
                     {this.props.applyKpatches}
                     {this.props.applySecurity}
-                    {this.props.applyAll}
+                    {this.props.applySelected}
                 </div>),
                 containsList: true,
-                body: <UpdatesList updates={this.props.updates} />
+                body: <UpdatesList updates={this.props.updates} partialUpdates={this.props.partialUpdates} />
             });
         }
 
@@ -859,6 +1047,7 @@ class OsUpdates extends React.Component {
             backend: "",
             rebootAfterSuccess: false,
             packageManager: null,
+            partialUpdates: false,
         };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
@@ -880,7 +1069,8 @@ class OsUpdates extends React.Component {
         // HACK: force usage of PackageKit backend
         const packageManager = await getPackageManager(true);
         const backend = await packageManager.get_backend();
-        this.setState({ packageManager, backend });
+        const partialUpdates = is_partial_updates_supported(backend);
+        this.setState({ packageManager, backend, partialUpdates });
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         try {
@@ -1149,12 +1339,18 @@ class OsUpdates extends React.Component {
         }
     }
 
-    applyUpdates(type) {
+    /**
+     * @param {SelectedState=} selected
+     */
+    applyUpdates(type, selected) {
         let updates = [...this.state.updates];
         if (type === UPDATES.SECURITY)
             updates = updates.filter(update => update.severity === Severity.CRITICAL);
         if (type === UPDATES.KPATCHES) {
             updates = updates.filter(update => isKpatchPackage(update.name));
+        }
+        if (type === UPDATES.SELECTED && selected) {
+            updates = calculateSelected(updates, selected);
         }
 
         this.setState({ state: "applying", applyTransactionProps: {}, applyActions: [] });
@@ -1174,7 +1370,7 @@ class OsUpdates extends React.Component {
     renderContent() {
         let applySecurity;
         let applyKpatches;
-        let applyAll;
+        let applySelected;
 
         /* On unregistered RHEL systems we need some heuristics: If the "main" OS repos (which provide coreutils) require
          * a subscription, then point this out and don't show available updates, even if there are some auxiliary
@@ -1227,12 +1423,10 @@ class OsUpdates extends React.Component {
             const num_kpatches = count_kpatch_updates(this.state.updates);
             const highest_severity = find_highest_severity(this.state.updates);
 
-            applyAll = (
-                <Button id={num_updates == num_security_updates ? "install-security" : "install-all"} variant="primary" onClick={ () => this.applyUpdates(UPDATES.ALL) }>
-                    { num_updates == num_security_updates
-                        ? _("Install security updates")
-                        : _("Install all updates") }
-                </Button>);
+            applySelected = <SelectedButton
+                num_updates={num_updates}
+                securityOnly={num_updates === num_security_updates}
+                onClick={(items) => this.applyUpdates(UPDATES.SELECTED, items)} />;
 
             if (num_security_updates > 0 && num_updates > num_security_updates) {
                 applySecurity = (
@@ -1272,7 +1466,7 @@ class OsUpdates extends React.Component {
                         <Gallery className='ct-cards-grid' hasGutter>
                             <CardsPage handleRefresh={this.handleRefresh}
                                        applySecurity={applySecurity}
-                                       applyAll={applyAll}
+                                       applySelected={applySelected}
                                        applyKpatches={applyKpatches}
                                        highestSeverity={highest_severity}
                                        onValueChanged={this.onValueChanged}
@@ -1469,5 +1663,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const root = createRoot(document.getElementById('app'));
-    root.render(<OsUpdates />);
+    root.render(
+        <SelectedStore>
+            <OsUpdates />
+        </SelectedStore>
+    );
 });

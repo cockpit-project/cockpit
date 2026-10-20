@@ -103,6 +103,28 @@ function init() {
     STATUS_LOG_STRINGS[UpdateProgressType.SIGCHECK] = _("Verified");
 }
 
+const WebConsoleRestartWarn = () => {
+    const { state } = useSelected();
+
+    return (
+        <Flex flex={{ default: 'inlineFlex' }} className="cockpit-update-warning">
+            <FlexItem>
+                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle cockpit-update-warning-icon" />
+                <strong className="cockpit-update-warning-text">
+                    <span className="pf-v6-screen-reader">{_("Danger alert:")}</span>
+                    {_("Web Console will restart")}
+                </strong>
+            </FlexItem>
+            <FlexItem>
+                <Popover aria-label="More information popover"
+                         bodyContent={_("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")}>
+                    <Button variant="link" isInline>{_("More info...")}</Button>
+                </Popover>
+            </FlexItem>
+        </Flex>
+    );
+};
+
 function deduplicate(list) {
     return [...new Set(list)].sort();
 }
@@ -778,22 +800,7 @@ class CardsPage extends React.Component {
                 id: "available-updates",
                 title: _("Available updates"),
                 actions: (<div className="pk-updates--header--actions">
-                    {this.props.cockpitUpdate &&
-                        <Flex flex={{ default: 'inlineFlex' }} className="cockpit-update-warning">
-                            <FlexItem>
-                                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle cockpit-update-warning-icon" />
-                                <strong className="cockpit-update-warning-text">
-                                    <span className="pf-screen-reader">{_("Danger alert:")}</span>
-                                    {_("Web Console will restart")}
-                                </strong>
-                            </FlexItem>
-                            <FlexItem>
-                                <Popover aria-label="More information popover"
-                                         bodyContent={_("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")}>
-                                    <Button variant="link" isInline>{_("More info...")}</Button>
-                                </Popover>
-                            </FlexItem>
-                        </Flex>}
+                    {this.props.cockpitUpdate && <WebConsoleRestartWarn />}
                     {this.props.applyKpatches}
                     {this.props.applySecurity}
                     {this.props.applyAll}

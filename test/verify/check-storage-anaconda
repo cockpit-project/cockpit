@@ -282,6 +282,7 @@ class TestStorageAnaconda(storagelib.StorageCase):
         self.dialog_set_val("crypto", self.default_crypto_type)
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("crypto", "luks1")
         self.dialog_apply()
         self.dialog_wait_close()
 

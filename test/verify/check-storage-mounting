@@ -589,6 +589,7 @@ class TestStorageMountingLUKS(storagelib.StorageCase):
         b.click(self.card_button("ext4 filesystem", "Do not mount automatically"))
         b.wait_not_present(self.card_button("ext4 filesystem", "Do not mount automatically"))
 
+    @testlib.skipImage("cryptsetup uses too much memory, OOM on our test VMs", "fedora-45")
     def testOverMounting(self):
         m = self.machine
         b = self.browser

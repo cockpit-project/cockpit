@@ -25,6 +25,7 @@ def console_screenshot(machine, name):
 @testlib.skipImage("cryptsetup uses too much memory, OOM on our test VMs", "rhel-8-*")
 class TestStorageLuks(storagelib.StorageCase):
 
+    @testlib.skipImage("cryptsetup uses too much memory, OOM on our test VMs", "fedora-45")
     def testLuks(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine

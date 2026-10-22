@@ -64,10 +64,10 @@ export function Channel(options) {
     }
 
     function on_control(data) {
-        if (data.command == "close") {
+        if (data.command === "close") {
             on_close(data);
             return;
-        } else if (data.command == "ready") {
+        } else if (data.command === "ready") {
             on_ready(data);
         }
 

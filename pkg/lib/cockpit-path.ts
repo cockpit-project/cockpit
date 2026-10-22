@@ -6,9 +6,9 @@
 function drop_slashes(path : string): string {
     // Drop all trailing slashes, but never drop the first character.
     let pos = path.length;
-    while (pos > 1 && path[pos - 1] == "/")
+    while (pos > 1 && path[pos - 1] === "/")
         pos -= 1;
-    return pos == path.length ? path : path.substring(0, pos);
+    return pos === path.length ? path : path.substring(0, pos);
 }
 
 export function dirname(path : string): string {
@@ -16,7 +16,7 @@ export function dirname(path : string): string {
     const pos = norm.lastIndexOf("/");
     if (pos < 0)
         return ".";
-    else if (pos == 0)
+    else if (pos === 0)
         return "/";
     else
         return drop_slashes(norm.substring(0, pos));

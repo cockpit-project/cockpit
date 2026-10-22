@@ -48,7 +48,7 @@ export function base64_decode(str, constructor) {
     const ilen = str.length;
     let eq;
     for (eq = 0; eq < 3; eq++) {
-        if (str[ilen - (eq + 1)] != '=')
+        if (str[ilen - (eq + 1)] !== '=')
             break;
     }
     const olen = (ilen * 3 + 1 >> 2) - eq;

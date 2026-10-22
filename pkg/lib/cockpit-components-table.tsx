@@ -175,11 +175,11 @@ export const ListingTable = ({
     tableProps.className = "ct-table";
     if (className)
         tableProps.className = tableProps.className + " " + className;
-    if (rows.length == 0)
+    if (rows.length === 0)
         tableProps.className += ' ct-table-empty';
 
     const header = (
-        (caption || actions.length != 0)
+        (caption || actions.length !== 0)
             ? <header className='ct-table-header'>
                 <h3 className='ct-table-heading'> {caption} </h3>
                 {actions && <div className='ct-table-actions'> {actions} </div>}
@@ -194,7 +194,7 @@ export const ListingTable = ({
             </EmptyStateBody>
         </EmptyState>;
 
-    if (rows.length == 0) {
+    if (rows.length === 0) {
         let emptyState = null;
         if (emptyComponent)
             emptyState = emptyComponent;

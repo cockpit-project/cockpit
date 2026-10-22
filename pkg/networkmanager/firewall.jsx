@@ -60,13 +60,13 @@ const DeleteDropdown = ({ items }) => {
 };
 
 function serviceRow(props) {
-    let tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
-    let udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
+    let tcp = props.service.ports.filter(p => p.protocol.toUpperCase() === 'TCP');
+    let udp = props.service.ports.filter(p => p.protocol.toUpperCase() === 'UDP');
 
     for (const s of props.service.includes) {
         if (firewall.services[s]) {
-            tcp = tcp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'TCP'));
-            udp = udp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'UDP'));
+            tcp = tcp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() === 'TCP'));
+            udp = udp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() === 'UDP'));
         }
     }
 
@@ -521,7 +521,7 @@ class AddEditServicesModal extends React.Component {
                 let ports;
                 if (port.indexOf("-") > -1) {
                     ports = port.split("-");
-                    if (ports.length != 2) {
+                    if (ports.length !== 2) {
                         error = _("Invalid range");
                         return;
                     }
@@ -839,7 +839,7 @@ class ActivateZoneModal extends React.Component {
                                     { zones.filter(z => firewall.predefinedZones.indexOf(z) !== -1).sort((a, b) => firewall.predefinedZones.indexOf(a) - firewall.predefinedZones.indexOf(b))
                                             .map(z =>
                                                 <Radio key={z} id={z} name="zone" value={z}
-                                                       isChecked={this.state.zone == z}
+                                                       isChecked={this.state.zone === z}
                                                        onChange={e => this.onChange("zone", e.target.value)}
                                                        label={ firewall.zones[z].id } />
                                             )}
@@ -848,7 +848,7 @@ class ActivateZoneModal extends React.Component {
                                     { customZones.length > 0 && <legend>{ _("Custom zones") }</legend> }
                                     { customZones.map(z =>
                                         <Radio key={z} id={z} name="zone" value={z}
-                                               isChecked={this.state.zone == z}
+                                               isChecked={this.state.zone === z}
                                                onChange={e => this.onChange("zone", e.target.value)}
                                                label={ firewall.zones[z].id } />
                                     )}
@@ -888,13 +888,13 @@ class ActivateZoneModal extends React.Component {
 
                         <FormGroup label={ _("Allowed addresses") } hasNoPaddingTop isInline>
                             <Radio name="add-zone-ip"
-                                   isChecked={this.state.ipRange == "ip-entire-subnet"}
+                                   isChecked={this.state.ipRange === "ip-entire-subnet"}
                                    value="ip-entire-subnet"
                                    id="ip-entire-subnet"
                                    onChange={e => this.onChange("ipRange", e.target.value)}
                                    label={ _("Entire subnet") } />
                             <Radio name="add-zone-ip"
-                                   isChecked={this.state.ipRange == "ip-range"}
+                                   isChecked={this.state.ipRange === "ip-range"}
                                    value="ip-range"
                                    id="ip-range"
                                    onChange={e => this.onChange("ipRange", e.target.value)}

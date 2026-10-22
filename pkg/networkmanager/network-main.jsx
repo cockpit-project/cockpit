@@ -53,7 +53,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         }
 
         const dev = iface.Device;
-        const show_traffic = (dev && (dev.State == 100 || dev.State == 10) && dev.Carrier === true);
+        const show_traffic = (dev && (dev.State === 100 || dev.State === 10) && dev.Carrier === true);
 
         plot_ifaces.push(iface.Name);
         usage_monitor.add(iface.Name);

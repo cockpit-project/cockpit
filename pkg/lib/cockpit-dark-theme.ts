@@ -4,7 +4,7 @@
  */
 
 function debug(...args: unknown[]) {
-    if (window.debugging == "all" || window.debugging?.includes("style")) {
+    if (window.debugging === "all" || window.debugging?.includes("style")) {
         console.debug([`cockpit-dark-theme: ${document.documentElement.id}:`, ...args].join(" "));
     }
 }

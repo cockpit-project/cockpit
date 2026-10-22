@@ -61,13 +61,13 @@ function MockPeer() {
         const channel = this;
 
         function Transport() {
-            this.close = function(problem) { console.assert(arguments.length == 1) };
+            this.close = function(problem) { console.assert(arguments.length === 1) };
         }
 
         this.transport = new Transport();
 
         this.send = function(payload) {
-            console.assert(arguments.length == 1);
+            console.assert(arguments.length === 1);
             console.assert(this.valid);
             window.setTimeout(function() { peer.dispatchEvent("recv", channel, payload) }, 5);
         };
@@ -75,7 +75,7 @@ function MockPeer() {
         this.control = function(options) {
             console.assert(typeof options.command === 'string');
             console.assert(options !== null && typeof options === 'object');
-            console.assert(arguments.length == 1);
+            console.assert(arguments.length === 1);
             window.setTimeout(function() { peer.dispatchEvent("control", channel, options) }, 5);
         };
 
@@ -155,12 +155,12 @@ QUnit.test("input large", function (assert) {
 
     const peer = new MockPeer();
     peer.addEventListener("recv", function(event, channel, payload) {
-        assert.ok(typeof (payload) == "string", "got payload");
+        assert.ok(typeof (payload) === "string", "got payload");
         output += payload;
         count += 1;
     });
     peer.addEventListener("control", function(event, channel, options) {
-        if (options.command == "done")
+        if (options.command === "done")
             this.close(channel);
     });
 
@@ -194,7 +194,7 @@ QUnit.test("binary large", function (assert) {
     });
     peer.addEventListener("control", function(event, channel, options) {
         console.log("control", options);
-        if (options.command == "done")
+        if (options.command === "done")
             this.close(channel);
     });
 

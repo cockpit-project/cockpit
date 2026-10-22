@@ -1647,6 +1647,41 @@ export function array_join(elts, sep) {
     return result;
 }
 
+export function active_connection_ipv4(dev) {
+    const con = dev.ActiveConnection;
+    const ip4config = con ? con.Ip4Config : dev.Ip4Config;
+    const parts = [];
+    if (ip4config) {
+        ip4config.AddressData.forEach(function (a) {
+            parts.push(a.address + "/" + a.prefix);
+        });
+    }
+
+    return parts;
+}
+
+export function active_connection_ipv6(dev, hide_link_local) {
+    const con = dev.ActiveConnection;
+
+    function is_ipv6_link_local(addr) {
+        return (addr.indexOf("fe8") === 0 ||
+                addr.indexOf("fe9") === 0 ||
+                addr.indexOf("fea") === 0 ||
+                addr.indexOf("feb") === 0);
+    }
+
+    const ip6config = con ? con.Ip6Config : dev.Ip6Config;
+    const parts = [];
+    if (ip6config) {
+        ip6config.AddressData.forEach(function (a) {
+            if (!(hide_link_local && is_ipv6_link_local(a.address)))
+                parts.push(a.address + "/" + a.prefix);
+        });
+    }
+
+    return parts;
+}
+
 export function render_active_connection(dev, with_link, hide_link_local) {
     const parts = [];
 
@@ -1659,27 +1694,8 @@ export function render_active_connection(dev, with_link, hide_link_local) {
         return fmt_to_fragments(_("Part of $0"), with_link ? render_interface_link(con.Group.Interface) : con.Group.Interface);
     }
 
-    const ip4config = con ? con.Ip4Config : dev.Ip4Config;
-    if (ip4config) {
-        ip4config.AddressData.forEach(function (a) {
-            parts.push(a.address + "/" + a.prefix);
-        });
-    }
-
-    function is_ipv6_link_local(addr) {
-        return (addr.indexOf("fe8") === 0 ||
-                addr.indexOf("fe9") === 0 ||
-                addr.indexOf("fea") === 0 ||
-                addr.indexOf("feb") === 0);
-    }
-
-    const ip6config = con ? con.Ip6Config : dev.Ip6Config;
-    if (ip6config) {
-        ip6config.AddressData.forEach(function (a) {
-            if (!(hide_link_local && is_ipv6_link_local(a.address)))
-                parts.push(a.address + "/" + a.prefix);
-        });
-    }
+    parts.push(...active_connection_ipv4(dev));
+    parts.push(...active_connection_ipv6(dev, hide_link_local));
 
     return parts.join(", ");
 }

@@ -64,7 +64,7 @@ const InstallProgressMap = {
 };
 
 function debug(...args: unknown[]) {
-    if (window.debugging == 'all' || window.debugging?.includes('packagekit'))
+    if (window.debugging === 'all' || window.debugging?.includes('packagekit'))
         console.debug(...args);
 }
 
@@ -415,7 +415,7 @@ export class PackageKitManager implements PackageManager {
                                          },
                                      });
         pkgnames.forEach(name => {
-            if (!installed_names.has(name) && data.missing_names.indexOf(name) == -1)
+            if (!installed_names.has(name) && data.missing_names.indexOf(name) === -1)
                 data.unavailable_names.push(name);
         });
 
@@ -426,12 +426,12 @@ export class PackageKitManager implements PackageManager {
                                          {
                                              Package: (info: number, package_id: string) => {
                                                  const name = package_id.split(";")[0];
-                                                 if (info == Enum.INFO_REMOVING) {
+                                                 if (info === Enum.INFO_REMOVING) {
                                                      data.remove_names.push(name);
-                                                 } else if (info == Enum.INFO_INSTALLING ||
-                                                             info == Enum.INFO_UPDATING) {
+                                                 } else if (info === Enum.INFO_INSTALLING ||
+                                                             info === Enum.INFO_UPDATING) {
                                                      install_ids.push(package_id);
-                                                     if (data.missing_names.indexOf(name) == -1)
+                                                     if (data.missing_names.indexOf(name) === -1)
                                                          data.extra_names.push(name);
                                                  }
                                              }
@@ -534,7 +534,7 @@ export class PackageKitManager implements PackageManager {
         else
             return cancellableTransaction("InstallPackages", [0, ids], progress_cb)
                     .catch(ex => {
-                        if (ex.code != Enum.ERROR_ALREADY_INSTALLED)
+                        if (ex.code !== Enum.ERROR_ALREADY_INSTALLED)
                             return Promise.reject(ex);
                     });
     }
@@ -590,11 +590,11 @@ export class PackageKitManager implements PackageManager {
                     if (info < Enum.INFO_LOW || info > Enum.INFO_SECURITY)
                         info = Enum.INFO_NORMAL;
 
-                    if (info == Enum.INFO_LOW)
+                    if (info === Enum.INFO_LOW)
                         info = Severity.LOW;
-                    else if (info == Enum.INFO_ENHANCEMENT)
+                    else if (info === Enum.INFO_ENHANCEMENT)
                         info = Severity.MODERATE;
-                    else if (info == Enum.INFO_SECURITY)
+                    else if (info === Enum.INFO_SECURITY)
                         info = Severity.CRITICAL;
                     else if (info >= Enum.INFO_NORMAL)
                         info = Severity.IMPORTANT;

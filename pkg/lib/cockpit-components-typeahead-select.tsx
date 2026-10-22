@@ -153,15 +153,15 @@ const defaultFilterFunction = (filterValue: string, options: TypeaheadSelectOpti
 
     //  Remove headers that have nothing following them, and dividers that have nothing in front of them.
     const filtered2 = filtered.filter((o, i) => {
-        if (o.decorator == "header" && (i >= filtered.length - 1 || filtered[i + 1].decorator))
+        if (o.decorator === "header" && (i >= filtered.length - 1 || filtered[i + 1].decorator))
             return false;
-        if (o.decorator == "divider" && (i <= 0 || filtered[i - 1].decorator))
+        if (o.decorator === "divider" && (i <= 0 || filtered[i - 1].decorator))
             return false;
         return true;
     });
 
     // If the last item is now a divider, remove it as well.
-    if (filtered2.length > 0 && filtered2[filtered2.length-1].decorator == "divider")
+    if (filtered2.length > 0 && filtered2[filtered2.length-1].decorator === "divider")
         filtered2.pop();
 
     return filtered2;
@@ -490,10 +490,10 @@ export const TypeaheadSelectBase: React.FunctionComponent<TypeaheadSelectProps> 
     >
       <SelectList>
         {filteredSelections.map((option, index) => {
-          if (option.decorator == "divider")
+          if (option.decorator === "divider")
               return <Divider key={option.key} component="li" />;
 
-          if (option.decorator == "header") {
+          if (option.decorator === "header") {
               return (
                   <SelectOption key={option.key}
                                 isDisabled

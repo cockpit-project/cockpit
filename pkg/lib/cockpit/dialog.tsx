@@ -624,7 +624,7 @@ import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
 const _ = cockpit.gettext;
 
 function debug(...args: unknown[]) {
-    if (window.debugging == "all" || window.debugging?.includes("dialog"))
+    if (window.debugging === "all" || window.debugging?.includes("dialog"))
         console.debug("dialog:", ...args);
 }
 
@@ -1300,7 +1300,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                     }
                 },
                 task => {
-                    if (state.validation_task == task)
+                    if (state.validation_task === task)
                         state.validation_task = null;
                 }
             );
@@ -1324,7 +1324,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
                 }
             },
             task => {
-                if (state.update_task == task)
+                if (state.update_task === task)
                     state.update_task = null;
             }
         );
@@ -1863,7 +1863,7 @@ export function DialogRadioSelect<T extends string>({
                         id={random_id + o.value}
                         ouiaId={field.ouia_id(o.value)}
                         name={o.value}
-                        isChecked={field.get() == o.value}
+                        isChecked={field.get() === o.value}
                         label={makeLabel(o, i)}
                         onChange={() => field.set(o.value)}
                         isDisabled={!!o.excuse}
@@ -1948,7 +1948,7 @@ export function DialogDropdownSelectObject<T>({
                 id={fid}
                 ouiaId={field.ouia_id()}
                 onChange={(_event, val) => {
-                    const opt = options.find(o => option_label(o) == val);
+                    const opt = options.find(o => option_label(o) === val);
                     field.set(opt!);
                 }}
                 validated={warning ? "warning" : undefined}

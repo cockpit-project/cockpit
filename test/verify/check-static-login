@@ -46,7 +46,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                 self.sed_file(f'/nologin/a {admins_only_pam}', remote_filename)
 
         if not m.ws_container:
-            deny_non_root("/etc/pam.d/cockpit")
+            deny_non_root(self.pam_conf)
         deny_non_root("/etc/pam.d/sshd")
 
         m.start_cockpit()
@@ -389,7 +389,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testConversation(self):
         m = self.machine
         b = self.browser
-        conf = "/etc/pam.d/cockpit"
+        conf = self.pam_conf
         if m.ostree_image:
             conf = "/etc/pam.d/sshd"
             self.restore_dir("/etc/ssh", restart_unit=self.sshd_service)

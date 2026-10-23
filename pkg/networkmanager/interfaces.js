@@ -980,7 +980,8 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
+            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] },
+            Gateway: { def: "" },
         }
     };
 
@@ -990,7 +991,8 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
+            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] },
+            Gateway: { def: "" },
         }
     };
 

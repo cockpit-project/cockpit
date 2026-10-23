@@ -1682,6 +1682,14 @@ export function active_connection_ipv6(dev, hide_link_local) {
     return parts;
 }
 
+export function active_connection_gateway(dev, topic) {
+    const con = dev.ActiveConnection;
+    const ipProp = topic === "ipv4" ? "Ip4Config" : "Ip6Config";
+    const ipconfig = con ? con[ipProp] : dev[ipProp];
+
+    return ipconfig.Gateway;
+}
+
 export function render_active_connection(dev, with_link, hide_link_local) {
     const parts = [];
 

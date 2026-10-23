@@ -430,6 +430,11 @@ def detect_tests(
                 test_timeout = testlib.get_decorator(test_method, test, "timeout", 600)
                 nd = testlib.get_decorator(test_method, test, "nondestructive")
                 rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
+                only_when_changed = testlib.get_decorator(test_method, test, "only_when_changed")
+                if only_when_changed and opts.base:
+                    diff_out = subprocess.check_output(["git", "diff", "--name-only", f"origin/{opts.base}", "--", *only_when_changed])
+                    if not diff_out.strip():
+                        unittest.skip(f"no changes in {', '.join(only_when_changed)}")(test_method)
                 todo = testlib.get_decorator(test_method, test, "todo")
 
                 # Calculate test's RAM requirement (VM memory + browser)

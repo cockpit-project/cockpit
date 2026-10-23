@@ -33,6 +33,11 @@ class TestStorageLuks(storagelib.StorageCase):
 
         mount_point_secret = "/run/secret"
 
+        # Stop expensive services to prevent UDisks from OOM'ing
+        if m.image.startswith("ubuntu"):
+            m.execute("systemctl mask --now snapd.socket; systemctl mask --now packagekit")
+            self.addCleanup(m.execute, "systemctl unmask snapd.socket; systemctl unmask packagekit")
+
         self.login_and_go("/storage")
 
         # Add a disk and partition it
@@ -59,6 +64,7 @@ class TestStorageLuks(storagelib.StorageCase):
         b.assert_pixels("#dialog", "format")
         self.dialog_apply()
         self.dialog_wait_close()
+        testlib.sit()
         b.wait_text(self.card_row_col("GPT partitions", 1, 2), "ext4 filesystem (encrypted)")
         b.wait_text(self.card_row_col("GPT partitions", 1, 3), mount_point_secret)
 
@@ -426,9 +432,9 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         self.wait_not_mounted("Filesystem")
         b.click(self.card_button("Filesystem", "Mount"))
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
+        self.wait_mounted("ext4 filesystem")
         self.assert_not_in_configuration(dev, "crypttab", "options", "noauto")
         self.assert_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
-        self.wait_mounted("ext4 filesystem")
         # delete second key slot
         b.click(panel + "tr:nth-child(2) button[aria-label='Remove']")
         # do not accept the same passphrase
@@ -443,9 +449,9 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         # check that it is not possible to unlock with deleted passphrase
         b.click(self.card_button("ext4 filesystem", "Unmount"))
         self.confirm()
+        self.wait_not_mounted("Filesystem")
         self.assert_in_configuration(dev, "crypttab", "options", "noauto")
         self.assert_in_child_configuration(dev, "fstab", "opts", "noauto")
-        self.wait_not_mounted("Filesystem")
         b.click(self.card_button("Filesystem", "Mount"))
         self.dialog_wait_open()
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja-1")
@@ -505,7 +511,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
             self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-8")
             self.dialog_apply()
             self.dialog_wait_close()
-            # unlock volume with the negwly created passphrase
+            # unlock volume with the newly created passphrase
             b.click(self.card_button("Filesystem", "Mount"))
             self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-8"})
             self.wait_mounted("ext4 filesystem")

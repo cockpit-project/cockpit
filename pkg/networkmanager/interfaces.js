@@ -1730,6 +1730,30 @@ export function complete_settings(settings, device) {
     }
 }
 
+export function createGhostConnectionSettings(ifaceName, dev) {
+    const settings = {
+        connection: {
+            interface_name: ifaceName
+        },
+        ipv4: {
+            method: "auto",
+            address_data: [],
+            dns_data: [],
+            dns_search: [],
+            route_data: []
+        },
+        ipv6: {
+            method: "auto",
+            address_data: [],
+            dns_data: [],
+            dns_search: [],
+            route_data: []
+        }
+    };
+    complete_settings(settings, dev);
+    return settings;
+}
+
 export function settings_applier(model, device, connection) {
     /* If we have a connection, we can just update it.
      * Otherwise if the settings has TYPE set, we can add

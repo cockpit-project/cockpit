@@ -41,7 +41,7 @@ import {
     SecurityIcon,
 } from "@patternfly/react-icons";
 import { TableText } from "@patternfly/react-table";
-import Markdown from "markdown-to-jsx";
+import Markdown, { RuleType } from "markdown-to-jsx";
 
 import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch";
@@ -128,6 +128,62 @@ function cleanupChangelogLine(text) {
     text = text.replace(/^=+\s+/, "").replace(/=+\s*$/, "");
 
     return text.trim();
+}
+
+function isRedHatBasedDistribution() {
+    const os_release = cockpit.info?.os_release;
+    if (!os_release)
+        return false;
+
+    const ids = [os_release.ID, ...(os_release.ID_LIKE || "").split(" ")].filter(Boolean);
+    return ids.some(id => ["rhel", "fedora", "centos"].includes(id));
+}
+
+function renderChangelogWithIssueLinks(text) {
+    if (!text)
+        return text;
+
+    const issuePattern = /\brhbz#(\d+)(?!\w)|\bRHEL-(\d+)(?![-\w])/g;
+    const result = [];
+    let lastIndex = 0;
+    let match;
+    const redHatBased = isRedHatBasedDistribution();
+
+    while ((match = issuePattern.exec(text)) !== null) {
+        if (match.index > lastIndex)
+            result.push(text.slice(lastIndex, match.index));
+
+        const [, bugzillaId, rhelId] = match;
+        let href = null;
+        let key = null;
+
+        if (bugzillaId) {
+            href = `https://bugzilla.redhat.com/show_bug.cgi?id=${bugzillaId}`;
+            key = `rhbz-${bugzillaId}-${match.index}`;
+        } else if (rhelId && redHatBased) {
+            href = `https://redhat.atlassian.net/browse/RHEL-${rhelId}`;
+            key = `RHEL-${rhelId}-${match.index}`;
+        } else {
+            result.push(match[0]);
+            lastIndex = issuePattern.lastIndex;
+            continue;
+        }
+
+        result.push(
+            <a key={key} href={href} rel="noopener noreferrer" target="_blank">
+                {match[0]}
+            </a>
+        );
+        lastIndex = issuePattern.lastIndex;
+    }
+
+    if (lastIndex === 0)
+        return text;
+
+    if (lastIndex < text.length)
+        result.push(text.slice(lastIndex));
+
+    return result;
 }
 
 // Replace cockpit-wsinstance-https@[long_id] with a shorter string
@@ -224,6 +280,30 @@ function isSafeUrl(href) {
     }
 }
 
+// Link issue references in Markdown text, except for text that is already part of a link.
+// markdown-to-jsx renders a node's children inside its next() call, so track link nesting
+// here; state.inAnchor is only set while parsing, not while rendering.
+let markdownLinkDepth = 0;
+
+function renderMarkdownWithIssueLinks(next, node, _renderChildren, state) {
+    if (node.type === RuleType.link || (node.type === RuleType.htmlBlock && node.tag === "a")) {
+        markdownLinkDepth++;
+        try {
+            return next();
+        } finally {
+            markdownLinkDepth--;
+        }
+    }
+
+    if (node.type === RuleType.text && markdownLinkDepth === 0) {
+        const linked = renderChangelogWithIssueLinks(node.text);
+        if (linked !== node.text)
+            return <React.Fragment key={state.key}>{linked}</React.Fragment>;
+    }
+
+    return next();
+}
+
 const markdownOptions = {
     overrides: {
         a: {
@@ -234,6 +314,7 @@ const markdownOptions = {
         },
     },
     forceInline: true,
+    renderRule: renderMarkdownWithIssueLinks,
 };
 
 function updateItem(info, pkgNames, key) {
@@ -325,7 +406,8 @@ function updateItem(info, pkgNames, key) {
         descriptionFirstLine = <Markdown options={markdownOptions}>{descriptionFirstLine}</Markdown>;
         description = <Markdown options={{ ...markdownOptions, forceInline: false }}>{info.description}</Markdown>;
     } else {
-        description = <div className="changelog">{info.description}</div>;
+        descriptionFirstLine = renderChangelogWithIssueLinks(descriptionFirstLine);
+        description = <div className="changelog">{renderChangelogWithIssueLinks(info.description)}</div>;
     }
 
     const expandedContent = (

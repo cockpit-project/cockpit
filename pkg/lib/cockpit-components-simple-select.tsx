@@ -111,10 +111,10 @@ export function SimpleSelect<T>({
   const [isOpen, setIsOpen] = React.useState(false);
 
   const simpleSelectOptions = options.map(option => {
-    if (option.decorator == "divider")
+    if (option.decorator === "divider")
       return <Divider key={option.key} component="li" />;
 
-    if (option.decorator == "header")
+    if (option.decorator === "header")
       return (
         <SelectOption key={option.key}
             isDisabled
@@ -148,7 +148,7 @@ export function SimpleSelect<T>({
   if (toggleContent)
     content = toggleContent;
   else if (selected)
-    content = options.find((o): o is SimpleSelectMenuOption<T> => !o.decorator && o.value == selected)?.content;
+    content = options.find((o): o is SimpleSelectMenuOption<T> => !o.decorator && o.value === selected)?.content;
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle

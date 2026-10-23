@@ -55,7 +55,7 @@ QUnit.done(() => { window.setTimeout(() => console.log("cockpittest-tap-done"), 
  */
 const tap_regex = /^((not )?ok [0-9]+ (- )?)(.*)$/;
 qunitTap(QUnit, function(message: string, ...args: unknown[]) {
-    if (args.length == 0 && QUnit.config.current) {
+    if (args.length === 0 && QUnit.config.current) {
         const match = tap_regex.exec(message);
         if (match) {
             console.log(match[1] + QUnit.config.current.testName + ": " + match[4]);

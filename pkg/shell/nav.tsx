@@ -14,7 +14,7 @@ import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/compon
 import { ContainerNodeIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 import { Icon } from "@patternfly/react-core/dist/esm/components/Icon/index.js";
 
-import { Status } from "notifications";
+import { PageStatus as Status } from "shell";
 import { Location, encode_location, ManifestItem } from "./util.jsx";
 import { ShellState } from "./state";
 import { ManifestKeyword } from "./manifests";

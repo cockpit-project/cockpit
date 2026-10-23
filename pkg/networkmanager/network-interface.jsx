@@ -46,8 +46,8 @@ import * as utils from "./utils.js";
 import {
     array_join,
     choice_title,
-    complete_settings,
     connection_settings,
+    createGhostConnectionSettings,
     free_member_connection,
     is_managed,
     render_active_connection,
@@ -283,7 +283,7 @@ export const NetworkInterfacePage = ({
         if (iface.MainConnection) {
             connectionSettings = iface.MainConnection.Settings;
         } else {
-            ghostSettings = createGhostConnectionSettings();
+            ghostSettings = createGhostConnectionSettings(iface.Name, dev);
             connectionSettings = ghostSettings;
         }
     }
@@ -1168,30 +1168,6 @@ export const NetworkInterfacePage = ({
                                      usage_monitor={usage_monitor}
                                      privileged={privileged} />
         );
-    }
-
-    function createGhostConnectionSettings() {
-        const settings = {
-            connection: {
-                interface_name: iface.Name
-            },
-            ipv4: {
-                method: "auto",
-                address_data: [],
-                dns_data: [],
-                dns_search: [],
-                route_data: []
-            },
-            ipv6: {
-                method: "auto",
-                address_data: [],
-                dns_data: [],
-                dns_search: [],
-                route_data: []
-            }
-        };
-        complete_settings(settings, dev);
-        return settings;
     }
 
     /* Disable the On/Off button for interfaces that we don't know about at all,

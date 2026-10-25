@@ -53,7 +53,7 @@ function List<T>({
     init: T,
 }) {
     return (
-        <FormGroup label={label} data-ouia-component-id={field.ouia_id()}>
+        <FormGroup label={label} ouiaId={field.ouia_id()}>
             { field.map((f, i) => (
                 <Split key={i}>
                     <SplitItem isFilled>

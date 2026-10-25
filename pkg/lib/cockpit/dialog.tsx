@@ -1853,7 +1853,7 @@ export function DialogRadioSelect<T extends string>({
             label={label}
             hasNoPaddingTop
             isInline={isInline}
-            data-ouia-component-id={field.ouia_id()}
+            ouiaId={field.ouia_id()}
             data-value={field.get()}
         >
             {

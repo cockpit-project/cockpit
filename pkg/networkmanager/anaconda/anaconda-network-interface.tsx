@@ -6,7 +6,6 @@
 import cockpit from "cockpit";
 import React, { useContext, useState } from 'react';
 
-import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import {
     DescriptionList,
@@ -22,6 +21,7 @@ import { ModelContext } from "../model-context";
 import { useEvent } from "hooks";
 import { active_connection_gateway, active_connection_ipv4, active_connection_ipv6, choice_title, createGhostConnectionSettings, is_managed, } from "../interfaces";
 import { get_ip_method_choices } from "../ip-settings";
+import { NetworkAction } from "../dialogs-common.jsx";
 
 const _ = cockpit.gettext;
 
@@ -37,7 +37,7 @@ interface IPConfigExpandableProps {
     toggleText: string;
     onToggle: (isExpanded: boolean) => void;
     isExpanded: boolean;
-    dev: any;
+    iface: any;
     settings: any;
     topic: IPTopic;
 }
@@ -79,11 +79,11 @@ const IPConfigExpandable = ({
     toggleText,
     onToggle,
     isExpanded,
-    dev,
+    iface,
     settings,
     topic,
 }: IPConfigExpandableProps) => {
-    const ipSettings = getIpConfig(dev, settings, topic);
+    const ipSettings = getIpConfig(iface.Device, settings, topic);
 
     const descriptionGroups = [
         {
@@ -101,21 +101,37 @@ const IPConfigExpandable = ({
     ];
 
     return (
-        <ExpandableSection
-            toggleText={toggleText}
-            onToggle={(_event, expanded) => onToggle(expanded)}
-            isExpanded={isExpanded}
-            isIndented
+        <Flex
+            alignItems={{ default: 'alignItemsFlexStart' }}
+            flexWrap={{ default: 'nowrap' }}
         >
-            <DescriptionList aria-label={_("IP configuration")}>
-                {descriptionGroups.filter(group => !!group.description).map(group => (
-                    <DescriptionListGroup key={group.term}>
-                        <DescriptionListTerm>{group.term}</DescriptionListTerm>
-                        <DescriptionListDescription>{group.description}</DescriptionListDescription>
-                    </DescriptionListGroup>
-                ))}
-            </DescriptionList>
-        </ExpandableSection>
+            <FlexItem flex={{ default: 'flex_1' }}>
+                <ExpandableSection
+                    toggleText={toggleText}
+                    onToggle={(_event, expanded) => onToggle(expanded)}
+                    isExpanded={isExpanded}
+                    isIndented
+                >
+                    <DescriptionList aria-label={_("IP configuration")}>
+                        {descriptionGroups.filter(group => !!group.description).map(group => (
+                            <DescriptionListGroup key={group.term}>
+                                <DescriptionListTerm>{group.term}</DescriptionListTerm>
+                                <DescriptionListDescription>{group.description}</DescriptionListDescription>
+                            </DescriptionListGroup>
+                        ))}
+                    </DescriptionList>
+                </ExpandableSection>
+            </FlexItem>
+            <FlexItem>
+                <NetworkAction buttonText={_("Edit")}
+                    iface={iface}
+                    connectionSettings={settings}
+                    type={topic}
+                    buttonVariant="secondary"
+                    isInline={false}
+                />
+            </FlexItem>
+        </Flex>
     );
 };
 
@@ -127,7 +143,7 @@ const connectionState = (dev: any, isManaged: boolean) => {
     }
 
     return dev.ActiveConnection ? _("Connected") : _("Disconnected");
-}
+};
 
 interface AnacondaNetworkInterfaceProps {
     iface: any;
@@ -199,30 +215,14 @@ export const AnacondaNetworkInterface = ({
                 </DescriptionList>
             </StackItem>
 
-            {/* IP Settings header with Edit action */}
-            <StackItem>
-                <Flex
-                    justifyContent={{ default: 'justifyContentSpaceBetween' }}
-                    alignItems={{ default: 'alignItemsCenter' }}
-                    flexWrap={{ default: 'nowrap' }}
-                >
-                    <FlexItem>
-                        <Content component={ContentVariants.h3}>{_("IP Settings")}</Content>
-                    </FlexItem>
-                    <FlexItem>
-                        <Button variant="secondary" isInline={false}>{_("Edit")}</Button>
-                    </FlexItem>
-                </Flex>
-            </StackItem>
-
             {/* IPv4 */}
             <StackItem>
                 <IPConfigExpandable toggleText={_("IPv4")}
                     onToggle={setIsIpv4Expanded}
                     isExpanded={isIpv4Expanded}
-                    dev={dev}
+                    iface={iface}
                     settings={connectionSettings}
-                    topic={"ipv4"}
+                    topic="ipv4"
                 />
             </StackItem>
 
@@ -231,9 +231,9 @@ export const AnacondaNetworkInterface = ({
                 <IPConfigExpandable toggleText={_("IPv6")}
                     onToggle={setIsIpv6Expanded}
                     isExpanded={isIpv6Expanded}
-                    dev={dev}
+                    iface={iface}
                     settings={connectionSettings}
-                    topic={"ipv6"}
+                    topic="ipv6"
                 />
             </StackItem>
         </Stack>

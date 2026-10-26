@@ -47,6 +47,7 @@ const qunitOptions = {
     outdir: "./qunit",
     loader: {
         ".sh": "text",
+        ".scss": "empty",
     },
 };
 

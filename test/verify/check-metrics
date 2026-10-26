@@ -789,10 +789,11 @@ class TestCurrentMetrics(testlib.MachineCase):
                                    "systemctl --user stop cockpittest.slice 2>/dev/null || true'")
 
         self.busybox_image = m.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
-        self.login_and_go("/metrics")
 
         # Disable pre-loading packagekit, dnf consumes tons of memory/CPU and interferes too much
         self.disable_preload("packagekit")
+
+        self.login_and_go("/metrics")
 
     def run_as_admin(self, cmd: str) -> str:
         return self.machine.execute(f"systemd-run --machine=admin@ --quiet --user --collect --pipe --wait /bin/sh -ec '{cmd}'")

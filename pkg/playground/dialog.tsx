@@ -223,6 +223,7 @@ interface ExampleValues {
     file: string;
     file_explanation: string;
     dir: string;
+    path: string;
 }
 
 const ExampleDialog = ({
@@ -254,6 +255,7 @@ const ExampleDialog = ({
         file: "",
         file_explanation: "",
         dir: "",
+        path: "",
     };
 
     function validate(dlg: DialogState<ExampleValues>) {
@@ -474,6 +476,17 @@ const ExampleDialog = ({
                                 shortcuts: [
                                     { label: "Test files", path: "/var/lib/cockpittest" }
                                 ],
+                            }
+                        }
+                    />
+                    <DialogFileChooserInput
+                        label="File or directory"
+                        field={dlg.field("path")}
+                        fileChooserProps={
+                            {
+                                title: "Select a path",
+                                allowDirectories: true,
+                                superuser: "try",
                             }
                         }
                     />

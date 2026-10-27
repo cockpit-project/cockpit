@@ -68,8 +68,11 @@
    - onlyDirectories?: undefined | boolean;
 
    If true, show only directories and let the user select a
-   directory.  If false, directories are of course shown, but they
-   can't be selected.
+   directory.  (Implies allowDirectories.)
+
+   - allowDirectories?: undefined | boolean;
+
+   If true, let the user select a directory in addition to files.
 
    - superuser?: cockpit.SuperuserMode;
 
@@ -338,6 +341,7 @@ export interface FileChooserProps {
     filters?: undefined | FileChooserFilter[];
     collections?: undefined | FileChooserCollection[] | (() => Promise<FileChooserCollection[]>);
     onlyDirectories?: undefined | boolean;
+    allowDirectories?: undefined | boolean;
     superuser?: cockpit.SuperuserMode;
     actionLabel?: string;
 }
@@ -370,6 +374,7 @@ export const FileChooser = ({
     filters = [],
     collections = [],
     onlyDirectories = false,
+    allowDirectories = false,
     superuser,
     actionLabel,
     path = "",
@@ -474,10 +479,10 @@ export const FileChooser = ({
 
         const { selected, path } = dlg.values;
 
-        if (onlyDirectories) {
+        if (allowDirectories || onlyDirectories) {
             if (!selected && path !== "")
                 return path;
-            else if (selected && selected.type === "dir")
+            else if (selected && (!onlyDirectories || selected.type === "dir"))
                 return full_path(path, selected.name);
         } else {
             if (selected && selected.type !== "dir")

@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 02:55+0000\n"
-"PO-Revision-Date: 2026-10-18 18:18+0000\n"
+"POT-Creation-Date: 2026-10-25 02:54+0000\n"
+"PO-Revision-Date: 2026-10-22 09:18+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/cockpit/uk/>\n"
@@ -415,7 +415,7 @@ msgstr "Помилка з'єднання"
 #: pkg/systemd/service-details.jsx:148 pkg/packagekit/kpatch.tsx:242
 #: pkg/packagekit/autoupdates.jsx:519 pkg/networkmanager/firewall.jsx:103
 #: pkg/kdump/kdump-view.jsx:504 pkg/storaged/nfs/nfs.jsx:298
-#: pkg/storaged/crypto/keyslots.jsx:725
+#: pkg/storaged/crypto/keyslots.jsx:733
 msgid "Edit"
 msgstr "Змінити"
 
@@ -425,7 +425,7 @@ msgstr "Змінити"
 #: pkg/storaged/lvm2/volume-group.jsx:315
 #: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/storaged/nfs/nfs.jsx:301
 #: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
-#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/stratis/pool.jsx:701
+#: pkg/storaged/crypto/keyslots.jsx:745 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:729 pkg/storaged/stratis/pool.jsx:779
 #: pkg/storaged/stratis/pool.jsx:790 pkg/storaged/stratis/pool.jsx:801
 #: pkg/storaged/stratis/pool.jsx:922 pkg/storaged/stratis/pool.jsx:968
@@ -671,7 +671,7 @@ msgstr "Встановити"
 #: pkg/users/authorized-keys-panel.js:54
 #: pkg/networkmanager/dialogs-common.jsx:143
 #: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/nfs/nfs.jsx:174
-#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:784
+#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:797
 #: pkg/storaged/stratis/pool.jsx:512 pkg/storaged/mdraid/mdraid.jsx:160
 #: pkg/storaged/iscsi/create-dialog.jsx:106
 #: pkg/storaged/iscsi/create-dialog.jsx:130
@@ -5022,22 +5022,6 @@ msgstr ""
 msgid "Create it"
 msgstr "Створити"
 
-#: pkg/networkmanager/utils.js:28
-msgid "Invalid prefix $0"
-msgstr "Некоректний префікс $0"
-
-#: pkg/networkmanager/utils.js:42
-msgid "Invalid metric $0"
-msgstr "Некоректна метрика $0"
-
-#: pkg/networkmanager/utils.js:119 pkg/networkmanager/utils.js:224
-msgid "Invalid address $0"
-msgstr "Некоректна адреса $0"
-
-#: pkg/networkmanager/utils.js:172
-msgid "Invalid prefix or netmask $0"
-msgstr "Некоректний префікс або маска мережі $0"
-
 #: pkg/networkmanager/networkmanager.jsx:48
 msgid "Testing connection"
 msgstr "Перевіряємо з’єднання"
@@ -6298,6 +6282,22 @@ msgstr "Інтервал оновлення"
 #: pkg/networkmanager/bond.jsx:198
 msgid "Monitoring targets"
 msgstr "Спостерігаємо за цілями"
+
+#: pkg/networkmanager/utils.ts:47
+msgid "Invalid prefix $0"
+msgstr "Некоректний префікс $0"
+
+#: pkg/networkmanager/utils.ts:61
+msgid "Invalid metric $0"
+msgstr "Некоректна метрика $0"
+
+#: pkg/networkmanager/utils.ts:138 pkg/networkmanager/utils.ts:243
+msgid "Invalid address $0"
+msgstr "Некоректна адреса $0"
+
+#: pkg/networkmanager/utils.ts:191
+msgid "Invalid prefix or netmask $0"
+msgstr "Некоректний префікс або маска мережі $0"
 
 #: pkg/networkmanager/network-interface-members.jsx:96
 msgid ""
@@ -8217,7 +8217,7 @@ msgstr "Джерело ключа"
 msgid "Repeat passphrase"
 msgstr "Повторіть пароль"
 
-#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:749
+#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:757
 #: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/stratis/pool.jsx:678
@@ -8314,58 +8314,62 @@ msgstr "Вилучити сервер ключів Tang?"
 msgid "Remove key in slot $0?"
 msgstr "Вилучити ключ у слоті ключів $0?"
 
-#: pkg/storaged/crypto/keyslots.jsx:702
+#: pkg/storaged/crypto/keyslots.jsx:710
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr ""
 "Поточний користувач, від імені якого було здійснено вхід до системи, не має "
 "права перегляду даних щодо ключів."
 
-#: pkg/storaged/crypto/keyslots.jsx:706
+#: pkg/storaged/crypto/keyslots.jsx:714
 msgid "No keys added"
 msgstr "Не додано жодного ключа"
 
-#: pkg/storaged/crypto/keyslots.jsx:721 pkg/storaged/stratis/pool.jsx:811
+#: pkg/storaged/crypto/keyslots.jsx:729 pkg/storaged/stratis/pool.jsx:811
 #: pkg/storaged/mdraid/mdraid-disk.jsx:69
 msgid "Slot $0"
 msgstr "Слот $0"
 
-#: pkg/storaged/crypto/keyslots.jsx:729
+#: pkg/storaged/crypto/keyslots.jsx:737
 msgid "Editing a key requires a free slot"
 msgstr "Редагування ключа потребує вільного слоту"
 
-#: pkg/storaged/crypto/keyslots.jsx:738
+#: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
 msgstr "Не можна вилучати останній слот ключів"
 
-#: pkg/storaged/crypto/keyslots.jsx:754 pkg/storaged/stratis/pool.jsx:709
+#: pkg/storaged/crypto/keyslots.jsx:762 pkg/storaged/stratis/pool.jsx:709
 msgid "Keyserver"
 msgstr "Сервер ключів"
 
-#: pkg/storaged/crypto/keyslots.jsx:759
+#: pkg/storaged/crypto/keyslots.jsx:768
+msgid "TPM2 slots can not be edited here"
+msgstr "Тут не можна редагувати слоти TPM2"
+
+#: pkg/storaged/crypto/keyslots.jsx:772
 msgid "Unknown type"
 msgstr "Невідомий тип"
 
-#: pkg/storaged/crypto/keyslots.jsx:760
+#: pkg/storaged/crypto/keyslots.jsx:773
 msgid "Key slots with unknown types can not be edited here"
 msgstr "Тут не можна редагувати слоти ключів із невідомими типами"
 
-#: pkg/storaged/crypto/keyslots.jsx:766 pkg/storaged/crypto/keyslots.jsx:792
+#: pkg/storaged/crypto/keyslots.jsx:779 pkg/storaged/crypto/keyslots.jsx:805
 msgid "Keys"
 msgstr "Ключі"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "Лишився $0 слот"
 msgstr[1] "Лишилося $0 слоти"
 msgstr[2] "Лишилося $0 слотів"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "No available slots"
 msgstr "Немає доступних слотів"
 
-#: pkg/storaged/crypto/keyslots.jsx:786
+#: pkg/storaged/crypto/keyslots.jsx:799
 msgid "No free key slots"
 msgstr "Немає вільних слотів ключів"
 

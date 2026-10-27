@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 02:55+0000\n"
+"POT-Creation-Date: 2026-10-25 02:54+0000\n"
 "PO-Revision-Date: 2026-09-28 14:18+0000\n"
 "Last-Translator: Robert Simai <robert.simai@suse.com>\n"
 "Language-Team: German <https://translate.fedoraproject.org/projects/cockpit/"
@@ -429,7 +429,7 @@ msgstr "Fehler bei der Verbindung"
 #: pkg/systemd/service-details.jsx:148 pkg/packagekit/kpatch.tsx:242
 #: pkg/packagekit/autoupdates.jsx:519 pkg/networkmanager/firewall.jsx:103
 #: pkg/kdump/kdump-view.jsx:504 pkg/storaged/nfs/nfs.jsx:298
-#: pkg/storaged/crypto/keyslots.jsx:725
+#: pkg/storaged/crypto/keyslots.jsx:733
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -439,7 +439,7 @@ msgstr "Bearbeiten"
 #: pkg/storaged/lvm2/volume-group.jsx:315
 #: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/storaged/nfs/nfs.jsx:301
 #: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
-#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/stratis/pool.jsx:701
+#: pkg/storaged/crypto/keyslots.jsx:745 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:729 pkg/storaged/stratis/pool.jsx:779
 #: pkg/storaged/stratis/pool.jsx:790 pkg/storaged/stratis/pool.jsx:801
 #: pkg/storaged/stratis/pool.jsx:922 pkg/storaged/stratis/pool.jsx:968
@@ -692,7 +692,7 @@ msgstr "Einstellen"
 #: pkg/users/authorized-keys-panel.js:54
 #: pkg/networkmanager/dialogs-common.jsx:143
 #: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/nfs/nfs.jsx:174
-#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:784
+#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:797
 #: pkg/storaged/stratis/pool.jsx:512 pkg/storaged/mdraid/mdraid.jsx:160
 #: pkg/storaged/iscsi/create-dialog.jsx:106
 #: pkg/storaged/iscsi/create-dialog.jsx:130
@@ -5079,22 +5079,6 @@ msgstr ""
 msgid "Create it"
 msgstr "Anlegen"
 
-#: pkg/networkmanager/utils.js:28
-msgid "Invalid prefix $0"
-msgstr "Ungültiger Prefix $0"
-
-#: pkg/networkmanager/utils.js:42
-msgid "Invalid metric $0"
-msgstr "Ungültige Metrik $0"
-
-#: pkg/networkmanager/utils.js:119 pkg/networkmanager/utils.js:224
-msgid "Invalid address $0"
-msgstr "Ungültige Adresse $0"
-
-#: pkg/networkmanager/utils.js:172
-msgid "Invalid prefix or netmask $0"
-msgstr "Ungültiger Präfix oder ungültige Netzmaske $0"
-
 #: pkg/networkmanager/networkmanager.jsx:48
 msgid "Testing connection"
 msgstr "Prüfe Verbindung"
@@ -6370,6 +6354,22 @@ msgstr "Überwachungsintervall"
 #: pkg/networkmanager/bond.jsx:198
 msgid "Monitoring targets"
 msgstr "Überwachungsziele"
+
+#: pkg/networkmanager/utils.ts:47
+msgid "Invalid prefix $0"
+msgstr "Ungültiger Prefix $0"
+
+#: pkg/networkmanager/utils.ts:61
+msgid "Invalid metric $0"
+msgstr "Ungültige Metrik $0"
+
+#: pkg/networkmanager/utils.ts:138 pkg/networkmanager/utils.ts:243
+msgid "Invalid address $0"
+msgstr "Ungültige Adresse $0"
+
+#: pkg/networkmanager/utils.ts:191
+msgid "Invalid prefix or netmask $0"
+msgstr "Ungültiger Präfix oder ungültige Netzmaske $0"
 
 #: pkg/networkmanager/network-interface-members.jsx:96
 msgid ""
@@ -8297,7 +8297,7 @@ msgstr "Schlüsselquelle"
 msgid "Repeat passphrase"
 msgstr "Passwort wiederholen"
 
-#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:749
+#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:757
 #: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/stratis/pool.jsx:678
@@ -8395,58 +8395,64 @@ msgstr "Tang-Schlüsselserver entfernen?"
 msgid "Remove key in slot $0?"
 msgstr "Schlüssel in Schlüsselplatz $0 entfernen?"
 
-#: pkg/storaged/crypto/keyslots.jsx:702
+#: pkg/storaged/crypto/keyslots.jsx:710
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr ""
 "Der aktuell angemeldete Benutzer kann keine Informationen zu Schlüsseln "
 "anzeigen."
 
-#: pkg/storaged/crypto/keyslots.jsx:706
+#: pkg/storaged/crypto/keyslots.jsx:714
 msgid "No keys added"
 msgstr "Keine Schlüssel hinzugefügt"
 
-#: pkg/storaged/crypto/keyslots.jsx:721 pkg/storaged/stratis/pool.jsx:811
+#: pkg/storaged/crypto/keyslots.jsx:729 pkg/storaged/stratis/pool.jsx:811
 #: pkg/storaged/mdraid/mdraid-disk.jsx:69
 msgid "Slot $0"
 msgstr "Slot $0"
 
-#: pkg/storaged/crypto/keyslots.jsx:729
+#: pkg/storaged/crypto/keyslots.jsx:737
 msgid "Editing a key requires a free slot"
 msgstr "Das Bearbeiten eines Schlüssels erfordert einen freien Steckplatz"
 
-#: pkg/storaged/crypto/keyslots.jsx:738
+#: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
 msgstr "Der letzte Schlüsselschlitz kann nicht entfernt werden"
 
-#: pkg/storaged/crypto/keyslots.jsx:754 pkg/storaged/stratis/pool.jsx:709
+#: pkg/storaged/crypto/keyslots.jsx:762 pkg/storaged/stratis/pool.jsx:709
 msgid "Keyserver"
 msgstr "Schlüsselserver"
 
-#: pkg/storaged/crypto/keyslots.jsx:759
+#: pkg/storaged/crypto/keyslots.jsx:768
+#, fuzzy
+#| msgid "Physical volumes can not be resized here"
+msgid "TPM2 slots can not be edited here"
+msgstr "Die Größe physikalischer Volumes kann hier nicht geändert werden"
+
+#: pkg/storaged/crypto/keyslots.jsx:772
 msgid "Unknown type"
 msgstr "Unbekannter Typ"
 
-#: pkg/storaged/crypto/keyslots.jsx:760
+#: pkg/storaged/crypto/keyslots.jsx:773
 msgid "Key slots with unknown types can not be edited here"
 msgstr ""
 "Schlüsselplätze mit unbekannten Typen können hier nicht bearbeitet werden"
 
-#: pkg/storaged/crypto/keyslots.jsx:766 pkg/storaged/crypto/keyslots.jsx:792
+#: pkg/storaged/crypto/keyslots.jsx:779 pkg/storaged/crypto/keyslots.jsx:805
 msgid "Keys"
 msgstr "Schlüssel"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 Slot übrig"
 msgstr[1] "$0 Slots übrig"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "No available slots"
 msgstr "Keine verfügbaren Slots"
 
-#: pkg/storaged/crypto/keyslots.jsx:786
+#: pkg/storaged/crypto/keyslots.jsx:799
 msgid "No free key slots"
 msgstr "Keine freien Schlüsselplätze"
 

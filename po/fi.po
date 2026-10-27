@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 02:55+0000\n"
+"POT-Creation-Date: 2026-10-25 02:54+0000\n"
 "PO-Revision-Date: 2026-10-01 14:18+0000\n"
 "Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -412,7 +412,7 @@ msgstr "Yhteysvirhe"
 #: pkg/systemd/service-details.jsx:148 pkg/packagekit/kpatch.tsx:242
 #: pkg/packagekit/autoupdates.jsx:519 pkg/networkmanager/firewall.jsx:103
 #: pkg/kdump/kdump-view.jsx:504 pkg/storaged/nfs/nfs.jsx:298
-#: pkg/storaged/crypto/keyslots.jsx:725
+#: pkg/storaged/crypto/keyslots.jsx:733
 msgid "Edit"
 msgstr "Muokkaa"
 
@@ -422,7 +422,7 @@ msgstr "Muokkaa"
 #: pkg/storaged/lvm2/volume-group.jsx:315
 #: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/storaged/nfs/nfs.jsx:301
 #: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
-#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/stratis/pool.jsx:701
+#: pkg/storaged/crypto/keyslots.jsx:745 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:729 pkg/storaged/stratis/pool.jsx:779
 #: pkg/storaged/stratis/pool.jsx:790 pkg/storaged/stratis/pool.jsx:801
 #: pkg/storaged/stratis/pool.jsx:922 pkg/storaged/stratis/pool.jsx:968
@@ -669,7 +669,7 @@ msgstr "Aseta"
 #: pkg/users/authorized-keys-panel.js:54
 #: pkg/networkmanager/dialogs-common.jsx:143
 #: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/nfs/nfs.jsx:174
-#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:784
+#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:797
 #: pkg/storaged/stratis/pool.jsx:512 pkg/storaged/mdraid/mdraid.jsx:160
 #: pkg/storaged/iscsi/create-dialog.jsx:106
 #: pkg/storaged/iscsi/create-dialog.jsx:130
@@ -4993,22 +4993,6 @@ msgstr ""
 msgid "Create it"
 msgstr "Luo se"
 
-#: pkg/networkmanager/utils.js:28
-msgid "Invalid prefix $0"
-msgstr "Virheellinen etuliite $0"
-
-#: pkg/networkmanager/utils.js:42
-msgid "Invalid metric $0"
-msgstr "Virheellinen metriikka $0"
-
-#: pkg/networkmanager/utils.js:119 pkg/networkmanager/utils.js:224
-msgid "Invalid address $0"
-msgstr "Ei kelvollinen osoite $0"
-
-#: pkg/networkmanager/utils.js:172
-msgid "Invalid prefix or netmask $0"
-msgstr "Virheellinen etuliite tai verkkopeite $0"
-
 #: pkg/networkmanager/networkmanager.jsx:48
 msgid "Testing connection"
 msgstr "Testataan yhteyttä"
@@ -6278,6 +6262,22 @@ msgstr "Monitorointiväli"
 #: pkg/networkmanager/bond.jsx:198
 msgid "Monitoring targets"
 msgstr "Kohteiden seuranta"
+
+#: pkg/networkmanager/utils.ts:47
+msgid "Invalid prefix $0"
+msgstr "Virheellinen etuliite $0"
+
+#: pkg/networkmanager/utils.ts:61
+msgid "Invalid metric $0"
+msgstr "Virheellinen metriikka $0"
+
+#: pkg/networkmanager/utils.ts:138 pkg/networkmanager/utils.ts:243
+msgid "Invalid address $0"
+msgstr "Ei kelvollinen osoite $0"
+
+#: pkg/networkmanager/utils.ts:191
+msgid "Invalid prefix or netmask $0"
+msgstr "Virheellinen etuliite tai verkkopeite $0"
 
 #: pkg/networkmanager/network-interface-members.jsx:96
 msgid ""
@@ -8186,7 +8186,7 @@ msgstr "Avainlähde"
 msgid "Repeat passphrase"
 msgstr "Toista tunnuslause"
 
-#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:749
+#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:757
 #: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/stratis/pool.jsx:678
@@ -8283,56 +8283,62 @@ msgstr "Poista Tang-avainpalvelin?"
 msgid "Remove key in slot $0?"
 msgstr "Poistetaanko avain paikasta $0?"
 
-#: pkg/storaged/crypto/keyslots.jsx:702
+#: pkg/storaged/crypto/keyslots.jsx:710
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr ""
 "Tällä hetkellä kirjautuneena oleva käyttäjä ei saa nähdä tietoja avaimista."
 
-#: pkg/storaged/crypto/keyslots.jsx:706
+#: pkg/storaged/crypto/keyslots.jsx:714
 msgid "No keys added"
 msgstr "Ei avaimia lisätty"
 
-#: pkg/storaged/crypto/keyslots.jsx:721 pkg/storaged/stratis/pool.jsx:811
+#: pkg/storaged/crypto/keyslots.jsx:729 pkg/storaged/stratis/pool.jsx:811
 #: pkg/storaged/mdraid/mdraid-disk.jsx:69
 msgid "Slot $0"
 msgstr "Paikka $0"
 
-#: pkg/storaged/crypto/keyslots.jsx:729
+#: pkg/storaged/crypto/keyslots.jsx:737
 msgid "Editing a key requires a free slot"
 msgstr "Avaimen muokkaaminen vaatii vapaan paikan"
 
-#: pkg/storaged/crypto/keyslots.jsx:738
+#: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
 msgstr "Viimeistä avaimen paikkaa ei voida poistaa"
 
-#: pkg/storaged/crypto/keyslots.jsx:754 pkg/storaged/stratis/pool.jsx:709
+#: pkg/storaged/crypto/keyslots.jsx:762 pkg/storaged/stratis/pool.jsx:709
 msgid "Keyserver"
 msgstr "Avainpalvelin"
 
-#: pkg/storaged/crypto/keyslots.jsx:759
+#: pkg/storaged/crypto/keyslots.jsx:768
+#, fuzzy
+#| msgid "Physical volumes can not be resized here"
+msgid "TPM2 slots can not be edited here"
+msgstr "Fyysisten taltioiden kokoja ei voida muuttaa tässä"
+
+#: pkg/storaged/crypto/keyslots.jsx:772
 msgid "Unknown type"
 msgstr "Tuntematon tyyppi"
 
-#: pkg/storaged/crypto/keyslots.jsx:760
+#: pkg/storaged/crypto/keyslots.jsx:773
 msgid "Key slots with unknown types can not be edited here"
 msgstr "Avainpaikkoja tuntemattomilla tyypeillä ei voi muokata täällä"
 
-#: pkg/storaged/crypto/keyslots.jsx:766 pkg/storaged/crypto/keyslots.jsx:792
+#: pkg/storaged/crypto/keyslots.jsx:779 pkg/storaged/crypto/keyslots.jsx:805
 msgid "Keys"
 msgstr "Avaimet"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 paikka on jäljellä"
 msgstr[1] "$0 paikkaa on jäljellä"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "No available slots"
 msgstr "Ei käytettävissä olevia paikkoja"
 
-#: pkg/storaged/crypto/keyslots.jsx:786
+#: pkg/storaged/crypto/keyslots.jsx:799
 msgid "No free key slots"
 msgstr "Ei vapaita avainpaikkoja"
 

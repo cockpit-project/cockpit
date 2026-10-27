@@ -7,9 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 02:55+0000\n"
-"PO-Revision-Date: 2025-08-09 22:55+0000\n"
-"Last-Translator: hsu zangmen <chzang55@gmail.com>\n"
+"POT-Creation-Date: 2026-10-25 02:54+0000\n"
+"PO-Revision-Date: 2026-10-22 09:18+0000\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-"
+"memory@weblate.org>\n"
 "Language-Team: Chinese (Traditional) <https://translate.fedoraproject.org/"
 "projects/cockpit/cockpit/zh_TW/>\n"
 "Language: zh_TW\n"
@@ -17,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.10.1\n"
 
 #: pkg/static/login.html:43
 msgid "Please enable JavaScript to use the Web Console."
@@ -408,7 +409,7 @@ msgstr "連線錯誤"
 #: pkg/systemd/service-details.jsx:148 pkg/packagekit/kpatch.tsx:242
 #: pkg/packagekit/autoupdates.jsx:519 pkg/networkmanager/firewall.jsx:103
 #: pkg/kdump/kdump-view.jsx:504 pkg/storaged/nfs/nfs.jsx:298
-#: pkg/storaged/crypto/keyslots.jsx:725
+#: pkg/storaged/crypto/keyslots.jsx:733
 msgid "Edit"
 msgstr "編輯"
 
@@ -418,7 +419,7 @@ msgstr "編輯"
 #: pkg/storaged/lvm2/volume-group.jsx:315
 #: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/storaged/nfs/nfs.jsx:301
 #: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
-#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/stratis/pool.jsx:701
+#: pkg/storaged/crypto/keyslots.jsx:745 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:729 pkg/storaged/stratis/pool.jsx:779
 #: pkg/storaged/stratis/pool.jsx:790 pkg/storaged/stratis/pool.jsx:801
 #: pkg/storaged/stratis/pool.jsx:922 pkg/storaged/stratis/pool.jsx:968
@@ -666,7 +667,7 @@ msgstr "設定"
 #: pkg/users/authorized-keys-panel.js:54
 #: pkg/networkmanager/dialogs-common.jsx:143
 #: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/nfs/nfs.jsx:174
-#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:784
+#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:797
 #: pkg/storaged/stratis/pool.jsx:512 pkg/storaged/mdraid/mdraid.jsx:160
 #: pkg/storaged/iscsi/create-dialog.jsx:106
 #: pkg/storaged/iscsi/create-dialog.jsx:130
@@ -1294,7 +1295,7 @@ msgstr "您現在已有管理員存取權限。"
 #: pkg/lib/superuser-dialogs.tsx:150
 msgid ""
 "No methods to gain administrative access are available (sudo -A, pkexec)."
-msgstr ""
+msgstr "目前無法使用任何方法取得系統管理員權限（sudo -A, pkexec）。"
 
 #: pkg/lib/superuser-dialogs.tsx:175
 msgid "Please authenticate to gain administrative access"
@@ -1595,7 +1596,7 @@ msgstr "您的瀏覽器不允許從網頁選單貼上。您可以使用 Shift+In
 
 #: pkg/lib/cockpit/dialog.tsx:1500
 msgid "Error during initialization"
-msgstr ""
+msgstr "初始化期間發生錯誤"
 
 #: pkg/lib/cockpit/dialog.tsx:1524 pkg/lib/cockpit/dialog.tsx:1527
 #: pkg/networkmanager/interfaces.js:895 pkg/storaged/mdraid/mdraid-disk.jsx:57
@@ -1604,7 +1605,7 @@ msgstr "失敗"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:175
 msgid "Home"
-msgstr ""
+msgstr "家"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:176
 #, fuzzy
@@ -1613,28 +1614,20 @@ msgid "Downloads"
 msgstr "下載"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:240
-#, fuzzy
-#| msgid "$0 is not a directory"
 msgid "Not a directory"
-msgstr "$0 不是目錄"
+msgstr "不是目錄"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:385
-#, fuzzy
-#| msgid "Delete files"
 msgid "All files"
-msgstr "刪除檔案"
+msgstr "所有檔案"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:388
-#, fuzzy
-#| msgid "Recent hosts"
 msgid "Recent"
-msgstr "最近的主機"
+msgstr "近期"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:389
-#, fuzzy
-#| msgid "Home directory"
 msgid "No recent directories"
-msgstr "家目錄"
+msgstr "沒有最近的目錄"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:389
 #, fuzzy
@@ -1648,7 +1641,7 @@ msgstr "鍵入以篩選"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:616
 msgid "File chooser actions"
-msgstr ""
+msgstr "檔案瀏覽器動作"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:631
 #, fuzzy
@@ -1658,12 +1651,12 @@ msgstr "或使用隨附的瀏覽器"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:647
 msgid "Hide hidden files"
-msgstr ""
+msgstr "隱藏己隱藏檔案"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:647
 #: pkg/lib/cockpit/react/FileChooser.tsx:751
 msgid "Show hidden files"
-msgstr ""
+msgstr "顯示隱藏檔"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:652
 #: pkg/lib/cockpit/react/FileChooser.tsx:718
@@ -1684,11 +1677,11 @@ msgstr "ssh伺服器是空的"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:778
 msgid "Directory has no sub-directories"
-msgstr ""
+msgstr "該目錄沒有子目錄"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:784
 msgid "This directory contains only hidden files"
-msgstr ""
+msgstr "此目錄僅包含隱藏檔案"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:790
 #: pkg/lib/cockpit/react/FileChooser.tsx:794 pkg/systemd/services-list.jsx:45
@@ -1698,7 +1691,7 @@ msgstr "沒有找到相符的結果"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:821
 msgid "Folder"
-msgstr ""
+msgstr "折疊"
 
 #: pkg/lib/cockpit/react/FileChooser.tsx:821
 msgid "File"
@@ -4963,22 +4956,6 @@ msgstr "建立此 $0 將中斷與伺服器的連線，且會使管理介面無�
 msgid "Create it"
 msgstr "仍要建立"
 
-#: pkg/networkmanager/utils.js:28
-msgid "Invalid prefix $0"
-msgstr "無效的前綴 $0"
-
-#: pkg/networkmanager/utils.js:42
-msgid "Invalid metric $0"
-msgstr "指標無效 $0"
-
-#: pkg/networkmanager/utils.js:119 pkg/networkmanager/utils.js:224
-msgid "Invalid address $0"
-msgstr "無效的位址 $0"
-
-#: pkg/networkmanager/utils.js:172
-msgid "Invalid prefix or netmask $0"
-msgstr "無效的前綴或網路遮罩 $0"
-
 #: pkg/networkmanager/networkmanager.jsx:48
 msgid "Testing connection"
 msgstr "正在測試連線"
@@ -5300,7 +5277,7 @@ msgstr "連接"
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:106
 msgid "Wireless"
-msgstr ""
+msgstr "無線網路"
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:109
 #, fuzzy
@@ -5322,7 +5299,7 @@ msgstr "無可用資料"
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:127
 msgid "Select a network interface to configure the connection."
-msgstr ""
+msgstr "請選擇一個網路介面來設定連線。"
 
 #: pkg/networkmanager/network-interface.jsx:93
 #, fuzzy
@@ -5767,11 +5744,11 @@ msgstr "停用"
 
 #: pkg/networkmanager/interfaces.js:903
 msgid "Adhoc"
-msgstr ""
+msgstr "臨時"
 
 #: pkg/networkmanager/interfaces.js:905
 msgid "Infra"
-msgstr ""
+msgstr "架構"
 
 #: pkg/networkmanager/interfaces.js:907
 #, fuzzy
@@ -6292,6 +6269,22 @@ msgstr "監控間隔"
 #: pkg/networkmanager/bond.jsx:198
 msgid "Monitoring targets"
 msgstr "監控目標"
+
+#: pkg/networkmanager/utils.ts:47
+msgid "Invalid prefix $0"
+msgstr "無效的前綴 $0"
+
+#: pkg/networkmanager/utils.ts:61
+msgid "Invalid metric $0"
+msgstr "指標無效 $0"
+
+#: pkg/networkmanager/utils.ts:138 pkg/networkmanager/utils.ts:243
+msgid "Invalid address $0"
+msgstr "無效的位址 $0"
+
+#: pkg/networkmanager/utils.ts:191
+msgid "Invalid prefix or netmask $0"
+msgstr "無效的前綴或網路遮罩 $0"
 
 #: pkg/networkmanager/network-interface-members.jsx:96
 msgid ""
@@ -8174,7 +8167,7 @@ msgstr "金鑰來源"
 msgid "Repeat passphrase"
 msgstr "重複通行片語"
 
-#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:749
+#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:757
 #: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/stratis/pool.jsx:678
@@ -8274,54 +8267,60 @@ msgstr "移除 Tang keyserver？"
 msgid "Remove key in slot $0?"
 msgstr "刪除金鑰槽 $0 中的通行片語？"
 
-#: pkg/storaged/crypto/keyslots.jsx:702
+#: pkg/storaged/crypto/keyslots.jsx:710
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "目前登入的使用者不被允許檢視金鑰相關的資訊。"
 
-#: pkg/storaged/crypto/keyslots.jsx:706
+#: pkg/storaged/crypto/keyslots.jsx:714
 msgid "No keys added"
 msgstr "沒有新增金鑰"
 
-#: pkg/storaged/crypto/keyslots.jsx:721 pkg/storaged/stratis/pool.jsx:811
+#: pkg/storaged/crypto/keyslots.jsx:729 pkg/storaged/stratis/pool.jsx:811
 #: pkg/storaged/mdraid/mdraid-disk.jsx:69
 msgid "Slot $0"
 msgstr "插槽 $0"
 
-#: pkg/storaged/crypto/keyslots.jsx:729
+#: pkg/storaged/crypto/keyslots.jsx:737
 msgid "Editing a key requires a free slot"
 msgstr "編輯金鑰需要一個未使用的插槽"
 
-#: pkg/storaged/crypto/keyslots.jsx:738
+#: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
 msgstr "無法移除最後一個金鑰槽"
 
-#: pkg/storaged/crypto/keyslots.jsx:754 pkg/storaged/stratis/pool.jsx:709
+#: pkg/storaged/crypto/keyslots.jsx:762 pkg/storaged/stratis/pool.jsx:709
 msgid "Keyserver"
 msgstr "金鑰伺服器"
 
-#: pkg/storaged/crypto/keyslots.jsx:759
+#: pkg/storaged/crypto/keyslots.jsx:768
+#, fuzzy
+#| msgid "Physical volumes can not be resized here"
+msgid "TPM2 slots can not be edited here"
+msgstr "無法於此處調整實體磁碟區的大小"
+
+#: pkg/storaged/crypto/keyslots.jsx:772
 msgid "Unknown type"
 msgstr "未知類型"
 
-#: pkg/storaged/crypto/keyslots.jsx:760
+#: pkg/storaged/crypto/keyslots.jsx:773
 msgid "Key slots with unknown types can not be edited here"
 msgstr "此處無法編輯未知類型的鍵槽"
 
-#: pkg/storaged/crypto/keyslots.jsx:766 pkg/storaged/crypto/keyslots.jsx:792
+#: pkg/storaged/crypto/keyslots.jsx:779 pkg/storaged/crypto/keyslots.jsx:805
 msgid "Keys"
 msgstr "按鍵"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "尚餘 $0 個槽"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "No available slots"
 msgstr "沒有可用的插槽"
 
-#: pkg/storaged/crypto/keyslots.jsx:786
+#: pkg/storaged/crypto/keyslots.jsx:799
 msgid "No free key slots"
 msgstr "沒有免費的鑰匙槽"
 

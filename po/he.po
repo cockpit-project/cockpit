@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 02:55+0000\n"
+"POT-Creation-Date: 2026-10-25 02:54+0000\n"
 "PO-Revision-Date: 2025-12-03 21:23+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -426,7 +426,7 @@ msgstr "שגיאת התחברות"
 #: pkg/systemd/service-details.jsx:148 pkg/packagekit/kpatch.tsx:242
 #: pkg/packagekit/autoupdates.jsx:519 pkg/networkmanager/firewall.jsx:103
 #: pkg/kdump/kdump-view.jsx:504 pkg/storaged/nfs/nfs.jsx:298
-#: pkg/storaged/crypto/keyslots.jsx:725
+#: pkg/storaged/crypto/keyslots.jsx:733
 msgid "Edit"
 msgstr "עריכה"
 
@@ -436,7 +436,7 @@ msgstr "עריכה"
 #: pkg/storaged/lvm2/volume-group.jsx:315
 #: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/storaged/nfs/nfs.jsx:301
 #: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
-#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/stratis/pool.jsx:701
+#: pkg/storaged/crypto/keyslots.jsx:745 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:729 pkg/storaged/stratis/pool.jsx:779
 #: pkg/storaged/stratis/pool.jsx:790 pkg/storaged/stratis/pool.jsx:801
 #: pkg/storaged/stratis/pool.jsx:922 pkg/storaged/stratis/pool.jsx:968
@@ -681,7 +681,7 @@ msgstr "הגדרה"
 #: pkg/users/authorized-keys-panel.js:54
 #: pkg/networkmanager/dialogs-common.jsx:143
 #: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/nfs/nfs.jsx:174
-#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:784
+#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:797
 #: pkg/storaged/stratis/pool.jsx:512 pkg/storaged/mdraid/mdraid.jsx:160
 #: pkg/storaged/iscsi/create-dialog.jsx:106
 #: pkg/storaged/iscsi/create-dialog.jsx:130
@@ -5047,22 +5047,6 @@ msgstr "יצירת ה־$0 הזה תקטע את החיבור לשרת ותמנע 
 msgid "Create it"
 msgstr "ליצור אותו"
 
-#: pkg/networkmanager/utils.js:28
-msgid "Invalid prefix $0"
-msgstr "קידומת שגויה $0"
-
-#: pkg/networkmanager/utils.js:42
-msgid "Invalid metric $0"
-msgstr "מדד שגוי $0"
-
-#: pkg/networkmanager/utils.js:119 pkg/networkmanager/utils.js:224
-msgid "Invalid address $0"
-msgstr "כתובת שגויה $0"
-
-#: pkg/networkmanager/utils.js:172
-msgid "Invalid prefix or netmask $0"
-msgstr "קידומת או מסכת רשת שגויה $0"
-
 #: pkg/networkmanager/networkmanager.jsx:48
 msgid "Testing connection"
 msgstr "החיבור נבדק"
@@ -6382,6 +6366,22 @@ msgstr "הפרש בין דגימות מעקב"
 #: pkg/networkmanager/bond.jsx:198
 msgid "Monitoring targets"
 msgstr "יעדי מעקב"
+
+#: pkg/networkmanager/utils.ts:47
+msgid "Invalid prefix $0"
+msgstr "קידומת שגויה $0"
+
+#: pkg/networkmanager/utils.ts:61
+msgid "Invalid metric $0"
+msgstr "מדד שגוי $0"
+
+#: pkg/networkmanager/utils.ts:138 pkg/networkmanager/utils.ts:243
+msgid "Invalid address $0"
+msgstr "כתובת שגויה $0"
+
+#: pkg/networkmanager/utils.ts:191
+msgid "Invalid prefix or netmask $0"
+msgstr "קידומת או מסכת רשת שגויה $0"
 
 #: pkg/networkmanager/network-interface-members.jsx:96
 msgid ""
@@ -8339,7 +8339,7 @@ msgstr "מקור מפתח"
 msgid "Repeat passphrase"
 msgstr "חזרה על מילת הצופן"
 
-#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:749
+#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:757
 #: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/stratis/pool.jsx:678
@@ -8439,45 +8439,51 @@ msgstr "להסיר את שרת המפתחות Tang?"
 msgid "Remove key in slot $0?"
 msgstr "להסיר את מילת הצופן מעל משבצת המפתחות $0?"
 
-#: pkg/storaged/crypto/keyslots.jsx:702
+#: pkg/storaged/crypto/keyslots.jsx:710
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "המשתמש שמחובר כרגע אינו מורשה לצפות במידע על מפתחות."
 
-#: pkg/storaged/crypto/keyslots.jsx:706
+#: pkg/storaged/crypto/keyslots.jsx:714
 msgid "No keys added"
 msgstr "לא נוספו מפתחות"
 
-#: pkg/storaged/crypto/keyslots.jsx:721 pkg/storaged/stratis/pool.jsx:811
+#: pkg/storaged/crypto/keyslots.jsx:729 pkg/storaged/stratis/pool.jsx:811
 #: pkg/storaged/mdraid/mdraid-disk.jsx:69
 msgid "Slot $0"
 msgstr "משבצת $0"
 
-#: pkg/storaged/crypto/keyslots.jsx:729
+#: pkg/storaged/crypto/keyslots.jsx:737
 msgid "Editing a key requires a free slot"
 msgstr "עריכת מפתח דורשת משבצת פנויה"
 
-#: pkg/storaged/crypto/keyslots.jsx:738
+#: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
 msgstr "לא ניתן להסיר את משבצת המפתח האחרונה"
 
-#: pkg/storaged/crypto/keyslots.jsx:754 pkg/storaged/stratis/pool.jsx:709
+#: pkg/storaged/crypto/keyslots.jsx:762 pkg/storaged/stratis/pool.jsx:709
 msgid "Keyserver"
 msgstr "שרת מפתחות"
 
-#: pkg/storaged/crypto/keyslots.jsx:759
+#: pkg/storaged/crypto/keyslots.jsx:768
+#, fuzzy
+#| msgid "Physical volumes can not be resized here"
+msgid "TPM2 slots can not be edited here"
+msgstr "כאן ניתן לשנות גודל של כרכים פיזיים"
+
+#: pkg/storaged/crypto/keyslots.jsx:772
 msgid "Unknown type"
 msgstr "סוג לא ידוע"
 
-#: pkg/storaged/crypto/keyslots.jsx:760
+#: pkg/storaged/crypto/keyslots.jsx:773
 msgid "Key slots with unknown types can not be edited here"
 msgstr "משבצות מפתח עם סוגים בלתי מוכרים אינן ניתנות לעריכה כאן"
 
-#: pkg/storaged/crypto/keyslots.jsx:766 pkg/storaged/crypto/keyslots.jsx:792
+#: pkg/storaged/crypto/keyslots.jsx:779 pkg/storaged/crypto/keyslots.jsx:805
 msgid "Keys"
 msgstr "מפתחות"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "נותרה משבצת אחת"
@@ -8485,11 +8491,11 @@ msgstr[1] "נותרו $0 משבצות"
 msgstr[2] "נותרו $0 משבצות"
 msgstr[3] "נותרו $0 משבצות"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "No available slots"
 msgstr "אין משבצות פנויות"
 
-#: pkg/storaged/crypto/keyslots.jsx:786
+#: pkg/storaged/crypto/keyslots.jsx:799
 msgid "No free key slots"
 msgstr "אין משבצות מפתח פנויות"
 

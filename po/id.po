@@ -25,8 +25,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 02:55+0000\n"
-"PO-Revision-Date: 2026-09-11 03:17+0000\n"
+"POT-Creation-Date: 2026-10-25 02:54+0000\n"
+"PO-Revision-Date: 2026-10-21 08:18+0000\n"
 "Last-Translator: Arif Budiman <arifpedia@gmail.com>\n"
 "Language-Team: Indonesian <https://translate.fedoraproject.org/projects/"
 "cockpit/cockpit/id/>\n"
@@ -35,7 +35,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.9.1\n"
+"X-Generator: Weblate 2026.10.1\n"
 
 #: pkg/static/login.html:43
 msgid "Please enable JavaScript to use the Web Console."
@@ -336,10 +336,8 @@ msgid "Unlock"
 msgstr "Buka kunci"
 
 #: pkg/shell/credentials.tsx:201
-#, fuzzy
-#| msgid "Authorize SSH key"
 msgid "Add private SSH key"
-msgstr "Otorisasi kunci SSH"
+msgstr "Tambahkan kunci privat SSH"
 
 #: pkg/shell/credentials.tsx:203 pkg/shell/credentials.tsx:210
 #: pkg/users/authorized-keys-panel.js:98 pkg/storaged/crypto/keyslots.jsx:428
@@ -429,7 +427,7 @@ msgstr "Sambungan Bermasalah"
 #: pkg/systemd/service-details.jsx:148 pkg/packagekit/kpatch.tsx:242
 #: pkg/packagekit/autoupdates.jsx:519 pkg/networkmanager/firewall.jsx:103
 #: pkg/kdump/kdump-view.jsx:504 pkg/storaged/nfs/nfs.jsx:298
-#: pkg/storaged/crypto/keyslots.jsx:725
+#: pkg/storaged/crypto/keyslots.jsx:733
 msgid "Edit"
 msgstr "Edit"
 
@@ -439,7 +437,7 @@ msgstr "Edit"
 #: pkg/storaged/lvm2/volume-group.jsx:315
 #: pkg/storaged/lvm2/physical-volume.jsx:77 pkg/storaged/nfs/nfs.jsx:301
 #: pkg/storaged/crypto/keyslots.jsx:621 pkg/storaged/crypto/keyslots.jsx:656
-#: pkg/storaged/crypto/keyslots.jsx:737 pkg/storaged/stratis/pool.jsx:701
+#: pkg/storaged/crypto/keyslots.jsx:745 pkg/storaged/stratis/pool.jsx:701
 #: pkg/storaged/stratis/pool.jsx:729 pkg/storaged/stratis/pool.jsx:779
 #: pkg/storaged/stratis/pool.jsx:790 pkg/storaged/stratis/pool.jsx:801
 #: pkg/storaged/stratis/pool.jsx:922 pkg/storaged/stratis/pool.jsx:968
@@ -685,7 +683,7 @@ msgstr "Atur"
 #: pkg/users/authorized-keys-panel.js:54
 #: pkg/networkmanager/dialogs-common.jsx:143
 #: pkg/storaged/lvm2/volume-group.jsx:197 pkg/storaged/nfs/nfs.jsx:174
-#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:784
+#: pkg/storaged/crypto/keyslots.jsx:464 pkg/storaged/crypto/keyslots.jsx:797
 #: pkg/storaged/stratis/pool.jsx:512 pkg/storaged/mdraid/mdraid.jsx:160
 #: pkg/storaged/iscsi/create-dialog.jsx:106
 #: pkg/storaged/iscsi/create-dialog.jsx:130
@@ -1478,7 +1476,7 @@ msgstr "Kata sandi kuat"
 
 #: pkg/lib/cockpit-components-password.tsx:101
 msgid "Acceptable password"
-msgstr "Kata sandi dapat diterima"
+msgstr "Kata sandi memadai"
 
 #: pkg/lib/cockpit-components-password.tsx:105
 msgid "Weak password"
@@ -4975,22 +4973,6 @@ msgstr ""
 msgid "Create it"
 msgstr "Buat itu"
 
-#: pkg/networkmanager/utils.js:28
-msgid "Invalid prefix $0"
-msgstr "Prefiks tidak valid $0"
-
-#: pkg/networkmanager/utils.js:42
-msgid "Invalid metric $0"
-msgstr "Metrik tidak valid $0"
-
-#: pkg/networkmanager/utils.js:119 pkg/networkmanager/utils.js:224
-msgid "Invalid address $0"
-msgstr "Alamat tidak valid $0"
-
-#: pkg/networkmanager/utils.js:172
-msgid "Invalid prefix or netmask $0"
-msgstr "Prefiks atau netmask tidak valid $0"
-
 #: pkg/networkmanager/networkmanager.jsx:48
 msgid "Testing connection"
 msgstr "Menguji koneksi"
@@ -5302,36 +5284,28 @@ msgstr ""
 "Permintaan masuk diblokir secara default. Permintaan keluar tidak diblokir."
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:37
-#, fuzzy
-#| msgid "Connect"
 msgid "Connected"
-msgstr "Hubungkan"
+msgstr "Terhubung"
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:106
 msgid "Wireless"
-msgstr ""
+msgstr "Nirkabel"
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:109
-#, fuzzy
-#| msgid "WireGuard"
 msgid "Wired"
-msgstr "WireGuard"
+msgstr "Berkabel"
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:112
-#, fuzzy
-#| msgid "Network bond"
 msgid "No networks found"
-msgstr "Bond jaringan"
+msgstr "Tidak ada jaringan yang ditemukan"
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:126
-#, fuzzy
-#| msgid "No interfaces available"
 msgid "No interface selected"
-msgstr "Tidak ada antarmuka yang tersedia"
+msgstr "Tidak ada antarmuka yang dipilih"
 
 #: pkg/networkmanager/anaconda/anaconda-main.tsx:127
 msgid "Select a network interface to configure the connection."
-msgstr ""
+msgstr "Pilih antarmuka jaringan untuk mengonfigurasi koneksi."
 
 #: pkg/networkmanager/network-interface.jsx:93
 msgid "SSID can not be empty"
@@ -5655,16 +5629,12 @@ msgid "Rate"
 msgstr "Laju"
 
 #: pkg/networkmanager/network-interface.jsx:1096
-#, fuzzy
-#| msgid "Primary"
 msgid "Primary action"
-msgstr "Primer"
+msgstr "Tindakan utama"
 
 #: pkg/networkmanager/network-interface.jsx:1097
-#, fuzzy
-#| msgid "File chooser actions"
 msgid "Secondary actions"
-msgstr "Tindakan pemilih berkas"
+msgstr "Tindakan sekunder"
 
 #: pkg/networkmanager/network-interface.jsx:1206
 msgid "Not permitted to configure network devices"
@@ -6256,6 +6226,22 @@ msgstr "Interval pemantauan"
 #: pkg/networkmanager/bond.jsx:198
 msgid "Monitoring targets"
 msgstr "Target pemantauan"
+
+#: pkg/networkmanager/utils.ts:47
+msgid "Invalid prefix $0"
+msgstr "Prefiks tidak valid $0"
+
+#: pkg/networkmanager/utils.ts:61
+msgid "Invalid metric $0"
+msgstr "Metrik tidak valid $0"
+
+#: pkg/networkmanager/utils.ts:138 pkg/networkmanager/utils.ts:243
+msgid "Invalid address $0"
+msgstr "Alamat tidak valid $0"
+
+#: pkg/networkmanager/utils.ts:191
+msgid "Invalid prefix or netmask $0"
+msgstr "Prefiks atau netmask tidak valid $0"
 
 #: pkg/networkmanager/network-interface-members.jsx:96
 msgid ""
@@ -8159,7 +8145,7 @@ msgstr "Sumber kunci"
 msgid "Repeat passphrase"
 msgstr "Ulangi frasa sandi"
 
-#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:749
+#: pkg/storaged/crypto/keyslots.jsx:436 pkg/storaged/crypto/keyslots.jsx:757
 #: pkg/storaged/crypto/actions.jsx:28
 #: pkg/storaged/filesystem/mounting-dialog.jsx:327
 #: pkg/storaged/stratis/stopped-pool.jsx:114 pkg/storaged/stratis/pool.jsx:678
@@ -8256,55 +8242,61 @@ msgstr "Hapus server kunci Tang?"
 msgid "Remove key in slot $0?"
 msgstr "Lepaskan kunci di dalam slot $0?"
 
-#: pkg/storaged/crypto/keyslots.jsx:702
+#: pkg/storaged/crypto/keyslots.jsx:710
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr ""
 "Pengguna yang saat ini masuk tidak diizinkan melihat informasi tentang kunci."
 
-#: pkg/storaged/crypto/keyslots.jsx:706
+#: pkg/storaged/crypto/keyslots.jsx:714
 msgid "No keys added"
 msgstr "Tidak ada kunci yang ditambahkan"
 
-#: pkg/storaged/crypto/keyslots.jsx:721 pkg/storaged/stratis/pool.jsx:811
+#: pkg/storaged/crypto/keyslots.jsx:729 pkg/storaged/stratis/pool.jsx:811
 #: pkg/storaged/mdraid/mdraid-disk.jsx:69
 msgid "Slot $0"
 msgstr "Slot $0"
 
-#: pkg/storaged/crypto/keyslots.jsx:729
+#: pkg/storaged/crypto/keyslots.jsx:737
 msgid "Editing a key requires a free slot"
 msgstr "Mengedit kunci memerlukan slot kosong"
 
-#: pkg/storaged/crypto/keyslots.jsx:738
+#: pkg/storaged/crypto/keyslots.jsx:746
 msgid "The last key slot can not be removed"
 msgstr "Slot kunci terakhir tidak dapat dihapus"
 
-#: pkg/storaged/crypto/keyslots.jsx:754 pkg/storaged/stratis/pool.jsx:709
+#: pkg/storaged/crypto/keyslots.jsx:762 pkg/storaged/stratis/pool.jsx:709
 msgid "Keyserver"
 msgstr "Server kunci"
 
-#: pkg/storaged/crypto/keyslots.jsx:759
+#: pkg/storaged/crypto/keyslots.jsx:768
+#, fuzzy
+#| msgid "Physical volumes can not be resized here"
+msgid "TPM2 slots can not be edited here"
+msgstr "Volume fisik tidak dapat diubah ukurannya di sini"
+
+#: pkg/storaged/crypto/keyslots.jsx:772
 msgid "Unknown type"
 msgstr "Tipe tidak diketahui"
 
-#: pkg/storaged/crypto/keyslots.jsx:760
+#: pkg/storaged/crypto/keyslots.jsx:773
 msgid "Key slots with unknown types can not be edited here"
 msgstr "Slot kunci dengan tipe tidak dikenal tidak dapat diedit di sini"
 
-#: pkg/storaged/crypto/keyslots.jsx:766 pkg/storaged/crypto/keyslots.jsx:792
+#: pkg/storaged/crypto/keyslots.jsx:779 pkg/storaged/crypto/keyslots.jsx:805
 msgid "Keys"
 msgstr "Kunci"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 slot tersisa"
 
-#: pkg/storaged/crypto/keyslots.jsx:781
+#: pkg/storaged/crypto/keyslots.jsx:794
 msgid "No available slots"
 msgstr "Tidak ada slot yang tersedia"
 
-#: pkg/storaged/crypto/keyslots.jsx:786
+#: pkg/storaged/crypto/keyslots.jsx:799
 msgid "No free key slots"
 msgstr "Tidak ada slot kunci yang tersedia"
 
@@ -10315,10 +10307,8 @@ msgid "updates"
 msgstr "pembaruan"
 
 #: pkg/packagekit/manifest.json:0
-#, fuzzy
-#| msgid "Apply kernel live patches"
 msgid "Applying live kernel patching"
-msgstr "Terapkan patch kernel langsung"
+msgstr "Menerapkan patch kernel secara langsung"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "interface"

@@ -21,6 +21,11 @@
 %define rhel %{centos}
 %endif
 
+# Move PAM policy to /usr for sysexts or immutable OSes
+%if 0%{?fedora} >= 45 || 0%{?rhel} >= 11
+%define _usr_pam 1
+%endif
+
 %define _hardened_build 1
 
 %define __lib lib
@@ -29,7 +34,11 @@
 %define pamconfdir %{_pam_vendordir}
 %define pamconfig tools/cockpit.suse.pam
 %else
+%if %{defined _usr_pam}
+%define pamconfdir %{_prefix}/%{__lib}/pam.d
+%else
 %define pamconfdir %{_sysconfdir}/pam.d
+%endif
 %define pamconfig tools/cockpit.pam
 %endif
 
@@ -408,7 +417,11 @@ authentication via sssd/FreeIPA.
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
+%if %{defined _usr_pam}
+%{pamconfdir}/cockpit
+%else
 %config(noreplace) %{pamconfdir}/cockpit
+%endif
 
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue

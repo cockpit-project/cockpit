@@ -1180,8 +1180,12 @@ BEGIN {{
         # test env should be quiet enough to not transmit MB/s
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-read")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))
+        # uutils dd fails with iflag=direct due to an unaligned buffer, using GNU dd.
+        dd_binary = "dd"
+        if m.image == "ubuntu-2604":
+            dd_binary = "gnudd"
         # reading lots of data
-        m.execute("systemd-run --collect --slice cockpittest --unit disk-read-hog sh -ec 'while true; do echo 3 > /proc/sys/vm/drop_caches; grep -r . /usr >/dev/null; done'")
+        m.execute(f"systemd-run --collect --slice cockpittest --unit disk-read-hog sh -ec 'while true; do {dd_binary} if=/dev/vda of=/dev/null bs=1M iflag=direct 2>/dev/null; done'")
         b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("#current-disks-read")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))  # this should stay calm
         # read in popover

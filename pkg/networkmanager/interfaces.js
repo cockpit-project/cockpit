@@ -2175,6 +2175,46 @@ export function is_wireless(iface) {
     return iface.Device?.DeviceType === '802-11-wireless';
 }
 
+export function connectInterface(model, iface, dev, ghostSettings) {
+    if (!(iface.MainConnection || (dev && ghostSettings)))
+        return;
+
+    function modify() {
+        if (iface.MainConnection) {
+            return iface.MainConnection.activate(dev, null).catch(show_unexpected_error);
+        } else {
+            return dev.activate_with_settings(ghostSettings, null).catch(show_unexpected_error);
+        }
+    }
+
+    const dev_name = iface.Name;
+    with_checkpoint(model, modify,
+                    {
+                        devices: dev ? [dev] : [],
+                        fail_text: fmt_to_fragments(_("Switching on $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
+                        anyway_text: cockpit.format(_("Switch on $0"), dev_name)
+                    });
+}
+
+export function disconnectInterface(model, iface, dev) {
+    if (!dev) {
+        console.log("Trying to switch off without a device?");
+        return;
+    }
+
+    function modify() {
+        return dev.disconnect().catch(show_unexpected_error);
+    }
+
+    const dev_name = iface.Name;
+    with_checkpoint(model, modify,
+                    {
+                        devices: [dev],
+                        fail_text: fmt_to_fragments(_("Switching off $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
+                        anyway_text: cockpit.format(_("Switch off $0"), dev_name)
+                    });
+}
+
 export function toggleConnectionAutoconnect(model, dev, con, settings, autoconnect) {
     settings.connection.autoconnect = autoconnect;
     return settings_applier(model, dev, con)(settings);

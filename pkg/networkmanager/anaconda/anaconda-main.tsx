@@ -55,13 +55,12 @@ const AnacondaInterfaceRow = ({ iface, setSelectedIfaceName }: AnacondaInterface
 };
 
 interface AnacondaNetworkPageProps {
-    privileged: boolean;
     operationInProgress: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     interfaces: any[];
 }
 
-export const AnacondaNetworkPage = ({ privileged, operationInProgress, interfaces }: AnacondaNetworkPageProps) => {
+export const AnacondaNetworkPage = ({ operationInProgress, interfaces }: AnacondaNetworkPageProps) => {
     const [selectedIfaceName, setSelectedIfaceName] = useState<string | null>(null);
     const selectedIface = interfaces.find(iface => iface.Name === selectedIfaceName) ?? null;
 

@@ -46,8 +46,10 @@ import * as utils from "./utils.js";
 import {
     array_join,
     choice_title,
+    connectInterface,
     connection_settings,
     createGhostConnectionSettings,
+    disconnectInterface,
     free_member_connection,
     is_managed,
     render_active_connection,
@@ -321,49 +323,6 @@ export const NetworkInterfacePage = ({
                                 rollback_on_failure: true
                             });
         }
-    }
-
-    function connect() {
-        if (!(iface.MainConnection || (dev && ghostSettings)))
-            return;
-
-        function fail(error) {
-            show_unexpected_error(error);
-        }
-
-        function modify() {
-            if (iface.MainConnection) {
-                return iface.MainConnection.activate(dev, null).catch(fail);
-            } else {
-                return dev.activate_with_settings(ghostSettings, null).catch(fail);
-            }
-        }
-
-        with_checkpoint(model, modify,
-                        {
-                            devices: dev ? [dev] : [],
-                            fail_text: fmt_to_fragments(_("Switching on $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
-                            anyway_text: cockpit.format(_("Switch on $0"), dev_name)
-                        });
-    }
-
-    function disconnect() {
-        if (!dev) {
-            console.log("Trying to switch off without a device?");
-            return;
-        }
-
-        function modify () {
-            return dev.disconnect()
-                    .catch(error => show_unexpected_error(error));
-        }
-
-        with_checkpoint(model, modify,
-                        {
-                            devices: [dev],
-                            fail_text: fmt_to_fragments(_("Switching off $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
-                            anyway_text: cockpit.format(_("Switch off $0"), dev_name)
-                        });
     }
 
     function renderDesc() {
@@ -1182,7 +1141,9 @@ export const NetworkInterfacePage = ({
                 <Switch id="interface-switch"
                         isChecked={!!(dev && dev.ActiveConnection)}
                         isDisabled={!iface || (dev && dev.State === 20) || !privileged}
-                        onChange={(_event, enable) => enable ? connect() : disconnect()}
+                        onChange={(_event, enable) => enable
+                            ? connectInterface(model, iface, dev, ghostSettings)
+                            : disconnectInterface(model, iface, dev)}
                         aria-label={_("Enable or disable the device")} />
             </Privileged>
         );

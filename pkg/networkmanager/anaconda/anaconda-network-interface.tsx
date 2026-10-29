@@ -19,7 +19,7 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/ind
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ModelContext } from "../model-context";
 import { useEvent } from "hooks";
-import { active_connection_gateway, active_connection_ipv4, active_connection_ipv6, choice_title, createGhostConnectionSettings, is_managed, } from "../interfaces";
+import { active_connection_gateway, active_connection_ipv4, active_connection_ipv6, choice_title, connectInterface, createGhostConnectionSettings, disconnectInterface, is_managed, toggleConnectionAutoconnect, } from "../interfaces";
 import { get_ip_method_choices } from "../ip-settings";
 import { NetworkAction } from "../dialogs-common.jsx";
 
@@ -156,9 +156,6 @@ export const AnacondaNetworkInterface = ({
     useEvent(model, "changed");
     console.log(iface);
 
-    // TODO: enabled and autoconnect
-    const [enabled, setEnabled] = useState(false);
-    const [autoConnect, setAutoConnect] = useState(false);
     const [isIpv4Expanded, setIsIpv4Expanded] = useState(true);
     const [isIpv6Expanded, setIsIpv6Expanded] = useState(true);
 
@@ -187,8 +184,10 @@ export const AnacondaNetworkInterface = ({
                                     id="network-interface-enable-device"
                                     label={_("Enable device during installation")}
                                     isReversed
-                                    isChecked={enabled}
-                                    onChange={(_event, checked) => setEnabled(checked)}
+                                    isChecked={!!(dev?.ActiveConnection)}
+                                    onChange={(_event, enable) => enable
+                                        ? connectInterface(model, iface, dev, connectionSettings)
+                                        : disconnectInterface(model, iface, dev)}
                                 />
                             </StackItem>
                             <StackItem>
@@ -196,8 +195,8 @@ export const AnacondaNetworkInterface = ({
                                     id="network-interface-connect-automatically"
                                     label={_("Connect automatically on reboot")}
                                     isReversed
-                                    isChecked={autoConnect}
-                                    onChange={(_event, checked) => setAutoConnect(checked)}
+                                    isChecked={connectionSettings.connection.autoconnect}
+                                    onChange={(_event, checked) => toggleConnectionAutoconnect(model, dev, iface.MainConnection, connectionSettings, checked)}
                                 />
                             </StackItem>
                         </Stack>

@@ -391,7 +391,7 @@ This <is <not XML.
 
         def disable_service(service_name: str) -> None:
             m.execute(f"systemctl stop {service_name}")
-            system_service = m.execute(f"systemctl show -p FragmentPath {service_name}.service | cut -f2 -d=").strip()
+            system_service = m.execute(f"systemctl show -p FragmentPath --value {service_name}.service").strip()
             m.execute(f"mv {system_service} {system_service}.disabled")
             self.addCleanup(m.execute, f"mv {system_service}.disabled {system_service}")
 

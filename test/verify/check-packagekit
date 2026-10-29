@@ -16,6 +16,7 @@ import testlib
 OSesWithoutTracer = ["debian-*", "ubuntu-*", "fedora-coreos", "centos-10", "rhel-10*"]
 OSesWithDnfRestart = ["centos-10", "rhel-10*"]
 OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*"]
+OSesWithDNF5Daemon = ["fedora-eln", "fedora-45"]
 
 
 class NoSubManCase(packagelib.PackageCase):
@@ -42,6 +43,9 @@ class TestUpdates(NoSubManCase):
         # apt does not support severity enhancement metadata
         # only PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) supports severity
         self.supports_severity = (self.backend != "apt") and (not self.machine.image.startswith("rhel-8"))
+
+        # dnf5daemon
+        self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
 
         if self.supports_severity:
             self.enhancement_severity = "enhancement"
@@ -308,9 +312,10 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # create two updates; force installing chocolate before vanilla
         self.createPackage("vanilla", "1.0", "1", install=True)
         self.createPackage("vanilla", "1.0", "2", depends="chocolate",
-                           postinst=f"while [ ! -e {install_lockfile} ]; do sleep 1; done; rm -f {install_lockfile}")
-        self.createPackage("chocolate", "2.0", "1", install=True, arch=self.secondary_arch)
-        self.createPackage("chocolate", "2.0", "2", arch=self.secondary_arch)
+                           postinst=f"while [ ! -e {install_lockfile} ]; do sleep 1; done; rm -f {install_lockfile}",
+                           severity="bugfix")
+        self.createPackage("chocolate", "2.0", "1", install=True, arch=self.secondary_arch, severity="bugfix")
+        self.createPackage("chocolate", "2.0", "2", arch=self.secondary_arch, severity="bugfix")
         self.enableRepo()
 
         # check again
@@ -352,7 +357,10 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         else:
             b.wait_not_present(".progress-main-view button.pf-m-secondary")
         # gets stuck at vanilla, which needs install_lockfile
-        b.wait_in_text("#app div.progress-description", "vanilla 1.0-2")
+        if self.uses_dnf5daemon:
+            b.wait_in_text("#app div.progress-description", "vanilla 0:1.0-2")
+        else:
+            b.wait_in_text("#app div.progress-description", "vanilla 1.0-2")
 
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_visible("#update-log"))
@@ -851,13 +859,15 @@ ExecStart=/usr/local/bin/{packageName}
                            changes="Will crash your data center", cves=["CVE-2014-123456"])
         # security fix with parsing from changes
         self.createPackage("secparse", "4", "1", install=True)
-        self.createPackage("secparse", "4", "2", changes="Fix CVE-2014-54321 and CVE-2017-9999.")
+        self.createPackage("secparse", "4", "2", changes="Fix CVE-2014-54321 and CVE-2017-9999.",
+                           severity="security" if self.uses_dnf5daemon else "")
         # security fix with RHEL severity, errata and XSS
         self.createPackage("sevcritical", "5", "1", install=True)
         self.createPackage("sevcritical", "5", "2", cves=["CVE-2014-54321"], securitySeverity="critical",
                            errata=["RHSA-2000:0001", "RHSA-2000:0002"],
                            invalid_cves=["javascript:alert(document.cookie)", "https://example.com"],
-                           changes='See [malicious link](https://example.invalid/"onmouseover="alert(document.domain)) for info')
+                           changes='See [malicious link](https://example.invalid/"onmouseover="alert(document.domain)) for info',
+                           severity="security" if self.uses_dnf5daemon else "")
 
         self.enableRepo(refresh_repo=True)
 
@@ -874,10 +884,14 @@ ExecStart=/usr/local/bin/{packageName}
         # should not have erratum label in details
         self.assertNotIn("Errat", b.text(sel))
 
-        # secparse should also be considered a security update as the changelog mentions CVEs
-        self.check_nth_update(2, "secparse", "4-2", "security", 2,
-                              desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."],
-                              cves=["CVE-2014-54321", "CVE-2017-9999"])
+        # In the dnf5daemon backend we don't parse cves from the description
+        if self.uses_dnf5daemon:
+            self.check_nth_update(2, "secparse", "4-2", "security",
+                                  desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."])
+        else:  # secparse should also be considered a security update as the changelog mentions CVEs
+            self.check_nth_update(2, "secparse", "4-2", "security", 2,
+                                  desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."],
+                                  cves=["CVE-2014-54321", "CVE-2017-9999"])
         apt_based = m.image.startswith(("debian-", "ubuntu-"))
         # We cannot insert example.com as an url in apts' changelog format only accepts cve ids or issues,
         # so it does not appear in the UI.
@@ -1029,8 +1043,8 @@ ExecStart=/usr/local/bin/{packageName}
             "table.updates-history tbody.pf-m-expanded .pf-v6-c-table__expandable-row-content ul",
             ["buggy", "norefs-bin", "norefs-doc", "xeroxed"],
         )
-        # and the previous one, not expanded
-        b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")
+        # and the previous one, not expanded. DNF5daemon shows multiple rows.
+        b.wait_visible("table.updates-history tbody:nth-child(2):not(.pf-m-expanded)")
 
     @testlib.skipImage("No security changelog support in packagekit", "arch")
     @testlib.nondestructive
@@ -1197,6 +1211,7 @@ ExecStart=/usr/local/bin/{packageName}
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))
 
+    @testlib.skipImage("No PackageKit", *OSesWithDNF5Daemon)
     @testlib.nondestructive
     def testPackageKitCrash(self):
         b = self.browser
@@ -1247,6 +1262,12 @@ ExecStart=/usr/local/bin/{packageName}
                            mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
                            systemctl daemon-reload""")
 
+        if self.uses_dnf5daemon:
+            m.execute("systemctl stop dnf5daemon-server")
+            system_service = m.execute("systemctl show --value -p FragmentPath dnf5daemon-server.service").strip()
+            m.execute(f"mv {system_service} {system_service}.disabled")
+            self.addCleanup(m.execute, f"mv {system_service}.disabled {system_service}; systemctl daemon-reload")
+
         # no bridge in beiboot mode
         if not testlib.isBeibootLogin():
             self.assertNotIn("\nupdates", m.execute("cockpit-bridge --packages"))
@@ -1278,7 +1299,10 @@ ExecStart=/usr/local/bin/{packageName}
         # but applying updates is not; FIXME: this is a crappy UX
         b.click("#available-updates button#install-all")
         # error message visible
-        b.wait_in_text("#app .pf-v6-c-code-block__content", "authentication")
+        if self.uses_dnf5daemon:
+            b.wait_in_text("#app .pf-v6-c-code-block__content", "Not authorized")
+        else:
+            b.wait_in_text("#app .pf-v6-c-code-block__content", "authentication")
 
         # page adjusts automatically to privilege change
         b.become_superuser()
@@ -1310,6 +1334,7 @@ class TestWsUpdate(NoSubManCase):
         # no security updates, no changelogs
         b = self.browser
         m = self.machine
+        self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
 
         install_lockfile = "/tmp/finish-pk"
         # updating this package takes longer than a cockpit start and building the page
@@ -1331,11 +1356,15 @@ class TestWsUpdate(NoSubManCase):
         m.restart_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_in_text("#app div.progress-description", "slow 1-2")
-        # progress bar has some reasonable value
-        progress = b.get_pf_progress_value(".progress-main-view")
-        self.assertGreater(progress, 20)
-        self.assertLess(progress, 80)
+        # DNF5Daemon does not allow one to hook into a running transaction nor does /run/dnf/rpmtransaction.lock provide interesting info
+        if self.uses_dnf5daemon:
+            b.wait_in_text("#app", "Initializing")
+        else:
+            b.wait_in_text("#app div.progress-description", "slow 1-2")
+            # progress bar has some reasonable value
+            progress = b.get_pf_progress_value(".progress-main-view")
+            self.assertGreater(progress, 20)
+            self.assertLess(progress, 80)
 
         # finish the package installation
         m.execute(f"touch {install_lockfile}")

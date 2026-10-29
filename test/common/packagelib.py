@@ -116,6 +116,10 @@ Server = file://{empty_repo_dir}
         self.machine.execute("systemctl reset-failed packagekit || true")
         self.restore_file("/var/lib/PackageKit/transactions.db")
 
+        # dnf5daemon has a clean update history
+        if self.backend == 'dnf5':
+            self.restore_file("/var/lib/rpm/rpmdb.db")
+
         if self.image in ["debian-trixie", "debian-testing"]:
             # PackageKit tries to resolve some DNS names, but our test VM is offline;
             # temporarily disable the name server to fail quickly
@@ -135,7 +139,7 @@ Server = file://{empty_repo_dir}
             self.addCleanup(self.machine.execute,
                             "rm -r /etc/systemd/system/dnf5-automatic*.d && systemctl daemon-reload || true")
 
-        self.updateInfo: dict[tuple[str, str, str], Mapping[str, str | list[str]]] = {}
+        self.updateInfo: dict[tuple[str, str, str, str | None], Mapping[str, str | list[str]]] = {}
 
         # HACK: kpatch check sometimes complains that we don't set up a full repo in unrelated tests
         self.allow_browser_errors("Could not determine kpatch packages:.*repodata updates was not complete")
@@ -167,7 +171,7 @@ Server = file://{empty_repo_dir}
             self.createRpm(name, version, release, depends, postinst, install=install, content=content,
                            arch=arch, provides=provides, conflicts=conflicts, obsoletes=obsoletes)
         if updateinfo:
-            self.updateInfo[name, version, release] = updateinfo
+            self.updateInfo[name, version, release, arch] = updateinfo
 
     def createDeb(self, name: str, version: str, depends: str, postinst: str | None = None, *, install: bool,
                   content: Mapping[str, Mapping[str, str] | str] | None = None,
@@ -405,7 +409,7 @@ post_upgrade() {{
 
     def createAptChangelogs(self) -> None:
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog
-        for ((pkg, ver, rel), info) in self.updateInfo.items():
+        for ((pkg, ver, rel, _arch), info) in self.updateInfo.items():
             changes = info.get("changes", "some changes")
             assert isinstance(changes, str)
             if info.get("bugs"):
@@ -429,7 +433,8 @@ post_upgrade() {{
 
     def createYumUpdateInfo(self) -> str:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n<updates>\n'
-        for ((pkg, ver, rel), info) in self.updateInfo.items():
+        print("UpdateInfo", self.updateInfo)
+        for ((pkg, ver, rel, arch), info) in self.updateInfo.items():
             refs = ""
             for b in info.get("bugs", []):
                 refs += f'      <reference href="https://bugs.example.com?bug={b}" id="{b}" title="Bug#{b} Description" type="bugzilla"/>\n'
@@ -455,14 +460,14 @@ post_upgrade() {{
     </references>
     <pkglist>
      <collection short="0815">
-        <package name="{pkg}" version="{ver}" release="{rel}" epoch="0" arch="noarch">
-          <filename>{pkg}-{ver}-{rel}.noarch.rpm</filename>
+        <package name="{pkg}" version="{ver}" release="{rel}" epoch="0" arch="{arch}">
+          <filename>{pkg}-{ver}-{rel}.{arch}.rpm</filename>
         </package>
       </collection>
     </pkglist>
   </update>
 """.format(pkg=pkg, ver=ver, rel=rel, refs=refs,
-                desc=info.get("changes", ""), severity=info.get("severity", "bugfix"))
+                desc=info.get("changes", ""), severity=info.get("severity", "bugfix"), arch=arch or "noarch")
 
         xml += '</updates>\n'
         return xml

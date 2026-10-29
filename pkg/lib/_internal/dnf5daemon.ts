@@ -54,6 +54,7 @@ interface ListPackage {
     release: { t: "s"; v: string };
     version: { t: "s"; v: string };
     nevra?: { t: "s"; v: string };
+    summary: { t: "s"; v: string };
 }
 
 interface CollectionPackage {
@@ -535,7 +536,7 @@ export class Dnf5DaemonManager implements PackageManager {
 
     async get_updates<T extends boolean>(detail: T, _progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]> {
         const update_map = new Map<string, Update | UpdateDetail>();
-        const package_attrs = ["name", "version", "arch", "epoch", "nevra"];
+        const package_attrs = ["name", "version", "arch", "epoch", "nevra", "summary"];
 
         await this.with_session(async (session) => {
             const pkgnames = [];
@@ -555,6 +556,7 @@ export class Dnf5DaemonManager implements PackageManager {
                     name: result.name.v,
                     arch: result.arch.v,
                     version: result.version.v,
+                    summary: result.summary.v,
                 });
             }
 

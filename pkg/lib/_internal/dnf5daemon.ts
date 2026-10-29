@@ -616,7 +616,7 @@ export class Dnf5DaemonManager implements PackageManager {
                                 ...update,
                                 description: advisory.description.v,
                                 severity,
-                                markdown: false,
+                                markdown: true,
                                 bug_urls,
                                 cve_urls,
                                 vendor_urls,

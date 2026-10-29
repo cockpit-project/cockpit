@@ -1300,7 +1300,12 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         # the container.
         if not m.ws_container:
             # make sure that there are no broken links in "our" directory
-            self.assertEqual(m.execute(f'find {branddir} -xtype l'), '')
+            find_broken = f'find {branddir} -xtype l'
+            # anaconda branding symlinks dangle on Fedora < 46 where fedora-logos
+            # does not ship the target files yet
+            if m.image in ["fedora-43", "fedora-44", "fedora-45"]:
+                find_broken += ' -not -name "anaconda-branding*" -not -name "webui-header-logo.png"'
+            self.assertEqual(m.execute(find_broken), '')
 
             # branding.css undergoes variable substitution based on the content of
             # /usr/lib/os-release.  Perform the substitution for ourselves for

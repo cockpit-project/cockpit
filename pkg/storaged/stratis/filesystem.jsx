@@ -70,7 +70,7 @@ export function make_stratis_filesystem_page(parent, pool, fsys,
                                   return is_valid_mount_point(client,
                                                               null,
                                                               client.add_mount_point_prefix(val),
-                                                              variant == "nomount");
+                                                              variant === "nomount");
                               }
                           }),
                 mount_options(false, false),

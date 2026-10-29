@@ -5,7 +5,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus, RunningUpdate } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus, RunningUpdate, UpdateProgressType } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -54,6 +54,8 @@ interface ListPackage {
     release: { t: "s"; v: string };
     version: { t: "s"; v: string };
     nevra?: { t: "s"; v: string };
+    evr: { t: "s"; v: string };
+    summary: { t: "s"; v: string };
 }
 
 interface CollectionPackage {
@@ -154,6 +156,27 @@ type RemoveResolveResult = [TransactionItem[], number]
 type UpgradeResolveResult = [TransactionItem[], number]
 
 type SignalCB = (_path: string, _iface: string, signal: string, args: unknown[]) => void
+
+// Convert NEVRA (e.g. "kernel-core-0:7.3.0-0.rc7.58.fc46.x86_64")
+// to PackageKit-style "name;version-release;arch"
+function nevraToPackageId(nevra: string): string {
+    const dotIdx = nevra.lastIndexOf('.');
+    if (dotIdx === -1) return nevra;
+    const arch = nevra.substring(dotIdx + 1);
+    const nameEvr = nevra.substring(0, dotIdx);
+
+    const relDash = nameEvr.lastIndexOf('-');
+    if (relDash === -1) return nevra;
+    const release = nameEvr.substring(relDash + 1);
+    const nameVer = nameEvr.substring(0, relDash);
+
+    const verDash = nameVer.lastIndexOf('-');
+    if (verDash === -1) return nevra;
+    const name = nameVer.substring(0, verDash);
+    const epochVersion = nameVer.substring(verDash + 1);
+
+    return `${name};${epochVersion}-${release};${arch}`;
+}
 
 /**
  * Call a dnf5daemon method
@@ -514,7 +537,7 @@ export class Dnf5DaemonManager implements PackageManager {
 
     async get_updates<T extends boolean>(detail: T, _progress_cb?: ProgressCB): Promise<T extends true ? UpdateDetail[] : Update[]> {
         const update_map = new Map<string, Update | UpdateDetail>();
-        const package_attrs = ["name", "version", "arch", "epoch", "nevra"];
+        const package_attrs = ["name", "version", "arch", "epoch", "nevra", "summary", "evr"];
 
         await this.with_session(async (session) => {
             const pkgnames = [];
@@ -533,7 +556,8 @@ export class Dnf5DaemonManager implements PackageManager {
                     id: result.name.v,
                     name: result.name.v,
                     arch: result.arch.v,
-                    version: result.version.v,
+                    version: result.evr.v,
+                    summary: result.summary.v,
                 });
             }
 
@@ -593,7 +617,7 @@ export class Dnf5DaemonManager implements PackageManager {
                                 ...update,
                                 description: advisory.description.v,
                                 severity,
-                                markdown: false,
+                                markdown: true,
                                 bug_urls,
                                 cve_urls,
                                 vendor_urls,
@@ -612,25 +636,102 @@ export class Dnf5DaemonManager implements PackageManager {
 
     async update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateProgressHandlers): Promise<TransactionExitStatus> {
         const pkgnames = updates.map(update => update.id);
-        let last_progress = 0;
-        let total_packages: number;
+
+        // dnf5daemon transaction action codes
+        const ACTION_INSTALL = 0;
+        const ACTION_REMOVE = 1;
+        const ACTION_UPGRADE = 2;
+
+        let totalDownloadBytes = 0;
+        let downloadedBytes = 0;
+        const downloadSizes = new Map<string, number>();
+        const downloadCompleted = new Set<string>();
+
+        let totalTransactionItems = 0;
+
+        function notifyDownloadProgress() {
+            if (totalDownloadBytes > 0)
+                handlers.on_notify({ percentage: (downloadedBytes / totalDownloadBytes) * 50, cancel: null });
+            else
+                handlers.on_notify({ percentage: 0, cancel: null });
+        }
 
         function signal_emitted(_path: string, _iface: string, signal: string, args: unknown[]) {
             switch (signal) {
-            case 'transaction_before_begin':
-                [, total_packages] = args as [string, number];
-                break;
-            case 'transaction_elem_progress': {
-                const [, _last_name, processed,] = args as [string, string, number, number];
-                last_progress = processed / total_packages * 100;
-                break;
+            // Phase 1: Download
+            case 'download_add_new': {
+                const [, downloadId, nevra, totalBytes] = args as [string, string, string, number];
+                downloadSizes.set(downloadId, totalBytes);
+                totalDownloadBytes += totalBytes;
+                handlers.on_package(UpdateProgressType.DOWNLOADING, nevraToPackageId(nevra));
+                notifyDownloadProgress();
+                return;
             }
+            case 'download_progress': {
+                const [, downloadId, , downloaded] = args as [string, string, number, number];
+                if (!downloadCompleted.has(downloadId)) {
+                    const otherCompleted = [...downloadCompleted].reduce((sum, id) => sum + (downloadSizes.get(id) ?? 0), 0);
+                    downloadedBytes = otherCompleted + Math.min(downloaded, downloadSizes.get(downloadId) ?? 0);
+                }
+                notifyDownloadProgress();
+                return;
+            }
+            case 'download_end': {
+                const [, downloadId] = args as [string, string, number, string];
+                downloadCompleted.add(downloadId);
+                downloadedBytes = [...downloadCompleted].reduce((sum, id) => sum + (downloadSizes.get(id) ?? 0), 0);
+                notifyDownloadProgress();
+                return;
             }
 
-            handlers.on_notify({
-                percentage: last_progress,
-                cancel: null,
-            });
+            // Phase 2: Verify (0/65 .. 64/65)
+            case 'transaction_verify_start':
+                handlers.on_package(UpdateProgressType.SIGCHECK, "");
+                return;
+            case 'transaction_verify_progress': {
+                const [, current, total] = args as [string, number, number];
+                handlers.on_notify({ percentage: 50 + (current / total) * 10, cancel: null });
+                return;
+            }
+
+            // Phase 3: Prepare (0/126 .. 125/126)
+            case 'transaction_transaction_progress': {
+                const [, current, total] = args as [string, number, number];
+                handlers.on_notify({ percentage: 60 + (current / total) * 10, cancel: null });
+                return;
+            }
+
+            // Phase 3 also: record total for elem_progress
+            case 'transaction_before_begin':
+                [, totalTransactionItems] = args as [string, number];
+                return;
+
+            // Phase 4: Per-package actions
+            case 'transaction_action_start': {
+                const [, nevra, action] = args as [string, string, number, number];
+                let status: UpdateProgressType;
+                switch (action) {
+                case ACTION_INSTALL:
+                    status = UpdateProgressType.INSTALLING;
+                    break;
+                case ACTION_REMOVE:
+                    status = UpdateProgressType.CLEANUP;
+                    break;
+                case ACTION_UPGRADE:
+                    status = UpdateProgressType.UPDATING;
+                    break;
+                default:
+                    status = UpdateProgressType.UPDATING;
+                }
+                handlers.on_package(status, nevraToPackageId(nevra));
+                return;
+            }
+            case 'transaction_elem_progress': {
+                const [, , processed] = args as [string, string, number, number];
+                if (totalTransactionItems > 0)
+                    handlers.on_notify({ percentage: 70 + (processed / totalTransactionItems) * 30, cancel: null });
+            }
+            }
         }
 
         await this.with_session(async (session) => {
@@ -646,8 +747,46 @@ export class Dnf5DaemonManager implements PackageManager {
         return TransactionExitStatus.SUCCESS;
     }
 
+    /**
+     * Best effort implementation of detecting a running dnf update. Since DNF
+     * 5.4 dnf drops a lockfile in /run/dnf/ when a transaction is executed,
+     * this is the only way for Cockpit to know that there is an active dnf
+     * upgrade process running.
+     *
+     * This lockfile is only created during the transaction phase so not when
+     * dnf is downloading new packages. Cockpit also cannot subscribe to any
+     * update events when a transaction is running.
+     *
+     * The implementation below doesn not first try to read the lock file and
+     * then watch it as that would be racy and as cockpit.file().watch() does
+     * not return a promise it is wrapped in a promise and requires us to track
+     * if we are dealing with the initial watch callback or not.
+     */
     async get_running_update(_handlers: UpdateProgressHandlers): Promise<RunningUpdate | null> {
-        return null;
+        const lockfile = "/run/dnf/rpmtransaction.lock";
+        let initial_callback = true;
+
+        let watch_resolve: (status: TransactionExitStatus) => void;
+        const promise = new Promise<TransactionExitStatus>(resolve => { watch_resolve = resolve });
+
+        return new Promise<RunningUpdate | null>((resolve, _reject) => {
+            const watch = cockpit.file(lockfile, { superuser: "try" }).watch((content) => {
+                if (initial_callback) {
+                    initial_callback = false;
+                    if (content === null)
+                        resolve(null);
+                    else {
+                        // HACK: The lock file holds does not emit progress changes but only holds some static transaction information
+                        resolve({ promise });
+                    }
+                } else {
+                    if (content === null) {
+                        watch_resolve(TransactionExitStatus.SUCCESS);
+                        watch.remove();
+                    }
+                }
+            });
+        });
     }
 
     async get_backend(): Promise<string> {
@@ -680,7 +819,7 @@ export class Dnf5DaemonManager implements PackageManager {
                 if (result.upgraded.v.length === 0)
                     continue;
 
-                const timestamp = result.end.v;
+                const timestamp = result.end.v * 1000;
                 const pkgs = { timestamp, packages: {} } as History;
 
                 for (const pkg of result.upgraded.v) {

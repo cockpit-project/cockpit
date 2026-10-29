@@ -1049,9 +1049,7 @@ class OsUpdates extends React.Component {
             checkRestartRunning: false,
             showRestartServicesDialog: false,
             showRebootSystemDialog: false,
-            backend: "",
             rebootAfterSuccess: false,
-            packageManager: null,
             partialUpdates: false,
         };
         this.handleLoadError = this.handleLoadError.bind(this);
@@ -1059,6 +1057,9 @@ class OsUpdates extends React.Component {
         this.loadUpdates = this.loadUpdates.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
         this.checkNeedsRestart = this.checkNeedsRestart.bind(this);
+
+        this.packageManager = null;
+        this.backend = "";
     }
 
     onValueChanged(key, value) {
@@ -1071,15 +1072,14 @@ class OsUpdates extends React.Component {
 
         superuser.addEventListener("changed", this.handleSuperUserChange);
 
-        // HACK: force usage of PackageKit backend
-        const packageManager = await getPackageManager(true);
-        const backend = await packageManager.get_backend();
-        const partialUpdates = is_partial_updates_supported(backend);
-        this.setState({ packageManager, backend, partialUpdates });
+        this.packageManager = await getPackageManager();
+        this.backend = await this.packageManager.get_backend();
+        const partialUpdates = is_partial_updates_supported(this.backend);
+        this.setState({ partialUpdates });
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         try {
-            const running_update = await packageManager.get_running_update({
+            const running_update = await this.packageManager.get_running_update({
                 on_package: (status, packageId) => this.setState(prevState =>
                     ({ applyActions: [...prevState.applyActions, { status, packageId }] })
                 ),
@@ -1240,17 +1240,17 @@ class OsUpdates extends React.Component {
 
         // check if there is an available version of coreutils; this is a heuristics for unregistered RHEL
         // systems to see if they need a subscription to get "proper" OS updates
-        this.state.packageManager.is_available(["coreutils"])
+        this.packageManager.is_available(["coreutils"])
                 .then((have_coreutils) => this.setState({ haveOsRepo: have_coreutils }),
                       ex => console.warn("Resolving coreutils failed:", JSON.stringify(ex)))
-                .then(() => this.state.packageManager.get_updates(true, null).then(updates => {
+                .then(() => this.packageManager.get_updates(true, null).then(updates => {
                     debug("GetUpdates result:", updates);
                     if (updates.length) {
                         for (const update of updates) {
                             if (update.name === 'cockpit-ws') {
                                 cockpitUpdate = true;
                             // Arch Linux has no cockpit-ws package
-                            } else if (update.name === 'cockpit' && this.state.backend === "alpm") {
+                            } else if (update.name === 'cockpit' && this.backend === "alpm") {
                                 cockpitUpdate = true;
                             }
                         }
@@ -1265,7 +1265,7 @@ class OsUpdates extends React.Component {
 
     async loadHistory() {
         try {
-            const history = await this.state.packageManager.get_history();
+            const history = await this.packageManager.get_history();
             this.setState({ history });
         } catch (exc) {
             console.warn("Failed to load old transactions (history):", exc);
@@ -1288,7 +1288,7 @@ class OsUpdates extends React.Component {
 
     async loadOrRefresh(always_load) {
         try {
-            const seconds = await this.state.packageManager.get_last_refresh_time();
+            const seconds = await this.packageManager.get_last_refresh_time();
             this.setState({ timeSinceRefresh: seconds });
 
             // automatically trigger refresh for ≥ 1 day or if never refreshed
@@ -1361,7 +1361,7 @@ class OsUpdates extends React.Component {
         this.setState({ state: "applying", applyTransactionProps: {}, applyActions: [] });
 
         this.handleRunningUpdate(
-            this.state.packageManager.update_packages(updates, {
+            this.packageManager.update_packages(updates, {
                 on_package: (status, packageId) => this.setState(prevState =>
                     ({ applyActions: [...prevState.applyActions, { status, packageId }] })
                 ),
@@ -1475,6 +1475,7 @@ class OsUpdates extends React.Component {
                                        applyKpatches={applyKpatches}
                                        highestSeverity={highest_severity}
                                        onValueChanged={this.onValueChanged}
+                                       backend={this.backend}
                                        {...this.state} />
                         </Gallery>
                     </PageSection>
@@ -1603,7 +1604,7 @@ class OsUpdates extends React.Component {
             return (
                 <PageSection hasBodyWrapper={false}>
                     <Gallery className='ct-cards-grid' hasGutter>
-                        <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} {...this.state} />
+                        <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} backend={this.backend} {...this.state} />
                     </Gallery>
                     { this.state.showRestartServicesDialog &&
                     <RestartServicesDialog restartPackages={this.state.restartPackages}
@@ -1628,7 +1629,7 @@ class OsUpdates extends React.Component {
 
     handleRefresh() {
         this.setState({ state: "refreshing", loadPercent: null });
-        this.state.packageManager.refresh(true, data => this.setState({ loadPercent: data.percentage }))
+        this.packageManager.refresh(true, data => this.setState({ loadPercent: data.percentage }))
                 .then(() => {
                     if (this._mounted === false)
                         return;

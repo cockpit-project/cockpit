@@ -246,7 +246,7 @@ class VDODetails extends React.Component {
                     action: function (vals) {
                         if (vals.lsize > vdo.logical_size)
                             return vdo.grow_logical(vals.lsize).then(() => {
-                                if (block && block.IdUsage == "filesystem")
+                                if (block && block.IdUsage === "filesystem")
                                     return cockpit.spawn(["fsadm", "resize",
                                         decode_filename(block.Device)],
                                                          { superuser: "require", err: "message" });
@@ -257,7 +257,7 @@ class VDODetails extends React.Component {
         }
 
         function fmt_perc(num) {
-            if (num || num == 0)
+            if (num || num === 0)
                 return num + "%";
             else
                 return "--";

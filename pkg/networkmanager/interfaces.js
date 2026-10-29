@@ -2175,6 +2175,11 @@ export function is_wireless(iface) {
     return iface.Device?.DeviceType === '802-11-wireless';
 }
 
+export function toggleConnectionAutoconnect(model, dev, con, settings, autoconnect) {
+    settings.connection.autoconnect = autoconnect;
+    return settings_applier(model, dev, con)(settings);
+}
+
 export function init() {
     cockpit.translate();
 }

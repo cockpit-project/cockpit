@@ -51,10 +51,10 @@ import {
     free_member_connection,
     is_managed,
     render_active_connection,
-    settings_applier,
     show_error_dialog,
     show_unexpected_error,
     syn_click,
+    toggleConnectionAutoconnect,
     with_checkpoint,
 } from './interfaces.js';
 import {
@@ -521,8 +521,7 @@ export const NetworkInterfacePage = ({
                         <DescriptionListDescription data-label="General">
                             <Checkbox id="autoreconnect" isDisabled={!privileged}
                                       onChange={(_event, checked) => {
-                                          settings.connection.autoconnect = checked;
-                                          settings_applier(model, dev, con)(settings);
+                                          toggleConnectionAutoconnect(model, dev, con, settings, checked);
                                       }}
                                       isChecked={settings.connection.autoconnect}
                                       label={_("Connect automatically")} />

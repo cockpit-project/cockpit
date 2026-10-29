@@ -1238,7 +1238,7 @@ ExecStart=/usr/local/bin/{packageName}
         m = self.machine
 
         m.execute("systemctl stop packagekit")
-        system_service = m.execute("systemctl show -p FragmentPath packagekit.service | cut -f2 -d=").strip()
+        system_service = m.execute("systemctl show --value -p FragmentPath packagekit.service").strip()
         m.execute(f"""mv {system_service} {system_service}.disabled
                      mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled
                      systemctl daemon-reload""")

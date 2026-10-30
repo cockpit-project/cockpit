@@ -44,6 +44,10 @@ Cockpit is [available in numerous Linux distributions](https://repology.org/proj
 
 We also provide a Flatpak app called [Cockpit Client](https://flathub.org/en/apps/org.cockpit_project.CockpitClient) which includes SSH login support to Linux servers.
 
+## One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/Cockpit/)
+
 ## Screenshots
 
 | Light                                                                         | Dark                                                                        |

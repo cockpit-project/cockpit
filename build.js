@@ -11,7 +11,7 @@ import { getFiles, getTestFiles, all_subdirs } from './files.js';
 
 const srcdir = import.meta.dirname;
 const production = process.env.NODE_ENV === 'production';
-const useWasm = os.arch() != 'x64';
+const useWasm = os.arch() !== 'x64';
 
 // ensure node_modules is present and up to date
 child_process.spawnSync('tools/node-modules', ['make_package_lock_json'], { stdio: 'inherit', cwd: srcdir });
@@ -173,7 +173,7 @@ async function build() {
             podir: path.join(srcdir, 'po'),
             subdirs: args.onlydir ? [args.onlydir] : all_subdirs,
             // login page does not have cockpit.js, but reads window.cockpit_po
-            wrapper: subdir => subdir == "static" ? "window.cockpit_po = PO_DATA;" : undefined,
+            wrapper: subdir => subdir === "static" ? "window.cockpit_po = PO_DATA;" : undefined,
         }),
 
         // copy the static asset files determined in ./files.js

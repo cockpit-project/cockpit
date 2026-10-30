@@ -1733,21 +1733,25 @@ export function complete_settings(settings, device) {
 export function createGhostConnectionSettings(ifaceName, dev) {
     const settings = {
         connection: {
-            interface_name: ifaceName
+            interface_name: ifaceName,
+            autoconnect: true,
+            autoconnect_priority: 0,
         },
         ipv4: {
             method: "auto",
             address_data: [],
             dns_data: [],
             dns_search: [],
-            route_data: []
+            route_data: [],
+            gateway: "",
         },
         ipv6: {
             method: "auto",
             address_data: [],
             dns_data: [],
             dns_search: [],
-            route_data: []
+            route_data: [],
+            gateway: "",
         }
     };
     complete_settings(settings, dev);

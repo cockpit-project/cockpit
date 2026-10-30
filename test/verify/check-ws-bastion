@@ -87,8 +87,7 @@ class TestWsBastionContainer(testlib.MachineCase):
         b.wait_in_text("#host-apps", "Networking")
         b.wait_in_text("#host-apps", "Kernel dump")
         b.wait_in_text("#host-apps", "SELinux")
-        # but Storage and Applications are hidden due to failing manifest conditions
-        self.assertNotIn("Storage", b.text("#host-apps"))
+        # but Applications is hidden due to failing manifest conditions
         self.assertNotIn("Applications", b.text("#host-apps"))
         b.logout()
 

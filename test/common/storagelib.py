@@ -693,9 +693,6 @@ class StorageCase(StorageHelpers):
 
     def setUp(self) -> None:
 
-        if self.image == "fedora-coreos":
-            self.skipTest("No udisks/cockpit-storaged on OSTree images")
-
         super().setUp()
 
         # OSTree friendly, automatically unmounted and cleaned up

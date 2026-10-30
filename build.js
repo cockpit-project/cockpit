@@ -164,8 +164,6 @@ async function build() {
         })
     ];
 
-    const getTime = () => new Date().toTimeString().split(' ')[0];
-
     const pkgLastPlugins = [
         cockpitPoEsbuildPlugin({
             subdirs: args.onlydir ? [args.onlydir] : all_subdirs,
@@ -197,7 +195,17 @@ async function build() {
         {
             name: 'notify-end',
             setup(build) {
-                build.onEnd(() => console.log(`${getTime()}: Build finished`));
+                let startTime;
+
+                build.onStart(() => {
+                    startTime = new Date();
+                });
+
+                build.onEnd(() => {
+                    const endTime = new Date();
+                    const timeStamp = endTime.toTimeString().split(' ')[0];
+                    console.log(`${timeStamp}: Build finished in ${endTime - startTime} ms`);
+                });
             }
         },
 

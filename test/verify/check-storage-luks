@@ -8,6 +8,7 @@
 import json
 import os
 import subprocess
+import time
 
 import packagelib
 import storagelib
@@ -366,6 +367,15 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         "0": {"memory_mb": 1400 if os.environ.get("TEST_OS", "").startswith("rhel-8-") else None}
     }
 
+    def rhel_8_courtesy_wait(self):
+        if self.machine.image == "rhel-8-10":
+            # Udisks2 2.9.0 in rhel-8-10 is missing commit
+            # 13d3f34fbe21bba95e0eb1e9f3c2e5122ec694d3 and thus method
+            # calls like UpdateConfigurationItem return too early,
+            # before the changes that they have made are reflected in
+            # the D-Bus properties.  Let's be polite and wait a bit.
+            time.sleep(5)
+
     def testLuks1Slots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
@@ -416,16 +426,19 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         b.click(self.card_button("Filesystem", "Mount"))
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
         self.wait_mounted("ext4 filesystem")
+        self.rhel_8_courtesy_wait()
         self.assert_not_in_configuration(dev, "crypttab", "options", "noauto")
         self.assert_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
         # unlock with second passphrase
         b.click(self.card_button("ext4 filesystem", "Unmount"))
         self.confirm()
+        self.rhel_8_courtesy_wait()
         self.assert_in_configuration(dev, "crypttab", "options", "noauto")
         self.assert_in_child_configuration(dev, "fstab", "opts", "noauto")
         self.wait_not_mounted("Filesystem")
         b.click(self.card_button("Filesystem", "Mount"))
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
+        self.rhel_8_courtesy_wait()
         self.assert_not_in_configuration(dev, "crypttab", "options", "noauto")
         self.assert_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
         self.wait_mounted("ext4 filesystem")
@@ -443,6 +456,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
         # check that it is not possible to unlock with deleted passphrase
         b.click(self.card_button("ext4 filesystem", "Unmount"))
         self.confirm()
+        self.rhel_8_courtesy_wait()
         self.assert_in_configuration(dev, "crypttab", "options", "noauto")
         self.assert_in_child_configuration(dev, "fstab", "opts", "noauto")
         self.wait_not_mounted("Filesystem")
@@ -509,6 +523,7 @@ class TestStorageLuksDestructive(storagelib.StorageCase):
             b.click(self.card_button("Filesystem", "Mount"))
             self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-8"})
             self.wait_mounted("ext4 filesystem")
+            self.rhel_8_courtesy_wait()
             self.assert_not_in_configuration(dev, "crypttab", "options", "noauto")
             self.assert_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
 

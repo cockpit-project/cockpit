@@ -51,7 +51,7 @@ function ph_wait_visible(sel) {
         const el = window.cur_doc.querySelector(sel);
         if (el === null)
             return false;
-        return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none"));
+        return el.tagName === "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility === "hidden" || el.style.display === "none"));
     }, 10000, "timed out waiting for " + sel + " to be visible");
 }
 
@@ -60,7 +60,7 @@ function ph_wait_not_visible(sel) {
         const el = window.cur_doc.querySelector(sel);
         if (el === null)
             return true;
-        return !(el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none")));
+        return !(el.tagName === "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility === "hidden" || el.style.display === "none")));
     }, 10000, "timed out waiting for " + sel + " to be visible");
 }
 
@@ -77,7 +77,7 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
     const el = window.cur_doc.querySelector(sel);
 
     /* The element has to be visible, and not collapsed */
-    if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName != 'svg')
+    if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName !== 'svg')
         throw new Error(sel + " is not visible");
 
     /* The event has to actually work */

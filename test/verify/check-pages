@@ -559,7 +559,7 @@ OnCalendar=daily
 
         # Check what's going on while playground/preloaded is still invisible
         b.switch_to_top()
-        b.wait_attr('iframe[name="cockpit1:localhost/playground/preloaded"]', 'data-loaded', 1)
+        b.wait_attr('iframe[name="cockpit1:localhost/playground/preloaded"]', 'data-loaded', "1")
         b.switch_to_frame("cockpit1:localhost/playground/preloaded")
         b.wait_js_func('ph_text_is', "#host", m.execute("hostname").replace("\n", ""))
         time.sleep(3)

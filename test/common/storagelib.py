@@ -249,11 +249,11 @@ class StorageHelpers(MachineCase):
             self.browser.wait_val(sel + " .size-unit select", unit)
             self.browser.wait_val(sel + " .size-text input", str(val))
         elif ftype == "select":
-            self.browser.wait_attr(sel, "data-value", val)
+            self.browser.wait_attr(sel, "data-value", str(val))
         elif ftype == "checkbox":
             self.browser.wait_visible(sel + (":checked" if val else ":not(:checked)"))
         else:
-            self.browser.wait_val(sel, val)
+            self.browser.wait_val(sel, str(val))
 
     def dialog_wait_error(self, field: str, val: str) -> None:
         # XXX - allow for more than one error

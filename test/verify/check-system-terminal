@@ -223,7 +223,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_in_text(line_sel(n), '$')
 
         # Test changing of font size
-        b.wait_val("#toolbar input", 16)
+        b.wait_val("#toolbar input", "16")
         current_style = b.attr(".xterm-accessibility-tree div:first-child", "style")
         b.click("#toolbar button[aria-label='Increase by one']")
         new_style = b.attr(".xterm-accessibility-tree div:first-child", "style")
@@ -246,16 +246,16 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.wait_visible('.terminal')
         b.wait_in_text(line_sel(n), '$')
         b.wait_attr_contains(".xterm-scrollable-element", "style", white_style)
-        b.wait_val("#toolbar input", 17)
+        b.wait_val("#toolbar input", "17")
         b.wait_attr(".xterm-accessibility-tree div:first-child", "style", new_style)
         b.click("#toolbar button[aria-label='Decrease by one']")
-        b.wait_val("#toolbar input", 16)
+        b.wait_val("#toolbar input", "16")
         b.wait_attr(".xterm-accessibility-tree div:first-child", "style", current_style)
 
         # Check limit for font size
         for i in range(15, 5, -1):
             b.click("#toolbar button[aria-label='Decrease by one']")
-            b.wait_val("#toolbar input", i)
+            b.wait_val("#toolbar input", str(i))
         b.wait_visible("#toolbar button[aria-label='Decrease by one']:disabled")
 
     @testlib.skipBrowser("WebGL2 is not supported in firefox headless mode, terminal page will not load", "firefox")

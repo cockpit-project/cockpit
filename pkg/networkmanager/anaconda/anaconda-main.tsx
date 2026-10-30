@@ -20,19 +20,19 @@ import {
 } from "../interfaces.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { AnacondaNetworkInterface } from "./anaconda-network-interface.jsx";
+import { NMInterface } from "../utils.js";
 
 const _ = cockpit.gettext;
 
 interface AnacondaInterfaceRowProps {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    iface: any;
+    iface: NMInterface;
     setSelectedIfaceName: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const AnacondaInterfaceRow = ({ iface, setSelectedIfaceName }: AnacondaInterfaceRowProps) => {
     const dev = iface.Device;
     // Show WiFi name in the list
-    const ssid = dev.ActiveAccessPoint ? dev.ActiveAccessPoint.Ssid : null;
+    const ssid = dev?.ActiveAccessPoint ? dev?.ActiveAccessPoint.Ssid : null;
     const ifaceDisplayName = ssid ? `${iface.Name} (${ssid})` : iface.Name;
     const connectionStatus = dev.ActiveConnection ? _("Connected") : _("Disconnected");
 
@@ -56,8 +56,7 @@ const AnacondaInterfaceRow = ({ iface, setSelectedIfaceName }: AnacondaInterface
 
 interface AnacondaNetworkPageProps {
     operationInProgress: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    interfaces: any[];
+    interfaces: NMInterface[];
 }
 
 export const AnacondaNetworkPage = ({ operationInProgress, interfaces }: AnacondaNetworkPageProps) => {

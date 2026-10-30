@@ -10,20 +10,55 @@ const _ = cockpit.gettext;
 
 type IPAddress = ipaddr.IPv4 | ipaddr.IPv6;
 
-type NetworkManagerSettings = {
-    connection: {
-        id: string;
-        uuid?: string;
-        interface_name: string | undefined;
-        multi_connect?: number;
-        type: string
-        autoconnect_priority: number;
-    }
+// Partial NetworkManager objects types
+
+type NMIPMethod = "auto" | "manual" | "dhcp" | "link-local" | "ignore" | "shared" | "disabled";
+
+type NMIPSettings = {
+    method: NMIPMethod;
+    address_data: {
+        address: string;
+        prefix: string;
+    }[];
+    dns_data: string[];
+    dns_search: string[];
+    route_data: unknown[];
+    gateway: string;
 }
 
-type NetworkManagerConnection = {
-    Settings: NetworkManagerSettings;
+export type NMConnectionSettings = {
+    connection: {
+        interface_name: string | undefined;
+        autoconnect: boolean;
+        autoconnect_priority: number;
+        // Optional because createGhostConnectionSettings() doesn't set default values
+        id?: string;
+        uuid?: string;
+        multi_connect?: number;
+        type?: string;
+    };
+    ipv4?: NMIPSettings;
+    ipv6?: NMIPSettings;
+}
+
+export type NMConnection = {
+    Settings?: NMConnectionSettings;
     Unsaved: boolean;
+}
+
+export type NMDevice = {
+    StateText: string;
+    // this is type_ActiveConnection
+    ActiveConnection: unknown;
+    ActiveAccessPoint?: {
+        Ssid: string;
+    } | null;
+}
+
+export type NMInterface = {
+    Name: string;
+    Device: NMDevice;
+    MainConnection: NMConnection | null;
 }
 
 /* NetworkManager specific data conversions and utility functions.
@@ -333,7 +368,7 @@ export function list_interfaces() {
 // on top of this, remove the multiconnection settings and assign it directly
 // to interface. This is done for Anaconda in order to avoid creating unexpected
 // multiconnections when user modifies the connection during installation.
-export function isNonPersistentMultiCon(connection: NetworkManagerConnection): boolean {
+export function isNonPersistentMultiCon(connection: NMConnection): boolean {
     const settings = connection?.Settings;
     if (settings &&
         settings.connection.interface_name === undefined &&
@@ -347,7 +382,7 @@ export function isNonPersistentMultiCon(connection: NetworkManagerConnection): b
     return false;
 }
 
-export function createNewConnSettings(settings: NetworkManagerSettings, iface_name: string) {
+export function createNewConnSettings(settings: NMConnectionSettings, iface_name: string) {
     const newSettings = {
         ...settings,
         connection: {

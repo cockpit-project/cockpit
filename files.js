@@ -67,6 +67,7 @@ const info = {
         "base1/test-http.js",
         "base1/test-info.ts",
         "base1/test-journal-renderer.js",
+        "base1/test-logs-url.js",
         "base1/test-locale.js",
         "base1/test-location.js",
         "base1/test-metrics.js",

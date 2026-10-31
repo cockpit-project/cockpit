@@ -18,6 +18,8 @@ import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchIn
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem, ToolbarToggleGroup } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import {
+    CheckIcon,
+    CopyIcon,
     ExternalLinkSquareAltIcon,
     FilterIcon,
     HelpIcon,
@@ -97,6 +99,57 @@ export const LogsPage = () => {
     const [textFilter, setTextFilter] = useState(full_grep);
     const [timeFilter, setTimeFilter] = useState(getTimeFilterOption(options));
     const [updateIdentifiersList, setUpdateIdentifiersList] = useState(true);
+    const [copiedLogs, setCopiedLogs] = useState(false);
+    const [hasLogs, setHasLogs] = useState(false);
+
+    const copyVisibleLogs = () => {
+        const selection = window.getSelection()?.toString();
+        if (selection && selection.trim().length > 0) {
+            navigator.clipboard.writeText(selection)
+                    .then(() => {
+                        setCopiedLogs(true);
+                        setTimeout(() => setCopiedLogs(false), 2000);
+                    })
+                    .catch(err => console.error("Failed to copy logs:", err));
+            return;
+        }
+
+        const logContainer = document.getElementById("journal-logs");
+        if (!logContainer)
+            return;
+
+        const lines = [];
+        const children = logContainer.children;
+        for (let i = 0; i < children.length; i++) {
+            const el = children[i];
+            if (el.classList.contains("panel-heading")) {
+                lines.push(`--- ${el.textContent.trim()} ---`);
+            } else if (el.classList.contains("cockpit-logline")) {
+                const reboot = el.querySelector(".cockpit-logmsg-reboot");
+                if (reboot) {
+                    lines.push(`[${reboot.textContent.trim()}]`);
+                    continue;
+                }
+                const time = el.querySelector(".cockpit-log-time")?.textContent?.trim() || "";
+                const service = el.querySelector(".cockpit-log-service, .cockpit-log-service-reduced")?.textContent?.trim() || "";
+                const message = el.querySelector(".cockpit-log-message")?.textContent?.trim() || "";
+                if (time || service || message) {
+                    const prefix = [time, service].filter(Boolean).join(" ");
+                    lines.push(prefix ? `${prefix}: ${message}` : message);
+                }
+            }
+        }
+
+        if (lines.length === 0)
+            return;
+
+        navigator.clipboard.writeText(lines.join("\n"))
+                .then(() => {
+                    setCopiedLogs(true);
+                    setTimeout(() => setCopiedLogs(false), 2000);
+                })
+                .catch(err => console.error("Failed to copy logs:", err));
+    };
 
     useEffect(() => {
         checkJournalctlGrep(setShowTextSearch);
@@ -222,6 +275,17 @@ export const LogsPage = () => {
                                 <ToolbarItem variant="separator" />
 
                                 <ToolbarItem>
+                                    <Button id="journal-copy-logs"
+                                            variant="secondary"
+                                            isDisabled={!hasLogs}
+                                            onClick={copyVisibleLogs}
+                                            icon={copiedLogs ? <CheckIcon className="ct-icon-copy-success" /> : <CopyIcon />}
+                                            aria-label={copiedLogs ? _("Copied logs to clipboard") : _("Copy logs to clipboard")}>
+                                        {copiedLogs ? _("Copied") : _("Copy logs")}
+                                    </Button>
+                                </ToolbarItem>
+
+                                <ToolbarItem>
                                     <Button id="journal-follow"
                                                 variant="secondary"
                                                 isDisabled={options.boot && options.boot !== "0"}
@@ -252,6 +316,7 @@ export const LogsPage = () => {
                             currentIdentifiers={currentIdentifiers}
                             setCurrentIdentifiers={setCurrentIdentifiers}
                             setFilteredQuery={setFilteredQuery}
+                            setHasLogs={setHasLogs}
                             updateIdentifiersList={updateIdentifiersList}
                             setUpdateIdentifiersList={setUpdateIdentifiersList} />
             </PageSection>

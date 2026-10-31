@@ -47,14 +47,52 @@
   --log-message: 1fr;
   --log-service-min: 0;
   --log-service: minmax(var(--log-service-min), max-content);
+  --log-actions: max-content;
   background-color: var(--ct-color-list-bg);
   font-size: var(--pf-t--global--font--size--sm);
   padding-block: 0.5rem;
   padding-inline: 1rem;
   display: grid;
-  grid-template-columns: var(--log-icon) var(--log-time) var(--log-message) var(--log-service);
+  grid-template-columns: var(--log-icon) var(--log-time) var(--log-message) var(--log-service) var(--log-actions);
   gap: var(--pf-t--global--spacer--sm);
   align-items: baseline;
+}
+
+.cockpit-log-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.cockpit-log-copy-btn {
+  padding-block: 0;
+  padding-inline: var(--pf-t--global--spacer--xs);
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.cockpit-logline:hover .cockpit-log-copy-btn,
+.cockpit-logline:focus-within .cockpit-log-copy-btn {
+  opacity: 1;
+}
+
+.cockpit-log-copy-btn .ct-icon-copy-success {
+  color: var(--pf-t--global--icon--color--status--success--default, #3e8635);
+}
+
+.cockpit-log-url {
+  color: var(--pf-t--global--color--link--default, #06c);
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.cockpit-log-url:hover {
+  color: var(--pf-t--global--color--link--hover, #004080);
+  text-decoration: underline;
+}
+
+.cockpit-log-panel .cockpit-logline:hover .cockpit-log-url {
+  color: var(--pf-t--global--color--link--hover, #004080);
 }
 
 .cockpit-log-panel .cockpit-logline:hover {

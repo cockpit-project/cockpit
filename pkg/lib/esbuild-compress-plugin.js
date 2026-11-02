@@ -35,9 +35,9 @@ export const cockpitCompressPlugin = ({ subdir = '', exclude = null } = {}) => (
     setup(build) {
         build.onEnd(async () => {
             const gzipPromises = [];
-            const path = "./dist/" + subdir;
+            const outpath = "./dist/" + subdir;
 
-            for await (const dirent of getAllFiles(path)) {
+            for await (const dirent of getAllFiles(outpath)) {
                 if (exclude && exclude.test(dirent))
                     continue;
                 if (dirent.endsWith('.js') || dirent.endsWith('.css')) {

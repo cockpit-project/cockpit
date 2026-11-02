@@ -10,7 +10,8 @@
 @include anaconda.anaconda-body-overflow-hack;
 
 #networking.anaconda {
-  // Add padding above "IP settings" description list
+  // Add padding between each description list
+  .description-list-with-action:not(:first-of-type),
   #ip-settings {
     margin-block-start: var(--pf-t--global--spacer--lg);
   }

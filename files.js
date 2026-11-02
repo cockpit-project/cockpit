@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import process from 'node:process';
 
 const info = {
     entries: [
@@ -154,8 +153,8 @@ const info = {
     ]
 };
 
-const srcdir = process.env.SRCDIR || '.';
-const nodedir = path.relative(process.cwd(), path.resolve(srcdir, "node_modules"));
+const srcdir = import.meta.dirname;
+const nodedir = path.join(srcdir, "node_modules");
 
 export const all_subdirs = Array.from(new Set(info.entries.map(key => key.split('/')[0])));
 

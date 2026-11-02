@@ -170,6 +170,7 @@ async function build() {
 
     const pkgLastPlugins = [
         cockpitPoEsbuildPlugin({
+            podir: path.join(srcdir, 'po'),
             subdirs: args.onlydir ? [args.onlydir] : all_subdirs,
             // login page does not have cockpit.js, but reads window.cockpit_po
             wrapper: subdir => subdir == "static" ? "window.cockpit_po = PO_DATA;" : undefined,

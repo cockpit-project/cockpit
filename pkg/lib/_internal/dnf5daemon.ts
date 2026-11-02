@@ -111,6 +111,8 @@ interface TransactionProblem {
 
 interface RepoListResult {
     cache_updated: { t: "x", "v": number };
+    metadata_expire: { t: "x", "v": number };
+    updated: { t: "x", "v": number };
 }
 
 interface HistoryListPackage {
@@ -796,8 +798,8 @@ export class Dnf5DaemonManager implements PackageManager {
     async get_last_refresh_time(): Promise<number> {
         let last_time = 0;
         await this.with_session(async (session) => {
-            // Bug? Does this need load repo? As the result was somehow -1 at one point.
-            const [results] = await call(session, "org.rpm.dnf.v0.rpm.Repo", "list", [{ repo_attrs: { t: 'as', v: ['cache_updated'] } }]) as RepoListResult[][];
+            // Also request metdata_expire to not run into https://github.com/rpm-software-management/dnf5/issues/3022
+            const [results] = await call(session, "org.rpm.dnf.v0.rpm.Repo", "list", [{ repo_attrs: { t: 'as', v: ['cache_updated', 'metadata_expire', 'updated'] } }]) as RepoListResult[][];
             for (const result of results) {
                 if (result.cache_updated.v > last_time)
                     last_time = result.cache_updated.v;

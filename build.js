@@ -179,7 +179,7 @@ async function build() {
             setup(build) {
                 build.onEnd(() => {
                     for (const file of [...assetFiles, ...redhat_fonts]) {
-                        const destDir = path.join('./dist', file.to);
+                        const destDir = path.join(pkgOptions.outdir, file.to);
                         fs.mkdirSync(destDir, { recursive: true });
                         fs.copyFileSync(file.from, path.join(destDir, path.basename(file.from)));
                     }
@@ -202,7 +202,7 @@ async function build() {
         },
 
         ...(args.rsync || process.env.RSYNC)
-            ? [cockpitRsyncEsbuildPlugin({ source: "dist/" + (args.onlydir || '') })]
+            ? [cockpitRsyncEsbuildPlugin({ source: `${pkgOptions.outdir}/${args.onlydir || ''}` })]
             : [],
     ];
 

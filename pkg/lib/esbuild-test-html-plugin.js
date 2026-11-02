@@ -18,7 +18,7 @@ export const cockpitTestHtmlPlugin = ({ testFiles }) => ({
                         .replaceAll("%title%", test)
                         .replaceAll("%builddir%", builddir)
                         .replaceAll("%script%", test + '.js');
-                const outdir = './qunit/' + path.dirname(file);
+                const outdir = path.join(build.initialOptions.outdir, path.dirname(file));
                 const outfile = test + ".html";
 
                 fs.mkdirSync(outdir, { recursive: true });

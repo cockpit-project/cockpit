@@ -7,20 +7,7 @@
   @include anaconda.embedded-page-shell;
 }
 
-// Main networking overview only: omit graphs and journal noise in the installer
-#networking.anaconda #networking-graphs,
-#networking.anaconda .cockpit-log-panel {
-  display: none;
-}
-
 @include anaconda.anaconda-body-overflow-hack;
-
-// Remove padding above device name (header) in the detail view
-#networking.anaconda #network-interface {
-  .pf-v6-c-card.pf-m-plain .pf-v6-c-card__header, .pf-v6-c-card.pf-m-plain > .pf-v6-c-card__title {
-    padding-block-start: 0;
-  }
-}
 
 #networking.anaconda {
   // Add padding above "IP settings" description list

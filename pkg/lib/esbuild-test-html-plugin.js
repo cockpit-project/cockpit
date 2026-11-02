@@ -8,10 +8,8 @@ export const cockpitTestHtmlPlugin = ({ testFiles }) => ({
             const data = fs.readFileSync(path.resolve(import.meta.dirname, "qunit-template.html.in"), "utf8");
             testFiles.forEach(file => {
                 const test = path.parse(file).name;
-                const builddir = file.split("/").map(() => "../").join("");
                 const output = data.toString()
                         .replaceAll("%title%", test)
-                        .replaceAll("%builddir%", builddir)
                         .replaceAll("%script%", test + '.js');
                 const outdir = path.join(build.initialOptions.outdir, path.dirname(file));
                 const outfile = test + ".html";

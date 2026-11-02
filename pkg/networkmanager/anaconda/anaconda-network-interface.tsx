@@ -17,11 +17,12 @@ import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ModelContext } from "../model-context";
 import { useEvent } from "hooks";
-import { active_connection_gateway, active_connection_ipv4, active_connection_ipv6, choice_title, connectInterface, createGhostConnectionSettings, disconnectInterface, is_managed, toggleConnectionAutoconnect, } from "../interfaces";
+import { active_connection_gateway, active_connection_ipv4, active_connection_ipv6, choice_title, connectInterface, createGhostConnectionSettings, disconnectInterface, is_managed, is_wireless, toggleConnectionAutoconnect, } from "../interfaces";
 import { get_ip_method_choices } from "../ip-settings";
 import { NetworkAction } from "../dialogs-common.jsx";
 import { NMConnectionSettings, NMDevice, NMInterface } from "../utils";
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
 const _ = cockpit.gettext;
 
@@ -222,6 +223,17 @@ export const AnacondaNetworkInterface = ({
         />
     );
 
+    const isWireless = is_wireless(iface);
+    const ssid = dev?.ActiveAccessPoint ? dev?.ActiveAccessPoint.Ssid : null;
+
+    const joinNetButton = (
+        <Button variant="secondary">
+            {_("Join another network")}
+        </Button>
+    );
+
+    const wifiSecurity = "WPA haha";
+
     return (
         <Card id="anaconda-network-interface">
             <CardHeader actions={{ actions: toggleDevAction }}>
@@ -232,6 +244,17 @@ export const AnacondaNetworkInterface = ({
                     dlDescription={connectionState(dev, isManaged)}
                     actionButton={autoconnectSwitch}
                 />
+                { isWireless &&
+                    <DescriptionListWithAction dlTerm={_("Network joined")}
+                        dlDescription={ssid ?? _("Disconnected")}
+                        actionButton={joinNetButton}
+                    />
+                }
+                { isWireless && ssid &&
+                    <DescriptionListWithAction dlTerm={_("Security type")}
+                        dlDescription={wifiSecurity}
+                    />
+                }
                 <DescriptionList id="ip-settings">
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("IP settings")}</DescriptionListTerm>

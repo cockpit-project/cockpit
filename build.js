@@ -19,6 +19,13 @@ child_process.spawnSync('tools/node-modules', ['make_package_lock_json'], { stdi
 // List of directories to use when resolving import statements
 const nodePaths = [`${srcdir}/pkg/lib`];
 
+const parser = (await import('argparse')).default.ArgumentParser();
+parser.add_argument('-o', '--outdir', { help: "base output directory", default: ".", metavar: "DIR" });
+parser.add_argument('-r', '--rsync', { help: "rsync bundles to ssh target after build", metavar: "HOST" });
+parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable watch mode" });
+parser.add_argument('onlydir', { nargs: '?', help: "The pkg/<DIRECTORY> to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
+const args = parser.parse_args();
+
 // context options for distributed pages in dist/
 const pkgOptions = {
     ...!production ? { sourcemap: "linked" } : {},
@@ -34,7 +41,7 @@ const pkgOptions = {
     minify: production,
     nodePaths,
     outbase: `${srcdir}/pkg`,
-    outdir: "./dist",
+    outdir: `${args.outdir}/dist`,
     target: ['es2021'],
 };
 
@@ -45,17 +52,11 @@ const qunitOptions = {
     minify: false,
     nodePaths,
     outbase: `${srcdir}/pkg`,
-    outdir: "./qunit",
+    outdir: `${args.outdir}/qunit`,
     loader: {
         ".sh": "text",
     },
 };
-
-const parser = (await import('argparse')).default.ArgumentParser();
-parser.add_argument('-r', '--rsync', { help: "rsync bundles to ssh target after build", metavar: "HOST" });
-parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable watch mode" });
-parser.add_argument('onlydir', { nargs: '?', help: "The pkg/<DIRECTORY> to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
-const args = parser.parse_args();
 
 if (args.onlydir?.includes('/'))
     parser.error("Directory must not contain '/'");
@@ -263,7 +264,7 @@ async function build() {
             const results = await Promise.all([pkgContext.rebuild(), qunitContext?.rebuild()]);
             // skip metafile and runtime module calculation in watch and onlydir modes
             if (!args.watch && !args.onlydir) {
-                fs.writeFileSync('metafile.json', JSON.stringify(results[0].metafile));
+                fs.writeFileSync(`${args.outdir}/metafile.json`, JSON.stringify(results[0].metafile));
 
                 // Extract bundled npm packages for dependency tracking
                 const bundledPackages = new Set();
@@ -287,7 +288,7 @@ async function build() {
                     else
                         console.error(`Warning: Could not find version for ${pkgName}`);
                 }
-                fs.writeFileSync('runtime-npm-modules.txt', deps.join('\n') + '\n');
+                fs.writeFileSync(`${args.outdir}/runtime-npm-modules.txt`, deps.join('\n') + '\n');
             }
         } catch (e) {
             const msg = String(e);

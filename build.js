@@ -9,14 +9,15 @@ import process from 'node:process';
 
 import { getFiles, getTestFiles, all_subdirs } from './files.js';
 
+const srcdir = import.meta.dirname;
 const production = process.env.NODE_ENV === 'production';
 const useWasm = os.arch() != 'x64';
 
 // ensure node_modules is present and up to date
-child_process.spawnSync('tools/node-modules', ['make_package_lock_json'], { stdio: 'inherit' });
+child_process.spawnSync('tools/node-modules', ['make_package_lock_json'], { stdio: 'inherit', cwd: srcdir });
 
 // List of directories to use when resolving import statements
-const nodePaths = ['pkg/lib'];
+const nodePaths = [`${srcdir}/pkg/lib`];
 
 // context options for distributed pages in dist/
 const pkgOptions = {
@@ -32,7 +33,7 @@ const pkgOptions = {
     metafile: true,
     minify: production,
     nodePaths,
-    outbase: './pkg',
+    outbase: `${srcdir}/pkg`,
     outdir: "./dist",
     target: ['es2021'],
 };
@@ -43,7 +44,7 @@ const qunitOptions = {
     bundle: true,
     minify: false,
     nodePaths,
-    outbase: './pkg',
+    outbase: `${srcdir}/pkg`,
     outdir: "./qunit",
     loader: {
         ".sh": "text",
@@ -146,7 +147,7 @@ async function build() {
 
     const { entryPoints, assetFiles, redhat_fonts } = getFiles(args.onlydir);
     const tests = getTestFiles();
-    const testEntryPoints = tests.map(test => "pkg/" + test);
+    const testEntryPoints = tests.map(test => `${srcdir}/pkg/${test}`);
 
     const pkgFirstPlugins = [
         cleanPlugin({ subdir: args.onlydir }),
@@ -155,7 +156,7 @@ async function build() {
     const pkgPlugins = [
         cockpitJSResolvePlugin,
         sassPlugin({
-            loadPaths: [...nodePaths, 'node_modules'],
+            loadPaths: [...nodePaths, `${srcdir}/node_modules`],
             filter: /\.scss/,
             quietDeps: true,
             silenceDeprecations: [
@@ -267,14 +268,16 @@ async function build() {
                 // Extract bundled npm packages for dependency tracking
                 const bundledPackages = new Set();
                 for (const inputPath of Object.keys(results[0].metafile.inputs)) {
+                    const rel = path.relative(srcdir, inputPath);
+
                     // Match paths like node_modules/package-name/ or node_modules/@scope/package-name/
-                    const match = inputPath.match(/^node_modules\/(@[^/]+\/[^/]+|[^/]+)\//);
+                    const match = rel.match(/^node_modules\/(@[^/]+\/[^/]+|[^/]+)\//);
                     if (match)
                         bundledPackages.add(match[1]);
                 }
 
                 // Look up versions from package-lock.json and output simple format
-                const packageLock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+                const packageLock = JSON.parse(fs.readFileSync(`${srcdir}/package-lock.json`, 'utf8'));
                 const deps = [];
                 for (const pkgName of Array.from(bundledPackages).sort()) {
                     const lockKey = `node_modules/${pkgName}`;
@@ -304,7 +307,7 @@ async function build() {
                 } catch (e) {} // ignore in watch mode
             };
 
-            watch_dirs('pkg', on_change);
+            watch_dirs(`${srcdir}/pkg`, on_change);
             // wait forever until Control-C
             await new Promise(() => {});
         }

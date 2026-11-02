@@ -255,28 +255,25 @@ export const AnacondaNetworkInterface = ({
                         dlDescription={wifiSecurity}
                     />
                 }
-                <DescriptionList id="ip-settings">
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>{_("IP settings")}</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            <IPConfigExpandable toggleText={_("IPv4")}
-                                onToggle={setIsIpv4Expanded}
-                                isExpanded={isIpv4Expanded}
-                                iface={iface}
-                                settings={connectionSettings}
-                                topic="ipv4"
-                            />
+                <DescriptionListWithAction dlTerm={_("IP settings")}
+                    dlDescription={<>
+                        <IPConfigExpandable toggleText={_("IPv4")}
+                            onToggle={setIsIpv4Expanded}
+                            isExpanded={isIpv4Expanded}
+                            iface={iface}
+                            settings={connectionSettings}
+                            topic="ipv4"
+                        />
 
-                            <IPConfigExpandable toggleText={_("IPv6")}
-                                onToggle={setIsIpv6Expanded}
-                                isExpanded={isIpv6Expanded}
-                                iface={iface}
-                                settings={connectionSettings}
-                                topic="ipv6"
-                            />
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                </DescriptionList>
+                        <IPConfigExpandable toggleText={_("IPv6")}
+                            onToggle={setIsIpv6Expanded}
+                            isExpanded={isIpv6Expanded}
+                            iface={iface}
+                            settings={connectionSettings}
+                            topic="ipv6"
+                        />
+                    </>}
+                />
             </CardBody>
         </Card>
     );

@@ -6,7 +6,6 @@
 import cockpit from "cockpit";
 import React, { useContext, useState } from 'react';
 
-import { Content, ContentVariants } from "@patternfly/react-core/dist/esm/components/Content/index.js";
 import {
     DescriptionList,
     DescriptionListDescription,
@@ -16,13 +15,13 @@ import {
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ModelContext } from "../model-context";
 import { useEvent } from "hooks";
 import { active_connection_gateway, active_connection_ipv4, active_connection_ipv6, choice_title, connectInterface, createGhostConnectionSettings, disconnectInterface, is_managed, toggleConnectionAutoconnect, } from "../interfaces";
 import { get_ip_method_choices } from "../ip-settings";
 import { NetworkAction } from "../dialogs-common.jsx";
 import { NMConnectionSettings, NMDevice, NMInterface } from "../utils";
+import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 
 const _ = cockpit.gettext;
 
@@ -94,24 +93,27 @@ const IPConfigExpandable = ({
         {
             term: _("IP address"),
             description: ipSettings.addresses.join(", "),
+            id: "ip-address",
         },
         {
             term: _("Default gateway"),
             description: ipSettings.gateway,
+            id: "gateway",
         },
         {
             term: _("DNS"),
             description: ipSettings.dns_data.join(", "),
+            id: "dns",
         },
     ];
 
     return (
-        <Flex
-            alignItems={{ default: 'alignItemsFlexStart' }}
-            flexWrap={{ default: 'nowrap' }}
+        <Flex className="ip-expandable"
+            alignItems={{ default: "alignItemsFlexStart" }}
+            flexWrap={{ default: "nowrap" }}
         >
-            <FlexItem flex={{ default: 'flex_1' }}>
-                <ExpandableSection
+            <FlexItem flex={{ default: "flex_1" }}>
+                <ExpandableSection id={`${topic}-expandable-section`}
                     toggleText={toggleText}
                     onToggle={(_event, expanded) => onToggle(expanded)}
                     isExpanded={isExpanded}
@@ -119,7 +121,7 @@ const IPConfigExpandable = ({
                 >
                     <DescriptionList aria-label={_("IP configuration")}>
                         {descriptionGroups.filter(group => !!group.description).map(group => (
-                            <DescriptionListGroup key={group.term}>
+                            <DescriptionListGroup key={group.term} id={group.id}>
                                 <DescriptionListTerm>{group.term}</DescriptionListTerm>
                                 <DescriptionListDescription>{group.description}</DescriptionListDescription>
                             </DescriptionListGroup>
@@ -136,6 +138,42 @@ const IPConfigExpandable = ({
                     isInline={false}
                 />
             </FlexItem>
+        </Flex>
+    );
+};
+
+interface DescriptionListWithAction {
+    id?: string;
+    dlTerm: React.ReactNode;
+    dlDescription: React.ReactNode;
+    actionButton?: React.ReactNode;
+}
+
+const DescriptionListWithAction = ({
+    id,
+    dlTerm,
+    dlDescription,
+    actionButton,
+}: DescriptionListWithAction) => {
+    return (
+        <Flex id={id}
+            alignItems={{ default: "alignItemsFlexStart" }}
+            justifyContent={{ default: "justifyContentSpaceBetween" }}
+            className="description-list-with-action"
+        >
+            <FlexItem grow={{ default: "grow" }}>
+                <DescriptionList>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{dlTerm}</DescriptionListTerm>
+                        <DescriptionListDescription>{dlDescription}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
+            </FlexItem>
+            { actionButton &&
+                <FlexItem id={id ? `${id}-action` : undefined}>
+                    {actionButton}
+                </FlexItem>
+            }
         </Flex>
     );
 };
@@ -169,77 +207,61 @@ export const AnacondaNetworkInterface = ({
     const connectionSettings = iface?.MainConnection?.Settings || (createGhostConnectionSettings(devName, dev) as NMConnectionSettings);
     const isManaged = iface && (!dev || is_managed(dev));
 
-    const connectionStatus = connectionState(dev, isManaged);
+    const toggleDevAction = (
+        <Switch id="network-interface-enable-device"
+            label={_("Enable device during installation")}
+            isReversed
+            isChecked={!!(dev?.ActiveConnection)}
+            onChange={(_event, enable) => enable
+                ? connectInterface(model, iface, dev, connectionSettings)
+                : disconnectInterface(model, iface, dev)}
+        />
+
+    );
+
+    const autoconnectSwitch = (
+        <Switch id="network-interface-connect-automatically"
+            label={_("Connect automatically on reboot")}
+            isReversed
+            isChecked={connectionSettings.connection.autoconnect}
+            onChange={(_event, checked) => toggleConnectionAutoconnect(model, dev, iface.MainConnection, connectionSettings, checked)}
+        />
+    );
 
     return (
-        <Stack hasGutter className="anaconda-network-interface">
-            {/* Header: device name and installation switches */}
-            <StackItem>
-                <Flex
-                    justifyContent={{ default: 'justifyContentSpaceBetween' }}
-                    flexWrap={{ default: 'nowrap' }}
-                >
-                    <FlexItem>
-                        <Content component={ContentVariants.h2}>{devName}</Content>
-                    </FlexItem>
-                    <FlexItem>
-                        <Stack hasGutter>
-                            <StackItem>
-                                <Switch
-                                    id="network-interface-enable-device"
-                                    label={_("Enable device during installation")}
-                                    isReversed
-                                    isChecked={!!(dev?.ActiveConnection)}
-                                    onChange={(_event, enable) => enable
-                                        ? connectInterface(model, iface, dev, connectionSettings)
-                                        : disconnectInterface(model, iface, dev)}
-                                />
-                            </StackItem>
-                            <StackItem>
-                                <Switch
-                                    id="network-interface-connect-automatically"
-                                    label={_("Connect automatically on reboot")}
-                                    isReversed
-                                    isChecked={connectionSettings.connection.autoconnect}
-                                    onChange={(_event, checked) => toggleConnectionAutoconnect(model, dev, iface.MainConnection, connectionSettings, checked)}
-                                />
-                            </StackItem>
-                        </Stack>
-                    </FlexItem>
-                </Flex>
-            </StackItem>
-
-            {/* Status */}
-            <StackItem>
-                <DescriptionList aria-label={_("Status")}>
+        <Card id="anaconda-network-interface">
+            <CardHeader actions={{ actions: toggleDevAction }}>
+                <CardTitle>{devName}</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <DescriptionListWithAction id="network-interface-status"
+                    dlTerm={_("Status")}
+                    dlDescription={connectionState(dev, isManaged)}
+                    actionButton={autoconnectSwitch}
+                />
+                <DescriptionList id="ip-settings">
                     <DescriptionListGroup>
-                        <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
-                        <DescriptionListDescription>{connectionStatus}</DescriptionListDescription>
+                        <DescriptionListTerm>{_("IP settings")}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <IPConfigExpandable toggleText={_("IPv4")}
+                                onToggle={setIsIpv4Expanded}
+                                isExpanded={isIpv4Expanded}
+                                iface={iface}
+                                settings={connectionSettings}
+                                topic="ipv4"
+                            />
+
+                            <IPConfigExpandable toggleText={_("IPv6")}
+                                onToggle={setIsIpv6Expanded}
+                                isExpanded={isIpv6Expanded}
+                                iface={iface}
+                                settings={connectionSettings}
+                                topic="ipv6"
+                            />
+                        </DescriptionListDescription>
                     </DescriptionListGroup>
                 </DescriptionList>
-            </StackItem>
-
-            {/* IPv4 */}
-            <StackItem>
-                <IPConfigExpandable toggleText={_("IPv4")}
-                    onToggle={setIsIpv4Expanded}
-                    isExpanded={isIpv4Expanded}
-                    iface={iface}
-                    settings={connectionSettings}
-                    topic="ipv4"
-                />
-            </StackItem>
-
-            {/* IPv6 */}
-            <StackItem>
-                <IPConfigExpandable toggleText={_("IPv6")}
-                    onToggle={setIsIpv6Expanded}
-                    isExpanded={isIpv6Expanded}
-                    iface={iface}
-                    settings={connectionSettings}
-                    topic="ipv6"
-                />
-            </StackItem>
-        </Stack>
+            </CardBody>
+        </Card>
     );
 };

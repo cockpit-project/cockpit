@@ -21,3 +21,16 @@
     padding-block-start: 0;
   }
 }
+
+#networking.anaconda {
+  // Add padding above "IP settings" description list
+  #ip-settings {
+    margin-block-start: var(--pf-t--global--spacer--lg);
+  }
+
+  // Add padding between expandable sections so edit buttons don't touch when
+  // sections are not expanded
+  .ip-expandable:not(:first-of-type) {
+    margin-block-start: var(--pf-t--global--spacer--md);
+  }
+}

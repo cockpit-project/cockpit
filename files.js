@@ -153,67 +153,67 @@ const info = {
     ]
 };
 
-const srcdir = import.meta.dirname;
-const nodedir = path.join(srcdir, "node_modules");
-
 export const all_subdirs = Array.from(new Set(info.entries.map(key => key.split('/')[0])));
 
-// These are the fonts we used up until migrating to Patternfly v6
-// It is kept here to make sure all dependencies of the fonts works like in
-// third-party plugins etc.
-
-// With the PF6 migration we now want to use Variable Fonts (VF) to ensure better
-// Patternfly visuals, and we will use a new directory structure to avoid hardcoding
-// @font-face.
-//
-// This copies all non-VF Red Hat fonts to our `static/fonts/` directory.
-const redhat_fonts = [
-    "Text-Bold", "Text-BoldItalic", "Text-Italic", "Text-Medium", "Text-MediumItalic", "Text-Regular",
-    "Display-Black", "Display-BlackItalic", "Display-Bold", "Display-BoldItalic",
-    "Display-Italic", "Display-Medium", "Display-MediumItalic", "Display-Regular",
-    "Mono-Bold", "Mono-BoldItalic", "Mono-Italic", "Mono-Medium", "Mono-MediumItalic", "Mono-Regular",
-].map(name => {
-    const subdir = 'RedHat' + name.split('-')[0];
-    const fontsdir = '@patternfly/patternfly/assets/fonts';
-
-    return {
-        from: path.resolve(nodedir, fontsdir, subdir, 'RedHat' + name + '.woff2'),
-        to: 'static/fonts/'
-    };
-});
-
-// Different directory structure than our redhat_fonts, which makes it easier
-// to use the Patternfly default src and avoid hardcoding our own @font-face.
-//
-// This copies all variable fonts (VF in the name) to subdirectories:
-// static/fonts/
-// ├── RedHatDisplay
-// │   └── RedHatDisplayVF.woff2
-// ├── RedHatMono
-// │   ├── RedHatMonoVF-Italic.woff2
-// │   └── RedHatMonoVF.woff2
-// ├── RedHatText
-// │   ├── RedHatTextVF-Italic.woff2
-// │   └── RedHatTextVF.woff2
-const redhat_fonts_variable_font = [
-    "Text",
-    "Display",
-    "Mono",
-].flatMap(name => {
-    const subdir = 'RedHat' + name;
-    const fontsdir = '@patternfly/patternfly/assets/fonts';
-    const fontsDirPath = path.resolve(nodedir, fontsdir, subdir);
-
-    return fs.readdirSync(fontsDirPath)
-            .filter(file => file.includes('VF') && file.endsWith('.woff2'))
-            .map(file => ({
-                from: path.resolve(fontsDirPath, file),
-                to: `static/fonts/${subdir}`
-            }));
-});
-
-const pkgfile = suffix => `${srcdir}/pkg/${suffix}`;
 export const getFiles = subdir => {
+    const srcdir = import.meta.dirname;
+    const nodedir = path.join(srcdir, "node_modules");
+    const pkgfile = suffix => `${srcdir}/pkg/${suffix}`;
+
+    // These are the fonts we used up until migrating to Patternfly v6
+    // It is kept here to make sure all dependencies of the fonts works like in
+    // third-party plugins etc.
+
+    // With the PF6 migration we now want to use Variable Fonts (VF) to ensure better
+    // Patternfly visuals, and we will use a new directory structure to avoid hardcoding
+    // @font-face.
+    //
+    // This copies all non-VF Red Hat fonts to our `static/fonts/` directory.
+    const redhat_fonts = [
+        "Text-Bold", "Text-BoldItalic", "Text-Italic", "Text-Medium", "Text-MediumItalic", "Text-Regular",
+        "Display-Black", "Display-BlackItalic", "Display-Bold", "Display-BoldItalic",
+        "Display-Italic", "Display-Medium", "Display-MediumItalic", "Display-Regular",
+        "Mono-Bold", "Mono-BoldItalic", "Mono-Italic", "Mono-Medium", "Mono-MediumItalic", "Mono-Regular",
+    ].map(name => {
+        const fontfamily = 'RedHat' + name.split('-')[0];
+        const fontsdir = '@patternfly/patternfly/assets/fonts';
+
+        return {
+            from: path.resolve(nodedir, fontsdir, fontfamily, 'RedHat' + name + '.woff2'),
+            to: 'static/fonts/'
+        };
+    });
+
+    // Different directory structure than our redhat_fonts, which makes it easier
+    // to use the Patternfly default src and avoid hardcoding our own @font-face.
+    //
+    // This copies all variable fonts (VF in the name) to subdirectories:
+    // static/fonts/
+    // ├── RedHatDisplay
+    // │   └── RedHatDisplayVF.woff2
+    // ├── RedHatMono
+    // │   ├── RedHatMonoVF-Italic.woff2
+    // │   └── RedHatMonoVF.woff2
+    // ├── RedHatText
+    // │   ├── RedHatTextVF-Italic.woff2
+    // │   └── RedHatTextVF.woff2
+    const redhat_fonts_variable_font = [
+        "Text",
+        "Display",
+        "Mono",
+    ].flatMap(name => {
+        const fontfamily = 'RedHat' + name;
+        const fontsdir = '@patternfly/patternfly/assets/fonts';
+        const fontsDirPath = path.resolve(nodedir, fontsdir, fontfamily);
+
+        return fs.readdirSync(fontsDirPath)
+                .filter(file => file.includes('VF') && file.endsWith('.woff2'))
+                .map(file => ({
+                    from: path.resolve(fontsDirPath, file),
+                    to: `static/fonts/${fontfamily}`
+                }));
+    });
+
     /* Qualify all the paths in entries */
     const entryPoints = [];
     info.entries.forEach(key => {

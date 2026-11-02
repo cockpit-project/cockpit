@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 import fs from 'node:fs';
 import path from 'node:path';
-import process from 'node:process';
-
 import gettext_parser from "gettext-parser";
 
 const config = {};
@@ -11,11 +9,10 @@ const DEFAULT_WRAPPER = 'cockpit.locale(PO_DATA);';
 const RTL_LANGS = new Set(["ar", "fa", "he", "ur"]);
 
 function get_po_files() {
-    const poDir = path.resolve(config.srcdir, 'po');
     try {
-        return fs.readdirSync(poDir)
+        return fs.readdirSync(config.podir)
                 .filter(file => file.endsWith('.po'))
-                .map(file => path.join(poDir, file));
+                .map(file => path.join(config.podir, file));
     } catch (error) {
         return [];
     }
@@ -182,7 +179,7 @@ function buildFile(data, subdir, filename, filter) {
 }
 
 function init(options) {
-    config.srcdir = process.env.SRCDIR || './';
+    config.podir = options.podir || path.resolve(process.env.SRCDIR || './', 'po');
     config.subdirs = options.subdirs || [''];
     config.src_directory = options.src_directory || 'src';
     config.wrapper = options.wrapper;

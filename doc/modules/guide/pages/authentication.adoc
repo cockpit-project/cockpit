@@ -26,10 +26,11 @@ network access to port 9090 on that server.
 By default the cockpit web service is installed on thec base system and
 xref:listen.adoc[socket activated by systemd]. In this setup access is
 controlled by a cockpit specific pam stack, generally located at
-`+/etc/pam.d/cockpit+`. By default this is configured to allow you to
-login with the username and password of any local account on the system.
-You can also setup a xref:sso.adoc[Kerberos based SSO solution] or
-xref:cert-authentication.adoc[certificate/smart card authentication].
+`+/etc/pam.d/cockpit+` (or `+/usr/lib/pam.d/cockpit+`). By default this is
+configured to allow you to login with the username and password of any local
+account on the system. You can also setup a xref:sso.adoc[Kerberos based SSO
+solution] or xref:cert-authentication.adoc[certificate/smart card
+authentication].
 
 You can also
 https://github.com/cockpit-project/cockpit/blob/main/doc/authentication.md#actions[disable

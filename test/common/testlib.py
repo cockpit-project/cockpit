@@ -1885,6 +1885,11 @@ class MachineCase(unittest.TestCase):
         # sudo-rs behaves quite differently, tests need to adapt
         self.has_sudo_rs = image.startswith("ubuntu")
 
+        # Fedora-45 migrated to moving the PAM file to /usr
+        self.pam_conf = "/etc/pam.d/cockpit"
+        if image == "opensuse-tumbleweed" or (image.startswith("fedora-4") and image not in ["fedora-43", "fedora-44"]):
+            self.pam_conf = "/usr/lib/pam.d/cockpit"
+
     def nonDestructiveSetup(self) -> None:
         """generic setUp/tearDown for @nondestructive tests"""
 

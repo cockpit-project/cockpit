@@ -59,6 +59,7 @@ export type NMConnection = {
 
 export type NMAccessPoint = {
     Ssid: string;
+    HwAddress: string;
     Flags: number;
     WpaFlags: number;
     RsnFlags: number;

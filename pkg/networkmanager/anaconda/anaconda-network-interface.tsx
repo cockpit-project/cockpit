@@ -20,9 +20,12 @@ import { useEvent } from "hooks";
 import { active_connection_gateway, active_connection_ipv4, active_connection_ipv6, choice_title, connectInterface, createGhostConnectionSettings, disconnectInterface, is_managed, is_wireless, toggleConnectionAutoconnect, } from "../interfaces";
 import { get_ip_method_choices } from "../ip-settings";
 import { NetworkAction } from "../dialogs-common.jsx";
-import { apSecurityFlagsToString, NMConnectionSettings, NMDevice, NMInterface } from "../utils";
+import { apSecurityFlagsToString, NMConnectionSettings, NMDevice, NMInterface, NMWirelessDevice } from "../utils";
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+
+import { useDialogs } from "dialogs.jsx";
+import { AnacondaWirelessDialog } from "./anaconda-wireless-dialog";
 
 const _ = cockpit.gettext;
 
@@ -197,6 +200,7 @@ export const AnacondaNetworkInterface = ({
     iface,
 }: AnacondaNetworkInterfaceProps) => {
     const model = useContext(ModelContext);
+    const Dialogs = useDialogs();
     useEvent(model, "changed");
 
     const [isIpv4Expanded, setIsIpv4Expanded] = useState(true);
@@ -231,9 +235,17 @@ export const AnacondaNetworkInterface = ({
     const isWireless = is_wireless(iface);
     const activeAP = dev?.ActiveAccessPoint;
     const ssid = activeAP ? activeAP.Ssid : null;
+    const wirelessDev = isWireless && dev ? dev as NMWirelessDevice : null;
 
     const joinNetButton = (
-        <Button variant="secondary">
+        <Button variant="secondary"
+            onClick={() => {
+                cockpit.assert(wirelessDev, "Join another network button is only shown for wireless devices");
+                Dialogs.show(
+                    <AnacondaWirelessDialog dev={wirelessDev} />
+                );
+            }}
+        >
             {_("Join another network")}
         </Button>
     );

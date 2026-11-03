@@ -59,6 +59,7 @@ export type NMConnection = {
 
 export type NMAccessPoint = {
     Ssid: string;
+    HwAddress: string;
     Flags: number;
     WpaFlags: number;
     RsnFlags: number;
@@ -75,6 +76,12 @@ export type NMDevice = {
     activate_with_settings(settings: NMConnectionSettings, specific_object: NMAccessPoint | null): Promise<{ connection: NMConnection; active_connection: unknown }>;
     wait_connection(expected_ssid: string): Promise<void>;
     cancel_pending_connection(): void;
+}
+
+// Only wireless devices set visibleSsids in interfaces.js.
+export type NMWirelessDevice = NMDevice & {
+    visibleSsids: NMAccessPoint[];
+    hiddenAPCount: number;
 }
 
 export type NMInterface = {

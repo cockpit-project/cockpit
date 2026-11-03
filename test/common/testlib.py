@@ -1936,10 +1936,6 @@ class MachineCase(unittest.TestCase):
         self.restore_file("/etc/fstab")
         self.restore_file("/etc/crypttab")
 
-        if not m.ws_container:
-            # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
-            self.addCleanup(m.execute, "systemctl stop --quiet cockpit")
-
         # The sssd daemon seems to get confused when we restore
         # backups of /etc/group etc and stops following updates to it.
         # Let's restart the daemon to reset that condition.
@@ -1960,6 +1956,11 @@ class MachineCase(unittest.TestCase):
                         "    umount /dev/$dev || true; "
                         "    swapon --show=NAME --noheadings | grep $dev | xargs -r swapoff; "
                         "done; until rmmod scsi_debug; do sleep 0.2; done", stdout=None)
+
+        # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
+        # also also, the cockpit/ws container keeps scsi_debug busy,
+        # so it needs to be stopped before the module cleanup above.
+        self.addCleanup(lambda: m.stop_cockpit())
 
     def _terminate_sessions(self) -> None:
         m = self.machine

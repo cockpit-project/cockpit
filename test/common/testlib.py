@@ -2027,7 +2027,14 @@ class MachineCase(unittest.TestCase):
         if self.machine.ssh_reachable:
             self.check_journal_messages()
             if not error:
-                self.check_browser_errors()
+                try:
+                    self.check_browser_errors()
+                except Exception as err:
+                    print(err, file=sys.stderr)
+                    self.snapshot("FAIL")
+                    self.copy_js_log("FAIL")
+                    self.copy_journal("FAIL")
+                    raise
                 self.check_pixel_tests()
 
         if self.is_nondestructive():

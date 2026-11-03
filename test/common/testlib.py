@@ -903,7 +903,7 @@ class Browser:
         self.wait_visible(selector)
         self.wait_js_func('!ph_has_val', selector, val)
 
-    def wait_attr(self, selector: str, attr: str, val: object) -> None:
+    def wait_attr(self, selector: str, attr: str, val: str | None) -> None:
         self._wait_present(selector)
         self.wait_js_func('ph_has_attr', selector, attr, val)
 

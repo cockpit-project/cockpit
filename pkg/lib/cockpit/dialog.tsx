@@ -597,6 +597,16 @@
   data model. A simple case is selecting from an array of strings. In
   that case you can omit the "option_label" function.
 
+  - <DialogSimpleList field= options= option_node= option_key= aria-label= />
+
+  A single-selection list built on SimpleList. Like DialogDropdownSelectObject,
+  the options can be of any type, such as something directly from your data model.
+  The currently selected option is stored in the field.
+  Pass "option_node" to render each item (defaults to the stringified option)
+  and "option_key" to provide a stable React key (defaults to the item string).
+  From UX standpoint SimpleList should not be used in forms, so it has no label
+  or FormGroup wrapper.
+
  */
 
 import React, { useState, useId } from "react";
@@ -617,6 +627,7 @@ import {
     FormSelect, FormSelectOption, type FormSelectProps,
 } from "@patternfly/react-core/dist/esm/components/FormSelect";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio";
+import { SimpleList, SimpleListItem } from "@patternfly/react-core/dist/esm/components/SimpleList/index.js";
 import { InputGroup, InputGroupItem } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
 import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip";
@@ -1967,5 +1978,56 @@ export function DialogDropdownSelectObject<T>({
             </FormSelect>
             <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
         </OptionalFormGroup>
+    );
+}
+
+export function DialogSimpleList<T>({
+    field,
+    excuse,
+    warning,
+    explanation,
+    options,
+    option_node = (opt: T): React.ReactNode => { cockpit.assert(typeof opt == "string"); return opt },
+    option_key = (opt: T): string => { cockpit.assert(typeof opt == "string"); return opt },
+    isDisabled = false,
+    "aria-label": ariaLabel,
+} : {
+    field: DialogField<T | null>,
+    excuse?: string | falsy,
+    warning?: React.ReactNode,
+    explanation?: React.ReactNode,
+    options: T[],
+    option_node?: (opt: T) => React.ReactNode,
+    option_key?: (opt: T) => string,
+    isDisabled?: boolean,
+    "aria-label"?: string,
+}) {
+    const disabled = !!excuse || isDisabled;
+    const selected = field.get();
+    return (
+        <>
+            <SimpleList aria-label={ariaLabel}
+                data-ouia-component-id={field.ouia_id()}
+                isControlled={false}
+            >
+                {options.map(opt => {
+                    const key = option_key(opt);
+                    return (
+                        <SimpleListItem key={key}
+                            data-ouia-component-id={field.ouia_id(key)}
+                            isActive={selected !== null && option_key(selected) === key}
+                            onClick={() => {
+                                if (!disabled) {
+                                    field.set(opt);
+                                }
+                            }}
+                        >
+                            {option_node(opt)}
+                        </SimpleListItem>
+                    );
+                })}
+            </SimpleList>
+            <DialogHelperText explanation={explanation} warning={warning} excuse={excuse} field={field} />
+        </>
     );
 }

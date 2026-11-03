@@ -11,6 +11,23 @@
   animation: blink 1s step-end infinite;
 }
 
+/* xterm.js colors the scrollbar slider by injecting a <style> element, which our
+ * Content-Security-Policy blocks, leaving the slider transparent. Provide the colors
+ * here instead (VS Code's defaults, which xterm's scrollbar is derived from); they
+ * stay readable on both light and dark terminal themes. If the injected style is
+ * allowed, it comes later in the document and still wins. */
+.xterm .xterm-scrollable-element > .scrollbar > .slider {
+  background: rgb(121 121 121 / 40%);
+}
+
+.xterm .xterm-scrollable-element > .scrollbar > .slider:hover {
+  background: rgb(100 100 100 / 70%);
+}
+
+.xterm .xterm-scrollable-element > .scrollbar > .slider.active {
+  background: rgb(191 191 191 / 40%);
+}
+
 /* Ensure the console fits to its container (and doesn't attempt to go beyond the limits) */
 .xterm-screen, .xterm-viewport {
   inline-size: auto !important;

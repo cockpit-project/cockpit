@@ -46,13 +46,18 @@ export type NMConnection = {
     Unsaved: boolean;
 }
 
+export type NMAccessPoint = {
+    Ssid: string;
+    Flags: number;
+    WpaFlags: number;
+    RsnFlags: number;
+}
+
 export type NMDevice = {
     StateText: string;
     // this is type_ActiveConnection
     ActiveConnection: unknown;
-    ActiveAccessPoint?: {
-        Ssid: string;
-    } | null;
+    ActiveAccessPoint: NMAccessPoint | null | undefined;
 }
 
 export type NMInterface = {
@@ -397,6 +402,61 @@ export function createNewConnSettings(settings: NMConnectionSettings, iface_name
     delete newSettings.connection.multi_connect;
 
     return newSettings;
+}
+
+const NM80211ApFlags = {
+    // access point has no special capabilities
+    NONE: 0x00000000,
+    // access point requires authentication and encryption (usually means WEP)
+    PRIVACY: 0x00000001,
+} as const;
+
+const NM80211ApSecurityFlags = {
+    // the access point has no special security requirements
+    NONE: 0x00000000,
+    // 40/64-bit WEP is supported for pairwise/unicast encryption
+    PAIR_WEP40: 0x00000001,
+    // 104/128-bit WEP is supported for pairwise/unicast encryption
+    PAIR_WEP104: 0x00000002,
+    // TKIP is supported for pairwise/unicast encryption
+    PAIR_TKIP: 0x00000004,
+    // AES/CCMP is supported for pairwise/unicast encryption
+    PAIR_CCMP: 0x00000008,
+    // 40/64-bit WEP is supported for group/broadcast encryption
+    GROUP_WEP40: 0x00000010,
+    // 104/128-bit WEP is supported for group/broadcast encryption
+    GROUP_WEP104: 0x00000020,
+    // TKIP is supported for group/broadcast encryption
+    GROUP_TKIP: 0x00000040,
+    // AES/CCMP is supported for group/broadcast encryption
+    GROUP_CCMP: 0x00000080,
+    // WPA/RSN Pre-Shared Key encryption is supported
+    KEY_MGMT_PSK: 0x00000100,
+    // 802.1x authentication and key management is supported
+    KEY_MGMT_802_1X: 0x00000200,
+} as const;
+
+// See NetworkManager examples for access point flags conversion:
+// https://github.com/NetworkManager/NetworkManager/blob/1c71c568e7736ce2075fd0d53c387f2221bab832/examples/python/gi/show-wifi-networks.py#L64-L76
+export function apSecurityFlagsToString(flags: number, wpaFlags: number, rsnFlags: number): string {
+    let str = "";
+    if ((flags & NM80211ApFlags.PRIVACY) && wpaFlags === 0 && rsnFlags === 0) {
+        str += " WEP";
+    }
+    if (wpaFlags !== 0) {
+        str += " WPA1";
+    }
+    if (rsnFlags !== 0) {
+        str += " WPA2";
+    }
+    if ((wpaFlags & NM80211ApSecurityFlags.KEY_MGMT_802_1X) || (rsnFlags & NM80211ApSecurityFlags.KEY_MGMT_802_1X)) {
+        str += " 802.1X";
+    }
+    if (str === "") {
+        str = _("Unsecured");
+    }
+
+    return str.trimStart();
 }
 
 export function debug(...args: Parameters<typeof console.debug>): void {

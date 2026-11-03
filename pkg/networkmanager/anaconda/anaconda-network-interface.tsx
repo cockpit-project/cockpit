@@ -20,7 +20,7 @@ import { useEvent } from "hooks";
 import { active_connection_gateway, active_connection_ipv4, active_connection_ipv6, choice_title, connectInterface, createGhostConnectionSettings, disconnectInterface, is_managed, is_wireless, toggleConnectionAutoconnect, } from "../interfaces";
 import { get_ip_method_choices } from "../ip-settings";
 import { NetworkAction } from "../dialogs-common.jsx";
-import { NMConnectionSettings, NMDevice, NMInterface } from "../utils";
+import { apSecurityFlagsToString, NMConnectionSettings, NMDevice, NMInterface } from "../utils";
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
@@ -224,15 +224,14 @@ export const AnacondaNetworkInterface = ({
     );
 
     const isWireless = is_wireless(iface);
-    const ssid = dev?.ActiveAccessPoint ? dev?.ActiveAccessPoint.Ssid : null;
+    const activeAP = dev?.ActiveAccessPoint;
+    const ssid = activeAP ? activeAP.Ssid : null;
 
     const joinNetButton = (
         <Button variant="secondary">
             {_("Join another network")}
         </Button>
     );
-
-    const wifiSecurity = "WPA haha";
 
     return (
         <Card id="anaconda-network-interface">
@@ -250,9 +249,9 @@ export const AnacondaNetworkInterface = ({
                         actionButton={joinNetButton}
                     />
                 }
-                { isWireless && ssid &&
+                { isWireless && activeAP &&
                     <DescriptionListWithAction dlTerm={_("Security type")}
-                        dlDescription={wifiSecurity}
+                        dlDescription={apSecurityFlagsToString(activeAP.Flags, activeAP.WpaFlags, activeAP.RsnFlags)}
                     />
                 }
                 <DescriptionListWithAction dlTerm={_("IP settings")}

@@ -24,6 +24,9 @@ import { apSecurityFlagsToString, NMConnectionSettings, NMDevice, NMInterface } 
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
+import { useDialogs } from 'dialogs';
+import { AnacondaWirelessDialog } from "./anaconda-wireless-dialog";
+
 const _ = cockpit.gettext;
 
 interface IpConfig {
@@ -191,6 +194,7 @@ export const AnacondaNetworkInterface = ({
     iface,
 }: AnacondaNetworkInterfaceProps) => {
     const model = useContext(ModelContext);
+    const Dialogs = useDialogs();
     useEvent(model, "changed");
     console.log(iface);
 
@@ -228,7 +232,13 @@ export const AnacondaNetworkInterface = ({
     const ssid = activeAP ? activeAP.Ssid : null;
 
     const joinNetButton = (
-        <Button variant="secondary">
+        <Button variant="secondary"
+            onClick={() => {
+                Dialogs.show(
+                    <AnacondaWirelessDialog dev={dev} />
+                );
+            }}
+        >
             {_("Join another network")}
         </Button>
     );

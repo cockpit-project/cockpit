@@ -93,7 +93,7 @@ class TestUpdates(NoSubManCase):
         self.assertNotIn("pf-m-expanded", b.attr(row, "class"))
         # expand
         b.click(row + "td.pf-v6-c-table__toggle button")
-        self.assertIn("pf-m-expanded", b.attr(row, "class"))
+        b.wait_visible(f"{row} > .pf-v6-c-table__expandable-row.pf-m-expanded")
         b.wait_in_text(row + "> .pf-v6-c-table__expandable-row.pf-m-expanded", "Packages")
         desc = b.text(row + "> .pf-v6-c-table__expandable-row.pf-m-expanded")
 

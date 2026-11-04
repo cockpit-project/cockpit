@@ -25,6 +25,7 @@ import { WithDialogs, useDialogs } from 'dialogs';
 import {
     useDialogState, DialogState,
     useDialogState_async,
+    useDialogOnChange,
     DialogError,
     DialogErrorMessage,
     DialogField,
@@ -288,6 +289,47 @@ const ExampleDialog = ({
 
     const dlg = useDialogState(init, validate);
 
+    function color_setter(val: Color) {
+        dlg.field("color").set(val);
+        dlg.run_async(
+            "color_update",
+            async signal => {
+                signal.onabort = countAsyncCancel;
+                await async_sleep(2000);
+                return () => {
+                    countAsyncUpdate();
+                    dlg.field("text").set(val.name);
+                };
+            }
+        );
+    }
+
+    useDialogOnChange(
+        dlg.field("dropdown"),
+        val => {
+            dlg.field("text2").set_async(
+                async () => {
+                    await async_sleep(2000);
+                    return val;
+                }
+            );
+        },
+    );
+
+    useDialogOnChange(
+        dlg.field("file"),
+        val => {
+            dlg.field("file_explanation").set_async(
+                async () => {
+                    if (val[0] === "/")
+                        return await cockpit.spawn(["file", "-b", val], { superuser: "try" });
+                    else
+                        return "--";
+                }
+            );
+        }
+    );
+
     async function apply(values: ExampleValues, variant: string) {
         setResult(values);
 
@@ -311,33 +353,6 @@ const ExampleDialog = ({
             // eslint-disable-next-line no-throw-literal
             throw [1, 2, 3, 4];
         }
-    }
-
-    function color_changed() {
-        dlg.field("color").get_async(async (val, signal) => {
-            signal.onabort = countAsyncCancel;
-            await async_sleep(2000);
-            if (!signal.aborted) {
-                countAsyncUpdate();
-                dlg.field("text").set(val.name);
-            }
-        });
-    }
-
-    function dropdown_changed(val: string) {
-        dlg.field("text2").set_async(async () => {
-            await async_sleep(2000);
-            return val;
-        });
-    }
-
-    function file_changed(val: string) {
-        dlg.field("file_explanation").set_async(async () => {
-            if (val[0] === "/")
-                return cockpit.spawn(["file", "-b", val], { superuser: "try" });
-            else
-                return "--";
-        });
     }
 
     return (
@@ -398,7 +413,7 @@ const ExampleDialog = ({
                     />
                     <DialogDropdownSelect
                         label="Dropdown"
-                        field={dlg.field("dropdown", dropdown_changed)}
+                        field={dlg.field("dropdown")}
                         options={
                             [
                                 { value: "one", label: "Eins" },
@@ -414,7 +429,7 @@ const ExampleDialog = ({
                     }
                     <DialogDropdownSelectObject
                         label="DropdownObject"
-                        field={dlg.field("color").notify(color_changed)}
+                        field={dlg.field("color").with_setter(color_setter, () => { })}
                         options={colors}
                         option_label={c => c.name}
                     />
@@ -438,7 +453,7 @@ const ExampleDialog = ({
                     />
                     <DialogFileChooserInput
                         label="File"
-                        field={dlg.field("file", file_changed)}
+                        field={dlg.field("file")}
                         explanation={dlg.values.file_explanation}
                         fileChooserProps={
                             {
@@ -676,6 +691,13 @@ const AsyncExampleDialog = ({
 
     const dlg = useDialogState_async(init, validate);
 
+    useDialogOnChange(
+        dlg instanceof DialogState && dlg.top(),
+        values => {
+            console.log("TOP", JSON.stringify(values));
+        },
+    );
+
     async function apply() {
         cockpit.assert(dlg instanceof DialogState);
 
@@ -683,10 +705,6 @@ const AsyncExampleDialog = ({
 
         await async_sleep(1000);
         Dialogs.close();
-    }
-
-    function top_changed(values: AsyncExampleValues) {
-        console.log("TOP", JSON.stringify(values));
     }
 
     let body;
@@ -699,7 +717,7 @@ const AsyncExampleDialog = ({
     } else if (dlg instanceof DialogError) {
         body = null;
     } else if (dlg instanceof DialogState) {
-        const fields = dlg.top(top_changed);
+        const fields = dlg.top();
         body = (
             <Form isHorizontal>
                 <DialogTextInput label="Text" field={fields.sub("text")} />

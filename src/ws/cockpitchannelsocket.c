@@ -82,7 +82,14 @@ cockpit_channel_socket_close (CockpitChannel *channel,
         code = WEB_SOCKET_CLOSE_GOING_AWAY;
       else
         code = WEB_SOCKET_CLOSE_NORMAL;
-      web_socket_connection_close (self->socket, code, problem);
+      {
+        /* We need to keep the websocket object alive until it has
+           drained its outgoing queue.
+         */
+        g_object_ref (self->socket);
+        g_signal_connect (self->socket, "close", G_CALLBACK (g_object_unref), NULL);
+        web_socket_connection_close (self->socket, code, problem);
+      }
     }
 
   COCKPIT_CHANNEL_CLASS(cockpit_channel_socket_parent_class)->close (channel, problem);

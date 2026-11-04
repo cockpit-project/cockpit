@@ -52,7 +52,7 @@ export const Frames = ({ state, hidden }: { state: ShellState, hidden: boolean }
                 return;
 
             get_session_controller().add_window(iframe.contentWindow);
-            iframe.contentWindow.addEventListener("unload", () => teardown_iframe(frame), { once: true });
+            iframe.contentWindow.addEventListener("pagehide", () => teardown_iframe(frame), { once: true });
 
             if (iframe.contentDocument && iframe.contentDocument.documentElement) {
                 iframe.contentDocument.documentElement.lang = state.config.language;

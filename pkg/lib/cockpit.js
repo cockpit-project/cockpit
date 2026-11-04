@@ -482,7 +482,7 @@ function factory() {
         window.addEventListener("beforeunload", function() {
             self.close();
         });
-        window.addEventListener("unload", function() {
+        window.addEventListener("pagehide", function() {
             self.close();
         });
 

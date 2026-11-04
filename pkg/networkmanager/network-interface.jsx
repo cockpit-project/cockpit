@@ -80,6 +80,11 @@ import {
 
 const _ = cockpit.gettext;
 
+export const WIRELESS_SECURITY_OPTIONS = [
+    { value: "none", label: _("None") },
+    { value: "wpa-psk", label: _("WPA/WPA2 Personal") },
+];
+
 // known networks: with ssid; hidden networks: no ssid
 const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
     useEvent(model, "changed");
@@ -185,10 +190,7 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
                             <DialogDropdownSelect
                                 label={_("Security")}
                                 field={dlg.field("security")}
-                                options={[
-                                    { value: "none", label: _("None") },
-                                    { value: "wpa-psk", label: _("WPA/WPA2 Personal") },
-                                ]}
+                                options={WIRELESS_SECURITY_OPTIONS}
                             />
                         </>
                     )}

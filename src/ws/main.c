@@ -63,6 +63,7 @@ setup_static_roots (GHashTable *os_release)
 {
   gchar **roots;
   const gchar *os_variant_id;
+  const gchar *os_version_id;
   const gchar *os_id;
   const gchar *os_id_like;
 
@@ -70,16 +71,18 @@ setup_static_roots (GHashTable *os_release)
     {
       os_id = g_hash_table_lookup (os_release, "ID");
       os_variant_id = g_hash_table_lookup (os_release, "VARIANT_ID");
+      os_version_id = g_hash_table_lookup (os_release, "VERSION_ID");
       os_id_like = g_hash_table_lookup (os_release, "ID_LIKE");
     }
   else
     {
       os_id = NULL;
       os_variant_id = NULL;
+      os_version_id = NULL;
       os_id_like = NULL;
     }
 
-  roots = cockpit_branding_calculate_static_roots (os_id, os_variant_id, os_id_like, TRUE);
+  roots = cockpit_branding_calculate_static_roots (os_id, os_variant_id, os_version_id, os_id_like, TRUE);
 
   return roots;
 }

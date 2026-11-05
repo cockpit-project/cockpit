@@ -110,6 +110,9 @@ journal.build_cmd = function build_cmd(/* ... */) {
     else if (options.follow)
         cmd.push("--follow");
 
+    if (options['output-fields'])
+        cmd.push("--output-fields=" + options['output-fields']);
+
     cmd.push("--");
     cmd.push.apply(cmd, matches);
     return cmd;

@@ -202,7 +202,7 @@ export class JournalBox extends React.Component {
         // without `sh -ec`, grep, sort, replaceAll and all of those ugly stuff
         // For that we however need newer systemd that includes https://github.com/systemd/systemd/issues/13937
         const currentServices = new Set();
-        const service_options = Object.assign({ output: "verbose" }, options);
+        const service_options = Object.assign({ output: "verbose", "output-fields": "SYSLOG_IDENTIFIER" }, options);
         let cmd = journal.build_cmd(match, service_options);
 
         // cribbed from Python's shlex.quote()

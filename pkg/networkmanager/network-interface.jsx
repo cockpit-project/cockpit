@@ -117,52 +117,9 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
     const onConnect = async ({ ssid, security, password }) => {
         utils.debug("Connecting to", ssid, isHidden ? `with security ${security}` : "with password");
 
-        const settings = {
-            connection: {
-                id: ssid,
-                type: "802-11-wireless",
-                autoconnect: true,
-            },
-            "802-11-wireless": {
-                ssid: utils.ssid_to_nm(ssid),
-                mode: "infrastructure",
-            },
-        };
-
-        if (isHidden) {
-            settings["802-11-wireless"].hidden = true;
-        }
-
-        if (!isHidden || security !== "none") {
-            settings["802-11-wireless-security"] = {
-                "key-mgmt": isHidden ? security : "wpa-psk",
-                psk: password,
-            };
-        }
-
-        let connection = null;
         try {
-            // ap might be stale if there was a scan since opening the dialog, so pass NULL
-            // NM will find the right AP by SSID
-            const result = await dev.activate_with_settings(settings, null);
-            connection = result.connection;
-
-            dlg.set_cancel(
-                () => {
-                    utils.debug("Cancelling connection to", ssid);
-                    dev.cancel_pending_connection();
-                    connection.delete_()
-                            .catch(err => console.warn("Failed to delete connection:", err));
-                });
-
-            utils.debug("Connection activation started");
-            await dev.wait_connection(ssid);
-            utils.debug("Connected successfully to", ssid);
+            await utils.connectToAccessPoint(dev, ssid, security, password, cancel => dlg.set_cancel(cancel));
         } catch (err) {
-            // just in case something survived, clean up
-            connection?.delete_()
-                    .catch(err => utils.debug("Failed to delete failed connection:", err));
-
             throw new DialogError(
                 _("Failed to connect"),
                 err.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
@@ -770,12 +727,7 @@ export const NetworkInterfacePage = ({
 
             try {
                 if (ap.Connection) {
-                    // Activate existing connection (which already has password if needed)
-                    utils.debug("Activating existing connection for", ap.Ssid);
-                    await ap.Connection.activate(dev, ap);
-                    utils.debug("Connection activation started for", ap.Ssid);
-                    await dev.wait_connection(ap.Ssid);
-                    utils.debug("Connected successfully to", ap.Ssid);
+                    await utils.existingConnectionConnectToAP(ap, dev);
                     return;
                 }
 
@@ -790,24 +742,7 @@ export const NetworkInterfacePage = ({
                 }
 
                 // Create new connection for open networks
-                utils.debug("Creating new connection for", ap.Ssid);
-                const settings = {
-                    connection: {
-                        id: ap.Ssid,
-                        type: "802-11-wireless",
-                        autoconnect: true,
-                    },
-                    "802-11-wireless": {
-                        ssid: utils.ssid_to_nm(ap.Ssid),
-                        mode: "infrastructure",
-                    }
-                };
-
-                // Pass null for specific_object - NM will find the right AP by SSID
-                await dev.activate_with_settings(settings, null);
-                utils.debug("Connection activation started for", ap.Ssid);
-                await dev.wait_connection(ap.Ssid);
-                utils.debug("Connected successfully to", ap.Ssid);
+                await utils.connectToAccessPoint(dev, ap.Ssid, "none", "");
             } catch (error) {
                 // Provide context-appropriate error message
                 const errorMsg = error.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS

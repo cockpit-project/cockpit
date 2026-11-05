@@ -39,11 +39,22 @@ export type NMConnectionSettings = {
     };
     ipv4?: NMIPSettings;
     ipv6?: NMIPSettings;
+    "802-11-wireless"?: {
+        ssid: string;
+        mode: string;
+        hidden: boolean;
+    };
+    "802-11-wireless-security"?: {
+        "key-mgmt": string;
+        psk: string;
+    };
 }
 
 export type NMConnection = {
     Settings?: NMConnectionSettings;
     Unsaved: boolean;
+    activate(dev: NMDevice, specific_object: NMAccessPoint | null): Promise<unknown>;
+    delete_(): Promise<void>;
 }
 
 export type NMAccessPoint = {
@@ -51,6 +62,7 @@ export type NMAccessPoint = {
     Flags: number;
     WpaFlags: number;
     RsnFlags: number;
+    Connection?: NMConnection | null;
 }
 
 export type NMDevice = {
@@ -58,6 +70,11 @@ export type NMDevice = {
     // this is type_ActiveConnection
     ActiveConnection: unknown;
     ActiveAccessPoint: NMAccessPoint | null | undefined;
+    AccessPoints: NMAccessPoint[];
+    visibleSsids: NMAccessPoint[];
+    activate_with_settings(settings: NMConnectionSettings, specific_object: NMAccessPoint | null): Promise<{ connection: NMConnection; active_connection: unknown }>;
+    wait_connection(expected_ssid: string): Promise<void>;
+    cancel_pending_connection(): void;
 }
 
 export type NMInterface = {
@@ -457,6 +474,85 @@ export function apSecurityFlagsToString(flags: number, wpaFlags: number, rsnFlag
     }
 
     return str.trimStart();
+}
+
+export async function existingConnectionConnectToAP(ap: NMAccessPoint, dev: NMDevice) {
+    // Activate existing connection (which already has password if needed)
+    cockpit.assert(ap.Connection, "existingConnectionConnectToAP requires an existing connection");
+    debug("Activating existing connection for", ap.Ssid);
+    await ap.Connection.activate(dev, ap);
+    debug("Connection activation started for", ap.Ssid);
+    await dev.wait_connection(ap.Ssid);
+    debug("Connected successfully to", ap.Ssid);
+}
+
+export function prepareWirelessConSettings(ssid: string, security: string, password: string) {
+    // Create new connection for open networks
+    debug("Creating new connection for", ssid);
+    const isHidden = !ssid;
+    const settings: NMConnectionSettings = {
+        connection: {
+            id: ssid,
+            type: "802-11-wireless",
+            interface_name: undefined,
+            autoconnect: true,
+            autoconnect_priority: 0,
+        },
+        "802-11-wireless": {
+            ssid: ssid_to_nm(ssid),
+            mode: "infrastructure",
+            hidden: isHidden,
+        }
+    };
+
+    if (security === "none") {
+        return settings;
+    }
+
+    if (!isHidden || security !== "none") {
+        settings["802-11-wireless-security"] = {
+            "key-mgmt": isHidden ? security : "wpa-psk",
+            psk: password,
+        };
+    }
+
+    return settings;
+}
+
+// Connect to a wireless access point
+//
+// Optionally this function takes a `registerCancel` callback, which is meant
+// to be used with the dialog.set_cancel method to register a cancel function
+// in a dialog.
+export async function connectToAccessPoint(dev: NMDevice, ssid: string, security: string, password: string, registerCancel?: (cancel: () => void) => void) {
+    const settings = prepareWirelessConSettings(ssid, security, password);
+
+    let connection: NMConnection | null = null;
+    try {
+        // ap might be stale if there was a scan since opening the dialog, so pass NULL
+        // NM will find the right AP by SSID
+        const result = await dev.activate_with_settings(settings, null);
+        connection = result.connection;
+
+        if (registerCancel) {
+            registerCancel(() => {
+                debug("Cancelling connection to", ssid);
+                dev.cancel_pending_connection();
+                connection?.delete_()
+                        .catch((err: unknown) => console.warn("Failed to delete connection:", err));
+            });
+        }
+
+        debug("Connection activation started");
+        await dev.wait_connection(ssid);
+        debug("Connected successfully to", ssid);
+    } catch (err) {
+        // just in case something survived, clean up
+        connection?.delete_()
+                .catch(err => debug("Failed to delete failed connection:", err));
+
+        throw err;
+    }
 }
 
 export function debug(...args: Parameters<typeof console.debug>): void {

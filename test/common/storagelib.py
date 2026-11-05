@@ -87,7 +87,7 @@ class StorageHelpers(MachineCase):
         self.machine.execute("partprobe '%s'" % dev)
         # Clean up: remove any holders, detach loop device, verify it's gone
         self.addCleanup(self.machine.execute, f"""
-            udevadm settle --timeout=10
+            udevadm settle --timeout=10 || true
             for h in /sys/block/{os.path.basename(dev)}/holders/*; do
                 [ -e "$h" ] || break
                 if [ -f "$h/dm/name" ]; then
@@ -101,7 +101,7 @@ class StorageHelpers(MachineCase):
             done
             # Stop udisks to ensure it releases any references to the loop device
             systemctl stop udisks2 || true
-            udevadm settle --timeout=5
+            udevadm settle --timeout=5 || true
             # Actively wait for loop device to be detached (kernel may do it async after md/dm removal)
             for retry in {{1..30}}; do
                 losetup -a | grep -qw {dev} || break

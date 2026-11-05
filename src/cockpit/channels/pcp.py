@@ -137,11 +137,13 @@ class PcpMetricsChannel(AsyncChannel):
     last_samples: Any = None
     last_results: 'pmapi.pmResult | None' = None
     metric_descriptions: List[MetricInfo]
+    valid_instances: Dict[int, List[int]]
 
     def parse_options(self, options: JsonObject) -> None:
         self.archive_batch = 60
         self.last_timestamp = 0
         self.next_timestamp = 0
+        self.valid_instances = {}
 
         max_size = sys.maxsize
         min_size = -sys.maxsize - 1
@@ -363,10 +365,18 @@ class PcpMetricsChannel(AsyncChannel):
                     if metric_desc.pmid != pmid:
                         continue
 
+                    valid_indices: List[int] = []
                     for j in range(results.contents.get_numval(i)):
                         value = results.contents.get_vlist(i, j)
-                        instance_desc = context.pmNameInDom(metric_desc.desc, value.inst)
-                        insts.append(instance_desc)
+                        try:
+                            instance_desc = context.pmNameInDom(metric_desc.desc, value.inst)
+                            insts.append(instance_desc)
+                            valid_indices.append(j)
+                        except pmapi.pmErr:
+                            # Omit instances without a descriptive name in the InDom archive
+                            continue
+
+                    self.valid_instances[i] = valid_indices
 
                 desc['instances'] = insts
 
@@ -489,7 +499,8 @@ class PcpMetricsChannel(AsyncChannel):
                 values = self.build_sample(context, results, metric_desc, i, 0)
             else:
                 vals: List[Optional[float]] = []
-                for j in range(numval):
+                valid_indices = self.valid_instances.get(i)
+                for j in (valid_indices if valid_indices is not None else range(numval)):
                     vals.append(self.build_sample(context, results, metric_desc, i, j))
                 values = vals
 

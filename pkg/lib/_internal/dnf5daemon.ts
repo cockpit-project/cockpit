@@ -688,7 +688,8 @@ export class Dnf5DaemonManager implements PackageManager {
 
             // Phase 2: Verify (0/65 .. 64/65)
             case 'transaction_verify_start':
-                handlers.on_package(UpdateProgressType.SIGCHECK, "");
+                // HACK: dnf5 gives overal verification progress not per package
+                // handlers.on_package(UpdateProgressType.SIGCHECK, "");
                 return;
             case 'transaction_verify_progress': {
                 const [, current, total] = args as [string, number, number];

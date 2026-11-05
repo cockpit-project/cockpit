@@ -43,6 +43,7 @@ class TestStoragePartitions(storagelib.StorageCase):
         self.click_card_dropdown("Partition", "Delete")
         self.confirm()
         b.wait_text(self.card_row_col("GPT partitions", 1, 1), "Free space")
+        self.machine.execute(f"until ! findmnt -n {self.mnt_dir}/foo; do sleep 0.1; done")
 
     def testSizeSlider(self):
         m = self.machine

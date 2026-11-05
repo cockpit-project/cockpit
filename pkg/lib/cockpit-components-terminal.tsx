@@ -33,13 +33,14 @@ const theme_core = {
 const themes = {
     "black-theme": {
         background: "#000000",
-        foreground: "#ffffff"
+        foreground: "#ffffff",
+        selectionBackground: "#ffffff77",
     },
     "dark-theme": Object.assign({}, theme_core, {
         background: "#002b36",
         foreground: "#fdf6e3",
         cursor: "#eee8d5",
-        selection: "#ffffff77",
+        selectionBackground: "#ffffff77",
         brightBlack: "#002b36",
         black: "#073642",
         brightGreen: "#586e75",
@@ -53,7 +54,7 @@ const themes = {
         background: "#fdf6e3",
         foreground: "#002b36",
         cursor: "#073642",
-        selection: "#00000044",
+        selectionBackground: "#00000044",
         brightWhite: "#002b36",
         white: "#073642",
         brightCyan: "#586e75",
@@ -66,7 +67,7 @@ const themes = {
     "white-theme": {
         background: "#ffffff",
         foreground: "#000000",
-        selection: "#00000044",
+        selectionBackground: "#00000044",
         cursor: "#000000",
     },
 };

@@ -837,7 +837,7 @@ export class DialogField<T> {
         );
     }
 
-    sub<K extends keyof T>(tag: K, changed_func?: ((val: T[K]) => void) | undefined): DialogField<T[K]> {
+    sub<K extends keyof T>(tag: K): DialogField<T[K]> {
         const sub = this.#dialog._get_sub_state(this.#state, tag);
 
         const getter = (): T[K] => {
@@ -859,8 +859,6 @@ export class DialogField<T> {
         };
 
         const trigger = () => {
-            if (changed_func)
-                changed_func(getter());
             this.#trigger();
         };
 
@@ -886,11 +884,6 @@ export class DialogField<T> {
     validate_async(func: (val: T, signal: AbortSignal) => Promise<DialogValidationResult<T>>): void {
         const val = this.get();
         this.#dialog._validate_value_async(this.#state, val, signal => func(val, signal));
-    }
-
-    get_async(func: (val: T, signal: AbortSignal) => Promise<void>): void {
-        const val = this.get();
-        this.#dialog._get_value_async(this.#state, signal => func(val, signal));
     }
 
     on_change(func: (commit: boolean) => void): () => void {
@@ -1562,7 +1555,7 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
         }
     }
 
-    top(changed_func?: ((values: V) => void) | undefined): DialogField<V> {
+    top(): DialogField<V> {
         return new DialogField<V>(
             this as DialogState<unknown>,
             this.#top_state,
@@ -1586,14 +1579,12 @@ export class DialogState<V> extends EventEmitter<DialogStateEvents> {
             () => {
                 if (this.#online_validation)
                     this.#trigger_validation();
-                if (changed_func)
-                    changed_func(this.values);
             },
         );
     }
 
-    field<K extends keyof V>(tag: K, changed_func?: ((val: V[K]) => void) | undefined): DialogField<V[K]> {
-        return this.top().sub(tag, changed_func);
+    field<K extends keyof V>(tag: K): DialogField<V[K]> {
+        return this.top().sub(tag);
     }
 }
 

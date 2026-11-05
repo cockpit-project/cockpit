@@ -12,6 +12,7 @@ G_BEGIN_DECLS
 
 gchar **        cockpit_branding_calculate_static_roots     (const gchar *os_id,
                                                              const gchar *os_variant_id,
+                                                             const gchar *os_version_id,
                                                              const gchar *os_id_like,
                                                              gboolean is_local);
 

@@ -76,6 +76,7 @@ is_valid_path_component (const gchar *str)
 gchar **
 cockpit_branding_calculate_static_roots (const gchar *os_id,
                                          const gchar *os_variant_id,
+                                         const gchar *os_version_id,
                                          const gchar *os_id_like,
                                          gboolean is_local)
 {
@@ -97,6 +98,12 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
           g_autofree gchar *variant_path = g_strdup_printf ("%s-%s", os_id, os_variant_id);
           add_system_branding_dirs (dirs, variant_path);
           g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", variant_path));
+        }
+      if (is_valid_path_component (os_version_id))
+        {
+          g_autofree gchar *version_path = g_strdup_printf ("%s-%s", os_id, os_version_id);
+          add_system_branding_dirs (dirs, version_path);
+          g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", version_path));
         }
       add_system_branding_dirs (dirs, os_id);
       g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id));
@@ -183,6 +190,7 @@ serve_branding_css_with_init_data (CockpitWebService *service,
         {
           roots = cockpit_branding_calculate_static_roots (g_hash_table_lookup (os_release, "ID"),
                                                            g_hash_table_lookup (os_release, "VARIANT_ID"),
+                                                           g_hash_table_lookup (os_release, "VERSION_ID"),
                                                            g_hash_table_lookup (os_release, "ID_LIKE"),
                                                            FALSE);
           g_object_set_data_full (G_OBJECT (transport), "os-release", os_release,
@@ -190,7 +198,7 @@ serve_branding_css_with_init_data (CockpitWebService *service,
         }
       else
         {
-          roots = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, FALSE);
+          roots = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, NULL, FALSE);
         }
 
       g_object_set_data_full (G_OBJECT (transport), "static-roots", roots,

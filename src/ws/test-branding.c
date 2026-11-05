@@ -73,7 +73,7 @@ assert_roots_contains (GStrv roots, const gchar *data_dir, const gchar *suffix_p
 static void
 test_roots_local (gconstpointer _unused)
 {
-  g_auto(GStrv) roots_local = cockpit_branding_calculate_static_roots ("fedora", NULL, NULL, TRUE);
+  g_auto(GStrv) roots_local = cockpit_branding_calculate_static_roots ("fedora", NULL, NULL, NULL, TRUE);
   /* Can't assert much here, as this tests the actual system branding;
    * just that it doesn't crash and delivers some list */
   g_assert_cmpint (g_strv_length (roots_local), >=, 0);
@@ -85,18 +85,18 @@ test_roots_basic (gconstpointer data)
 {
   const gchar *data_dir = (const gchar *)data;
 
-  g_auto(GStrv) roots_initial = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, FALSE);
+  g_auto(GStrv) roots_initial = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, NULL, FALSE);
   guint roots_length = g_strv_length (roots_initial);
   setup_branding_dir (data_dir);
 
   /* No IDs at all */
-  g_auto(GStrv) roots_none = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, FALSE);
+  g_auto(GStrv) roots_none = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, NULL, FALSE);
   g_assert_cmpint (g_strv_length (roots_none), ==, roots_length + 2);
   assert_roots_contains (roots_none, data_dir, "cockpit/branding/default");
   assert_roots_contains (roots_none, data_dir, "cockpit/static");
 
   /* ID */
-  g_auto(GStrv) roots_id = cockpit_branding_calculate_static_roots ("rhel", NULL, NULL, FALSE);
+  g_auto(GStrv) roots_id = cockpit_branding_calculate_static_roots ("rhel", NULL, NULL, NULL, FALSE);
   g_assert_cmpint (g_strv_length (roots_id), ==, roots_length + 3);
   assert_roots_contains (roots_id, data_dir, "cockpit/branding/rhel");
   assert_roots_contains (roots_id, data_dir, "cockpit/branding/default");
@@ -104,14 +104,14 @@ test_roots_basic (gconstpointer data)
 
   /* ID + VARIANT; We don't actually have rhel-server nor any other variant branding, so it
    * should not appear; see test_roots_variant() below */
-  g_auto(GStrv) roots_variant = cockpit_branding_calculate_static_roots ("rhel", "server", NULL, FALSE);
+  g_auto(GStrv) roots_variant = cockpit_branding_calculate_static_roots ("rhel", "server", NULL, NULL, FALSE);
   g_assert_cmpint (g_strv_length (roots_variant), ==, roots_length + 3);
   assert_roots_contains (roots_variant, data_dir, "cockpit/branding/rhel");
   assert_roots_contains (roots_variant, data_dir, "cockpit/branding/default");
   assert_roots_contains (roots_variant, data_dir, "cockpit/static");
 
   /* ID_LIKE */
-  g_auto(GStrv) roots_like = cockpit_branding_calculate_static_roots ("centos", NULL, "rhel fedora", FALSE);
+  g_auto(GStrv) roots_like = cockpit_branding_calculate_static_roots ("centos", NULL, NULL, "rhel fedora", FALSE);
   g_assert_cmpint (g_strv_length (roots_like), ==, roots_length + 5);
   assert_roots_contains (roots_like, data_dir, "cockpit/branding/centos");
   assert_roots_contains (roots_like, data_dir, "cockpit/branding/rhel");
@@ -124,7 +124,7 @@ static void
 test_roots_variant (gconstpointer data)
 {
 
-  g_auto(GStrv) roots_initial = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, FALSE);
+  g_auto(GStrv) roots_initial = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, NULL, FALSE);
   guint roots_length = g_strv_length (roots_initial);
 
   const gchar *data_dir = (const gchar *)data;
@@ -136,12 +136,12 @@ test_roots_variant (gconstpointer data)
   g_file_set_contents (variant_css, "/* test variant branding */", -1, NULL);
 
   /* That is found */
-  g_auto(GStrv) roots_variant = cockpit_branding_calculate_static_roots ("rhel", "server", NULL, FALSE);
+  g_auto(GStrv) roots_variant = cockpit_branding_calculate_static_roots ("rhel", "server", NULL, NULL, FALSE);
   g_assert_cmpint (g_strv_length (roots_variant), ==, roots_length + 2);
   assert_roots_contains (roots_variant, data_dir, "cockpit/branding/rhel-server");
 
   /* Non-existing variant */
-  g_auto(GStrv) roots_missing = cockpit_branding_calculate_static_roots ("rhel", "workstation", NULL, FALSE);
+  g_auto(GStrv) roots_missing = cockpit_branding_calculate_static_roots ("rhel", "workstation", NULL, NULL, FALSE);
   g_assert_cmpint (g_strv_length (roots_missing), ==, roots_length + 1);
   assert_roots_contains (roots_variant, data_dir, "cockpit/branding/rhel");
   assert_roots_contains (roots_variant, data_dir, "cockpit/branding/default");
@@ -149,9 +149,38 @@ test_roots_variant (gconstpointer data)
 }
 
 static void
+test_roots_version (gconstpointer data)
+{
+
+  g_auto(GStrv) roots_initial = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, NULL, FALSE);
+  guint roots_length = g_strv_length (roots_initial);
+
+  const gchar *data_dir = (const gchar *)data;
+
+  /* Create a test version branding directory (fedora-45) */
+  g_autofree gchar *version_dir = g_build_filename (data_dir, "cockpit", "branding", "fedora-45", NULL);
+  g_mkdir_with_parents (version_dir, 0755);
+  g_autofree gchar *version_css = g_build_filename (version_dir, "branding.css", NULL);
+  g_file_set_contents (version_css, "/* test version branding */", -1, NULL);
+
+  /* That is found */
+  g_auto(GStrv) roots_version = cockpit_branding_calculate_static_roots ("fedora", NULL, "45", NULL, FALSE);
+  g_assert_cmpint (g_strv_length (roots_version), ==, roots_length + 2);
+  assert_roots_contains (roots_version, data_dir, "cockpit/branding/fedora-45");
+  assert_roots_contains (roots_version, data_dir, "cockpit/branding/fedora");
+
+  /* Non-existing version */
+  g_auto(GStrv) roots_missing = cockpit_branding_calculate_static_roots ("fedora", NULL, "99", NULL, FALSE);
+  g_assert_cmpint (g_strv_length (roots_missing), ==, roots_length + 1);
+  assert_roots_contains (roots_missing, data_dir, "cockpit/branding/fedora");
+  assert_roots_contains (roots_missing, data_dir, "cockpit/branding/default");
+  assert_roots_contains (roots_missing, data_dir, "cockpit/static");
+}
+
+static void
 test_roots_config (gconstpointer data)
 {
-  g_auto(GStrv) roots_initial = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, FALSE);
+  g_auto(GStrv) roots_initial = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, NULL, FALSE);
   guint roots_length = g_strv_length (roots_initial);
 
   const gchar *tmp_dir = (const gchar *)data;
@@ -162,7 +191,7 @@ test_roots_config (gconstpointer data)
   g_autofree gchar *config_branding_dir = g_build_filename (config_dir, "cockpit", "branding", NULL);
   g_assert_cmpint (g_mkdir_with_parents (config_branding_dir, 0755), ==, 0);
 
-  g_auto(GStrv) roots = cockpit_branding_calculate_static_roots ("fedora", NULL, NULL, FALSE);
+  g_auto(GStrv) roots = cockpit_branding_calculate_static_roots ("fedora", NULL, NULL, NULL, FALSE);
 
   g_assert_cmpint (g_strv_length (roots), ==, roots_length + 2);
   assert_roots_contains (roots, config_dir, "cockpit/branding");
@@ -200,6 +229,9 @@ main (int argc, char *argv[])
 
   g_test_add_data_func ("/branding/roots/variant", data_dir,
                         test_roots_variant);
+
+  g_test_add_data_func ("/branding/roots/version", data_dir,
+                        test_roots_version);
 
   g_test_add_data_func ("/branding/roots/config", global_temp_dir,
                         test_roots_config);

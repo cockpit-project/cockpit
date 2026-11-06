@@ -1072,8 +1072,7 @@ class OsUpdates extends React.Component {
 
         superuser.addEventListener("changed", this.handleSuperUserChange);
 
-        // HACK: force usage of PackageKit backend
-        this.packageManager = await getPackageManager(true);
+        this.packageManager = await getPackageManager();
         this.backend = await this.packageManager.get_backend();
         const partialUpdates = is_partial_updates_supported(this.backend);
         this.setState({ partialUpdates });

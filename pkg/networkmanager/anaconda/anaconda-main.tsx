@@ -18,21 +18,21 @@ import {
     is_managed,
     is_wireless,
 } from "../interfaces.js";
-import { NetworkInterfacePage } from "../network-interface.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { AnacondaNetworkInterface } from "./anaconda-network-interface.jsx";
+import { NMInterface } from "../utils.js";
 
 const _ = cockpit.gettext;
 
 interface AnacondaInterfaceRowProps {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    iface: any;
+    iface: NMInterface;
     setSelectedIfaceName: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const AnacondaInterfaceRow = ({ iface, setSelectedIfaceName }: AnacondaInterfaceRowProps) => {
     const dev = iface.Device;
     // Show WiFi name in the list
-    const ssid = dev.ActiveAccessPoint ? dev.ActiveAccessPoint.Ssid : null;
+    const ssid = dev?.ActiveAccessPoint ? dev?.ActiveAccessPoint.Ssid : null;
     const ifaceDisplayName = ssid ? `${iface.Name} (${ssid})` : iface.Name;
     const connectionStatus = dev.ActiveConnection ? _("Connected") : _("Disconnected");
 
@@ -55,13 +55,11 @@ const AnacondaInterfaceRow = ({ iface, setSelectedIfaceName }: AnacondaInterface
 };
 
 interface AnacondaNetworkPageProps {
-    privileged: boolean;
     operationInProgress: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    interfaces: any[];
+    interfaces: NMInterface[];
 }
 
-export const AnacondaNetworkPage = ({ privileged, operationInProgress, interfaces }: AnacondaNetworkPageProps) => {
+export const AnacondaNetworkPage = ({ operationInProgress, interfaces }: AnacondaNetworkPageProps) => {
     const [selectedIfaceName, setSelectedIfaceName] = useState<string | null>(null);
     const selectedIface = interfaces.find(iface => iface.Name === selectedIfaceName) ?? null;
 
@@ -99,7 +97,7 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, interface
 
     return (
         <Page data-test-wait={operationInProgress} id="networking" className="pf-m-no-sidebar anaconda">
-            <Split hasGutter id="networking-interfaces">
+            <Split hasGutter id="networking-interfaces" isWrappable>
                 <SplitItem>
                     <SimpleList>
                         {managedWireless.length !== 0 &&
@@ -115,13 +113,7 @@ export const AnacondaNetworkPage = ({ privileged, operationInProgress, interface
                 </SplitItem>
                 <SplitItem isFilled>
                     {selectedIface
-                        ? <NetworkInterfacePage
-                            privileged={privileged}
-                            operationInProgress={operationInProgress}
-                            usage_monitor={undefined}
-                            plot_state={undefined}
-                            interfaces={interfaces}
-                            iface={selectedIface} />
+                        ? <AnacondaNetworkInterface iface={selectedIface} />
                         : <EmptyStatePanel
                             title={_("No interface selected")}
                             paragraph={_("Select a network interface to configure the connection.")}

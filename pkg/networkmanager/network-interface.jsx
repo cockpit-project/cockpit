@@ -46,15 +46,17 @@ import * as utils from "./utils.js";
 import {
     array_join,
     choice_title,
-    complete_settings,
+    connectInterface,
     connection_settings,
+    createGhostConnectionSettings,
+    disconnectInterface,
     free_member_connection,
     is_managed,
     render_active_connection,
-    settings_applier,
     show_error_dialog,
     show_unexpected_error,
     syn_click,
+    toggleConnectionAutoconnect,
     with_checkpoint,
 } from './interfaces.js';
 import {
@@ -77,6 +79,11 @@ import {
 } from 'cockpit/dialog';
 
 const _ = cockpit.gettext;
+
+export const WIRELESS_SECURITY_OPTIONS = [
+    { value: "none", label: _("None") },
+    { value: "wpa-psk", label: _("WPA/WPA2 Personal") },
+];
 
 // known networks: with ssid; hidden networks: no ssid
 const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
@@ -110,55 +117,12 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
     const onConnect = async ({ ssid, security, password }) => {
         utils.debug("Connecting to", ssid, isHidden ? `with security ${security}` : "with password");
 
-        const settings = {
-            connection: {
-                id: ssid,
-                type: "802-11-wireless",
-                autoconnect: true,
-            },
-            "802-11-wireless": {
-                ssid: utils.ssid_to_nm(ssid),
-                mode: "infrastructure",
-            },
-        };
-
-        if (isHidden) {
-            settings["802-11-wireless"].hidden = true;
-        }
-
-        if (!isHidden || security !== "none") {
-            settings["802-11-wireless-security"] = {
-                "key-mgmt": isHidden ? security : "wpa-psk",
-                psk: password,
-            };
-        }
-
-        let connection = null;
         try {
-            // ap might be stale if there was a scan since opening the dialog, so pass NULL
-            // NM will find the right AP by SSID
-            const result = await dev.activate_with_settings(settings, null);
-            connection = result.connection;
-
-            dlg.set_cancel(
-                () => {
-                    utils.debug("Cancelling connection to", ssid);
-                    dev.cancel_pending_connection();
-                    connection.delete_()
-                            .catch(err => console.warn("Failed to delete connection:", err));
-                });
-
-            utils.debug("Connection activation started");
-            await dev.wait_connection(ssid);
-            utils.debug("Connected successfully to", ssid);
+            await utils.connectToAccessPoint(dev, ssid, security, password, cancel => dlg.set_cancel(cancel));
         } catch (err) {
-            // just in case something survived, clean up
-            connection?.delete_()
-                    .catch(err => utils.debug("Failed to delete failed connection:", err));
-
             throw new DialogError(
                 _("Failed to connect"),
-                err.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                err.reason === utils.NM_DEVICE_STATE_REASON_NO_SECRETS
                     ? _("Check your password.")
                     : err.toString());
         }
@@ -183,10 +147,7 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
                             <DialogDropdownSelect
                                 label={_("Security")}
                                 field={dlg.field("security")}
-                                options={[
-                                    { value: "none", label: _("None") },
-                                    { value: "wpa-psk", label: _("WPA/WPA2 Personal") },
-                                ]}
+                                options={WIRELESS_SECURITY_OPTIONS}
                             />
                         </>
                     )}
@@ -283,7 +244,7 @@ export const NetworkInterfacePage = ({
         if (iface.MainConnection) {
             connectionSettings = iface.MainConnection.Settings;
         } else {
-            ghostSettings = createGhostConnectionSettings();
+            ghostSettings = createGhostConnectionSettings(iface.Name, dev);
             connectionSettings = ghostSettings;
         }
     }
@@ -321,49 +282,6 @@ export const NetworkInterfacePage = ({
                                 rollback_on_failure: true
                             });
         }
-    }
-
-    function connect() {
-        if (!(iface.MainConnection || (dev && ghostSettings)))
-            return;
-
-        function fail(error) {
-            show_unexpected_error(error);
-        }
-
-        function modify() {
-            if (iface.MainConnection) {
-                return iface.MainConnection.activate(dev, null).catch(fail);
-            } else {
-                return dev.activate_with_settings(ghostSettings, null).catch(fail);
-            }
-        }
-
-        with_checkpoint(model, modify,
-                        {
-                            devices: dev ? [dev] : [],
-                            fail_text: fmt_to_fragments(_("Switching on $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
-                            anyway_text: cockpit.format(_("Switch on $0"), dev_name)
-                        });
-    }
-
-    function disconnect() {
-        if (!dev) {
-            console.log("Trying to switch off without a device?");
-            return;
-        }
-
-        function modify () {
-            return dev.disconnect()
-                    .catch(error => show_unexpected_error(error));
-        }
-
-        with_checkpoint(model, modify,
-                        {
-                            devices: [dev],
-                            fail_text: fmt_to_fragments(_("Switching off $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
-                            anyway_text: cockpit.format(_("Switch off $0"), dev_name)
-                        });
     }
 
     function renderDesc() {
@@ -521,8 +439,7 @@ export const NetworkInterfacePage = ({
                         <DescriptionListDescription data-label="General">
                             <Checkbox id="autoreconnect" isDisabled={!privileged}
                                       onChange={(_event, checked) => {
-                                          settings.connection.autoconnect = checked;
-                                          settings_applier(model, dev, con)(settings);
+                                          toggleConnectionAutoconnect(model, dev, con, settings, checked);
                                       }}
                                       isChecked={settings.connection.autoconnect}
                                       label={_("Connect automatically")} />
@@ -810,12 +727,7 @@ export const NetworkInterfacePage = ({
 
             try {
                 if (ap.Connection) {
-                    // Activate existing connection (which already has password if needed)
-                    utils.debug("Activating existing connection for", ap.Ssid);
-                    await ap.Connection.activate(dev, ap);
-                    utils.debug("Connection activation started for", ap.Ssid);
-                    await dev.wait_connection(ap.Ssid);
-                    utils.debug("Connected successfully to", ap.Ssid);
+                    await utils.existingConnectionConnectToAP(ap, dev);
                     return;
                 }
 
@@ -830,27 +742,10 @@ export const NetworkInterfacePage = ({
                 }
 
                 // Create new connection for open networks
-                utils.debug("Creating new connection for", ap.Ssid);
-                const settings = {
-                    connection: {
-                        id: ap.Ssid,
-                        type: "802-11-wireless",
-                        autoconnect: true,
-                    },
-                    "802-11-wireless": {
-                        ssid: utils.ssid_to_nm(ap.Ssid),
-                        mode: "infrastructure",
-                    }
-                };
-
-                // Pass null for specific_object - NM will find the right AP by SSID
-                await dev.activate_with_settings(settings, null);
-                utils.debug("Connection activation started for", ap.Ssid);
-                await dev.wait_connection(ap.Ssid);
-                utils.debug("Connected successfully to", ap.Ssid);
+                await utils.connectToAccessPoint(dev, ap.Ssid, "none", "");
             } catch (error) {
                 // Provide context-appropriate error message
-                const errorMsg = error.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                const errorMsg = error.reason === utils.NM_DEVICE_STATE_REASON_NO_SECRETS
                     ? _("Network password is not stored. Please forget and reconnect to this network.")
                     : error.toString();
                 show_error_dialog(
@@ -1170,30 +1065,6 @@ export const NetworkInterfacePage = ({
         );
     }
 
-    function createGhostConnectionSettings() {
-        const settings = {
-            connection: {
-                interface_name: iface.Name
-            },
-            ipv4: {
-                method: "auto",
-                address_data: [],
-                dns_data: [],
-                dns_search: [],
-                route_data: []
-            },
-            ipv6: {
-                method: "auto",
-                address_data: [],
-                dns_data: [],
-                dns_search: [],
-                route_data: []
-            }
-        };
-        complete_settings(settings, dev);
-        return settings;
-    }
-
     /* Disable the On/Off button for interfaces that we don't know about at all,
        and for devices that NM declares to be unavailable. Neither can be activated.
     */
@@ -1207,7 +1078,9 @@ export const NetworkInterfacePage = ({
                 <Switch id="interface-switch"
                         isChecked={!!(dev && dev.ActiveConnection)}
                         isDisabled={!iface || (dev && dev.State === 20) || !privileged}
-                        onChange={(_event, enable) => enable ? connect() : disconnect()}
+                        onChange={(_event, enable) => enable
+                            ? connectInterface(model, iface, dev, ghostSettings)
+                            : disconnectInterface(model, iface, dev)}
                         aria-label={_("Enable or disable the device")} />
             </Privileged>
         );

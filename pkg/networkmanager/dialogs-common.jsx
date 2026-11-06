@@ -150,7 +150,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, chi
     );
 };
 
-export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) => {
+export const NetworkAction = ({ buttonText, iface, connectionSettings, type, buttonVariant, isInline }) => {
     const Dialogs = useDialogs();
     const model = useContext(ModelContext);
 
@@ -234,11 +234,14 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
                     .catch(err => console.error("NetworkAction Dialog failed:", err)); // not-covered: OS error
     }
 
+    const variant = buttonVariant ?? (!iface ? "secondary" : "link");
+    const inline = isInline ?? !!iface;
+
     return (
         <Button id={"networking-" + (!iface ? "add-" : "edit-") + type}
-                isInline={!!iface}
+                isInline={inline}
                 onClick={syn_click(model, show)}
-                variant={!iface ? "secondary" : "link"}>
+                variant={variant}>
             {buttonText || _("edit")}
         </Button>
     );

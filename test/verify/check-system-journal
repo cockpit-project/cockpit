@@ -532,6 +532,28 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_text(".pf-v6-c-card__title", "[no data]")
 
     @testlib.nondestructive
+    def testEntryRoundTrip(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("logger -t logger -p err ROUNDTRIP")
+        self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
+
+        def journalctl_count():
+            return int(m.execute("pgrep -c -x journalctl || true").strip() or 0)
+
+        # opening an entry and going back must not leave journal queries
+        # from the previous list behind (https://github.com/cockpit-project/cockpit/issues/23871)
+        for _ in range(3):
+            b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('ROUNDTRIP')")
+            b.wait_in_text(".pf-v6-c-card__title", "ROUNDTRIP")
+            b.click('.pf-v6-c-breadcrumb li:first-of-type')
+            b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('ROUNDTRIP')")
+
+        # only the list's own follow process stays around
+        testlib.wait(lambda: journalctl_count() == 1, msg="leftover journalctl processes", tries=10)
+
+    @testlib.nondestructive
     def testLogLevel(self):
 
         b = self.browser

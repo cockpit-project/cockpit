@@ -1732,11 +1732,9 @@ class TestAutoUpdates(NoSubManCase):
         self.login_and_go("/updates")
         with b.wait_timeout(30):
             b.wait_visible("#available-updates")
-
-        b.wait_in_text("#autoupdates-settings", "Disabled")
-
-        # enable
-        b.click("#autoupdates-settings button:contains('Edit')")
+            b.wait_in_text("#autoupdates-settings", "Disabled")
+            # enable
+            b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
         self.closeSettings(b)

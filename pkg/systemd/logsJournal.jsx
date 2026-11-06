@@ -52,6 +52,11 @@ export class JournalBox extends React.Component {
         this.updateQuery();
     }
 
+    componentWillUnmount() {
+        cockpit.removeEventListener("locationchanged", this.updateQuery);
+        this.stop();
+    }
+
     componentDidUpdate(prevProps) {
         if (prevProps.dataFollowing !== this.props.dataFollowing) {
             if (this.props.dataFollowing) {

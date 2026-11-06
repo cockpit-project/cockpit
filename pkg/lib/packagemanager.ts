@@ -56,9 +56,7 @@ async function detect_packagekit() {
 }
 
 // Cache result for a session
-// HACK: allow overriding the package manager to make the software updates page
-// keep using PackageKit until the dnf5daemon API is sufficient.
-export async function getPackageManager(force_packagekit: boolean = false): Promise<PackageManager> {
+export async function getPackageManager(): Promise<PackageManager> {
     if (package_manager !== null)
         return Promise.resolve(package_manager);
 
@@ -67,7 +65,7 @@ export async function getPackageManager(force_packagekit: boolean = false): Prom
     if (unsupported)
         throw new UnsupportedError("Cockpit does not support installing additional packages on immutable operating systems");
 
-    if (has_dnf5daemon && !force_packagekit) {
+    if (has_dnf5daemon) {
         debug("constructing dnf5daemon");
         package_manager = new Dnf5DaemonManager();
         return Promise.resolve(package_manager);

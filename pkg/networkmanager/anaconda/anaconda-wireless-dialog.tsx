@@ -13,7 +13,7 @@ import { LockIcon } from "@patternfly/react-icons/dist/esm/icons/lock-icon";
 import { LockOpenIcon } from "@patternfly/react-icons/dist/esm/icons/lock-open-icon";
 
 import { useDialogs } from "dialogs.jsx";
-import { connectToAccessPoint, existingConnectionConnectToAP, NMAccessPoint, NMWirelessDevice, NMError } from '../utils';
+import { connectToAccessPoint, existingConnectionConnectToAP, NM_DEVICE_STATE_REASON_NO_SECRETS, NMAccessPoint, NMWirelessDevice, NMError } from '../utils';
 
 import {
     useDialogState, DialogState,
@@ -189,7 +189,7 @@ export const AnacondaWirelessDialog = ({
             const err = ex as NMError;
             throw DialogError.fromError(
                 _("Failed to connect"),
-                err.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                err.reason === NM_DEVICE_STATE_REASON_NO_SECRETS
                     ? _("Check your password.")
                     : err);
         }

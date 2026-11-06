@@ -122,7 +122,7 @@ const WiFiConnectDialog = ({ dev, model, ssid: knownSsid, ap }) => {
         } catch (err) {
             throw new DialogError(
                 _("Failed to connect"),
-                err.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                err.reason === utils.NM_DEVICE_STATE_REASON_NO_SECRETS
                     ? _("Check your password.")
                     : err.toString());
         }
@@ -745,7 +745,7 @@ export const NetworkInterfacePage = ({
                 await utils.connectToAccessPoint(dev, ap.Ssid, "none", "");
             } catch (error) {
                 // Provide context-appropriate error message
-                const errorMsg = error.reason === 7 // NM_DEVICE_STATE_REASON_NO_SECRETS
+                const errorMsg = error.reason === utils.NM_DEVICE_STATE_REASON_NO_SECRETS
                     ? _("Network password is not stored. Please forget and reconnect to this network.")
                     : error.toString();
                 show_error_dialog(

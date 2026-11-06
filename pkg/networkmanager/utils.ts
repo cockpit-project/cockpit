@@ -83,6 +83,11 @@ export type NMInterface = {
     MainConnection: NMConnection | null;
 }
 
+export const NM_DEVICE_STATE_REASON_NO_SECRETS = 7;
+
+// type_Device.wait_connection() error set in interfaces.js
+export type NMError = Error & { reason?: number };
+
 /* NetworkManager specific data conversions and utility functions.
  */
 

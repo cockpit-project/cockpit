@@ -7,9 +7,9 @@ import cockpit from "cockpit";
 import { journal } from "journal";
 import * as timeformat from "timeformat";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import { CheckIcon, CopyIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
@@ -17,10 +17,12 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Title, TitleSizes } from "@patternfly/react-core/dist/esm/components/Title";
+import { renderMessageWithUrls } from "logs-url.jsx";
 
 const _ = cockpit.gettext;
 
 const LogDetails = ({ entry }) => {
+    const [copied, setCopied] = useState(false);
     const general = Object.keys(entry).filter(k => k !== 'MESSAGE');
     general.sort();
 
@@ -33,10 +35,32 @@ const LogDetails = ({ entry }) => {
     if (["service", "target", "socket", "timer", "path"].indexOf(service.split(".").slice(-1)[0]) === -1)
         service = undefined;
 
-    const actions = service && (
-        <Button variant="link" onClick={() => cockpit.jump("/system/services#/" + service + (is_user ? "?owner=user" : "")) }>
-            {cockpit.format(_("Go to $0"), service)}
-        </Button>
+    const copyMessage = () => {
+        const text = journal.printable(entry.MESSAGE, "MESSAGE");
+        navigator.clipboard.writeText(text)
+                .then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                })
+                .catch(err => console.error("Failed to copy message:", err));
+    };
+
+    const actions = (
+        <>
+            <Button
+                variant="secondary"
+                onClick={copyMessage}
+                icon={copied ? <CheckIcon className="ct-icon-copy-success" /> : <CopyIcon />}
+                aria-label={copied ? _("Copied message to clipboard") : _("Copy message")}
+            >
+                {copied ? _("Copied message") : _("Copy message")}
+            </Button>
+            {service && (
+                <Button variant="link" onClick={() => cockpit.jump("/system/services#/" + service + (is_user ? "?owner=user" : "")) }>
+                    {cockpit.format(_("Go to $0"), service)}
+                </Button>
+            )}
+        </>
     );
 
     return (
@@ -47,7 +71,7 @@ const LogDetails = ({ entry }) => {
                         {id}
                     </Title>
                 </CardHeader>
-                <CardTitle>{journal.printable(entry.MESSAGE, "MESSAGE")}</CardTitle>
+                <CardTitle>{renderMessageWithUrls(journal.printable(entry.MESSAGE, "MESSAGE"))}</CardTitle>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">
                         { general.map(key =>

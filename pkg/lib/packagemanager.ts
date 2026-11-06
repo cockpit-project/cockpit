@@ -8,12 +8,33 @@ import cockpit from 'cockpit';
 import { PackageManager, InstallProgressType, UnsupportedError, NotFoundError } from './_internal/packagemanager-abstract';
 import { Dnf5DaemonManager } from './_internal/dnf5daemon';
 import { PackageKitManager } from './_internal/packagekit';
+import { read_os_release } from 'os-release';
 
 let package_manager: PackageManager | null = null;
 
 function debug(...args: unknown[]) {
     if (window.debugging === 'all' || window.debugging?.includes('packagemanager'))
         console.debug('packagemanager', ...args);
+}
+
+/*
+ * Only enable dnf5daemon on RHEL > 10 and ELN. Fedora can be enabled once it
+ * there has been a Fedora proposal to switch to dnf5daemon instead of PackageKit.
+ */
+async function is_dnf5daemon_os() {
+    try {
+        await cockpit.init();
+    } catch (exp) {
+        /* Remove this when every beiboot scenario has Cockpit 336 */
+        if (exp instanceof cockpit.BasicError && exp.problem === 'not-supported') {
+            const os_release = await read_os_release();
+            cockpit.info.os_release = os_release;
+        }
+    }
+
+    const os_id = cockpit.info.os_release?.ID;
+    const os_version = Number.parseInt(cockpit.info.os_release?.VERSION || "");
+    return (os_id === "rhel" && os_version >= 11) || os_id === "eln";
 }
 
 async function is_immutable_os() {
@@ -60,15 +81,19 @@ export async function getPackageManager(): Promise<PackageManager> {
     if (package_manager !== null)
         return Promise.resolve(package_manager);
 
-    const [unsupported, has_dnf5daemon, has_packagekit] = await Promise.all([is_immutable_os(), detect_dnf5daemon(), detect_packagekit()]);
+    const [unsupported, uses_dnf5daemon, has_dnf5daemon, has_packagekit] = await Promise.all([is_immutable_os(), is_dnf5daemon_os(), detect_dnf5daemon(), detect_packagekit()]);
 
     if (unsupported)
         throw new UnsupportedError("Cockpit does not support installing additional packages on immutable operating systems");
 
-    if (has_dnf5daemon) {
-        debug("constructing dnf5daemon");
-        package_manager = new Dnf5DaemonManager();
-        return Promise.resolve(package_manager);
+    if (uses_dnf5daemon) {
+        if (has_dnf5daemon) {
+            debug("constructing dnf5daemon");
+            package_manager = new Dnf5DaemonManager();
+            return Promise.resolve(package_manager);
+        } else {
+            console.warn("OS prefers dnf5daemon-server but it is not installed, falling back to PackageKit");
+        }
     }
 
     if (has_packagekit) {

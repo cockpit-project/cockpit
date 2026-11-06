@@ -50,11 +50,6 @@ for rpm in $EXTERNAL_COCKPIT_PACKAGES; do
     unpack $rpm-*.rpm
 done
 
-# The Fedora build of the Ubuntu branding links the logos into plymouth/, which
-# label-run doesn't mount; point them at the host's pixmaps/, which it does
-ln -sfT ../../../pixmaps/ubuntu-logo-text.png $INSTALLROOT/usr/share/cockpit/branding/ubuntu/logo.png
-ln -sfT ../../../pixmaps/ubuntu-logo-text-dark.png $INSTALLROOT/usr/share/cockpit/branding/ubuntu/logo-dark.png
-
 rm -rf /build/var/cache/*dnf* /build/var/lib/dnf /build/var/lib/rpm* /build/var/log/*
 rm -rf /container/rpms || true
 

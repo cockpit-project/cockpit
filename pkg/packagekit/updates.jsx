@@ -66,7 +66,7 @@ import "./updates.scss";
 import { Checkbox } from '@patternfly/react-core/dist/esm/components/Checkbox/index.js';
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
 import { Severity, TransactionExitStatus, UpdateProgressType, UpdateError } from '_internal/packagemanager-abstract';
-import { getPackageManager } from 'packagemanager';
+import { getPackageManager, is_dnf5daemon_os } from 'packagemanager';
 import { Icon } from '@patternfly/react-core/dist/esm/components/Icon/index.js';
 
 const _ = cockpit.gettext;
@@ -1154,7 +1154,7 @@ class OsUpdates extends React.Component {
 
         superuser.addEventListener("changed", this.handleSuperUserChange);
 
-        this.packageManager = await getPackageManager();
+        this.packageManager = await getPackageManager(!await is_dnf5daemon_os());
         this.backend = await this.packageManager.get_backend();
         const partialUpdates = is_partial_updates_supported(this.backend);
         this.setState({ partialUpdates });

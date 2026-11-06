@@ -8,12 +8,33 @@ import cockpit from 'cockpit';
 import { PackageManager, InstallProgressType, UnsupportedError, NotFoundError } from './_internal/packagemanager-abstract';
 import { Dnf5DaemonManager } from './_internal/dnf5daemon';
 import { PackageKitManager } from './_internal/packagekit';
+import { read_os_release } from 'os-release';
 
 let package_manager: PackageManager | null = null;
 
 function debug(...args: unknown[]) {
     if (window.debugging === 'all' || window.debugging?.includes('packagemanager'))
         console.debug('packagemanager', ...args);
+}
+
+/*
+ * Only enable dnf5daemon on RHEL > 10 and ELN. Fedora can be enabled once it
+ * there has been a Fedora proposal to switch to dnf5daemon instead of PackageKit.
+ */
+export async function is_dnf5daemon_os() {
+    try {
+        await cockpit.init();
+    } catch (exp) {
+        /* Remove this when every beiboot scenario has Cockpit 336 */
+        if (exp instanceof cockpit.BasicError && exp.problem === 'not-supported') {
+            const os_release = await read_os_release();
+            cockpit.info.os_release = os_release;
+        }
+    }
+
+    const os_id = cockpit.info.os_release?.ID;
+    const os_version = Number.parseInt(cockpit.info.os_release?.VERSION || "");
+    return (os_id === "rhel" && os_version >= 11) || os_id === "eln";
 }
 
 async function is_immutable_os() {

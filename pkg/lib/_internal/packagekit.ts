@@ -221,6 +221,30 @@ export class TransactionError extends Error {
 }
 
 /**
+ * Convert a PackageKit transaction property change into UpdateNotify props
+ *
+ * D-Bus property notifications only contain the properties that changed, so only set
+ * a field when its property is present: in particular, a progress update without
+ * AllowCancel must not drop the cancel function of a transaction that is still cancellable.
+ */
+function updateNotifyProps(notify: Record<string, unknown>, transactionPath: string): UpdateNotify {
+    const props: UpdateNotify = {};
+    if ("AllowCancel" in notify) {
+        props.cancel = notify.AllowCancel
+            ? () => call(transactionPath, transactionInterface, "Cancel", [])
+                    .catch(ex => console.warn("Failed to cancel PackageKit transaction:", String(ex)))
+            : null;
+    }
+    if (notify.Percentage !== undefined)
+        props.percentage = notify.Percentage as number;
+    if (notify.RemainingTime !== undefined)
+        props.remaining_time = notify.RemainingTime as number;
+    if (notify.LastPackage !== undefined)
+        props.last_package = notify.LastPackage as string;
+    return props;
+}
+
+/**
  * Run a long cancellable PackageKit transaction
  *
  * method (string): D-Bus method name on the https://www.freedesktop.org/software/PackageKit/gtk-doc/Transaction.html interface
@@ -646,7 +670,6 @@ export class PackageKitManager implements PackageManager {
 
     async update_packages(updates: Update[] | UpdateDetail[], handlers: UpdateProgressHandlers): Promise<TransactionExitStatus> {
         const update_ids = updates.map(u => u.id);
-        let transactionPath: string | null = null;
         const errorMessages: string[] = [];
 
         return new Promise<TransactionExitStatus>((resolve, reject) => {
@@ -669,21 +692,7 @@ export class PackageKitManager implements PackageManager {
                                     handlers.on_package(UpdateProgressMap[status], packageId);
                             },
                         },
-                        (notify: Record<string, unknown>, path: string) => {
-                            transactionPath = path;
-                            const props: UpdateNotify = {
-                                cancel: notify.AllowCancel
-                                    ? () => call(transactionPath!, transactionInterface, "Cancel", [])
-                                    : null,
-                            };
-                            if (notify.Percentage !== undefined)
-                                props.percentage = notify.Percentage as number;
-                            if (notify.RemainingTime !== undefined)
-                                props.remaining_time = notify.RemainingTime as number;
-                            if (notify.LastPackage !== undefined)
-                                props.last_package = notify.LastPackage as string;
-                            handlers.on_notify(props);
-                        },
+                        (notify: Record<string, unknown>, path: string) => handlers.on_notify(updateNotifyProps(notify, path)),
             ).catch(reject);
         });
     }
@@ -730,20 +739,7 @@ export class PackageKitManager implements PackageManager {
                                              handlers.on_package(UpdateProgressMap[status], packageId);
                                      },
                                  },
-                                 (notify: Record<string, unknown>) => {
-                                     const props: UpdateNotify = {
-                                         cancel: notify.AllowCancel ? () => call(transactionPath, transactionInterface, "Cancel", []) : null,
-                                     };
-
-                                     if (notify.Percentage !== undefined)
-                                         props.percentage = notify.Percentage as number;
-                                     if (notify.RemainingTime !== undefined)
-                                         props.remaining_time = notify.RemainingTime as number;
-                                     if (notify.LastPackage !== undefined)
-                                         props.last_package = notify.LastPackage as string;
-
-                                     handlers.on_notify(props);
-                                 },
+                                 (notify: Record<string, unknown>) => handlers.on_notify(updateNotifyProps(notify, transactionPath)),
                 );
             });
 

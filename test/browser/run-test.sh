@@ -145,6 +145,11 @@ if [ "$PLAN" = "main" ]; then
               TestUpdates.testKpatch
               "
 
+    # Enable TestUpdates.testBasic on ELN as this is the only OS we test dnf5daemon on.
+    if [ "$TEST_OS" = "fedora-eln" ]; then
+            EXCLUDES=${EXCLUDES/TestUpdates.testBasic/}
+    fi
+
     # FIXME: TestingFarm will fix their auto-reboot ansible
     # https://gitlab.com/testing-farm/profiles/-/merge_requests/92
     EXCLUDES="$EXCLUDES

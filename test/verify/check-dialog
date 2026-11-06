@@ -420,6 +420,18 @@ echo $HOME/Downloads
 
         b.click(".file-chooser-listing-breadcrumbs a:contains('file-chooser-test')")
         b.assert_pixels(".file-chooser", "basic")
+
+        # Opening a directory with the keyboard keeps the focus in the listing:
+        # on the first entry when going down, on where we came from when going up
+        b.focus(fc.file("text"))
+        b.key("Enter")
+        b.wait_visible(fc.file("foo.txt"))
+        b.wait_js_cond("document.activeElement === document.querySelector('.file-chooser-listing-body tr[data-name]')")
+        b.focus(".file-chooser-listing-breadcrumbs a:contains('file-chooser-test')")
+        b.key("Enter")
+        b.wait_visible(fc.file("foo"))
+        b.wait_js_cond("document.activeElement?.dataset.name === 'text'")
+
         b.mouse(fc.file("foo"), "click")
         b.click(fc.apply_button())
 

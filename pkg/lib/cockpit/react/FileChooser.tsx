@@ -385,6 +385,10 @@ export const FileChooser = ({
 } & FileChooserProps) => {
     const Dialogs = useDialogs();
     const fsInfoClientRef = useRef<FsInfoClient | null>(null);
+    const listingRef = useRef<HTMLDivElement>(null);
+    // Entry to focus once the listing of a newly opened directory is shown,
+    // "" for the first one, null to leave focus alone. See setPath().
+    const focusAfterLoadRef = useRef<string | null>(null);
 
     async function init(): Promise<FileChooserValues> {
         const all_filters = filters.concat([{ label: _("All files"), filter: _n => true }]);
@@ -416,7 +420,21 @@ export const FileChooser = ({
     const dlg = useDialogState_async(init);
 
     const setPath = useCallback(
-        (dlg: DialogState<FileChooserValues>, path: string) => {
+        (dlg: DialogState<FileChooserValues>, path: string, focusListing: boolean = false) => {
+            // Opening a directory with the keyboard from the listing or the
+            // breadcrumbs removes the focused element (or makes the breadcrumb the
+            // current one), and the modal then moves focus to its Close button.
+            // Put it into the new listing instead: on the directory we came from
+            // when going up, like other file choosers do, otherwise on the first entry.
+            focusAfterLoadRef.current = null;
+            if (focusListing) {
+                const old_path = dlg.values.path;
+                const parent = path.endsWith("/") ? path : path + "/";
+                focusAfterLoadRef.current = (old_path !== path && old_path.startsWith(parent))
+                    ? old_path.slice(parent.length).split("/")[0]
+                    : "";
+            }
+
             dlg.field("path").set(path);
             dlg.field("collection").set(null);
             dlg.field("selected").set(null);
@@ -465,6 +483,18 @@ export const FileChooser = ({
                 fsInfoClientRef.current.close();
         };
     }, [dlg, setPath, setCollection]);
+
+    // Move focus into a newly loaded listing, see setPath()
+    const files = dlg instanceof DialogState ? dlg.values.files : null;
+    useEffect(() => {
+        const target = focusAfterLoadRef.current;
+        if (target === null || !Array.isArray(files) || !listingRef.current)
+            return;
+        focusAfterLoadRef.current = null;
+
+        const rows = Array.from(listingRef.current.querySelectorAll<HTMLElement>("tr[data-name]"));
+        (rows.find(row => row.dataset.name === target) || rows[0])?.focus();
+    }, [files]);
 
     function full_path(path: string, selected: string) {
         if (path === "")
@@ -522,7 +552,8 @@ export const FileChooser = ({
                     to="#"
                     onClick={
                         (event) => {
-                            setPath(dlg, path);
+                            // keyboard activation of a link is a click with detail 0
+                            setPath(dlg, path, event.detail === 0);
                             event.preventDefault();
                         }
                     }
@@ -802,7 +833,7 @@ export const FileChooser = ({
                 dlg.field("selected").set(file);
                 if (event && (event.type === "dblclick" || (event.type === "keydown" && "key" in event && event.key === "Enter"))) {
                     if (file.type === "dir") {
-                        setPath(dlg, full_path(dlg.values.path, file.name));
+                        setPath(dlg, full_path(dlg.values.path, file.name), event.type === "keydown");
                         dlg.field("textFilter").set("");
                     }
                 }
@@ -884,7 +915,7 @@ export const FileChooser = ({
                     <div className="file-chooser-listing-breadcrumbs">
                         { dlg instanceof DialogState && breadcrumbs(dlg) }
                     </div>
-                    <div className="file-chooser-listing-body">
+                    <div className="file-chooser-listing-body" ref={listingRef}>
                         { dlg instanceof DialogState && listing(dlg) }
                     </div>
                 </div>

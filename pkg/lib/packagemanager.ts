@@ -75,7 +75,9 @@ export async function getPackageManager(force_packagekit: boolean = false): Prom
 
     if (has_packagekit) {
         debug("constructing packagekit");
-        package_manager = new PackageKitManager();
+        let pk_manager = new PackageKitManager();
+        await pk_manager.init();
+        package_manager = pk_manager;
         return Promise.resolve(package_manager);
     }
 

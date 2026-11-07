@@ -528,13 +528,16 @@ export const FileChooser = ({
                     }
                     isActive={i === dirs.length - 1}
                 >
-                    { dir === "/" ? <OutlinedHddIcon className="breadcrumb-hdd-icon" /> : dir }
+                    { dir === "/"
+                        ? <OutlinedHddIcon className="breadcrumb-hdd-icon" aria-hidden={false} aria-label={_("Filesystem")} />
+                        : dir
+                    }
                 </BreadcrumbItem>
             );
         });
 
         return (
-            <Breadcrumb>
+            <Breadcrumb aria-label={_("File path")}>
                 {crumbs}
             </Breadcrumb>
         );
@@ -543,7 +546,7 @@ export const FileChooser = ({
     function header(dlg: DialogState<FileChooserValues>) {
         const preparedFilters = (
             dlg.values.filters.length > 1 &&
-                <ToggleGroup>
+                <ToggleGroup aria-label={_("File filters")}>
                     {
                         dlg.values.filters.map(f => {
                             return (
@@ -563,6 +566,8 @@ export const FileChooser = ({
 
         const textFilter = (
             <TextInput
+                type="search"
+                aria-label={_("Filter by name")}
                 placeholder={_("Type to filter")}
                 value={dlg.values.textFilter}
                 onChange={(_event, value) => dlg.field("textFilter").set(value)}
@@ -716,7 +721,7 @@ export const FileChooser = ({
         }
 
         return (
-            <Table variant="compact" borders={false}>
+            <Table variant="compact" borders={false} aria-label={_("Places")}>
                 <Tbody onKeyDown={keyboardNavigationHandler}>
                     { collection(dlg.values.recent_collection) }
                     { dlg.values.shortcuts.map(shortcut) }
@@ -820,10 +825,11 @@ export const FileChooser = ({
                                 } else {
                                     name = file.name;
                                 }
+                                const itemType = file.type === "dir" ? _("Folder") : _("File");
+                                const rowLabel = location ? `${name}, ${itemType}, ${location}` : `${name}, ${itemType}`;
                                 return (
                                     <Tr
-                                        aria-label={file.name}
-                                        aria-roledescription={file.type === "dir" ? _("Folder") : _("File")}
+                                        aria-label={rowLabel}
                                         isRowSelected={file.name === dlg.values.selected?.name}
                                         key={idx}
                                         data-name={name}
@@ -833,7 +839,7 @@ export const FileChooser = ({
                                         isClickable
                                     >
                                         <Td>
-                                            <Icon>
+                                            <Icon aria-hidden="true">
                                                 { file.type === "dir"
                                                     ? <FolderIcon />
                                                     : <OutlineFileIcon />
@@ -841,6 +847,9 @@ export const FileChooser = ({
                                             </Icon>
                                             &nbsp;&nbsp;
                                             {emphasize_matches(name, dlg.values.textFilter)}
+                                            <span className="pf-v6-screen-reader">
+                                                {" " + itemType}
+                                            </span>
                                         </Td>
                                         { location && <Td>{location}</Td> }
                                     </Tr>
@@ -853,7 +862,7 @@ export const FileChooser = ({
         }
 
         return (
-            <Table variant="compact" borders={false}>
+            <Table variant="compact" borders={false} aria-label={dlg.values.collection ? dlg.values.collection.label : _("Files")}>
                 { listingBody() }
             </Table>
         );
@@ -866,6 +875,7 @@ export const FileChooser = ({
             position="top"
             onClose={Dialogs.close}
             className="file-chooser"
+            aria-label={title}
         >
             <ModalHeader title={title} />
             <ModalBody>
@@ -918,6 +928,7 @@ const FileChooserButton = ({
         <Button
             variant="plain"
             icon={<FolderOpenIcon />}
+            aria-label={props.title || _("Choose file")}
             onClick={
                 () => {
                     Dialogs.show(
@@ -936,6 +947,7 @@ const FileChooserButton = ({
 export const FileChooserInput = ({
     ouiaId,
     placeholder = "",
+    ariaLabel,
     value,
     onChange,
     isDisabled = false,
@@ -943,6 +955,7 @@ export const FileChooserInput = ({
 } : {
     ouiaId?: undefined | string;
     placeholder?: string,
+    ariaLabel?: string,
     value: string,
     onChange: (path: string, from_dialog: boolean) => void,
     isDisabled?: boolean,
@@ -956,6 +969,7 @@ export const FileChooserInput = ({
             <TextInputGroupMain
                 value={value}
                 placeholder={placeholder}
+                aria-label={ariaLabel || placeholder || _("File path")}
                 onChange={(_event, value) => onChange(value, false)}
                 autoComplete="off"
             />
@@ -996,6 +1010,7 @@ export const DialogFileChooserInput = ({
             <FileChooserInput
                 ouiaId={field.ouia_id()}
                 placeholder={placeholder}
+                ariaLabel={label}
                 value={field.get()}
                 onChange={(val, from_dialog) => field.set_debounced(val, from_dialog ? 0 : undefined)}
                 isDisabled={!!excuse}

@@ -110,7 +110,8 @@ def build_install_package(dist_tars: list[str], image: str, *, quick: bool) -> l
     args += ["--build", dist_tars[0]]
 
     # install the playground
-    args += ["--upload", os.path.join(BASE_DIR, "dist/playground") + ":/usr/local/share/cockpit/"]
+    build_dir = os.path.dirname(dist_tars[0])
+    args += ["--upload", os.path.join(build_dir, "dist/playground") + ":/usr/local/share/cockpit/"]
 
     # install mock pam module; we don't want to ship it as package, so fish it out of the build root
     args.append("--run-command")
@@ -155,10 +156,11 @@ def build_install_ostree(dist_tars: list[str], image: str, *, verbose: bool, qui
     args: list[str] = []
     for rpm in rpms:
         args += ["--upload", f"{rpm}:/var/tmp/"]
+    build_dir = os.path.dirname(dist_tars[0])
     args += [
         "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
         "--script", os.path.join(TEST_DIR, "ostree.install"),
-        "--upload", os.path.join(BASE_DIR, "dist/playground") + ":/usr/local/share/cockpit/"]
+        "--upload", os.path.join(build_dir, "dist/playground") + ":/usr/local/share/cockpit/"]
     return args
 
 
@@ -174,8 +176,9 @@ def build_install_bootc(dist_tars: list[str], image: str, *, verbose: bool, quic
     for rpm in rpms:
         if not any(r in rpm for r in [".src", "debug", "packagekit"]):
             args += ["--upload", f"{rpm}:/var/tmp/rpms/"]
+    build_dir = os.path.dirname(dist_tars[0])
     args += [
-        "--upload", os.path.join(BASE_DIR, "dist/playground") + ":/var/tmp/",
+        "--upload", os.path.join(build_dir, "dist/playground") + ":/var/tmp/",
         "--script", os.path.join(TEST_DIR, "bootc.install"),
     ]
     return args
@@ -196,10 +199,11 @@ def build_install_container(dist_tars: list[str], image: str, *, verbose: bool, 
     args: list[str] = []
     for rpm in rpms:
         args += ["--upload", f"{rpm}:/var/tmp/"]
+    build_dir = os.path.dirname(dist_tars[0])
     args += [
         # copy the playground where ws-container.install expects it
         "--run-command", "mkdir -p /var/tmp/install/usr/share/cockpit/",
-        "--upload", os.path.join(BASE_DIR, "dist/playground") + ":/var/tmp/install/usr/share/cockpit/",
+        "--upload", os.path.join(build_dir, "dist/playground") + ":/var/tmp/install/usr/share/cockpit/",
         # remove preinstalled rpms
         "--run-command", "dnf -C remove -y cockpit-bridge cockpit-ws",
         "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",

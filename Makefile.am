@@ -27,7 +27,7 @@ $(srcdir)/package-lock.json: FORCE
 EXTRA_DIST = README.md LICENSES/BSD-3-Clause.txt LICENSES/GPL-3.0.txt LICENSES/LGPL-2.1.txt LICENSES/MIT.txt
 CLEANFILES += cockpit-*.tar.xz
 
-# We override distdir as we want to dist some git-tracked files and dist/ without explicitly listing.
+# We override distdir as we want to dist some git-tracked files without explicitly listing them.
 # The spec also gets patched to declare bundled NPM dependencies.
 EXTRA_DIST += $(EXTRA_FILES)
 distdir: $(DISTFILES)
@@ -39,7 +39,6 @@ distdir: $(DISTFILES)
 	$(srcdir)/tools/fix-spec $(distdir)/tools/cockpit.spec $(VERSION)
 	sed -i "/^pkgver=/ s/0/$(VERSION)/" "$(distdir)/tools/arch/PKGBUILD"
 	sed -i "1 s/0/$(VERSION)/" "$(distdir)/tools/debian/changelog"
-	cp -r "$(srcdir)/dist" "$(srcdir)/runtime-npm-modules.txt" "$(distdir)"
 	$(srcdir)/tools/adjust-distdir-timestamps "$(distdir)"
 	@echo '  DIST     $(DIST_ARCHIVES)'
 
@@ -84,10 +83,6 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only $(EXTRA_DISTCHECK_CONFIGURE_FLA
 # Validate our AppStream metadata
 distcheck-hook::
 	find $(distdir) -name '*.metainfo.xml' -o -name '*.appdata.xml' | xargs appstream-util validate --nonet
-
-# validate that we don't bundle the embedded patternfly font files, we use them from /static/fonts/
-distcheck-hook::
-	! grep --color=auto -rn "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" $(distdir)/dist
 
 # -----------------------------------------------------------------------------
 

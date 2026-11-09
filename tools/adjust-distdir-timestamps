@@ -41,8 +41,5 @@ timestamp \
 # package-lock.json needs to be newer than package.json
 timestamp "${distdir}/package-lock.json"
 
-# and dist/ needs to be newer than that
-timestamp "${distdir}/dist"
-
 # finally, the directories should be newer than everything else
 timestamp "${distdir}" -type d

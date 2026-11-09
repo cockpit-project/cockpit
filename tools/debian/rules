@@ -39,8 +39,6 @@ export deb_pamlibdir = $(shell { pkgconf --variable=libdir pam || echo /lib/$(DE
 
 override_dh_auto_configure:
 ifeq ($(KEEP_DIST),)
-	# upstream releases include a pre-built dist/, rebuild it
-	rm -fr dist/
 	# HACK: names for additional tarballs can't contain '_', so we name it just "orig-node"
 	ln -fs node node_modules
 endif

@@ -17,7 +17,7 @@ EXTRA_DIST += \
 	$(NULL)
 
 # one built file in dist/ which we use as dependency
-DIST_STAMP = $(srcdir)/dist/static/manifest.json
+DIST_STAMP = dist/static/manifest.json
 
 # dynamic pkg → dist dependency, to rebuild the bundles if any web related file changes
 # exclude automake unit test log files
@@ -31,15 +31,19 @@ V_BUNDLE_0 = @echo "  BUNDLE   dist";
 # but this is just a representative for all of dist/*
 $(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
 	@rm -f $(DIST_STAMP)
-	$(V_BUNDLE) NODE_ENV='$(NODE_ENV)' '$(srcdir)/build.js' -o '$(srcdir)'
+	$(V_BUNDLE) NODE_ENV='$(NODE_ENV)' '$(srcdir)/build.js'
 
 EXTRA_DIST += build.js files.js package.json package-lock.json
 
 INSTALL_DATA_LOCAL_TARGETS += install-bundles
 install-bundles:
-	cd $(srcdir)/dist; find */* -type f ! -name '*.LEGAL.txt' -a ! -path 'playground/*' -exec install -D -m 644 '{}' '$(abspath $(DESTDIR)$(datadir))/cockpit/{}' \;
-	find $(srcdir)/dist -name '*.LEGAL.txt' -exec install --target-directory '$(abspath $(DESTDIR)$(docdir))/legal' '{}' -D -m 644 '{}'  \;
+	cd dist; find */* -type f ! -name '*.LEGAL.txt' -a ! -path 'playground/*' -exec install -D -m 644 '{}' '$(abspath $(DESTDIR)$(datadir))/cockpit/{}' \;
+	find dist -name '*.LEGAL.txt' -exec install --target-directory '$(abspath $(DESTDIR)$(docdir))/legal' '{}' -D -m 644 '{}'  \;
 
 UNINSTALL_LOCAL_TARGETS += uninstall-bundles
 uninstall-bundles:
 	rm -rf $(DESTDIR)$(datadir)/cockpit
+
+CLEAN_LOCAL_TARGETS += clean-dist
+clean-dist:
+	rm -rf dist qunit runtime-npm-modules.txt metafile.json

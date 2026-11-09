@@ -13,53 +13,6 @@ from testlib import Error, MachineCase, wait
 class NetworkHelpers(MachineCase):
     """Mix-in class for tests that require network setup"""
 
-    def add_veth(self, name: str, dhcp_cidr: str | None = None, dhcp_range: Sequence[str] | None = None) -> None:
-        """Add a veth device that is manageable with NetworkManager
-
-        This is safe for @nondestructive tests, the interface gets cleaned up automatically.
-        """
-        if dhcp_range is None:
-            dhcp_range = ['10.111.112.2', '10.111.127.254']
-        self.machine.execute(rf"""
-            mkdir -p /run/udev/rules.d/
-            echo 'ENV{{ID_NET_DRIVER}}=="veth", ENV{{INTERFACE}}=="{name}", ENV{{NM_UNMANAGED}}="0"' > /run/udev/rules.d/99-nm-veth-{name}-test.rules
-            udevadm control --reload
-            ip link add name {name} type veth peer name v_{name}
-            # Trigger udev to make sure that it has been renamed to its final name
-            udevadm trigger --subsystem-match=net
-            udevadm settle
-            """)
-        self.addCleanup(self.machine.execute, f"rm /run/udev/rules.d/99-nm-veth-{name}-test.rules; nmcli dev del {name}")
-        if dhcp_cidr:
-            # up the remote end, give it an IP, and start DHCP server
-            self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")
-
-            self.machine.execute("mkdir -p /run/dnsmasq")
-            server = self.machine.spawn(f"dnsmasq --keep-in-foreground --log-queries --log-facility=- "
-                                        f"--conf-file=/dev/null --dhcp-leasefile=/run/dnsmasq/leases.{name} --no-resolv "
-                                        f"--bind-interfaces --except-interface=lo --interface=v_{name} --dhcp-range={dhcp_range[0]},{dhcp_range[1]},4h",
-                                        f"dhcp-{name}.log")
-            self.addCleanup(self.machine.execute, f"kill {server}; rm -rf /run/dnsmasq")
-            self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
-
-    def nm_activate_eth(self, iface: str) -> None:
-        """Create an NM connection for a given interface"""
-
-        m = self.machine
-        wait(lambda: m.execute(f'nmcli device | grep "{iface}.*disconnected"'))
-        m.execute(f"nmcli con add type ethernet ifname {iface} con-name {iface}")
-        m.execute(f"nmcli con up {iface} ifname {iface}")
-        self.addCleanup(m.execute, f"nmcli con delete {iface}")
-
-    def nm_checkpoints_disable(self) -> None:
-        self.browser.eval_js("window.cockpit_tests_disable_checkpoints = true;")
-
-    def nm_checkpoints_enable(self, settle_time: float = 3.0) -> None:
-        self.browser.eval_js("window.cockpit_tests_disable_checkpoints = false;")
-        self.browser.eval_js(f"window.cockpit_tests_checkpoint_settle_time = {settle_time};")
-
-
-class NetworkCase(NetworkHelpers):
     def setUp(self) -> None:
         super().setUp()
 
@@ -116,6 +69,51 @@ class NetworkCase(NetworkHelpers):
         # Something unknown sometimes goes wrong with PCP, see #15625
         self.allow_journal_messages("pcp-archive: no such metric: network.interface.* Unknown metric name",
                                     "direct: instance name lookup failed: network.*")
+
+    def add_veth(self, name: str, dhcp_cidr: str | None = None, dhcp_range: Sequence[str] | None = None) -> None:
+        """Add a veth device that is manageable with NetworkManager
+
+        This is safe for @nondestructive tests, the interface gets cleaned up automatically.
+        """
+        if dhcp_range is None:
+            dhcp_range = ['10.111.112.2', '10.111.127.254']
+        self.machine.execute(rf"""
+            mkdir -p /run/udev/rules.d/
+            echo 'ENV{{ID_NET_DRIVER}}=="veth", ENV{{INTERFACE}}=="{name}", ENV{{NM_UNMANAGED}}="0"' > /run/udev/rules.d/99-nm-veth-{name}-test.rules
+            udevadm control --reload
+            ip link add name {name} type veth peer name v_{name}
+            # Trigger udev to make sure that it has been renamed to its final name
+            udevadm trigger --subsystem-match=net
+            udevadm settle
+            """)
+        self.addCleanup(self.machine.execute, f"rm /run/udev/rules.d/99-nm-veth-{name}-test.rules; nmcli dev del {name}")
+        if dhcp_cidr:
+            # up the remote end, give it an IP, and start DHCP server
+            self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")
+
+            self.machine.execute("mkdir -p /run/dnsmasq")
+            server = self.machine.spawn(f"dnsmasq --keep-in-foreground --log-queries --log-facility=- "
+                                        f"--conf-file=/dev/null --dhcp-leasefile=/run/dnsmasq/leases.{name} --no-resolv "
+                                        f"--bind-interfaces --except-interface=lo --interface=v_{name} --dhcp-range={dhcp_range[0]},{dhcp_range[1]},4h",
+                                        f"dhcp-{name}.log")
+            self.addCleanup(self.machine.execute, f"kill {server}; rm -rf /run/dnsmasq")
+            self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
+
+    def nm_activate_eth(self, iface: str) -> None:
+        """Create an NM connection for a given interface"""
+
+        m = self.machine
+        wait(lambda: m.execute(f'nmcli device | grep "{iface}.*disconnected"'))
+        m.execute(f"nmcli con add type ethernet ifname {iface} con-name {iface}")
+        m.execute(f"nmcli con up {iface} ifname {iface}")
+        self.addCleanup(m.execute, f"nmcli con delete {iface}")
+
+    def nm_checkpoints_disable(self) -> None:
+        self.browser.eval_js("window.cockpit_tests_disable_checkpoints = true;")
+
+    def nm_checkpoints_enable(self, settle_time: float = 3.0) -> None:
+        self.browser.eval_js("window.cockpit_tests_disable_checkpoints = false;")
+        self.browser.eval_js(f"window.cockpit_tests_checkpoint_settle_time = {settle_time};")
 
     def setup_wireless_networks(self) -> None:
         m = self.machine
@@ -208,6 +206,54 @@ wpa_passphrase=hidden99""")
             self.nm_activate_eth(iface)
         return iface
 
+    def iface_con_id(self, iface: str) -> str | None:
+        con_id = self.machine.execute(f"nmcli -m tabular -t -f GENERAL.CONNECTION device show {iface}").strip()
+        if con_id == "" or con_id == "--":
+            return None
+        else:
+            return con_id
+
+    def ensure_nm_uses_dhclient(self) -> None:
+        m = self.machine
+        m.write("/etc/NetworkManager/conf.d/99-dhcp.conf", "[main]\ndhcp=dhclient\n")
+        m.execute("systemctl restart NetworkManager")
+
+    def slow_down_dhclient(self, delay: int) -> None:
+        self.machine.execute(f"""
+        mkdir -p {self.vm_tmpdir}
+        cp -a /usr/sbin/dhclient {self.vm_tmpdir}/dhclient.real
+        printf '#!/bin/sh\\nsleep {delay}\\nexec {self.vm_tmpdir}/dhclient.real "$@"' > {self.vm_tmpdir}/dhclient
+        chmod a+x {self.vm_tmpdir}/dhclient
+        if selinuxenabled 2>&1; then chcon --reference /usr/sbin/dhclient {self.vm_tmpdir}/dhclient; fi
+        mount -o bind {self.vm_tmpdir}/dhclient /usr/sbin/dhclient
+        """)
+        self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
+
+    def login_and_go(
+        self,
+        path: str | None = None,
+        *,
+        user: str | None = None,
+        password: str | None = None,
+        host: str | None = None,
+        superuser: bool = True,
+        urlroot: str | None = None,
+        tls: bool = False,
+        enable_root_login: bool = False
+    ) -> None:
+        super().login_and_go(path=path, user=user, password=password,
+                             host=host, superuser=superuser, urlroot=urlroot,
+                             tls=tls, enable_root_login=enable_root_login)
+        self.nm_checkpoints_disable()
+
+    def wait_onoff(self, sel: str, *, val: bool) -> None:
+        self.browser.wait_visible(sel + " input[type=checkbox]" + (":checked" if val else ":not(:checked)"))
+
+    def toggle_onoff(self, sel: str) -> None:
+        self.browser.click(sel + " input[type=checkbox]")
+
+
+class NetworkCase(NetworkHelpers):
     def wait_for_iface(self, iface: str, active: bool = True, state: str | None = None, prefix: str = "10.111.") -> None:
         sel = f"#networking-interfaces tr[data-interface='{iface}']"
 
@@ -230,13 +276,6 @@ wpa_passphrase=hidden99""")
         b = self.browser
         b.click(f"#networking-interfaces tr[data-interface='{iface}'] button")
 
-    def iface_con_id(self, iface: str) -> str | None:
-        con_id = self.machine.execute(f"nmcli -m tabular -t -f GENERAL.CONNECTION device show {iface}").strip()
-        if con_id == "" or con_id == "--":
-            return None
-        else:
-            return con_id
-
     def wait_for_iface_setting(self, setting_title: str, setting_value: str) -> None:
         b = self.browser
         b.wait_in_text(f"[data-label='{setting_title}']", setting_value)
@@ -244,42 +283,3 @@ wpa_passphrase=hidden99""")
     def configure_iface_setting(self, setting_title: str) -> None:
         b = self.browser
         b.click(f"[data-label='{setting_title}'] button")
-
-    def ensure_nm_uses_dhclient(self) -> None:
-        m = self.machine
-        m.write("/etc/NetworkManager/conf.d/99-dhcp.conf", "[main]\ndhcp=dhclient\n")
-        m.execute("systemctl restart NetworkManager")
-
-    def slow_down_dhclient(self, delay: int) -> None:
-        self.machine.execute(f"""
-        mkdir -p {self.vm_tmpdir}
-        cp -a /usr/sbin/dhclient {self.vm_tmpdir}/dhclient.real
-        printf '#!/bin/sh\\nsleep {delay}\\nexec {self.vm_tmpdir}/dhclient.real "$@"' > {self.vm_tmpdir}/dhclient
-        chmod a+x {self.vm_tmpdir}/dhclient
-        if selinuxenabled 2>&1; then chcon --reference /usr/sbin/dhclient {self.vm_tmpdir}/dhclient; fi
-        mount -o bind {self.vm_tmpdir}/dhclient /usr/sbin/dhclient
-        """)
-        self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
-
-    def wait_onoff(self, sel: str, *, val: bool) -> None:
-        self.browser.wait_visible(sel + " input[type=checkbox]" + (":checked" if val else ":not(:checked)"))
-
-    def toggle_onoff(self, sel: str) -> None:
-        self.browser.click(sel + " input[type=checkbox]")
-
-    def login_and_go(
-        self,
-        path: str | None = None,
-        *,
-        user: str | None = None,
-        password: str | None = None,
-        host: str | None = None,
-        superuser: bool = True,
-        urlroot: str | None = None,
-        tls: bool = False,
-        enable_root_login: bool = False
-    ) -> None:
-        super().login_and_go(path=path, user=user, password=password,
-                             host=host, superuser=superuser, urlroot=urlroot,
-                             tls=tls, enable_root_login=enable_root_login)
-        self.nm_checkpoints_disable()

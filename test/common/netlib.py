@@ -6,8 +6,9 @@
 import subprocess
 from collections.abc import Sequence, Set
 
+from dialoglib import DialogHelpers
 from machine.machine_core.machine_virtual import VirtMachine
-from testlib import Error, MachineCase, wait
+from testlib import Browser, Error, MachineCase, wait
 
 
 class NetworkHelpers(MachineCase):
@@ -283,3 +284,149 @@ class NetworkCase(NetworkHelpers):
     def configure_iface_setting(self, setting_title: str) -> None:
         b = self.browser
         b.click(f"[data-label='{setting_title}'] button")
+
+
+class AnacondaWirelessDialog:
+
+    DIALOG = "#anaconda-wifi-dialog"
+
+    def __init__(self, browser: Browser) -> None:
+        self.browser = browser
+        self.dlg = DialogHelpers(browser, self.DIALOG)
+
+    def select_ap(self, ssid: str) -> None:
+        ap_selector = self.dlg.ouia(f"dialog-{ssid}-selectedAP")
+        self.browser.click(ap_selector + " button")
+
+    def select_hidden_ap(self, name: str, security: str, password: str | None = None) -> None:
+        """Select "Connect to a hidden network" and fill in its details.
+
+        security: is a WIRELESS_SECURITY_OPTIONS value ("none" or "wpa-psk").
+        password: password for secured network.
+        """
+
+        self.browser.click(self.dlg.ouia("dialog-__hidden__-selectedAP") + " button")
+        self.dlg.set_TextInput("networkName", name)
+        self.dlg.set_DropdownSelect("security", security)
+        if password is not None:
+            self.set_password(password)
+
+    def set_password(self, password: str) -> None:
+        self.dlg.set_TextInput("password", password)
+
+    def wait_error(self, text: str) -> None:
+        """Wait for the dialog's error alert to contain specific text."""
+
+        self.browser.wait_in_text(self.dlg.error(), text)
+
+    def click_connect(self) -> None:
+        self.browser.click(self.dlg.apply_button())
+
+    def connect_expect_success(self) -> None:
+        self.click_connect()
+        self.browser.wait_not_present(self.DIALOG)
+
+    def connect_expect_error(self, text: str) -> None:
+        self.click_connect()
+        self.wait_error(text)
+
+    def cancel(self) -> None:
+        self.browser.click(self.dlg.cancel_button())
+        self.browser.wait_not_present(self.DIALOG)
+
+
+class AnacondaNetworkCase(NetworkHelpers):
+    def enter_anaconda_network(self) -> None:
+        """Log in, switch into Anaconda mode and open the networking page."""
+
+        self.login_and_go("/network")
+        self.enterAnacondaMode({}, "/network")
+        self.nm_checkpoints_disable()
+        self.browser.wait_visible("#networking.anaconda")
+
+    def _iface_sel(self, iface: str) -> str:
+        return f"#networking-interfaces button[data-interface='{iface}']"
+
+    def select_iface(self, iface: str) -> None:
+        """Select an interface in the master list to show its details."""
+
+        self.browser.click(self._iface_sel(iface))
+        self.browser.wait_text("#anaconda-network-interface .pf-v6-c-card__title", iface)
+
+    def toggle_enable_device(self) -> None:
+        self.toggle_onoff("label[for='network-interface-enable-device']")
+
+    def toggle_autoconnect(self) -> None:
+        self.toggle_onoff("label[for='network-interface-connect-automatically']")
+
+    def set_autoreconnect(self, autoreconnect: bool) -> None:
+        self.toggle_autoconnect()
+        self.wait_onoff("label[for='network-interface-connect-automatically']", val=autoreconnect)
+
+    # Interface details
+
+    def edit_ip_settings(self, topic: str) -> None:
+        self.browser.click(f"#networking-edit-{topic}")
+
+    def wait_iface(self, iface: str, *, active: bool = True) -> None:
+        """Wait for an interface row to show the given connection state."""
+
+        b = self.browser
+        sel = self._iface_sel(iface) + " small"
+        state = "Connected" if active else "Disconnected"
+        try:
+            with b.wait_timeout(30):
+                b.wait_text(sel, state)
+        except Error as e:
+            print(f"Interface {iface} didn't reach state {state!r}.")
+            print(self.machine.execute(
+                f"grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show {iface} || true"))
+            raise e
+
+    def wait_iface_status(self, text: str) -> None:
+        """Wait for the "Status" row in the detail view to contain specific text."""
+
+        self.browser.wait_in_text("#network-interface-status dd", text)
+
+    def wait_iface_ip_setting(self, topic: str, *, address: str | None = None,
+                              gateway: str | None = None,
+                              dns: str | None = None) -> None:
+        """Verify IP settings.
+
+        This function automatically expands the ExpandableSection if it's closed.
+        """
+
+        b = self.browser
+        section_sel = f"#{topic}-expandable-section"
+        # ensure section is expanded
+        if b.attr(f"{section_sel} button", "aria-expanded") == "false":
+            b.click(f"{section_sel} button")
+
+        if address is not None:
+            b.wait_in_text(f"{section_sel} #ip-address dd", address)
+        if gateway is not None:
+            b.wait_in_text(f"{section_sel} #gateway dd", gateway)
+        if dns is not None:
+            b.wait_in_text(f"{section_sel} #dns dd", dns)
+
+    def wait_wireless_settings(self, network: str, security: str | None = None) -> None:
+        """Verify details about wireless connection."""
+
+        b = self.browser
+        base_sel = "#network-interface"
+
+        b.wait_in_text(f"{base_sel}-network-joined", network)
+        if security is None:
+            b.wait_not_present(f"{base_sel}-security-type")
+        else:
+            b.wait_in_text(f"{base_sel}-security-type", security)
+
+    # Wireless dialog
+
+    def open_wifi_dialog(self) -> AnacondaWirelessDialog:
+        """Open the wireless "Join a network" dialog from the detail view."""
+
+        self.browser.click("#network-interface-network-joined-action button")
+        dialog = AnacondaWirelessDialog(self.browser)
+        self.browser.wait_visible(dialog.DIALOG)
+        return dialog

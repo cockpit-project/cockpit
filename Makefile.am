@@ -67,6 +67,10 @@ NODE_CACHE = $(CURDIR)/cockpit-node-$(VERSION).tar.xz
 $(NODE_CACHE): $(srcdir)/package-lock.json
 	$(AM_V_GEN) $(srcdir)/tools/node-modules runtime-tar $(NODE_CACHE)
 
+dist-hook: dist-hook-node-modules
+dist-hook-node-modules: $(NODE_CACHE)
+	tar -xJf $(NODE_CACHE) -C $(distdir)
+
 dist-hook: $(distdir)/tools/debian/copyright
 # when building from a git checkout, we need to generate the copyright file
 # when building from tarball (also separate build tree, dist-git), we can't

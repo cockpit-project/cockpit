@@ -53,7 +53,6 @@ URL:            https://cockpit-project.org/
 Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
-Source1:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-node-%{version}.tar.xz
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
@@ -150,7 +149,6 @@ BuildRequires:  python3-pytest-timeout
 
 %prep
 %setup -q -n cockpit-%{version}
-%setup -q -D -T -a 1 -n cockpit-%{version}
 
 %build
 # HACK: node module packaging is currently broken in Fedora ≤ 43, should be in

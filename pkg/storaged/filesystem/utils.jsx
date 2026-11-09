@@ -142,13 +142,14 @@ export const MountPoint = ({ fstab_config, forced_options, backing_block, conten
     const is_filesystem_mounted = content_block && is_mounted(client, content_block, subvol);
     const [, old_dir, old_opts] = fstab_config;
     const split_options = parse_options(old_opts);
+    const foptions = forced_options && forced_options(split_options);
     extract_option(split_options, "noauto");
     const opt_ro = extract_option(split_options, "ro");
     const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
     const opt_nofail = extract_option(split_options, "nofail");
     const opt_netdev = extract_option(split_options, "_netdev");
-    if (forced_options)
-        for (const opt of forced_options)
+    if (foptions)
+        for (const opt of foptions)
             extract_option(split_options, opt);
 
     let mount_point_text = null;

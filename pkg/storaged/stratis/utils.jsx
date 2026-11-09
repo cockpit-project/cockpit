@@ -108,6 +108,15 @@ export function validate_fs_name(fsys, name, filesystems) {
     }
 }
 
+export function forced_stratis_options(opts, pool_uuid) {
+    // The "stratis-fstab-setup-with-network" unit was introduced with
+    // stratisd 3.8, together with revision 8 of the API.
+    if (opts.includes("_netdev") && client.stratis_interface_revision >= 8)
+        return ["x-systemd.requires=stratis-fstab-setup-with-network@" + pool_uuid + ".service"];
+    else
+        return ["x-systemd.requires=stratis-fstab-setup@" + pool_uuid + ".service"];
+}
+
 export function set_mount_options(path, vals, forced_options) {
     let mount_options = [];
 
@@ -124,7 +133,7 @@ export function set_mount_options(path, vals, forced_options) {
     if (vals.mount_options?.extra)
         mount_options.push(vals.mount_options.extra);
 
-    mount_options = mount_options.concat(forced_options);
+    mount_options = mount_options.concat(forced_options(mount_options));
 
     let mount_point = vals.mount_point;
     if (mount_point === "")

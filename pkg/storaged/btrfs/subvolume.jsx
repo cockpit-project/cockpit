@@ -330,7 +330,7 @@ function make_btrfs_subvolume_page(parent, volume, subvol, path_prefix, subvols)
     const mp_text = mount_point_text(mount_point, mounted);
     if (mp_text == null)
         return null;
-    const forced_options = [`subvol=${subvol.pathname}`];
+    const forced_options = _opts => [`subvol=${subvol.pathname}`];
 
     if (client.in_anaconda_mode()) {
         actions.push({

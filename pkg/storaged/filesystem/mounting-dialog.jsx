@@ -145,13 +145,14 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
         return Promise.reject(_("This device can not be used for the installation target."));
 
     const split_options = parse_options(options);
+    const old_forced_options = forced_options && forced_options(split_options);
     extract_option(split_options, "noauto");
     const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
     const opt_ro = extract_option(split_options, "ro");
     const opt_nofail = extract_option(split_options, "nofail");
     const opt_netdev = extract_option(split_options, "_netdev");
-    if (forced_options)
-        for (const opt of forced_options)
+    if (old_forced_options)
+        for (const opt of old_forced_options)
             extract_option(split_options, opt);
     const extra_options = unparse_options(split_options);
 
@@ -355,8 +356,8 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
             opts.push("nofail");
         if (opt_netdev)
             opts.push("_netdev");
-        if (forced_options)
-            opts = opts.concat(forced_options);
+        if (old_forced_options)
+            opts = opts.concat(old_forced_options);
         if (extra_options)
             opts = opts.concat(extra_options);
         return (maybe_set_crypto_options(null, false, null, null)
@@ -415,7 +416,7 @@ export function mounting_dialog(client, block, mode, forced_options, subvol) {
                     if (vals.at_boot === "netdev")
                         opts.push("_netdev");
                     if (forced_options)
-                        opts = opts.concat(forced_options);
+                        opts = opts.concat(forced_options(opts));
                     if (vals.mount_options?.extra)
                         opts = opts.concat(parse_options(vals.mount_options.extra));
                     // XXX - take subvols into account.

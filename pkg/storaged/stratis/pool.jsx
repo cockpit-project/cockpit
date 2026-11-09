@@ -42,7 +42,7 @@ import { at_boot_input, update_at_boot_input, mount_options } from "../filesyste
 import {
     validate_pool_name, std_reply, with_stored_passphrase,
     confirm_tang_trust,
-    validate_fs_name, set_mount_options, destroy_filesystem
+    validate_fs_name, set_mount_options, forced_stratis_options, destroy_filesystem
 } from "./utils.jsx";
 import { make_stratis_filesystem_page } from "./filesystem.jsx";
 
@@ -344,7 +344,6 @@ function destroy_pool(pool) {
 function create_fs(pool) {
     const filesystems = client.stratis_pool_filesystems[pool.path];
     const stats = client.stratis_pool_stats[pool.path];
-    const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
 
     let action_variants;
     if (!client.in_anaconda_mode()) {
@@ -424,7 +423,7 @@ function create_fs(pool) {
                     limit_spec = [true, vals.limit.toString()];
                 const result = await pool.CreateFilesystems([[vals.name, size_spec, limit_spec]]).then(std_reply);
                 if (result[0])
-                    await set_mount_options(result[1][0][0], vals, forced_options);
+                    await set_mount_options(result[1][0][0], vals, opts => forced_stratis_options(opts, pool.Uuid));
             }
         }
     });
@@ -535,11 +534,15 @@ async function add_disks(pool) {
 function make_stratis_filesystem_pages(parent, pool) {
     const filesystems = client.stratis_pool_filesystems[pool.path];
     const stats = client.stratis_pool_stats[pool.path];
-    const forced_options = ["x-systemd.requires=stratis-fstab-setup@" + pool.Uuid + ".service"];
 
-    filesystems.forEach((fs, i) => make_stratis_filesystem_page(parent, pool, fs,
-                                                                stats.fsys_offsets[i],
-                                                                forced_options));
+    filesystems.forEach(
+        (fs, i) =>
+            make_stratis_filesystem_page(
+                parent, pool, fs,
+                stats.fsys_offsets[i],
+                opts => forced_stratis_options(opts, pool.Uuid)
+            )
+    );
 }
 
 export function make_stratis_pool_page(parent, pool) {

@@ -82,13 +82,14 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
     const { type, other } = warning;
     const [old_config, old_dir, old_opts, old_parents] = fstab_config;
     const split_options = parse_options(old_opts);
+    const foptions = forced_options && forced_options(split_options);
     extract_option(split_options, "noauto");
     const opt_ro = extract_option(split_options, "ro");
     const opt_nofail = extract_option(split_options, "nofail");
     const opt_netdev = extract_option(split_options, "_netdev");
     const split_options_for_fix_config = split_options.slice();
-    if (forced_options)
-        for (const opt of forced_options)
+    if (foptions)
+        for (const opt of foptions)
             extract_option(split_options, opt);
 
     function fix_config() {
@@ -113,7 +114,7 @@ export const MismountAlert = ({ warning, fstab_config, forced_options, backing_b
         // don't want to modify existing entries beyond what we
         // say on the button.
         if (!old_config && forced_options)
-            opts = opts.concat(forced_options);
+            opts = opts.concat(forced_options(opts));
 
         const new_opts = unparse_options(opts.concat(split_options_for_fix_config));
         let all_new_opts;

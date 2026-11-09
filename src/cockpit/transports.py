@@ -447,9 +447,12 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             self._pty_fd = None
 
         if self._process is not None:
-            if self._process.stdin is not None:
-                self._process.stdin.close()
-                self._process.stdin = None
+            # Close our ends of all pipes now: otherwise stdout and stderr stay
+            # open until the Popen object is garbage-collected.
+            for pipe in (self._process.stdin, self._process.stdout, self._process.stderr):
+                if pipe is not None:
+                    pipe.close()
+            self._process.stdin = None
             try:
                 self.terminate()  # best effort...
             except PermissionError:

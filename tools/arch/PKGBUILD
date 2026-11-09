@@ -35,8 +35,8 @@ build() {
     --localstatedir=/var \
     --disable-dependency-tracking \
     --disable-silent-rules \
-    --with-admin-group=wheel \
-  make all
+    --with-admin-group=wheel
+  NODE_PATH=/usr/lib/node_modules make all
 }
 
 package_cockpit() {

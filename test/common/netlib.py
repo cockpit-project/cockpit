@@ -283,3 +283,122 @@ class NetworkCase(NetworkHelpers):
     def configure_iface_setting(self, setting_title: str) -> None:
         b = self.browser
         b.click(f"[data-label='{setting_title}'] button")
+
+
+class AnacondaNetworkCase(NetworkHelpers):
+    def enter_anaconda_network(self) -> None:
+        """Log in, switch into Anaconda mode and open the networking page."""
+        self.login_and_go("/network")
+        self.enterAnacondaMode({}, "/network")
+        self.browser.wait_visible("#networking.anaconda")
+
+    def _iface_sel(self, iface: str) -> str:
+        return f"#networking-interfaces button[data-interface='{iface}']"
+
+    def select_iface(self, iface: str) -> None:
+        """Select an interface in the master list to show its details."""
+        self.browser.click(self._iface_sel(iface))
+        self.browser.wait_in_text("#anaconda-network-interface .pf-v6-c-card__header", iface)
+
+    def toggle_enable_device(self) -> None:
+        self.toggle_onoff("label[for='network-interface-enable-device']")
+
+    def toggle_autoconnect(self) -> None:
+        self.toggle_onoff("label[for='network-interface-connect-automatically']")
+
+    # Interface details
+
+    def wait_iface(self, iface: str, *, active: bool = True) -> None:
+        """Wait for an interface row to show the given connection state."""
+        b = self.browser
+        sel = self._iface_sel(iface)
+        state = "Connected" if active else "Disconnected"
+        try:
+            with b.wait_timeout(30):
+                b.wait_in_text(sel, state)
+        except Error as e:
+            print(f"Interface {iface} didn't reach state {state!r}.")
+            print(self.machine.execute(
+                f"grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show {iface} || true"))
+            raise e
+
+    def wait_iface_status(self, text: str) -> None:
+        """Wait for the "Status" row in the detail view to contain specific text.
+        """
+        self.browser.wait_in_text("#network-interface-status dd", text)
+
+    def wait_iface_ip_setting(self, topic: str, *, address: str | None = None,
+                              gateway: str | None = None,
+                              dns: str | None = None) -> None:
+        """Verify IP settings.
+
+        This function automatically expands the ExpandableSection if it's closed.
+        """
+        b = self.browser
+        section_sel = f"#{topic}-expandable-section"
+        # ensure section is expanded
+        if b.attr(f"{section_sel} button", "aria-expanded") == "false":
+            b.click(f"{section_sel} button")
+
+        if address is not None:
+            b.wait_in_text(f"{section_sel} #ip-address dd", address)
+        if gateway is not None:
+            b.wait_in_text(f"{section_sel} #gateway dd", gateway)
+        if dns is not None:
+            b.wait_in_text(f"{section_sel} #dns dd", dns)
+
+    def wait_wireless_settings(self, network: str, security: str | None = None) -> None:
+        """Verify details about wireless connection
+        """
+        b = self.browser
+        base_sel = "#network-interface"
+
+        b.wait_in_text(f"{base_sel}-network-joined", network)
+        if security is None:
+            b.wait_not_present(f"{base_sel}-security-type")
+        else:
+            b.wait_in_text(f"{base_sel}-security-type", security)
+
+    # Wireless dialog
+
+    def open_wifi_dialog(self) -> None:
+        """Open the wireless "Join a network" dialog from the detail view."""
+        b = self.browser
+        b.click("#network-interface-network-joined-action button")
+        b.wait_visible("#anaconda-wifi-dialog")
+
+    def wifi_select_ap(self, ssid: str) -> None:
+        """Select an available access point by SSID in the dialog's list."""
+        ap_selector = f"[data-ouia-component-id='dialog-field-selectedAP'] li:contains('{ssid}')"
+        self.browser.click(ap_selector + " button")
+
+    def wifi_select_hidden_ap(self, name: str, security: str, password: str | None = None) -> None:
+        """Select "Connect to a hidden network" and fill in its details.
+
+        *security* is a WIRELESS_SECURITY_OPTIONS value ("none" or "wpa-psk").
+        *password* is only needed for secured networks.
+        """
+        b = self.browser
+        b.click("[data-ouia-component-id='dialog-__hidden__-selectedAP'] button")
+        b.set_input_text("[data-ouia-component-id='dialog-field-networkName']", name)
+        b.set_val("[data-ouia-component-id='dialog-field-security']", security)
+        if password is not None:
+            self.wifi_set_password(password)
+
+    def wifi_set_password(self, password: str) -> None:
+        """Type a password into the wireless dialog's password field."""
+        self.browser.set_input_text("[data-ouia-component-id='dialog-field-password']", password)
+
+    def wifi_connect(self) -> None:
+        """Click the dialog's Connect button."""
+        self.browser.click("[data-ouia-component-id='dialog-apply']")
+
+    def wifi_cancel(self) -> None:
+        """Click the dialog's Cancel button and wait for it to close."""
+        b = self.browser
+        b.click("[data-ouia-component-id='dialog-cancel']")
+        b.wait_not_present("#anaconda-wifi-dialog")
+
+    def wait_wifi_error(self, text: str) -> None:
+        """Wait for the wireless dialog's error alert to contain *text*."""
+        self.browser.wait_in_text("[data-ouia-component-id='dialog-error-message']", text)

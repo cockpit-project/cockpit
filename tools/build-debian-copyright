@@ -182,7 +182,9 @@ for package_path in sorted(packages_legal.keys()):
 
     if not covered_by_parent:
         copyright_text = '\n '.join(sorted(copyrights))
-        paragraphs.append(f"Files: node/{package_path}/*\nCopyright: {copyright_text}\nLicense: {license_text}")
+        paragraphs.append(
+            f"Files: node_modules/{package_path}/*\nCopyright: {copyright_text}\nLicense: {license_text}"
+        )
 
 # Assemble copyright file
 npm_content = '\n\n'.join(paragraphs)

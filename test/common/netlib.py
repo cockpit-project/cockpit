@@ -7,7 +7,7 @@ import subprocess
 from collections.abc import Sequence, Set
 
 from machine.machine_core.machine_virtual import VirtMachine
-from testlib import Error, MachineCase, wait
+from testlib import Browser, Error, MachineCase, wait
 
 
 class NetworkHelpers(MachineCase):
@@ -402,3 +402,75 @@ class AnacondaNetworkCase(NetworkHelpers):
     def wait_wifi_error(self, text: str) -> None:
         """Wait for the wireless dialog's error alert to contain *text*."""
         self.browser.wait_in_text("[data-ouia-component-id='dialog-error-message']", text)
+
+    # IP configuration
+
+    def open_ip_settings_dialog(self, topic: str) -> IpSettingsDialog:
+        """Open the IPv4/IPv6 settings dialog from the detail view.
+
+        topic: "ipv4" or "ipv6"
+        """
+        self.browser.click(f"#networking-edit-{topic}")
+        dialog = IpSettingsDialog(self.browser)
+        self.browser.wait_visible(dialog.sel("-dialog"))
+        return dialog
+
+
+class IpSettingsDialog:
+    PREFIX = "#network-ip-settings"
+
+    def __init__(self, browser: Browser) -> None:
+        self.browser = browser
+
+    def sel(self, suffix: str) -> str:
+        return f"{self.PREFIX}{suffix}"
+
+    def set_method(self, method: str) -> None:
+        """Select the addressing method, e.g. "manual", "auto", "disabled"."""
+
+        self.browser.select_from_dropdown(self.sel("-select-method"), method)
+
+    def add_address(self) -> None:
+        """Click the "+" button to add a new address row."""
+
+        self.browser.click(self.sel("-address-add"))
+
+    def set_address(self, i: int, address: str, netmask: str) -> None:
+        """Fill in address row *i* with an address and prefix/netmask. """
+
+        self.browser.set_input_text(self.sel(f"-address-{i}"), address)
+        self.browser.set_input_text(self.sel(f"-netmask-{i}"), netmask)
+
+    def set_gateway(self, gateway: str) -> None:
+        self.browser.set_input_text(self.sel("-gateway"), gateway)
+
+    def add_dns(self, i: int, dns_address: str) -> None:
+        """Add a DNS server row.
+
+        *i* is the index the new row will have.
+        """
+
+        self.browser.click(self.sel("-dns-add"))
+        self.browser.set_input_text(self.sel(f"-dns-server-{i}"), dns_address)
+
+    def wait_error(self, text: str) -> None:
+        """Wait for the dialog's error alert to contain specific text."""
+
+        self.browser.wait_in_text(self.sel("-error"), text)
+
+    def save(self) -> None:
+        """Click Save and wait for the dialog to close. """
+        self.browser.click(self.sel("-save"))
+        self.browser.wait_not_present(self.sel("-dialog"))
+
+    def save_expect_error(self, text: str) -> None:
+        """Click Save, expecting it to fail, and wait for the error *text*."""
+
+        self.browser.click(self.sel("-save"))
+        self.wait_error(text)
+
+    def cancel(self) -> None:
+        """Click Cancel and wait for the dialog to close."""
+
+        self.browser.click(self.sel("-cancel"))
+        self.browser.wait_not_present(self.sel("-dialog"))

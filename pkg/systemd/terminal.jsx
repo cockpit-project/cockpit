@@ -247,6 +247,7 @@ const _ = cockpit.gettext;
                                         </ToolbarItem>
                                         <ToolbarItem>
                                             <FormSelect onChange={this.onThemeChanged}
+                                                id="terminal-theme"
                                                 aria-labelledby="theme-select"
                                                 value={this.state.theme}>
                                                 <FormSelectOption value='black-theme' label={_("Black")} />

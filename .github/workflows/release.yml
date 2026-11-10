@@ -37,8 +37,7 @@ jobs:
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
           gh release create --title ${TAG_VERSION} --notes-file release-note.txt  \
             ${TAG_VERSION} \
-            ${REPO_NAME}-${TAG_VERSION}.tar.xz \
-            ${REPO_NAME}-node-${TAG_VERSION}.tar.xz
+            ${REPO_NAME}-${TAG_VERSION}.tar.xz
 
           # Set outputs for downstream jobs
           {

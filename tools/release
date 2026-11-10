@@ -66,7 +66,7 @@ IMAGE="$(cat "${SOURCE}"/.cockpit-ci/container)"
 podman pull "${IMAGE}"
 
 # Build the checked out sources into the release tarballs, offline.
-# `make dist` builds both the main and node runtime tarballs.
+# `make dist` builds the release tarball (including runtime node_modules).
 # Wrap both in a tar for output and unwrap on the outside.
 tar -C "${SOURCE}" -c . | \
     podman \
@@ -89,9 +89,9 @@ tar -C "${SOURCE}" -c . | \
                     ./autogen.sh
                     make dist VERSION="${VERSION}"
                 ) >&2
-                tar -C work -c cockpit-"${VERSION}".tar.xz cockpit-node-"${VERSION}".tar.xz
+                tar -C work -c cockpit-"${VERSION}".tar.xz
             ' \
     | tar -xv
 
 # Show the result.
-sha256sum cockpit-"${VERSION}".tar.xz cockpit-node-"${VERSION}".tar.xz
+sha256sum cockpit-"${VERSION}".tar.xz

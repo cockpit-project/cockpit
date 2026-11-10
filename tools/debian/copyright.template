@@ -2,12 +2,8 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: cockpit
 Upstream-Contact: https://github.com/cockpit-project/cockpit/wiki/Contributing
 Source: https://github.com/cockpit-project/cockpit
-Comment:
- This does not directly cover the files in dist/*. These are "minified" and
- compressed JavaScript/HTML files built from the main source and node_modules/
- (from the -node orig tarball). Upstream releases ship a pre-built dist/
- bundle, but the Debian package removes and rebuilds it. All input sources are
- documented below (node_modules/* is auto-generated).
+Comment: All input sources are documented below (node_modules/* is
+  auto-generated).
 
 Files: *
 Copyright: 2013-2026  Red Hat, Inc.

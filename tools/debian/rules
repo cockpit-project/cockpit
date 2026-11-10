@@ -7,15 +7,6 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # we need an apparmor profile for >= 4.0; this does not yet exist in Ubuntu 22.04
 PRE4AA = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.04)
 
-# Ubuntu 22.04 LTS's node.js version 12 is too old to understand our source.
-# Also, esbuild/nodejs are not available on all Debian architectures.
-# Keep the pre-built dist/ for Ubuntu 22.04 and when nodejs is not available.
-KEEP_DIST = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),22.04)
-ifeq ($(KEEP_DIST),)
-    ifeq ($(shell command -v nodejs 2>/dev/null),)
-        KEEP_DIST = no-nodejs
-    endif
-endif
 
 # keep the host switcher on in currently supported stable releases
 STABLE = $(filter $(shell . /etc/os-release; echo $${VERSION_CODENAME}),bookworm jammy noble)
@@ -38,12 +29,7 @@ export deb_pamlibdir = $(shell { pkgconf --variable=libdir pam || echo /lib/$(DE
 	dh $@ --buildsystem=autoconf --with=python3
 
 override_dh_auto_configure:
-ifeq ($(KEEP_DIST),)
-	# upstream releases include a pre-built dist/, rebuild it
-	rm -fr dist/
-	# HACK: names for additional tarballs can't contain '_', so we name it just "orig-node"
-	ln -fs node node_modules
-endif
+
 	dh_auto_configure -- \
 		--with-pamdir=/$(deb_pamlibdir)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)

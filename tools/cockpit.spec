@@ -39,11 +39,6 @@
 %define pamdir %{_libdir}/security
 %endif
 
-# distributions which ship nodejs-esbuild can rebuild the bundle during package build
-# allow override from command line (e.g. for development builds)
-%if 0%{?fedora} >= 42
-%{!?rebuild_bundle: %define rebuild_bundle 1}
-%endif
 
 # to avoid using asciidoc-py in RHEL and CentOS we use the prebuilt docs
 %if 0%{?rhel}
@@ -58,7 +53,6 @@ URL:            https://cockpit-project.org/
 Version:        0
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
-Source1:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-node-%{version}.tar.xz
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
@@ -104,11 +98,9 @@ BuildRequires: openssh-clients
 BuildRequires: krb5-server
 BuildRequires: gdb
 
-%if 0%{?rebuild_bundle}
 BuildRequires: nodejs
 BuildRequires: %{_bindir}/node
 BuildRequires: nodejs-esbuild
-%endif
 
 %if !%{defined bundle_docs}
 %if 0%{?suse_version}
@@ -157,19 +149,11 @@ BuildRequires:  python3-pytest-timeout
 
 %prep
 %setup -q -n cockpit-%{version}
-%if 0%{?rebuild_bundle}
-%setup -q -D -T -a 1 -n cockpit-%{version}
-%endif
 
 %build
-%if 0%{?rebuild_bundle}
-rm -rf dist
 # HACK: node module packaging is currently broken in Fedora ≤ 43, should be in
 # common location, not major version specific one
 NODE_ENV=production NODE_PATH=/usr/lib/node_modules:$(echo /usr/lib/node_modules_*) ./build.js
-%else
-# Use pre-built bundle on distributions without nodejs-esbuild
-%endif
 
 %configure \
     %{?selinux_configure_arg} \

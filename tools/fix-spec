@@ -6,9 +6,7 @@ set -eu
 spec="$1"
 version="${2:-}"
 
-ROOT_DIR=$(realpath "$(dirname "$0")/..")
-
-PROVIDES=$(awk '{print "Provides: bundled(npm(" $1 ")) = " $2}' "${ROOT_DIR}/runtime-npm-modules.txt")
+PROVIDES=$(awk '{print "Provides: bundled(npm(" $1 ")) = " $2}' runtime-npm-modules.txt)
 awk -v p="$PROVIDES" 'gsub(/#NPM_PROVIDES/, p) 1' "$spec" > "$spec".new
 
 if [ -n "$version" ]; then

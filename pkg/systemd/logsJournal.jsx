@@ -198,9 +198,8 @@ export class JournalBox extends React.Component {
     }
 
     loadServiceFilters(match, options) {
-        // Ideally this would use `--output cat --output-fields SYSLOG_IDENTIFIER` and do
-        // without `sh -ec`, grep, sort, replaceAll and all of those ugly stuff
-        // For that we however need newer systemd that includes https://github.com/systemd/systemd/issues/13937
+        // Ideally this would use `--output cat` and do without `sh -ec`, grep,
+        // sort and all of those ugly stuff. For that we ne
         const currentServices = new Set();
         const service_options = Object.assign({ output: "verbose", "output-fields": "SYSLOG_IDENTIFIER" }, options);
         let cmd = journal.build_cmd(match, service_options);

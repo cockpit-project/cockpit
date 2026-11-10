@@ -15,24 +15,37 @@ from typing import Any
 
 def template_licenses(template: str) -> set[str]:
     """Return set of existing License: short names"""
-    return {
-        line.split(None, 1)[1].lower()
-        for line in template.splitlines()
-        if line.startswith('License:')
-    }
+    return {line.split(None, 1)[1].lower() for line in template.splitlines() if line.startswith('License:')}
 
 
 # Patterns for skipping invalid copyright statements
 skip_patterns = [
     # Generic license template text
-    r'^owner', r'^holder', r'^license', r'^notice', r'^statement', r'^law', r'^and', r'^or\b', r'^the\b',
-    r'^contributors?', r'^information', r'^disclaimer',
+    r'^owner',
+    r'^holder',
+    r'^license',
+    r'^notice',
+    r'^statement',
+    r'^law',
+    r'^and',
+    r'^or\b',
+    r'^the\b',
+    r'^contributors?',
+    r'^information',
+    r'^disclaimer',
     # License boilerplate phrases
-    r'^//', r'liable', r'warranty', r'condition', r'permission', r'granted',
+    r'^//',
+    r'liable',
+    r'warranty',
+    r'condition',
+    r'permission',
+    r'granted',
     # Template year placeholders
-    r'\[yyyy\]', r'\{yyyy\}',
+    r'\[yyyy\]',
+    r'\{yyyy\}',
     # Just a year or just numbers/punctuation
-    r'^\d{4}\s*$', r'^[\d\s,;.\-]+$',
+    r'^\d{4}\s*$',
+    r'^[\d\s,;.\-]+$',
     # Incomplete copyright statements
     r'^[\d\s,;.\-]+(All Rights|Reserved)\.?$',
 ]
@@ -40,6 +53,7 @@ skip_patterns = [
 
 def find_copyright_in_license_text(content: str) -> set[str]:
     """Heuristically extract copyrights from LICENSE file content"""
+
     def is_valid_copyright(text: str) -> bool:
         """Check if copyright text is valid"""
         if any(re.search(pattern, text, re.IGNORECASE) for pattern in skip_patterns):
@@ -84,9 +98,11 @@ def normalize_spdx_license(license_text: str, license_ids: set[str]) -> str:
     for part in parts:
         normalized = normalize_part(part)
         if normalized.lower() not in license_ids:
-            sys.exit(f"ERROR: License '{normalized}' is not defined in the template\n"
-                     f"Original license text: '{license_text}'\n"
-                     "Please add a License: paragraph for this license to the template.")
+            sys.exit(
+                f"ERROR: License '{normalized}' is not defined in the template\n"
+                f"Original license text: '{license_text}'\n"
+                "Please add a License: paragraph for this license to the template."
+            )
         normalized_parts.append(normalized)
 
     return ' and '.join(normalized_parts)
@@ -134,8 +150,10 @@ def get_legalese(tarball_path: Path, license_ids: set[str]) -> dict[str, tuple[s
 
     # Build package legal info
     return {
-        path: (normalize_spdx_license(lic, license_ids),
-               copyrights.get(path) or copyrights.get(path.split('/')[0], {f"Authors of {path}"}))
+        path: (
+            normalize_spdx_license(lic, license_ids),
+            copyrights.get(path) or copyrights.get(path.split('/')[0], {f"Authors of {path}"}),
+        )
         for path, lic in package_licenses.items()
     }
 

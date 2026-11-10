@@ -6,6 +6,7 @@
 import subprocess
 from collections.abc import Sequence, Set
 
+from dialoglib import DialogHelpers
 from machine.machine_core.machine_virtual import VirtMachine
 from testlib import Browser, Error, MachineCase, wait
 
@@ -361,47 +362,13 @@ class AnacondaNetworkCase(NetworkHelpers):
 
     # Wireless dialog
 
-    def open_wifi_dialog(self) -> None:
+    def open_wifi_dialog(self) -> AnacondaWirelessDialog:
         """Open the wireless "Join a network" dialog from the detail view."""
-        b = self.browser
-        b.click("#network-interface-network-joined-action button")
-        b.wait_visible("#anaconda-wifi-dialog")
 
-    def wifi_select_ap(self, ssid: str) -> None:
-        """Select an available access point by SSID in the dialog's list."""
-        ap_selector = f"[data-ouia-component-id='dialog-field-selectedAP'] li:contains('{ssid}')"
-        self.browser.click(ap_selector + " button")
-
-    def wifi_select_hidden_ap(self, name: str, security: str, password: str | None = None) -> None:
-        """Select "Connect to a hidden network" and fill in its details.
-
-        *security* is a WIRELESS_SECURITY_OPTIONS value ("none" or "wpa-psk").
-        *password* is only needed for secured networks.
-        """
-        b = self.browser
-        b.click("[data-ouia-component-id='dialog-__hidden__-selectedAP'] button")
-        b.set_input_text("[data-ouia-component-id='dialog-field-networkName']", name)
-        b.set_val("[data-ouia-component-id='dialog-field-security']", security)
-        if password is not None:
-            self.wifi_set_password(password)
-
-    def wifi_set_password(self, password: str) -> None:
-        """Type a password into the wireless dialog's password field."""
-        self.browser.set_input_text("[data-ouia-component-id='dialog-field-password']", password)
-
-    def wifi_connect(self) -> None:
-        """Click the dialog's Connect button."""
-        self.browser.click("[data-ouia-component-id='dialog-apply']")
-
-    def wifi_cancel(self) -> None:
-        """Click the dialog's Cancel button and wait for it to close."""
-        b = self.browser
-        b.click("[data-ouia-component-id='dialog-cancel']")
-        b.wait_not_present("#anaconda-wifi-dialog")
-
-    def wait_wifi_error(self, text: str) -> None:
-        """Wait for the wireless dialog's error alert to contain *text*."""
-        self.browser.wait_in_text("[data-ouia-component-id='dialog-error-message']", text)
+        self.browser.click("#network-interface-network-joined-action button")
+        dialog = AnacondaWirelessDialog(self.browser)
+        self.browser.wait_visible(dialog.DIALOG)
+        return dialog
 
     # IP configuration
 
@@ -474,3 +441,47 @@ class IpSettingsDialog:
 
         self.browser.click(self.sel("-cancel"))
         self.browser.wait_not_present(self.sel("-dialog"))
+
+
+class AnacondaWirelessDialog:
+
+    DIALOG = "#anaconda-wifi-dialog"
+
+    def __init__(self, browser: Browser) -> None:
+        self.browser = browser
+        self.dlg = DialogHelpers(browser, self.DIALOG)
+
+    def select_ap(self, ssid: str) -> None:
+        ap_selector = self.dlg.ouia("dialog-field-selectedAP") + f" li:contains('{ssid}')"
+        self.browser.click(ap_selector + " button")
+
+    def select_hidden_ap(self, name: str, security: str, password: str | None = None) -> None:
+        """Select "Connect to a hidden network" and fill in its details.
+
+        security: is a WIRELESS_SECURITY_OPTIONS value ("none" or "wpa-psk").
+        password: password for secured network.
+        """
+        self.browser.click(self.dlg.ouia("dialog-__hidden__-selectedAP") + " button")
+        self.dlg.set_TextInput("network-name", name)
+        self.dlg.set_DropdownSelect("security", security)
+        if password is not None:
+            self.set_password(password)
+
+    def set_password(self, password: str) -> None:
+        self.dlg.set_TextInput("password", password)
+
+    def wait_error(self, text: str) -> None:
+        """Wait for the dialog's error alert to contain specific text."""
+        self.browser.wait_in_text(self.dlg.error(), text)
+
+    def connect(self) -> None:
+        self.browser.click(self.dlg.apply_button())
+        self.browser.wait_not_present(self.DIALOG)
+
+    def connect_expect_error(self, text: str) -> None:
+        self.browser.click(self.dlg.apply_button())
+        self.wait_error(text)
+
+    def cancel(self) -> None:
+        self.browser.click(self.dlg.cancel_button())
+        self.browser.wait_not_present(self.DIALOG)

@@ -9,13 +9,43 @@ import React from "react";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+import { CheckIcon, CopyIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
 
 import { journal } from "journal";
+import { renderMessageWithUrls } from "logs-url.jsx";
 import "journal.css";
 import "cockpit-components-logs-panel.scss";
 
 const _ = cockpit.gettext;
+
+export const LogCopyButton = ({ text, title }) => {
+    const [copied, setCopied] = React.useState(false);
+
+    const onCopy = (ev) => {
+        ev.stopPropagation();
+        try {
+            navigator.clipboard.writeText(text)
+                    .then(() => {
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                    })
+                    .catch(err => console.error("Failed to copy log line:", err));
+        } catch (err) {
+            console.error("Failed to copy log line:", err);
+        }
+    };
+
+    return (
+        <Button
+            variant="plain"
+            className="cockpit-log-copy-btn"
+            onClick={onCopy}
+            icon={copied ? <CheckIcon className="ct-icon-copy-success" /> : <CopyIcon />}
+            aria-label={copied ? _("Copied to clipboard") : (title || _("Copy to clipboard"))}
+            title={copied ? _("Copied to clipboard") : (title || _("Copy to clipboard"))}
+        />
+    );
+};
 
 /* JournalOutput implements the interface expected by
    journal.renderer, and also collects the output.
@@ -34,6 +64,10 @@ export class JournalOutput {
             if (ev.button !== 0)
                 return;
 
+            // Ignore clicks originating from links or buttons (e.g. URLs or copy button)
+            if (ev.target.closest('a, button'))
+                return;
+
             // Ignore if text is being selected - less than 3 characters most likely means misclick
             const selection = window.getSelection().toString();
             if (selection && selection.length > 2 && full_content.indexOf(selection) >= 0)
@@ -41,8 +75,10 @@ export class JournalOutput {
         }
 
         // only consider enter button for keyboard events
-        if (ev.type === 'KeyDown' && ev.key !== "Enter")
-            return;
+        if (ev.type === 'KeyDown') {
+            if (ev.key !== "Enter" || ev.target.closest('a, button'))
+                return;
+        }
 
         cockpit.jump("system/logs#/" + cursor + "?parent_options=" + JSON.stringify(this.search_options));
     }
@@ -55,6 +91,7 @@ export class JournalOutput {
         }
 
         const full_content = [time, message, ident].join("\n");
+        const lineText = `${time} ${ident ? `${ident}: ` : ""}${message}`;
 
         return (
             <div className="cockpit-logline" role="row" tabIndex={0} key={entry.__CURSOR}
@@ -68,7 +105,7 @@ export class JournalOutput {
                     }
                 </div>
                 <div className="cockpit-log-time" role="cell">{time}</div>
-                <span className="cockpit-log-message" role="cell">{message}</span>
+                <span className="cockpit-log-message" role="cell">{renderMessageWithUrls(message)}</span>
                 {
                     count > 1
                         ? <div className="cockpit-log-service-container" role="cell">
@@ -77,6 +114,9 @@ export class JournalOutput {
                         </div>
                         : <div className="cockpit-log-service" role="cell">{ident}</div>
                 }
+                <div className="cockpit-log-actions" role="cell">
+                    <LogCopyButton text={lineText} />
+                </div>
             </div>
         );
     }

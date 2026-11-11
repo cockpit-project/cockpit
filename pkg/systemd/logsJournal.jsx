@@ -103,6 +103,7 @@ export class JournalBox extends React.Component {
             this.loadServiceFilters(tags_match, journalctlOptions);
 
         this.setState({ loading: true, didntReachStart: false, streamFinished: false, logs: [] });
+        this.props.setHasLogs?.(false);
 
         const promise = journal.journalctl(this.match, journalctlOptions)
                 .fail(this.queryError)
@@ -167,6 +168,7 @@ export class JournalBox extends React.Component {
         this.renderer.prepend_flush();
 
         this.setState({ logs: this.out.logs, loading: false });
+        this.props.setHasLogs?.(this.out.logs.length > 0);
     }
 
     appendEntries(entries) {
@@ -175,6 +177,7 @@ export class JournalBox extends React.Component {
         this.renderer.append_flush();
 
         this.setState({ logs: this.out.logs, loading: false });
+        this.props.setHasLogs?.(this.out.logs.length > 0);
     }
 
     follow(cursor) {

@@ -484,6 +484,7 @@ fi
 
 %package ws-selinux
 Summary: SELinux security policy for cockpit-ws
+BuildArch: noarch
 # older -ws contained the SELinux policy, now split out
 Conflicts: %{name}-ws < 337-1.2025
 Requires(post): selinux-policy-%{selinuxtype} >= %{_selinux_policy_version}

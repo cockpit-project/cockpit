@@ -66,7 +66,9 @@ $(distdir)/configure: $(distdir)/version.m4
 NODE_CACHE = $(CURDIR)/cockpit-node-$(VERSION).tar.xz
 
 $(NODE_CACHE): $(srcdir)/package-lock.json
-	$(AM_V_GEN) $(srcdir)/tools/node-modules runtime-tar $(NODE_CACHE)
+	$(AM_V_GEN) '$(srcdir)/tools/node-archive' -C '$(srcdir)' --package-lock \
+		| XZ_OPT=$${XZ_OPT--e} xz -c \
+		> $(NODE_CACHE)
 
 dist-hook: $(distdir)/tools/debian/copyright
 # when building from a git checkout, we need to generate the copyright file

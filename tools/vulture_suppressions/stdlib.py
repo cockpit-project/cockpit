@@ -1,5 +1,6 @@
 import asyncio
 import ssl
+import tarfile
 import tempfile
 import unittest
 import xmlrpc.server
@@ -16,6 +17,9 @@ ssl.create_default_context().check_hostname
 ssl.create_default_context().verify_mode
 
 unittest.IsolatedAsyncioTestCase.asyncTearDown
+
+tarfile.TarInfo().gname
+tarfile.TarInfo().uname
 
 tempfile.TemporaryDirectory._rmtree  # type: ignore[attr-defined]
 

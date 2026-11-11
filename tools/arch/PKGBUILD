@@ -12,17 +12,18 @@ arch=('x86_64')
 url='https://cockpit-project.org/'
 license=(LGPL)
 makedepends=(krb5 json-glib glib-networking glib2-devel
-             git intltool gtk-doc gobject-introspection networkmanager npm
+             git intltool gtk-doc gobject-introspection networkmanager npm esbuild
              asciidoctor python-build python-installer python-wheel)
 source=("cockpit-${pkgver}.tar.xz"
+        "cockpit-node-${pkgver}.tar.xz"
         "cockpit.pam")
 sha256sums=('SKIP'
+            'SKIP'
             '079bb6751214e642673f9e1212df2a17fed1a3cc6cfdd6375af2b68ed6ddd340')
 
 prepare() {
   cd cockpit-$pkgver
-  # TODO: disable buggy package-lock check
-  sed -r '/^cmd_make_package_lock_json\b/ a exit 0' -i tools/node-modules
+  ln -sf ../node_modules node_modules
 }
 
 build() {
@@ -36,7 +37,9 @@ build() {
     --disable-dependency-tracking \
     --disable-silent-rules \
     --with-admin-group=wheel \
-  make all
+
+  rm -rf dist/
+  make NODE_PATH=/usr/lib/node_modules
 }
 
 package_cockpit() {

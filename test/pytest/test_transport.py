@@ -290,6 +290,33 @@ class TestSubprocessTransport:
         assert transport.get_stderr(reset=True) == ''
 
     @pytest.mark.asyncio
+    async def test_close_releases_pipes(self) -> None:
+        # Closing the transport must close our ends of the stdout and stderr
+        # pipes itself. Leaving them to the Popen object means they stay open
+        # until a GC pass collects it, and on Python 3.14 a mostly idle bridge
+        # can run out of fds first (#23903). Keep every transport alive so the
+        # result doesn't depend on when the GC runs.
+        def open_pipes() -> int:
+            count = 0
+            for fd in os.listdir('/proc/self/fd'):
+                # skip fds that were closed meanwhile, such as the one listdir() used
+                with contextlib.suppress(FileNotFoundError):
+                    count += os.readlink(f'/proc/self/fd/{fd}').startswith('pipe:')
+            return count
+
+        transports = []
+        pipes_before = open_pipes()
+        for _ in range(20):
+            protocol, transport = self.subprocess(['true'], stderr=subprocess.PIPE)
+            await protocol.eof_and_exited_with_code(0)
+            transport.close()
+            await asyncio.sleep(0.01)  # connection_lost() runs in the next iteration
+            assert protocol.transport is None
+            transports.append(transport)
+
+        assert open_pipes() == pipes_before
+
+    @pytest.mark.asyncio
     async def test_pidfd_ENOSYS(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # this test disables pidfd support in order to force the fallback path
         monkeypatch.setattr(os, 'pidfd_open', unittest.mock.Mock(side_effect=OSError), raising=False)

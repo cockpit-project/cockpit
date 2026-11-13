@@ -20,7 +20,6 @@ async function test() {
             ph_mouse("#login-button", "click");
         }
 
-        await ph_wait_present("#conversation-prompt");
         await assert_conversation("password");
         document.getElementById("conversation-input").value = "%PASS%";
 

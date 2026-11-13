@@ -2,6 +2,43 @@
 <!-- SPDX-License-Identifier: LGPL-2.1-or-later -->
 <interface>
   <requires lib="gtk" version="4.0"/>
+  <object class="GtkPopover" id="downloads_popover">
+    <property name="width-request">400</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Downloads</property>
+            <property name="xalign">0</property>
+            <style>
+              <class name="heading"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="min-content-height">100</property>
+            <property name="max-content-height">400</property>
+            <property name="propagate-natural-height">True</property>
+            <child>
+              <object class="GtkListBox" id="downloads_list">
+                <property name="selection-mode">none</property>
+                <style>
+                  <class name="boxed-list"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
   <template class="CockpitClientWindow" parent="GtkApplicationWindow">
     <property name="width-request">800</property>
     <property name="height-request">600</property>
@@ -46,6 +83,13 @@
           <object class="GtkButton">
             <property name="action-name">win.reload</property>
             <property name="icon-name">view-refresh-symbolic</property>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkMenuButton" id="downloads_button">
+            <property name="icon-name">folder-download-symbolic</property>
+            <property name="popover">downloads_popover</property>
+            <property name="visible">False</property>
           </object>
         </child>
       </object>

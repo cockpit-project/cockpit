@@ -6,60 +6,14 @@
 import subprocess
 from collections.abc import Sequence, Set
 
+from dialoglib import DialogHelpers
 from machine.machine_core.machine_virtual import VirtMachine
-from testlib import Error, MachineCase, wait
+from testlib import Browser, Error, MachineCase, wait
 
 
 class NetworkHelpers(MachineCase):
     """Mix-in class for tests that require network setup"""
 
-    def add_veth(self, name: str, dhcp_cidr: str | None = None, dhcp_range: Sequence[str] | None = None) -> None:
-        """Add a veth device that is manageable with NetworkManager
-
-        This is safe for @nondestructive tests, the interface gets cleaned up automatically.
-        """
-        if dhcp_range is None:
-            dhcp_range = ['10.111.112.2', '10.111.127.254']
-        self.machine.execute(rf"""
-            mkdir -p /run/udev/rules.d/
-            echo 'ENV{{ID_NET_DRIVER}}=="veth", ENV{{INTERFACE}}=="{name}", ENV{{NM_UNMANAGED}}="0"' > /run/udev/rules.d/99-nm-veth-{name}-test.rules
-            udevadm control --reload
-            ip link add name {name} type veth peer name v_{name}
-            # Trigger udev to make sure that it has been renamed to its final name
-            udevadm trigger --subsystem-match=net
-            udevadm settle
-            """)
-        self.addCleanup(self.machine.execute, f"rm /run/udev/rules.d/99-nm-veth-{name}-test.rules; nmcli dev del {name}")
-        if dhcp_cidr:
-            # up the remote end, give it an IP, and start DHCP server
-            self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")
-
-            self.machine.execute("mkdir -p /run/dnsmasq")
-            server = self.machine.spawn(f"dnsmasq --keep-in-foreground --log-queries --log-facility=- "
-                                        f"--conf-file=/dev/null --dhcp-leasefile=/run/dnsmasq/leases.{name} --no-resolv "
-                                        f"--bind-interfaces --except-interface=lo --interface=v_{name} --dhcp-range={dhcp_range[0]},{dhcp_range[1]},4h",
-                                        f"dhcp-{name}.log")
-            self.addCleanup(self.machine.execute, f"kill {server}; rm -rf /run/dnsmasq")
-            self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
-
-    def nm_activate_eth(self, iface: str) -> None:
-        """Create an NM connection for a given interface"""
-
-        m = self.machine
-        wait(lambda: m.execute(f'nmcli device | grep "{iface}.*disconnected"'))
-        m.execute(f"nmcli con add type ethernet ifname {iface} con-name {iface}")
-        m.execute(f"nmcli con up {iface} ifname {iface}")
-        self.addCleanup(m.execute, f"nmcli con delete {iface}")
-
-    def nm_checkpoints_disable(self) -> None:
-        self.browser.eval_js("window.cockpit_tests_disable_checkpoints = true;")
-
-    def nm_checkpoints_enable(self, settle_time: float = 3.0) -> None:
-        self.browser.eval_js("window.cockpit_tests_disable_checkpoints = false;")
-        self.browser.eval_js(f"window.cockpit_tests_checkpoint_settle_time = {settle_time};")
-
-
-class NetworkCase(NetworkHelpers):
     def setUp(self) -> None:
         super().setUp()
 
@@ -116,6 +70,51 @@ class NetworkCase(NetworkHelpers):
         # Something unknown sometimes goes wrong with PCP, see #15625
         self.allow_journal_messages("pcp-archive: no such metric: network.interface.* Unknown metric name",
                                     "direct: instance name lookup failed: network.*")
+
+    def add_veth(self, name: str, dhcp_cidr: str | None = None, dhcp_range: Sequence[str] | None = None) -> None:
+        """Add a veth device that is manageable with NetworkManager
+
+        This is safe for @nondestructive tests, the interface gets cleaned up automatically.
+        """
+        if dhcp_range is None:
+            dhcp_range = ['10.111.112.2', '10.111.127.254']
+        self.machine.execute(rf"""
+            mkdir -p /run/udev/rules.d/
+            echo 'ENV{{ID_NET_DRIVER}}=="veth", ENV{{INTERFACE}}=="{name}", ENV{{NM_UNMANAGED}}="0"' > /run/udev/rules.d/99-nm-veth-{name}-test.rules
+            udevadm control --reload
+            ip link add name {name} type veth peer name v_{name}
+            # Trigger udev to make sure that it has been renamed to its final name
+            udevadm trigger --subsystem-match=net
+            udevadm settle
+            """)
+        self.addCleanup(self.machine.execute, f"rm /run/udev/rules.d/99-nm-veth-{name}-test.rules; nmcli dev del {name}")
+        if dhcp_cidr:
+            # up the remote end, give it an IP, and start DHCP server
+            self.machine.execute(f"ip a add {dhcp_cidr} dev v_{name}; ip link set v_{name} up")
+
+            self.machine.execute("mkdir -p /run/dnsmasq")
+            server = self.machine.spawn(f"dnsmasq --keep-in-foreground --log-queries --log-facility=- "
+                                        f"--conf-file=/dev/null --dhcp-leasefile=/run/dnsmasq/leases.{name} --no-resolv "
+                                        f"--bind-interfaces --except-interface=lo --interface=v_{name} --dhcp-range={dhcp_range[0]},{dhcp_range[1]},4h",
+                                        f"dhcp-{name}.log")
+            self.addCleanup(self.machine.execute, f"kill {server}; rm -rf /run/dnsmasq")
+            self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
+
+    def nm_activate_eth(self, iface: str) -> None:
+        """Create an NM connection for a given interface"""
+
+        m = self.machine
+        wait(lambda: m.execute(f'nmcli device | grep "{iface}.*disconnected"'))
+        m.execute(f"nmcli con add type ethernet ifname {iface} con-name {iface}")
+        m.execute(f"nmcli con up {iface} ifname {iface}")
+        self.addCleanup(m.execute, f"nmcli con delete {iface}")
+
+    def nm_checkpoints_disable(self) -> None:
+        self.browser.eval_js("window.cockpit_tests_disable_checkpoints = true;")
+
+    def nm_checkpoints_enable(self, settle_time: float = 3.0) -> None:
+        self.browser.eval_js("window.cockpit_tests_disable_checkpoints = false;")
+        self.browser.eval_js(f"window.cockpit_tests_checkpoint_settle_time = {settle_time};")
 
     def setup_wireless_networks(self) -> None:
         m = self.machine
@@ -208,6 +207,54 @@ wpa_passphrase=hidden99""")
             self.nm_activate_eth(iface)
         return iface
 
+    def iface_con_id(self, iface: str) -> str | None:
+        con_id = self.machine.execute(f"nmcli -m tabular -t -f GENERAL.CONNECTION device show {iface}").strip()
+        if con_id == "" or con_id == "--":
+            return None
+        else:
+            return con_id
+
+    def ensure_nm_uses_dhclient(self) -> None:
+        m = self.machine
+        m.write("/etc/NetworkManager/conf.d/99-dhcp.conf", "[main]\ndhcp=dhclient\n")
+        m.execute("systemctl restart NetworkManager")
+
+    def slow_down_dhclient(self, delay: int) -> None:
+        self.machine.execute(f"""
+        mkdir -p {self.vm_tmpdir}
+        cp -a /usr/sbin/dhclient {self.vm_tmpdir}/dhclient.real
+        printf '#!/bin/sh\\nsleep {delay}\\nexec {self.vm_tmpdir}/dhclient.real "$@"' > {self.vm_tmpdir}/dhclient
+        chmod a+x {self.vm_tmpdir}/dhclient
+        if selinuxenabled 2>&1; then chcon --reference /usr/sbin/dhclient {self.vm_tmpdir}/dhclient; fi
+        mount -o bind {self.vm_tmpdir}/dhclient /usr/sbin/dhclient
+        """)
+        self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
+
+    def login_and_go(
+        self,
+        path: str | None = None,
+        *,
+        user: str | None = None,
+        password: str | None = None,
+        host: str | None = None,
+        superuser: bool = True,
+        urlroot: str | None = None,
+        tls: bool = False,
+        enable_root_login: bool = False
+    ) -> None:
+        super().login_and_go(path=path, user=user, password=password,
+                             host=host, superuser=superuser, urlroot=urlroot,
+                             tls=tls, enable_root_login=enable_root_login)
+        self.nm_checkpoints_disable()
+
+    def wait_onoff(self, sel: str, *, val: bool) -> None:
+        self.browser.wait_visible(sel + " input[type=checkbox]" + (":checked" if val else ":not(:checked)"))
+
+    def toggle_onoff(self, sel: str) -> None:
+        self.browser.click(sel + " input[type=checkbox]")
+
+
+class NetworkCase(NetworkHelpers):
     def wait_for_iface(self, iface: str, active: bool = True, state: str | None = None, prefix: str = "10.111.") -> None:
         sel = f"#networking-interfaces tr[data-interface='{iface}']"
 
@@ -230,13 +277,6 @@ wpa_passphrase=hidden99""")
         b = self.browser
         b.click(f"#networking-interfaces tr[data-interface='{iface}'] button")
 
-    def iface_con_id(self, iface: str) -> str | None:
-        con_id = self.machine.execute(f"nmcli -m tabular -t -f GENERAL.CONNECTION device show {iface}").strip()
-        if con_id == "" or con_id == "--":
-            return None
-        else:
-            return con_id
-
     def wait_for_iface_setting(self, setting_title: str, setting_value: str) -> None:
         b = self.browser
         b.wait_in_text(f"[data-label='{setting_title}']", setting_value)
@@ -245,41 +285,203 @@ wpa_passphrase=hidden99""")
         b = self.browser
         b.click(f"[data-label='{setting_title}'] button")
 
-    def ensure_nm_uses_dhclient(self) -> None:
-        m = self.machine
-        m.write("/etc/NetworkManager/conf.d/99-dhcp.conf", "[main]\ndhcp=dhclient\n")
-        m.execute("systemctl restart NetworkManager")
 
-    def slow_down_dhclient(self, delay: int) -> None:
-        self.machine.execute(f"""
-        mkdir -p {self.vm_tmpdir}
-        cp -a /usr/sbin/dhclient {self.vm_tmpdir}/dhclient.real
-        printf '#!/bin/sh\\nsleep {delay}\\nexec {self.vm_tmpdir}/dhclient.real "$@"' > {self.vm_tmpdir}/dhclient
-        chmod a+x {self.vm_tmpdir}/dhclient
-        if selinuxenabled 2>&1; then chcon --reference /usr/sbin/dhclient {self.vm_tmpdir}/dhclient; fi
-        mount -o bind {self.vm_tmpdir}/dhclient /usr/sbin/dhclient
-        """)
-        self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
+class AnacondaNetworkCase(NetworkHelpers):
+    def enter_anaconda_network(self) -> None:
+        """Log in, switch into Anaconda mode and open the networking page."""
+        self.login_and_go("/network")
+        self.enterAnacondaMode({}, "/network")
+        self.browser.wait_visible("#networking.anaconda")
 
-    def wait_onoff(self, sel: str, *, val: bool) -> None:
-        self.browser.wait_visible(sel + " input[type=checkbox]" + (":checked" if val else ":not(:checked)"))
+    def _iface_sel(self, iface: str) -> str:
+        return f"#networking-interfaces button[data-interface='{iface}']"
 
-    def toggle_onoff(self, sel: str) -> None:
-        self.browser.click(sel + " input[type=checkbox]")
+    def select_iface(self, iface: str) -> None:
+        """Select an interface in the master list to show its details."""
+        self.browser.click(self._iface_sel(iface))
+        self.browser.wait_in_text("#anaconda-network-interface .pf-v6-c-card__header", iface)
 
-    def login_and_go(
-        self,
-        path: str | None = None,
-        *,
-        user: str | None = None,
-        password: str | None = None,
-        host: str | None = None,
-        superuser: bool = True,
-        urlroot: str | None = None,
-        tls: bool = False,
-        enable_root_login: bool = False
-    ) -> None:
-        super().login_and_go(path=path, user=user, password=password,
-                             host=host, superuser=superuser, urlroot=urlroot,
-                             tls=tls, enable_root_login=enable_root_login)
-        self.nm_checkpoints_disable()
+    def toggle_enable_device(self) -> None:
+        self.toggle_onoff("label[for='network-interface-enable-device']")
+
+    def toggle_autoconnect(self) -> None:
+        self.toggle_onoff("label[for='network-interface-connect-automatically']")
+
+    # Interface details
+
+    def wait_iface(self, iface: str, *, active: bool = True) -> None:
+        """Wait for an interface row to show the given connection state."""
+        b = self.browser
+        sel = self._iface_sel(iface)
+        state = "Connected" if active else "Disconnected"
+        try:
+            with b.wait_timeout(30):
+                b.wait_in_text(sel, state)
+        except Error as e:
+            print(f"Interface {iface} didn't reach state {state!r}.")
+            print(self.machine.execute(
+                f"grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show {iface} || true"))
+            raise e
+
+    def wait_iface_status(self, text: str) -> None:
+        """Wait for the "Status" row in the detail view to contain specific text.
+        """
+        self.browser.wait_in_text("#network-interface-status dd", text)
+
+    def wait_iface_ip_setting(self, topic: str, *, address: str | None = None,
+                              gateway: str | None = None,
+                              dns: str | None = None) -> None:
+        """Verify IP settings.
+
+        This function automatically expands the ExpandableSection if it's closed.
+        """
+        b = self.browser
+        section_sel = f"#{topic}-expandable-section"
+        # ensure section is expanded
+        if b.attr(f"{section_sel} button", "aria-expanded") == "false":
+            b.click(f"{section_sel} button")
+
+        if address is not None:
+            b.wait_in_text(f"{section_sel} #ip-address dd", address)
+        if gateway is not None:
+            b.wait_in_text(f"{section_sel} #gateway dd", gateway)
+        if dns is not None:
+            b.wait_in_text(f"{section_sel} #dns dd", dns)
+
+    def wait_wireless_settings(self, network: str, security: str | None = None) -> None:
+        """Verify details about wireless connection
+        """
+        b = self.browser
+        base_sel = "#network-interface"
+
+        b.wait_in_text(f"{base_sel}-network-joined", network)
+        if security is None:
+            b.wait_not_present(f"{base_sel}-security-type")
+        else:
+            b.wait_in_text(f"{base_sel}-security-type", security)
+
+    # Wireless dialog
+
+    def open_wifi_dialog(self) -> AnacondaWirelessDialog:
+        """Open the wireless "Join a network" dialog from the detail view."""
+
+        self.browser.click("#network-interface-network-joined-action button")
+        dialog = AnacondaWirelessDialog(self.browser)
+        self.browser.wait_visible(dialog.DIALOG)
+        return dialog
+
+    # IP configuration
+
+    def open_ip_settings_dialog(self, topic: str) -> IpSettingsDialog:
+        """Open the IPv4/IPv6 settings dialog from the detail view.
+
+        topic: "ipv4" or "ipv6"
+        """
+        self.browser.click(f"#networking-edit-{topic}")
+        dialog = IpSettingsDialog(self.browser)
+        self.browser.wait_visible(dialog.sel("-dialog"))
+        return dialog
+
+
+class IpSettingsDialog:
+    PREFIX = "#network-ip-settings"
+
+    def __init__(self, browser: Browser) -> None:
+        self.browser = browser
+
+    def sel(self, suffix: str) -> str:
+        return f"{self.PREFIX}{suffix}"
+
+    def set_method(self, method: str) -> None:
+        """Select the addressing method, e.g. "manual", "auto", "disabled"."""
+
+        self.browser.select_from_dropdown(self.sel("-select-method"), method)
+
+    def add_address(self) -> None:
+        """Click the "+" button to add a new address row."""
+
+        self.browser.click(self.sel("-address-add"))
+
+    def set_address(self, i: int, address: str, netmask: str) -> None:
+        """Fill in address row *i* with an address and prefix/netmask. """
+
+        self.browser.set_input_text(self.sel(f"-address-{i}"), address)
+        self.browser.set_input_text(self.sel(f"-netmask-{i}"), netmask)
+
+    def set_gateway(self, gateway: str) -> None:
+        self.browser.set_input_text(self.sel("-gateway"), gateway)
+
+    def add_dns(self, i: int, dns_address: str) -> None:
+        """Add a DNS server row.
+
+        *i* is the index the new row will have.
+        """
+
+        self.browser.click(self.sel("-dns-add"))
+        self.browser.set_input_text(self.sel(f"-dns-server-{i}"), dns_address)
+
+    def wait_error(self, text: str) -> None:
+        """Wait for the dialog's error alert to contain specific text."""
+
+        self.browser.wait_in_text(self.sel("-error"), text)
+
+    def save(self) -> None:
+        """Click Save and wait for the dialog to close. """
+        self.browser.click(self.sel("-save"))
+        self.browser.wait_not_present(self.sel("-dialog"))
+
+    def save_expect_error(self, text: str) -> None:
+        """Click Save, expecting it to fail, and wait for the error *text*."""
+
+        self.browser.click(self.sel("-save"))
+        self.wait_error(text)
+
+    def cancel(self) -> None:
+        """Click Cancel and wait for the dialog to close."""
+
+        self.browser.click(self.sel("-cancel"))
+        self.browser.wait_not_present(self.sel("-dialog"))
+
+
+class AnacondaWirelessDialog:
+
+    DIALOG = "#anaconda-wifi-dialog"
+
+    def __init__(self, browser: Browser) -> None:
+        self.browser = browser
+        self.dlg = DialogHelpers(browser, self.DIALOG)
+
+    def select_ap(self, ssid: str) -> None:
+        ap_selector = self.dlg.ouia("dialog-field-selectedAP") + f" li:contains('{ssid}')"
+        self.browser.click(ap_selector + " button")
+
+    def select_hidden_ap(self, name: str, security: str, password: str | None = None) -> None:
+        """Select "Connect to a hidden network" and fill in its details.
+
+        security: is a WIRELESS_SECURITY_OPTIONS value ("none" or "wpa-psk").
+        password: password for secured network.
+        """
+        self.browser.click(self.dlg.ouia("dialog-__hidden__-selectedAP") + " button")
+        self.dlg.set_TextInput("network-name", name)
+        self.dlg.set_DropdownSelect("security", security)
+        if password is not None:
+            self.set_password(password)
+
+    def set_password(self, password: str) -> None:
+        self.dlg.set_TextInput("password", password)
+
+    def wait_error(self, text: str) -> None:
+        """Wait for the dialog's error alert to contain specific text."""
+        self.browser.wait_in_text(self.dlg.error(), text)
+
+    def connect(self) -> None:
+        self.browser.click(self.dlg.apply_button())
+        self.browser.wait_not_present(self.DIALOG)
+
+    def connect_expect_error(self, text: str) -> None:
+        self.browser.click(self.dlg.apply_button())
+        self.wait_error(text)
+
+    def cancel(self) -> None:
+        self.browser.click(self.dlg.cancel_button())
+        self.browser.wait_not_present(self.DIALOG)

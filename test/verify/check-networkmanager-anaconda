@@ -12,63 +12,115 @@ from lib.constants import TEST_OS_DEFAULT
 @testlib.nondestructive
 @testlib.skipOstree("No /sysroot and directory cannot be created on read-only filesystem")
 @testlib.onlyImage("hostapd/NM-wifi not installed on our test image", TEST_OS_DEFAULT)
-class TestNetworkingAnaconda(netlib.NetworkCase):
+class TestNetworkingAnaconda(netlib.AnacondaNetworkCase):
     def setUp(self) -> None:
         super().setUp()
         self.setup_wireless_networks()
 
-    def anaconda_wait_for_iface(self, iface: str, active: bool = True) -> None:
-        b = self.browser
-        sel = f"#networking-interfaces button[data-interface='{iface}']"
-
-        if active:
-            state = "Connected"
-        else:
-            state = "Disconnected"
-
-        try:
-            with b.wait_timeout(30):
-                b.wait_in_text(sel, state)
-        except testlib.Error as e:
-            print(f"Interface {iface} didn't show up.")
-            print(self.machine.execute(f"grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show {iface} || true"))
-            raise e
-
-    def anaconda_select_iface(self, iface: str) -> None:
-        self.browser.click(f"#networking-interfaces button[data-interface='{iface}']")
-
     def testBasic(self) -> None:
+        m = self.machine
         b = self.browser
 
-        self.login_and_go("/network")
-        self.enterAnacondaMode({}, "/network")
-
-        # Anaconda Layout should be visible
-        b.wait_visible("#networking.anaconda")
+        self.enter_anaconda_network()
 
         iface = "cockpit1"
         self.add_veth(iface, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
-        self.anaconda_wait_for_iface(iface, active=False)
+        self.wait_iface(iface, active=False)
 
         # Select interface and check details
-        self.anaconda_select_iface(iface)
-        b.wait_text("#network-interface-name", iface)
-        # enable connection
-        self.toggle_onoff("label[for='interface-switch']")
-        self.anaconda_wait_for_iface(iface, active=True)
-        self.wait_for_iface_setting('Status', "10.111.113")
+        self.select_iface(iface)
+        # enable the device
+        self.toggle_enable_device()
+        self.wait_iface(iface, active=True)
+        self.wait_iface_status("Active")
+        self.wait_iface_ip_setting("ipv4", address="10.111.113", gateway="10.111.113.1")
+
+        self.toggle_autoconnect()
+        self.assertEqual(m.execute(f"nmcli --get connection.autoconnect con sh {iface}"), "no\n")
+
+        # Edit IPv4 settings
+
+        ip_dlg = self.open_ip_settings_dialog("ipv4")
+        ip_dlg.set_method("manual")
+        ip_dlg.set_address(0, "10.11.12.13", "24")
+        ip_dlg.add_dns(0, "8.8.8.8")
+        ip_dlg.add_dns(1, "1.1.1.1")
+        ip_dlg.save()
+        self.wait_iface_ip_setting("ipv4", address="10.11.12.13/24", gateway="10.11.12.1", dns="8.8.8.8, 1.1.1.1")
+
+        # Manually configure IPv6
+        ip_dlg = self.open_ip_settings_dialog("ipv6")
+        ip_dlg.set_method("manual")
+        ip_dlg.set_address(0, "2001:db8::20ac", "64")
+        ip_dlg.add_dns(0, "2001:db8::1fff")
+        ip_dlg.save()
+        self.wait_iface_ip_setting("ipv6", address="2001:db8::20ac/64", gateway="2001:db8::1", dns="2001:db8::1fff")
 
         # Wireless connection
         iface = self.iface
-        self.anaconda_wait_for_iface(iface, active=False)
-        self.anaconda_select_iface(iface)
-        b.wait_text("#network-interface-name", iface)
-        # Connect to the OpenNet WiFi
-        b.wait_visible("tr[data-ssid='OpenNet'] [data-label='Mode'] [aria-label='open']")
-        b.click("tr[data-ssid='OpenNet'] button[aria-label='Connect']")
-        self.anaconda_wait_for_iface(iface, active=True)
-        b.wait_visible("tr[data-ssid='OpenNet'] .nm-icon-connected")
-        self.wait_for_iface_setting('Status', '10.0.42')
+        self.select_iface(iface)
+        self.wait_iface(iface, active=False)
+
+        wifi_dlg = self.open_wifi_dialog()
+        # Join open OpenNet
+        wifi_dlg.select_ap("OpenNet")
+        wifi_dlg.connect()
+        # iface is connected
+        self.wait_iface(iface, active=True)
+        self.wait_wireless_settings("OpenNet", "Unsecured")
+        self.wait_iface_status("Active")
+        self.wait_iface_ip_setting("ipv4", address="10.0.42", gateway="10.0.42.3")
+
+        self.toggle_enable_device()
+        self.wait_iface_status("Inactive")
+        self.wait_wireless_settings("Disconnected")
+
+        # Reconnect to OpenNet by activating the iface
+        self.toggle_enable_device()
+        self.wait_iface_status("Active")
+        self.wait_wireless_settings("OpenNet", "Unsecured")
+
+        wifi_dlg = self.open_wifi_dialog()
+        wifi_dlg.select_ap("ZE WIFI!")
+        # wrong password
+        wifi_dlg.set_password("wrong")
+        wifi_dlg.connect_expect_error("Failed to connect")
+        # correct password
+        wifi_dlg.set_password("12345678")
+        wifi_dlg.connect()
+        self.wait_iface_status("Active")
+        self.wait_wireless_settings("ZE WIFI!", "WPA2")
+        self.wait_iface_ip_setting("ipv4", address="10.0.42", gateway="10.0.42.3")
+
+        # Hidden network, wrong SSID
+        wifi_dlg = self.open_wifi_dialog()
+        wifi_dlg.select_hidden_ap("WrongNet", "none")
+        with b.wait_timeout(30):
+            wifi_dlg.connect_expect_error("Failed to connect")
+
+        # Hidden network, wrong security
+        wifi_dlg.select_hidden_ap("HiddenNet", "none")
+        with b.wait_timeout(30):
+            wifi_dlg.connect_expect_error("Failed to connect")
+
+        # Hidden network, wrong password
+        wifi_dlg.select_hidden_ap("HiddenNet", "wpa-psk")
+        wifi_dlg.set_password("wrong_again")
+        with b.wait_timeout(30):
+            wifi_dlg.connect_expect_error("Failed to connect")
+
+        # Hidden network, success
+        wifi_dlg.select_hidden_ap("HiddenNet", "wpa-psk")
+        wifi_dlg.set_password("hidden99")
+        wifi_dlg.connect()
+
+        # Manually configure IPv6 on wireless device
+        ip_dlg = self.open_ip_settings_dialog("ipv6")
+        ip_dlg.set_method("manual")
+        ip_dlg.set_address(0, "2001:db8:aaaa::20ac", "64")
+        ip_dlg.add_dns(0, "2001:db8:aaaa::1fff")
+        ip_dlg.save()
+        self.wait_iface_ip_setting("ipv6", address="2001:db8:aaaa::20ac/64", gateway="2001:db8:aaaaa::1", dns="2001:db8:aaaa::1fff")
 
 
 if __name__ == '__main__':

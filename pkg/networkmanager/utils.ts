@@ -10,21 +10,84 @@ const _ = cockpit.gettext;
 
 type IPAddress = ipaddr.IPv4 | ipaddr.IPv6;
 
-type NetworkManagerSettings = {
-    connection: {
-        id: string;
-        uuid?: string;
-        interface_name: string | undefined;
-        multi_connect?: number;
-        type: string
-        autoconnect_priority: number;
-    }
+// Partial NetworkManager objects types
+
+type NMIPMethod = "auto" | "manual" | "dhcp" | "link-local" | "ignore" | "shared" | "disabled";
+
+type NMIPSettings = {
+    method: NMIPMethod;
+    address_data: {
+        address: string;
+        prefix: string;
+    }[];
+    dns_data: string[];
+    dns_search: string[];
+    route_data: unknown[];
+    gateway: string;
 }
 
-type NetworkManagerConnection = {
-    Settings: NetworkManagerSettings;
-    Unsaved: boolean;
+export type NMConnectionSettings = {
+    connection: {
+        interface_name: string | undefined;
+        autoconnect: boolean;
+        autoconnect_priority: number;
+        // Optional because createGhostConnectionSettings() doesn't set default values
+        id?: string;
+        uuid?: string;
+        multi_connect?: number;
+        type?: string;
+    };
+    ipv4?: NMIPSettings;
+    ipv6?: NMIPSettings;
+    "802-11-wireless"?: {
+        ssid: string;
+        mode: string;
+        hidden: boolean;
+    };
+    "802-11-wireless-security"?: {
+        "key-mgmt": string;
+        psk: string;
+    };
 }
+
+export type NMConnection = {
+    Settings?: NMConnectionSettings;
+    Unsaved: boolean;
+    activate(dev: NMDevice, specific_object: NMAccessPoint | null): Promise<unknown>;
+    delete_(): Promise<void>;
+}
+
+export type NMAccessPoint = {
+    Ssid: string;
+    HwAddress: string;
+    Flags: number;
+    WpaFlags: number;
+    RsnFlags: number;
+    Connection?: NMConnection | null;
+}
+
+export type NMDevice = {
+    StateText: string;
+    // this is type_ActiveConnection
+    ActiveConnection: unknown;
+    ActiveAccessPoint: NMAccessPoint | null | undefined;
+    AccessPoints: NMAccessPoint[];
+    visibleSsids: NMAccessPoint[];
+    activate_with_settings(settings: NMConnectionSettings, specific_object: NMAccessPoint | null): Promise<{ connection: NMConnection; active_connection: unknown }>;
+    wait_connection(expected_ssid: string): Promise<void>;
+    cancel_pending_connection(): void;
+}
+
+export type NMInterface = {
+    Name: string;
+    Device: NMDevice;
+    MainConnection: NMConnection | null;
+}
+
+export const NM_DEVICE_STATE_REASON_NO_SECRETS = 7;
+
+// type_Device.wait_connection() error set in interfaces.js
+export type NMError = Error & { reason?: number };
 
 /* NetworkManager specific data conversions and utility functions.
  */
@@ -333,7 +396,7 @@ export function list_interfaces() {
 // on top of this, remove the multiconnection settings and assign it directly
 // to interface. This is done for Anaconda in order to avoid creating unexpected
 // multiconnections when user modifies the connection during installation.
-export function isNonPersistentMultiCon(connection: NetworkManagerConnection): boolean {
+export function isNonPersistentMultiCon(connection: NMConnection): boolean {
     const settings = connection?.Settings;
     if (settings &&
         settings.connection.interface_name === undefined &&
@@ -347,7 +410,7 @@ export function isNonPersistentMultiCon(connection: NetworkManagerConnection): b
     return false;
 }
 
-export function createNewConnSettings(settings: NetworkManagerSettings, iface_name: string) {
+export function createNewConnSettings(settings: NMConnectionSettings, iface_name: string) {
     const newSettings = {
         ...settings,
         connection: {
@@ -362,6 +425,140 @@ export function createNewConnSettings(settings: NetworkManagerSettings, iface_na
     delete newSettings.connection.multi_connect;
 
     return newSettings;
+}
+
+const NM80211ApFlags = {
+    // access point has no special capabilities
+    NONE: 0x00000000,
+    // access point requires authentication and encryption (usually means WEP)
+    PRIVACY: 0x00000001,
+} as const;
+
+const NM80211ApSecurityFlags = {
+    // the access point has no special security requirements
+    NONE: 0x00000000,
+    // 40/64-bit WEP is supported for pairwise/unicast encryption
+    PAIR_WEP40: 0x00000001,
+    // 104/128-bit WEP is supported for pairwise/unicast encryption
+    PAIR_WEP104: 0x00000002,
+    // TKIP is supported for pairwise/unicast encryption
+    PAIR_TKIP: 0x00000004,
+    // AES/CCMP is supported for pairwise/unicast encryption
+    PAIR_CCMP: 0x00000008,
+    // 40/64-bit WEP is supported for group/broadcast encryption
+    GROUP_WEP40: 0x00000010,
+    // 104/128-bit WEP is supported for group/broadcast encryption
+    GROUP_WEP104: 0x00000020,
+    // TKIP is supported for group/broadcast encryption
+    GROUP_TKIP: 0x00000040,
+    // AES/CCMP is supported for group/broadcast encryption
+    GROUP_CCMP: 0x00000080,
+    // WPA/RSN Pre-Shared Key encryption is supported
+    KEY_MGMT_PSK: 0x00000100,
+    // 802.1x authentication and key management is supported
+    KEY_MGMT_802_1X: 0x00000200,
+} as const;
+
+// See NetworkManager examples for access point flags conversion:
+// https://github.com/NetworkManager/NetworkManager/blob/1c71c568e7736ce2075fd0d53c387f2221bab832/examples/python/gi/show-wifi-networks.py#L64-L76
+export function apSecurityFlagsToString(flags: number, wpaFlags: number, rsnFlags: number): string {
+    let str = "";
+    if ((flags & NM80211ApFlags.PRIVACY) && wpaFlags === 0 && rsnFlags === 0) {
+        str += " WEP";
+    }
+    if (wpaFlags !== 0) {
+        str += " WPA1";
+    }
+    if (rsnFlags !== 0) {
+        str += " WPA2";
+    }
+    if ((wpaFlags & NM80211ApSecurityFlags.KEY_MGMT_802_1X) || (rsnFlags & NM80211ApSecurityFlags.KEY_MGMT_802_1X)) {
+        str += " 802.1X";
+    }
+    if (str === "") {
+        str = _("Unsecured");
+    }
+
+    return str.trimStart();
+}
+
+export async function existingConnectionConnectToAP(ap: NMAccessPoint, dev: NMDevice) {
+    // Activate existing connection (which already has password if needed)
+    cockpit.assert(ap.Connection, "existingConnectionConnectToAP requires an existing connection");
+    debug("Activating existing connection for", ap.Ssid);
+    await ap.Connection.activate(dev, ap);
+    debug("Connection activation started for", ap.Ssid);
+    await dev.wait_connection(ap.Ssid);
+    debug("Connected successfully to", ap.Ssid);
+}
+
+export function prepareWirelessConSettings(ssid: string, security: string, password: string) {
+    // Create new connection for open networks
+    debug("Creating new connection for", ssid);
+    const isHidden = !ssid;
+    const settings: NMConnectionSettings = {
+        connection: {
+            id: ssid,
+            type: "802-11-wireless",
+            interface_name: undefined,
+            autoconnect: true,
+            autoconnect_priority: 0,
+        },
+        "802-11-wireless": {
+            ssid: ssid_to_nm(ssid),
+            mode: "infrastructure",
+            hidden: isHidden,
+        }
+    };
+
+    if (security === "none") {
+        return settings;
+    }
+
+    if (!isHidden || security !== "none") {
+        settings["802-11-wireless-security"] = {
+            "key-mgmt": isHidden ? security : "wpa-psk",
+            psk: password,
+        };
+    }
+
+    return settings;
+}
+
+// Connect to a wireless access point
+//
+// Optionally this function takes a `registerCancel` callback, which is meant
+// to be used with the dialog.set_cancel method to register a cancel function
+// in a dialog.
+export async function connectToAccessPoint(dev: NMDevice, ssid: string, security: string, password: string, registerCancel?: (cancel: () => void) => void) {
+    const settings = prepareWirelessConSettings(ssid, security, password);
+
+    let connection: NMConnection | null = null;
+    try {
+        // ap might be stale if there was a scan since opening the dialog, so pass NULL
+        // NM will find the right AP by SSID
+        const result = await dev.activate_with_settings(settings, null);
+        connection = result.connection;
+
+        if (registerCancel) {
+            registerCancel(() => {
+                debug("Cancelling connection to", ssid);
+                dev.cancel_pending_connection();
+                connection?.delete_()
+                        .catch((err: unknown) => console.warn("Failed to delete connection:", err));
+            });
+        }
+
+        debug("Connection activation started");
+        await dev.wait_connection(ssid);
+        debug("Connected successfully to", ssid);
+    } catch (err) {
+        // just in case something survived, clean up
+        connection?.delete_()
+                .catch(err => debug("Failed to delete failed connection:", err));
+
+        throw err;
+    }
 }
 
 export function debug(...args: Parameters<typeof console.debug>): void {

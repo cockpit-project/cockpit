@@ -79,7 +79,7 @@ export function Router(callbacks) {
         callbacks.perform_frame_hash_track(child.name, hash);
     }
 
-    function on_unload(ev) {
+    function on_pagehide(ev) {
         let source;
         if (ev.target.defaultView)
             source = source_by_name[ev.target.defaultView.name];
@@ -109,7 +109,7 @@ export function Router(callbacks) {
             frame.removeEventListener("load", on_load);
         /* This is often invalid when the window is closed */
         if (child.removeEventListener) {
-            child.removeEventListener("unload", on_unload);
+            child.removeEventListener("pagehide", on_pagehide);
             child.removeEventListener("hashchange", on_hashchange);
         }
         delete source_by_seed[source.channel_seed];
@@ -145,7 +145,7 @@ export function Router(callbacks) {
 
         const frame = child.frameElement;
         frame.addEventListener("load", on_load);
-        child.addEventListener("unload", on_unload);
+        child.addEventListener("pagehide", on_pagehide);
         child.addEventListener("hashchange", on_hashchange);
 
         perform_track(child);

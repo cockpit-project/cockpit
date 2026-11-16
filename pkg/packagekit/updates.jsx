@@ -720,12 +720,18 @@ const UpdatesList = ({ updates, partialUpdates }) => {
     );
 };
 
-const formatPackageId = packageId => {
-    const pfields = packageId.split(";");
-    return pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")";
+const formatPackage = pkg => {
+    if (!pkg)
+        return "";
+
+    let evr = pkg.release ? `${pkg.version}-${pkg.release}` : pkg.version;
+    if (pkg.epoch !== "0")
+        evr = `${pkg.epoch}:${evr}`;
+
+    return `${pkg.name} ${evr} (${pkg.arch})`;
 };
 
-// actions is a chronological list of { status, packageId } events that happen during applying updates
+// actions is a chronological list of { status, pkg } events that happen during applying updates
 // status: see STATUS_STRINGS
 const ApplyUpdates = ({ transactionProps, actions, rebootAfter, setRebootAfter }) => {
     const remain = transactionProps.remaining_time
@@ -758,7 +764,7 @@ const ApplyUpdates = ({ transactionProps, actions, rebootAfter, setRebootAfter }
 
     const lastAction = actions[actions.length - 1];
     // when resuming an upgrade, we did not get any Package signal yet; fall back to LastPackage
-    const curPackage = formatPackageId(lastAction?.packageId || transactionProps.last_package || "");
+    const curPackage = formatPackage(lastAction?.pkg || transactionProps.last_package || "");
     return (
         <div className="progress-main-view">
             <Grid hasGutter>
@@ -794,9 +800,9 @@ const ApplyUpdates = ({ transactionProps, actions, rebootAfter, setRebootAfter }
                             <table>
                                 <tbody>
                                     { actions.slice(0, -1).map((action, i) => (
-                                        <tr key={action.packageId + i}>
+                                        <tr key={i}>
                                             <th>{STATUS_LOG_STRINGS[action.status] || STATUS_LOG_STRINGS[UpdateProgressType.UPDATING]}</th>
-                                            <td>{formatPackageId(action.packageId)}</td>
+                                            <td>{formatPackage(action.pkg)}</td>
                                         </tr>)) }
                                 </tbody>
                             </table>
@@ -1162,8 +1168,8 @@ class OsUpdates extends React.Component {
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         try {
             const running_update = await this.packageManager.get_running_update({
-                on_package: (status, packageId) => this.setState(prevState =>
-                    ({ applyActions: [...prevState.applyActions, { status, packageId }] })
+                on_package: (status, pkg) => this.setState(prevState =>
+                    ({ applyActions: [...prevState.applyActions, { status, pkg }] })
                 ),
                 on_notify: (notify) => this.setState(prevState =>
                     ({ applyTransactionProps: { ...prevState.applyTransactionProps, ...notify } })
@@ -1444,8 +1450,8 @@ class OsUpdates extends React.Component {
 
         this.handleRunningUpdate(
             this.packageManager.update_packages(updates, {
-                on_package: (status, packageId) => this.setState(prevState =>
-                    ({ applyActions: [...prevState.applyActions, { status, packageId }] })
+                on_package: (status, pkg) => this.setState(prevState =>
+                    ({ applyActions: [...prevState.applyActions, { status, pkg }] })
                 ),
                 on_notify: (notify) => this.setState(prevState =>
                     ({ applyTransactionProps: { ...prevState.applyTransactionProps, ...notify } })

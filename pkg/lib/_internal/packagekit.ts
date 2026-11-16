@@ -4,9 +4,25 @@
  */
 
 import cockpit from "cockpit";
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify, RunningUpdate, Severity } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify, RunningUpdate, Severity, Package } from './packagemanager-abstract';
 
 import { superuser } from 'superuser';
+
+// Convert a PackageKit package ID ("name;[epoch:]version[-release];arch;data") to Package
+export function packageIdToPackage(packageId: string): Package {
+    const [name, evr = "", arch = ""] = packageId.split(";");
+    const colon = evr.indexOf(':');
+
+    // Handle a missing epoch as 0
+    const epoch = colon === -1 ? "0" : evr.substring(0, colon);
+    const version_release = evr.substring(colon + 1);
+    const release_dash = version_release.lastIndexOf('-');
+
+    if (release_dash === -1)
+        return { name, epoch, version: version_release, release: "", arch };
+
+    return { name, epoch, version: version_release.substring(0, release_dash), release: version_release.substring(release_dash + 1), arch };
+}
 
 const _ = cockpit.gettext;
 
@@ -666,7 +682,7 @@ export class PackageKitManager implements PackageManager {
                             },
                             Package: (status: number, packageId: string) => {
                                 if (status in UpdateProgressMap)
-                                    handlers.on_package(UpdateProgressMap[status], packageId);
+                                    handlers.on_package(UpdateProgressMap[status], packageIdToPackage(packageId));
                             },
                         },
                         (notify: Record<string, unknown>, path: string) => {
@@ -681,7 +697,7 @@ export class PackageKitManager implements PackageManager {
                             if (notify.RemainingTime !== undefined)
                                 props.remaining_time = notify.RemainingTime as number;
                             if (notify.LastPackage !== undefined)
-                                props.last_package = notify.LastPackage as string;
+                                props.last_package = packageIdToPackage(notify.LastPackage as string);
                             handlers.on_notify(props);
                         },
             ).catch(reject);
@@ -727,7 +743,7 @@ export class PackageKitManager implements PackageManager {
                                      },
                                      Package: (status: number, packageId: string) => {
                                          if (status in UpdateProgressMap)
-                                             handlers.on_package(UpdateProgressMap[status], packageId);
+                                             handlers.on_package(UpdateProgressMap[status], packageIdToPackage(packageId));
                                      },
                                  },
                                  (notify: Record<string, unknown>) => {
@@ -740,7 +756,7 @@ export class PackageKitManager implements PackageManager {
                                      if (notify.RemainingTime !== undefined)
                                          props.remaining_time = notify.RemainingTime as number;
                                      if (notify.LastPackage !== undefined)
-                                         props.last_package = notify.LastPackage as string;
+                                         props.last_package = packageIdToPackage(notify.LastPackage as string);
 
                                      handlers.on_notify(props);
                                  },

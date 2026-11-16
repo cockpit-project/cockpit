@@ -13,8 +13,8 @@ import React from "react";
  * @returns {Array<{type: 'text'|'url', content?: string, url?: string}>}
  */
 export function linkifyText(text) {
-    if (typeof text !== "string" || !text)
-        return [{ type: "text", content: text || "" }];
+    if (!text)
+        return [{ type: "text", content: "" }];
 
     // Match http or https URLs, avoiding control chars (\x00-\x1f, \x7f), whitespace, and common delimiters
     // eslint-disable-next-line no-control-regex
@@ -35,8 +35,15 @@ export function linkifyText(text) {
                 trailingPunctuation = lastChar + trailingPunctuation;
                 url = url.slice(0, -1);
             } else if (lastChar === ')') {
-                const openCount = (url.match(/\(/g) || []).length;
-                const closeCount = (url.match(/\)/g) || []).length;
+                let openCount = 0;
+                let closeCount = 0;
+                for (let i = 0; i < url.length; i++) {
+                    const c = url.charCodeAt(i);
+                    if (c === 40)
+                        openCount++;
+                    else if (c === 41)
+                        closeCount++;
+                }
                 if (closeCount > openCount) {
                     trailingPunctuation = lastChar + trailingPunctuation;
                     url = url.slice(0, -1);
@@ -63,6 +70,9 @@ export function linkifyText(text) {
         lastIndex = urlIndex + match[0].length;
     }
 
+    if (parts.length === 0)
+        return [{ type: "text", content: text }];
+
     if (lastIndex < text.length) {
         parts.push({ type: "text", content: text.slice(lastIndex) });
     }
@@ -72,13 +82,12 @@ export function linkifyText(text) {
 
 /**
  * Renders a log message with detected URLs as clickable <a> links.
- * Clicking a link stops propagation so that parent row-click handlers are not triggered.
  *
- * @param {string|React.ReactNode} message - The message string or React node.
+ * @param {string} message - The log message string.
  * @returns {React.ReactNode}
  */
 export function renderMessageWithUrls(message) {
-    if (typeof message !== "string" || !message)
+    if (!message || message.indexOf("http") === -1)
         return message;
 
     const parts = linkifyText(message);
@@ -94,8 +103,6 @@ export function renderMessageWithUrls(message) {
                     href={part.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={ev => ev.stopPropagation()}
-                    onKeyDown={ev => ev.stopPropagation()}
                 >
                     {part.url}
                 </a>

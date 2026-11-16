@@ -7,9 +7,9 @@ import cockpit from "cockpit";
 import { journal } from "journal";
 import * as timeformat from "timeformat";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { CheckIcon, CopyIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
@@ -22,7 +22,6 @@ import { renderMessageWithUrls } from "logs-url.jsx";
 const _ = cockpit.gettext;
 
 const LogDetails = ({ entry }) => {
-    const [copied, setCopied] = useState(false);
     const general = Object.keys(entry).filter(k => k !== 'MESSAGE');
     general.sort();
 
@@ -35,32 +34,10 @@ const LogDetails = ({ entry }) => {
     if (["service", "target", "socket", "timer", "path"].indexOf(service.split(".").slice(-1)[0]) === -1)
         service = undefined;
 
-    const copyMessage = () => {
-        const text = journal.printable(entry.MESSAGE, "MESSAGE");
-        navigator.clipboard.writeText(text)
-                .then(() => {
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                })
-                .catch(err => console.error("Failed to copy message:", err));
-    };
-
-    const actions = (
-        <>
-            <Button
-                variant="secondary"
-                onClick={copyMessage}
-                icon={copied ? <CheckIcon className="ct-icon-copy-success" /> : <CopyIcon />}
-                aria-label={copied ? _("Copied message to clipboard") : _("Copy message")}
-            >
-                {copied ? _("Copied message") : _("Copy message")}
-            </Button>
-            {service && (
-                <Button variant="link" onClick={() => cockpit.jump("/system/services#/" + service + (is_user ? "?owner=user" : "")) }>
-                    {cockpit.format(_("Go to $0"), service)}
-                </Button>
-            )}
-        </>
+    const actions = service && (
+        <Button variant="link" onClick={() => cockpit.jump("/system/services#/" + service + (is_user ? "?owner=user" : "")) }>
+            {cockpit.format(_("Go to $0"), service)}
+        </Button>
     );
 
     return (

@@ -6,6 +6,7 @@
 
 
 import fnmatch
+import json
 import time
 from collections.abc import Collection
 
@@ -1944,6 +1945,7 @@ class TestInstallDialog(NoSubManCase):
 
     def testBasic(self):
         b = self.browser
+        m = self.machine
 
         self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
 
@@ -1977,6 +1979,16 @@ class TestInstallDialog(NoSubManCase):
         self.show_install_dialog("dummy")
         b.wait_in_text("#dialog", "dummy will be installed.")
         self.install_packages()
+
+        # Verify transaction comment appears in dnf5
+        # HACK: fedora-43 has no --json
+        if m.image.startswith(("fedora-")) and m.image != "fedora-43":
+            transactions = json.loads(m.execute("dnf history list --json"))
+            dnf5daemon_transaction = [t for t in transactions if t["command_line"] == "dnf5daemon-server"]
+            # A non-destructive tests may have run before us, we are only interested in the last id
+            self.assertGreaterEqual(len(dnf5daemon_transaction), 1)
+            install_transaction = json.loads(m.execute(f"dnf history info {dnf5daemon_transaction[0]["id"]} --json"))
+            self.assertEqual(install_transaction[0]["comment"], "Performed via Cockpit")
 
         # Test that additional installed packages are shown in the dialog
         b.wait_in_text("#install-card-title", "Install dialog test")

@@ -214,7 +214,8 @@ export class Dnf5DaemonManager implements PackageManager {
     }
 
     private async do_transaction(session: string) {
-        await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", []);
+        const TRANSACTION_OPTIONS = { comment: { t: "s", v: "Performed via Cockpit" } };
+        await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [TRANSACTION_OPTIONS]);
     }
 
     async check_missing_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<MissingPackages> {

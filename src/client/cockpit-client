@@ -154,6 +154,12 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
             uc_manager.disconnect(on_result_handler)
             uc_manager.unregister_script_message_handler("result")
 
+        def set_log(log):
+            print(f"log: {log}")
+            self.webview.disconnect(on_load_handler)
+            uc_manager.disconnect(on_log_handler)
+            uc_manager.unregister_script_message_handler("log")
+
         def run_js_ready(webview, result, _user_data):
             try:
                 js_res = webview.evaluate_javascript_finish(result)
@@ -170,6 +176,12 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
             "script-message-received::result",
             lambda _mgr, result: set_result(result.to_string()))
         uc_manager.register_script_message_handler("result")
+
+        # setup log handler for easier debugging
+        on_log_handler = uc_manager.connect(
+            "script-message-received::log",
+            lambda _mgr, log: print(f"log: {log.to_string()}"))
+        uc_manager.register_script_message_handler("log")
 
         # wait for loads to complete, to avoid races and ensure that it did not fail
         on_load_handler = self.webview.connect(

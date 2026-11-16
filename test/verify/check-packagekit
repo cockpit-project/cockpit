@@ -358,10 +358,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         else:
             b.wait_not_present(".progress-main-view button.pf-m-secondary")
         # gets stuck at vanilla, which needs install_lockfile
-        if self.uses_dnf5daemon:
-            b.wait_in_text("#app div.progress-description", "vanilla 0:1.0-2")
-        else:
-            b.wait_in_text("#app div.progress-description", "vanilla 1.0-2")
+        b.wait_in_text("#app div.progress-description", "vanilla 1.0-2")
 
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_visible("#update-log"))

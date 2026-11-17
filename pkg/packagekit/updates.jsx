@@ -99,6 +99,14 @@ export function is_partial_updates_supported(backend) {
     return SUPPORTED_PARTIAL_UPDATE_BACKEND.includes(backend);
 }
 
+/**
+ * Backends that stop an update when it gets cancelled. Others may report AllowCancel
+ * and then carry on, for example dnf5: https://github.com/PackageKit/PackageKit/pull/1035
+ */
+const SUPPORTED_CANCEL_BACKEND = [
+    "apt",
+];
+
 function init() {
     STATE_HEADINGS.loading = _("Loading available updates, please wait...");
     STATE_HEADINGS.locked = _("Some other program is currently using the package manager, please wait...");
@@ -645,7 +653,7 @@ const formatPackageId = packageId => {
 
 // actions is a chronological list of { status, packageId } events that happen during applying updates
 // status: see STATUS_STRINGS
-const ApplyUpdates = ({ transactionProps, actions, rebootAfter, setRebootAfter }) => {
+const ApplyUpdates = ({ backend, transactionProps, actions, rebootAfter, setRebootAfter }) => {
     const remain = transactionProps.remaining_time
         ? timeformat.distanceToNow(new Date().valueOf() + transactionProps.remaining_time * 1000)
         : null;
@@ -662,7 +670,7 @@ const ApplyUpdates = ({ transactionProps, actions, rebootAfter, setRebootAfter }
             log.scrollTop = log.scrollHeight;
     }
 
-    const cancelButton = transactionProps.cancel
+    const cancelButton = transactionProps.cancel && SUPPORTED_CANCEL_BACKEND.includes(backend)
         ? <Button variant="secondary" onClick={transactionProps.cancel} size="sm">{_("Cancel")}</Button>
         : null;
 
@@ -1522,7 +1530,8 @@ class OsUpdates extends React.Component {
 
         case "applying":
             page_status.set_own(null);
-            return <ApplyUpdates transactionProps={this.state.applyTransactionProps}
+            return <ApplyUpdates backend={this.state.backend}
+                                 transactionProps={this.state.applyTransactionProps}
                                  actions={this.state.applyActions}
                                  rebootAfter={this.state.rebootAfterSuccess}
                                  setRebootAfter={ (_event, enabled) => this.setState({ rebootAfterSuccess: enabled }) }

@@ -213,6 +213,10 @@ export class Dnf5DaemonManager implements PackageManager {
         }
     }
 
+    private async do_transaction(session: string) {
+        await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", []);
+    }
+
     async check_missing_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<MissingPackages> {
         const data: MissingPackages = {
             extra_names: [],
@@ -388,7 +392,7 @@ export class Dnf5DaemonManager implements PackageManager {
                     const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
                     throw new ResolveError(`Resolving install failed with result=${resolve_result} ${problem}`);
                 }
-                await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+                await this.do_transaction(session);
             } catch (err) {
                 console.warn("install error", err);
             }
@@ -405,7 +409,7 @@ export class Dnf5DaemonManager implements PackageManager {
                 throw new ResolveError(`Resolving read_all_repos failed with result=${resolve_result} - ${problem}`);
             }
 
-            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+            await this.do_transaction(session);
         });
     }
 
@@ -471,7 +475,7 @@ export class Dnf5DaemonManager implements PackageManager {
                 const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
                 throw new ResolveError(`Resolving install failed with result=${result}. ${problem}`);
             }
-            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+            await this.do_transaction(session);
         }, signal_emitted);
     }
 
@@ -507,7 +511,7 @@ export class Dnf5DaemonManager implements PackageManager {
                 const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
                 throw new ResolveError(`Resolving remove failed with result=${result}. ${problem}`);
             }
-            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+            await this.do_transaction(session);
         }, signal_emitted);
     }
 
@@ -744,7 +748,7 @@ export class Dnf5DaemonManager implements PackageManager {
                 const [problem] = await call(session, "org.rpm.dnf.v0.Goal", "get_transaction_problems_string", []);
                 throw new ResolveError(`Resolving upgrade failed with result=${result}. ${problem}`);
             }
-            await call(session, "org.rpm.dnf.v0.Goal", "do_transaction", [{}]);
+            await this.do_transaction(session);
         }, signal_emitted);
 
         return TransactionExitStatus.SUCCESS;

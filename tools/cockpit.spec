@@ -50,6 +50,11 @@
 %define bundle_docs 1
 %endif
 
+# distributions switched to dnf5daemon-server for package management
+%if 0%{?rhel} >= 11
+%define dnf5daemon_updates_page 1
+%endif
+
 Name:           cockpit
 Summary:        Web Console for Linux servers
 License:        LGPL-2.1-or-later AND GPL-3.0-or-later AND MIT AND CC-BY-SA-3.0 AND BSD-3-Clause
@@ -627,6 +632,23 @@ if [ "$1" = 2 ] && [ -d /var/lib/cockpit/btrfs ]; then
     rm -rf --one-file-system  /var/lib/cockpit/btrfs || true
 fi
 
+%if %{defined dnf5daemon_updates_page}
+%package -n cockpit-updates
+Summary: Cockpit user interface for packages
+BuildArch: noarch
+Requires: cockpit-bridge >= %{required_base}
+Requires: dnf5daemon-server
+Obsoletes: cockpit-packagekit <= 373
+Provides: cockpit-packagekit = %{version}-%{release}
+
+%description -n cockpit-updates
+The Cockpit components for installing OS updates and Cockpit add-ons,
+via dnf5daemon.
+
+%files -n cockpit-updates -f packagekit.list
+%license LICENSES/LGPL-2.1.txt
+
+%else
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages
 BuildArch: noarch
@@ -642,6 +664,8 @@ via PackageKit.
 
 %files -n cockpit-packagekit -f packagekit.list
 %license LICENSES/LGPL-2.1.txt
+
+%endif
 
 # The changelog is automatically generated and merged
 %changelog

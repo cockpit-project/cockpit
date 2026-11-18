@@ -97,6 +97,13 @@ class TestPackages(testlib.MachineCase):
         # it adds to, not replaces the /etc override
         check_nav_entry("Terminal", present=False)
 
+        # misconfigured, no permissions for unprivileged cockpit-bridge https://bugzilla.redhat.com/show_bug.cgi?id=2491533
+        m.execute("chmod 600 /home/admin/.config/cockpit/systemd.override.json")
+        reload_packages()
+
+        # No internal error shown, Hackices not shown
+        check_nav_entry("Hackices", present=False)
+
 
 if __name__ == '__main__':
     testlib.test_main()

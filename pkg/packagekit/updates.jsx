@@ -1030,6 +1030,7 @@ class CardsPage extends React.Component {
     }
 
     render() {
+        const isRHEL = cockpit.info.os_release && cockpit.info.os_release?.ID === "rhel";
         const cardContents = [];
         let settingsContent = null;
         const statusContent = <Stack hasGutter>
@@ -1039,13 +1040,15 @@ class CardsPage extends React.Component {
                                 restartPackages={this.props.restartPackages}
                                 highestSeverity={this.props.highestSeverity}
                                 timeSinceRefresh={this.props.timeSinceRefresh} />
+            {isRHEL &&
             <KpatchStatus />
+            }
         </Stack>;
 
         if (this.state.autoupdates_backend) {
             settingsContent = <Stack hasGutter>
                 <AutoUpdates privileged={this.props.privileged} packagekit_backend={this.props.backend} initial_backend={this.state.autoupdates_backend} />
-                {cockpit.info.os_release && cockpit.info.os_release?.ID === "rhel" &&
+                {isRHEL &&
                 <KpatchSettings privileged={this.props.privileged} />
                 }
             </Stack>;

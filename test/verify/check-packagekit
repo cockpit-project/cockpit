@@ -1551,6 +1551,8 @@ class TestAutoUpdates(NoSubManCase):
             self.timer_unit = "dnf-automatic-install"
             self.config = "/etc/dnf/automatic.conf"
 
+        self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
+
     def closeSettings(self, browser: testlib.Browser) -> None:
         browser.click("#automatic-updates-dialog button:contains('Save changes')")
         with browser.wait_timeout(30):
@@ -1781,6 +1783,16 @@ class TestAutoUpdates(NoSubManCase):
             out = m.execute(
                 f"if systemctl status --lines=50 {self.timer_unit}.service; then echo 'expected service to be stopped'; exit 1; fi")
             self.assertIn("kernel-rt", out)
+
+            # dnf5daemon shows dnf's own history, while PackageKit only shows its own.
+            b.reload()
+            b.enter_page("/updates")
+            with b.wait_timeout(30):
+                b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 6:00")
+            if self.uses_dnf5daemon:
+                b.wait_in_text("table.updates-history .pf-v6-c-table__expandable-row.pf-m-expanded", "kernel-rt")
+            else:
+                self.assertFalse(b.is_present("table.updates-history"))
 
             # run it again, now there are no available updates → no reboot
             m.execute(f"systemctl start {self.timer_unit}.service")

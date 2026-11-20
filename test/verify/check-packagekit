@@ -267,7 +267,6 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
 
     @testlib.nondestructive
-    @testlib.skipImage("alpm PackageKit backend does not support cancelling", "arch")
     def testBasic(self):
         # no security updates, no changelogs
         b = self.browser
@@ -348,19 +347,11 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # should only have one button (no security updates)
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
 
-        # update; Cancel button should eventually disappear, on some OSes
+        # update
         b.click("#available-updates button#install-all")
         b.wait_visible(".progress-main-view")
-        if m.image in ["fedora-44"]:
-            # dnf5backend allows "Cancel" during setup
-            pass
-        else:
-            b.wait_not_present(".progress-main-view button.pf-m-secondary")
         # gets stuck at vanilla, which needs install_lockfile
-        if self.uses_dnf5daemon:
-            b.wait_in_text("#app div.progress-description", "vanilla 0:1.0-2")
-        else:
-            b.wait_in_text("#app div.progress-description", "vanilla 1.0-2")
+        b.wait_in_text("#app div.progress-description", "vanilla 1.0-2")
 
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_visible("#update-log"))
@@ -401,7 +392,6 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_text(self.update_text, "System is up to date")
 
     @testlib.nondestructive
-    @testlib.skipImage("alpm PackageKit backend does not support cancelling", "arch")
     def testBasicTZFullHour(self):
         m = self.machine
         orig_timezone = m.execute("timedatectl show --value -p Timezone").strip()
@@ -411,7 +401,6 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.testBasic()
 
     @testlib.nondestructive
-    @testlib.skipImage("alpm PackageKit backend does not support cancelling", "arch")
     def testBasicTZHalfHour(self):
         m = self.machine
         orig_timezone = m.execute("timedatectl show --value -p Timezone").strip()

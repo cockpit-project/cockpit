@@ -104,15 +104,23 @@ export class UpdateError extends Error {
     }
 }
 
+export interface Package {
+    name: string
+    epoch: string
+    version: string
+    release: string
+    arch: string
+}
+
 export interface UpdateNotify {
   percentage?: number;
   remaining_time?: number;
-  last_package?: string;
+  last_package?: Package;
   cancel?: (() => void) | null;
 }
 
 export interface UpdateProgressHandlers {
-  on_package: (status: UpdateProgressType, packageId: string) => void;
+  on_package: (status: UpdateProgressType, pkg: Package) => void;
   on_notify: (props: UpdateNotify) => void;
 }
 

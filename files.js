@@ -89,6 +89,8 @@ const info = {
 
         "shell/machines/test-machines.js",
 
+        "packagekit/test-package-parsing.ts",
+
         "storaged/test-util.js",
     ],
 

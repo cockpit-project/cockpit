@@ -5,7 +5,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus, RunningUpdate, UpdateProgressType } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus, RunningUpdate, UpdateProgressType, Package } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -159,25 +159,14 @@ type UpgradeResolveResult = [TransactionItem[], number]
 
 type SignalCB = (_path: string, _iface: string, signal: string, args: unknown[]) => void
 
-// Convert NEVRA (e.g. "kernel-core-0:7.3.0-0.rc7.58.fc46.x86_64")
-// to PackageKit-style "name;version-release;arch"
-function nevraToPackageId(nevra: string): string {
-    const dotIdx = nevra.lastIndexOf('.');
-    if (dotIdx === -1) return nevra;
-    const arch = nevra.substring(dotIdx + 1);
-    const nameEvr = nevra.substring(0, dotIdx);
+// Convert a NEVRA (e.g. "kernel-core-0:7.3.0-0.rc7.58.fc46.x86_64") to Package
+export function nevraToPackage(nevra: string): Package | null {
+    const match = nevra.match(/^(.+)-(?:(\d+):)?([^-]+)-([^-]+)\.([^.]+)$/);
+    if (!match)
+        return null;
 
-    const relDash = nameEvr.lastIndexOf('-');
-    if (relDash === -1) return nevra;
-    const release = nameEvr.substring(relDash + 1);
-    const nameVer = nameEvr.substring(0, relDash);
-
-    const verDash = nameVer.lastIndexOf('-');
-    if (verDash === -1) return nevra;
-    const name = nameVer.substring(0, verDash);
-    const epochVersion = nameVer.substring(verDash + 1);
-
-    return `${name};${epochVersion}-${release};${arch}`;
+    const [, name, epoch, version, release, arch] = match;
+    return { name, epoch: epoch ?? "0", version, release, arch };
 }
 
 /**
@@ -665,7 +654,9 @@ export class Dnf5DaemonManager implements PackageManager {
                 const [, downloadId, nevra, totalBytes] = args as [string, string, string, number];
                 downloadSizes.set(downloadId, totalBytes);
                 totalDownloadBytes += totalBytes;
-                handlers.on_package(UpdateProgressType.DOWNLOADING, nevraToPackageId(nevra));
+                const pkg = nevraToPackage(nevra);
+                if (pkg)
+                    handlers.on_package(UpdateProgressType.DOWNLOADING, pkg);
                 notifyDownloadProgress();
                 return;
             }
@@ -726,7 +717,9 @@ export class Dnf5DaemonManager implements PackageManager {
                 default:
                     status = UpdateProgressType.UPDATING;
                 }
-                handlers.on_package(status, nevraToPackageId(nevra));
+                const pkg = nevraToPackage(nevra);
+                if (pkg)
+                    handlers.on_package(status, pkg);
                 return;
             }
             case 'transaction_elem_progress': {

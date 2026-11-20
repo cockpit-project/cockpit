@@ -438,6 +438,9 @@ class PackagesLoader:
                 override: JsonValue = json.loads(override_file.read_bytes())
             except FileNotFoundError:
                 continue
+            except PermissionError as exc:
+                logger.error("%s: %s", override_file, exc)
+                continue
             except json.JSONDecodeError as exc:
                 # User input error: report a warning and ignore this file.
                 logger.warning('%s: %s', override_file, exc)

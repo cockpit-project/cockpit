@@ -1085,8 +1085,11 @@ class CardsPage extends React.Component {
             });
         }
 
-        // automatic updates are not tracked by PackageKit, hide history when they are enabled
-        if (this.state.autoupdates_backend !== undefined && this.state.autoupdates_backend?.enabled === false && this.props.history.length > 0) {
+        // Automatic updates are not tracked by PackageKit, hide history when
+        // they are enabled. dnf5daemon reads dnf's own history, which includes
+        // automatic updates and the dnf cli.
+        const autoupdates_disabled = this.state.autoupdates_backend !== undefined && !this.state.autoupdates_backend?.enabled;
+        if ((this.props.packageManagerName === "dnf5daemon" || autoupdates_disabled) && this.props.history.length > 0) {
             cardContents.push({
                 id: "update-history",
                 title: _("Update history"),
@@ -1559,6 +1562,7 @@ class OsUpdates extends React.Component {
                                        highestSeverity={highest_severity}
                                        onValueChanged={this.onValueChanged}
                                        backend={this.backend}
+                                       packageManagerName={this.packageManager?.name}
                                        {...this.state} />
                         </Gallery>
                     </PageSection>
@@ -1687,7 +1691,7 @@ class OsUpdates extends React.Component {
             return (
                 <PageSection hasBodyWrapper={false}>
                     <Gallery className='ct-cards-grid' hasGutter>
-                        <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} backend={this.backend} {...this.state} />
+                        <CardsPage onValueChanged={this.onValueChanged} handleRefresh={this.handleRefresh} backend={this.backend} packageManagerName={this.packageManager?.name} {...this.state} />
                     </Gallery>
                     { this.state.showRestartServicesDialog &&
                     <RestartServicesDialog restartPackages={this.state.restartPackages}

@@ -980,7 +980,8 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
+            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] },
+            Gateway: { def: "" },
         }
     };
 
@@ -990,7 +991,8 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] }
+            AddressData: { conv: conv_Array(ip_address_from_nm), def: [] },
+            Gateway: { def: "" },
         }
     };
 
@@ -1645,6 +1647,49 @@ export function array_join(elts, sep) {
     return result;
 }
 
+export function active_connection_ipv4(dev) {
+    const con = dev.ActiveConnection;
+    const ip4config = con ? con.Ip4Config : dev.Ip4Config;
+    const parts = [];
+    if (ip4config) {
+        ip4config.AddressData.forEach(function (a) {
+            parts.push(a.address + "/" + a.prefix);
+        });
+    }
+
+    return parts;
+}
+
+export function active_connection_ipv6(dev, hide_link_local) {
+    const con = dev.ActiveConnection;
+
+    function is_ipv6_link_local(addr) {
+        return (addr.indexOf("fe8") === 0 ||
+                addr.indexOf("fe9") === 0 ||
+                addr.indexOf("fea") === 0 ||
+                addr.indexOf("feb") === 0);
+    }
+
+    const ip6config = con ? con.Ip6Config : dev.Ip6Config;
+    const parts = [];
+    if (ip6config) {
+        ip6config.AddressData.forEach(function (a) {
+            if (!(hide_link_local && is_ipv6_link_local(a.address)))
+                parts.push(a.address + "/" + a.prefix);
+        });
+    }
+
+    return parts;
+}
+
+export function active_connection_gateway(dev, topic) {
+    const con = dev.ActiveConnection;
+    const ipProp = topic === "ipv4" ? "Ip4Config" : "Ip6Config";
+    const ipconfig = con ? con[ipProp] : dev[ipProp];
+
+    return ipconfig?.Gateway || _("Not configured");
+}
+
 export function render_active_connection(dev, with_link, hide_link_local) {
     const parts = [];
 
@@ -1657,27 +1702,8 @@ export function render_active_connection(dev, with_link, hide_link_local) {
         return fmt_to_fragments(_("Part of $0"), with_link ? render_interface_link(con.Group.Interface) : con.Group.Interface);
     }
 
-    const ip4config = con ? con.Ip4Config : dev.Ip4Config;
-    if (ip4config) {
-        ip4config.AddressData.forEach(function (a) {
-            parts.push(a.address + "/" + a.prefix);
-        });
-    }
-
-    function is_ipv6_link_local(addr) {
-        return (addr.indexOf("fe8") === 0 ||
-                addr.indexOf("fe9") === 0 ||
-                addr.indexOf("fea") === 0 ||
-                addr.indexOf("feb") === 0);
-    }
-
-    const ip6config = con ? con.Ip6Config : dev.Ip6Config;
-    if (ip6config) {
-        ip6config.AddressData.forEach(function (a) {
-            if (!(hide_link_local && is_ipv6_link_local(a.address)))
-                parts.push(a.address + "/" + a.prefix);
-        });
-    }
+    parts.push(...active_connection_ipv4(dev));
+    parts.push(...active_connection_ipv6(dev, hide_link_local));
 
     return parts.join(", ");
 }
@@ -1702,6 +1728,34 @@ export function complete_settings(settings, device) {
         // device_type_to_symbol.
         settings.connection.type = device.DeviceType;
     }
+}
+
+export function createGhostConnectionSettings(ifaceName, dev) {
+    const settings = {
+        connection: {
+            interface_name: ifaceName,
+            autoconnect: true,
+            autoconnect_priority: 0,
+        },
+        ipv4: {
+            method: "auto",
+            address_data: [],
+            dns_data: [],
+            dns_search: [],
+            route_data: [],
+            gateway: "",
+        },
+        ipv6: {
+            method: "auto",
+            address_data: [],
+            dns_data: [],
+            dns_search: [],
+            route_data: [],
+            gateway: "",
+        }
+    };
+    complete_settings(settings, dev);
+    return settings;
 }
 
 export function settings_applier(model, device, connection) {
@@ -2123,6 +2177,51 @@ export function has_group(iface) {
 export function is_wireless(iface) {
     // NM_DEVICE_TYPE_WIFI
     return iface.Device?.DeviceType === '802-11-wireless';
+}
+
+export function connectInterface(model, iface, dev, ghostSettings) {
+    if (!(iface.MainConnection || (dev && ghostSettings)))
+        return;
+
+    function modify() {
+        if (iface.MainConnection) {
+            return iface.MainConnection.activate(dev, null).catch(show_unexpected_error);
+        } else {
+            return dev.activate_with_settings(ghostSettings, null).catch(show_unexpected_error);
+        }
+    }
+
+    const dev_name = iface.Name;
+    with_checkpoint(model, modify,
+                    {
+                        devices: dev ? [dev] : [],
+                        fail_text: fmt_to_fragments(_("Switching on $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
+                        anyway_text: cockpit.format(_("Switch on $0"), dev_name)
+                    });
+}
+
+export function disconnectInterface(model, iface, dev) {
+    if (!dev) {
+        console.log("Trying to switch off without a device?");
+        return;
+    }
+
+    function modify() {
+        return dev.disconnect().catch(show_unexpected_error);
+    }
+
+    const dev_name = iface.Name;
+    with_checkpoint(model, modify,
+                    {
+                        devices: [dev],
+                        fail_text: fmt_to_fragments(_("Switching off $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
+                        anyway_text: cockpit.format(_("Switch off $0"), dev_name)
+                    });
+}
+
+export function toggleConnectionAutoconnect(model, dev, con, settings, autoconnect) {
+    settings.connection.autoconnect = autoconnect;
+    return settings_applier(model, dev, con)(settings);
 }
 
 export function init() {

@@ -1085,7 +1085,8 @@ class CardsPage extends React.Component {
             });
         }
 
-        if ((!this.state.autoupdates_backend || !this.state.autoupdates_backend.enabled) && this.props.history.length > 0) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+        // automatic updates are not tracked by PackageKit, hide history when they are enabled
+        if (this.state.autoupdates_backend !== undefined && this.state.autoupdates_backend?.enabled === false && this.props.history.length > 0) {
             cardContents.push({
                 id: "update-history",
                 title: _("Update history"),

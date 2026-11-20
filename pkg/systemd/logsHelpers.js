@@ -108,12 +108,14 @@ export const getOptionsFromTextInput = (value) => {
                     return false;
                 }
 
-                const well_know_keys = ["since", "until", "boot", "priority", "follow", "service", "identifier"];
+                // "unit" is the SearchInput attribute for systemd units; map it to
+                // "service" which getGrepFiltersFromOptions() understands.
+                const well_know_keys = ["since", "until", "boot", "priority", "follow", "service", "unit", "identifier", "user-service"];
                 const map_keys = (key) => {
                     if (key === "identifier")
                         return "tag";
-                    if (key === "service")
-                        return "unit";
+                    if (key === "unit")
+                        return "service";
                     return key;
                 };
                 s = item.split(/:(.*)/);

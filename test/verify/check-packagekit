@@ -348,14 +348,10 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # should only have one button (no security updates)
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
 
-        # update; Cancel button should eventually disappear, on some OSes
+        # update; Cancel button should eventually disappear
         b.click("#available-updates button#install-all")
         b.wait_visible(".progress-main-view")
-        if m.image in ["fedora-44"]:
-            # dnf5backend allows "Cancel" during setup
-            pass
-        else:
-            b.wait_not_present(".progress-main-view button.pf-m-secondary")
+        b.wait_not_present(".progress-main-view button.pf-m-secondary")
         # gets stuck at vanilla, which needs install_lockfile
         if self.uses_dnf5daemon:
             b.wait_in_text("#app div.progress-description", "vanilla 0:1.0-2")
@@ -1212,6 +1208,89 @@ ExecStart=/usr/local/bin/{packageName}
         self.assertFalse(b.is_present("#app button"))
 
     @testlib.skipImage("No PackageKit", *OSesWithDNF5Daemon)
+    @testlib.nondestructive
+    def testCancel(self):
+        b = self.browser
+        m = self.machine
+
+        self.createPackage("vapor", "1", "1", install=True)
+        self.createPackage("vapor", "1", "2")
+        self.enableRepo()
+
+        # serve the repo over HTTP and stall package downloads, so that the update can be cancelled
+        # while it downloads; the server touches `stalled` and finishes the download once `release` exists
+        port = 12346
+        stalled = f"{self.vm_tmpdir}/download-stalled"
+        release = f"{self.vm_tmpdir}/download-release"
+        m.write(f"{self.vm_tmpdir}/stall-server.py", """
+import http.server
+import os
+import sys
+import time
+
+repo, port, stalled, release = sys.argv[1:]
+
+
+class Handler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path.endswith((".rpm", ".deb", ".pkg.tar.zst")):
+            path = self.translate_path(self.path)
+            self.send_response(200)
+            # must match the size in the repo metadata, otherwise the download fails right away
+            self.send_header("Content-Length", str(os.path.getsize(path)))
+            self.end_headers()
+            with open(path, "rb") as f:
+                self.wfile.write(f.read(100))
+                self.wfile.flush()
+                open(stalled, "w").close()
+                while not os.path.exists(release):
+                    time.sleep(1)
+                self.wfile.write(f.read())
+            return
+        super().do_GET()
+
+
+os.chdir(repo)
+http.server.ThreadingHTTPServer(("127.0.0.1", int(port)), Handler).serve_forever()
+""")
+        pid = m.spawn(f"exec python3 {self.vm_tmpdir}/stall-server.py {self.repo_dir} {port} {stalled} {release}",
+                      "stall-server")
+        self.addCleanup(m.execute, f"kill {pid} || true")
+        m.wait_for_cockpit_running(port=port)
+
+        if self.backend == "apt":
+            m.execute(f"sed -i 's|file://{self.repo_dir}|http://127.0.0.1:{port}|' /etc/apt/sources.list.d/test.list")
+        elif self.backend == "alpm":
+            m.execute(f"sed -i 's|^Server = file://{self.repo_dir}$|Server = http://127.0.0.1:{port}|' /etc/pacman.conf")
+            # packagekit does not detect changed repositories without a restart
+            m.execute("systemctl restart packagekit")
+        else:
+            m.execute(f"sed -i 's|^baseurl=.*|baseurl=http://127.0.0.1:{port}|' /etc/yum.repos.d/cockpittest.repo; "
+                      "dnf clean all")
+        self.refreshMetadata(force=True)
+
+        self.login_and_go("/updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
+        b.wait_in_text("#status", "1 update available")
+        b.click("#available-updates button#install-all")
+        m.execute(f"while [ ! -e {stalled} ]; do sleep 1; done", timeout=60)
+
+        if self.backend == "apt":
+            b.click("#app button:contains('Cancel')")
+            # back to the available update, which did not get installed
+            with b.wait_timeout(30):
+                b.wait_visible("#available-updates")
+            b.wait_in_text("#status", "1 update available")
+            m.execute("test -e /stamp-vapor-1-1; test ! -e /stamp-vapor-1-2")
+        else:
+            # these backends accept a Cancel and carry on with the update, so Cockpit offers none
+            # (https://github.com/PackageKit/PackageKit/pull/1035)
+            self.assertFalse(b.is_present("#app button:contains('Cancel')"))
+            m.execute(f"touch {release}")
+            b.wait_in_text(".pf-v6-c-empty-state__title", "Update was successful")
+            m.execute("test -e /stamp-vapor-1-2")
+
     @testlib.nondestructive
     def testPackageKitCrash(self):
         b = self.browser

@@ -29,16 +29,18 @@ Copyright (c) 2019 Red Hat, Inc.
 /* eslint-disable */
 
 import cockpit from "cockpit";
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { MenuToggle, MenuToggleProps, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle/index.js';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/index.js';
-import { Select, SelectOption, SelectList, SelectOptionProps, SelectProps } from '@patternfly/react-core/dist/esm/components/Select/index.js';
+import { Select, SelectOption, SelectList, SelectOptionProps, SelectProps, SelectGroup } from '@patternfly/react-core/dist/esm/components/Select/index.js';
 import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/esm/components/TextInputGroup/index.js';
 import { Label, LabelGroup, LabelProps } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import RhMicronsCloseIcon from '@patternfly/react-icons/dist/esm/icons/rh-microns-close-icon';
 
 
 const _ = cockpit.gettext;
+
+type GroupName = string;
 
 export interface MultiTypeaheadSelectOption extends Omit<SelectOptionProps, 'content' | 'isSelected'> {
   /** Content of the select option. */
@@ -47,6 +49,8 @@ export interface MultiTypeaheadSelectOption extends Omit<SelectOptionProps, 'con
   value: string | number;
   /** Color */
   color?: LabelProps["color"];
+  /** Group to associate it with */
+  group?: GroupName;
 }
 
 export interface MultiTypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 'onSelect'> {
@@ -54,6 +58,8 @@ export interface MultiTypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 
   innerRef?: React.Ref<any>;
   /** Options of the select. */
   options: MultiTypeaheadSelectOption[];
+  /** Groups to put options under in the list. */
+  groups?: GroupName[];
   /** Selected values */
   selected: (string | number)[];
   /** Callback triggered when an option is added. */
@@ -79,6 +85,7 @@ export interface MultiTypeaheadSelectProps extends Omit<SelectProps, 'toggle' | 
 export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSelectProps> = ({
   innerRef,
   options,
+  groups,
   selected,
   onAdd,
   onRemove,
@@ -324,6 +331,37 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
     </MenuToggle>
   );
 
+  const renderOptions = (group?: string): ReactNode => {
+    const filteredOptions = group ? selectOptions.filter(option => group === option.group) : selectOptions;
+    return filteredOptions.map((option, index) => {
+      const { content, value, ...props } = option;
+
+      return (
+        <SelectOption key={value} value={value} isFocused={focusedItemIndex === index} {...props}>
+          {content}
+        </SelectOption>
+      );
+    })
+  };
+
+  function renderGroups(): ReactNode[] {
+    if (!groups)
+      return [];
+
+    const filteredGroups = [];
+    for (const group of groups) {
+      const options = renderOptions(group);
+      if (!options)
+        continue;
+      filteredGroups.push(
+        <SelectGroup key={group} label={group}>
+          {options}
+        </SelectGroup>
+      )
+    }
+    return filteredGroups;
+  }
+
   return (
     <Select
       isOpen={isOpen}
@@ -338,15 +376,7 @@ export const MultiTypeaheadSelectBase: React.FunctionComponent<MultiTypeaheadSel
       {...props}
     >
       <SelectList>
-        {selectOptions.map((option, index) => {
-          const { content, value, ...props } = option;
-
-          return (
-            <SelectOption key={value} value={value} isFocused={focusedItemIndex === index} {...props}>
-              {content}
-            </SelectOption>
-          );
-        })}
+        { groups ? renderGroups() : renderOptions() }
       </SelectList>
     </Select>
   );

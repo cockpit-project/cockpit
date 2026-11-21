@@ -4,7 +4,7 @@ on:
 
 jobs:
   run:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions: {}
     timeout-minutes: 20
     steps:
@@ -30,7 +30,10 @@ jobs:
           fetch-depth: 0
 
       - name: Build and install flatpak
-        run: dbus-run-session sh -x containers/flatpak/install --user --install-deps-from=flathub
+        run: |
+          dbus-run-session sh -x containers/flatpak/install --user --force-clean \
+            --disable-rofiles-fuse \
+            --install-deps-from=flathub
 
       # Recent Ubuntu runners disable it by default in cloud-init config
       - name: Enable SSH password authentication

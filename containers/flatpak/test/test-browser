@@ -10,7 +10,7 @@ from gi.repository import Gio, GLib
 TEST_DIR = os.path.dirname(__file__)
 TESTLIB = os.path.join(TEST_DIR, "test-lib.js")
 FLATPAK_ID = "org.cockpit_project.CockpitClient"
-JS_TIMEOUT = 20
+JS_TIMEOUT = 30
 
 
 class BrowserTest(unittest.TestCase):
@@ -64,6 +64,7 @@ class BrowserTest(unittest.TestCase):
         self.assertEqual(self.p_client.wait(), 0)
 
     def run_js(self, js_name, substitutions=None):
+        print(f"run-js({js_name}): START")
         with open(os.path.join(TEST_DIR, js_name)) as f:
             js = f.read()
 
@@ -76,6 +77,7 @@ class BrowserTest(unittest.TestCase):
         result = None
 
         def on_done(_group, name, value):
+            print(f"run-js({js_name}): DONE CALLED")
             # cockpit-client resets the value to '' initially, to guarantee that a Changed signal happens
             # even when two consecutive run-js calls have the same result
             v = value.get_string()
@@ -85,6 +87,7 @@ class BrowserTest(unittest.TestCase):
             result = v
 
         def on_timeout():
+            print(f"run-js({js_name}): TIMEOUT")
             self.win_actions.activate_action("run-js", GLib.Variant.new_string(
                 'new XMLSerializer().serializeToString(document)'))
             nonlocal result
@@ -99,6 +102,7 @@ class BrowserTest(unittest.TestCase):
             main.iteration(may_block=True)
 
         self.win_actions.disconnect(handler)
+        print(f"run-js({js_name}): FINISH")
 
         return result
 

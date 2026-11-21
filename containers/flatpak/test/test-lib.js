@@ -39,14 +39,17 @@ function ph_wait_cond(cond, timeout, error_description) {
 }
 
 function ph_wait_present(sel) {
+    window.webkit.messageHandlers.log.postMessage(`ph_wait_present: ${sel}`);
     return ph_wait_cond(() => (window.cur_doc.querySelector(sel) != null), 10000, "timed out waiting for " + sel);
 }
 
 function ph_wait_not_present(sel) {
+    window.webkit.messageHandlers.log.postMessage(`ph_wait_not_present: ${sel}`);
     return ph_wait_cond(() => (window.cur_doc.querySelector(sel) === null), 10000, "timed out waiting for " + sel + " to disappear");
 }
 
 function ph_wait_visible(sel) {
+    window.webkit.messageHandlers.log.postMessage(`ph_wait_visible: ${sel}`);
     return ph_wait_cond(() => {
         const el = window.cur_doc.querySelector(sel);
         if (el === null)
@@ -56,6 +59,7 @@ function ph_wait_visible(sel) {
 }
 
 function ph_wait_not_visible(sel) {
+    window.webkit.messageHandlers.log.postMessage(`ph_wait_not_visible: ${sel}`);
     return ph_wait_cond(() => {
         const el = window.cur_doc.querySelector(sel);
         if (el === null)
@@ -65,11 +69,13 @@ function ph_wait_not_visible(sel) {
 }
 
 function ph_wait_in_text(sel, match) {
+    window.webkit.messageHandlers.log.postMessage(`ph_wait_in_text: ${sel}`);
     return ph_wait_cond(() => window.cur_doc.querySelector(sel).textContent.includes(match),
                         1000, `timed out waiting for ${sel} to contain ${match}`);
 }
 
 function ph_wait_count(sel, count) {
+    window.webkit.messageHandlers.log.postMessage(`ph_wait_count: ${sel}`);
     return ph_wait_cond(() => (window.cur_doc.querySelectorAll(sel).length === count), 10000, "timed out waiting for " + sel + " to be visible");
 }
 

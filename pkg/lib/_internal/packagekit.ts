@@ -24,6 +24,7 @@ export const Enum = {
     INFO_BUGFIX: 6,
     INFO_IMPORTANT: 7,
     INFO_SECURITY: 8,
+    INFO_BLOCKED: 9,
     INFO_DOWNLOADING: 10,
     INFO_UPDATING: 11,
     INFO_INSTALLING: 12,
@@ -586,6 +587,9 @@ export class PackageKitManager implements PackageManager {
                     // HACK: security updates have 0x50008 with PackageKit 1.2.8, so just consider the lower 8 bits
                     info = info & 0xff;
                     const id_fields = packageId.split(";");
+                    // Skip blocked packages as they are not able to be updated anyway
+                    if (info === Enum.INFO_BLOCKED)
+                        return;
                     // HACK: dnf backend yields wrong severity with PK < 1.2.4 (https://github.com/PackageKit/PackageKit/issues/268)
                     if (info < Enum.INFO_LOW || info > Enum.INFO_SECURITY)
                         info = Enum.INFO_NORMAL;

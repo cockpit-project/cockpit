@@ -26,18 +26,25 @@ jobs:
           path: src
           fetch-depth: 0
 
-      - name: Generate .pot file
-        run: |
-          cd src
-          ./autogen.sh
-          make po/cockpit.pot
-
       - name: Clone weblate repository
         uses: actions/checkout@v7
         with:
           path: weblate
           repository: ${{ github.repository }}-weblate
           ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Generate .pot file
+        run: |
+          cd src
+          ./autogen.sh
+          make po/cockpit.pot
+
+      - name: Set POT date from Weblate
+        id: pot-changes
+        run: |
+          newPotDate=`grep "POT-Creation-Date:" src/po/cockpit.pot | sed 's/.\{3\}$//'`
+          oldPotDate=`grep "POT-Creation-Date:" weblate/cockpit.pot | sed 's/.\{3\}$//'`
+          sed -i 's/'"${newPotDate}"'/'"${oldPotDate}"'/' "src/po/cockpit.pot"
 
       - name: Commit .pot to weblate repo
         run: |

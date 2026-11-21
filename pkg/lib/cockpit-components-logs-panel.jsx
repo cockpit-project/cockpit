@@ -12,6 +12,7 @@ import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/di
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 
 import { journal } from "journal";
+import { renderMessageWithUrls } from "logs-url.jsx";
 import "journal.css";
 import "cockpit-components-logs-panel.scss";
 
@@ -34,6 +35,10 @@ export class JournalOutput {
             if (ev.button !== 0)
                 return;
 
+            // Ignore clicks originating from links
+            if (ev.target.closest('a'))
+                return;
+
             // Ignore if text is being selected - less than 3 characters most likely means misclick
             const selection = window.getSelection().toString();
             if (selection && selection.length > 2 && full_content.indexOf(selection) >= 0)
@@ -41,8 +46,10 @@ export class JournalOutput {
         }
 
         // only consider enter button for keyboard events
-        if (ev.type === 'KeyDown' && ev.key !== "Enter")
-            return;
+        if (ev.type === 'KeyDown') {
+            if (ev.key !== "Enter" || ev.target.closest('a'))
+                return;
+        }
 
         cockpit.jump("system/logs#/" + cursor + "?parent_options=" + JSON.stringify(this.search_options));
     }
@@ -68,7 +75,7 @@ export class JournalOutput {
                     }
                 </div>
                 <div className="cockpit-log-time" role="cell">{time}</div>
-                <span className="cockpit-log-message" role="cell">{message}</span>
+                <span className="cockpit-log-message" role="cell">{renderMessageWithUrls(message)}</span>
                 {
                     count > 1
                         ? <div className="cockpit-log-service-container" role="cell">

@@ -9,6 +9,7 @@ import React from "react";
 import { Alert, AlertActionCloseButton, AlertGroup } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core/dist/esm/components/Card/index.js';
 import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
@@ -291,6 +292,7 @@ export class SETroubleshootPage extends React.Component {
         this.state = { selected: {} };
         this.handleDismissError = this.handleDismissError.bind(this);
         this.onSelect = this.onSelect.bind(this);
+        this.onSelectAll = this.onSelectAll.bind(this);
     }
 
     handleDismissError(e) {
@@ -306,6 +308,18 @@ export class SETroubleshootPage extends React.Component {
         this.setState(prevState => ({
             selected: { ...prevState.selected, [this.props.entries[rowId].key]: isSelected }
         }));
+    }
+
+    onSelectAll(_, isSelected) {
+        this.setState(prevState => {
+            const selected = { ...prevState.selected };
+            (this.props.entries || []).forEach(itm => {
+                // Only alerts with details can be dismissed (same as row selection)
+                if (itm.details)
+                    selected[itm.key] = isSelected;
+            });
+            return { selected };
+        });
     }
 
     render() {
@@ -378,6 +392,10 @@ export class SETroubleshootPage extends React.Component {
         }
         let selectedCnt = 0;
         for (const k in this.state.selected) if (this.state.selected[k]) selectedCnt++;
+        const selectableEntries = (this.props.entries || []).filter(itm => itm.details);
+        const selectedSelectableCnt = selectableEntries.filter(itm => this.state.selected[itm.key]).length;
+        const allSelected = selectableEntries.length > 0 && selectedSelectableCnt === selectableEntries.length;
+        const someSelected = selectedSelectableCnt > 0;
         const onDeleteClick = () => {
             for (const k in this.state.selected)
                 if (this.state.selected[k])
@@ -385,12 +403,20 @@ export class SETroubleshootPage extends React.Component {
         };
         const actions = (
             !emptyState
-                ? <Button className="selinux-alert-dismiss"
-                variant="danger"
-                onClick={onDeleteClick}
-                isDisabled={ !this.props.deleteAlert || !selectedCnt}>
-                    {selectedCnt ? cockpit.format(cockpit.ngettext("Dismiss $0 alert", "Dismiss $0 alerts", selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
-                </Button>
+                ? <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <Checkbox id="selinux-alerts-select-all"
+                        className="selinux-alert-select-all"
+                        isChecked={allSelected ? true : (someSelected ? null : false)}
+                        isDisabled={!selectableEntries.length}
+                        onChange={this.onSelectAll}
+                        label={_("Select all")} />
+                    <Button className="selinux-alert-dismiss"
+                        variant="danger"
+                        onClick={onDeleteClick}
+                        isDisabled={ !this.props.deleteAlert || !selectedCnt}>
+                        {selectedCnt ? cockpit.format(cockpit.ngettext("Dismiss $0 alert", "Dismiss $0 alerts", selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
+                    </Button>
+                </Flex>
                 : null
         );
         const troubleshooting = (

@@ -192,6 +192,13 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.key("Enter")
         self.wait_line(echo_result_line + 2, "space")
 
+        # Function keys (e.g. F5) should not reload the page or clear unsubmitted text
+        b.input_text("echo f5_test")
+        b.key("F5")
+        self.wait_line(echo_result_line + 3, prompt + "echo f5_test")
+        b.key("Backspace", repeat=len("echo f5_test"))
+        self.wait_line(echo_result_line + 3, prompt)
+
         # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
         b.input_text('clear\n')
         b.input_text("echo $PATH > /tmp/path\n")

@@ -206,6 +206,22 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")
 
+        # Unit filter from the search box must become journal matches, not --grep
+        # (https://github.com/cockpit-project/cockpit/issues/19857)
+        b.focus("#journal-grep input")
+        b.set_input_text("#journal-grep input", "unit:cockpit.service")
+        b.click("#journal-grep button[aria-label=Search]")
+        b.wait_js_cond('window.location.hash.includes("service=cockpit.service")')
+        b.wait_val("#journal-grep input", "priority:err service:cockpit.service ")
+        b.click("#journal-grep button[aria-label='Open advanced search']")
+        b.wait_in_text("#journal-cmd-copy input", "_SYSTEMD_UNIT=cockpit.service")
+        b.wait_not_in_text("#journal-cmd-copy input", "--grep")
+        b.click("#journal-grep button[aria-label='Open advanced search']")
+        b.wait_not_present("#journal-cmd-copy")
+        # restore previous filters for the rest of the test
+        b.go("#/?tag=test-stream&priority=notice")
+        wait_journal_empty()
+
         # Test popover in advanced search
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.assert_pixels(".pf-v6-c-panel", "logs-filter-panel", skip_layouts=["mobile"])

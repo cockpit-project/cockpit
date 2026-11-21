@@ -34,6 +34,12 @@ export const SidebarToggle = () => {
             if ((ev.target as Element).id === "nav-system-item")
                 return;
 
+            /* Clicks inside the menu (search field, "Clear search") keep it open, only choosing a page closes it.
+             * Use the event path: React removes the "Clear search" button from the DOM before the event gets here. */
+            const path = ev.composedPath() as Element[];
+            if (path.some(el => el.id === "nav-system") && !path.some(el => el.tagName === "A"))
+                return;
+
             setActive(false);
         };
 

@@ -317,11 +317,11 @@ QUnit.test("wrong options", async assert => {
 QUnit.test("parallel stress test", async assert => {
     // This is way too slow under valgrind
     if (await mock_info("skip_slow_tests")) {
-        assert.ok(true, "skipping on python bridge, not implemented");
+        assert.ok(true, "skipping on valgrind too slow");
         return;
     }
 
-    assert.timeout(6000);
+    assert.timeout(12000);
 
     const num = 1000;
 

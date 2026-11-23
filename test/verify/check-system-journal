@@ -206,8 +206,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")
 
-        # Unit filter via the advanced search Unit field (https://github.com/cockpit-project/cockpit/issues/19857)
-        # Use the Unit dropdown (as in the bug report), then assert matching log lines appear.
+        # https://github.com/cockpit-project/cockpit/issues/19857
         b.go("#/?priority=debug")
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.set_input_text("#unit_0", "cockpit.service")
@@ -220,7 +219,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_not_in_text("#journal-cmd-copy input", "--grep")
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")
-        # restore previous filters for the rest of the test
         b.go("#/?tag=test-stream&priority=notice")
         wait_journal_empty()
 

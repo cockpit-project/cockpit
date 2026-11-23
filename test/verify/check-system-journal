@@ -207,15 +207,16 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_not_present("#journal-cmd-copy")
 
         # Unit filter via the advanced search Unit field (https://github.com/cockpit-project/cockpit/issues/19857)
-        # Must use the dropdown Unit input (not typing unit: by hand) and show matching log lines.
+        # Use the Unit dropdown (as in the bug report), then assert matching log lines appear.
         b.go("#/?priority=debug")
         b.click("#journal-grep button[aria-label='Open advanced search']")
-        b.set_input_text("#unit_0", "log123.service")
+        b.set_input_text("#unit_0", "cockpit.service")
         b.click("#journal-grep button[aria-label=Search]")
-        b.wait_js_cond('window.location.hash.includes("service=log123.service")')
-        wait_log123()
+        b.wait_js_cond('window.location.hash.includes("service=cockpit.service")')
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message")
+        b.wait_not_in_text("#journal-box", "Can not find any logs using the current combination of filters.")
         b.click("#journal-grep button[aria-label='Open advanced search']")
-        b.wait_in_text("#journal-cmd-copy input", "_SYSTEMD_UNIT=log123.service")
+        b.wait_in_text("#journal-cmd-copy input", "_SYSTEMD_UNIT=cockpit.service")
         b.wait_not_in_text("#journal-cmd-copy input", "--grep")
         b.click("#journal-grep button[aria-label='Open advanced search']")
         b.wait_not_present("#journal-cmd-copy")

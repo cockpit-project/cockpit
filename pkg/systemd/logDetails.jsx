@@ -17,6 +17,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Title, TitleSizes } from "@patternfly/react-core/dist/esm/components/Title";
+import { renderMessageWithUrls } from "logs-url.jsx";
 
 const _ = cockpit.gettext;
 
@@ -47,7 +48,7 @@ const LogDetails = ({ entry }) => {
                         {id}
                     </Title>
                 </CardHeader>
-                <CardTitle>{journal.printable(entry.MESSAGE, "MESSAGE")}</CardTitle>
+                <CardTitle>{renderMessageWithUrls(journal.printable(entry.MESSAGE, "MESSAGE"))}</CardTitle>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">
                         { general.map(key =>

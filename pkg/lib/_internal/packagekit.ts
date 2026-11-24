@@ -146,6 +146,8 @@ export function watchTransaction(transactionPath: string, signalHandlers: Signal
             signalHandlers.ErrorCode("close", _("PackageKit crashed"));
         if (signalHandlers.Finished)
             signalHandlers.Finished(Enum.EXIT_FAILED);
+
+        cleanup();
     }
     client.addEventListener("close", onClose);
 
@@ -160,24 +162,31 @@ export function watchTransaction(transactionPath: string, signalHandlers: Signal
         }
     }
 
+    function onNotify(event: CustomEvent) {
+        const data = event.detail as Record<string, Record<string, unknown>>;
+        const iface = data?.[transactionPath]?.[transactionInterface];
+        if (iface)
+            notifyHandler!(iface as Record<string, unknown>, transactionPath);
+    }
+
     if (notifyHandler) {
         notifyReturn = client.watch(transactionPath);
         subscriptions.push(notifyReturn as unknown as { remove: () => void });
-        client.addEventListener("notify", (event: CustomEvent) => {
-            const data = event.detail as Record<string, Record<string, unknown>>;
-            const iface = data?.[transactionPath]?.[transactionInterface];
-            if (iface)
-                notifyHandler(iface as Record<string, unknown>, transactionPath);
-        });
+        client.addEventListener("notify", onNotify);
+    }
+
+    function cleanup() {
+        subscriptions.forEach(s => s.remove());
+        subscriptions.length = 0;
+        client.removeEventListener("close", onClose);
+        if (notifyHandler)
+            client.removeEventListener("notify", onNotify);
     }
 
     // unsubscribe when transaction finished
     subscriptions.push(client.subscribe(
         { interface: transactionInterface, path: transactionPath, member: "Finished" },
-        () => {
-            subscriptions.map(s => s.remove());
-            client.removeEventListener("close", onClose);
-        })
+        cleanup)
     );
 
     return notifyReturn;

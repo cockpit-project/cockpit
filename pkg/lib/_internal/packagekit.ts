@@ -253,7 +253,7 @@ class TransactionError extends Error {
  * progress_cb: Callback that receives a {waiting, percentage, cancel} object regularly; if cancel is not null, it can
  *              be called to cancel the current transaction. if wait is true, PackageKit is waiting for its lock (i. e.
  *              on another package operation)
- * signalHandlers, notifyHandler: As in method #transaction, but ErrorCode and Finished are handled internally
+ * signalHandlers: As in method #transaction, but ErrorCode and Finished are handled internally
  * Returns: Promise that resolves when the transaction finished successfully, or rejects with TransactionError
  *          on failure.
  */

@@ -696,7 +696,7 @@ export class PackageKitManager implements PackageManager {
                                 props.percentage = notify.Percentage as number;
                             if (notify.RemainingTime !== undefined)
                                 props.remaining_time = notify.RemainingTime as number;
-                            if (notify.LastPackage !== undefined)
+                            if (notify.LastPackage && notify.LastPackage !== "")
                                 props.last_package = packageIdToPackage(notify.LastPackage as string);
                             handlers.on_notify(props);
                         },
@@ -755,7 +755,7 @@ export class PackageKitManager implements PackageManager {
                                          props.percentage = notify.Percentage as number;
                                      if (notify.RemainingTime !== undefined)
                                          props.remaining_time = notify.RemainingTime as number;
-                                     if (notify.LastPackage !== undefined)
+                                     if (notify.LastPackage && notify.LastPackage !== "")
                                          props.last_package = packageIdToPackage(notify.LastPackage as string);
 
                                      handlers.on_notify(props);

@@ -10,6 +10,8 @@ from collections.abc import Mapping
 
 from testlib import MachineCase
 
+OSesWithDNF5Daemon = ["fedora-eln"]
+
 
 class PackageCase(MachineCase):
     def setUp(self) -> None:
@@ -20,6 +22,8 @@ class PackageCase(MachineCase):
         if self.machine.ostree_image:
             logging.warning("PackageCase: OSTree images can't install additional packages")
             return
+
+        self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
 
         # PackageKit 1.3.4 no longer installs pkcon by default
         self.packagekit_cmd = self.machine.execute("command -v pkcon pkgcli").strip().split()[0]

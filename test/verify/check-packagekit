@@ -13,11 +13,11 @@ from collections.abc import Collection
 import packagelib
 import submanlib
 import testlib
+from packagelib import OSesWithDNF5Daemon
 
 OSesWithoutTracer = ["debian-*", "ubuntu-*", "fedora-coreos", "centos-10", "rhel-10*"]
 OSesWithDnfRestart = ["centos-10", "rhel-10*"]
 OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "centos-*"]
-OSesWithDNF5Daemon = ["fedora-eln"]
 
 
 class NoSubManCase(packagelib.PackageCase):
@@ -44,9 +44,6 @@ class TestUpdates(NoSubManCase):
         # apt does not support severity enhancement metadata
         # only PackageKit ≥ 1.2.4 dnf (https://github.com/PackageKit/PackageKit/issues/268) supports severity
         self.supports_severity = (self.backend != "apt") and (not self.machine.image.startswith("rhel-8"))
-
-        # dnf5daemon
-        self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
 
         if self.supports_severity:
             self.enhancement_severity = "enhancement"
@@ -1324,7 +1321,6 @@ class TestWsUpdate(NoSubManCase):
         # no security updates, no changelogs
         b = self.browser
         m = self.machine
-        self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
 
         install_lockfile = "/tmp/finish-pk"
         # updating this package takes longer than a cockpit start and building the page
@@ -1935,8 +1931,6 @@ class TestInstallDialog(NoSubManCase):
     def testBasic(self):
         b = self.browser
         m = self.machine
-
-        self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
 
         # dummy package
         self.createPackage("dummy", "1", "1")

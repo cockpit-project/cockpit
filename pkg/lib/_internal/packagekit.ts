@@ -27,7 +27,7 @@ export function packageIdToPackage(packageId: string): Package {
 const _ = cockpit.gettext;
 
 // see https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
-export const Enum = {
+const Enum = {
     EXIT_SUCCESS: 1,
     EXIT_FAILED: 2,
     EXIT_CANCELLED: 3,
@@ -123,7 +123,7 @@ superuser.addEventListener("changed", () => { _dbus_client = null });
 /**
  * Call a PackageKit method
  */
-export function call(objectPath: string, iface: string, method: string, args?: unknown[] | null, opts?: cockpit.DBusCallOptions) {
+function call(objectPath: string, iface: string, method: string, args?: unknown[] | null, opts?: cockpit.DBusCallOptions) {
     return dbus_client().call(objectPath, iface, method, args, opts);
 }
 
@@ -134,7 +134,7 @@ export function call(objectPath: string, iface: string, method: string, args?: u
  * signalHandlers, notifyHandler: As in method #transaction
  * Returns: If notifyHandler is set, Cockpit promise that resolves when the watch got set up
  */
-export function watchTransaction(transactionPath: string, signalHandlers: SignalHandlers, notifyHandler?: (props: Record<string, unknown>, path: string) => void) {
+function watchTransaction(transactionPath: string, signalHandlers: SignalHandlers, notifyHandler?: (props: Record<string, unknown>, path: string) => void) {
     const subscriptions: { remove: () => void }[] = [];
     let notifyReturn: cockpit.DeferredPromise<void> | undefined;
     const client = dbus_client();
@@ -216,7 +216,7 @@ export function watchTransaction(transactionPath: string, signalHandlers: Signal
  *        .then(transactionPath => { ... })
  *        .catch(ex => { handle exception });
  */
-export function transaction(method: string, arglist: unknown[], signalHandlers?: SignalHandlers, notifyHandler?: (props: Record<string, unknown>, path: string) => void): Promise<unknown> {
+function transaction(method: string, arglist: unknown[], signalHandlers?: SignalHandlers, notifyHandler?: (props: Record<string, unknown>, path: string) => void): Promise<unknown> {
     return call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [])
             .then(([transactionPath]) => {
                 if (!signalHandlers && !notifyHandler)
@@ -234,7 +234,7 @@ export function transaction(method: string, arglist: unknown[], signalHandlers?:
             });
 }
 
-export class TransactionError extends Error {
+class TransactionError extends Error {
     detail: string;
     code: string;
 
@@ -257,7 +257,7 @@ export class TransactionError extends Error {
  * Returns: Promise that resolves when the transaction finished successfully, or rejects with TransactionError
  *          on failure.
  */
-export function cancellableTransaction(method: string, arglist: unknown[], progress_cb: ProgressCB | null | undefined, signalHandlers?: SignalHandlers): Promise<void> {
+function cancellableTransaction(method: string, arglist: unknown[], progress_cb: ProgressCB | null | undefined, signalHandlers?: SignalHandlers): Promise<void> {
     if (signalHandlers?.ErrorCode || signalHandlers?.Finished)
         throw Error("cancellableTransaction handles ErrorCode and Finished signals internally");
 

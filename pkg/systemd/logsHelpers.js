@@ -37,13 +37,14 @@ export const getGrepFiltersFromOptions = ({ options }) => {
     const prio_level = options.priority || options.prio || "err";
     full_grep += "priority:" + prio_level + " ";
 
-    if (options.service) {
-        options.service.split(",").forEach(s => {
+    const system_units = options.service || options.unit;
+    if (system_units) {
+        system_units.split(",").forEach(s => {
             if (!s.endsWith(".service"))
                 s = s + ".service";
             match.push('_SYSTEMD_UNIT=' + s, "+", "COREDUMP_UNIT=" + s, "+", "UNIT=" + s);
         });
-        full_grep += "service:" + options.service + " ";
+        full_grep += (options.service ? "service:" : "unit:") + system_units + " ";
     } else if (options["user-service"]) {
         options["user-service"].split(",").forEach(s => {
             if (!s.endsWith(".service"))
@@ -112,8 +113,6 @@ export const getOptionsFromTextInput = (value) => {
                 const map_keys = (key) => {
                     if (key === "identifier")
                         return "tag";
-                    if (key === "unit")
-                        return "service";
                     return key;
                 };
                 s = item.split(/:(.*)/);

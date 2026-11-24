@@ -26,7 +26,8 @@ class PackageCase(MachineCase):
         self.uses_dnf5daemon = self.machine.image.startswith((*OSesWithDNF5Daemon,))
 
         # PackageKit 1.3.4 no longer installs pkcon by default
-        self.packagekit_cmd = self.machine.execute("command -v pkcon pkgcli").strip().split()[0]
+        if not self.uses_dnf5daemon:
+            self.packagekit_cmd = self.machine.execute("command -v pkcon pkgcli").strip().split()[0]
 
         # expected backend; hardcode this on image names to check the auto-detection
         if self.machine.image.startswith("debian") or self.machine.image.startswith("ubuntu"):
@@ -60,7 +61,8 @@ class PackageCase(MachineCase):
             # Stop Packagekit to not run into locking issues with apt
             self.machine.execute("systemctl stop packagekit; systemctl reset-failed packagekit || true")
 
-        self.addCleanup(self.machine.execute, "systemctl stop packagekit; systemctl reset-failed packagekit || true")
+        if not self.uses_dnf5daemon:
+            self.addCleanup(self.machine.execute, "systemctl stop packagekit; systemctl reset-failed packagekit || true")
 
         # disable all existing repositories to avoid hitting the network
         if self.backend == "apt":
@@ -115,10 +117,11 @@ Server = file://{empty_repo_dir}
             self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/dnf/* /usr/share/dnf5/repos.d/*")
 
         # have PackageKit start from a clean slate
-        self.machine.execute("systemctl stop packagekit")
-        self.machine.execute("systemctl kill --signal=SIGKILL packagekit || true; rm -rf /var/cache/PackageKit")
-        self.machine.execute("systemctl reset-failed packagekit || true")
-        self.restore_file("/var/lib/PackageKit/transactions.db")
+        if not self.uses_dnf5daemon:
+            self.machine.execute("systemctl stop packagekit")
+            self.machine.execute("systemctl kill --signal=SIGKILL packagekit || true; rm -rf /var/cache/PackageKit")
+            self.machine.execute("systemctl reset-failed packagekit || true")
+            self.restore_file("/var/lib/PackageKit/transactions.db")
 
         # dnf5daemon has a clean update history
         if self.backend == 'dnf5':
@@ -521,7 +524,11 @@ Server = file://{self.repo_dir}
             self.refreshMetadata()
 
     def refreshMetadata(self, *, force: bool = False) -> None:
-        self.machine.execute(f"{self.packagekit_cmd} refresh {'force' if force else ''}")
+        # dnf5daemon always refresh metadata
+        if self.uses_dnf5daemon:
+            return
+        else:
+            self.machine.execute(f"{self.packagekit_cmd} refresh {'force' if force else ''}")
 
     def removePackages(self, packages: list[str]) -> None:
         packages_str = ' '.join(packages)

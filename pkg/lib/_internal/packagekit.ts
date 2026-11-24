@@ -196,7 +196,6 @@ function watchTransaction(transactionPath: string, signalHandlers: SignalHandler
  * Run a PackageKit transaction
  *
  * method (string): D-Bus method name on the https://www.freedesktop.org/software/PackageKit/gtk-doc/Transaction.html interface
- *                  If undefined, only a transaction will be created without calling a method on it
  * arglist (array): "in" arguments of @method
  * signalHandlers (object): maps PackageKit.Transaction signal names to handlers
  * notifyHandler (function): handler for https://docs.cockpit-project.org/cockpit-guide/latest/guide/cockpit-dbus.html#cockpit-dbus-onnotify
@@ -224,12 +223,8 @@ function transaction(method: string, arglist: unknown[], signalHandlers?: Signal
 
                 const watchPromise = watchTransaction(transactionPath as string, signalHandlers!, notifyHandler) || Promise.resolve();
                 return watchPromise.then(() => {
-                    if (method) {
-                        return call(transactionPath as string, transactionInterface, method, arglist)
-                                .then(() => transactionPath);
-                    } else {
-                        return transactionPath;
-                    }
+                    return call(transactionPath as string, transactionInterface, method, arglist)
+                            .then(() => transactionPath);
                 });
             });
 }

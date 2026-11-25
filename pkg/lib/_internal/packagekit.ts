@@ -4,7 +4,7 @@
  */
 
 import cockpit from "cockpit";
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify, RunningUpdate, Severity, Package } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, InstallProgressType, UpdateProgressType, UpdateDetail, Update, ProgressData, History, UpdateProgressHandlers, TransactionExitStatus, UpdateError, UpdateNotify, RunningUpdate, Severity, Package, PackageManagerName } from './packagemanager-abstract';
 
 import { superuser } from 'superuser';
 
@@ -369,11 +369,7 @@ function loadUpdateDetailsBatch(pkg_ids: string[], update_details: Record<string
 }
 
 export class PackageKitManager implements PackageManager {
-    name: string;
-
-    constructor() {
-        this.name = "packagekit";
-    }
+    name = PackageManagerName.PACKAGEKIT;
 
     /* Support for installing missing packages.
      *

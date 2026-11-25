@@ -65,7 +65,7 @@ import callTracerScript from './callTracer.py';
 import "./updates.scss";
 import { Checkbox } from '@patternfly/react-core/dist/esm/components/Checkbox/index.js';
 import { Truncate } from '@patternfly/react-core/dist/esm/components/Truncate/index.js';
-import { Severity, TransactionExitStatus, UpdateProgressType, UpdateError } from '_internal/packagemanager-abstract';
+import { Severity, TransactionExitStatus, UpdateProgressType, UpdateError, PackageManagerName } from '_internal/packagemanager-abstract';
 import { getPackageManager, is_dnf5daemon_os } from 'packagemanager';
 import { Icon } from '@patternfly/react-core/dist/esm/components/Icon/index.js';
 
@@ -1098,7 +1098,7 @@ class CardsPage extends React.Component {
         // they are enabled. dnf5daemon reads dnf's own history, which includes
         // automatic updates and the dnf cli.
         const autoupdates_disabled = this.state.autoupdates_backend !== undefined && !this.state.autoupdates_backend?.enabled;
-        if ((this.props.packageManagerName === "dnf5daemon" || autoupdates_disabled) && this.props.history.length > 0) {
+        if ((this.props.packageManagerName === PackageManagerName.DNF5DAEMON || autoupdates_disabled) && this.props.history.length > 0) {
             cardContents.push({
                 id: "update-history",
                 title: _("Update history"),

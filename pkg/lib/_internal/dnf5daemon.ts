@@ -5,7 +5,7 @@
 
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
-import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus, RunningUpdate, UpdateProgressType, Package } from './packagemanager-abstract';
+import { InstallProgressCB, MissingPackages, PackageManager, ProgressCB, ResolveError, InstallProgressType, UpdateDetail, Update, Severity, History, UpdateProgressHandlers, TransactionExitStatus, RunningUpdate, UpdateProgressType, Package, PackageManagerName } from './packagemanager-abstract';
 
 let _dbus_client: cockpit.DBusClient | null = null;
 
@@ -177,11 +177,7 @@ function call(objectPath: string, iface: string, method: string, args?: unknown[
 }
 
 export class Dnf5DaemonManager implements PackageManager {
-    name: string;
-
-    constructor() {
-        this.name = 'dnf5daemon';
-    }
+    name = PackageManagerName.DNF5DAEMON;
 
     private async with_session(executor: (session: string) => Promise<void>, signal_handler?: SignalCB): Promise<void> {
         let session: string | null = null;

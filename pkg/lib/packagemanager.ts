@@ -5,7 +5,7 @@
 
 import cockpit from 'cockpit';
 
-import { PackageManager, InstallProgressType, UnsupportedError, NotFoundError } from './_internal/packagemanager-abstract';
+import { PackageManager, PackageManagerName, InstallProgressType, UnsupportedError, NotFoundError } from './_internal/packagemanager-abstract';
 import { Dnf5DaemonManager } from './_internal/dnf5daemon';
 import { PackageKitManager } from './_internal/packagekit';
 import { read_os_release } from 'os-release';
@@ -103,4 +103,4 @@ export async function getPackageManager(force_packagekit: boolean = false): Prom
     throw new NotFoundError("No package manager found");
 }
 
-export { InstallProgressType };
+export { InstallProgressType, PackageManagerName };

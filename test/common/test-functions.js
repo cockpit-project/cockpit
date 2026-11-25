@@ -98,9 +98,10 @@ window.ph_find_scroll_into_view = function(sel) {
        window.innerHeight does not work if the element is in e.g. a scrollable dialog area */
     return new Promise(resolve => {
         el.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
-        // scrolling needs a little bit of time to stabilize, and it's not predictable
-        // in particular, 'scrollend' is not reliably emitted
-        window.setTimeout(() => resolve(el), 200);
+        // Force a paint to happen as 'scrollend' is not reliably emitted.
+        // requestAnimationFrame is called before the next paint, so two are
+        // needed.
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve(el)));
     });
 };
 

@@ -311,15 +311,17 @@ export class SETroubleshootPage extends React.Component {
     }
 
     onSelectAll(_, isSelected) {
-        this.setState(prevState => {
-            const selected = { ...prevState.selected };
-            (this.props.entries || []).forEach(itm => {
-                // Only alerts with details can be dismissed (same as row selection)
-                if (itm.details)
-                    selected[itm.key] = isSelected;
-            });
-            return { selected };
+        if (!isSelected) {
+            this.setState({ selected: {} });
+            return;
+        }
+        const selected = {};
+        (this.props.entries || []).forEach(itm => {
+            // Only alerts with details can be dismissed (same as row selection)
+            if (itm.details)
+                selected[itm.key] = true;
         });
+        this.setState({ selected });
     }
 
     render() {
@@ -406,7 +408,7 @@ export class SETroubleshootPage extends React.Component {
                 ? <Flex spaceItems={{ default: 'spaceItemsMd' }} alignItems={{ default: 'alignItemsCenter' }}>
                     <Checkbox id="selinux-alerts-select-all"
                         className="selinux-alert-select-all"
-                        isChecked={allSelected ? true : (someSelected ? null : false)}
+                        isChecked={someSelected && !allSelected ? null : allSelected}
                         isDisabled={!selectableEntries.length}
                         onChange={this.onSelectAll}
                         label={_("Select all")} />

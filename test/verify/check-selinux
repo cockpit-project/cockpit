@@ -172,6 +172,24 @@ class TestSelinux(testlib.MachineCase):
         b.wait_not_present(row_selector)
 
         if not m.image.startswith(("rhel-10", "centos-10")):
+            # Select all with multiple alerts (sebool + restorecon)
+            m.execute("rm -rf ~admin/public_html")
+            self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
+            wait_for_alert("ls from read access on the directory")
+            self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)
+            wait_for_alert("read access on the file /root/.ssh/authorized_keys")
+            b.wait_js_cond("ph_count('#selinux-alerts tbody') >= 2")
+            num_alerts = b.count("#selinux-alerts tbody")
+            b.click("#selinux-alerts-select-all")
+            b.wait_in_text(dismiss_sel, f"Dismiss {num_alerts} alerts")
+            # deselect all
+            b.click("#selinux-alerts-select-all")
+            b.wait_visible(dismiss_sel + "[disabled]")
+            # select all again and dismiss together
+            b.click("#selinux-alerts-select-all")
+            b.click(dismiss_sel)
+            b.wait_in_text("body", "No SELinux alerts.")
+
             #########################################################
             # trigger a fixable restorecon alert
             self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)

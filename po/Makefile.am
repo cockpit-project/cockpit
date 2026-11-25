@@ -42,7 +42,7 @@ po/cockpit.polkit.pot:
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
-	xgettext --sort-by-file --output=$@ $^
+	xgettext $(foreach pot,$^,--generated $(pot)) --sort-by-file --output=$@ $^
 
 CLEANFILES += \
 	dist/shell/*.po \

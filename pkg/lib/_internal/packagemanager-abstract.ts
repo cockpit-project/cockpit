@@ -128,8 +128,13 @@ export interface RunningUpdate {
   promise: Promise<TransactionExitStatus>;
 }
 
+export enum PackageManagerName {
+    DNF5DAEMON = "dnf5daemon",
+    PACKAGEKIT = "packagekit",
+}
+
 export interface PackageManager {
-  name: string
+  name: PackageManagerName
   check_missing_packages(pkgnames: string[], progress_cb?: ProgressCB): Promise<MissingPackages>;
   install_missing_packages(data: MissingPackages, progress_cb?: InstallProgressCB): Promise<void>;
   refresh(force: boolean, progress_cb?: ProgressCB): Promise<void>;

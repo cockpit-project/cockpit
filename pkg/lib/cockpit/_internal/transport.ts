@@ -319,7 +319,7 @@ export function ensure_transport(callback: (transport: Transport) => void) {
 }
 
 /* Always close the transport explicitly: allows parent windows to track us */
-window.addEventListener("unload", () => {
+window.addEventListener("pagehide", () => {
     if (transport_globals.default_transport)
         transport_globals.default_transport.close();
 });

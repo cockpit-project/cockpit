@@ -69,6 +69,7 @@ $(NODE_CACHE): $(srcdir)/package-lock.json
 	$(AM_V_GEN) XZ_OPT=$${XZ_OPT--e} '$(srcdir)/tools/node-archive' \
 		-C '$(srcdir)' \
 		--package-lock \
+		--check-arch-independent \
 		--xz > $(NODE_CACHE)
 
 dist-hook: $(distdir)/tools/debian/copyright

@@ -10,6 +10,7 @@ import contextlib
 import io
 import json
 import logging
+import mimetypes
 import os
 import subprocess
 import sys
@@ -71,6 +72,7 @@ def main() -> None:
     parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument('-C', '--directory', type=Path, default=Path('.'))
     parser.add_argument('--package-lock', action='store_true')
+    parser.add_argument('--check-arch-independent', action='store_true')
     parser.add_argument('-J', '--xz', action='store_true')
     parser.add_argument('packages', nargs='*', metavar='PACKAGE')
     args = parser.parse_args()
@@ -105,6 +107,17 @@ def main() -> None:
                 info.uid = info.gid = 0
                 info.uname = info.gname = 'root'
                 data = fp.read()
+
+            if args.check_arch_independent:
+                mime, _ = mimetypes.guess_type(str(file))
+                if mime is not None and mime.startswith(('image/', 'font/')):
+                    logger.debug('%r: accepted mime type %r', file, mime)
+                else:
+                    try:
+                        data.decode('utf-8')
+                        logger.debug('%r: accepted as utf-8 text (mime %r)', file, mime)
+                    except UnicodeDecodeError:
+                        sys.exit(f'node-archive: binary file in archive: {file}')
 
             tf.addfile(info, io.BytesIO(data))
 

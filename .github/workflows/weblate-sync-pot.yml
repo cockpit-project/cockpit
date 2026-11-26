@@ -48,5 +48,6 @@ jobs:
           cp ./src/po/*.pot ./weblate
           git config --global user.name "GitHub Workflow"
           git config --global user.email "cockpituous@cockpit-project.org"
-          git -C weblate commit -m "Update source files" -- cockpit.pot
+          git -C weblate add *.pot
+          git -C weblate commit -m "Update source files" -- *.pot
           git -C weblate push

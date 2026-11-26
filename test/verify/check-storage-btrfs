@@ -687,22 +687,22 @@ class TestStorageBtrfs(storagelib.StorageCase):
 
         self.login_and_go("/storage")
         self.click_dropdown(self.card_row("Storage", name=disk), "Format")
-        self.dialog({"name": "butter", "type": "btrfs", "mount_point": "/butter"})
-        self.click_dropdown(self.card_row("Storage", location="/butter"), "Create subvolume")
-        self.dialog({"name": "foo", "mount_point": "/foo"}, secondary=True)
-        self.click_dropdown(self.card_row("Storage", location="/butter"), "Create subvolume")
-        self.dialog({"name": "bar", "mount_point": "/foo/bar"}, secondary=True)
+        self.dialog({"name": "butter", "type": "btrfs", "mount_point": "/run/butter"})
+        self.click_dropdown(self.card_row("Storage", location="/run/butter"), "Create subvolume")
+        self.dialog({"name": "foo", "mount_point": "/run/foo"}, secondary=True)
+        self.click_dropdown(self.card_row("Storage", location="/run/butter"), "Create subvolume")
+        self.dialog({"name": "bar", "mount_point": "/run/foo/bar"}, secondary=True)
 
-        self.click_dropdown(self.card_row("Storage", location="/foo/bar (not mounted)"), "Mount")
+        self.click_dropdown(self.card_row("Storage", location="/run/foo/bar (not mounted)"), "Mount")
         self.confirm()
-        self.click_dropdown(self.card_row("Storage", location="/foo (not mounted)"), "Mount")
+        self.click_dropdown(self.card_row("Storage", location="/run/foo (not mounted)"), "Mount")
         self.dialog_wait_open()
         self.dialog_apply()
         self.dialog_wait_error("mount_point", "Filesystems are already mounted below this mountpoint.")
-        self.dialog_wait_error("mount_point", f"{disk} on /foo/bar")
+        self.dialog_wait_error("mount_point", f"{disk} on /run/foo/bar")
         self.dialog_cancel()
 
-        self.click_dropdown(self.card_row("Storage", location="/foo/bar"), "Unmount")
+        self.click_dropdown(self.card_row("Storage", location="/run/foo/bar"), "Unmount")
         self.confirm()
 
 

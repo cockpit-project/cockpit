@@ -755,34 +755,104 @@ OnCalendar=daily
 
         self.login_and_go("/playground")
 
-        b.set_input_text("#type", "info")
-        b.set_input_text("#title", "My Little Page Status")
-        b.click("#set-status")
+        for status_type in ["info", "warning", "", "error"]:
+            title = f"My Little Page Status ({status_type or 'none'})"
+            b.select_from_dropdown("#type", status_type)
+            b.set_input_text("#title", title)
+            b.click("#set-status")
 
-        b.switch_to_top()
-        b.wait_visible("#development-info")
-        b.mouse("#development-info", "mouseenter")
-        b.wait_in_text(".pf-v6-c-tooltip", "My Little Page Status")
-        b.mouse("#development-info", "mouseleave")
-        b.wait_not_present(".pf-v6-c-tooltip")
+            b.switch_to_top()
+            if status_type:
+                icon = f"#development-{status_type}"
+                b.wait_visible(icon)
+                b.mouse(icon, "mouseenter")
+                b.wait_in_text(".pf-v6-c-tooltip", title)
+                b.mouse(icon, "mouseleave")
+                b.wait_not_present(".pf-v6-c-tooltip")
+            else:
+                b.wait_not_present('a[href="/playground"] .nav-item-status')
 
-        b.go("/playground/notifications-receiver")
-        b.enter_page("/playground/notifications-receiver")
-        b.wait_text("#received-type", "info")
-        b.wait_text("#received-title", "My Little Page Status")
+            b.go("/playground/notifications-receiver")
+            b.enter_page("/playground/notifications-receiver")
+            b.wait_text("#received-type", status_type or "-")
+            b.wait_text("#received-title", title)
+            for board_name in ["shell:page-status", "playground:demo"]:
+                b.wait_js_func("""((name, title) =>
+                    JSON.parse(document.getElementById('registry').textContent)[name]
+                        ?.some(entry => entry.page === 'playground' && entry.notification.title === title)
+                )""", board_name, title)
+                entries = b.call_js_func("""(name =>
+                    JSON.parse(document.getElementById('registry').textContent)[name]
+                        .filter(entry => entry.page === 'playground')
+                )""", board_name)
+                self.assertEqual(entries, [{"host": "localhost", "page": "playground",
+                                            "notification": {"type": status_type or None, "title": title}}])
 
-        b.switch_to_top()
-        b.go("/playground")
-        b.enter_page("/playground")
+            b.switch_to_top()
+            b.go("/playground")
+            b.enter_page("/playground")
         b.click("#clear-status")
 
         b.switch_to_top()
-        b.wait_not_present("#development-info")
+        b.wait_not_present('a[href="/playground"] .nav-item-status')
 
         b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")
         b.wait_text("#received-type", "-")
         b.wait_text("#received-title", "-")
+        b.wait_js_cond("""['shell:page-status', 'playground:demo'].every(name =>
+            !JSON.parse(document.getElementById('registry').textContent)[name]
+                ?.some(entry => entry.page === 'playground'))
+        """)
+
+    def testNotificationBoards(self):
+        b = self.browser
+        self.login_and_go("/playground/notifications-receiver")
+
+        notification = {"title": "<b>Board update</b>", "type": "warning", "link": "playground"}
+        b.call_js_func("""(notification => cockpit.transport.control('notify', {
+            board: 'overview:health', notifications: [notification]
+        }))""", notification)
+        b.wait_in_text("#registry", notification["title"])
+        b.wait_not_present("#registry b")
+        entries = b.eval_js("JSON.parse(document.getElementById('registry').textContent)['overview:health']")
+        self.assertIn({"host": "localhost", "page": "playground/notifications-receiver",
+                       "notification": notification}, entries)
+
+        b.switch_to_top()
+        b.go("/system")
+        b.enter_page("/system")
+        health_entry = "#page_status_notification_playground_notifications-receiver"
+        b.wait_text(health_entry, notification["title"])
+        b.wait_not_present(health_entry + " b")
+        b.click(health_entry + " a")
+        b.enter_page("/playground")
+
+        b.switch_to_top()
+        b.go("/playground/notifications-receiver")
+        b.enter_page("/playground/notifications-receiver")
+        b.eval_js("cockpit.transport.control('notify', { board: 'overview:health', notifications: [] })")
+        b.wait_not_in_text("#registry", notification["title"])
+        b.switch_to_top()
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_not_present(health_entry)
+
+        b.switch_to_top()
+        b.go("/playground/notifications-receiver")
+        b.enter_page("/playground/notifications-receiver")
+        registry = b.eval_js("sessionStorage.getItem('cockpit:notifications')")
+        b.switch_to_top()
+        b.eval_js("sessionStorage.setItem('cockpit:notifications', '{invalid json')")
+        b.enter_page("/playground/notifications-receiver")
+        b.wait_text("#registry", "{invalid json")
+        b.wait_text("#received-title", "-")
+
+        b.switch_to_top()
+        b.call_js_func("(value => sessionStorage.setItem('cockpit:notifications', value))", registry)
+        b.enter_page("/playground/notifications-receiver")
+        b.wait_not_in_text("#registry", "{invalid json")
+        self.assertEqual(b.eval_js("JSON.parse(document.getElementById('registry').textContent)"), json.loads(registry))
 
     def testHistory(self):
 

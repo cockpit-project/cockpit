@@ -69,6 +69,7 @@ const info = {
         "base1/test-locale.js",
         "base1/test-location.js",
         "base1/test-metrics.js",
+        "base1/test-notifications.js",
         "base1/test-path.ts",
         "base1/test-permissions.js",
         "base1/test-promise.ts",
@@ -92,6 +93,8 @@ const info = {
         "packagekit/test-package-parsing.ts",
 
         "storaged/test-util.js",
+
+        "systemd/test-page-status.jsx",
     ],
 
     // esbuild will already copy assets that are explicitly imported from JavaScript.

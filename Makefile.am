@@ -70,8 +70,7 @@ $(NODE_CACHE): $(srcdir)/package-lock.json
 		-C '$(srcdir)' \
 		--package-lock \
 		--check-arch-independent \
-		--xz > '$(NODE_CACHE).tmp' && \
-		mv '$(NODE_CACHE).tmp' '$(NODE_CACHE)'
+		--xz -o '$@'
 
 dist-hook: $(distdir)/tools/debian/copyright
 # when building from a git checkout, we need to generate the copyright file

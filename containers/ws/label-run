@@ -72,6 +72,18 @@ if os.path.isdir('/host'):
     ):
         subprocess.run(['/bin/mount', '--bind', src, dest], check=True)
 
+    # The Ubuntu branding links into plymouth/, as Ubuntu 22.04's base-files has no
+    # logos; use the right ones in pixmaps/ when the host has them
+    if os.path.isdir('/host/usr/share/plymouth'):
+        os.makedirs('/usr/share/plymouth', exist_ok=True)
+        subprocess.run(['/bin/mount', '--bind', '/host/usr/share/plymouth', '/usr/share/plymouth'], check=True)
+    if os.path.exists('/usr/share/pixmaps/ubuntu-logo-text.png'):
+        for logo, target in [('logo.png', 'ubuntu-logo-text.png'), ('logo-dark.png', 'ubuntu-logo-text-dark.png')]:
+            link = f'/usr/share/cockpit/branding/ubuntu/{logo}'
+            with contextlib.suppress(FileNotFoundError):
+                os.unlink(link)
+            os.symlink(f'../../../pixmaps/{target}', link)
+
     # Make the container think it's the host OS version (for branding purposes)
     if '/etc/os-release' not in mountpoints and '/usr/lib/os-release' not in mountpoints:
         for path in ['/etc/os-release', '/usr/lib/os-release']:

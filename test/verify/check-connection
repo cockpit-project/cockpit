@@ -1301,9 +1301,9 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         if not m.ws_container:
             # make sure that there are no broken links in "our" directory
             find_broken = f'find {branddir} -xtype l'
-            # anaconda branding symlinks dangle on Fedora < 46 where fedora-logos
-            # does not ship the target files yet
-            if m.image in ["fedora-43", "fedora-44", "fedora-45"]:
+            # anaconda branding symlinks dangle when the logos package
+            # does not ship the target files
+            if m.image in ["fedora-43", "fedora-44", "fedora-45"] or m.image.startswith("rhel-") or m.image.startswith("centos-"):
                 find_broken += ' -not -name "anaconda-branding*" -not -name "webui-header-logo.png"'
             self.assertEqual(m.execute(find_broken), '')
 

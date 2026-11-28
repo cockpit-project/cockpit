@@ -290,7 +290,7 @@ const IdentifiersFilter = ({ identifiersFilter, onIdentifiersFilterChange, curre
     );
 };
 
-const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
+const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery, className }) => {
     const [unsubmittedTextFilter, setUnsubmittedTextFilter] = useState(textFilter);
     const sinceUntilBody = _("Date specifications should be of the format YYYY-MM-DD hh:mm:ss. Alternatively the strings 'yesterday', 'today', 'tomorrow' are understood. 'now' refers to the current time. Finally, relative times may be specified, prefixed with '-' or '+'");
 
@@ -354,7 +354,8 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
     ];
 
     return (
-        <SearchInput attributes={searchInputAttributes}
+        <SearchInput className={className}
+                     attributes={searchInputAttributes}
                      hasWordsAttrLabel={freeTextLabel}
                      advancedSearchDelimiter=":"
                      id="journal-grep"

@@ -208,6 +208,10 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         # Test popover in advanced search
         b.click("#journal-grep button[aria-label='Open advanced search']")
+        # priority and tag are already in the toolbar, so they are hidden with CSS in the advanced search
+        b.wait_visible("#unit_3")
+        b.wait_not_visible("#priority_4")
+        b.wait_not_visible("#tag_5")
         b.assert_pixels(".pf-v6-c-panel", "logs-filter-panel", skip_layouts=["mobile"])
 
         b.click("label[for='since_0'] button.log-text-filter-popover-button")

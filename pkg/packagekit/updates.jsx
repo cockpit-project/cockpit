@@ -772,8 +772,7 @@ const ApplyUpdates = ({ transactionProps, actions, rebootAfter, setRebootAfter }
                     <div className="progress-description pf-v6-u-display-flex">
                         <Spinner size="md" isInline />
                         <strong>{STATUS_STRINGS[lastAction?.status] || STATUS_STRINGS[UpdateProgressType.UPDATING]}</strong>
-                        &nbsp;
-                        <Truncate content={curPackage} />
+                        {curPackage !== "" && <>&nbsp;<Truncate content={curPackage} /></>}
                     </div>
                     <Progress title={remain}
                               aria-label={remain ? _("Time remaining: ") : _("Update progress")}
